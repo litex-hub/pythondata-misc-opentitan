@@ -4,11 +4,11 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post4995"
-version_tuple = (0, 0, 4995)
+version_str = "0.0.post4996"
+version_tuple = (0, 0, 4996)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post4995")
+    pversion = V("0.0.post4996")
 except ImportError:
     pass
 
@@ -47,11 +47,11 @@ Date:   Mon Feb 15 08:25:02 2021 +0000
 """
 
 # Tool version info
-tool_version_str = "0.0.post90"
-tool_version_tuple = (0, 0, 90)
+tool_version_str = "0.0.post91"
+tool_version_tuple = (0, 0, 91)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post90")
+    ptool_version = V("0.0.post91")
 except ImportError:
     pass
 
