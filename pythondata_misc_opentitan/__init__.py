@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5002"
-version_tuple = (0, 0, 5002)
+version_str = "0.0.post5003"
+version_tuple = (0, 0, 5003)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5002")
+    pversion = V("0.0.post5003")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4911"
-data_version_tuple = (0, 0, 4911)
+data_version_str = "0.0.post4912"
+data_version_tuple = (0, 0, 4912)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4911")
+    pdata_version = V("0.0.post4912")
 except ImportError:
     pass
-data_git_hash = "b7525ea486eef9bfad1a55f8203d875a590379d3"
-data_git_describe = "v0.0-4911-gb7525ea48"
+data_git_hash = "cf45be18d91183f9ee3555c83b446255bcbd92d6"
+data_git_describe = "v0.0-4912-gcf45be18d"
 data_git_msg = """\
-commit b7525ea486eef9bfad1a55f8203d875a590379d3
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Fri Feb 12 19:00:35 2021 +0000
+commit cf45be18d91183f9ee3555c83b446255bcbd92d6
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Feb 15 08:37:11 2021 +0000
 
-    [otbn/sw] Improve consistency of comments in rsa.s
+    [tlul] Update verilator waiver for tlul_err_resp
     
-    Editorial-only change.
+    Commit 041c683 fixed the d_size response from tlul_err_resp and, in
+    doing so, read some more bits from tl_h_i. This commit updates the
+    Verilator waiver so that it matches the warning message again.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
