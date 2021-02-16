@@ -4,34 +4,67 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5003"
-version_tuple = (0, 0, 5003)
+version_str = "0.0.post5005"
+version_tuple = (0, 0, 5005)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5003")
+    pversion = V("0.0.post5005")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4912"
-data_version_tuple = (0, 0, 4912)
+data_version_str = "0.0.post4914"
+data_version_tuple = (0, 0, 4914)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4912")
+    pdata_version = V("0.0.post4914")
 except ImportError:
     pass
-data_git_hash = "cf45be18d91183f9ee3555c83b446255bcbd92d6"
-data_git_describe = "v0.0-4912-gcf45be18d"
+data_git_hash = "f6803cbe20ef438cbebe38d50cfa60a3e4348018"
+data_git_describe = "v0.0-4914-gf6803cbe2"
 data_git_msg = """\
-commit cf45be18d91183f9ee3555c83b446255bcbd92d6
+commit f6803cbe20ef438cbebe38d50cfa60a3e4348018
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 15 08:37:11 2021 +0000
+Date:   Wed Feb 10 10:45:48 2021 +0000
 
-    [tlul] Update verilator waiver for tlul_err_resp
+    [otbn] Initial rewriting support in extracted documentation
     
-    Commit 041c683 fixed the d_size response from tlul_err_resp and, in
-    doing so, read some more bits from tl_h_i. This commit updates the
-    Verilator waiver so that it matches the warning message again.
+    This generates a "pretty" version of GPR/WDR accesses. For example,
+    the ADD instruction looked like this before:
+    
+        val1 = state.gprs.get_reg(self.grs1).read_unsigned()
+        val2 = state.gprs.get_reg(self.grs2).read_unsigned()
+        result = (val1 + val2) & ((1 << 32) - 1)
+        state.gprs.get_reg(self.grd).write_unsigned(result)
+    
+    and now looks like this:
+    
+        val1 = GPRs[self.grs1]
+        val2 = GPRs[self.grs2]
+        result = (val1 + val2) & ((1 << 32) - 1)
+        GPRs[self.grd] = result
+    
+    Signed (2's complement) conversions are shown explicitly. For example,
+    here's SRA:
+    
+        val1 = from_2s_complement(GPRs[self.grs1])
+        val2 = GPRs[self.grs2] & 0x1f
+        result = val1 >> val2
+        GPRs[self.grd] = to_2s_complement(result)
+    
+    WDRs are also converted. For example, BN.ADD looks like this:
+    
+        a = WDRs[self.wrs1]
+        b = WDRs[self.wrs2]
+        b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
+    
+        (result, flags) = state.add_with_carry(a, b_shifted, 0)
+        WDRs[self.wrd] = result
+        state.set_flags(self.flag_group, flags)
+    
+    This is just an initial rewrite pass. If we go with this, we'll want
+    to do things for flags, at least. This is easy enough with the same
+    framework.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
