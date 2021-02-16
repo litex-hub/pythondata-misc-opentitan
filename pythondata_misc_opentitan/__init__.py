@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5010"
-version_tuple = (0, 0, 5010)
+version_str = "0.0.post5014"
+version_tuple = (0, 0, 5014)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5010")
+    pversion = V("0.0.post5014")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4919"
-data_version_tuple = (0, 0, 4919)
+data_version_str = "0.0.post4923"
+data_version_tuple = (0, 0, 4923)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4919")
+    pdata_version = V("0.0.post4923")
 except ImportError:
     pass
-data_git_hash = "a5973fbc32af0b21cb2a00e3acc293642b4ae097"
-data_git_describe = "v0.0-4919-ga5973fbc3"
+data_git_hash = "acde96f378b9412ce7919737f11ec0614f03cb8a"
+data_git_describe = "v0.0-4923-gacde96f37"
 data_git_msg = """\
-commit a5973fbc32af0b21cb2a00e3acc293642b4ae097
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Feb 16 13:16:11 2021 +0100
+commit acde96f378b9412ce7919737f11ec0614f03cb8a
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Feb 12 13:41:05 2021 -0800
 
-    [fpga] Fix clock constraints
+    [keymgr/dv] add lc_disable into stress_all
     
-    The clkmgr instance got renamed recently. As a result, the clock
-    constraints couldn't be applied, leaving many clocks unconstrained on FPGA.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
