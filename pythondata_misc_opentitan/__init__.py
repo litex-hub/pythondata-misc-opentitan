@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post4999"
-version_tuple = (0, 0, 4999)
+version_str = "0.0.post5002"
+version_tuple = (0, 0, 5002)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post4999")
+    pversion = V("0.0.post5002")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4908"
-data_version_tuple = (0, 0, 4908)
+data_version_str = "0.0.post4911"
+data_version_tuple = (0, 0, 4911)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4908")
+    pdata_version = V("0.0.post4911")
 except ImportError:
     pass
-data_git_hash = "1a0a024c15070125447b61314351125c498cf6f8"
-data_git_describe = "v0.0-4908-g1a0a024c1"
+data_git_hash = "b7525ea486eef9bfad1a55f8203d875a590379d3"
+data_git_describe = "v0.0-4911-gb7525ea48"
 data_git_msg = """\
-commit 1a0a024c15070125447b61314351125c498cf6f8
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Thu Dec 17 12:06:23 2020 +0000
+commit b7525ea486eef9bfad1a55f8203d875a590379d3
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Fri Feb 12 19:00:35 2021 +0000
 
-    [AON timer] Initial rtl commit
+    [otbn/sw] Improve consistency of comments in rsa.s
     
-    This commit adds the basic timers, registers and CDC for the AON wakeup
-    and watchdog timers.
+    Editorial-only change.
     
-    There is one functional change to the HJSON, which is to add a wakeup
-    cause register. This register is written to zero by software to clear
-    the wakeup request (similar to pinmux wakeup).
-    
-    CDC logic for register writes is currently not very sensible (a four
-    entry async fifo for every register). There are TODOs covering this and
-    it will be improved in subsequent updates.
-    
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
