@@ -4,69 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5005"
-version_tuple = (0, 0, 5005)
+version_str = "0.0.post5009"
+version_tuple = (0, 0, 5009)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5005")
+    pversion = V("0.0.post5009")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4914"
-data_version_tuple = (0, 0, 4914)
+data_version_str = "0.0.post4918"
+data_version_tuple = (0, 0, 4918)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4914")
+    pdata_version = V("0.0.post4918")
 except ImportError:
     pass
-data_git_hash = "f6803cbe20ef438cbebe38d50cfa60a3e4348018"
-data_git_describe = "v0.0-4914-gf6803cbe2"
+data_git_hash = "9d84982a28edbcadbb1f883f407863c18b2c6d86"
+data_git_describe = "v0.0-4918-g9d84982a2"
 data_git_msg = """\
-commit f6803cbe20ef438cbebe38d50cfa60a3e4348018
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Feb 10 10:45:48 2021 +0000
+commit 9d84982a28edbcadbb1f883f407863c18b2c6d86
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Tue Feb 16 14:25:01 2021 +0000
 
-    [otbn] Initial rewriting support in extracted documentation
+    [uart] Fix signal width
     
-    This generates a "pretty" version of GPR/WDR accesses. For example,
-    the ADD instruction looked like this before:
+    Verilator lint correctly identifies the signal as one bit too short
+    (should be 6, is 5).
     
-        val1 = state.gprs.get_reg(self.grs1).read_unsigned()
-        val2 = state.gprs.get_reg(self.grs2).read_unsigned()
-        result = (val1 + val2) & ((1 << 32) - 1)
-        state.gprs.get_reg(self.grd).write_unsigned(result)
-    
-    and now looks like this:
-    
-        val1 = GPRs[self.grs1]
-        val2 = GPRs[self.grs2]
-        result = (val1 + val2) & ((1 << 32) - 1)
-        GPRs[self.grd] = result
-    
-    Signed (2's complement) conversions are shown explicitly. For example,
-    here's SRA:
-    
-        val1 = from_2s_complement(GPRs[self.grs1])
-        val2 = GPRs[self.grs2] & 0x1f
-        result = val1 >> val2
-        GPRs[self.grd] = to_2s_complement(result)
-    
-    WDRs are also converted. For example, BN.ADD looks like this:
-    
-        a = WDRs[self.wrs1]
-        b = WDRs[self.wrs2]
-        b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
-    
-        (result, flags) = state.add_with_carry(a, b_shifted, 0)
-        WDRs[self.wrd] = result
-        state.set_flags(self.flag_group, flags)
-    
-    This is just an initial rewrite pass. If we go with this, we'll want
-    to do things for flags, at least. This is easy enough with the same
-    framework.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
