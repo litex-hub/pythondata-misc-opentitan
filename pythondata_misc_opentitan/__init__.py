@@ -4,41 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5016"
-version_tuple = (0, 0, 5016)
+version_str = "0.0.post5017"
+version_tuple = (0, 0, 5017)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5016")
+    pversion = V("0.0.post5017")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4925"
-data_version_tuple = (0, 0, 4925)
+data_version_str = "0.0.post4926"
+data_version_tuple = (0, 0, 4926)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4925")
+    pdata_version = V("0.0.post4926")
 except ImportError:
     pass
-data_git_hash = "30d23802d054518738cbaa78393995274d5602ac"
-data_git_describe = "v0.0-4925-g30d23802d"
+data_git_hash = "0e451f07798d7fc09a94bf95565158fffd539a34"
+data_git_describe = "v0.0-4926-g0e451f077"
 data_git_msg = """\
-commit 30d23802d054518738cbaa78393995274d5602ac
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Feb 16 10:11:21 2021 +0100
+commit 0e451f07798d7fc09a94bf95565158fffd539a34
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Feb 12 19:02:09 2021 -0800
 
-    [top] Re-align top_englishbreakfast with top_earlgrey
+    [dv/otp_ctrl] Add lc_prog interface to otp_ctrl_if
     
-    The most prominent changes are:
-    - Move pinmux from main crossbar to peripheral crossbar.
-    - Re-align instance names (uart -> uart0, add _aon suffixes).
-    - Re-align base addresses (ram_ret_aon, usbdev, sensor_ctrl_aon,
-      ast_wrapper).
-    - Re-align top_englishbreakfast.hjson to ease future diffs.
+    This PR adds lc_prog interface to otp_ctrl_if in order to:
+    1. Add assertions to ensure if lc_program request is set, either
+    otp_idle_o will be reset to 0, or lc_prog has error
+    2. Add a clock cycle delay to lc_prog_req for later use in scb
     
-    This resolves lowRISC/OpenTitan#5242.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
