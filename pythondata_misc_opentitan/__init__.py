@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5009"
-version_tuple = (0, 0, 5009)
+version_str = "0.0.post5010"
+version_tuple = (0, 0, 5010)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5009")
+    pversion = V("0.0.post5010")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4918"
-data_version_tuple = (0, 0, 4918)
+data_version_str = "0.0.post4919"
+data_version_tuple = (0, 0, 4919)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4918")
+    pdata_version = V("0.0.post4919")
 except ImportError:
     pass
-data_git_hash = "9d84982a28edbcadbb1f883f407863c18b2c6d86"
-data_git_describe = "v0.0-4918-g9d84982a2"
+data_git_hash = "a5973fbc32af0b21cb2a00e3acc293642b4ae097"
+data_git_describe = "v0.0-4919-ga5973fbc3"
 data_git_msg = """\
-commit 9d84982a28edbcadbb1f883f407863c18b2c6d86
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Tue Feb 16 14:25:01 2021 +0000
+commit a5973fbc32af0b21cb2a00e3acc293642b4ae097
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Feb 16 13:16:11 2021 +0100
 
-    [uart] Fix signal width
+    [fpga] Fix clock constraints
     
-    Verilator lint correctly identifies the signal as one bit too short
-    (should be 6, is 5).
+    The clkmgr instance got renamed recently. As a result, the clock
+    constraints couldn't be applied, leaving many clocks unconstrained on FPGA.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
