@@ -4,45 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post4996"
-version_tuple = (0, 0, 4996)
+version_str = "0.0.post4999"
+version_tuple = (0, 0, 4999)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post4996")
+    pversion = V("0.0.post4999")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4905"
-data_version_tuple = (0, 0, 4905)
+data_version_str = "0.0.post4908"
+data_version_tuple = (0, 0, 4908)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4905")
+    pdata_version = V("0.0.post4908")
 except ImportError:
     pass
-data_git_hash = "c5841b7c2f875c018096a2d57bd652715b3146fb"
-data_git_describe = "v0.0-4905-gc5841b7c2"
+data_git_hash = "1a0a024c15070125447b61314351125c498cf6f8"
+data_git_describe = "v0.0-4908-g1a0a024c1"
 data_git_msg = """\
-commit c5841b7c2f875c018096a2d57bd652715b3146fb
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 15 08:25:02 2021 +0000
+commit 1a0a024c15070125447b61314351125c498cf6f8
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Thu Dec 17 12:06:23 2020 +0000
 
-    [regtool] Add reset values for hwext registers to reg_pkg
+    [AON timer] Initial rtl commit
     
-    The result (for AES) looks like
+    This commit adds the basic timers, registers and CDC for the AON wakeup
+    and watchdog timers.
     
-        // Default values for hwext registers
-        parameter logic [1:0] AES_ALERT_TEST_RESVAL = 2'h 0;
-        parameter logic [31:0] AES_KEY_SHARE0_0_RESVAL = 32'h 0;
-        parameter logic [31:0] AES_KEY_SHARE0_1_RESVAL = 32'h 0;
-        parameter logic [31:0] AES_KEY_SHARE0_2_RESVAL = 32'h 0;
-        ...
+    There is one functional change to the HJSON, which is to add a wakeup
+    cause register. This register is written to zero by software to clear
+    the wakeup request (similar to pinmux wakeup).
     
-    Doing this means that design code can look in FOO_reg_pkg to set its
-    reset value as declared in the hjson, avoiding needing to duplicate
-    any constants by hand.
+    CDC logic for register writes is currently not very sensible (a four
+    entry async fifo for every register). There are TODOs covering this and
+    it will be improved in subsequent updates.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
