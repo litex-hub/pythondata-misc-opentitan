@@ -80,6 +80,9 @@ class kmac_smoke_vseq extends kmac_base_vseq;
 
     `uvm_info(`gfn, $sformatf("Starting %0d message hashes", num_trans), UVM_LOW)
     for (int i = 0; i < num_trans; i++) begin
+      bit [7:0] share0[];
+      bit [7:0] share1[];
+
       `uvm_info(`gfn, $sformatf("iteration: %0d", i), UVM_HIGH)
 
       `DV_CHECK_RANDOMIZE_FATAL(this)
@@ -129,19 +132,23 @@ class kmac_smoke_vseq extends kmac_base_vseq;
       wait_for_kmac_done();
 
       // Read the output digest, scb will check digest
-      read_digest_shares(output_len, cfg.enable_masking);
+      read_digest_shares(output_len, cfg.enable_masking, share0, share1);
 
       // issue the Done cmd to tell KMAC to clear internal state
       issue_cmd(CmdDone);
       `uvm_info(`gfn, "done", UVM_HIGH)
 
-      // TODO: randomly read out the digest after issuing Done command, expect both shares = 0
+      // randomly read out both digests after issuing Done cmd.
+      if ($urandom_range(0, 1)) begin
+        read_digest_chunk(KMAC_STATE_SHARE0_BASE, 200);
+        read_digest_chunk(KMAC_STATE_SHARE1_BASE, 200);
+      end else begin
+        // If we don't read out the state window again, wait a few clocks before dropping the
+        // sideload key (if applicable).
+        cfg.clk_rst_vif.wait_clks(5);
+      end
 
       // Drop the sideloaded key if it was provided to the DUT.
-        //
-      // TODO - wait a few clks before doing this so scb can check the digest.
-      //        Remove this when the previous TODO(random read out digest) is implemented.
-      cfg.clk_rst_vif.wait_clks(5);
       if (kmac_en && (en_sideload || provide_sideload_key)) begin
         cfg.sideload_vif.drive_sideload_key(0);
       end
