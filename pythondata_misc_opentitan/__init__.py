@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5025"
-version_tuple = (0, 0, 5025)
+version_str = "0.0.post5029"
+version_tuple = (0, 0, 5029)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5025")
+    pversion = V("0.0.post5029")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4934"
-data_version_tuple = (0, 0, 4934)
+data_version_str = "0.0.post4938"
+data_version_tuple = (0, 0, 4938)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4934")
+    pdata_version = V("0.0.post4938")
 except ImportError:
     pass
-data_git_hash = "37dc92c4eec2c506a246ee284412b6797f703f51"
-data_git_describe = "v0.0-4934-g37dc92c4e"
+data_git_hash = "729130d2bda4d1153bff81b1abe5091b6cd9f152"
+data_git_describe = "v0.0-4938-g729130d2b"
 data_git_msg = """\
-commit 37dc92c4eec2c506a246ee284412b6797f703f51
-Author: Eitan Shapira <eitan.shapira@nuvoton.com>
-Date:   Wed Feb 17 12:42:23 2021 +0200
+commit 729130d2bda4d1153bff81b1abe5091b6cd9f152
+Author: Dan Nussbaum <dansn@google.com>
+Date:   Wed Feb 10 11:25:17 2021 -0500
 
-    [dv/tools] Bug fix to common.tcl tb_top section.
+    [doc] Fix typos in rust_for_c.md.
     
-    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
+    Signed-off-by: Dan Nussbaum <dansn@google.com>
 
 """
 
