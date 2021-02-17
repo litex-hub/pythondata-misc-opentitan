@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5030"
-version_tuple = (0, 0, 5030)
+version_str = "0.0.post5032"
+version_tuple = (0, 0, 5032)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5030")
+    pversion = V("0.0.post5032")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4939"
-data_version_tuple = (0, 0, 4939)
+data_version_str = "0.0.post4941"
+data_version_tuple = (0, 0, 4941)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4939")
+    pdata_version = V("0.0.post4941")
 except ImportError:
     pass
-data_git_hash = "b7248ba84ecafbc3cdd2feb824b68dda767fa232"
-data_git_describe = "v0.0-4939-gb7248ba84"
+data_git_hash = "b826e4d7ab2b4adce37accb2221354c83ed1c1ba"
+data_git_describe = "v0.0-4941-gb826e4d7a"
 data_git_msg = """\
-commit b7248ba84ecafbc3cdd2feb824b68dda767fa232
-Author: Igor Kouznetsov <igor.kouznetsov@wdc.com>
-Date:   Wed Feb 10 15:53:15 2021 -0800
+commit b826e4d7ab2b4adce37accb2221354c83ed1c1ba
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Feb 16 11:53:23 2021 -0800
 
-    [i2c, rtl] Lint errors due to full_o
+    [top/dv] Fix backdoor override
     
-    Fixed lint errors cause by full_o output wiring of prim_fifo_sync
+    readelf may trancate the symbol name if long is over 85 chars
+    Since we need to find the symbol name `exp_spi_device_rx_data` to
+    replace the value, we can't trancate it
     
-    Signed-off-by: Igor Kouznetsov <igor.kouznetsov@wdc.com>
+    Before the fix:
+    >  1512: 20003698   128 OBJECT  LOCAL  DEFAULT    6 exp_spi_device_r[...]
+    After:
+    >  1512: 20003698   128 OBJECT  LOCAL  DEFAULT    6 exp_spi_device_rx_data
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
