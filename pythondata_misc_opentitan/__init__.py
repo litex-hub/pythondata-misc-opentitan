@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5029"
-version_tuple = (0, 0, 5029)
+version_str = "0.0.post5030"
+version_tuple = (0, 0, 5030)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5029")
+    pversion = V("0.0.post5030")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4938"
-data_version_tuple = (0, 0, 4938)
+data_version_str = "0.0.post4939"
+data_version_tuple = (0, 0, 4939)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4938")
+    pdata_version = V("0.0.post4939")
 except ImportError:
     pass
-data_git_hash = "729130d2bda4d1153bff81b1abe5091b6cd9f152"
-data_git_describe = "v0.0-4938-g729130d2b"
+data_git_hash = "b7248ba84ecafbc3cdd2feb824b68dda767fa232"
+data_git_describe = "v0.0-4939-gb7248ba84"
 data_git_msg = """\
-commit 729130d2bda4d1153bff81b1abe5091b6cd9f152
-Author: Dan Nussbaum <dansn@google.com>
-Date:   Wed Feb 10 11:25:17 2021 -0500
+commit b7248ba84ecafbc3cdd2feb824b68dda767fa232
+Author: Igor Kouznetsov <igor.kouznetsov@wdc.com>
+Date:   Wed Feb 10 15:53:15 2021 -0800
 
-    [doc] Fix typos in rust_for_c.md.
+    [i2c, rtl] Lint errors due to full_o
     
-    Signed-off-by: Dan Nussbaum <dansn@google.com>
+    Fixed lint errors cause by full_o output wiring of prim_fifo_sync
+    
+    Signed-off-by: Igor Kouznetsov <igor.kouznetsov@wdc.com>
 
 """
 
