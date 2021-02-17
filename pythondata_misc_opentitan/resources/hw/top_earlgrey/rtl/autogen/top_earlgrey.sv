@@ -40,13 +40,13 @@ module top_earlgrey #(
   output              jtag_tdo_o,
 
   // Multiplexed I/O
-  input        [31:0] mio_in_i,
-  output logic [31:0] mio_out_o,
-  output logic [31:0] mio_oe_o,
+  input        [43:0] mio_in_i,
+  output logic [43:0] mio_out_o,
+  output logic [43:0] mio_oe_o,
   // Dedicated I/O
-  input        [14:0] dio_in_i,
-  output logic [14:0] dio_out_o,
-  output logic [14:0] dio_oe_o,
+  input        [20:0] dio_in_i,
+  output logic [20:0] dio_out_o,
+  output logic [20:0] dio_oe_o,
 
   // pad attributes to padring
   output logic[pinmux_reg_pkg::NMioPads-1:0]
@@ -110,12 +110,12 @@ module top_earlgrey #(
   import top_earlgrey_rnd_cnst_pkg::*;
 
   // Signals
-  logic [40:0] mio_p2d;
-  logic [44:0] mio_d2p;
-  logic [44:0] mio_d2p_en;
-  logic [14:0] dio_p2d;
-  logic [14:0] dio_d2p;
-  logic [14:0] dio_d2p_en;
+  logic [45:0] mio_p2d;
+  logic [51:0] mio_d2p;
+  logic [51:0] mio_d2p_en;
+  logic [20:0] dio_p2d;
+  logic [20:0] dio_d2p;
+  logic [20:0] dio_d2p_en;
   // uart0
   logic        cio_uart0_rx_p2d;
   logic        cio_uart0_tx_d2p;
@@ -139,9 +139,25 @@ module top_earlgrey #(
   // spi_device
   logic        cio_spi_device_sck_p2d;
   logic        cio_spi_device_csb_p2d;
-  logic        cio_spi_device_sdi_p2d;
-  logic        cio_spi_device_sdo_d2p;
-  logic        cio_spi_device_sdo_en_d2p;
+  logic [3:0]  cio_spi_device_sd_p2d;
+  logic [3:0]  cio_spi_device_sd_d2p;
+  logic [3:0]  cio_spi_device_sd_en_d2p;
+  // spi_host0
+  logic [3:0]  cio_spi_host0_sd_p2d;
+  logic        cio_spi_host0_sck_d2p;
+  logic        cio_spi_host0_sck_en_d2p;
+  logic        cio_spi_host0_csb_d2p;
+  logic        cio_spi_host0_csb_en_d2p;
+  logic [3:0]  cio_spi_host0_sd_d2p;
+  logic [3:0]  cio_spi_host0_sd_en_d2p;
+  // spi_host1
+  logic [3:0]  cio_spi_host1_sd_p2d;
+  logic        cio_spi_host1_sck_d2p;
+  logic        cio_spi_host1_sck_en_d2p;
+  logic        cio_spi_host1_csb_d2p;
+  logic        cio_spi_host1_csb_en_d2p;
+  logic [3:0]  cio_spi_host1_sd_d2p;
+  logic [3:0]  cio_spi_host1_sd_en_d2p;
   // i2c0
   logic        cio_i2c0_sda_p2d;
   logic        cio_i2c0_scl_p2d;
@@ -499,6 +515,10 @@ module top_earlgrey #(
   tlul_pkg::tl_d2h_t       gpio_tl_rsp;
   tlul_pkg::tl_h2d_t       spi_device_tl_req;
   tlul_pkg::tl_d2h_t       spi_device_tl_rsp;
+  tlul_pkg::tl_h2d_t       spi_host0_tl_req;
+  tlul_pkg::tl_d2h_t       spi_host0_tl_rsp;
+  tlul_pkg::tl_h2d_t       spi_host1_tl_req;
+  tlul_pkg::tl_d2h_t       spi_host1_tl_rsp;
   tlul_pkg::tl_h2d_t       rv_timer_tl_req;
   tlul_pkg::tl_d2h_t       rv_timer_tl_rsp;
   tlul_pkg::tl_h2d_t       usbdev_tl_req;
@@ -566,6 +586,8 @@ module top_earlgrey #(
   logic unused_daon_rst_lc;
   logic unused_daon_rst_lc_io_div4;
   logic unused_daon_rst_spi_device;
+  logic unused_daon_rst_spi_host0;
+  logic unused_daon_rst_spi_host1;
   logic unused_daon_rst_usb;
   logic unused_daon_rst_i2c0;
   logic unused_daon_rst_i2c1;
@@ -579,6 +601,8 @@ module top_earlgrey #(
   assign unused_daon_rst_lc = rstmgr_aon_resets.rst_lc_n[rstmgr_pkg::DomainAonSel];
   assign unused_daon_rst_lc_io_div4 = rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::DomainAonSel];
   assign unused_daon_rst_spi_device = rstmgr_aon_resets.rst_spi_device_n[rstmgr_pkg::DomainAonSel];
+  assign unused_daon_rst_spi_host0 = rstmgr_aon_resets.rst_spi_host0_n[rstmgr_pkg::DomainAonSel];
+  assign unused_daon_rst_spi_host1 = rstmgr_aon_resets.rst_spi_host1_n[rstmgr_pkg::DomainAonSel];
   assign unused_daon_rst_usb = rstmgr_aon_resets.rst_usb_n[rstmgr_pkg::DomainAonSel];
   assign unused_daon_rst_i2c0 = rstmgr_aon_resets.rst_i2c0_n[rstmgr_pkg::DomainAonSel];
   assign unused_daon_rst_i2c1 = rstmgr_aon_resets.rst_i2c1_n[rstmgr_pkg::DomainAonSel];
@@ -1047,11 +1071,11 @@ module top_earlgrey #(
       // Input
       .cio_sck_i    (cio_spi_device_sck_p2d),
       .cio_csb_i    (cio_spi_device_csb_p2d),
-      .cio_sdi_i    (cio_spi_device_sdi_p2d),
+      .cio_sd_i     (cio_spi_device_sd_p2d),
 
       // Output
-      .cio_sdo_o    (cio_spi_device_sdo_d2p),
-      .cio_sdo_en_o (cio_spi_device_sdo_en_d2p),
+      .cio_sd_o     (cio_spi_device_sd_d2p),
+      .cio_sd_en_o  (cio_spi_device_sd_en_d2p),
 
       // Interrupt
       .intr_rxf_o         (intr_spi_device_rxf),
@@ -1070,6 +1094,52 @@ module top_earlgrey #(
       // Clock and reset connections
       .clk_i (clkmgr_aon_clocks.clk_io_div4_peri),
       .rst_ni (rstmgr_aon_resets.rst_spi_device_n[rstmgr_pkg::Domain0Sel])
+  );
+
+  spi_host u_spi_host0 (
+
+      // Input
+      .cio_sd_i     (cio_spi_host0_sd_p2d),
+
+      // Output
+      .cio_sck_o    (cio_spi_host0_sck_d2p),
+      .cio_sck_en_o (cio_spi_host0_sck_en_d2p),
+      .cio_csb_o    (cio_spi_host0_csb_d2p),
+      .cio_csb_en_o (cio_spi_host0_csb_en_d2p),
+      .cio_sd_o     (cio_spi_host0_sd_d2p),
+      .cio_sd_en_o  (cio_spi_host0_sd_en_d2p),
+
+      // Inter-module signals
+      .tl_i(spi_host0_tl_req),
+      .tl_o(spi_host0_tl_rsp),
+      .scanmode_i   (scanmode_i),
+
+      // Clock and reset connections
+      .clk_i (clkmgr_aon_clocks.clk_io_div4_peri),
+      .rst_ni (rstmgr_aon_resets.rst_spi_host0_n[rstmgr_pkg::Domain0Sel])
+  );
+
+  spi_host u_spi_host1 (
+
+      // Input
+      .cio_sd_i     (cio_spi_host1_sd_p2d),
+
+      // Output
+      .cio_sck_o    (cio_spi_host1_sck_d2p),
+      .cio_sck_en_o (cio_spi_host1_sck_en_d2p),
+      .cio_csb_o    (cio_spi_host1_csb_d2p),
+      .cio_csb_en_o (cio_spi_host1_csb_en_d2p),
+      .cio_sd_o     (cio_spi_host1_sd_d2p),
+      .cio_sd_en_o  (cio_spi_host1_sd_en_d2p),
+
+      // Inter-module signals
+      .tl_i(spi_host1_tl_req),
+      .tl_o(spi_host1_tl_rsp),
+      .scanmode_i   (scanmode_i),
+
+      // Clock and reset connections
+      .clk_i (clkmgr_aon_clocks.clk_io_div4_peri),
+      .rst_ni (rstmgr_aon_resets.rst_spi_host1_n[rstmgr_pkg::Domain0Sel])
   );
 
   i2c u_i2c0 (
@@ -1957,147 +2027,147 @@ module top_earlgrey #(
 
   // interrupt assignments
   assign intr_vector = {
-      intr_entropy_src_es_fifo_err,
-      intr_entropy_src_es_health_test_failed,
-      intr_entropy_src_es_entropy_valid,
-      intr_edn1_edn_fifo_err,
-      intr_edn1_edn_cmd_req_done,
-      intr_edn0_edn_fifo_err,
-      intr_edn0_edn_cmd_req_done,
-      intr_csrng_cs_fatal_err,
-      intr_csrng_cs_hw_inst_exc,
-      intr_csrng_cs_entropy_req,
-      intr_csrng_cs_cmd_req_done,
-      intr_otp_ctrl_otp_error,
-      intr_otp_ctrl_otp_operation_done,
-      intr_kmac_kmac_err,
-      intr_kmac_fifo_empty,
-      intr_kmac_kmac_done,
-      intr_keymgr_op_done,
-      intr_otbn_done,
-      intr_pwrmgr_aon_wakeup,
-      intr_usbdev_link_out_err,
-      intr_usbdev_connected,
-      intr_usbdev_frame,
-      intr_usbdev_rx_bitstuff_err,
-      intr_usbdev_rx_pid_err,
-      intr_usbdev_rx_crc_err,
-      intr_usbdev_link_in_err,
-      intr_usbdev_av_overflow,
-      intr_usbdev_rx_full,
-      intr_usbdev_av_empty,
-      intr_usbdev_link_resume,
-      intr_usbdev_link_suspend,
-      intr_usbdev_link_reset,
-      intr_usbdev_host_lost,
-      intr_usbdev_disconnected,
-      intr_usbdev_pkt_sent,
-      intr_usbdev_pkt_received,
-      intr_nmi_gen_esc2,
-      intr_nmi_gen_esc1,
-      intr_nmi_gen_esc0,
-      intr_alert_handler_classd,
-      intr_alert_handler_classc,
-      intr_alert_handler_classb,
-      intr_alert_handler_classa,
-      intr_hmac_hmac_err,
-      intr_hmac_fifo_empty,
-      intr_hmac_hmac_done,
-      intr_flash_ctrl_op_done,
-      intr_flash_ctrl_rd_lvl,
-      intr_flash_ctrl_rd_full,
-      intr_flash_ctrl_prog_lvl,
-      intr_flash_ctrl_prog_empty,
-      intr_pattgen_done_ch1,
-      intr_pattgen_done_ch0,
-      intr_i2c2_host_timeout,
-      intr_i2c2_ack_stop,
-      intr_i2c2_acq_overflow,
-      intr_i2c2_tx_overflow,
-      intr_i2c2_tx_nonempty,
-      intr_i2c2_tx_empty,
-      intr_i2c2_trans_complete,
-      intr_i2c2_sda_unstable,
-      intr_i2c2_stretch_timeout,
-      intr_i2c2_sda_interference,
-      intr_i2c2_scl_interference,
-      intr_i2c2_nak,
-      intr_i2c2_rx_overflow,
-      intr_i2c2_fmt_overflow,
-      intr_i2c2_rx_watermark,
-      intr_i2c2_fmt_watermark,
-      intr_i2c1_host_timeout,
-      intr_i2c1_ack_stop,
-      intr_i2c1_acq_overflow,
-      intr_i2c1_tx_overflow,
-      intr_i2c1_tx_nonempty,
-      intr_i2c1_tx_empty,
-      intr_i2c1_trans_complete,
-      intr_i2c1_sda_unstable,
-      intr_i2c1_stretch_timeout,
-      intr_i2c1_sda_interference,
-      intr_i2c1_scl_interference,
-      intr_i2c1_nak,
-      intr_i2c1_rx_overflow,
-      intr_i2c1_fmt_overflow,
-      intr_i2c1_rx_watermark,
-      intr_i2c1_fmt_watermark,
-      intr_i2c0_host_timeout,
-      intr_i2c0_ack_stop,
-      intr_i2c0_acq_overflow,
-      intr_i2c0_tx_overflow,
-      intr_i2c0_tx_nonempty,
-      intr_i2c0_tx_empty,
-      intr_i2c0_trans_complete,
-      intr_i2c0_sda_unstable,
-      intr_i2c0_stretch_timeout,
-      intr_i2c0_sda_interference,
-      intr_i2c0_scl_interference,
-      intr_i2c0_nak,
-      intr_i2c0_rx_overflow,
-      intr_i2c0_fmt_overflow,
-      intr_i2c0_rx_watermark,
-      intr_i2c0_fmt_watermark,
-      intr_spi_device_txunderflow,
-      intr_spi_device_rxoverflow,
-      intr_spi_device_rxerr,
-      intr_spi_device_txlvl,
-      intr_spi_device_rxlvl,
-      intr_spi_device_rxf,
-      intr_gpio_gpio,
-      intr_uart3_rx_parity_err,
-      intr_uart3_rx_timeout,
-      intr_uart3_rx_break_err,
-      intr_uart3_rx_frame_err,
-      intr_uart3_rx_overflow,
-      intr_uart3_tx_empty,
-      intr_uart3_rx_watermark,
-      intr_uart3_tx_watermark,
-      intr_uart2_rx_parity_err,
-      intr_uart2_rx_timeout,
-      intr_uart2_rx_break_err,
-      intr_uart2_rx_frame_err,
-      intr_uart2_rx_overflow,
-      intr_uart2_tx_empty,
-      intr_uart2_rx_watermark,
-      intr_uart2_tx_watermark,
-      intr_uart1_rx_parity_err,
-      intr_uart1_rx_timeout,
-      intr_uart1_rx_break_err,
-      intr_uart1_rx_frame_err,
-      intr_uart1_rx_overflow,
-      intr_uart1_tx_empty,
-      intr_uart1_rx_watermark,
-      intr_uart1_tx_watermark,
-      intr_uart0_rx_parity_err,
-      intr_uart0_rx_timeout,
-      intr_uart0_rx_break_err,
-      intr_uart0_rx_frame_err,
-      intr_uart0_rx_overflow,
-      intr_uart0_tx_empty,
-      intr_uart0_rx_watermark,
-      intr_uart0_tx_watermark,
-      1'b 0 // For ID 0.
+      intr_entropy_src_es_fifo_err, // ID 140
+      intr_entropy_src_es_health_test_failed, // ID 139
+      intr_entropy_src_es_entropy_valid, // ID 138
+      intr_edn1_edn_fifo_err, // ID 137
+      intr_edn1_edn_cmd_req_done, // ID 136
+      intr_edn0_edn_fifo_err, // ID 135
+      intr_edn0_edn_cmd_req_done, // ID 134
+      intr_csrng_cs_fatal_err, // ID 133
+      intr_csrng_cs_hw_inst_exc, // ID 132
+      intr_csrng_cs_entropy_req, // ID 131
+      intr_csrng_cs_cmd_req_done, // ID 130
+      intr_otp_ctrl_otp_error, // ID 129
+      intr_otp_ctrl_otp_operation_done, // ID 128
+      intr_kmac_kmac_err, // ID 127
+      intr_kmac_fifo_empty, // ID 126
+      intr_kmac_kmac_done, // ID 125
+      intr_keymgr_op_done, // ID 124
+      intr_otbn_done, // ID 123
+      intr_pwrmgr_aon_wakeup, // ID 122
+      intr_usbdev_link_out_err, // ID 121
+      intr_usbdev_connected, // ID 120
+      intr_usbdev_frame, // ID 119
+      intr_usbdev_rx_bitstuff_err, // ID 118
+      intr_usbdev_rx_pid_err, // ID 117
+      intr_usbdev_rx_crc_err, // ID 116
+      intr_usbdev_link_in_err, // ID 115
+      intr_usbdev_av_overflow, // ID 114
+      intr_usbdev_rx_full, // ID 113
+      intr_usbdev_av_empty, // ID 112
+      intr_usbdev_link_resume, // ID 111
+      intr_usbdev_link_suspend, // ID 110
+      intr_usbdev_link_reset, // ID 109
+      intr_usbdev_host_lost, // ID 108
+      intr_usbdev_disconnected, // ID 107
+      intr_usbdev_pkt_sent, // ID 106
+      intr_usbdev_pkt_received, // ID 105
+      intr_nmi_gen_esc2, // ID 104
+      intr_nmi_gen_esc1, // ID 103
+      intr_nmi_gen_esc0, // ID 102
+      intr_alert_handler_classd, // ID 101
+      intr_alert_handler_classc, // ID 100
+      intr_alert_handler_classb, // ID 99
+      intr_alert_handler_classa, // ID 98
+      intr_hmac_hmac_err, // ID 97
+      intr_hmac_fifo_empty, // ID 96
+      intr_hmac_hmac_done, // ID 95
+      intr_flash_ctrl_op_done, // ID 94
+      intr_flash_ctrl_rd_lvl, // ID 93
+      intr_flash_ctrl_rd_full, // ID 92
+      intr_flash_ctrl_prog_lvl, // ID 91
+      intr_flash_ctrl_prog_empty, // ID 90
+      intr_pattgen_done_ch1, // ID 89
+      intr_pattgen_done_ch0, // ID 88
+      intr_i2c2_host_timeout, // ID 87
+      intr_i2c2_ack_stop, // ID 86
+      intr_i2c2_acq_overflow, // ID 85
+      intr_i2c2_tx_overflow, // ID 84
+      intr_i2c2_tx_nonempty, // ID 83
+      intr_i2c2_tx_empty, // ID 82
+      intr_i2c2_trans_complete, // ID 81
+      intr_i2c2_sda_unstable, // ID 80
+      intr_i2c2_stretch_timeout, // ID 79
+      intr_i2c2_sda_interference, // ID 78
+      intr_i2c2_scl_interference, // ID 77
+      intr_i2c2_nak, // ID 76
+      intr_i2c2_rx_overflow, // ID 75
+      intr_i2c2_fmt_overflow, // ID 74
+      intr_i2c2_rx_watermark, // ID 73
+      intr_i2c2_fmt_watermark, // ID 72
+      intr_i2c1_host_timeout, // ID 71
+      intr_i2c1_ack_stop, // ID 70
+      intr_i2c1_acq_overflow, // ID 69
+      intr_i2c1_tx_overflow, // ID 68
+      intr_i2c1_tx_nonempty, // ID 67
+      intr_i2c1_tx_empty, // ID 66
+      intr_i2c1_trans_complete, // ID 65
+      intr_i2c1_sda_unstable, // ID 64
+      intr_i2c1_stretch_timeout, // ID 63
+      intr_i2c1_sda_interference, // ID 62
+      intr_i2c1_scl_interference, // ID 61
+      intr_i2c1_nak, // ID 60
+      intr_i2c1_rx_overflow, // ID 59
+      intr_i2c1_fmt_overflow, // ID 58
+      intr_i2c1_rx_watermark, // ID 57
+      intr_i2c1_fmt_watermark, // ID 56
+      intr_i2c0_host_timeout, // ID 55
+      intr_i2c0_ack_stop, // ID 54
+      intr_i2c0_acq_overflow, // ID 53
+      intr_i2c0_tx_overflow, // ID 52
+      intr_i2c0_tx_nonempty, // ID 51
+      intr_i2c0_tx_empty, // ID 50
+      intr_i2c0_trans_complete, // ID 49
+      intr_i2c0_sda_unstable, // ID 48
+      intr_i2c0_stretch_timeout, // ID 47
+      intr_i2c0_sda_interference, // ID 46
+      intr_i2c0_scl_interference, // ID 45
+      intr_i2c0_nak, // ID 44
+      intr_i2c0_rx_overflow, // ID 43
+      intr_i2c0_fmt_overflow, // ID 42
+      intr_i2c0_rx_watermark, // ID 41
+      intr_i2c0_fmt_watermark, // ID 40
+      intr_spi_device_txunderflow, // ID 39
+      intr_spi_device_rxoverflow, // ID 38
+      intr_spi_device_rxerr, // ID 37
+      intr_spi_device_txlvl, // ID 36
+      intr_spi_device_rxlvl, // ID 35
+      intr_spi_device_rxf, // ID 34
+      intr_gpio_gpio, // ID 33
+      intr_uart3_rx_parity_err, // ID 32
+      intr_uart3_rx_timeout, // ID 31
+      intr_uart3_rx_break_err, // ID 30
+      intr_uart3_rx_frame_err, // ID 29
+      intr_uart3_rx_overflow, // ID 28
+      intr_uart3_tx_empty, // ID 27
+      intr_uart3_rx_watermark, // ID 26
+      intr_uart3_tx_watermark, // ID 25
+      intr_uart2_rx_parity_err, // ID 24
+      intr_uart2_rx_timeout, // ID 23
+      intr_uart2_rx_break_err, // ID 22
+      intr_uart2_rx_frame_err, // ID 21
+      intr_uart2_rx_overflow, // ID 20
+      intr_uart2_tx_empty, // ID 19
+      intr_uart2_rx_watermark, // ID 18
+      intr_uart2_tx_watermark, // ID 17
+      intr_uart1_rx_parity_err, // ID 16
+      intr_uart1_rx_timeout, // ID 15
+      intr_uart1_rx_break_err, // ID 14
+      intr_uart1_rx_frame_err, // ID 13
+      intr_uart1_rx_overflow, // ID 12
+      intr_uart1_tx_empty, // ID 11
+      intr_uart1_rx_watermark, // ID 10
+      intr_uart1_tx_watermark, // ID 9
+      intr_uart0_rx_parity_err, // ID 8
+      intr_uart0_rx_timeout, // ID 7
+      intr_uart0_rx_break_err, // ID 6
+      intr_uart0_rx_frame_err, // ID 5
+      intr_uart0_rx_overflow, // ID 4
+      intr_uart0_tx_empty, // ID 3
+      intr_uart0_rx_watermark, // ID 2
+      intr_uart0_tx_watermark, // ID 1
+      1'b 0 // ID 0 is a special case and tied to zero.
   };
 
   // TL-UL Crossbar
@@ -2238,6 +2308,14 @@ module top_earlgrey #(
     .tl_spi_device_o(spi_device_tl_req),
     .tl_spi_device_i(spi_device_tl_rsp),
 
+    // port: tl_spi_host0
+    .tl_spi_host0_o(spi_host0_tl_req),
+    .tl_spi_host0_i(spi_host0_tl_rsp),
+
+    // port: tl_spi_host1
+    .tl_spi_host1_o(spi_host1_tl_req),
+    .tl_spi_host1_i(spi_host1_tl_rsp),
+
     // port: tl_rv_timer
     .tl_rv_timer_o(rv_timer_tl_req),
     .tl_rv_timer_i(rv_timer_tl_rsp),
@@ -2300,59 +2378,75 @@ module top_earlgrey #(
 
   // Pinmux connections
   assign mio_d2p = {
+    cio_spi_host1_csb_d2p,
+    cio_spi_host1_sck_d2p,
+    cio_spi_host1_sd_d2p,
     cio_pattgen_pcl1_tx_d2p,
     cio_pattgen_pda1_tx_d2p,
     cio_pattgen_pcl0_tx_d2p,
     cio_pattgen_pda0_tx_d2p,
-    cio_uart3_tx_d2p,
-    cio_uart2_tx_d2p,
-    cio_uart1_tx_d2p,
     cio_i2c2_scl_d2p,
     cio_i2c2_sda_d2p,
     cio_i2c1_scl_d2p,
     cio_i2c1_sda_d2p,
     cio_i2c0_scl_d2p,
     cio_i2c0_sda_d2p,
+    cio_uart3_tx_d2p,
+    cio_uart2_tx_d2p,
+    cio_uart1_tx_d2p,
+    cio_uart0_tx_d2p,
     cio_gpio_gpio_d2p
   };
   assign mio_d2p_en = {
+    cio_spi_host1_csb_en_d2p,
+    cio_spi_host1_sck_en_d2p,
+    cio_spi_host1_sd_en_d2p,
     cio_pattgen_pcl1_tx_en_d2p,
     cio_pattgen_pda1_tx_en_d2p,
     cio_pattgen_pcl0_tx_en_d2p,
     cio_pattgen_pda0_tx_en_d2p,
-    cio_uart3_tx_en_d2p,
-    cio_uart2_tx_en_d2p,
-    cio_uart1_tx_en_d2p,
     cio_i2c2_scl_en_d2p,
     cio_i2c2_sda_en_d2p,
     cio_i2c1_scl_en_d2p,
     cio_i2c1_sda_en_d2p,
     cio_i2c0_scl_en_d2p,
     cio_i2c0_sda_en_d2p,
+    cio_uart3_tx_en_d2p,
+    cio_uart2_tx_en_d2p,
+    cio_uart1_tx_en_d2p,
+    cio_uart0_tx_en_d2p,
     cio_gpio_gpio_en_d2p
   };
   assign {
-    cio_uart3_rx_p2d,
-    cio_uart2_rx_p2d,
-    cio_uart1_rx_p2d,
+    cio_spi_host1_sd_p2d,
     cio_i2c2_scl_p2d,
     cio_i2c2_sda_p2d,
     cio_i2c1_scl_p2d,
     cio_i2c1_sda_p2d,
     cio_i2c0_scl_p2d,
     cio_i2c0_sda_p2d,
+    cio_uart3_rx_p2d,
+    cio_uart2_rx_p2d,
+    cio_uart1_rx_p2d,
+    cio_uart0_rx_p2d,
     cio_gpio_gpio_p2d
   } = mio_p2d;
 
   // Dedicated IO connections
   // Input-only DIOs have no d2p signals
   assign dio_d2p = {
-    1'b0, // DIO14: cio_spi_device_sck
-    1'b0, // DIO13: cio_spi_device_csb
-    1'b0, // DIO12: cio_spi_device_sdi
-    cio_spi_device_sdo_d2p, // DIO11
-    1'b0, // DIO10: cio_uart0_rx
-    cio_uart0_tx_d2p, // DIO9
+    1'b0, // DIO20: cio_spi_device_sck
+    1'b0, // DIO19: cio_spi_device_csb
+    cio_spi_device_sd_d2p[3], // DIO18
+    cio_spi_device_sd_d2p[2], // DIO17
+    cio_spi_device_sd_d2p[1], // DIO16
+    cio_spi_device_sd_d2p[0], // DIO15
+    cio_spi_host0_sck_d2p, // DIO14
+    cio_spi_host0_csb_d2p, // DIO13
+    cio_spi_host0_sd_d2p[3], // DIO12
+    cio_spi_host0_sd_d2p[2], // DIO11
+    cio_spi_host0_sd_d2p[1], // DIO10
+    cio_spi_host0_sd_d2p[0], // DIO9
     1'b0, // DIO8: cio_usbdev_sense
     cio_usbdev_se0_d2p, // DIO7
     cio_usbdev_dp_pullup_d2p, // DIO6
@@ -2365,12 +2459,18 @@ module top_earlgrey #(
   };
 
   assign dio_d2p_en = {
-    1'b0, // DIO14: cio_spi_device_sck
-    1'b0, // DIO13: cio_spi_device_csb
-    1'b0, // DIO12: cio_spi_device_sdi
-    cio_spi_device_sdo_en_d2p, // DIO11
-    1'b0, // DIO10: cio_uart0_rx
-    cio_uart0_tx_en_d2p, // DIO9
+    1'b0, // DIO20: cio_spi_device_sck
+    1'b0, // DIO19: cio_spi_device_csb
+    cio_spi_device_sd_en_d2p[3], // DIO18
+    cio_spi_device_sd_en_d2p[2], // DIO17
+    cio_spi_device_sd_en_d2p[1], // DIO16
+    cio_spi_device_sd_en_d2p[0], // DIO15
+    cio_spi_host0_sck_en_d2p, // DIO14
+    cio_spi_host0_csb_en_d2p, // DIO13
+    cio_spi_host0_sd_en_d2p[3], // DIO12
+    cio_spi_host0_sd_en_d2p[2], // DIO11
+    cio_spi_host0_sd_en_d2p[1], // DIO10
+    cio_spi_host0_sd_en_d2p[0], // DIO9
     1'b0, // DIO8: cio_usbdev_sense
     cio_usbdev_se0_en_d2p, // DIO7
     cio_usbdev_dp_pullup_en_d2p, // DIO6
@@ -2383,18 +2483,24 @@ module top_earlgrey #(
   };
 
   // Output-only DIOs have no p2d signal
-  assign cio_spi_device_sck_p2d    = dio_p2d[14]; // DIO14
-  assign cio_spi_device_csb_p2d    = dio_p2d[13]; // DIO13
-  assign cio_spi_device_sdi_p2d    = dio_p2d[12]; // DIO12
-  // DIO11: cio_spi_device_sdo
-  assign cio_uart0_rx_p2d          = dio_p2d[10]; // DIO10
-  // DIO9: cio_uart0_tx
+  assign cio_spi_device_sck_p2d    = dio_p2d[20]; // DIO20
+  assign cio_spi_device_csb_p2d    = dio_p2d[19]; // DIO19
+  assign cio_spi_device_sd_p2d[3]  = dio_p2d[18]; // DIO18
+  assign cio_spi_device_sd_p2d[2]  = dio_p2d[17]; // DIO17
+  assign cio_spi_device_sd_p2d[1]  = dio_p2d[16]; // DIO16
+  assign cio_spi_device_sd_p2d[0]  = dio_p2d[15]; // DIO15
+  // DIO14: cio_spi_host0_sck // DIO14
+  // DIO13: cio_spi_host0_csb // DIO13
+  assign cio_spi_host0_sd_p2d[3]   = dio_p2d[12]; // DIO12
+  assign cio_spi_host0_sd_p2d[2]   = dio_p2d[11]; // DIO11
+  assign cio_spi_host0_sd_p2d[1]   = dio_p2d[10]; // DIO10
+  assign cio_spi_host0_sd_p2d[0]   = dio_p2d[9]; // DIO9
   assign cio_usbdev_sense_p2d      = dio_p2d[8]; // DIO8
-  // DIO7: cio_usbdev_se0
-  // DIO6: cio_usbdev_dp_pullup
-  // DIO5: cio_usbdev_dn_pullup
-  // DIO4: cio_usbdev_tx_mode_se
-  // DIO3: cio_usbdev_suspend
+  // DIO7: cio_usbdev_se0 // DIO7
+  // DIO6: cio_usbdev_dp_pullup // DIO6
+  // DIO5: cio_usbdev_dn_pullup // DIO5
+  // DIO4: cio_usbdev_tx_mode_se // DIO4
+  // DIO3: cio_usbdev_suspend // DIO3
   assign cio_usbdev_d_p2d          = dio_p2d[2]; // DIO2
   assign cio_usbdev_dp_p2d         = dio_p2d[1]; // DIO1
   assign cio_usbdev_dn_p2d         = dio_p2d[0]; // DIO0

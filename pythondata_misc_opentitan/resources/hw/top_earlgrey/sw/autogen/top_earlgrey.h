@@ -134,6 +134,42 @@ extern "C" {
 #define TOP_EARLGREY_SPI_DEVICE_SIZE_BYTES 0x2000u
 
 /**
+ * Peripheral base address for spi_host0 in top earlgrey.
+ *
+ * This should be used with #mmio_region_from_addr to access the memory-mapped
+ * registers associated with the peripheral (usually via a DIF).
+ */
+#define TOP_EARLGREY_SPI_HOST0_BASE_ADDR 0x40060000u
+
+/**
+ * Peripheral size for spi_host0 in top earlgrey.
+ *
+ * This is the size (in bytes) of the peripheral's reserved memory area. All
+ * memory-mapped registers associated with this peripheral should have an
+ * address between #TOP_EARLGREY_SPI_HOST0_BASE_ADDR and
+ * `TOP_EARLGREY_SPI_HOST0_BASE_ADDR + TOP_EARLGREY_SPI_HOST0_SIZE_BYTES`.
+ */
+#define TOP_EARLGREY_SPI_HOST0_SIZE_BYTES 0x1000u
+
+/**
+ * Peripheral base address for spi_host1 in top earlgrey.
+ *
+ * This should be used with #mmio_region_from_addr to access the memory-mapped
+ * registers associated with the peripheral (usually via a DIF).
+ */
+#define TOP_EARLGREY_SPI_HOST1_BASE_ADDR 0x40070000u
+
+/**
+ * Peripheral size for spi_host1 in top earlgrey.
+ *
+ * This is the size (in bytes) of the peripheral's reserved memory area. All
+ * memory-mapped registers associated with this peripheral should have an
+ * address between #TOP_EARLGREY_SPI_HOST1_BASE_ADDR and
+ * `TOP_EARLGREY_SPI_HOST1_BASE_ADDR + TOP_EARLGREY_SPI_HOST1_SIZE_BYTES`.
+ */
+#define TOP_EARLGREY_SPI_HOST1_SIZE_BYTES 0x1000u
+
+/**
  * Peripheral base address for i2c0 in top earlgrey.
  *
  * This should be used with #mmio_region_from_addr to access the memory-mapped
@@ -984,8 +1020,8 @@ extern const top_earlgrey_alert_peripheral_t
 
 // PERIPH_INSEL ranges from 0 to NUM_MIO + 2 -1}
 //  0 and 1 are tied to value 0 and 1
-#define NUM_MIO 32
-#define NUM_DIO 15
+#define NUM_MIO 44
+#define NUM_DIO 21
 
 #define PINMUX_PERIPH_OUTSEL_IDX_OFFSET 3
 
@@ -1025,16 +1061,21 @@ typedef enum top_earlgrey_pinmux_peripheral_in {
   kTopEarlgreyPinmuxPeripheralInGpioGpio29 = 29, /**< gpio_gpio 29 */
   kTopEarlgreyPinmuxPeripheralInGpioGpio30 = 30, /**< gpio_gpio 30 */
   kTopEarlgreyPinmuxPeripheralInGpioGpio31 = 31, /**< gpio_gpio 31 */
-  kTopEarlgreyPinmuxPeripheralInI2c0Sda = 32, /**< i2c0_sda */
-  kTopEarlgreyPinmuxPeripheralInI2c0Scl = 33, /**< i2c0_scl */
-  kTopEarlgreyPinmuxPeripheralInI2c1Sda = 34, /**< i2c1_sda */
-  kTopEarlgreyPinmuxPeripheralInI2c1Scl = 35, /**< i2c1_scl */
-  kTopEarlgreyPinmuxPeripheralInI2c2Sda = 36, /**< i2c2_sda */
-  kTopEarlgreyPinmuxPeripheralInI2c2Scl = 37, /**< i2c2_scl */
-  kTopEarlgreyPinmuxPeripheralInUart1Rx = 38, /**< uart1_rx */
-  kTopEarlgreyPinmuxPeripheralInUart2Rx = 39, /**< uart2_rx */
-  kTopEarlgreyPinmuxPeripheralInUart3Rx = 40, /**< uart3_rx */
-  kTopEarlgreyPinmuxPeripheralInLast = 40, /**< \internal Last valid peripheral input */
+  kTopEarlgreyPinmuxPeripheralInUart0Rx = 32, /**< uart0_rx */
+  kTopEarlgreyPinmuxPeripheralInUart1Rx = 33, /**< uart1_rx */
+  kTopEarlgreyPinmuxPeripheralInUart2Rx = 34, /**< uart2_rx */
+  kTopEarlgreyPinmuxPeripheralInUart3Rx = 35, /**< uart3_rx */
+  kTopEarlgreyPinmuxPeripheralInI2c0Sda = 36, /**< i2c0_sda */
+  kTopEarlgreyPinmuxPeripheralInI2c0Scl = 37, /**< i2c0_scl */
+  kTopEarlgreyPinmuxPeripheralInI2c1Sda = 38, /**< i2c1_sda */
+  kTopEarlgreyPinmuxPeripheralInI2c1Scl = 39, /**< i2c1_scl */
+  kTopEarlgreyPinmuxPeripheralInI2c2Sda = 40, /**< i2c2_sda */
+  kTopEarlgreyPinmuxPeripheralInI2c2Scl = 41, /**< i2c2_scl */
+  kTopEarlgreyPinmuxPeripheralInSpiHost1Sd0 = 42, /**< spi_host1_sd 0 */
+  kTopEarlgreyPinmuxPeripheralInSpiHost1Sd1 = 43, /**< spi_host1_sd 1 */
+  kTopEarlgreyPinmuxPeripheralInSpiHost1Sd2 = 44, /**< spi_host1_sd 2 */
+  kTopEarlgreyPinmuxPeripheralInSpiHost1Sd3 = 45, /**< spi_host1_sd 3 */
+  kTopEarlgreyPinmuxPeripheralInLast = 45, /**< \internal Last valid peripheral input */
 } top_earlgrey_pinmux_peripheral_in_t;
 
 /**
@@ -1075,7 +1116,19 @@ typedef enum top_earlgrey_pinmux_insel {
   kTopEarlgreyPinmuxInselMio29 = 31, /**< MIO Pad 29 */
   kTopEarlgreyPinmuxInselMio30 = 32, /**< MIO Pad 30 */
   kTopEarlgreyPinmuxInselMio31 = 33, /**< MIO Pad 31 */
-  kTopEarlgreyPinmuxInselLast = 33, /**< \internal Last valid insel value */
+  kTopEarlgreyPinmuxInselMio32 = 34, /**< MIO Pad 32 */
+  kTopEarlgreyPinmuxInselMio33 = 35, /**< MIO Pad 33 */
+  kTopEarlgreyPinmuxInselMio34 = 36, /**< MIO Pad 34 */
+  kTopEarlgreyPinmuxInselMio35 = 37, /**< MIO Pad 35 */
+  kTopEarlgreyPinmuxInselMio36 = 38, /**< MIO Pad 36 */
+  kTopEarlgreyPinmuxInselMio37 = 39, /**< MIO Pad 37 */
+  kTopEarlgreyPinmuxInselMio38 = 40, /**< MIO Pad 38 */
+  kTopEarlgreyPinmuxInselMio39 = 41, /**< MIO Pad 39 */
+  kTopEarlgreyPinmuxInselMio40 = 42, /**< MIO Pad 40 */
+  kTopEarlgreyPinmuxInselMio41 = 43, /**< MIO Pad 41 */
+  kTopEarlgreyPinmuxInselMio42 = 44, /**< MIO Pad 42 */
+  kTopEarlgreyPinmuxInselMio43 = 45, /**< MIO Pad 43 */
+  kTopEarlgreyPinmuxInselLast = 45, /**< \internal Last valid insel value */
 } top_earlgrey_pinmux_insel_t;
 
 /**
@@ -1114,7 +1167,19 @@ typedef enum top_earlgrey_pinmux_mio_out {
   kTopEarlgreyPinmuxMioOut29 = 29, /**< MIO Pad 29 */
   kTopEarlgreyPinmuxMioOut30 = 30, /**< MIO Pad 30 */
   kTopEarlgreyPinmuxMioOut31 = 31, /**< MIO Pad 31 */
-  kTopEarlgreyPinmuxMioOutLast = 31, /**< \internal Last valid mio output */
+  kTopEarlgreyPinmuxMioOut32 = 32, /**< MIO Pad 32 */
+  kTopEarlgreyPinmuxMioOut33 = 33, /**< MIO Pad 33 */
+  kTopEarlgreyPinmuxMioOut34 = 34, /**< MIO Pad 34 */
+  kTopEarlgreyPinmuxMioOut35 = 35, /**< MIO Pad 35 */
+  kTopEarlgreyPinmuxMioOut36 = 36, /**< MIO Pad 36 */
+  kTopEarlgreyPinmuxMioOut37 = 37, /**< MIO Pad 37 */
+  kTopEarlgreyPinmuxMioOut38 = 38, /**< MIO Pad 38 */
+  kTopEarlgreyPinmuxMioOut39 = 39, /**< MIO Pad 39 */
+  kTopEarlgreyPinmuxMioOut40 = 40, /**< MIO Pad 40 */
+  kTopEarlgreyPinmuxMioOut41 = 41, /**< MIO Pad 41 */
+  kTopEarlgreyPinmuxMioOut42 = 42, /**< MIO Pad 42 */
+  kTopEarlgreyPinmuxMioOut43 = 43, /**< MIO Pad 43 */
+  kTopEarlgreyPinmuxMioOutLast = 43, /**< \internal Last valid mio output */
 } top_earlgrey_pinmux_mio_out_t;
 
 /**
@@ -1156,20 +1221,27 @@ typedef enum top_earlgrey_pinmux_outsel {
   kTopEarlgreyPinmuxOutselGpioGpio29 = 32, /**< gpio_gpio 29 */
   kTopEarlgreyPinmuxOutselGpioGpio30 = 33, /**< gpio_gpio 30 */
   kTopEarlgreyPinmuxOutselGpioGpio31 = 34, /**< gpio_gpio 31 */
-  kTopEarlgreyPinmuxOutselI2c0Sda = 35, /**< i2c0_sda */
-  kTopEarlgreyPinmuxOutselI2c0Scl = 36, /**< i2c0_scl */
-  kTopEarlgreyPinmuxOutselI2c1Sda = 37, /**< i2c1_sda */
-  kTopEarlgreyPinmuxOutselI2c1Scl = 38, /**< i2c1_scl */
-  kTopEarlgreyPinmuxOutselI2c2Sda = 39, /**< i2c2_sda */
-  kTopEarlgreyPinmuxOutselI2c2Scl = 40, /**< i2c2_scl */
-  kTopEarlgreyPinmuxOutselUart1Tx = 41, /**< uart1_tx */
-  kTopEarlgreyPinmuxOutselUart2Tx = 42, /**< uart2_tx */
-  kTopEarlgreyPinmuxOutselUart3Tx = 43, /**< uart3_tx */
-  kTopEarlgreyPinmuxOutselPattgenPda0Tx = 44, /**< pattgen_pda0_tx */
-  kTopEarlgreyPinmuxOutselPattgenPcl0Tx = 45, /**< pattgen_pcl0_tx */
-  kTopEarlgreyPinmuxOutselPattgenPda1Tx = 46, /**< pattgen_pda1_tx */
-  kTopEarlgreyPinmuxOutselPattgenPcl1Tx = 47, /**< pattgen_pcl1_tx */
-  kTopEarlgreyPinmuxOutselLast = 47, /**< \internal Last valid outsel value */
+  kTopEarlgreyPinmuxOutselUart0Tx = 35, /**< uart0_tx */
+  kTopEarlgreyPinmuxOutselUart1Tx = 36, /**< uart1_tx */
+  kTopEarlgreyPinmuxOutselUart2Tx = 37, /**< uart2_tx */
+  kTopEarlgreyPinmuxOutselUart3Tx = 38, /**< uart3_tx */
+  kTopEarlgreyPinmuxOutselI2c0Sda = 39, /**< i2c0_sda */
+  kTopEarlgreyPinmuxOutselI2c0Scl = 40, /**< i2c0_scl */
+  kTopEarlgreyPinmuxOutselI2c1Sda = 41, /**< i2c1_sda */
+  kTopEarlgreyPinmuxOutselI2c1Scl = 42, /**< i2c1_scl */
+  kTopEarlgreyPinmuxOutselI2c2Sda = 43, /**< i2c2_sda */
+  kTopEarlgreyPinmuxOutselI2c2Scl = 44, /**< i2c2_scl */
+  kTopEarlgreyPinmuxOutselPattgenPda0Tx = 45, /**< pattgen_pda0_tx */
+  kTopEarlgreyPinmuxOutselPattgenPcl0Tx = 46, /**< pattgen_pcl0_tx */
+  kTopEarlgreyPinmuxOutselPattgenPda1Tx = 47, /**< pattgen_pda1_tx */
+  kTopEarlgreyPinmuxOutselPattgenPcl1Tx = 48, /**< pattgen_pcl1_tx */
+  kTopEarlgreyPinmuxOutselSpiHost1Sd0 = 49, /**< spi_host1_sd 0 */
+  kTopEarlgreyPinmuxOutselSpiHost1Sd1 = 50, /**< spi_host1_sd 1 */
+  kTopEarlgreyPinmuxOutselSpiHost1Sd2 = 51, /**< spi_host1_sd 2 */
+  kTopEarlgreyPinmuxOutselSpiHost1Sd3 = 52, /**< spi_host1_sd 3 */
+  kTopEarlgreyPinmuxOutselSpiHost1Sck = 53, /**< spi_host1_sck */
+  kTopEarlgreyPinmuxOutselSpiHost1Csb = 54, /**< spi_host1_csb */
+  kTopEarlgreyPinmuxOutselLast = 54, /**< \internal Last valid outsel value */
 } top_earlgrey_pinmux_outsel_t;
 
 /**
@@ -1186,11 +1258,13 @@ typedef enum top_earlgrey_power_manager_wake_ups {
  */
 typedef enum top_earlgrey_reset_manager_sw_resets {
   kTopEarlgreyResetManagerSwResetsSpiDevice = 0, /**<  */
-  kTopEarlgreyResetManagerSwResetsUsb = 1, /**<  */
-  kTopEarlgreyResetManagerSwResetsI2c0 = 2, /**<  */
-  kTopEarlgreyResetManagerSwResetsI2c1 = 3, /**<  */
-  kTopEarlgreyResetManagerSwResetsI2c2 = 4, /**<  */
-  kTopEarlgreyResetManagerSwResetsLast = 4, /**< \internal Last valid rstmgr software reset request */
+  kTopEarlgreyResetManagerSwResetsSpiHost0 = 1, /**<  */
+  kTopEarlgreyResetManagerSwResetsSpiHost1 = 2, /**<  */
+  kTopEarlgreyResetManagerSwResetsUsb = 3, /**<  */
+  kTopEarlgreyResetManagerSwResetsI2c0 = 4, /**<  */
+  kTopEarlgreyResetManagerSwResetsI2c1 = 5, /**<  */
+  kTopEarlgreyResetManagerSwResetsI2c2 = 6, /**<  */
+  kTopEarlgreyResetManagerSwResetsLast = 6, /**< \internal Last valid rstmgr software reset request */
 } top_earlgrey_reset_manager_sw_resets_t;
 
 /**
