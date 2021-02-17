@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5024"
-version_tuple = (0, 0, 5024)
+version_str = "0.0.post5025"
+version_tuple = (0, 0, 5025)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5024")
+    pversion = V("0.0.post5025")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4933"
-data_version_tuple = (0, 0, 4933)
+data_version_str = "0.0.post4934"
+data_version_tuple = (0, 0, 4934)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4933")
+    pdata_version = V("0.0.post4934")
 except ImportError:
     pass
-data_git_hash = "9dffa1b320ff70f1fd724a0cfb67f418c6caf437"
-data_git_describe = "v0.0-4933-g9dffa1b32"
+data_git_hash = "37dc92c4eec2c506a246ee284412b6797f703f51"
+data_git_describe = "v0.0-4934-g37dc92c4e"
 data_git_msg = """\
-commit 9dffa1b320ff70f1fd724a0cfb67f418c6caf437
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Wed Feb 17 11:45:30 2021 +0000
+commit 37dc92c4eec2c506a246ee284412b6797f703f51
+Author: Eitan Shapira <eitan.shapira@nuvoton.com>
+Date:   Wed Feb 17 12:42:23 2021 +0200
 
-    [reggen] Minor fix to REGWEN error message
+    [dv/tools] Bug fix to common.tcl tb_top section.
     
-    Relates to #5267
-    
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
 
 """
 
