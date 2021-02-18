@@ -4,37 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5040"
-version_tuple = (0, 0, 5040)
+version_str = "0.0.post5041"
+version_tuple = (0, 0, 5041)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5040")
+    pversion = V("0.0.post5041")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4949"
-data_version_tuple = (0, 0, 4949)
+data_version_str = "0.0.post4950"
+data_version_tuple = (0, 0, 4950)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4949")
+    pdata_version = V("0.0.post4950")
 except ImportError:
     pass
-data_git_hash = "bc2bc5877fe0ed7fc2dfa09ff7db279546fb0cca"
-data_git_describe = "v0.0-4949-gbc2bc5877"
+data_git_hash = "588819ef9a4df185741ae2b59a830d20c9a494ae"
+data_git_describe = "v0.0-4950-g588819ef9"
 data_git_msg = """\
-commit bc2bc5877fe0ed7fc2dfa09ff7db279546fb0cca
+commit 588819ef9a4df185741ae2b59a830d20c9a494ae
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Feb 9 13:30:37 2021 +0000
+Date:   Wed Feb 10 16:27:53 2021 +0000
 
-    [reggen] Define a Window type to represent (memory) windows
+    [regtool] Remove support for alternate-style headers
     
-    This also removes the Window class from reggen/data.py: we'll use the
-    new Window class everywhere.
-    
-    There's a bit of code to handle window tags at the bottom of
-    uvm_reg.sv.tpl that goes away completely (windows don't have tags, so
-    this was dead code).
+    This is unused, and seems not to have been used since the start of
+    development history.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
