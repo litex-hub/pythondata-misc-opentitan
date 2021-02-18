@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5037"
-version_tuple = (0, 0, 5037)
+version_str = "0.0.post5039"
+version_tuple = (0, 0, 5039)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5037")
+    pversion = V("0.0.post5039")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4946"
-data_version_tuple = (0, 0, 4946)
+data_version_str = "0.0.post4948"
+data_version_tuple = (0, 0, 4948)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4946")
+    pdata_version = V("0.0.post4948")
 except ImportError:
     pass
-data_git_hash = "52a50550a38178ed255942f88b0cb437d7e6ab80"
-data_git_describe = "v0.0-4946-g52a50550a"
+data_git_hash = "a0717f8d2278367c6ee4e526836f1a92a1a3f327"
+data_git_describe = "v0.0-4948-ga0717f8d2"
 data_git_msg = """\
-commit 52a50550a38178ed255942f88b0cb437d7e6ab80
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Feb 16 10:59:44 2021 -0800
+commit a0717f8d2278367c6ee4e526836f1a92a1a3f327
+Author: Cindy Chen <chencindy@google.com>
+Date:   Wed Feb 17 15:22:22 2021 -0800
 
-    [keymgr/dv] update scb to remove non-block assignment
+    [dv/otp] Fix regression regwen failure
     
-    address #5159
+    The nightly regression failure is due to recent change in `reset`
+    function. When reset is issued at posedge of `rst_n`, previous otp_scb
+    code causes a race condition. This PR moves the ral prediction after
+    `reset` function to avoid the race condition.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
