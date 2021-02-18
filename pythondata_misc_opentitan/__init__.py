@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5043"
-version_tuple = (0, 0, 5043)
+version_str = "0.0.post5044"
+version_tuple = (0, 0, 5044)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5043")
+    pversion = V("0.0.post5044")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4952"
-data_version_tuple = (0, 0, 4952)
+data_version_str = "0.0.post4953"
+data_version_tuple = (0, 0, 4953)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4952")
+    pdata_version = V("0.0.post4953")
 except ImportError:
     pass
-data_git_hash = "f4e8f95fee05259c3beeb6f815606945edb66479"
-data_git_describe = "v0.0-4952-gf4e8f95fe"
+data_git_hash = "8bf4fe68d9710ede3fa7090b6b3e34707b325101"
+data_git_describe = "v0.0-4953-g8bf4fe68d"
 data_git_msg = """\
-commit f4e8f95fee05259c3beeb6f815606945edb66479
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Tue Feb 9 08:06:40 2021 -0800
+commit 8bf4fe68d9710ede3fa7090b6b3e34707b325101
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Feb 18 12:56:08 2021 -0800
 
-    [csrng/dv] V0->V1
+    [jtag/scan] Connect scanmode signal of RV DM TAP
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
