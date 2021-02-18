@@ -4,48 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5035"
-version_tuple = (0, 0, 5035)
+version_str = "0.0.post5037"
+version_tuple = (0, 0, 5037)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5035")
+    pversion = V("0.0.post5037")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4944"
-data_version_tuple = (0, 0, 4944)
+data_version_str = "0.0.post4946"
+data_version_tuple = (0, 0, 4946)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4944")
+    pdata_version = V("0.0.post4946")
 except ImportError:
     pass
-data_git_hash = "2b8ef7625242cd4d1f3bc6eb5294037d94192057"
-data_git_describe = "v0.0-4944-g2b8ef7625"
+data_git_hash = "52a50550a38178ed255942f88b0cb437d7e6ab80"
+data_git_describe = "v0.0-4946-g52a50550a"
 data_git_msg = """\
-commit 2b8ef7625242cd4d1f3bc6eb5294037d94192057
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 16 14:44:55 2021 -0800
+commit 52a50550a38178ed255942f88b0cb437d7e6ab80
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Feb 16 10:59:44 2021 -0800
 
-    [aon_timer] Minor fixes and updates for integration
+    [keymgr/dv] update scb to remove non-block assignment
     
-    - Add exclusions to clk_aon registers
-    - Slightly rename reset request for consistency with wakeup request
-    - Add dummy INTR_ENABLE register for #5260
+    address #5159
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Integrate aon_timer and remove nmi_gen
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [sw] update total interrupts
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Auto generate files
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
