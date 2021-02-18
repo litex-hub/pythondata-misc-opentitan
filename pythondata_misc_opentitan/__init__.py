@@ -4,37 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5039"
-version_tuple = (0, 0, 5039)
+version_str = "0.0.post5040"
+version_tuple = (0, 0, 5040)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5039")
+    pversion = V("0.0.post5040")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4948"
-data_version_tuple = (0, 0, 4948)
+data_version_str = "0.0.post4949"
+data_version_tuple = (0, 0, 4949)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4948")
+    pdata_version = V("0.0.post4949")
 except ImportError:
     pass
-data_git_hash = "a0717f8d2278367c6ee4e526836f1a92a1a3f327"
-data_git_describe = "v0.0-4948-ga0717f8d2"
+data_git_hash = "bc2bc5877fe0ed7fc2dfa09ff7db279546fb0cca"
+data_git_describe = "v0.0-4949-gbc2bc5877"
 data_git_msg = """\
-commit a0717f8d2278367c6ee4e526836f1a92a1a3f327
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Feb 17 15:22:22 2021 -0800
+commit bc2bc5877fe0ed7fc2dfa09ff7db279546fb0cca
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Feb 9 13:30:37 2021 +0000
 
-    [dv/otp] Fix regression regwen failure
+    [reggen] Define a Window type to represent (memory) windows
     
-    The nightly regression failure is due to recent change in `reset`
-    function. When reset is issued at posedge of `rst_n`, previous otp_scb
-    code causes a race condition. This PR moves the ral prediction after
-    `reset` function to avoid the race condition.
+    This also removes the Window class from reggen/data.py: we'll use the
+    new Window class everywhere.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    There's a bit of code to handle window tags at the bottom of
+    uvm_reg.sv.tpl that goes away completely (windows don't have tags, so
+    this was dead code).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
