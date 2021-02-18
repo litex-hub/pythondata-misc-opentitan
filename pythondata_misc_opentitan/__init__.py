@@ -4,41 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5032"
-version_tuple = (0, 0, 5032)
+version_str = "0.0.post5035"
+version_tuple = (0, 0, 5035)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5032")
+    pversion = V("0.0.post5035")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4941"
-data_version_tuple = (0, 0, 4941)
+data_version_str = "0.0.post4944"
+data_version_tuple = (0, 0, 4944)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4941")
+    pdata_version = V("0.0.post4944")
 except ImportError:
     pass
-data_git_hash = "b826e4d7ab2b4adce37accb2221354c83ed1c1ba"
-data_git_describe = "v0.0-4941-gb826e4d7a"
+data_git_hash = "2b8ef7625242cd4d1f3bc6eb5294037d94192057"
+data_git_describe = "v0.0-4944-g2b8ef7625"
 data_git_msg = """\
-commit b826e4d7ab2b4adce37accb2221354c83ed1c1ba
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Feb 16 11:53:23 2021 -0800
+commit 2b8ef7625242cd4d1f3bc6eb5294037d94192057
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 16 14:44:55 2021 -0800
 
-    [top/dv] Fix backdoor override
+    [aon_timer] Minor fixes and updates for integration
     
-    readelf may trancate the symbol name if long is over 85 chars
-    Since we need to find the symbol name `exp_spi_device_rx_data` to
-    replace the value, we can't trancate it
+    - Add exclusions to clk_aon registers
+    - Slightly rename reset request for consistency with wakeup request
+    - Add dummy INTR_ENABLE register for #5260
     
-    Before the fix:
-    >  1512: 20003698   128 OBJECT  LOCAL  DEFAULT    6 exp_spi_device_r[...]
-    After:
-    >  1512: 20003698   128 OBJECT  LOCAL  DEFAULT    6 exp_spi_device_rx_data
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    [top] Integrate aon_timer and remove nmi_gen
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw] update total interrupts
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [top] Auto generate files
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
