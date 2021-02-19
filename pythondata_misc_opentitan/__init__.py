@@ -4,41 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5061"
-version_tuple = (0, 0, 5061)
+version_str = "0.0.post5062"
+version_tuple = (0, 0, 5062)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5061")
+    pversion = V("0.0.post5062")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4970"
-data_version_tuple = (0, 0, 4970)
+data_version_str = "0.0.post4971"
+data_version_tuple = (0, 0, 4971)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4970")
+    pdata_version = V("0.0.post4971")
 except ImportError:
     pass
-data_git_hash = "b40383473ca14e7b352be7b150afbf26d362a4b9"
-data_git_describe = "v0.0-4970-gb40383473"
+data_git_hash = "6e293427f83dcaccf38775d4622b4e7c4569a006"
+data_git_describe = "v0.0-4971-g6e293427f"
 data_git_msg = """\
-commit b40383473ca14e7b352be7b150afbf26d362a4b9
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Feb 17 21:47:34 2021 -0800
+commit 6e293427f83dcaccf38775d4622b4e7c4569a006
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Feb 18 11:25:35 2021 -0800
 
-    [dvsim/syn] Update parsing script and area reporting
+    [fpv] Fix FPV compile errors
     
-    This updates the area reporting of the DVSIM parser script.
-    Submodules can now be expanded recursively by name, or by
-    setting a maximum expansion depth. This allows us for instance
-    to report two levels of hierarchy, where we only expand the
-    top_earlgrey module, but not the padring and ast modules.
+    1. sram_ctrl compile error comes from prim_lc_sync. It requires input
+    to be an array, even though the size is 1.
     
-    Further, the area report is extended to also include logic and macro
-    percentages for each module.
+    2. RV_DM compile error comes from missing `prim_lc_sync` package.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
