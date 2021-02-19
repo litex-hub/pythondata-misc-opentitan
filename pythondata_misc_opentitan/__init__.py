@@ -4,41 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5056"
-version_tuple = (0, 0, 5056)
+version_str = "0.0.post5058"
+version_tuple = (0, 0, 5058)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5056")
+    pversion = V("0.0.post5058")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4965"
-data_version_tuple = (0, 0, 4965)
+data_version_str = "0.0.post4967"
+data_version_tuple = (0, 0, 4967)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4965")
+    pdata_version = V("0.0.post4967")
 except ImportError:
     pass
-data_git_hash = "f83947635f4426de2117f6aa433065806eed9ca8"
-data_git_describe = "v0.0-4965-gf83947635"
+data_git_hash = "3bb4f0b18142884c5c22223c779bac8878c143a5"
+data_git_describe = "v0.0-4967-g3bb4f0b18"
 data_git_msg = """\
-commit f83947635f4426de2117f6aa433065806eed9ca8
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Feb 19 11:32:39 2021 +0100
+commit 3bb4f0b18142884c5c22223c779bac8878c143a5
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Feb 19 15:07:00 2021 +0000
 
-    [csrng] Select Canright S-Box implementation for AES cipher core
+    [otbn] Signal multiple errors together
     
-    This commit changes the default selection for the S-Box implementation
-    inside the embedded AES cipher core from the LUT-based implementation the
-    unmasked Canright design. This is more suitable for ASIC implementations
-    because of the lower area footprint. The LUT-based implementation should
-    be used for FPGA targets only.
+    Previously when several errors were observed together OTBN prioritised
+    them to set a single error bit. This removes the priortisation so bits
+    for all observed errors are set simultaneously.
     
-    This change got already merged with lowRISC/OpenTitan#5215 but it got
-    accidentally reverted when rebasing lowRISC/OpenTitan#5195.
+    Fixes #5141
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
