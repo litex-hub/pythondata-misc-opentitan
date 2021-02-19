@@ -4,37 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5054"
-version_tuple = (0, 0, 5054)
+version_str = "0.0.post5056"
+version_tuple = (0, 0, 5056)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5054")
+    pversion = V("0.0.post5056")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4963"
-data_version_tuple = (0, 0, 4963)
+data_version_str = "0.0.post4965"
+data_version_tuple = (0, 0, 4965)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4963")
+    pdata_version = V("0.0.post4965")
 except ImportError:
     pass
-data_git_hash = "2aff11b701632ec81fefedae21fc8d9c30c87ec5"
-data_git_describe = "v0.0-4963-g2aff11b70"
+data_git_hash = "f83947635f4426de2117f6aa433065806eed9ca8"
+data_git_describe = "v0.0-4965-gf83947635"
 data_git_msg = """\
-commit 2aff11b701632ec81fefedae21fc8d9c30c87ec5
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Feb 16 17:11:37 2021 +0000
+commit f83947635f4426de2117f6aa433065806eed9ca8
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Feb 19 11:32:39 2021 +0100
 
-    [ci] Move "slow lint" commands into script
+    [csrng] Select Canright S-Box implementation for AES cipher core
     
-    This should work the same as before, but is easier to run locally.
-    Also, the job is no longer marked as "always()", which means it won't
-    run if installing the package dependencies fails (which caused rather
-    confusing error messages).
+    This commit changes the default selection for the S-Box implementation
+    inside the embedded AES cipher core from the LUT-based implementation the
+    unmasked Canright design. This is more suitable for ASIC implementations
+    because of the lower area footprint. The LUT-based implementation should
+    be used for FPGA targets only.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This change got already merged with lowRISC/OpenTitan#5215 but it got
+    accidentally reverted when rebasing lowRISC/OpenTitan#5195.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
