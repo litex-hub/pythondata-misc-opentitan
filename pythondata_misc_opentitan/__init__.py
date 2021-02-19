@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5044"
-version_tuple = (0, 0, 5044)
+version_str = "0.0.post5045"
+version_tuple = (0, 0, 5045)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5044")
+    pversion = V("0.0.post5045")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4953"
-data_version_tuple = (0, 0, 4953)
+data_version_str = "0.0.post4954"
+data_version_tuple = (0, 0, 4954)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4953")
+    pdata_version = V("0.0.post4954")
 except ImportError:
     pass
-data_git_hash = "8bf4fe68d9710ede3fa7090b6b3e34707b325101"
-data_git_describe = "v0.0-4953-g8bf4fe68d"
+data_git_hash = "f67df357341da37297ba1feba5fa02f7811d119d"
+data_git_describe = "v0.0-4954-gf67df3573"
 data_git_msg = """\
-commit 8bf4fe68d9710ede3fa7090b6b3e34707b325101
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Feb 18 12:56:08 2021 -0800
+commit f67df357341da37297ba1feba5fa02f7811d119d
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Feb 18 13:12:46 2021 -0800
 
-    [jtag/scan] Connect scanmode signal of RV DM TAP
+    [kmac] Latch absorbed signal to delay Done command
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    kmac_keymgr interface asserts `CmdDone` when it sees `absorbed` signal.
+    The SHA3 module asserts absorbed signal when it is in `StAbsorb` but the
+    next state is `StSqueeze`. It creates assertion error as only
+    `StSqueeze` expects `CmdDone`.
+    
+    To break the timing path, latch in absorbed_o is added.
+    
+    This issue is reported by @udinator
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
