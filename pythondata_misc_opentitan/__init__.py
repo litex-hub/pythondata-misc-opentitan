@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5059"
-version_tuple = (0, 0, 5059)
+version_str = "0.0.post5061"
+version_tuple = (0, 0, 5061)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5059")
+    pversion = V("0.0.post5061")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4968"
-data_version_tuple = (0, 0, 4968)
+data_version_str = "0.0.post4970"
+data_version_tuple = (0, 0, 4970)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4968")
+    pdata_version = V("0.0.post4970")
 except ImportError:
     pass
-data_git_hash = "1e7fa2eb509f864e3785c47a73b5d3bad5b2c471"
-data_git_describe = "v0.0-4968-g1e7fa2eb5"
+data_git_hash = "b40383473ca14e7b352be7b150afbf26d362a4b9"
+data_git_describe = "v0.0-4970-gb40383473"
 data_git_msg = """\
-commit 1e7fa2eb509f864e3785c47a73b5d3bad5b2c471
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Feb 18 08:41:37 2021 -0800
+commit b40383473ca14e7b352be7b150afbf26d362a4b9
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Feb 17 21:47:34 2021 -0800
 
-    [edn/rtl] added fatal alert signal
+    [dvsim/syn] Update parsing script and area reporting
     
-    Same as CSRNG, with less status bits.
-    Re-ran regtool to get up to date.
+    This updates the area reporting of the DVSIM parser script.
+    Submodules can now be expanded recursively by name, or by
+    setting a maximum expansion depth. This allows us for instance
+    to report two levels of hierarchy, where we only expand the
+    top_earlgrey module, but not the padring and ast modules.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Further, the area report is extended to also include logic and macro
+    percentages for each module.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
