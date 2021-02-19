@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5053"
-version_tuple = (0, 0, 5053)
+version_str = "0.0.post5054"
+version_tuple = (0, 0, 5054)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5053")
+    pversion = V("0.0.post5054")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4962"
-data_version_tuple = (0, 0, 4962)
+data_version_str = "0.0.post4963"
+data_version_tuple = (0, 0, 4963)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4962")
+    pdata_version = V("0.0.post4963")
 except ImportError:
     pass
-data_git_hash = "f2a373a70fd3e76fbb6ba3b1b9df0d33674b1697"
-data_git_describe = "v0.0-4962-gf2a373a70"
+data_git_hash = "2aff11b701632ec81fefedae21fc8d9c30c87ec5"
+data_git_describe = "v0.0-4963-g2aff11b70"
 data_git_msg = """\
-commit f2a373a70fd3e76fbb6ba3b1b9df0d33674b1697
-Author: Tobias Wölfel <tobias.woelfel@mailbox.org>
-Date:   Thu Feb 18 22:42:28 2021 +0100
+commit 2aff11b701632ec81fefedae21fc8d9c30c87ec5
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Feb 16 17:11:37 2021 +0000
 
-    Fix spelling errors
+    [ci] Move "slow lint" commands into script
     
-    Signed-off-by: Tobias Wölfel <tobias.woelfel@mailbox.org>
+    This should work the same as before, but is easier to run locally.
+    Also, the job is no longer marked as "always()", which means it won't
+    run if installing the package dependencies fails (which caused rather
+    confusing error messages).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
