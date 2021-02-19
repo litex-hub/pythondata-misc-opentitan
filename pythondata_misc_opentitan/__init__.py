@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5062"
-version_tuple = (0, 0, 5062)
+version_str = "0.0.post5064"
+version_tuple = (0, 0, 5064)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5062")
+    pversion = V("0.0.post5064")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4971"
-data_version_tuple = (0, 0, 4971)
+data_version_str = "0.0.post4973"
+data_version_tuple = (0, 0, 4973)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4971")
+    pdata_version = V("0.0.post4973")
 except ImportError:
     pass
-data_git_hash = "6e293427f83dcaccf38775d4622b4e7c4569a006"
-data_git_describe = "v0.0-4971-g6e293427f"
+data_git_hash = "c7f52e91e14d76bc1049f5def17a6f4607d0c658"
+data_git_describe = "v0.0-4973-gc7f52e91e"
 data_git_msg = """\
-commit 6e293427f83dcaccf38775d4622b4e7c4569a006
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Feb 18 11:25:35 2021 -0800
+commit c7f52e91e14d76bc1049f5def17a6f4607d0c658
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Feb 19 12:23:40 2021 +0000
 
-    [fpv] Fix FPV compile errors
+    [topgen] Demote message about xbar connections from warning to info
     
-    1. sram_ctrl compile error comes from prim_lc_sync. It requires input
-    to be an array, even though the size is 1.
+    This is just how we wire up our chip at the moment, so a warning
+    doesn't seem like the right thing to do!
     
-    2. RV_DM compile error comes from missing `prim_lc_sync` package.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
