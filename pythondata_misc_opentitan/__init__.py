@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5058"
-version_tuple = (0, 0, 5058)
+version_str = "0.0.post5059"
+version_tuple = (0, 0, 5059)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5058")
+    pversion = V("0.0.post5059")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4967"
-data_version_tuple = (0, 0, 4967)
+data_version_str = "0.0.post4968"
+data_version_tuple = (0, 0, 4968)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4967")
+    pdata_version = V("0.0.post4968")
 except ImportError:
     pass
-data_git_hash = "3bb4f0b18142884c5c22223c779bac8878c143a5"
-data_git_describe = "v0.0-4967-g3bb4f0b18"
+data_git_hash = "1e7fa2eb509f864e3785c47a73b5d3bad5b2c471"
+data_git_describe = "v0.0-4968-g1e7fa2eb5"
 data_git_msg = """\
-commit 3bb4f0b18142884c5c22223c779bac8878c143a5
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Feb 19 15:07:00 2021 +0000
+commit 1e7fa2eb509f864e3785c47a73b5d3bad5b2c471
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Feb 18 08:41:37 2021 -0800
 
-    [otbn] Signal multiple errors together
+    [edn/rtl] added fatal alert signal
     
-    Previously when several errors were observed together OTBN prioritised
-    them to set a single error bit. This removes the priortisation so bits
-    for all observed errors are set simultaneously.
+    Same as CSRNG, with less status bits.
+    Re-ran regtool to get up to date.
     
-    Fixes #5141
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
