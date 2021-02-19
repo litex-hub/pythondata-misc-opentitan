@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5048"
-version_tuple = (0, 0, 5048)
+version_str = "0.0.post5053"
+version_tuple = (0, 0, 5053)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5048")
+    pversion = V("0.0.post5053")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4957"
-data_version_tuple = (0, 0, 4957)
+data_version_str = "0.0.post4962"
+data_version_tuple = (0, 0, 4962)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4957")
+    pdata_version = V("0.0.post4962")
 except ImportError:
     pass
-data_git_hash = "bd80aed965f06a2a2b74e2d469f057c7c88a68bc"
-data_git_describe = "v0.0-4957-gbd80aed96"
+data_git_hash = "f2a373a70fd3e76fbb6ba3b1b9df0d33674b1697"
+data_git_describe = "v0.0-4962-gf2a373a70"
 data_git_msg = """\
-commit bd80aed965f06a2a2b74e2d469f057c7c88a68bc
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 18 15:51:37 2021 -0800
+commit f2a373a70fd3e76fbb6ba3b1b9df0d33674b1697
+Author: Tobias Wölfel <tobias.woelfel@mailbox.org>
+Date:   Thu Feb 18 22:42:28 2021 +0100
 
-    [top/dv] Fix uart CSR failure
+    Fix spelling errors
     
-    uart RX pin may not be connected. When loopback is set, TX pin may
-    toggle unexpectedly. Disable monitor TX pin in CSR test
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Tobias Wölfel <tobias.woelfel@mailbox.org>
 
 """
 
