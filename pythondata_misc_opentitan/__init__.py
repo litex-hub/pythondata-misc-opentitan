@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5074"
-version_tuple = (0, 0, 5074)
+version_str = "0.0.post5075"
+version_tuple = (0, 0, 5075)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5074")
+    pversion = V("0.0.post5075")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4983"
-data_version_tuple = (0, 0, 4983)
+data_version_str = "0.0.post4984"
+data_version_tuple = (0, 0, 4984)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4983")
+    pdata_version = V("0.0.post4984")
 except ImportError:
     pass
-data_git_hash = "a70638097417cf8d7a39fa8a12f01cf1112c16f9"
-data_git_describe = "v0.0-4983-ga70638097"
+data_git_hash = "7a0289c6eab343d266dfead12f52ac51c4e66aa6"
+data_git_describe = "v0.0-4984-g7a0289c6e"
 data_git_msg = """\
-commit a70638097417cf8d7a39fa8a12f01cf1112c16f9
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Feb 18 18:06:03 2021 -0800
+commit 7a0289c6eab343d266dfead12f52ac51c4e66aa6
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 19 16:33:44 2021 -0800
 
-    [pinmux] Add strap sampling and TAP qualification logic
+    [top] Minor lint fixes
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    - tie off undriven input due to #5260
+    - tie off unused clocks / resets in scanmode muxing
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
