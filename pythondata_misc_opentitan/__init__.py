@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5079"
-version_tuple = (0, 0, 5079)
+version_str = "0.0.post5081"
+version_tuple = (0, 0, 5081)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5079")
+    pversion = V("0.0.post5081")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4988"
-data_version_tuple = (0, 0, 4988)
+data_version_str = "0.0.post4990"
+data_version_tuple = (0, 0, 4990)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4988")
+    pdata_version = V("0.0.post4990")
 except ImportError:
     pass
-data_git_hash = "802d472305d27808ae019a65a43525f1ab176556"
-data_git_describe = "v0.0-4988-g802d47230"
+data_git_hash = "c9a00fee646ed342188ebb595029133089a87fe2"
+data_git_describe = "v0.0-4990-gc9a00fee6"
 data_git_msg = """\
-commit 802d472305d27808ae019a65a43525f1ab176556
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Feb 19 16:55:36 2021 -0800
+commit c9a00fee646ed342188ebb595029133089a87fe2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Feb 17 17:37:56 2021 -0800
 
-    [dv/alert_handler] fix regression error
+    [top] slow down clk_aon for verilator and fpga
     
-    Two regression error fixes regarding alert_handler:
-    1. Regwen switch from W1C to W0C, so writing 0 to the regwen will lock
-    the lockable regs.
-    2. Adding a reset when check escalation length, because reset is async
-    and monitor counts on posedge while scb counts on negedge. If reset is
-    in between the clock edge, there might be mismatch.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
