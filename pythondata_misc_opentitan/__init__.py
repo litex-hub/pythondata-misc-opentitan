@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5081"
-version_tuple = (0, 0, 5081)
+version_str = "0.0.post5083"
+version_tuple = (0, 0, 5083)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5081")
+    pversion = V("0.0.post5083")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4990"
-data_version_tuple = (0, 0, 4990)
+data_version_str = "0.0.post4992"
+data_version_tuple = (0, 0, 4992)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4990")
+    pdata_version = V("0.0.post4992")
 except ImportError:
     pass
-data_git_hash = "c9a00fee646ed342188ebb595029133089a87fe2"
-data_git_describe = "v0.0-4990-gc9a00fee6"
+data_git_hash = "2254ac84e11794389859f9c1249cf5e2a0f7321f"
+data_git_describe = "v0.0-4992-g2254ac84e"
 data_git_msg = """\
-commit c9a00fee646ed342188ebb595029133089a87fe2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Feb 17 17:37:56 2021 -0800
+commit 2254ac84e11794389859f9c1249cf5e2a0f7321f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Feb 19 20:57:22 2021 -0800
 
-    [top] slow down clk_aon for verilator and fpga
+    [top] Regenerate top
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
