@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5064"
-version_tuple = (0, 0, 5064)
+version_str = "0.0.post5071"
+version_tuple = (0, 0, 5071)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5064")
+    pversion = V("0.0.post5071")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4973"
-data_version_tuple = (0, 0, 4973)
+data_version_str = "0.0.post4980"
+data_version_tuple = (0, 0, 4980)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4973")
+    pdata_version = V("0.0.post4980")
 except ImportError:
     pass
-data_git_hash = "c7f52e91e14d76bc1049f5def17a6f4607d0c658"
-data_git_describe = "v0.0-4973-gc7f52e91e"
+data_git_hash = "22b9f11bfb610654c76b2d42c17d0f7a662b8b27"
+data_git_describe = "v0.0-4980-g22b9f11bf"
 data_git_msg = """\
-commit c7f52e91e14d76bc1049f5def17a6f4607d0c658
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Feb 19 12:23:40 2021 +0000
+commit 22b9f11bfb610654c76b2d42c17d0f7a662b8b27
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Feb 18 19:55:27 2021 -0800
 
-    [topgen] Demote message about xbar connections from warning to info
+    [dv/kmac] reduce length of long_msg test
     
-    This is just how we wire up our chip at the moment, so a warning
-    doesn't seem like the right thing to do!
+    this PR reduces the input message size to reduce the runtime of the
+    `long_msg_and_output` test in nightly regressions.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
