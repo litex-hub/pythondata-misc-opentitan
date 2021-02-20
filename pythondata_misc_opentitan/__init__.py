@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5078"
-version_tuple = (0, 0, 5078)
+version_str = "0.0.post5079"
+version_tuple = (0, 0, 5079)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5078")
+    pversion = V("0.0.post5079")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4987"
-data_version_tuple = (0, 0, 4987)
+data_version_str = "0.0.post4988"
+data_version_tuple = (0, 0, 4988)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4987")
+    pdata_version = V("0.0.post4988")
 except ImportError:
     pass
-data_git_hash = "dc81618900cf069065c2d62b9863f52ce3a30cc1"
-data_git_describe = "v0.0-4987-gdc8161890"
+data_git_hash = "802d472305d27808ae019a65a43525f1ab176556"
+data_git_describe = "v0.0-4988-g802d47230"
 data_git_msg = """\
-commit dc81618900cf069065c2d62b9863f52ce3a30cc1
+commit 802d472305d27808ae019a65a43525f1ab176556
 Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Feb 19 15:39:27 2021 -0800
+Date:   Fri Feb 19 16:55:36 2021 -0800
 
-    [dv/hmac] Fix hmac vector parsing
+    [dv/alert_handler] fix regression error
     
-    This PR fixes the regression failure on hmac NIST vector parsing. The
-    hmac vector does not have `KeyLen` keyword, but still has `Key`. The
-    current parsing logic will set the key to 0 in this case.
-    
-    Also hmac NIST vector does not need to reserve key input, but kmac
-    vectors needs to. So this PR adds a flag for user to decide if they want
-    the key to be reserved.
+    Two regression error fixes regarding alert_handler:
+    1. Regwen switch from W1C to W0C, so writing 0 to the regwen will lock
+    the lockable regs.
+    2. Adding a reset when check escalation length, because reset is async
+    and monitor counts on posedge while scb counts on negedge. If reset is
+    in between the clock edge, there might be mismatch.
     
     Signed-off-by: Cindy Chen <chencindy@google.com>
 
