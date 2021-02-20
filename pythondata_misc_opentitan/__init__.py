@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5071"
-version_tuple = (0, 0, 5071)
+version_str = "0.0.post5074"
+version_tuple = (0, 0, 5074)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5071")
+    pversion = V("0.0.post5074")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4980"
-data_version_tuple = (0, 0, 4980)
+data_version_str = "0.0.post4983"
+data_version_tuple = (0, 0, 4983)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4980")
+    pdata_version = V("0.0.post4983")
 except ImportError:
     pass
-data_git_hash = "22b9f11bfb610654c76b2d42c17d0f7a662b8b27"
-data_git_describe = "v0.0-4980-g22b9f11bf"
+data_git_hash = "a70638097417cf8d7a39fa8a12f01cf1112c16f9"
+data_git_describe = "v0.0-4983-ga70638097"
 data_git_msg = """\
-commit 22b9f11bfb610654c76b2d42c17d0f7a662b8b27
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Thu Feb 18 19:55:27 2021 -0800
+commit a70638097417cf8d7a39fa8a12f01cf1112c16f9
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Feb 18 18:06:03 2021 -0800
 
-    [dv/kmac] reduce length of long_msg test
+    [pinmux] Add strap sampling and TAP qualification logic
     
-    this PR reduces the input message size to reduce the runtime of the
-    `long_msg_and_output` test in nightly regressions.
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
