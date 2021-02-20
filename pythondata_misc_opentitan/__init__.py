@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5075"
-version_tuple = (0, 0, 5075)
+version_str = "0.0.post5078"
+version_tuple = (0, 0, 5078)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5075")
+    pversion = V("0.0.post5078")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4984"
-data_version_tuple = (0, 0, 4984)
+data_version_str = "0.0.post4987"
+data_version_tuple = (0, 0, 4987)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4984")
+    pdata_version = V("0.0.post4987")
 except ImportError:
     pass
-data_git_hash = "7a0289c6eab343d266dfead12f52ac51c4e66aa6"
-data_git_describe = "v0.0-4984-g7a0289c6e"
+data_git_hash = "dc81618900cf069065c2d62b9863f52ce3a30cc1"
+data_git_describe = "v0.0-4987-gdc8161890"
 data_git_msg = """\
-commit 7a0289c6eab343d266dfead12f52ac51c4e66aa6
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 19 16:33:44 2021 -0800
+commit dc81618900cf069065c2d62b9863f52ce3a30cc1
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Feb 19 15:39:27 2021 -0800
 
-    [top] Minor lint fixes
+    [dv/hmac] Fix hmac vector parsing
     
-    - tie off undriven input due to #5260
-    - tie off unused clocks / resets in scanmode muxing
+    This PR fixes the regression failure on hmac NIST vector parsing. The
+    hmac vector does not have `KeyLen` keyword, but still has `Key`. The
+    current parsing logic will set the key to 0 in this case.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Also hmac NIST vector does not need to reserve key input, but kmac
+    vectors needs to. So this PR adds a flag for user to decide if they want
+    the key to be reserved.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
