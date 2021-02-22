@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5106"
-version_tuple = (0, 0, 5106)
+version_str = "0.0.post5107"
+version_tuple = (0, 0, 5107)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5106")
+    pversion = V("0.0.post5107")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5015"
-data_version_tuple = (0, 0, 5015)
+data_version_str = "0.0.post5016"
+data_version_tuple = (0, 0, 5016)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5015")
+    pdata_version = V("0.0.post5016")
 except ImportError:
     pass
-data_git_hash = "f52bf205c43ecc7fc9f27830e810e187498c2400"
-data_git_describe = "v0.0-5015-gf52bf205c"
+data_git_hash = "50978abe1e2fd623cfd3693a5738f421fc349c92"
+data_git_describe = "v0.0-5016-g50978abe1"
 data_git_msg = """\
-commit f52bf205c43ecc7fc9f27830e810e187498c2400
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Feb 15 19:17:11 2021 +0000
+commit 50978abe1e2fd623cfd3693a5738f421fc349c92
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Feb 22 10:41:25 2021 -0800
 
-    [otbn] Enable ECDSA P-256 sign/verify test in CI
+    [top] Hardware rv_dm hw_debug_en
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    - Temporarily address #5332
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
