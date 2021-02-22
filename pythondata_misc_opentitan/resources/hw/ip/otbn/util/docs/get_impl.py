@@ -5,47 +5,53 @@
 from typing import Dict, Optional, Sequence
 
 import libcst as cst
-from libcst._nodes.internal import CodegenState
+from libcst._nodes.internal import CodegenState, visit_required
 
 
-class RegRef(cst.Subscript):
-    '''An expression class to represent references to the register file'''
-    gprs = cst.Name('GPRs')
-    wdrs = cst.Name('WDRs')
+def make_aref(name: str, idx: cst.BaseExpression) -> cst.Subscript:
+    sub_elt = cst.SubscriptElement(slice=cst.Index(value=idx))
+    return cst.Subscript(value=cst.Name(name), slice=[sub_elt])
 
-    is_wide: bool
-    idx: cst.BaseExpression
 
-    def __init__(self, is_wide: bool, idx: cst.BaseExpression):
-        # We want to do a computation when defining the fields in the base
-        # class (value and slice). That means we can't use the automatically
-        # generated init method from dataclass (nor can we use it's
-        # __post_init__ hook: that would happen too late).
-        #
-        # However, we also want to store fields ourselves (is_wide and idx). We
-        # can't just do something like "self.is_wide = is_wide", because that
-        # crashes into the frozen setattr that the base class defines. Instead,
-        # we have to use object.__setattr__ directly.
-        sub_elt = cst.SubscriptElement(slice=cst.Index(value=idx))
-        super().__init__(value=(RegRef.wdrs if is_wide else RegRef.gprs),
-                         slice=[sub_elt])
-        object.__setattr__(self, 'is_wide', is_wide)
-        object.__setattr__(self, 'idx', idx)
+class NBAssignTarget(cst.AssignTarget):
+    '''The target of a (delayed) state update'''
+    def _codegen_impl(self, state: CodegenState) -> None:
+        with state.record_syntactic_position(self):
+            self.target._codegen(state)
+
+        self.whitespace_before_equal._codegen(state)
+        # U+21D0 is "Leftwards Double Arrow" (a nice unicode rendering of
+        # SystemVerilog's "<=" which doesn't collide with less-than-or-equal.
+        state.add_token("\u21d0")
+        self.whitespace_after_equal._codegen(state)
+
+
+class NBAssign(cst.BaseSmallStatement):
+    '''An assignment statement that models a (delayed) state update'''
+
+    def __init__(self, target: NBAssignTarget, value: cst.BaseExpression):
+        super().__init__()
+        self.target = target
+        self.value = value
 
     def _visit_and_replace_children(self,
-                                    visitor: cst.CSTVisitorT) -> 'RegRef':
-        new_idx = self.idx.visit(visitor)
-        if isinstance(new_idx, cst.RemovalSentinel):
-            raise ValueError('Cannot remove index of a RegRef')
-        return RegRef(self.is_wide, new_idx)
+                                    visitor: cst.CSTVisitorT) -> "NBAssign":
+        target = visit_required(self, "target", self.target, visitor)
+        value = visit_required(self, "value", self.value, visitor)
+        return NBAssign(target=target, value=value)
 
-    def _codegen_impl(self, state: CodegenState) -> None:
-        reg_bank = 'WDRs' if self.is_wide else 'GPRs'
-        state.add_token(reg_bank)
-        state.add_token('[')
+    def _codegen_impl(self,
+                      state: CodegenState,
+                      default_semicolon: bool = False) -> None:
         with state.record_syntactic_position(self):
-            self.idx._codegen(state)
-        state.add_token(']')
+            self.target._codegen(state)
+            self.value._codegen(state)
+
+    @staticmethod
+    def make(lhs: cst.BaseAssignTargetExpression,
+             rhs: cst.BaseExpression) -> 'NBAssign':
+        return NBAssign(target=NBAssignTarget(target=lhs),
+                        value=rhs)
 
 
 class ImplTransformer(cst.CSTTransformer):
@@ -66,6 +72,27 @@ class ImplTransformer(cst.CSTTransformer):
         self.cur_class = None
         return updated
 
+    def leave_Attribute(self,
+                        orig: cst.Attribute,
+                        updated: cst.Attribute) -> cst.BaseExpression:
+        if isinstance(updated.value, cst.Name):
+            stem = updated.value.value
+
+            # Strip out "self." references. In the ISS code, a field in the
+            # instruction appears as self.field_name. In the documentation, we
+            # can treat all the instruction fields as being in scope.
+            if stem == 'self':
+                return updated.attr
+
+            # Replace state.dmem with DMEM. This is an object in the ISS code,
+            # so you see things like state.dmem.load_u32(...). We keep the
+            # "object-orientated" style (so DMEM.load_u32(...)) because we need
+            # to distinguish between 32-bit and 256-bit loads.
+            if stem == 'state' and updated.attr.value == 'dmem':
+                return cst.Name(value='DMEM')
+
+        return updated
+
     def leave_FunctionDef(self,
                           orig: cst.FunctionDef,
                           updated: cst.FunctionDef) -> cst.BaseStatement:
@@ -81,7 +108,7 @@ class ImplTransformer(cst.CSTTransformer):
         return updated
 
     @staticmethod
-    def match_get_reg(call: cst.BaseExpression) -> Optional[RegRef]:
+    def match_get_reg(call: cst.BaseExpression) -> Optional[cst.Subscript]:
         '''Extract a RegRef from state.gprs.get_reg(foo)
 
         Returns None if this isn't a match.
@@ -113,50 +140,49 @@ class ImplTransformer(cst.CSTTransformer):
 
         regfile_name = state_dot_reg.attr.value
         if regfile_name == 'gprs':
-            is_wide = False
+            regfile_uname = 'GPRs'
         elif regfile_name == 'wdrs':
-            is_wide = True
+            regfile_uname = 'WDRs'
         else:
             return None
 
-        return RegRef(is_wide, getreg_idx)
+        return make_aref(regfile_uname, getreg_idx)
 
-    def leave_Call(self,
-                   orig: cst.Call,
-                   updated: cst.Call) -> cst.BaseExpression:
+    @staticmethod
+    def _spot_reg_read(node: cst.Call) -> Optional[cst.BaseExpression]:
         # Detect
         #
         #    state.gprs.get_reg(FOO).read_unsigned()
         #    state.gprs.get_reg(FOO).read_signed()
         #
-        # and replace it with the expressions
+        # and replace with the expressions
         #
         #    GPRs[FOO]
         #    from_2s_complement(GPRs[FOO])
         #
         # respectively.
 
-        # In either case, we expect updated.func to be some long attribute
+        # In either case, we expect node.func to be some long attribute
         # (representing state.gprs.get_reg(FOO).read_X). For unsigned or
         # signed, we can check that it is indeed an Attribute and that
-        # updated.args is empty (neither function takes arguments).
-        if updated.args or not isinstance(updated.func, cst.Attribute):
-            return updated
+        # node.args is empty (neither function takes arguments).
+        if node.args or not isinstance(node.func, cst.Attribute):
+            return None
 
         # Now, check whether we're calling one of the functions we're
         # interested in.
-        if updated.func.attr.value == 'read_signed':
+        if node.func.attr.value == 'read_signed':
             signed = True
-        elif updated.func.attr.value == 'read_unsigned':
+        elif node.func.attr.value == 'read_unsigned':
             signed = False
         else:
-            return updated
+            return None
 
-        # Check that updated.func.value really does represent something of the
+        # Check that node.func.value really does represent something of the
         # form "state.gprs.get_reg(FOO)".
-        ret = ImplTransformer.match_get_reg(updated.func.value)
+        ret = ImplTransformer.match_get_reg(node.func.value)
         if ret is None:
-            return updated
+            return None
 
         if signed:
             # If this is a call to read_signed, we want to wrap the returned
@@ -166,26 +192,65 @@ class ImplTransformer(cst.CSTTransformer):
         else:
             return ret
 
-    def leave_Expr(self,
-                   orig: cst.Expr,
-                   updated: cst.Expr) -> cst.BaseSmallStatement:
-        # This is called when leaving statements that are just expressions. We
-        # use it to spot
+    @staticmethod
+    def _spot_csr_read(node: cst.Call) -> Optional[cst.BaseExpression]:
+        # Detect
+        #
+        #    state.read_csr(FOO)
+        #
+        # and replace it with the expression
+        #
+        #    CSRs[FOO]
+
+        # Check we have exactly one argument
+        if len(node.args) != 1:
+            return None
+
+        # Check this is state.read_csr
+        if not (isinstance(node.func, cst.Attribute) and
+                isinstance(node.func.value, cst.Name) and
+                node.func.value.value == 'state' and
+                node.func.attr.value == 'read_csr'):
+            return None
+
+        return make_aref('CSRs', node.args[0].value)
+
+    def leave_Call(self,
+                   orig: cst.Call,
+                   updated: cst.Call) -> cst.BaseExpression:
+        # Handle:
+        #
+        #    state.gprs.get_reg(FOO).read_unsigned()
+        #    state.gprs.get_reg(FOO).read_signed()
+        #
+        reg_read = ImplTransformer._spot_reg_read(updated)
+        if reg_read is not None:
+            return reg_read
+
+        csr_read = ImplTransformer._spot_csr_read(updated)
+        if csr_read is not None:
+            return csr_read
+
+        return updated
+
+    @staticmethod
+    def _spot_reg_write(node: cst.Expr) -> Optional[NBAssign]:
+        # Spot
         #
         #   state.gprs.get_reg(foo).write_unsigned(bar)
         #   state.gprs.get_reg(foo).write_signed(bar)
         #
-        # and turn it into
+        # and turn them into
         #
         #   GPRs[FOO] = bar
         #   GPRs[FOO] = to_2s_complement(bar)
 
-        if not isinstance(updated.value, cst.Call):
-            return updated
+        if not isinstance(node.value, cst.Call):
+            return None
 
-        call = updated.value
+        call = node.value
         if len(call.args) != 1 or not isinstance(call.func, cst.Attribute):
-            return updated
+            return None
 
         value = call.args[0].value
 
@@ -195,16 +260,74 @@ class ImplTransformer(cst.CSTTransformer):
             rhs = cst.Call(func=cst.Name('to_2s_complement'),
                            args=[cst.Arg(value=value)])
         else:
-            return updated
+            return None
 
         # We expect call.func.value to be match state.gprs.get_reg(foo).
-        # Extract the RegRef if we can.
+        # Extract the array reference if we can.
         reg_ref = ImplTransformer.match_get_reg(call.func.value)
         if reg_ref is None:
+            return None
+
+        return NBAssign.make(reg_ref, rhs)
+
+    @staticmethod
+    def _spot_csr_write(node: cst.Expr) -> Optional[NBAssign]:
+        # Spot
+        #
+        #   state.write_csr(csr, new_val)
+        #
+        # and turn it into
+        #
+        #   CSRs[csr] = new_val
+
+        if not isinstance(node.value, cst.Call):
+            return None
+
+        call = node.value
+        if len(call.args) != 2 or not isinstance(call.func, cst.Attribute):
+            return None
+
+        if not (isinstance(call.func.value, cst.Name) and
+                call.func.value.value == 'state' and
+                call.func.attr.value == 'write_csr'):
+            return None
+
+        idx = call.args[0].value
+        rhs = call.args[1].value
+
+        return NBAssign.make(make_aref('CSRs', idx), rhs)
+
+    def leave_Expr(self,
+                   orig: cst.Expr,
+                   updated: cst.Expr) -> cst.BaseSmallStatement:
+        reg_write = ImplTransformer._spot_reg_write(updated)
+        if reg_write is not None:
+            return reg_write
+
+        csr_write = ImplTransformer._spot_csr_write(updated)
+        if csr_write is not None:
+            return csr_write
+
+        return updated
+
+    def leave_Assign(self,
+                     orig: cst.Assign,
+                     updated: cst.Assign) -> cst.BaseSmallStatement:
+        # Handle assignments to state.pc_next and replace them with delayed
+        # assignments to PC.
+
+        # We don't handle things like "(foo, state.pc_next) = some_fun()"
+        if len(updated.targets) != 1:
             return updated
 
-        return cst.Assign(targets=[cst.AssignTarget(target=reg_ref)],
-                          value=rhs)
+        tgt = updated.targets[0].target
+        if ((isinstance(tgt, cst.Attribute) and
+             isinstance(tgt.value, cst.Name) and
+             tgt.value.value == 'state' and
+             tgt.attr.value == 'pc_next')):
+            return NBAssign.make(cst.Name(value='PC'), updated.value)
+
+        return updated
 
 
 def read_implementation(path: str) -> Dict[str, str]:
