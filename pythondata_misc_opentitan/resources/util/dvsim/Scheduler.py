@@ -2,15 +2,14 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-
-from collections import OrderedDict
 import logging as log
-from signal import SIGINT, signal
 import threading
+from collections import OrderedDict
+from signal import SIGINT, signal
 
-from utils import VERBOSE
 from Deploy import DeployError
 from Timer import Timer
+from utils import VERBOSE
 
 
 class TargetScheduler:
@@ -63,12 +62,12 @@ class TargetScheduler:
                 # Still running
                 continue
             elif status == 'P':
-                log.log(VERBOSE, "[%s]: [%s]: [status] [%s: P]",
-                        hms, item.target, item.identifier)
+                log.log(VERBOSE, "[%s]: [%s]: [status] [%s: P]", hms,
+                        item.target, item.identifier)
                 to_pass.append(item)
             else:
-                log.error("[%s]: [%s]: [status] [%s: F]",
-                          hms, item.target, item.identifier)
+                log.error("[%s]: [%s]: [status] [%s: F]", hms, item.target,
+                          item.identifier)
                 to_fail.append(item)
 
         for item in to_pass:
@@ -131,8 +130,7 @@ class TargetScheduler:
         if not to_dispatch:
             return
 
-        log.log(VERBOSE, "[%s]: [%s]: [dispatch]:\n%s",
-                hms, self.name,
+        log.log(VERBOSE, "[%s]: [%s]: [dispatch]:\n%s", hms, self.name,
                 ", ".join(item.identifier for item in to_dispatch))
 
         for item in to_dispatch:
@@ -179,14 +177,11 @@ class TargetScheduler:
             width = len(str(total_cnt))
 
             field_fmt = '{{:0{}d}}'.format(width)
-            msg_fmt = ('[Q: {0}, D: {0}, P: {0}, F: {0}, K: {0}, T: {0}]'
-                       .format(field_fmt))
-            msg = msg_fmt.format(len(self._queued),
-                                 len(self._running),
-                                 len(self._passed),
-                                 len(self._failed),
-                                 len(self._killed),
-                                 total_cnt)
+            msg_fmt = ('[Q: {0}, D: {0}, P: {0}, F: {0}, K: {0}, T: {0}]'.
+                       format(field_fmt))
+            msg = msg_fmt.format(len(self._queued), len(self._running),
+                                 len(self._passed), len(self._failed),
+                                 len(self._killed), total_cnt)
             log.info("[%s]: [%s]: %s", hms, self.name, msg)
 
         return not (self._queued or self._running)
@@ -223,7 +218,6 @@ class TargetScheduler:
         old_handler = signal(SIGINT, on_sigint)
 
         try:
-            first_time = True
             while True:
                 if stop_now.is_set():
                     # We've had an interrupt. Kill any jobs that are running,
@@ -234,9 +228,8 @@ class TargetScheduler:
                 hms = timer.hms()
                 changed = self._poll(hms)
                 self._dispatch(hms, old_results)
-                if self._check_if_done(timer, hms, changed or first_time):
+                if self._check_if_done(timer, hms, changed):
                     break
-                first_time = False
 
                 # This is essentially sleep(1) to wait a second between each
                 # polling loop. But we do it with a bounded wait on stop_now so
@@ -288,12 +281,3 @@ class Scheduler:
         for scheduler in self.schedulers.values():
             results.update(scheduler.run(timer, results))
         return results
-
-
-def run(items):
-    '''Run the given items.
-
-    Returns a map from item to status.
-
-    '''
-    return Scheduler(items).run()
