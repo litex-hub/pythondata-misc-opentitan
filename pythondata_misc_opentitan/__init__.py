@@ -4,34 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5088"
-version_tuple = (0, 0, 5088)
+version_str = "0.0.post5095"
+version_tuple = (0, 0, 5095)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5088")
+    pversion = V("0.0.post5095")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post4997"
-data_version_tuple = (0, 0, 4997)
+data_version_str = "0.0.post5004"
+data_version_tuple = (0, 0, 5004)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post4997")
+    pdata_version = V("0.0.post5004")
 except ImportError:
     pass
-data_git_hash = "b4142bc72027cf42767e14231abb336707cf960c"
-data_git_describe = "v0.0-4997-gb4142bc72"
+data_git_hash = "254cf26b9f1b782fe58addb9084a638fc09d9bb2"
+data_git_describe = "v0.0-5004-g254cf26b9"
 data_git_msg = """\
-commit b4142bc72027cf42767e14231abb336707cf960c
+commit 254cf26b9f1b782fe58addb9084a638fc09d9bb2
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Feb 19 17:21:23 2021 +0000
+Date:   Fri Feb 19 16:18:50 2021 +0000
 
-    [otbn] Improve documentation for the Operations sections
-    
-    Also get rid of the pseudo-code notes at the end: this related to a
-    version of the instruction set simulator from last summer; a lot has
-    changed since then!
+    [otbn] Rewrite CSR reads and writes in operation docs
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
