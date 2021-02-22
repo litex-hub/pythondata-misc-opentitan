@@ -4,32 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5095"
-version_tuple = (0, 0, 5095)
+version_str = "0.0.post5096"
+version_tuple = (0, 0, 5096)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5095")
+    pversion = V("0.0.post5096")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5004"
-data_version_tuple = (0, 0, 5004)
+data_version_str = "0.0.post5005"
+data_version_tuple = (0, 0, 5005)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5004")
+    pdata_version = V("0.0.post5005")
 except ImportError:
     pass
-data_git_hash = "254cf26b9f1b782fe58addb9084a638fc09d9bb2"
-data_git_describe = "v0.0-5004-g254cf26b9"
+data_git_hash = "53d24f1f1825f66ff1ed59bb2216b65ce40ffdc5"
+data_git_describe = "v0.0-5005-g53d24f1f1"
 data_git_msg = """\
-commit 254cf26b9f1b782fe58addb9084a638fc09d9bb2
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Feb 19 16:18:50 2021 +0000
+commit 53d24f1f1825f66ff1ed59bb2216b65ce40ffdc5
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Mon Feb 22 14:41:34 2021 +0000
 
-    [otbn] Rewrite CSR reads and writes in operation docs
+    [sw, mask_rom] Initialise Pinmux
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    UART pins used to be dedicated, however with recent changes these
+    became multiplexible. This means that in order to get any uart output
+    in Mask ROM or ROM_EXT - the corresponding pins must be configured.
+    
+    This change adds call to pinmux_init at the beginning of
+    mask_rom_boot. This ensures that the UART pins are configured in both
+    Mask ROM and ROM_EXT.
+    
+    NOTE:
+    DIF Pinmux is work in progress, however it is expected that Mask ROM
+    will use the DIF directly to configure the pins. This also means that
+    sw_lib_pinmux will cease to exist.
+    
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
