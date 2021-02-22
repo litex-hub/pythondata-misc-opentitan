@@ -4,45 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5096"
-version_tuple = (0, 0, 5096)
+version_str = "0.0.post5100"
+version_tuple = (0, 0, 5100)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5096")
+    pversion = V("0.0.post5100")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5005"
-data_version_tuple = (0, 0, 5005)
+data_version_str = "0.0.post5009"
+data_version_tuple = (0, 0, 5009)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5005")
+    pdata_version = V("0.0.post5009")
 except ImportError:
     pass
-data_git_hash = "53d24f1f1825f66ff1ed59bb2216b65ce40ffdc5"
-data_git_describe = "v0.0-5005-g53d24f1f1"
+data_git_hash = "6a0baac71378994feca7154c19dac66b0aef3998"
+data_git_describe = "v0.0-5009-g6a0baac71"
 data_git_msg = """\
-commit 53d24f1f1825f66ff1ed59bb2216b65ce40ffdc5
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Mon Feb 22 14:41:34 2021 +0000
+commit 6a0baac71378994feca7154c19dac66b0aef3998
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Feb 19 12:36:12 2021 -0800
 
-    [sw, mask_rom] Initialise Pinmux
+    [dvsim] lint fixes to FlowCfg
     
-    UART pins used to be dedicated, however with recent changes these
-    became multiplexible. This means that in order to get any uart output
-    in Mask ROM or ROM_EXT - the corresponding pins must be configured.
-    
-    This change adds call to pinmux_init at the beginning of
-    mask_rom_boot. This ensures that the UART pins are configured in both
-    Mask ROM and ROM_EXT.
-    
-    NOTE:
-    DIF Pinmux is work in progress, however it is expected that Mask ROM
-    will use the DIF directly to configure the pins. This also means that
-    sw_lib_pinmux will cease to exist.
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
