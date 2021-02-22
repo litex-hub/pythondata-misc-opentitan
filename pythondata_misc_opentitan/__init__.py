@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5102"
-version_tuple = (0, 0, 5102)
+version_str = "0.0.post5106"
+version_tuple = (0, 0, 5106)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5102")
+    pversion = V("0.0.post5106")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5011"
-data_version_tuple = (0, 0, 5011)
+data_version_str = "0.0.post5015"
+data_version_tuple = (0, 0, 5015)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5011")
+    pdata_version = V("0.0.post5015")
 except ImportError:
     pass
-data_git_hash = "5bc27bd66d61777a25fedc31b5233038be78f009"
-data_git_describe = "v0.0-5011-g5bc27bd66"
+data_git_hash = "f52bf205c43ecc7fc9f27830e810e187498c2400"
+data_git_describe = "v0.0-5015-gf52bf205c"
 data_git_msg = """\
-commit 5bc27bd66d61777a25fedc31b5233038be78f009
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Fri Feb 12 10:59:47 2021 -0800
+commit f52bf205c43ecc7fc9f27830e810e187498c2400
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Feb 15 19:17:11 2021 +0000
 
-    [dv/kmac] kmac_burst_write test
+    [otbn] Enable ECDSA P-256 sign/verify test in CI
     
-    This PR implements the kmac_burst_wr test as described in the testplan.
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
