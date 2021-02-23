@@ -143,9 +143,10 @@ class RV32ImmShift(OTBNInsn):
 def logical_byte_shift(value: int, shift_type: int, shift_bytes: int) -> int:
     '''Logical shift value by shift_bytes to the left or right.
 
-    value should be an unsigned 256-bit value. shift_type should be 0 (shift left)
-    or 1 (shift right): matching the encoding of the big number instructions.
-    shift_bytes should be a non-negative number of bytes to shift by.
+    value should be an unsigned 256-bit value. shift_type should be 0 (shift
+    left) or 1 (shift right), matching the encoding of the big number
+    instructions. shift_bytes should be a non-negative number of bytes to shift
+    by.
 
     Returns an unsigned 256-bit value, truncating on an overflowing left shift.
 
@@ -158,3 +159,10 @@ def logical_byte_shift(value: int, shift_type: int, shift_bytes: int) -> int:
     shift_bits = 8 * shift_bytes
     shifted = value << shift_bits if shift_type == 0 else value >> shift_bits
     return shifted & mask256
+
+
+def extract_quarter_word(value: int, qwsel: int) -> int:
+    '''Extract a 64-bit quarter word from a 256-bit value.'''
+    assert 0 <= value < (1 << 256)
+    assert 0 <= qwsel <= 3
+    return (value >> (qwsel * 64)) & ((1 << 64) - 1)

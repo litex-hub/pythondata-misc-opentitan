@@ -4,10 +4,10 @@
 
 from typing import Dict
 
-from .alert import LoopError
+from sim import err_bits
 from .flags import FlagReg
 from .isa import (DecodeError, OTBNInsn, RV32RegReg, RV32RegImm, RV32ImmShift,
-                  insn_for_mnemonic, logical_byte_shift)
+                  insn_for_mnemonic, logical_byte_shift, extract_quarter_word)
 from .state import OTBNState
 
 
@@ -309,13 +309,9 @@ class CSRRW(OTBNInsn):
 class ECALL(OTBNInsn):
     insn = insn_for_mnemonic('ecall', 0)
 
-    def __init__(self, raw: int, op_vals: Dict[str, int]):
-        super().__init__(raw, op_vals)
-        pass
-
     def execute(self, state: OTBNState) -> None:
         # Set INTR_STATE.done and STATUS, reflecting the fact we've stopped.
-        state._stop(0)
+        state.stop_at_end_of_cycle(err_bits=0)
 
 
 class LOOP(OTBNInsn):
@@ -330,11 +326,9 @@ class LOOP(OTBNInsn):
     def execute(self, state: OTBNState) -> None:
         num_iters = state.gprs.get_reg(self.grs).read_unsigned()
         if num_iters == 0:
-            state.on_error(LoopError('loop count in x{} was zero'
-                                     .format(self.grs)))
-            return
-
-        state.loop_start(num_iters, self.bodysize)
+            state.stop_at_end_of_cycle(err_bits.LOOP)
+        else:
+            state.loop_start(num_iters, self.bodysize)
 
 
 class LOOPI(OTBNInsn):
@@ -367,8 +361,13 @@ class BNADD(OTBNInsn):
         b = state.wdrs.get_reg(self.wrs2).read_unsigned()
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
 
-        (result, flags) = state.add_with_carry(a, b_shifted, 0)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a + b_shifted
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -390,8 +389,13 @@ class BNADDC(OTBNInsn):
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
 
         carry = int(state.csrs.flags[self.flag_group].C)
-        (result, flags) = state.add_with_carry(a, b_shifted, carry)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a + b_shifted + carry
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -409,8 +413,13 @@ class BNADDI(OTBNInsn):
         a = state.wdrs.get_reg(self.wrs).read_unsigned()
         b = self.imm
 
-        (result, flags) = state.add_with_carry(a, b, 0)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a + b
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -449,8 +458,11 @@ class BNMULQACC(OTBNInsn):
         self.acc_shift_imm = op_vals['acc_shift_imm']
 
     def execute(self, state: OTBNState) -> None:
-        a_qw = state.get_quarter_word_unsigned(self.wrs1, self.wrs1_qwsel)
-        b_qw = state.get_quarter_word_unsigned(self.wrs2, self.wrs2_qwsel)
+        a = state.wdrs.get_reg(self.wrs1).read_unsigned()
+        b = state.wdrs.get_reg(self.wrs2).read_unsigned()
+
+        a_qw = extract_quarter_word(a, self.wrs1_qwsel)
+        b_qw = extract_quarter_word(b, self.wrs2_qwsel)
 
         mul_res = a_qw * b_qw
 
@@ -479,8 +491,11 @@ class BNMULQACCWO(OTBNInsn):
         self.flag_group = op_vals['flag_group']
 
     def execute(self, state: OTBNState) -> None:
-        a_qw = state.get_quarter_word_unsigned(self.wrs1, self.wrs1_qwsel)
-        b_qw = state.get_quarter_word_unsigned(self.wrs2, self.wrs2_qwsel)
+        a = state.wdrs.get_reg(self.wrs1).read_unsigned()
+        b = state.wdrs.get_reg(self.wrs2).read_unsigned()
+
+        a_qw = extract_quarter_word(a, self.wrs1_qwsel)
+        b_qw = extract_quarter_word(b, self.wrs2_qwsel)
 
         mul_res = a_qw * b_qw
 
@@ -512,8 +527,11 @@ class BNMULQACCSO(OTBNInsn):
         self.flag_group = op_vals['flag_group']
 
     def execute(self, state: OTBNState) -> None:
-        a_qw = state.get_quarter_word_unsigned(self.wrs1, self.wrs1_qwsel)
-        b_qw = state.get_quarter_word_unsigned(self.wrs2, self.wrs2_qwsel)
+        a = state.wdrs.get_reg(self.wrs1).read_unsigned()
+        b = state.wdrs.get_reg(self.wrs2).read_unsigned()
+
+        a_qw = extract_quarter_word(a, self.wrs1_qwsel)
+        b_qw = extract_quarter_word(b, self.wrs2_qwsel)
 
         mul_res = a_qw * b_qw
 
@@ -524,10 +542,18 @@ class BNMULQACCSO(OTBNInsn):
         acc += (mul_res << self.acc_shift_imm)
         truncated = acc & ((1 << 256) - 1)
 
+        # Split the result into low and high parts
         lo_part = truncated & ((1 << 128) - 1)
         hi_part = truncated >> 128
 
-        state.set_half_word_unsigned(self.wrd, self.wrd_hwsel, lo_part)
+        # Shift out the low part of the result
+        hw_shift = 128 * self.wrd_hwsel
+        hw_mask = ((1 << 128) - 1) << hw_shift
+        old_wrd = state.wdrs.get_reg(self.wrd).read_unsigned()
+        new_wrd = (old_wrd & ~hw_mask) | (lo_part << hw_shift)
+        state.wdrs.get_reg(self.wrd).write_unsigned(new_wrd)
+
+        # Write back the high part of the result
         state.wsrs.ACC.write_unsigned(hi_part)
 
         old_flags = state.csrs.flags[self.flag_group]
@@ -541,7 +567,7 @@ class BNMULQACCSO(OTBNInsn):
                                 M=old_flags.M,
                                 L=bool(lo_part & 1),
                                 Z=lo_part == 0)
-        state.csrs.flags[self.flag_group] = new_flags
+        state.set_flags(self.flag_group, new_flags)
 
 
 class BNSUB(OTBNInsn):
@@ -561,8 +587,13 @@ class BNSUB(OTBNInsn):
         b = state.wdrs.get_reg(self.wrs2).read_unsigned()
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
 
-        (result, flags) = state.sub_with_borrow(a, b_shifted, 0)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a - b_shifted
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -584,8 +615,13 @@ class BNSUBB(OTBNInsn):
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
         borrow = int(state.csrs.flags[self.flag_group].C)
 
-        (result, flags) = state.sub_with_borrow(a, b_shifted, borrow)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a - b_shifted - borrow
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -603,8 +639,13 @@ class BNSUBI(OTBNInsn):
         a = state.wdrs.get_reg(self.wrs).read_unsigned()
         b = self.imm
 
-        (result, flags) = state.sub_with_borrow(a, b, 0)
-        state.wdrs.get_reg(self.wrd).write_unsigned(result)
+        full_result = a - b
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
+        state.wdrs.get_reg(self.wrd).write_unsigned(masked_result)
         state.set_flags(self.flag_group, flags)
 
 
@@ -769,7 +810,12 @@ class BNCMP(OTBNInsn):
         b = state.wdrs.get_reg(self.wrs2).read_unsigned()
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
 
-        (_, flags) = state.sub_with_borrow(a, b_shifted, 0)
+        full_result = a - b_shifted
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
         state.set_flags(self.flag_group, flags)
 
 
@@ -790,7 +836,12 @@ class BNCMPB(OTBNInsn):
         b_shifted = logical_byte_shift(b, self.shift_type, self.shift_bytes)
         borrow = int(state.csrs.flags[self.flag_group].C)
 
-        (_, flags) = state.sub_with_borrow(a, b_shifted, borrow)
+        full_result = a - b_shifted - borrow
+        mask256 = (1 << 256) - 1
+        masked_result = full_result & mask256
+        carry_flag = bool((full_result >> 256) & 1)
+        flags = FlagReg.mlz_for_result(carry_flag, masked_result)
+
         state.set_flags(self.flag_group, flags)
 
 

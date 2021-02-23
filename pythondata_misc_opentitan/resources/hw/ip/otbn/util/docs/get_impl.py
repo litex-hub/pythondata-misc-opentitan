@@ -91,6 +91,23 @@ class ImplTransformer(cst.CSTTransformer):
             if stem == 'state' and updated.attr.value == 'dmem':
                 return cst.Name(value='DMEM')
 
+        if isinstance(updated.value, cst.Attribute):
+            # This attribute looks like A.B.C where B, C are names and A may be
+            # a further attribute or it might be a name.
+            attr_a = updated.value.value
+            attr_b = updated.value.attr.value
+            attr_c = updated.attr.value
+
+            if isinstance(attr_a, cst.Name):
+                stem = attr_a.value
+
+                # Replace state.csrs.flags with FLAGs: the flag groups are
+                # stored in the CSRs in the ISS and the implementation, but
+                # logically exist somewhat separately, so we want named
+                # reads/writes from them to look different.
+                if (stem, attr_b, attr_c) == ('state', 'csrs', 'flags'):
+                    return cst.Name(value='FLAGs')
+
         return updated
 
     def leave_FunctionDef(self,
@@ -215,6 +232,64 @@ class ImplTransformer(cst.CSTTransformer):
 
         return make_aref('CSRs', node.args[0].value)
 
+    @staticmethod
+    def _spot_wsr_read_idx(node: cst.Call) -> Optional[cst.BaseExpression]:
+        # Detect
+        #
+        #    state.wsrs.read_at_idx(FOO)
+        #
+        # and replace it with the expression
+        #
+        #    WSRs[FOO]
+
+        # Check we have exactly one argument
+        if len(node.args) != 1:
+            return None
+
+        # Check this is state.wsrs.read_at_idx
+        if not (isinstance(node.func, cst.Attribute) and
+                isinstance(node.func.value, cst.Attribute) and
+                isinstance(node.func.value.value, cst.Name) and
+                node.func.value.value.value == 'state' and
+                node.func.value.attr.value == 'wsrs' and
+                node.func.attr.value == 'read_at_idx'):
+            return None
+
+        return make_aref('WSRs', node.args[0].value)
+
+    @staticmethod
+    def _spot_wsr_read_name(node: cst.Call) -> Optional[cst.BaseExpression]:
+        # Detect
+        #
+        #    state.wsrs.FOO.read_unsigned()
+        #
+        # and replace it with the expression
+        #
+        #    FOO
+
+        # Check we have no arguments
+        if len(node.args) != 0:
+            return None
+
+        # Check this is A.B.C.D for names A, B, C, D.
+        if not (isinstance(node.func, cst.Attribute) and
+                isinstance(node.func.value, cst.Attribute) and
+                isinstance(node.func.value.value, cst.Attribute) and
+                isinstance(node.func.value.value.value, cst.Name)):
+            return None
+
+        a_name = node.func.value.value.value
+        b_name = node.func.value.value.attr
+        c_name = node.func.value.attr
+        d_name = node.func.attr
+
+        if not (a_name.value == 'state' and
+                b_name.value == 'wsrs' and
+                d_name.value == 'read_unsigned'):
+            return None
+
+        return c_name
+
     def leave_Call(self,
                    orig: cst.Call,
                    updated: cst.Call) -> cst.BaseExpression:
@@ -230,6 +305,14 @@ class ImplTransformer(cst.CSTTransformer):
         csr_read = ImplTransformer._spot_csr_read(updated)
         if csr_read is not None:
             return csr_read
+
+        wsr_read_idx = ImplTransformer._spot_wsr_read_idx(updated)
+        if wsr_read_idx is not None:
+            return wsr_read_idx
+
+        wsr_read_name = ImplTransformer._spot_wsr_read_name(updated)
+        if wsr_read_name is not None:
+            return wsr_read_name
 
         return updated
 
@@ -297,6 +380,102 @@ class ImplTransformer(cst.CSTTransformer):
 
         return NBAssign.make(make_aref('CSRs', idx), rhs)
 
+    @staticmethod
+    def _spot_wsr_write_idx(node: cst.Expr) -> Optional[NBAssign]:
+        # Spot
+        #
+        #   state.wsrs.write_at_idx(wsr, new_val)
+        #
+        # and turn it into
+        #
+        #   WSRs[wsr] = new_val
+
+        if not isinstance(node.value, cst.Call):
+            return None
+
+        call = node.value
+        if len(call.args) != 2 or not isinstance(call.func, cst.Attribute):
+            return None
+
+        func = call.func
+
+        if not (isinstance(func.value, cst.Attribute) and
+                isinstance(func.value.value, cst.Name) and
+                func.value.value.value == 'state' and
+                func.value.attr.value == 'wsrs' and
+                func.attr.value == 'write_at_idx'):
+            return None
+
+        idx = call.args[0].value
+        rhs = call.args[1].value
+
+        return NBAssign.make(make_aref('WSRs', idx), rhs)
+
+    @staticmethod
+    def _spot_wsr_write_name(node: cst.Expr) -> Optional[NBAssign]:
+        # Spot
+        #
+        #   state.wsrs.FOO.write_unsigned(new_val)
+        #
+        # and turn it into
+        #
+        #   FOO = new_val
+
+        if not isinstance(node.value, cst.Call):
+            return None
+
+        call = node.value
+        if len(call.args) != 1 or not isinstance(call.func, cst.Attribute):
+            return None
+
+        # Check this is A.B.C.D for names A, B, C, D.
+        if not (isinstance(call.func, cst.Attribute) and
+                isinstance(call.func.value, cst.Attribute) and
+                isinstance(call.func.value.value, cst.Attribute) and
+                isinstance(call.func.value.value.value, cst.Name)):
+            return None
+
+        a_name = call.func.value.value.value
+        b_name = call.func.value.value.attr
+        c_name = call.func.value.attr
+        d_name = call.func.attr
+
+        if not (a_name.value == 'state' and
+                b_name.value == 'wsrs' and
+                d_name.value == 'write_unsigned'):
+            return None
+
+        rhs = call.args[0].value
+
+        return NBAssign.make(c_name, rhs)
+
+    @staticmethod
+    def _spot_flag_write(node: cst.Expr) -> Optional[NBAssign]:
+        # Spot
+        #
+        #   state.set_flags(fg, flags)
+        #
+        # and turn it into
+        #
+        #   FLAGs[fg] = flags
+
+        if not isinstance(node.value, cst.Call):
+            return None
+
+        call = node.value
+        if len(call.args) != 2 or not isinstance(call.func, cst.Attribute):
+            return None
+
+        if not (isinstance(call.func.value, cst.Name) and
+                call.func.value.value == 'state' and
+                call.func.attr.value == 'set_flags'):
+            return None
+
+        fg = call.args[0].value
+        flags = call.args[1].value
+
+        return NBAssign.make(make_aref('FLAGs', fg), flags)
+
     def leave_Expr(self,
                    orig: cst.Expr,
                    updated: cst.Expr) -> cst.BaseSmallStatement:
@@ -307,6 +486,18 @@ class ImplTransformer(cst.CSTTransformer):
         csr_write = ImplTransformer._spot_csr_write(updated)
         if csr_write is not None:
             return csr_write
+
+        wsr_write_idx = ImplTransformer._spot_wsr_write_idx(updated)
+        if wsr_write_idx is not None:
+            return wsr_write_idx
+
+        wsr_write_name = ImplTransformer._spot_wsr_write_name(updated)
+        if wsr_write_name is not None:
+            return wsr_write_name
+
+        flag_write = ImplTransformer._spot_flag_write(updated)
+        if flag_write is not None:
+            return flag_write
 
         return updated
 
