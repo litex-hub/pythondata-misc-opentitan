@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5123"
-version_tuple = (0, 0, 5123)
+version_str = "0.0.post5124"
+version_tuple = (0, 0, 5124)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5123")
+    pversion = V("0.0.post5124")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5032"
-data_version_tuple = (0, 0, 5032)
+data_version_str = "0.0.post5033"
+data_version_tuple = (0, 0, 5033)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5032")
+    pdata_version = V("0.0.post5033")
 except ImportError:
     pass
-data_git_hash = "4bc32ae8205ac08af16b7f89f2d02e2e8185cd4d"
-data_git_describe = "v0.0-5032-g4bc32ae82"
+data_git_hash = "b3ed613aeede8d52444ac6a2dbf067d16a922bcf"
+data_git_describe = "v0.0-5033-gb3ed613ae"
 data_git_msg = """\
-commit 4bc32ae8205ac08af16b7f89f2d02e2e8185cd4d
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Feb 23 10:45:15 2021 -0800
+commit b3ed613aeede8d52444ac6a2dbf067d16a922bcf
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 23 10:37:13 2021 -0800
 
-    [otp_ctrl] Make error interrupts non-sticky
+    [top] Convert fetch_enable to lc ctrl based
     
-    Fix #5350
+    Blocked by #5356 for completion
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
