@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5121"
-version_tuple = (0, 0, 5121)
+version_str = "0.0.post5122"
+version_tuple = (0, 0, 5122)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5121")
+    pversion = V("0.0.post5122")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5030"
-data_version_tuple = (0, 0, 5030)
+data_version_str = "0.0.post5031"
+data_version_tuple = (0, 0, 5031)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5030")
+    pdata_version = V("0.0.post5031")
 except ImportError:
     pass
-data_git_hash = "c40f2db4b87ad811e4b50b1c3825c744df9c6838"
-data_git_describe = "v0.0-5030-gc40f2db4b"
+data_git_hash = "2cdc9f691c471813d6217d57d23715aa1c7d024f"
+data_git_describe = "v0.0-5031-g2cdc9f691"
 data_git_msg = """\
-commit c40f2db4b87ad811e4b50b1c3825c744df9c6838
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 22 08:37:37 2021 +0000
+commit 2cdc9f691c471813d6217d57d23715aa1c7d024f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Dec 30 16:17:33 2020 -0800
 
-    [prim_packer] Silence verilator width warnings
+    [sram_ctrl] Transition into D2
     
-    There are two changes here. The first is to explicitly zero-extend
-    wdata_i from InW up to OutW when computing wdata_shifted in pack mode.
-    The second is to slice out just the bits we need from MaxW / MinW when
-    comparing depth_q against it (otherwise Verilator complains that we're
-    comparing a small bitvector against a 32-bit int).
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
