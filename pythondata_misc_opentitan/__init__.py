@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5107"
-version_tuple = (0, 0, 5107)
+version_str = "0.0.post5110"
+version_tuple = (0, 0, 5110)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5107")
+    pversion = V("0.0.post5110")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5016"
-data_version_tuple = (0, 0, 5016)
+data_version_str = "0.0.post5019"
+data_version_tuple = (0, 0, 5019)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5016")
+    pdata_version = V("0.0.post5019")
 except ImportError:
     pass
-data_git_hash = "50978abe1e2fd623cfd3693a5738f421fc349c92"
-data_git_describe = "v0.0-5016-g50978abe1"
+data_git_hash = "40c21eb946682b665112223d2b299df3c9385037"
+data_git_describe = "v0.0-5019-g40c21eb94"
 data_git_msg = """\
-commit 50978abe1e2fd623cfd3693a5738f421fc349c92
+commit 40c21eb946682b665112223d2b299df3c9385037
 Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Feb 22 10:41:25 2021 -0800
+Date:   Mon Feb 22 15:58:34 2021 -0800
 
-    [top] Hardware rv_dm hw_debug_en
-    
-    - Temporarily address #5332
+    [top] Correct top level parameters for sram execution
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
