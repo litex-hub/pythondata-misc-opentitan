@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5111"
-version_tuple = (0, 0, 5111)
+version_str = "0.0.post5120"
+version_tuple = (0, 0, 5120)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5111")
+    pversion = V("0.0.post5120")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5020"
-data_version_tuple = (0, 0, 5020)
+data_version_str = "0.0.post5029"
+data_version_tuple = (0, 0, 5029)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5020")
+    pdata_version = V("0.0.post5029")
 except ImportError:
     pass
-data_git_hash = "d861bea1215bb42d3b07984a9f4fb8a4b7c0a82c"
-data_git_describe = "v0.0-5020-gd861bea12"
+data_git_hash = "1b001576ba32555b5260617585cf0a25f3714f30"
+data_git_describe = "v0.0-5029-g1b001576b"
 data_git_msg = """\
-commit d861bea1215bb42d3b07984a9f4fb8a4b7c0a82c
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Feb 22 10:00:58 2021 -0800
+commit 1b001576ba32555b5260617585cf0a25f3714f30
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Feb 22 12:53:54 2021 +0000
 
-    [dv/otp_ctrl] update testplan to fix the unmapped test
+    [otbn] Inline set_half_word_unsigned into BN.MULQACC.SO in ISS
     
-    This PR updates the test sequence names and description to match the
-    name of the sequences and avoid unmapped tests in regression results.
+    This should have no change on behaviour, but inlining the one and only
+    call site gets rid of another state method from the generated
+    documentation.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
