@@ -4,34 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5124"
-version_tuple = (0, 0, 5124)
+version_str = "0.0.post5126"
+version_tuple = (0, 0, 5126)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5124")
+    pversion = V("0.0.post5126")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5033"
-data_version_tuple = (0, 0, 5033)
+data_version_str = "0.0.post5035"
+data_version_tuple = (0, 0, 5035)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5033")
+    pdata_version = V("0.0.post5035")
 except ImportError:
     pass
-data_git_hash = "b3ed613aeede8d52444ac6a2dbf067d16a922bcf"
-data_git_describe = "v0.0-5033-gb3ed613ae"
+data_git_hash = "51651f83e1795d99d86eb222829714b1c7567198"
+data_git_describe = "v0.0-5035-g51651f83e"
 data_git_msg = """\
-commit b3ed613aeede8d52444ac6a2dbf067d16a922bcf
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 23 10:37:13 2021 -0800
+commit 51651f83e1795d99d86eb222829714b1c7567198
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Feb 22 18:45:26 2021 -0800
 
-    [top] Convert fetch_enable to lc ctrl based
+    [dv/otp_ctrl] enable checking for interrupts and collect coverage
     
-    Blocked by #5356 for completion
+    This PR is related to interrupts:
+    1. Support checking for interrupt related registers (except intr_state
+    waiting for designer's confirmation)
+    2. Ignored checking for status field `dai_idle` during dai operation,
+    because scb does not accurately predict which cycle dai operation
+    finishes.
+    Also move status prediction to addr_read_phase instead of
+    data_read_phase.
+    3. Change status `enum` from value to index because it is easier to use
+    index in scb.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
