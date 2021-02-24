@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5129"
-version_tuple = (0, 0, 5129)
+version_str = "0.0.post5130"
+version_tuple = (0, 0, 5130)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5129")
+    pversion = V("0.0.post5130")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5038"
-data_version_tuple = (0, 0, 5038)
+data_version_str = "0.0.post5039"
+data_version_tuple = (0, 0, 5039)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5038")
+    pdata_version = V("0.0.post5039")
 except ImportError:
     pass
-data_git_hash = "8318ceab65ef9d4e8751fe0706314618e2b57a96"
-data_git_describe = "v0.0-5038-g8318ceab6"
+data_git_hash = "76f567c9a40f0a2ce4d3a1aabaf579d74e7312da"
+data_git_describe = "v0.0-5039-g76f567c9a"
 data_git_msg = """\
-commit 8318ceab65ef9d4e8751fe0706314618e2b57a96
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Feb 24 12:39:55 2021 +0000
+commit 76f567c9a40f0a2ce4d3a1aabaf579d74e7312da
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Feb 24 09:16:58 2021 -0800
 
-    [otbn] Add parameter defaults to otbn_trace_if
+    [dv/kmac] fix regression failures
     
-    Xcellium requires these.
+    requested output length foor SHAKE256 test_vectors test can go over 136B
+    (the keccak block size), need disable existing output length constraints
+    to avoid constraint failures midway through the test.
     
-    Fixes #5355
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
