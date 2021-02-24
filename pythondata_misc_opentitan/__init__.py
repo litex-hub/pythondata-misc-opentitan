@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5130"
-version_tuple = (0, 0, 5130)
+version_str = "0.0.post5133"
+version_tuple = (0, 0, 5133)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5130")
+    pversion = V("0.0.post5133")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5039"
-data_version_tuple = (0, 0, 5039)
+data_version_str = "0.0.post5042"
+data_version_tuple = (0, 0, 5042)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5039")
+    pdata_version = V("0.0.post5042")
 except ImportError:
     pass
-data_git_hash = "76f567c9a40f0a2ce4d3a1aabaf579d74e7312da"
-data_git_describe = "v0.0-5039-g76f567c9a"
+data_git_hash = "d2c08a5e0488ef60b8ed7a47cfb840f1b6413863"
+data_git_describe = "v0.0-5042-gd2c08a5e0"
 data_git_msg = """\
-commit 76f567c9a40f0a2ce4d3a1aabaf579d74e7312da
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Wed Feb 24 09:16:58 2021 -0800
+commit d2c08a5e0488ef60b8ed7a47cfb840f1b6413863
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 12 15:39:24 2021 -0800
 
-    [dv/kmac] fix regression failures
+    [top] Auto generate regfiles
     
-    requested output length foor SHAKE256 test_vectors test can go over 136B
-    (the keccak block size), need disable existing output length constraints
-    to avoid constraint failures midway through the test.
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
