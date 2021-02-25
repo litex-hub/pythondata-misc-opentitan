@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5140"
-version_tuple = (0, 0, 5140)
+version_str = "0.0.post5141"
+version_tuple = (0, 0, 5141)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5140")
+    pversion = V("0.0.post5141")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5049"
-data_version_tuple = (0, 0, 5049)
+data_version_str = "0.0.post5050"
+data_version_tuple = (0, 0, 5050)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5049")
+    pdata_version = V("0.0.post5050")
 except ImportError:
     pass
-data_git_hash = "6c46103d956da7583c77440009501a1974d24927"
-data_git_describe = "v0.0-5049-g6c46103d9"
+data_git_hash = "ea96a354f870338f1d0e3646a6c922fda8a71b27"
+data_git_describe = "v0.0-5050-gea96a354f"
 data_git_msg = """\
-commit 6c46103d956da7583c77440009501a1974d24927
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Feb 23 11:38:03 2021 -0800
+commit ea96a354f870338f1d0e3646a6c922fda8a71b27
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Feb 22 12:07:46 2021 -0800
 
-    [dv/otp_ctrl] non-sticky interrupt check
+    [top/dv] fix CSR test failures
     
-    This PR enables interrupt check in scb according to the updates in PR
-    To avoid scb doing cycle accurate prediction, this PR also adds a delay
-    if lc_prog error is found, then we will wait one clock cycle to check
-    interrupts.
+    1. exclude HW update csr check in aon_timer
+    2. exclude RX status CSR for uart
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
