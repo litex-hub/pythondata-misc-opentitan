@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5141"
-version_tuple = (0, 0, 5141)
+version_str = "0.0.post5143"
+version_tuple = (0, 0, 5143)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5141")
+    pversion = V("0.0.post5143")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5050"
-data_version_tuple = (0, 0, 5050)
+data_version_str = "0.0.post5052"
+data_version_tuple = (0, 0, 5052)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5050")
+    pdata_version = V("0.0.post5052")
 except ImportError:
     pass
-data_git_hash = "ea96a354f870338f1d0e3646a6c922fda8a71b27"
-data_git_describe = "v0.0-5050-gea96a354f"
+data_git_hash = "d34bf23e5c3dc80a50acc213dfa82f6dba6f487e"
+data_git_describe = "v0.0-5052-gd34bf23e5"
 data_git_msg = """\
-commit ea96a354f870338f1d0e3646a6c922fda8a71b27
+commit d34bf23e5c3dc80a50acc213dfa82f6dba6f487e
 Author: Weicai Yang <weicai@google.com>
-Date:   Mon Feb 22 12:07:46 2021 -0800
+Date:   Wed Feb 24 14:39:24 2021 -0800
 
-    [top/dv] fix CSR test failures
+    [keymgr/dv] Add invalid cmd/fsm vseq
     
-    1. exclude HW update csr check in aon_timer
-    2. exclude RX status CSR for uart
+    force design internal signal cmd/fsm to trigger fault error
+    disable scb in this seq as kmac transaction may be terminated earlier
     
     Signed-off-by: Weicai Yang <weicai@google.com>
 
