@@ -18,16 +18,22 @@ module aes_key_expand import aes_pkg::*;
   input  logic                   rst_ni,
   input  logic                   cfg_valid_i,
   input  ciph_op_e               op_i,
-  input  logic                   en_i,
-  output logic                   out_req_o,
-  input  logic                   out_ack_i,
+  input  sp2v_e                  en_i,
+  output sp2v_e                  out_req_o,
+  input  sp2v_e                  out_ack_i,
   input  logic                   clear_i,
   input  logic             [3:0] round_i,
   input  key_len_e               key_len_i,
   input  logic       [7:0][31:0] key_i [NumShares],
   output logic       [7:0][31:0] key_o [NumShares],
-  input  logic [WidthPRDKey-1:0] prd_i
+  input  logic [WidthPRDKey-1:0] prd_i,
+  output logic                   err_o
 );
+
+  sp2v_e            en;
+  logic             en_err;
+  sp2v_e            out_ack;
+  logic             out_ack_err;
 
   logic       [7:0] rcon_d, rcon_q;
   logic             rcon_we;
@@ -109,7 +115,8 @@ module aes_key_expand import aes_pkg::*;
   end
 
   // Advance.
-  assign rcon_we = clear_i | (en_i & out_req_o & out_ack_i & use_rcon);
+  assign rcon_we = clear_i | use_rcon &
+      (en == SP2V_HIGH) & (out_req_o == SP2V_HIGH) & (out_ack == SP2V_HIGH);
 
   // Rcon register
   always_ff @(posedge clk_i or negedge rst_ni) begin : reg_rcon
@@ -205,9 +212,9 @@ module aes_key_expand import aes_pkg::*;
     ) u_aes_sbox_i (
       .clk_i     ( clk_i                                 ),
       .rst_ni    ( rst_ni                                ),
-      .en_i      ( en_i                                  ),
+      .en_i      ( en == SP2V_HIGH                       ),
       .out_req_o ( sub_word_out_req[i]                   ),
-      .out_ack_i ( out_ack_i                             ),
+      .out_ack_i ( out_ack == SP2V_HIGH                  ),
       .op_i      ( CIPH_FWD                              ),
       .data_i    ( sub_word_in[8*i +: 8]                 ),
       .mask_i    ( sw_in_mask[8*i +: 8]                  ),
@@ -253,13 +260,13 @@ module aes_key_expand import aes_pkg::*;
           regular[s][0] = irregular[s] ^ key_i[s][0];
           unique case (op_i)
             CIPH_FWD: begin
-              for (int i=1; i<4; i++) begin
+              for (int i = 1; i < 4; i++) begin
                 regular[s][i] = regular[s][i-1] ^ key_i[s][i];
               end
             end
 
             CIPH_INV: begin
-              for (int i=1; i<4; i++) begin
+              for (int i = 1; i < 4; i++) begin
                 regular[s][i] = key_i[s][i-1] ^ key_i[s][i];
               end
             end
@@ -288,7 +295,7 @@ module aes_key_expand import aes_pkg::*;
                   // Shift down two upper most words
                   regular[s][1:0] = key_i[s][5:4];
                   // Generate new upper four words
-                  for (int i=0; i<4; i++) begin
+                  for (int i = 0; i < 4; i++) begin
                     if ((i == 0 && rnd_type[2]) ||
                         (i == 2 && rnd_type[3])) begin
                       regular[s][i+2] = irregular[s]    ^ key_i[s][i];
@@ -304,14 +311,14 @@ module aes_key_expand import aes_pkg::*;
                   // Shift up four lowest words
                   regular[s][5:2] = key_i[s][3:0];
                   // Generate Word 44 and 45
-                  for (int i=0; i<2; i++) begin
+                  for (int i = 0; i < 2; i++) begin
                     regular[s][i] = key_i[s][3+i] ^ key_i[s][3+i+1];
                   end
                 end else begin
                   // Shift up two lowest words
                   regular[s][5:4] = key_i[s][1:0];
                   // Generate new lower four words
-                  for (int i=0; i<4; i++) begin
+                  for (int i = 0; i < 4; i++) begin
                     if ((i == 2 && rnd_type[1]) ||
                         (i == 0 && rnd_type[2])) begin
                       regular[s][i] = irregular[s]  ^ key_i[s][i+2];
@@ -345,7 +352,7 @@ module aes_key_expand import aes_pkg::*;
                 regular[s][3:0] = key_i[s][7:4];
                 // Generate new upper half
                 regular[s][4]   = irregular[s] ^ key_i[s][0];
-                for (int i=1; i<4; i++) begin
+                for (int i = 1; i < 4; i++) begin
                   regular[s][i+4] = regular[s][i+4-1] ^ key_i[s][i];
                 end
               end // rnd == 0
@@ -361,7 +368,7 @@ module aes_key_expand import aes_pkg::*;
                 regular[s][7:4] = key_i[s][3:0];
                 // Generate new lower half
                 regular[s][0]   = irregular[s] ^ key_i[s][4];
-                for (int i=0; i<3; i++) begin
+                for (int i = 0; i < 3; i++) begin
                   regular[s][i+1] = key_i[s][4+i] ^ key_i[s][4+i+1];
                 end
               end // rnd == 0
@@ -378,7 +385,40 @@ module aes_key_expand import aes_pkg::*;
 
   // Drive output
   assign key_o     = regular;
-  assign out_req_o = &sub_word_out_req;
+  assign out_req_o = &sub_word_out_req ? SP2V_HIGH : SP2V_LOW;
+
+  //////////////////////////////
+  // Sparsely Encoded Signals //
+  //////////////////////////////
+
+  logic [Sp2VWidth-1:0] en_raw;
+  aes_sel_buf_chk #(
+    .Num   ( Sp2VNum   ),
+    .Width ( Sp2VWidth )
+  ) u_aes_key_expand_en_buf_chk (
+    .clk_i  ( clk_i  ),
+    .rst_ni ( rst_ni ),
+    .sel_i  ( en_i   ),
+    .sel_o  ( en_raw ),
+    .err_o  ( en_err )
+  );
+  assign en = sp2v_e'(en_raw);
+
+  logic [Sp2VWidth-1:0] out_ack_raw;
+  aes_sel_buf_chk #(
+    .Num   ( Sp2VNum   ),
+    .Width ( Sp2VWidth )
+  ) u_aes_key_expand_out_ack_buf_chk (
+    .clk_i  ( clk_i       ),
+    .rst_ni ( rst_ni      ),
+    .sel_i  ( out_ack_i   ),
+    .sel_o  ( out_ack_raw ),
+    .err_o  ( out_ack_err )
+  );
+  assign out_ack = sp2v_e'(out_ack_raw);
+
+  // Collect encoding errors.
+  assign err_o = en_err | out_ack_err;
 
   ////////////////
   // Assertions //

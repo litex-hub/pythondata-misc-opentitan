@@ -85,7 +85,7 @@ typedef enum logic [2:0] {
 // Generic, sparse mux selector encodings
 
 // Encoding generated with:
-// $ ./sparse-fsm-encode.py -d 3 -m 2 -n 4 \
+// $ ./util/design/sparse-fsm-encode.py -d 3 -m 2 -n 3 \
 //      -s 31468618 --language=sv
 //
 // Hamming distance histogram:
@@ -94,15 +94,16 @@ typedef enum logic [2:0] {
 //  1: --
 //  2: --
 //  3: |||||||||||||||||||| (100.00%)
-//  4: --
 //
 // Minimum Hamming distance: 3
 // Maximum Hamming distance: 3
+// Minimum Hamming weight: 1
+// Maximum Hamming weight: 2
 //
-parameter int Mux2SelWidth = 4;
+parameter int Mux2SelWidth = 3;
 typedef enum logic [Mux2SelWidth-1:0] {
-  MUX2_SEL_0 = 4'b0111,
-  MUX2_SEL_1 = 4'b1100
+  MUX2_SEL_0 = 3'b011,
+  MUX2_SEL_1 = 3'b100
 } mux2_sel_e;
 
 // Encoding generated with:
@@ -275,6 +276,15 @@ typedef enum logic [AddSOSelWidth-1:0] {
   ADD_SO_DIP  = MUX3_SEL_2
 } add_so_sel_e;
 
+// Sparse two-value signal type sp2v_e
+parameter int Sp2VNum = 2;
+parameter int Sp2VWidth = Mux2SelWidth;
+typedef enum logic [Sp2VWidth-1:0] {
+  SP2V_HIGH = MUX2_SEL_0,
+  SP2V_LOW  = MUX2_SEL_1
+} sp2v_e;
+
+// Control register type
 typedef struct packed {
   logic      force_zero_masks;
   logic      manual_operation;
@@ -343,8 +353,8 @@ endfunction
 function automatic logic [3:0][3:0][7:0] aes_transpose(logic [3:0][3:0][7:0] in);
   logic [3:0][3:0][7:0] transpose;
   transpose = '0;
-  for (int j=0; j<4; j++) begin
-    for (int i=0; i<4; i++) begin
+  for (int j = 0; j < 4; j++) begin
+    for (int i = 0; i < 4; i++) begin
       transpose[i][j] = in[j][i];
     end
   end
@@ -354,7 +364,7 @@ endfunction
 // Extract single column from state matrix
 function automatic logic [3:0][7:0] aes_col_get(logic [3:0][3:0][7:0] in, logic [1:0] idx);
   logic [3:0][7:0] out;
-  for (int i=0; i<4; i++) begin
+  for (int i = 0; i < 4; i++) begin
     out[i] = in[i][idx];
   end
   return out;
@@ -367,8 +377,8 @@ function automatic logic [7:0] aes_mvm(
 );
   logic [7:0] vec_c;
   vec_c = '0;
-  for (int i=0; i<8; i++) begin
-    for (int j=0; j<8; j++) begin
+  for (int i = 0; i < 8; i++) begin
+    for (int j = 0; j < 8; j++) begin
       vec_c[i] = vec_c[i] ^ (mat_a[j][i] & vec_b[7-j]);
     end
   end
@@ -406,7 +416,7 @@ function automatic logic [3:0][7:0] aes_prd_get_lsbs(
   logic [(4*WidthPRDSBox)-1:0] in
 );
   logic [3:0][7:0] prd_lsbs;
-  for (int i=0; i<4; i++) begin
+  for (int i = 0; i < 4; i++) begin
     prd_lsbs[i] = in[i*WidthPRDSBox +: 8];
   end
   return prd_lsbs;
