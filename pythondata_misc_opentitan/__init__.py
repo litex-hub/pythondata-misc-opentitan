@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5163"
-version_tuple = (0, 0, 5163)
+version_str = "0.0.post5165"
+version_tuple = (0, 0, 5165)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5163")
+    pversion = V("0.0.post5165")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5072"
-data_version_tuple = (0, 0, 5072)
+data_version_str = "0.0.post5074"
+data_version_tuple = (0, 0, 5074)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5072")
+    pdata_version = V("0.0.post5074")
 except ImportError:
     pass
-data_git_hash = "6387a20a70c8c4f8ae10a92f4db34f7a95a2afbc"
-data_git_describe = "v0.0-5072-g6387a20a7"
+data_git_hash = "ff5a23bd27248e958ac2a48061d7406684daefb7"
+data_git_describe = "v0.0-5074-gff5a23bd2"
 data_git_msg = """\
-commit 6387a20a70c8c4f8ae10a92f4db34f7a95a2afbc
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Feb 26 09:42:45 2021 -0800
+commit ff5a23bd27248e958ac2a48061d7406684daefb7
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Feb 26 10:16:10 2021 -0800
 
-    [lint] Remove comportable waivers from non-comportable IPs
+    [fpv] TLUL_pkg compile error
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This PR fixes a small compile error due to enum casting in tlul_pkg.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
