@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5143"
-version_tuple = (0, 0, 5143)
+version_str = "0.0.post5150"
+version_tuple = (0, 0, 5150)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5143")
+    pversion = V("0.0.post5150")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5052"
-data_version_tuple = (0, 0, 5052)
+data_version_str = "0.0.post5059"
+data_version_tuple = (0, 0, 5059)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5052")
+    pdata_version = V("0.0.post5059")
 except ImportError:
     pass
-data_git_hash = "d34bf23e5c3dc80a50acc213dfa82f6dba6f487e"
-data_git_describe = "v0.0-5052-gd34bf23e5"
+data_git_hash = "3ec2dae4cc0c4a4c4604c7ff84f83e2f7c98b8a5"
+data_git_describe = "v0.0-5059-g3ec2dae4c"
 data_git_msg = """\
-commit d34bf23e5c3dc80a50acc213dfa82f6dba6f487e
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Feb 24 14:39:24 2021 -0800
+commit 3ec2dae4cc0c4a4c4604c7ff84f83e2f7c98b8a5
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Feb 22 11:36:07 2021 -0800
 
-    [keymgr/dv] Add invalid cmd/fsm vseq
+    [dv/otp_ctrl] ECC uncorrectable error
     
-    force design internal signal cmd/fsm to trigger fault error
-    disable scb in this seq as kmac transaction may be terminated earlier
+    This PR adds suppor to trigger ECC uncorrectable error. Currently only
+    allow 2 errors per word. Once the ECC is integrity in mem_bkdr_if, we
+    can fully randomize the error.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
