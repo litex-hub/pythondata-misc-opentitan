@@ -63,7 +63,7 @@ class VerilatorSimEarlgrey:
         self._log.info("Simulation running")
 
         # Find paths to simulated I/O devices
-        # UART
+        # UART (through the simulated terminal)
         self._uart0 = None
         uart0_match = self.p_sim.find_in_output(
             re.compile(r'UART: Created (/dev/pts/\d+) for uart0\.'),
@@ -75,6 +75,7 @@ class VerilatorSimEarlgrey:
         self._log.debug("Found uart0 device file at {}".format(
             str(self.uart0_device_path)))
 
+        # UART0 as logged directly to file by the uartdpi module.
         assert self.uart0_log_path.is_file()
         self._uart0_log = open(str(self.uart0_log_path), 'rb')
 
@@ -152,13 +153,9 @@ class VerilatorSimEarlgrey:
     def find_in_uart0(self,
                       pattern,
                       timeout,
-                      filter_func=None,
+                      filter_func=utils.filter_remove_device_sw_log_prefix,
                       from_start=False):
         assert self._uart0_log
-
-        if filter_func is None:
-            # The default filter function for all device software in OpenTitan.
-            filter_func = utils.filter_remove_device_sw_log_prefix
 
         try:
             return utils.find_in_files([self._uart0_log],
@@ -211,6 +208,7 @@ def app_selfchecking(request, bin_dir):
 # Therefore, if we do not read quickly enough, we miss the PASS/FAIL indication
 # and the test never finishes.
 
+
 def assert_selfchecking_test_passes(sim):
     assert sim.find_in_output(
         re.compile(r"SW test transitioned to SwTestStatusInTest.$"),
@@ -229,6 +227,7 @@ def assert_selfchecking_test_passes(sim):
     result_msg = result_match.group(1)
     log.info("Test ended with {}".format(result_msg))
     assert result_msg == 'PASSED'
+
 
 def test_apps_selfchecking(tmp_path, bin_dir, app_selfchecking):
     """
@@ -275,4 +274,56 @@ def test_spiflash(tmp_path, bin_dir):
 
     assert_selfchecking_test_passes(sim)
 
+    sim.terminate()
+
+
+def test_openocd_basic_connectivity(tmp_path, bin_dir, topsrcdir, openocd):
+    """Test the basic connectivity to the system through OpenOCD
+
+    Run earlgrey in Verilator, connect to it via OpenOCD, and check that the
+    JTAG TAP, the harts, etc. are found as expected. No further interaction
+    with the core or the system (bus) is performed.
+    """
+    # Run a simulation (bootrom only, no app beyond that)
+    sim_path = bin_dir / "hw/top_earlgrey/Vtop_earlgrey_verilator"
+    rom_elf_path = bin_dir / "sw/device/boot_rom/boot_rom_sim_verilator.elf"
+    sim = VerilatorSimEarlgrey(sim_path, rom_elf_path, tmp_path)
+    sim.run()
+
+    # Wait a bit until the system has reached the bootrom and a first arbitrary
+    # message has been printed to UART.
+    assert sim.find_in_uart0(re.compile(rb'.*I00000'), 120,
+                             filter_func=None), "No UART log message found."
+
+    # Run OpenOCD to connect to design and then shut down again immediately.
+    cmd_openocd = [
+        openocd, '-s',
+        str(topsrcdir / 'util' / 'openocd'), '-f',
+        'board/lowrisc-earlgrey-verilator.cfg', '-c', 'init; shutdown'
+    ]
+    p_openocd = utils.Process(cmd_openocd, logdir=tmp_path, cwd=tmp_path)
+    p_openocd.run()
+
+    # Look for a message indicating that the right JTAG TAP was found.
+    msgs_exp = [
+        ('Info : JTAG tap: riscv.tap tap/device found: 0x04f5484d '
+         '(mfg: 0x426 (Google Inc), part: 0x4f54, ver: 0x0)'),
+        'Info : Examined RISC-V core; found 1 harts',
+        'Info :  hart 0: XLEN=32, misa=0x40101104',
+    ]
+
+    for msg_exp in msgs_exp:
+        msg = p_openocd.find_in_output(msg_exp, 1, from_start=True)
+        assert msg is not None, "Did not find message {!r} in OpenOCD output".format(
+            msg_exp)
+
+    p_openocd.proc.wait(timeout=120)
+    try:
+        p_openocd.terminate()
+    except ProcessLookupError:
+        # OpenOCD process is already dead
+        pass
+    assert p_openocd.proc.returncode == 0
+
+    # End Verilator simulation
     sim.terminate()
