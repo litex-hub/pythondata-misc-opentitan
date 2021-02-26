@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5153"
-version_tuple = (0, 0, 5153)
+version_str = "0.0.post5158"
+version_tuple = (0, 0, 5158)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5153")
+    pversion = V("0.0.post5158")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5062"
-data_version_tuple = (0, 0, 5062)
+data_version_str = "0.0.post5067"
+data_version_tuple = (0, 0, 5067)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5062")
+    pdata_version = V("0.0.post5067")
 except ImportError:
     pass
-data_git_hash = "eb9498ccf5210981b45d8415c96ad586ac05df50"
-data_git_describe = "v0.0-5062-geb9498ccf"
+data_git_hash = "d55bc6cd71c30f6027cb3b90cde5ef27f5ed3eba"
+data_git_describe = "v0.0-5067-gd55bc6cd7"
 data_git_msg = """\
-commit eb9498ccf5210981b45d8415c96ad586ac05df50
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Feb 2 08:33:29 2021 -0800
+commit d55bc6cd71c30f6027cb3b90cde5ef27f5ed3eba
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Fri Feb 26 12:24:44 2021 +0000
 
-    [ spi_host, doc] Initial spec draft
+    [sw, dif] Fix spelling of 'occurred' in all DIFs and template
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
