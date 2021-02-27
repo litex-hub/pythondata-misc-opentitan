@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5170"
-version_tuple = (0, 0, 5170)
+version_str = "0.0.post5171"
+version_tuple = (0, 0, 5171)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5170")
+    pversion = V("0.0.post5171")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5079"
-data_version_tuple = (0, 0, 5079)
+data_version_str = "0.0.post5080"
+data_version_tuple = (0, 0, 5080)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5079")
+    pdata_version = V("0.0.post5080")
 except ImportError:
     pass
-data_git_hash = "144ca84e05878fb6b813bfe18c776c22eb287a3a"
-data_git_describe = "v0.0-5079-g144ca84e0"
+data_git_hash = "64b6d9b7c0143aeeccabb53cf3a3e173962215f4"
+data_git_describe = "v0.0-5080-g64b6d9b7c"
 data_git_msg = """\
-commit 144ca84e05878fb6b813bfe18c776c22eb287a3a
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Feb 26 15:46:43 2021 +0100
+commit 64b6d9b7c0143aeeccabb53cf3a3e173962215f4
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Feb 10 22:02:47 2021 -0800
 
-    [aes] Add life cycle escalation signal
+    [dvsim] Alphabetize top_earlgrey_sim_cfgs.hjson
     
-    If the life cycle escalation signal is received, the main controller FSM
-    of the AES unit locks up in the terminal error state. A reset is required.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
