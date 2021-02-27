@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5168"
-version_tuple = (0, 0, 5168)
+version_str = "0.0.post5170"
+version_tuple = (0, 0, 5170)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5168")
+    pversion = V("0.0.post5170")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5077"
-data_version_tuple = (0, 0, 5077)
+data_version_str = "0.0.post5079"
+data_version_tuple = (0, 0, 5079)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5077")
+    pdata_version = V("0.0.post5079")
 except ImportError:
     pass
-data_git_hash = "93f12ea8c42de02112c730bb28727008df658ee1"
-data_git_describe = "v0.0-5077-g93f12ea8c"
+data_git_hash = "144ca84e05878fb6b813bfe18c776c22eb287a3a"
+data_git_describe = "v0.0-5079-g144ca84e0"
 data_git_msg = """\
-commit 93f12ea8c42de02112c730bb28727008df658ee1
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 25 15:19:20 2021 +0000
+commit 144ca84e05878fb6b813bfe18c776c22eb287a3a
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Feb 26 15:46:43 2021 +0100
 
-    [otbn] Remove enable_i input from otbn_core_model
+    [aes] Add life cycle escalation signal
     
-    The previous code had a race in the initial blocks when used in
-    otbn.sv. The obvious way to fix this in the SystemVerilog code would
-    be to call otbn_model_init() just before we first call
-    otbn_model_step. Unfortunately, you can't do that (for Verilator, at
-    least) because that ends up mixing blocking and non-blocking
-    assignments.
+    If the life cycle escalation signal is received, the main controller FSM
+    of the AES unit locks up in the terminal error state. A reset is required.
     
-    Rather than think hard about how to do this properly in Verilog, we
-    can just put in a simple layer of indirection in the C++ and only
-    start the subprocess when we see start_i for the first time.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
