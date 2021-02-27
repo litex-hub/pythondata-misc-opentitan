@@ -4,42 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5166"
-version_tuple = (0, 0, 5166)
+version_str = "0.0.post5168"
+version_tuple = (0, 0, 5168)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5166")
+    pversion = V("0.0.post5168")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5075"
-data_version_tuple = (0, 0, 5075)
+data_version_str = "0.0.post5077"
+data_version_tuple = (0, 0, 5077)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5075")
+    pdata_version = V("0.0.post5077")
 except ImportError:
     pass
-data_git_hash = "363f5c1967786a96c59d5c9aa797c7a027f9a306"
-data_git_describe = "v0.0-5075-g363f5c196"
+data_git_hash = "93f12ea8c42de02112c730bb28727008df658ee1"
+data_git_describe = "v0.0-5077-g93f12ea8c"
 data_git_msg = """\
-commit 363f5c1967786a96c59d5c9aa797c7a027f9a306
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Feb 25 12:26:52 2021 -0800
+commit 93f12ea8c42de02112c730bb28727008df658ee1
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 25 15:19:20 2021 +0000
 
-    [dv/shadow_reg] Fix aes shadow reg error
+    [otbn] Remove enable_i input from otbn_core_model
     
-    This PR support aes shadow reg with the new feature reported in
-    PR #4895 :
-    AES shadow reg fatal error will lock this register's write access.
+    The previous code had a race in the initial blocks when used in
+    otbn.sv. The obvious way to fix this in the SystemVerilog code would
+    be to call otbn_model_init() just before we first call
+    otbn_model_step. Unfortunately, you can't do that (for Verilator, at
+    least) because that ends up mixing blocking and non-blocking
+    assignments.
     
-    This PR updates the testbench regarding this feature:
-    1. Add a `shadow_fatal_lock` local variable to indicate if the shadow
-    reg is locked due to fatal error.
-    2. Temp unlock the `shadow_fatal_lock` if a backdoor write is issued.
-    Because tesbench can still update the shadow reg value.
+    Rather than think hard about how to do this properly in Verilog, we
+    can just put in a simple layer of indirection in the C++ and only
+    start the subprocess when we see start_i for the first time.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
