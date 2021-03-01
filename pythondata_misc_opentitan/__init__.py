@@ -4,41 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5172"
-version_tuple = (0, 0, 5172)
+version_str = "0.0.post5177"
+version_tuple = (0, 0, 5177)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5172")
+    pversion = V("0.0.post5177")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5081"
-data_version_tuple = (0, 0, 5081)
+data_version_str = "0.0.post5086"
+data_version_tuple = (0, 0, 5086)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5081")
+    pdata_version = V("0.0.post5086")
 except ImportError:
     pass
-data_git_hash = "50a83bedd4d6e3af8ef3c3696cf12fdbce53aaad"
-data_git_describe = "v0.0-5081-g50a83bedd"
+data_git_hash = "817c04317ecbd491db24c87054594c36a91391a7"
+data_git_describe = "v0.0-5086-g817c04317"
 data_git_msg = """\
-commit 50a83bedd4d6e3af8ef3c3696cf12fdbce53aaad
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Feb 22 10:44:19 2021 -0800
+commit 817c04317ecbd491db24c87054594c36a91391a7
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Fri Feb 26 15:41:38 2021 +0000
 
-    [csrng/rtl] internal state read timing improvements
+    [aon_timer] Add known asserts on outputs
     
-    Re-structed the read flow for the internal state array.
-    Added parameter to prim_fifo_sync to remove output mux.
-    Added simple flops to break up configuration paths.
-    Added fifo output mux back for genbits to prevent assertion.
-    Cleaned up format for hjson file.
-    Updated internal state rtl based on feedback.
-    Fixed hjson register wording.
-    Added comment for FIFO parameter use.
+    Required for D1 status.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
