@@ -34,7 +34,7 @@ module aon_timer (
   // Register structs
   aon_timer_reg2hw_t         reg2hw;
   aon_timer_hw2reg_t         hw2reg, aon_hw2reg, hw2reg_sync;
-  logic [3:0]                unused_intr_state_bits;
+  logic [5:0]                unused_intr_state_bits;
   // Register read signals
   logic                      wkup_enable;
   logic [11:0]               wkup_prescaler;
@@ -115,7 +115,7 @@ module aon_timer (
   assign hw2reg.wdog_bite_thold.d          = hw2reg_sync.wdog_bite_thold.d;
   assign hw2reg.wdog_count.d               = hw2reg_sync.wdog_count.d;
   assign hw2reg.wkup_cause.d               = hw2reg_sync.wkup_cause.d;
-  assign unused_intr_state_bits            = hw2reg_sync.intr_state;
+  assign unused_intr_state_bits            = {hw2reg_sync.intr_state, hw2reg_sync.intr_enable};
 
   //////////////////////////////
   // Register Write Interface //
@@ -398,5 +398,18 @@ module aon_timer (
   end
 
   assign aon_timer_rst_req_o = aon_rst_req_q;
+
+  /////////////////////////////
+  // Assert Known on Outputs //
+  /////////////////////////////
+
+  // clk_i domain
+  `ASSERT_KNOWN(TlODValidKnown_A, tl_o.d_valid)
+  `ASSERT_KNOWN(TlOAReadyKnown_A, tl_o.a_ready)
+  `ASSERT_KNOWN(IntrWkupKnown_A, intr_wkup_timer_expired_o)
+  `ASSERT_KNOWN(IntrWdogKnown_A, intr_wdog_timer_bark_o)
+  // clk_aon_i domain
+  `ASSERT_KNOWN(WkupReqKnown_A, aon_timer_wkup_req_o, clk_aon_i, !rst_aon_ni)
+  `ASSERT_KNOWN(RstReqKnown_A, aon_timer_rst_req_o, clk_aon_i, !rst_aon_ni)
 
 endmodule
