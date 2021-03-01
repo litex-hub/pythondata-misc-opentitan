@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5188"
-version_tuple = (0, 0, 5188)
+version_str = "0.0.post5189"
+version_tuple = (0, 0, 5189)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5188")
+    pversion = V("0.0.post5189")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5097"
-data_version_tuple = (0, 0, 5097)
+data_version_str = "0.0.post5098"
+data_version_tuple = (0, 0, 5098)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5097")
+    pdata_version = V("0.0.post5098")
 except ImportError:
     pass
-data_git_hash = "11f4081a226cb41f1897eac44ea27d7e716db279"
-data_git_describe = "v0.0-5097-g11f4081a2"
+data_git_hash = "383afb8a89e12c5c761c2222b2efa8b582bcf579"
+data_git_describe = "v0.0-5098-g383afb8a8"
 data_git_msg = """\
-commit 11f4081a226cb41f1897eac44ea27d7e716db279
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Feb 26 20:06:45 2021 -0800
+commit 383afb8a89e12c5c761c2222b2efa8b582bcf579
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 23 13:18:53 2021 -0800
 
-    [dvsim/verilator] Fix pre-build cmd failure when hw/foundry is absent
+    [top] Connect pwrmgr functions to pinmux and aon_timer
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    - Add strap_o output to control strap timing after life cycle control initialization
+    - Add low_power_o output to inform each module we are in low power mode
+    - Swithc pinmux to powerup clock group to ensure it has clocks to handle the low power indication
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
