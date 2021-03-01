@@ -22,7 +22,7 @@ LC_STATE_DEFINITION_FILE = 'hw/ip/lc_ctrl/data/lc_ctrl_state.hjson'
 # Default image file definition (can be overridden on the command line).
 IMAGE_DEFINITION_FILE = 'hw/ip/otp_ctrl/data/otp_ctrl_img_dev.hjson'
 # Default output path (can be overridden on the command line).
-MEMORY_HEX_FILE = 'otp-img.mem'
+MEMORY_HEX_FILE = 'otp-img.vmem'
 
 
 def _override_seed(args, name, config):
@@ -42,6 +42,19 @@ def _override_seed(args, name, config):
                 name, new_seed))
 
 
+# TODO: this can be removed when we have moved to Python 3.8
+# in all regressions, since the extend action is only available
+# from that version onward.
+# This workaround solution has been taken verbatim from
+# https://stackoverflow.com/questions/41152799/argparse-flatten-the-result-of-action-append
+class ExtendAction(argparse.Action):
+    '''Extend action for the argument parser'''
+    def __call__(self, parser, namespace, values, option_string=None):
+        items = getattr(namespace, self.dest) or []
+        items.extend(values)
+        setattr(namespace, self.dest, items)
+
+
 def main():
     log.basicConfig(level=log.INFO, format="%(levelname)s: %(message)s")
 
@@ -57,6 +70,7 @@ def main():
         prog="gen-otp-img",
         description=wrapped_docstring(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.register('action', 'extend', ExtendAction)
     parser.add_argument('--img-seed',
                         type=int,
                         metavar='<seed>',

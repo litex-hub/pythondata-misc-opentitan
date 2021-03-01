@@ -12,6 +12,7 @@
 
 module top_earlgrey #(
   // Auto-inferred parameters
+  parameter  OtpCtrlMemInitFile = "",
   parameter bit SramCtrlRetAonInstrExec = 1,
   parameter bit AesMasking = 1'b1,
   parameter aes_pkg::sbox_impl_e AesSBoxImpl = aes_pkg::SBoxImplDom,
@@ -697,9 +698,7 @@ module top_earlgrey #(
   ) u_dm_top (
     .clk_i         (clkmgr_aon_clocks.clk_proc_main),
     .rst_ni        (rstmgr_aon_resets.rst_lc_n[rstmgr_pkg::Domain0Sel]),
-    // TODO: #5359
-    //.hw_debug_en_i (lc_ctrl_lc_hw_debug_en),
-    .hw_debug_en_i (lc_ctrl_pkg::On),
+    .hw_debug_en_i (lc_ctrl_lc_hw_debug_en),
     .scanmode_i,
     .ndmreset_o    (ndmreset_req),
     .dmactive_o    (),
@@ -1384,6 +1383,7 @@ module top_earlgrey #(
   );
 
   otp_ctrl #(
+    .MemInitFile(OtpCtrlMemInitFile),
     .RndCnstLfsrSeed(RndCnstOtpCtrlLfsrSeed),
     .RndCnstLfsrPerm(RndCnstOtpCtrlLfsrPerm)
   ) u_otp_ctrl (
