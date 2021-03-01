@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5177"
-version_tuple = (0, 0, 5177)
+version_str = "0.0.post5178"
+version_tuple = (0, 0, 5178)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5177")
+    pversion = V("0.0.post5178")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5086"
-data_version_tuple = (0, 0, 5086)
+data_version_str = "0.0.post5087"
+data_version_tuple = (0, 0, 5087)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5086")
+    pdata_version = V("0.0.post5087")
 except ImportError:
     pass
-data_git_hash = "817c04317ecbd491db24c87054594c36a91391a7"
-data_git_describe = "v0.0-5086-g817c04317"
+data_git_hash = "afe9392899f54183d1fb807fda5cad3a0cff35ee"
+data_git_describe = "v0.0-5087-gafe939289"
 data_git_msg = """\
-commit 817c04317ecbd491db24c87054594c36a91391a7
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Fri Feb 26 15:41:38 2021 +0000
+commit afe9392899f54183d1fb807fda5cad3a0cff35ee
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 1 10:13:08 2021 +0000
 
-    [aon_timer] Add known asserts on outputs
+    [otbn] Fix missing operation docs for bn.sel
     
-    Required for D1 status.
+    The class name had a spare "r" in it (probably a copy-paste error from
+    when I copied it from BNRSHI above). This doesn't matter in any way
+    for the ISS, because decoding and tracing is driven by the "insn"
+    class field (which had the right name). But it *does* matter for the
+    connection with document extraction, which means that the BN.SEL entry
+    in the docs was missing its Operation section.
     
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
