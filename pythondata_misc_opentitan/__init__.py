@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5204"
-version_tuple = (0, 0, 5204)
+version_str = "0.0.post5205"
+version_tuple = (0, 0, 5205)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5204")
+    pversion = V("0.0.post5205")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5113"
-data_version_tuple = (0, 0, 5113)
+data_version_str = "0.0.post5114"
+data_version_tuple = (0, 0, 5114)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5113")
+    pdata_version = V("0.0.post5114")
 except ImportError:
     pass
-data_git_hash = "03018e827c7c8b2f0ca591207c609301e7abd4b7"
-data_git_describe = "v0.0-5113-g03018e827"
+data_git_hash = "466585e351fbe8687445131a20317c465ca43c36"
+data_git_describe = "v0.0-5114-g466585e35"
 data_git_msg = """\
-commit 03018e827c7c8b2f0ca591207c609301e7abd4b7
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Feb 26 15:11:12 2021 +0000
+commit 466585e351fbe8687445131a20317c465ca43c36
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 1 15:06:01 2021 -0800
 
-    [lint] Waivers for rv_core_ibex lint
+    [top] First draft PR to enlarge memories
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    - Enlarge memories to include ECC
+    - Disable parity generation
+    - tlul_adapter level and above still assume previous width
+    - Follow-on PR will introduce more changes upstream
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
