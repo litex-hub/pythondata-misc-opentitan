@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5198"
-version_tuple = (0, 0, 5198)
+version_str = "0.0.post5199"
+version_tuple = (0, 0, 5199)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5198")
+    pversion = V("0.0.post5199")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5107"
-data_version_tuple = (0, 0, 5107)
+data_version_str = "0.0.post5108"
+data_version_tuple = (0, 0, 5108)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5107")
+    pdata_version = V("0.0.post5108")
 except ImportError:
     pass
-data_git_hash = "b801ad46d6426401d202310fb79b85e6430fb284"
-data_git_describe = "v0.0-5107-gb801ad46d"
+data_git_hash = "ce5945d14f94baa796b88a8df69bdaa428a903a7"
+data_git_describe = "v0.0-5108-gce5945d14"
 data_git_msg = """\
-commit b801ad46d6426401d202310fb79b85e6430fb284
+commit ce5945d14f94baa796b88a8df69bdaa428a903a7
 Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Fri Feb 26 16:10:33 2021 +0000
+Date:   Tue Mar 2 14:50:18 2021 +0000
 
-    [aon_timer] Advance to D1 status
+    [aon_timer] Lint fixes
     
-    The IP is already instantiated in top_earlygrey and all checklist items
-    are complete.
+    Fix a few signal warnings picked up by Ascent lint.
     
     Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
