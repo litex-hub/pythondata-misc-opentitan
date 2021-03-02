@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5199"
-version_tuple = (0, 0, 5199)
+version_str = "0.0.post5202"
+version_tuple = (0, 0, 5202)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5199")
+    pversion = V("0.0.post5202")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5108"
-data_version_tuple = (0, 0, 5108)
+data_version_str = "0.0.post5111"
+data_version_tuple = (0, 0, 5111)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5108")
+    pdata_version = V("0.0.post5111")
 except ImportError:
     pass
-data_git_hash = "ce5945d14f94baa796b88a8df69bdaa428a903a7"
-data_git_describe = "v0.0-5108-gce5945d14"
+data_git_hash = "840b59a02e86a6421c6ceeddfa0bcddf1fdc2efa"
+data_git_describe = "v0.0-5111-g840b59a02"
 data_git_msg = """\
-commit ce5945d14f94baa796b88a8df69bdaa428a903a7
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Tue Mar 2 14:50:18 2021 +0000
+commit 840b59a02e86a6421c6ceeddfa0bcddf1fdc2efa
+Author: Tung Hoang <hoang.tung@wdc.com>
+Date:   Fri Feb 26 21:25:34 2021 -0800
 
-    [aon_timer] Lint fixes
+    [i2c, dv] Update fifo_watermark and fifo_fall test
     
-    Fix a few signal warnings picked up by Ascent lint.
+      - Update vseqs to address comments in PR #5379
     
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
 
 """
 
