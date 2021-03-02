@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5196"
-version_tuple = (0, 0, 5196)
+version_str = "0.0.post5198"
+version_tuple = (0, 0, 5198)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5196")
+    pversion = V("0.0.post5198")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5105"
-data_version_tuple = (0, 0, 5105)
+data_version_str = "0.0.post5107"
+data_version_tuple = (0, 0, 5107)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5105")
+    pdata_version = V("0.0.post5107")
 except ImportError:
     pass
-data_git_hash = "e58e9732afde9c1abfbeea4f082b83f019d9a487"
-data_git_describe = "v0.0-5105-ge58e9732a"
+data_git_hash = "b801ad46d6426401d202310fb79b85e6430fb284"
+data_git_describe = "v0.0-5107-gb801ad46d"
 data_git_msg = """\
-commit e58e9732afde9c1abfbeea4f082b83f019d9a487
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 2 09:31:21 2021 +0000
+commit b801ad46d6426401d202310fb79b85e6430fb284
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Fri Feb 26 16:10:33 2021 +0000
 
-    [tlul] Fix "unused" name for AscentLint too
+    [aon_timer] Advance to D1 status
     
-    It seems that Verilator is happy to treat foo_unused as a hint that
-    the signal is unused, but AscentLint requires the name to start with
-    unused instead.
+    The IP is already instantiated in top_earlygrey and all checklist items
+    are complete.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
