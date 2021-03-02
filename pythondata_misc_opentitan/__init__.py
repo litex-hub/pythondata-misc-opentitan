@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5202"
-version_tuple = (0, 0, 5202)
+version_str = "0.0.post5204"
+version_tuple = (0, 0, 5204)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5202")
+    pversion = V("0.0.post5204")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5111"
-data_version_tuple = (0, 0, 5111)
+data_version_str = "0.0.post5113"
+data_version_tuple = (0, 0, 5113)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5111")
+    pdata_version = V("0.0.post5113")
 except ImportError:
     pass
-data_git_hash = "840b59a02e86a6421c6ceeddfa0bcddf1fdc2efa"
-data_git_describe = "v0.0-5111-g840b59a02"
+data_git_hash = "03018e827c7c8b2f0ca591207c609301e7abd4b7"
+data_git_describe = "v0.0-5113-g03018e827"
 data_git_msg = """\
-commit 840b59a02e86a6421c6ceeddfa0bcddf1fdc2efa
-Author: Tung Hoang <hoang.tung@wdc.com>
-Date:   Fri Feb 26 21:25:34 2021 -0800
+commit 03018e827c7c8b2f0ca591207c609301e7abd4b7
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Feb 26 15:11:12 2021 +0000
 
-    [i2c, dv] Update fifo_watermark and fifo_fall test
+    [lint] Waivers for rv_core_ibex lint
     
-      - Update vseqs to address comments in PR #5379
-    
-    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
