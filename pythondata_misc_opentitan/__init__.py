@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5195"
-version_tuple = (0, 0, 5195)
+version_str = "0.0.post5196"
+version_tuple = (0, 0, 5196)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5195")
+    pversion = V("0.0.post5196")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5104"
-data_version_tuple = (0, 0, 5104)
+data_version_str = "0.0.post5105"
+data_version_tuple = (0, 0, 5105)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5104")
+    pdata_version = V("0.0.post5105")
 except ImportError:
     pass
-data_git_hash = "1db6fcd8f909543a08a67bf6c354898be258612d"
-data_git_describe = "v0.0-5104-g1db6fcd8f"
+data_git_hash = "e58e9732afde9c1abfbeea4f082b83f019d9a487"
+data_git_describe = "v0.0-5105-ge58e9732a"
 data_git_msg = """\
-commit 1db6fcd8f909543a08a67bf6c354898be258612d
+commit e58e9732afde9c1abfbeea4f082b83f019d9a487
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 11 14:56:20 2021 +0000
+Date:   Tue Mar 2 09:31:21 2021 +0000
 
-    [reggen] Define a class to represent the registers in a block
+    [tlul] Fix "unused" name for AscentLint too
     
-    This is used to represent obj['registers'], which was previously a
-    list of registers, multiregs, windows, reserved and skipto entries.
-    The commit doesn't replace the top-level object (obj).
-    
-    Other than removing genwennames and gennextoffset from (h)json export,
-    the only other change is that we no longer distinguish between
-    reserved and skipto, which means we have to pick one format or the
-    other on export. This commit picks reserved (because it is more
-    "relocatable"), but skipto could work instead.
+    It seems that Verilator is happy to treat foo_unused as a hint that
+    the signal is unused, but AscentLint requires the name to start with
+    unused instead.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
