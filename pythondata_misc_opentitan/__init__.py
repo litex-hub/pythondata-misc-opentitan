@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5190"
-version_tuple = (0, 0, 5190)
+version_str = "0.0.post5192"
+version_tuple = (0, 0, 5192)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5190")
+    pversion = V("0.0.post5192")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5099"
-data_version_tuple = (0, 0, 5099)
+data_version_str = "0.0.post5101"
+data_version_tuple = (0, 0, 5101)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5099")
+    pdata_version = V("0.0.post5101")
 except ImportError:
     pass
-data_git_hash = "433f49cffa71a6e539c98cb55a65ffba6147e124"
-data_git_describe = "v0.0-5099-g433f49cff"
+data_git_hash = "bf2bbda2285a2faa7a8b4edd423de0401cd60d2f"
+data_git_describe = "v0.0-5101-gbf2bbda22"
 data_git_msg = """\
-commit 433f49cffa71a6e539c98cb55a65ffba6147e124
-Author: Igor Kouznetsov <igor.kouznetsov@wdc.com>
-Date:   Mon Jan 25 18:14:40 2021 -0800
+commit bf2bbda2285a2faa7a8b4edd423de0401cd60d2f
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 1 13:37:19 2021 +0000
 
-    [i2c, doc] Target features modification
+    [reggen] Fix check_name() regex in reggen/lib.py
     
-    1. Modified clock stretching modes by a target device
-    2. Updated block diagram: register file and reduced FIFO depth to 64
-    3. Updated target state diagram
-    4. Added clock stretching waveforms
+    Also fix the one example where we had something that's supposed to
+    look like a symbol and in fact contained a space.
     
-    Signed-off-by: Igor Kouznetsov <igor.kouznetsov@wdc.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
