@@ -8,7 +8,7 @@ from reggen import register
 from .field import Field
 from .lib import (check_keys, check_str, check_name,
                   check_bool, expand_parameter)
-from .reg_block import RegBlock
+from .reg_base import RegBase
 from .register import Register
 
 REQUIRED_FIELDS = {
@@ -42,7 +42,7 @@ OPTIONAL_FIELDS.update({
 })
 
 
-class MultiRegister(RegBlock):
+class MultiRegister(RegBase):
     def __init__(self,
                  offset: int,
                  addrsep: int,
@@ -117,6 +117,9 @@ class MultiRegister(RegBlock):
                                       self.regwen_multi, self.compact,
                                       min_reg_idx, max_reg_idx, self.cname)
             self.regs.append(reg)
+
+    def next_offset(self, addrsep: int) -> int:
+        return self.offset + len(self.regs) * addrsep
 
     def get_n_bits(self, bittype: List[str] = ["q"]) -> int:
         return sum(reg.get_n_bits(bittype) for reg in self.regs)
