@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5189"
-version_tuple = (0, 0, 5189)
+version_str = "0.0.post5190"
+version_tuple = (0, 0, 5190)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5189")
+    pversion = V("0.0.post5190")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5098"
-data_version_tuple = (0, 0, 5098)
+data_version_str = "0.0.post5099"
+data_version_tuple = (0, 0, 5099)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5098")
+    pdata_version = V("0.0.post5099")
 except ImportError:
     pass
-data_git_hash = "383afb8a89e12c5c761c2222b2efa8b582bcf579"
-data_git_describe = "v0.0-5098-g383afb8a8"
+data_git_hash = "433f49cffa71a6e539c98cb55a65ffba6147e124"
+data_git_describe = "v0.0-5099-g433f49cff"
 data_git_msg = """\
-commit 383afb8a89e12c5c761c2222b2efa8b582bcf579
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 23 13:18:53 2021 -0800
+commit 433f49cffa71a6e539c98cb55a65ffba6147e124
+Author: Igor Kouznetsov <igor.kouznetsov@wdc.com>
+Date:   Mon Jan 25 18:14:40 2021 -0800
 
-    [top] Connect pwrmgr functions to pinmux and aon_timer
+    [i2c, doc] Target features modification
     
-    - Add strap_o output to control strap timing after life cycle control initialization
-    - Add low_power_o output to inform each module we are in low power mode
-    - Swithc pinmux to powerup clock group to ensure it has clocks to handle the low power indication
+    1. Modified clock stretching modes by a target device
+    2. Updated block diagram: register file and reduced FIFO depth to 64
+    3. Updated target state diagram
+    4. Added clock stretching waveforms
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Igor Kouznetsov <igor.kouznetsov@wdc.com>
 
 """
 
