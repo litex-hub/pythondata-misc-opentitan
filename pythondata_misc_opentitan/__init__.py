@@ -4,37 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5212"
-version_tuple = (0, 0, 5212)
+version_str = "0.0.post5213"
+version_tuple = (0, 0, 5213)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5212")
+    pversion = V("0.0.post5213")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5121"
-data_version_tuple = (0, 0, 5121)
+data_version_str = "0.0.post5122"
+data_version_tuple = (0, 0, 5122)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5121")
+    pdata_version = V("0.0.post5122")
 except ImportError:
     pass
-data_git_hash = "69367b391965d542ea600e90efdf7439886d09dc"
-data_git_describe = "v0.0-5121-g69367b391"
+data_git_hash = "6cc5c164ba96d339f06cbcede0d17d2c96ce3c05"
+data_git_describe = "v0.0-5122-g6cc5c164b"
 data_git_msg = """\
-commit 69367b391965d542ea600e90efdf7439886d09dc
+commit 6cc5c164ba96d339f06cbcede0d17d2c96ce3c05
 Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Mar 2 09:39:23 2021 -0800
+Date:   Wed Mar 3 01:10:09 2021 -0800
 
-    [dvsim] Add fileset_partner to FuseSoC
-    
-    This adds the `--fileset_partner` flag to FuseSoC as an example
-    to `vendor_chip_sim_cfg_example.hjson`.
-    
-    By default, the open source implementation is selected (using the
-    negation of `fileset_partner` flag). If `fileset_partner` flag is set,
-    FuseSoC selects that implementation instead.
+    [dv] Add SV_FCOV_SVA back
     
     Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
