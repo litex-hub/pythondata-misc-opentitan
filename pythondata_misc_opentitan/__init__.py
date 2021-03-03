@@ -4,45 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5214"
-version_tuple = (0, 0, 5214)
+version_str = "0.0.post5217"
+version_tuple = (0, 0, 5217)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5214")
+    pversion = V("0.0.post5217")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5123"
-data_version_tuple = (0, 0, 5123)
+data_version_str = "0.0.post5126"
+data_version_tuple = (0, 0, 5126)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5123")
+    pdata_version = V("0.0.post5126")
 except ImportError:
     pass
-data_git_hash = "53721b5ef9d7c655a5f9934ba7e08ccba17c8250"
-data_git_describe = "v0.0-5123-g53721b5ef"
+data_git_hash = "f3b61c03969b1dbe65357227bc4645463350a6ec"
+data_git_describe = "v0.0-5126-gf3b61c039"
 data_git_msg = """\
-commit 53721b5ef9d7c655a5f9934ba7e08ccba17c8250
-Author: Felix Miller <felix.miller@gi-de.com>
-Date:   Thu Feb 18 02:48:15 2021 +0100
+commit f3b61c03969b1dbe65357227bc4645463350a6ec
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Jan 14 21:34:25 2021 -0800
 
-    [otbn] add optimized 384 bit Barrett mult for P-384
+    [fpv] First update CSR assertion check
     
-    Adds a variant for the 384 bit Barrett redcution
-    based modular multiplication algorithm optimized
-    for and limited to the NIST P-384 curve.
+    This PR is a first update to FPV csr auto assertion checks.
+    This PR uses an internal variable to store write value from SW and check
+    the readout csr only if there is no hw write access to the register.
+    Upcoming PRs will support more types of regs.
     
-    Differences to generic version:
-    - The multiplication sequences are inline to reduce
-      move instructions and enbale different configurations
-      for the multiplications
-    - Use optimized multiplication sequences exploiting the
-      special form of the P-384 modulus
-    - Only a single conditional subtract of the modulus at
-      the end
-    
-    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
