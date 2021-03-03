@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5205"
-version_tuple = (0, 0, 5205)
+version_str = "0.0.post5208"
+version_tuple = (0, 0, 5208)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5205")
+    pversion = V("0.0.post5208")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5114"
-data_version_tuple = (0, 0, 5114)
+data_version_str = "0.0.post5117"
+data_version_tuple = (0, 0, 5117)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5114")
+    pdata_version = V("0.0.post5117")
 except ImportError:
     pass
-data_git_hash = "466585e351fbe8687445131a20317c465ca43c36"
-data_git_describe = "v0.0-5114-g466585e35"
+data_git_hash = "03bcc2f0975e0748ce46e6b21c85415dedb0c688"
+data_git_describe = "v0.0-5117-g03bcc2f09"
 data_git_msg = """\
-commit 466585e351fbe8687445131a20317c465ca43c36
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Mar 1 15:06:01 2021 -0800
+commit 03bcc2f0975e0748ce46e6b21c85415dedb0c688
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Mar 1 15:13:25 2021 -0800
 
-    [top] First draft PR to enlarge memories
+    [dv/jtag] Fix two small jtag issue
     
-    - Enlarge memories to include ECC
-    - Disable parity generation
-    - tlul_adapter level and above still assume previous width
-    - Follow-on PR will introduce more changes upstream
+    These PR fixes two small issues in jtag:
+    1. Add a clock cycle delay in between clock_en and drive_tms.
+       This is to make sure the clock is stable before driving any signals.
+    2. Fix a port declaration from output to ref.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
