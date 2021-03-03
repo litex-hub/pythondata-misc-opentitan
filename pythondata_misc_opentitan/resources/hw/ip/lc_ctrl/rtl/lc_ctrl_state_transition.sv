@@ -39,7 +39,7 @@ module lc_ctrl_state_transition
     trans_cnt_oflw_error_o = 1'b0;
     trans_invalid_error_o = 1'b0;
 
-    if (fsm_state_i == CntIncrSt) begin
+    if (fsm_state_i inside {CntIncrSt, CntProgSt}) begin
       // In this state, the life cycle counter is incremented.
       // Throw an error if the counter is already maxed out.
       unique case (lc_cnt_i)
@@ -62,9 +62,14 @@ module lc_ctrl_state_transition
         LcCnt16:  trans_cnt_oflw_error_o = 1'b1;
         default:  trans_cnt_oflw_error_o = 1'b1;
       endcase // lc_cnt_i
+
+      // In case the transition target is SCRAP, max out the counter.
+      if (trans_target_i == DecLcStScrap) begin
+        next_lc_cnt_o = LcCnt16;
+      end
     end
 
-    if (fsm_state_i inside {TransCheckSt, TokenCheck0St, TokenCheck1St}) begin
+    if (fsm_state_i inside {TransCheckSt, TokenCheck0St, TokenCheck1St, TransProgSt}) begin
       // Check that the decoded transition indexes are valid
       // before indexing the state transition matrix.
       if (dec_lc_state_i <= DecLcStScrap ||
@@ -74,6 +79,10 @@ module lc_ctrl_state_transition
         // from InvalidTokenIdx.
         if (TransTokenIdxMatrix[dec_lc_state_i][trans_target_i] != InvalidTokenIdx) begin
           // Encode the target state.
+          // Note that the life cycle encoding itself also ensures that only certain transitions are
+          // possible. So even if this logic here is tampered with, the encoding values won't allow
+          // an invalid transition (instead, the programming operation will fail and leave the life
+          // cycle state corrupted/invalid).
           unique case (trans_target_i)
             DecLcStRaw:           next_lc_state_o = LcStRaw;
             DecLcStTestUnlocked0: next_lc_state_o = LcStTestUnlocked0;
