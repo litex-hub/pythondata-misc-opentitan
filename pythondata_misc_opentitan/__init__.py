@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5209"
-version_tuple = (0, 0, 5209)
+version_str = "0.0.post5212"
+version_tuple = (0, 0, 5212)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5209")
+    pversion = V("0.0.post5212")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5118"
-data_version_tuple = (0, 0, 5118)
+data_version_str = "0.0.post5121"
+data_version_tuple = (0, 0, 5121)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5118")
+    pdata_version = V("0.0.post5121")
 except ImportError:
     pass
-data_git_hash = "c8b3333ec9a5fd550198d2772926227005e8f4e0"
-data_git_describe = "v0.0-5118-gc8b3333ec"
+data_git_hash = "69367b391965d542ea600e90efdf7439886d09dc"
+data_git_describe = "v0.0-5121-g69367b391"
 data_git_msg = """\
-commit c8b3333ec9a5fd550198d2772926227005e8f4e0
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Mar 2 17:19:52 2021 -0800
+commit 69367b391965d542ea600e90efdf7439886d09dc
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Mar 2 09:39:23 2021 -0800
 
-    [rtl/lc_ctrl] Fix jtag d_error
+    [dvsim] Add fileset_partner to FuseSoC
     
-    When I try to use DMI to access LC_CTRL CSR, I always get a `d_error`.
-    The error is coming from this check: https://github.com/lowRISC/opentitan/blob/master/hw/ip/tlul/rtl/tlul_pkg.sv#L142
-    I believe it is related to default value for tap's tl_i.a_user.
+    This adds the `--fileset_partner` flag to FuseSoC as an example
+    to `vendor_chip_sim_cfg_example.hjson`.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    By default, the open source implementation is selected (using the
+    negation of `fileset_partner` flag). If `fileset_partner` flag is set,
+    FuseSoC selects that implementation instead.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
