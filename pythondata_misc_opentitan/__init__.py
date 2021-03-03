@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5217"
-version_tuple = (0, 0, 5217)
+version_str = "0.0.post5219"
+version_tuple = (0, 0, 5219)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5217")
+    pversion = V("0.0.post5219")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5126"
-data_version_tuple = (0, 0, 5126)
+data_version_str = "0.0.post5128"
+data_version_tuple = (0, 0, 5128)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5126")
+    pdata_version = V("0.0.post5128")
 except ImportError:
     pass
-data_git_hash = "f3b61c03969b1dbe65357227bc4645463350a6ec"
-data_git_describe = "v0.0-5126-gf3b61c039"
+data_git_hash = "0e0a74b20fa83fa84b5169f8a0781c2d17db02bb"
+data_git_describe = "v0.0-5128-g0e0a74b20"
 data_git_msg = """\
-commit f3b61c03969b1dbe65357227bc4645463350a6ec
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Jan 14 21:34:25 2021 -0800
+commit 0e0a74b20fa83fa84b5169f8a0781c2d17db02bb
+Author: Eitan Shapira <eitan.shapira@nuvoton.com>
+Date:   Mon Mar 1 17:17:48 2021 +0200
 
-    [fpv] First update CSR assertion check
+    [dv/flash_ctrl] Changes to integrate vendor environment
     
-    This PR is a first update to FPV csr auto assertion checks.
-    This PR uses an internal variable to store write value from SW and check
-    the readout csr only if there is no hw write access to the register.
-    Upcoming PRs will support more types of regs.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
 
 """
 
