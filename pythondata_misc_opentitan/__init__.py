@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5219"
-version_tuple = (0, 0, 5219)
+version_str = "0.0.post5225"
+version_tuple = (0, 0, 5225)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5219")
+    pversion = V("0.0.post5225")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5128"
-data_version_tuple = (0, 0, 5128)
+data_version_str = "0.0.post5134"
+data_version_tuple = (0, 0, 5134)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5128")
+    pdata_version = V("0.0.post5134")
 except ImportError:
     pass
-data_git_hash = "0e0a74b20fa83fa84b5169f8a0781c2d17db02bb"
-data_git_describe = "v0.0-5128-g0e0a74b20"
+data_git_hash = "11e4d89943abecc79361d3b46d38b0a64cbd5b84"
+data_git_describe = "v0.0-5134-g11e4d8994"
 data_git_msg = """\
-commit 0e0a74b20fa83fa84b5169f8a0781c2d17db02bb
-Author: Eitan Shapira <eitan.shapira@nuvoton.com>
-Date:   Mon Mar 1 17:17:48 2021 +0200
+commit 11e4d89943abecc79361d3b46d38b0a64cbd5b84
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Mar 2 12:00:02 2021 -0800
 
-    [dv/flash_ctrl] Changes to integrate vendor environment
+    [otp_ctrl] Always attempt to program all LC words in presence of errors
     
-    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
