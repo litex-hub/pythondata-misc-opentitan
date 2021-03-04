@@ -4,30 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5227"
-version_tuple = (0, 0, 5227)
+version_str = "0.0.post5228"
+version_tuple = (0, 0, 5228)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5227")
+    pversion = V("0.0.post5228")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5136"
-data_version_tuple = (0, 0, 5136)
+data_version_str = "0.0.post5137"
+data_version_tuple = (0, 0, 5137)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5136")
+    pdata_version = V("0.0.post5137")
 except ImportError:
     pass
-data_git_hash = "a6f582993cf4368aab54cf865341deeff9115003"
-data_git_describe = "v0.0-5136-ga6f582993"
+data_git_hash = "a6833b1d7165b5543f6bce7d023f305b384cd48f"
+data_git_describe = "v0.0-5137-ga6833b1d7"
 data_git_msg = """\
-commit a6f582993cf4368aab54cf865341deeff9115003
+commit a6833b1d7165b5543f6bce7d023f305b384cd48f
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 2 14:02:47 2021 -0800
+Date:   Wed Mar 3 14:58:38 2021 -0800
 
-    [tlul] block writes and reads on errors in adapter_reg
+    [top] Correct memory connection bit widths
+    
+    This solution is not complete, please see #5446
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
