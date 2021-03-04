@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5245"
-version_tuple = (0, 0, 5245)
+version_str = "0.0.post5248"
+version_tuple = (0, 0, 5248)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5245")
+    pversion = V("0.0.post5248")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5154"
-data_version_tuple = (0, 0, 5154)
+data_version_str = "0.0.post5157"
+data_version_tuple = (0, 0, 5157)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5154")
+    pdata_version = V("0.0.post5157")
 except ImportError:
     pass
-data_git_hash = "861f56c6de6508714e461ad583c7fff8034346e7"
-data_git_describe = "v0.0-5154-g861f56c6d"
+data_git_hash = "caa0d898407ecb4ea345fd00469936b9feece7e3"
+data_git_describe = "v0.0-5157-gcaa0d8984"
 data_git_msg = """\
-commit 861f56c6de6508714e461ad583c7fff8034346e7
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Wed Mar 3 21:25:26 2021 -0800
+commit caa0d898407ecb4ea345fd00469936b9feece7e3
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Mar 1 13:15:52 2021 -0800
 
-    [dv/sram] add multiple_keys test
+    [dvsim] Move clean_odirs to `util.py`
     
-    this PR is a follow-up to the smoke test PR, and adds the multiple_keys
-    test as specified in the testlist.
+    Output directory cleaner does not need to be tied to a Launcher instance
+    - moving it to a generic utils module.
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
