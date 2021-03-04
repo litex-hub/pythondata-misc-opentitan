@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5226"
-version_tuple = (0, 0, 5226)
+version_str = "0.0.post5227"
+version_tuple = (0, 0, 5227)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5226")
+    pversion = V("0.0.post5227")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5135"
-data_version_tuple = (0, 0, 5135)
+data_version_str = "0.0.post5136"
+data_version_tuple = (0, 0, 5136)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5135")
+    pdata_version = V("0.0.post5136")
 except ImportError:
     pass
-data_git_hash = "efaa97eb056324fec332981139a3370db290679a"
-data_git_describe = "v0.0-5135-gefaa97eb0"
+data_git_hash = "a6f582993cf4368aab54cf865341deeff9115003"
+data_git_describe = "v0.0-5136-ga6f582993"
 data_git_msg = """\
-commit efaa97eb056324fec332981139a3370db290679a
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Mar 2 12:00:02 2021 -0800
+commit a6f582993cf4368aab54cf865341deeff9115003
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 2 14:02:47 2021 -0800
 
-    [ast] AscenLint fixes and new analog typedef
+    [tlul] block writes and reads on errors in adapter_reg
     
-    Co-authored-by: Jacob Levy <jacob.levy@opentitan.org>
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
