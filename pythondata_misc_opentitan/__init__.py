@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5243"
-version_tuple = (0, 0, 5243)
+version_str = "0.0.post5245"
+version_tuple = (0, 0, 5245)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5243")
+    pversion = V("0.0.post5245")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5152"
-data_version_tuple = (0, 0, 5152)
+data_version_str = "0.0.post5154"
+data_version_tuple = (0, 0, 5154)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5152")
+    pdata_version = V("0.0.post5154")
 except ImportError:
     pass
-data_git_hash = "55b2f89bfdfce0227216000a963f09fdf6b143d6"
-data_git_describe = "v0.0-5152-g55b2f89bf"
+data_git_hash = "861f56c6de6508714e461ad583c7fff8034346e7"
+data_git_describe = "v0.0-5154-g861f56c6d"
 data_git_msg = """\
-commit 55b2f89bfdfce0227216000a963f09fdf6b143d6
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Mar 3 18:48:58 2021 -0800
+commit 861f56c6de6508714e461ad583c7fff8034346e7
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Mar 3 21:25:26 2021 -0800
 
-    [fpv] enable tlul check in fpv
+    [dv/sram] add multiple_keys test
     
-    This PR removes the temp assumption to disable the TLUL check, as
-    PR #5435 is merged.
+    this PR is a follow-up to the smoke test PR, and adds the multiple_keys
+    test as specified in the testlist.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
