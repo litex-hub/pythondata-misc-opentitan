@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5248"
-version_tuple = (0, 0, 5248)
+version_str = "0.0.post5249"
+version_tuple = (0, 0, 5249)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5248")
+    pversion = V("0.0.post5249")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5157"
-data_version_tuple = (0, 0, 5157)
+data_version_str = "0.0.post5158"
+data_version_tuple = (0, 0, 5158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5157")
+    pdata_version = V("0.0.post5158")
 except ImportError:
     pass
-data_git_hash = "caa0d898407ecb4ea345fd00469936b9feece7e3"
-data_git_describe = "v0.0-5157-gcaa0d8984"
+data_git_hash = "f2cc96330c0ac7a53f966fa7b3e32419207384f5"
+data_git_describe = "v0.0-5158-gf2cc96330"
 data_git_msg = """\
-commit caa0d898407ecb4ea345fd00469936b9feece7e3
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Mar 1 13:15:52 2021 -0800
+commit f2cc96330c0ac7a53f966fa7b3e32419207384f5
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Mar 4 09:15:41 2021 -0800
 
-    [dvsim] Move clean_odirs to `util.py`
+    [alert_handler] Delete stale comment
     
-    Output directory cleaner does not need to be tied to a Launcher instance
-    - moving it to a generic utils module.
+    Fix #5457
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
