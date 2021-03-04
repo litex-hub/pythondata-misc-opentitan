@@ -30,7 +30,9 @@ package flash_ctrl_env_pkg;
   parameter uint FlashNumBusWordsPerBank  = FlashNumBusWords / flash_ctrl_pkg::NumBanks;
   parameter uint FlashNumBusWordsPerPage  = FlashNumBusWordsPerBank / flash_ctrl_pkg::PagesPerBank;
 
-  parameter uint FlashDataByteWidth       = $clog2(flash_ctrl_pkg::DataWidth / 8);
+  parameter uint FlashBankBytesPerWord    = flash_ctrl_pkg::DataWidth / 8;
+
+  parameter uint FlashDataByteWidth       = $clog2(FlashBankBytesPerWord);
   parameter uint FlashWordLineWidth       = $clog2(flash_ctrl_pkg::WordsPerPage);
   parameter uint FlashPageWidth           = $clog2(flash_ctrl_pkg::PagesPerBank);
   parameter uint FlashBankWidth           = $clog2(flash_ctrl_pkg::NumBanks);
