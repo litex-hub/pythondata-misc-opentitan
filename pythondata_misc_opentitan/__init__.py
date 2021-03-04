@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5228"
-version_tuple = (0, 0, 5228)
+version_str = "0.0.post5230"
+version_tuple = (0, 0, 5230)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5228")
+    pversion = V("0.0.post5230")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5137"
-data_version_tuple = (0, 0, 5137)
+data_version_str = "0.0.post5139"
+data_version_tuple = (0, 0, 5139)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5137")
+    pdata_version = V("0.0.post5139")
 except ImportError:
     pass
-data_git_hash = "a6833b1d7165b5543f6bce7d023f305b384cd48f"
-data_git_describe = "v0.0-5137-ga6833b1d7"
+data_git_hash = "bc4df4bb63165bfd60c7037291e4e41d20c5d4bd"
+data_git_describe = "v0.0-5139-gbc4df4bb6"
 data_git_msg = """\
-commit a6833b1d7165b5543f6bce7d023f305b384cd48f
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 3 14:58:38 2021 -0800
+commit bc4df4bb63165bfd60c7037291e4e41d20c5d4bd
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Feb 3 16:36:03 2021 -0800
 
-    [top] Correct memory connection bit widths
+    [dv/chip] Update mem_bkdr_if in chip level TB
     
-    This solution is not complete, please see #5446
+    This commit updates the usage of `mem_bkdr_if` throughout the chip level
+    testbench.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    The OTP testbencch also has minor updates to enable ECC in the
+    mem_bkdr_if.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
