@@ -4,53 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5237"
-version_tuple = (0, 0, 5237)
+version_str = "0.0.post5238"
+version_tuple = (0, 0, 5238)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5237")
+    pversion = V("0.0.post5238")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5146"
-data_version_tuple = (0, 0, 5146)
+data_version_str = "0.0.post5147"
+data_version_tuple = (0, 0, 5147)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5146")
+    pdata_version = V("0.0.post5147")
 except ImportError:
     pass
-data_git_hash = "6940d94cd03b5f75aec543086182c4b8151e49fe"
-data_git_describe = "v0.0-5146-g6940d94cd"
+data_git_hash = "6d49f60b55f8453df208034e43c6ce64b33e04ba"
+data_git_describe = "v0.0-5147-g6d49f60b5"
 data_git_msg = """\
-commit 6940d94cd03b5f75aec543086182c4b8151e49fe
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Thu Feb 4 16:29:33 2021 +0000
+commit 6d49f60b55f8453df208034e43c6ce64b33e04ba
+Author: Tung Hoang <hoang.tung@wdc.com>
+Date:   Sun Feb 28 10:34:49 2021 -0800
 
-    [sw, rom_ext_signer] Add signing and remaining image update API
+    [spi_device, dv] Refactor spi_agent to support spi_host rtl
     
-    - Retrieving exponent is work-in-progress, and at the moment
-      dummy hardcoded vector of `0xA5` is used.
-    - Retrieving modulus is work-in-progress, and at the moment
-      dummy hardcoded vector of `0xA5` is used.
-    - Peripheral Lockdown Info encodingis work in progress, and at
-      the moment dummy hardcoded vector of `0xA5` is used.
-    - It is not clear yet how the device_usage_value is encoded in
-      the 256-bit usage_constraints blob, and at the moment dummy
-      hardcoded vector of `0xA5` is used.
+      - Extend spi_if to provide 4 channels required by spi_host rtl
+      - Replace uni-direction sdi and sdo ports by bi-direction sio ports in spi_if
+      - Update spi_device and top_earlgrey testbench with new ports
     
-    This change adds image signing functionality through Mundane.
-    
-    * There was some refactoring done, missing fields
-      `extension{0,1,2,3}_offset` have been added.
-    
-    * `image_length` is no longer passed in the config, as it is
-      set automatically in the manifest assembly file.
-    
-    * `image_timestamp` is no longer passed in the config, and is
-      calculated at runtime.
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
 
 """
 
