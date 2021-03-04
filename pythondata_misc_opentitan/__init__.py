@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5238"
-version_tuple = (0, 0, 5238)
+version_str = "0.0.post5243"
+version_tuple = (0, 0, 5243)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5238")
+    pversion = V("0.0.post5243")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5147"
-data_version_tuple = (0, 0, 5147)
+data_version_str = "0.0.post5152"
+data_version_tuple = (0, 0, 5152)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5147")
+    pdata_version = V("0.0.post5152")
 except ImportError:
     pass
-data_git_hash = "6d49f60b55f8453df208034e43c6ce64b33e04ba"
-data_git_describe = "v0.0-5147-g6d49f60b5"
+data_git_hash = "55b2f89bfdfce0227216000a963f09fdf6b143d6"
+data_git_describe = "v0.0-5152-g55b2f89bf"
 data_git_msg = """\
-commit 6d49f60b55f8453df208034e43c6ce64b33e04ba
-Author: Tung Hoang <hoang.tung@wdc.com>
-Date:   Sun Feb 28 10:34:49 2021 -0800
+commit 55b2f89bfdfce0227216000a963f09fdf6b143d6
+Author: Cindy Chen <chencindy@google.com>
+Date:   Wed Mar 3 18:48:58 2021 -0800
 
-    [spi_device, dv] Refactor spi_agent to support spi_host rtl
+    [fpv] enable tlul check in fpv
     
-      - Extend spi_if to provide 4 channels required by spi_host rtl
-      - Replace uni-direction sdi and sdo ports by bi-direction sio ports in spi_if
-      - Update spi_device and top_earlgrey testbench with new ports
+    This PR removes the temp assumption to disable the TLUL check, as
+    PR #5435 is merged.
     
-    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
