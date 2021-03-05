@@ -4,34 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5250"
-version_tuple = (0, 0, 5250)
+version_str = "0.0.post5251"
+version_tuple = (0, 0, 5251)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5250")
+    pversion = V("0.0.post5251")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5159"
-data_version_tuple = (0, 0, 5159)
+data_version_str = "0.0.post5160"
+data_version_tuple = (0, 0, 5160)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5159")
+    pdata_version = V("0.0.post5160")
 except ImportError:
     pass
-data_git_hash = "9393230584258360dacbbc1550d99aaacff24cf1"
-data_git_describe = "v0.0-5159-g939323058"
+data_git_hash = "aec65bab197ed9578f36a27ec5dcd2298801686e"
+data_git_describe = "v0.0-5160-gaec65bab1"
 data_git_msg = """\
-commit 9393230584258360dacbbc1550d99aaacff24cf1
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Thu Mar 4 11:40:36 2021 -0800
+commit aec65bab197ed9578f36a27ec5dcd2298801686e
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Wed Feb 24 16:36:55 2021 +0000
 
-    [dv/sram] minor updates to sram tb
+    [sw, dif_pinmux] Introduce DIF Pinmux header
     
-    this PR fixes a few unaligned statements and some minor style fixes
+    Please note that this is a reworked version of the following PRs:
+    https://github.com/lowRISC/opentitan/pull/2042 (PadCtrl)
+    https://github.com/lowRISC/opentitan/pull/1763 (Pinmux)
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    This is due to major changes in hardware - PadCtrl and Pinmux have
+    been merged into one (Pinmux).
+    
+    Please note that all of the PadCtrl functionality was written by Greg
+    Chadwick, and was copied into this change with some minor naming
+    changes.
+    
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
