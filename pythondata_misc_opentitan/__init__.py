@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5251"
-version_tuple = (0, 0, 5251)
+version_str = "0.0.post5252"
+version_tuple = (0, 0, 5252)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5251")
+    pversion = V("0.0.post5252")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5160"
-data_version_tuple = (0, 0, 5160)
+data_version_str = "0.0.post5161"
+data_version_tuple = (0, 0, 5161)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5160")
+    pdata_version = V("0.0.post5161")
 except ImportError:
     pass
-data_git_hash = "aec65bab197ed9578f36a27ec5dcd2298801686e"
-data_git_describe = "v0.0-5160-gaec65bab1"
+data_git_hash = "dadebce3951540a3624ce936d79f06b46691e68d"
+data_git_describe = "v0.0-5161-gdadebce39"
 data_git_msg = """\
-commit aec65bab197ed9578f36a27ec5dcd2298801686e
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Wed Feb 24 16:36:55 2021 +0000
+commit dadebce3951540a3624ce936d79f06b46691e68d
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Mar 4 15:55:22 2021 +0000
 
-    [sw, dif_pinmux] Introduce DIF Pinmux header
+    [otbn] Fix bad_insn_addr ERR_BITS description
     
-    Please note that this is a reworked version of the following PRs:
-    https://github.com/lowRISC/opentitan/pull/2042 (PadCtrl)
-    https://github.com/lowRISC/opentitan/pull/1763 (Pinmux)
+    Write to IMEM cannot occur from OTBN, so bad_insn_addr will only be
+    signalled on IMEM reads from OTBN.
     
-    This is due to major changes in hardware - PadCtrl and Pinmux have
-    been merged into one (Pinmux).
-    
-    Please note that all of the PadCtrl functionality was written by Greg
-    Chadwick, and was copied into this change with some minor naming
-    changes.
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
