@@ -4,51 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5262"
-version_tuple = (0, 0, 5262)
+version_str = "0.0.post5264"
+version_tuple = (0, 0, 5264)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5262")
+    pversion = V("0.0.post5264")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5168"
-data_version_tuple = (0, 0, 5168)
+data_version_str = "0.0.post5169"
+data_version_tuple = (0, 0, 5169)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5168")
+    pdata_version = V("0.0.post5169")
 except ImportError:
     pass
-data_git_hash = "95cea45d4f2912324a0fba32e97e2f87a14bea03"
-data_git_describe = "v0.0-5168-g95cea45d4"
+data_git_hash = "f77e60c36955b16daa20fccfc91589a1f21ecde9"
+data_git_describe = "v0.0-5169-gf77e60c36"
 data_git_msg = """\
-commit 95cea45d4f2912324a0fba32e97e2f87a14bea03
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Mar 2 08:54:01 2021 +0100
+commit f77e60c36955b16daa20fccfc91589a1f21ecde9
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Mar 5 10:44:42 2021 -0800
 
-    [aes] Interface CSRNG through EDN
+    [rtl/otp_ctrl] Report ECC correctable error in consistency check
     
-    This commit interfaces the AES unit with CSRNG/EDN to reseed the internal
-    PRNGs for clearing and masking. Since on the SCA platform, we don't have
-    enough resources to implement CSRNG and EDN, a new parameter
-    SecSkipPRNGReseeding is added to skip reseeding requests on the SCA
-    platform.
+    This PR adds some logic to report ECC correctable error in consistency
+    check. Previous logic will silently fix the ecc correctable error
+    without reporting it to status and error bit.
     
-    If the reseeding was done with deterministic input instead of entropy
-    provided by CSRNG, this would result in quickly repeating, deterministic
-    PRNG output which is not suitable for evaluating SCA resistance.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post94"
-tool_version_tuple = (0, 0, 94)
+tool_version_str = "0.0.post95"
+tool_version_tuple = (0, 0, 95)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post94")
+    ptool_version = V("0.0.post95")
 except ImportError:
     pass
 
