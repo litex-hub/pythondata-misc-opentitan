@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5259"
-version_tuple = (0, 0, 5259)
+version_str = "0.0.post5260"
+version_tuple = (0, 0, 5260)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5259")
+    pversion = V("0.0.post5260")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5167"
-data_version_tuple = (0, 0, 5167)
+data_version_str = "0.0.post5168"
+data_version_tuple = (0, 0, 5168)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5167")
+    pdata_version = V("0.0.post5168")
 except ImportError:
     pass
-data_git_hash = "a63640ec01fbac7a8c43d75ca461faf97675654f"
-data_git_describe = "v0.0-5167-ga63640ec0"
+data_git_hash = "95cea45d4f2912324a0fba32e97e2f87a14bea03"
+data_git_describe = "v0.0-5168-g95cea45d4"
 data_git_msg = """\
-commit a63640ec01fbac7a8c43d75ca461faf97675654f
-Author: Tung Hoang <hoang.tung@wdc.com>
-Date:   Sun Feb 28 15:20:22 2021 -0800
+commit 95cea45d4f2912324a0fba32e97e2f87a14bea03
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Mar 2 08:54:01 2021 +0100
 
-    [i2c, dv] Update i2c_testplan to include tests required to verify i2c target rtl
+    [aes] Interface CSRNG through EDN
     
-    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
+    This commit interfaces the AES unit with CSRNG/EDN to reseed the internal
+    PRNGs for clearing and masking. Since on the SCA platform, we don't have
+    enough resources to implement CSRNG and EDN, a new parameter
+    SecSkipPRNGReseeding is added to skip reseeding requests on the SCA
+    platform.
+    
+    If the reseeding was done with deterministic input instead of entropy
+    provided by CSRNG, this would result in quickly repeating, deterministic
+    PRNG output which is not suitable for evaluating SCA resistance.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
