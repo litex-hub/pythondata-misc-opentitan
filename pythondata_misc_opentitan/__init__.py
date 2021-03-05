@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5252"
-version_tuple = (0, 0, 5252)
+version_str = "0.0.post5254"
+version_tuple = (0, 0, 5254)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5252")
+    pversion = V("0.0.post5254")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5161"
-data_version_tuple = (0, 0, 5161)
+data_version_str = "0.0.post5163"
+data_version_tuple = (0, 0, 5163)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5161")
+    pdata_version = V("0.0.post5163")
 except ImportError:
     pass
-data_git_hash = "dadebce3951540a3624ce936d79f06b46691e68d"
-data_git_describe = "v0.0-5161-gdadebce39"
+data_git_hash = "c88e97fe0634880a8e617a8594e1a3e883394569"
+data_git_describe = "v0.0-5163-gc88e97fe0"
 data_git_msg = """\
-commit dadebce3951540a3624ce936d79f06b46691e68d
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Thu Mar 4 15:55:22 2021 +0000
+commit c88e97fe0634880a8e617a8594e1a3e883394569
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Thu Mar 4 13:38:20 2021 +0000
 
-    [otbn] Fix bad_insn_addr ERR_BITS description
+    [ibex] Connect up crash dump output
     
-    Write to IMEM cannot occur from OTBN, so bad_insn_addr will only be
-    signalled on IMEM reads from OTBN.
+    Fixes #4618
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
