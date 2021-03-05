@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5249"
-version_tuple = (0, 0, 5249)
+version_str = "0.0.post5250"
+version_tuple = (0, 0, 5250)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5249")
+    pversion = V("0.0.post5250")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5158"
-data_version_tuple = (0, 0, 5158)
+data_version_str = "0.0.post5159"
+data_version_tuple = (0, 0, 5159)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5158")
+    pdata_version = V("0.0.post5159")
 except ImportError:
     pass
-data_git_hash = "f2cc96330c0ac7a53f966fa7b3e32419207384f5"
-data_git_describe = "v0.0-5158-gf2cc96330"
+data_git_hash = "9393230584258360dacbbc1550d99aaacff24cf1"
+data_git_describe = "v0.0-5159-g939323058"
 data_git_msg = """\
-commit f2cc96330c0ac7a53f966fa7b3e32419207384f5
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Mar 4 09:15:41 2021 -0800
+commit 9393230584258360dacbbc1550d99aaacff24cf1
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Mar 4 11:40:36 2021 -0800
 
-    [alert_handler] Delete stale comment
+    [dv/sram] minor updates to sram tb
     
-    Fix #5457
+    this PR fixes a few unaligned statements and some minor style fixes
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
