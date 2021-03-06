@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5268"
-version_tuple = (0, 0, 5268)
+version_str = "0.0.post5269"
+version_tuple = (0, 0, 5269)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5268")
+    pversion = V("0.0.post5269")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5173"
-data_version_tuple = (0, 0, 5173)
+data_version_str = "0.0.post5174"
+data_version_tuple = (0, 0, 5174)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5173")
+    pdata_version = V("0.0.post5174")
 except ImportError:
     pass
-data_git_hash = "6c72d84e37b0d790dd4793c5b3919ab9e02d215b"
-data_git_describe = "v0.0-5173-g6c72d84e3"
+data_git_hash = "fb17e44f0b035fdc0728416bea50c67ed2f40d29"
+data_git_describe = "v0.0-5174-gfb17e44f0"
 data_git_msg = """\
-commit 6c72d84e37b0d790dd4793c5b3919ab9e02d215b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 5 16:53:19 2021 -0800
+commit fb17e44f0b035fdc0728416bea50c67ed2f40d29
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Mar 5 12:41:21 2021 -0800
 
-    [util] Slight refactor of secded_gen.py
+    [dv/alert_handler] remove logic to auto-generate alert parameters
     
-    - list all secded flavors in util/design/data/secded_cfg.hjson
-    - generate single package file for portable re-use
-    - nothing else is touched
+    In previous logic, DV will auto-generate parameters from hjson file,
+    which includes NUM_ALERTS and ASYNC_ON.
+    However, in design, these parameters are auto-generated from hjson as
+    well. There is no need to generate again in DV, and it is easier to just
+    reuse the parameter from design.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
