@@ -4,54 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5266"
-version_tuple = (0, 0, 5266)
+version_str = "0.0.post5267"
+version_tuple = (0, 0, 5267)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5266")
+    pversion = V("0.0.post5267")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5171"
-data_version_tuple = (0, 0, 5171)
+data_version_str = "0.0.post5172"
+data_version_tuple = (0, 0, 5172)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5171")
+    pdata_version = V("0.0.post5172")
 except ImportError:
     pass
-data_git_hash = "12cce14e3355f5df1c1d2c533a9686b88cc84b93"
-data_git_describe = "v0.0-5171-g12cce14e3"
+data_git_hash = "3508ebd7f522ac4caba28327a874b66af7ca5c0c"
+data_git_describe = "v0.0-5172-g3508ebd7f"
 data_git_msg = """\
-commit 12cce14e3355f5df1c1d2c533a9686b88cc84b93
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 2 18:11:01 2021 -0800
+commit 3508ebd7f522ac4caba28327a874b66af7ca5c0c
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Mar 5 14:07:27 2021 -0800
 
-    [tlul] Add memory transmission integrity checks
+    [dv] only read mem which is written with full word data
     
-    - Add optional integrity generation / checks into tlul_adapter_sram
-    - Update sram_scr to make use of the integrity error information
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Fix for englishbreakfast
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [all] update for intg_error_o port
-    
-    - Create alert from sram controllers
-    - Unused for all other modules
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Auto generate files
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [sram dv] Add extra alert
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    workaround for #5262
+    Also change num_access to only count read access
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
