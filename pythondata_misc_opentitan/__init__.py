@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5267"
-version_tuple = (0, 0, 5267)
+version_str = "0.0.post5268"
+version_tuple = (0, 0, 5268)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5267")
+    pversion = V("0.0.post5268")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5172"
-data_version_tuple = (0, 0, 5172)
+data_version_str = "0.0.post5173"
+data_version_tuple = (0, 0, 5173)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5172")
+    pdata_version = V("0.0.post5173")
 except ImportError:
     pass
-data_git_hash = "3508ebd7f522ac4caba28327a874b66af7ca5c0c"
-data_git_describe = "v0.0-5172-g3508ebd7f"
+data_git_hash = "6c72d84e37b0d790dd4793c5b3919ab9e02d215b"
+data_git_describe = "v0.0-5173-g6c72d84e3"
 data_git_msg = """\
-commit 3508ebd7f522ac4caba28327a874b66af7ca5c0c
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Mar 5 14:07:27 2021 -0800
+commit 6c72d84e37b0d790dd4793c5b3919ab9e02d215b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Mar 5 16:53:19 2021 -0800
 
-    [dv] only read mem which is written with full word data
+    [util] Slight refactor of secded_gen.py
     
-    workaround for #5262
-    Also change num_access to only count read access
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - list all secded flavors in util/design/data/secded_cfg.hjson
+    - generate single package file for portable re-use
+    - nothing else is touched
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
