@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5269"
-version_tuple = (0, 0, 5269)
+version_str = "0.0.post5272"
+version_tuple = (0, 0, 5272)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5269")
+    pversion = V("0.0.post5272")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5174"
-data_version_tuple = (0, 0, 5174)
+data_version_str = "0.0.post5177"
+data_version_tuple = (0, 0, 5177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5174")
+    pdata_version = V("0.0.post5177")
 except ImportError:
     pass
-data_git_hash = "fb17e44f0b035fdc0728416bea50c67ed2f40d29"
-data_git_describe = "v0.0-5174-gfb17e44f0"
+data_git_hash = "4047b0d0f29b2a22b2b8a96cbf1881bcd5b13990"
+data_git_describe = "v0.0-5177-g4047b0d0f"
 data_git_msg = """\
-commit fb17e44f0b035fdc0728416bea50c67ed2f40d29
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Mar 5 12:41:21 2021 -0800
+commit 4047b0d0f29b2a22b2b8a96cbf1881bcd5b13990
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Mar 2 16:57:54 2021 +0100
 
-    [dv/alert_handler] remove logic to auto-generate alert parameters
+    [aes] Update design checklist to represent current state
     
-    In previous logic, DV will auto-generate parameters from hjson file,
-    which includes NUM_ALERTS and ASYNC_ON.
-    However, in design, these parameters are auto-generated from hjson as
-    well. There is no need to generate again in DV, and it is easier to just
-    reuse the parameter from design.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
