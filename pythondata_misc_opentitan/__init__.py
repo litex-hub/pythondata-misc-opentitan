@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5283"
-version_tuple = (0, 0, 5283)
+version_str = "0.0.post5284"
+version_tuple = (0, 0, 5284)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5283")
+    pversion = V("0.0.post5284")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5188"
-data_version_tuple = (0, 0, 5188)
+data_version_str = "0.0.post5189"
+data_version_tuple = (0, 0, 5189)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5188")
+    pdata_version = V("0.0.post5189")
 except ImportError:
     pass
-data_git_hash = "d55eaeb0e51b9e2fa79c406fa6328b99f382796a"
-data_git_describe = "v0.0-5188-gd55eaeb0e"
+data_git_hash = "cd3ddb33bc56d9d80bbf2da6f5020f8d03f21b21"
+data_git_describe = "v0.0-5189-gcd3ddb33b"
 data_git_msg = """\
-commit d55eaeb0e51b9e2fa79c406fa6328b99f382796a
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Feb 11 12:38:15 2021 -0800
+commit cd3ddb33bc56d9d80bbf2da6f5020f8d03f21b21
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Mar 4 20:34:43 2021 -0800
 
-    [spi_device] Command Process block
+    [dv/sram] bijection test
     
-    This commit implements SPI Flash command process block. It decodes first
-    8bit of received data and triggers proper downstream module to handle
-    the received commands.
+    this PR implements the bijection test as described in the testplan.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
