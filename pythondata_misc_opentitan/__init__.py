@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5288"
-version_tuple = (0, 0, 5288)
+version_str = "0.0.post5289"
+version_tuple = (0, 0, 5289)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5288")
+    pversion = V("0.0.post5289")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5193"
-data_version_tuple = (0, 0, 5193)
+data_version_str = "0.0.post5194"
+data_version_tuple = (0, 0, 5194)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5193")
+    pdata_version = V("0.0.post5194")
 except ImportError:
     pass
-data_git_hash = "2f5e5cf1888f6c48eed6bb24b141a682282e1c5d"
-data_git_describe = "v0.0-5193-g2f5e5cf18"
+data_git_hash = "1715552d57f007905965062c21d2a0f2e77db554"
+data_git_describe = "v0.0-5194-g1715552d5"
 data_git_msg = """\
-commit 2f5e5cf1888f6c48eed6bb24b141a682282e1c5d
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Mon Mar 8 11:51:17 2021 -0800
+commit 1715552d57f007905965062c21d2a0f2e77db554
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Mar 8 13:00:01 2021 -0800
 
-    [util] minor updates to secded_gen
+    [aon_timer] Remove temporary intr_enable for #5260
     
-    this PR does a few things with secded_gen.py:
-    
-    - adds a seed value to data/secded_cfg.hjson for reproducibility
-    - adds decoding functions to prim_secded_pkg
-    - minor spacing updates throughout if generating the pkg functions
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
