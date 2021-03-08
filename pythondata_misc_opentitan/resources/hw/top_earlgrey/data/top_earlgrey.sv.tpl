@@ -40,7 +40,7 @@ module top_${top["name"]} #(
   % if not lib.is_inst(m):
 <% continue %>
   % endif
-  % for p_exp in filter(lambda p: p["expose"] == "true", m["param_list"]):
+  % for p_exp in filter(lambda p: p.get("expose") == "true", m["param_list"]):
   parameter ${p_exp["type"]} ${p_exp["name_top"]} = ${p_exp["default"]},
   % endfor
 % endfor
@@ -592,7 +592,7 @@ else:
   % if m["param_list"]:
   ${m["type"]} #(
     % for i in m["param_list"]:
-    .${i["name"]}(${i["name_top" if i["expose"] == "true" or i["randtype"] != "none" else "default"]})${"," if not loop.last else ""}
+    .${i["name"]}(${i["name_top" if i.get("expose") == "true" or i.get("randtype", "none") != "none" else "default"]})${"," if not loop.last else ""}
     % endfor
   ) u_${m["name"]} (
   % else:
@@ -639,10 +639,10 @@ slice = str(alert_idx+w-1) + ":" + str(alert_idx)
       // Inter-module signals
       % for sig in m["inter_signal_list"]:
         ## TODO: handle below condition in lib.py
-        % if sig["type"] == "req_rsp":
+        % if sig['type'] == "req_rsp":
       .${lib.im_portname(sig,"req")}(${lib.im_netname(sig, "req")}),
       .${lib.im_portname(sig,"rsp")}(${lib.im_netname(sig, "rsp")}),
-        % elif sig["type"] == "uni":
+        % elif sig['type'] == "uni":
           ## TODO: Broadcast type
           ## TODO: default for logic type
       .${lib.im_portname(sig)}(${lib.im_netname(sig)}),
@@ -722,7 +722,7 @@ slice = str(alert_idx+w-1) + ":" + str(alert_idx)
 
   ## Inter-module signal
   % for sig in xbar["inter_signal_list"]:
-<% assert sig["type"] == "req_rsp" %>\
+<% assert sig['type'] == "req_rsp" %>\
     // port: ${sig['name']}
     .${lib.im_portname(sig,"req")}(${lib.im_netname(sig, "req")}),
     .${lib.im_portname(sig,"rsp")}(${lib.im_netname(sig, "rsp")}),

@@ -10,6 +10,7 @@ from functools import partial
 from math import ceil, log2
 
 from topgen import c, lib
+from reggen.params import LocalParam, Parameter, RandParameter
 
 
 def _get_random_data_hex_literal(width):
@@ -52,9 +53,9 @@ def amend_ip(top, ip):
     """
     ip_list_in_top = [x["type"].lower() for x in top["module"]]
     # TODO make set
-    ipname = ip["name"].lower()
+    ipname = ip.name.lower()
     if ipname not in ip_list_in_top:
-        log.info("TOP doens't use the IP %s. Skip" % ip["name"])
+        log.info("TOP doens't use the IP %s. Skip" % ip.name)
         return
 
     # Initialize RNG for compile-time netlist constants.
@@ -68,154 +69,133 @@ def amend_ip(top, ip):
     ip_modules = list(
         filter(lambda module: module["type"] == ipname, top["module"]))
 
+    ip_size = 1 << ip.regs.get_addr_width()
+
     for ip_module in ip_modules:
         mod_name = ip_module["name"]
 
         # Size
         if "size" not in ip_module:
-            ip_module["size"] = "0x%x" % max(ip["gensize"], 0x1000)
-        elif int(ip_module["size"], 0) < ip["gensize"]:
+            ip_module["size"] = "0x%x" % max(ip_size, 0x1000)
+        elif int(ip_module["size"], 0) < ip_size:
             log.error(
                 "given 'size' field in IP %s is smaller than the required space"
                 % mod_name)
 
-        # bus_device
-        ip_module["bus_device"] = ip["bus_device"]
+        ip_module["bus_device"] = ip.bus_device or 'none'
+        ip_module["bus_host"] = ip.bus_host or 'none'
 
-        # bus_host
-        if "bus_host" in ip and ip["bus_host"] != "":
-            ip_module["bus_host"] = ip["bus_host"]
-        else:
-            ip_module["bus_host"] = "none"
-
-        # available_input_list , available_output_list, available_inout_list
-        if "available_input_list" in ip:
-            ip_module["available_input_list"] = deepcopy(
-                ip["available_input_list"])
-            for i in ip_module["available_input_list"]:
-                i.pop('desc', None)
-                i["type"] = "input"
-                i["width"] = int(i["width"])
-        else:
-            ip_module["available_input_list"] = []
-        if "available_output_list" in ip:
-            ip_module["available_output_list"] = deepcopy(
-                ip["available_output_list"])
-            for i in ip_module["available_output_list"]:
-                i.pop('desc', None)
-                i["type"] = "output"
-                i["width"] = int(i["width"])
-        else:
-            ip_module["available_output_list"] = []
-        if "available_inout_list" in ip:
-            ip_module["available_inout_list"] = deepcopy(
-                ip["available_inout_list"])
-            for i in ip_module["available_inout_list"]:
-                i.pop('desc', None)
-                i["type"] = "inout"
-                i["width"] = int(i["width"])
-        else:
-            ip_module["available_inout_list"] = []
+        inouts, inputs, outputs = ip.xputs
+        ip_module['available_inout_list'] = [
+            {'name': signal.name,
+             'width': signal.bits.width(),
+             'type': 'inout'}
+            for signal in inouts
+        ]
+        ip_module['available_input_list'] = [
+            {'name': signal.name,
+             'width': signal.bits.width(),
+             'type': 'input'}
+            for signal in inputs
+        ]
+        ip_module['available_output_list'] = [
+            {'name': signal.name,
+             'width': signal.bits.width(),
+             'type': 'output'}
+            for signal in outputs
+        ]
 
         # param_list
-        if "param_list" in ip:
-            ip_module["param_list"] = deepcopy(ip["param_list"])
-            # Removing local parameters.
-            for i in ip["param_list"]:
-                if i["local"] == "true":
-                    ip_module["param_list"].remove(i)
-            # Checking for security-relevant parameters
-            # that are not exposed, adding a top-level name.
-            for i in ip_module["param_list"]:
-                par_name = i["name"]
-                if par_name.lower().startswith("sec") and not i["expose"]:
-                    log.warning("{} has security-critical parameter {} "
-                                "not exposed to top".format(
-                                    mod_name, par_name))
-                # Move special prefixes to the beginnining of the parameter name.
-                param_prefixes = ["Sec", "RndCnst"]
-                cc_mod_name = c.Name.from_snake_case(mod_name).as_camel_case()
-                for prefix in param_prefixes:
-                    if par_name.lower().startswith(prefix.lower()):
-                        i["name_top"] = prefix + cc_mod_name + par_name[
-                            len(prefix):]
-                        break
-                else:
-                    i["name_top"] = cc_mod_name + par_name
+        new_params = []
+        for param in ip.params.by_name.values():
+            if isinstance(param, LocalParam):
+                # Remove local parameters.
+                continue
 
-                # Generate random bits or permutation, if needed
-                if i["randtype"] == "data":
-                    i["default"] = _get_random_data_hex_literal(i["randcount"])
+            new_param = param.as_dict()
+
+            param_expose = param.expose if isinstance(param, Parameter) else False
+
+            # Check for security-relevant parameters that are not exposed,
+            # adding a top-level name.
+            if param.name.lower().startswith("sec") and not param_expose:
+                log.warning("{} has security-critical parameter {} "
+                            "not exposed to top".format(
+                                mod_name, param.name))
+
+            # Move special prefixes to the beginnining of the parameter name.
+            param_prefixes = ["Sec", "RndCnst"]
+            cc_mod_name = c.Name.from_snake_case(mod_name).as_camel_case()
+            name_top = cc_mod_name + param.name
+            for prefix in param_prefixes:
+                if param.name.lower().startswith(prefix.lower()):
+                    name_top = (prefix + cc_mod_name +
+                                param.name[len(prefix):])
+                    break
+
+            new_param['name_top'] = name_top
+
+            # Generate random bits or permutation, if needed
+            if isinstance(param, RandParameter):
+                if param.randtype == 'data':
+                    new_default = _get_random_data_hex_literal(param.randcount)
                     # Effective width of the random vector
-                    i["randwidth"] = int(i["randcount"])
-                elif i["randtype"] == "perm":
-                    i["default"] = _get_random_perm_hex_literal(i["randcount"])
+                    randwidth = param.randcount
+                else:
+                    assert param.randtype == 'perm'
+                    new_default = _get_random_perm_hex_literal(param.randcount)
                     # Effective width of the random vector
-                    i["randwidth"] = int(i["randcount"]) * int(
-                        ceil(log2(float(i["randcount"]))))
-        else:
-            ip_module["param_list"] = []
+                    randwidth = param.randcount * ceil(log2(param.randcount))
+
+                new_param['default'] = new_default
+                new_param['randwidth'] = randwidth
+
+            new_params.append(new_param)
+
+        ip_module["param_list"] = new_params
 
         # interrupt_list
-        if "interrupt_list" in ip:
-            ip_module["interrupt_list"] = deepcopy(ip["interrupt_list"])
-            for i in ip_module["interrupt_list"]:
-                i.pop('desc', None)
-                i["type"] = "interrupt"
-                i["width"] = int(i["width"])
-        else:
-            ip_module["interrupt_list"] = []
+        ip_module["interrupt_list"] = [
+            {'name': i.name,
+             'width': i.bits.width(),
+             'type': 'interrupt'}
+            for i in ip.interrupts
+        ]
 
         # alert_list
-        if "alert_list" in ip:
-            ip_module["alert_list"] = deepcopy(ip["alert_list"])
-            for i in ip_module["alert_list"]:
-                i.pop('desc', None)
-                i["type"] = "alert"
-                i["width"] = int(i["width"])
-                # automatically insert asynchronous transition if necessary
-                if ip_module["clock_srcs"]["clk_i"] == \
-                   top["module"][ah_idx]["clock_srcs"]["clk_i"]:
-                    i["async"] = 0
-                else:
-                    i["async"] = 1
-        else:
-            ip_module["alert_list"] = []
+        async_alerts = (ip_module["clock_srcs"]["clk_i"] !=
+                        top["module"][ah_idx]["clock_srcs"]["clk_i"])
+        ip_module["alert_list"] = [
+            {'name': i.name,
+             'type': 'alert',
+             'width': 1,
+             'async': '1' if async_alerts else '0'}
+            for i in ip.alerts
+        ]
 
         # wkup_list
-        if "wakeup_list" in ip:
-            ip_module["wakeup_list"] = deepcopy(ip["wakeup_list"])
-            for i in ip_module["wakeup_list"]:
-                i.pop('desc', None)
-        else:
-            ip_module["wakeup_list"] = []
+        ip_module["wakeup_list"] = [
+            {'name': signal.name,
+             'width': str(signal.bits.width())}
+            for signal in ip.wakeups
+        ]
 
         # reset request
-        if "reset_request_list" in ip:
-            ip_module["reset_request_list"] = deepcopy(
-                ip["reset_request_list"])
-            for i in ip_module["reset_request_list"]:
-                i.pop('desc', None)
-        else:
-            ip_module["reset_request_list"] = []
+        ip_module["reset_request_list"] = [
+            {'name': signal.name,
+             'width': str(signal.bits.width())}
+            for signal in ip.reset_requests
+        ]
 
         # scan
-        if "scan" in ip:
-            ip_module["scan"] = ip["scan"]
-        else:
-            ip_module["scan"] = "false"
+        ip_module['scan'] = 'true' if ip.scan else 'false'
 
         # scan_reset
-        if "scan_reset" in ip:
-            ip_module["scan_reset"] = ip["scan_reset"]
-        else:
-            ip_module["scan_reset"] = "false"
+        ip_module['scan_reset'] = 'true' if ip.scan_reset else 'false'
 
         # inter-module
-        if "inter_signal_list" in ip:
-            ip_module["inter_signal_list"] = deepcopy(ip["inter_signal_list"])
-
-            # TODO: validate
+        ip_module["inter_signal_list"] = ip.inter_signals.copy()
+        # TODO: validate
 
 
 # TODO: Replace this part to be configurable from Hjson or template
