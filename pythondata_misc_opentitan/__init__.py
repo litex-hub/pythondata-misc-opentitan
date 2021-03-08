@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5272"
-version_tuple = (0, 0, 5272)
+version_str = "0.0.post5279"
+version_tuple = (0, 0, 5279)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5272")
+    pversion = V("0.0.post5279")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5177"
-data_version_tuple = (0, 0, 5177)
+data_version_str = "0.0.post5184"
+data_version_tuple = (0, 0, 5184)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5177")
+    pdata_version = V("0.0.post5184")
 except ImportError:
     pass
-data_git_hash = "4047b0d0f29b2a22b2b8a96cbf1881bcd5b13990"
-data_git_describe = "v0.0-5177-g4047b0d0f"
+data_git_hash = "2a1589419e8fd8c80f21939b810698295f73d05c"
+data_git_describe = "v0.0-5184-g2a1589419"
 data_git_msg = """\
-commit 4047b0d0f29b2a22b2b8a96cbf1881bcd5b13990
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Mar 2 16:57:54 2021 +0100
+commit 2a1589419e8fd8c80f21939b810698295f73d05c
+Author: Felix Miller <felix.miller@gi-de.com>
+Date:   Sun Mar 7 18:05:39 2021 +0100
 
-    [aes] Update design checklist to represent current state
+    [otbn] add P-384 curve point addition
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Adds routine for P-384 point addition in projective space plus
+    simple standalone test.
+    
+    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
 
 """
 
