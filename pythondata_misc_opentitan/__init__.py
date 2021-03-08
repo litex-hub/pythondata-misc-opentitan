@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5287"
-version_tuple = (0, 0, 5287)
+version_str = "0.0.post5288"
+version_tuple = (0, 0, 5288)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5287")
+    pversion = V("0.0.post5288")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5192"
-data_version_tuple = (0, 0, 5192)
+data_version_str = "0.0.post5193"
+data_version_tuple = (0, 0, 5193)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5192")
+    pdata_version = V("0.0.post5193")
 except ImportError:
     pass
-data_git_hash = "b5871b73f4bfa1371901f600b582d77110719440"
-data_git_describe = "v0.0-5192-gb5871b73f"
+data_git_hash = "2f5e5cf1888f6c48eed6bb24b141a682282e1c5d"
+data_git_describe = "v0.0-5193-g2f5e5cf18"
 data_git_msg = """\
-commit b5871b73f4bfa1371901f600b582d77110719440
-Author: Jacob Levy <jacob.levy@opentitan.org>
-Date:   Mon Mar 8 21:18:08 2021 +0200
+commit 2f5e5cf1888f6c48eed6bb24b141a682282e1c5d
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Mon Mar 8 11:51:17 2021 -0800
 
-    [AST] AscentLint & Spyglass fixes
+    [util] minor updates to secded_gen
     
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    this PR does a few things with secded_gen.py:
+    
+    - adds a seed value to data/secded_cfg.hjson for reproducibility
+    - adds decoding functions to prim_secded_pkg
+    - minor spacing updates throughout if generating the pkg functions
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
