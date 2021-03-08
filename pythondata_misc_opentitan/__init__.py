@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5285"
-version_tuple = (0, 0, 5285)
+version_str = "0.0.post5287"
+version_tuple = (0, 0, 5287)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5285")
+    pversion = V("0.0.post5287")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5190"
-data_version_tuple = (0, 0, 5190)
+data_version_str = "0.0.post5192"
+data_version_tuple = (0, 0, 5192)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5190")
+    pdata_version = V("0.0.post5192")
 except ImportError:
     pass
-data_git_hash = "0481a821c01424bb2271964104ce8849c258474b"
-data_git_describe = "v0.0-5190-g0481a821c"
+data_git_hash = "b5871b73f4bfa1371901f600b582d77110719440"
+data_git_describe = "v0.0-5192-gb5871b73f"
 data_git_msg = """\
-commit 0481a821c01424bb2271964104ce8849c258474b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 5 14:30:17 2021 -0800
+commit b5871b73f4bfa1371901f600b582d77110719440
+Author: Jacob Levy <jacob.levy@opentitan.org>
+Date:   Mon Mar 8 21:18:08 2021 +0200
 
-    [aon_timer] Change escalate_en control to cpu_en
+    [AST] AscentLint & Spyglass fixes
     
-    * The issue with using escalate_en is that if the software configures
-      the alert handling to skip from normal directly to scrap, we may not
-      halt the watchdog timer.  There are also similar issues with other
-      invalid states.
-    
-    * By using cpu_en, we align the behavior of the aon_timer with that of
-      the processing element (its main consumer) and thus is more consistent
-      overall.  If the cpu is running, then the watchdog / wake timer should
-      be in effect.  If the cpu is halted due to life cycle reasons, there
-      would be no one to consume the output anyways.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
 
 """
 
