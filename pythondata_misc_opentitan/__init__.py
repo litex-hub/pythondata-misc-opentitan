@@ -4,40 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5292"
-version_tuple = (0, 0, 5292)
+version_str = "0.0.post5294"
+version_tuple = (0, 0, 5294)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5292")
+    pversion = V("0.0.post5294")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5197"
-data_version_tuple = (0, 0, 5197)
+data_version_str = "0.0.post5199"
+data_version_tuple = (0, 0, 5199)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5197")
+    pdata_version = V("0.0.post5199")
 except ImportError:
     pass
-data_git_hash = "a1af4ece1395b9fed47475361f1dd867e242d5d2"
-data_git_describe = "v0.0-5197-ga1af4ece1"
+data_git_hash = "6ddbb231d193128aa8738131b58ae367dbfe4ffd"
+data_git_describe = "v0.0-5199-g6ddbb231d"
 data_git_msg = """\
-commit a1af4ece1395b9fed47475361f1dd867e242d5d2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 5 13:57:00 2021 -0800
+commit 6ddbb231d193128aa8738131b58ae367dbfe4ffd
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Mar 8 11:16:17 2021 -0800
 
-    [clkmgr] Fix dft issues
+    [otp_ctrl] Properly end cnsty/integ checks that found an error
     
-    Addresses #5452 and #5453
+    This changes the behavior of the buffered partition checker logic such
+    that failing checks signal back to the LFSR timer that they have
+    finished performing the check.
     
-    - force step_down_req to 0 when in test mode
-      - It is assumed the flops inside prim_clock_div are off the scan chain
+    That way, the LFSR timer can still continue running and triggering
+    checks in other partitions, despite the faulty partition being in the
+    terminal error state.
     
-    - remove bypass mux functionality when in test mode.  The mux itself is
-      still kept as a constraint anchor point.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
