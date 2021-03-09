@@ -4,51 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5296"
-version_tuple = (0, 0, 5296)
+version_str = "0.0.post5299"
+version_tuple = (0, 0, 5299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5296")
+    pversion = V("0.0.post5299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5201"
-data_version_tuple = (0, 0, 5201)
+data_version_str = "0.0.post5204"
+data_version_tuple = (0, 0, 5204)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5201")
+    pdata_version = V("0.0.post5204")
 except ImportError:
     pass
-data_git_hash = "915df6982ec6094bd351fa9db15ee9d22a2c1cd7"
-data_git_describe = "v0.0-5201-g915df6982"
+data_git_hash = "e09bafcfdc3bd8af53efc8c235c25919344231bd"
+data_git_describe = "v0.0-5204-ge09bafcfd"
 data_git_msg = """\
-commit 915df6982ec6094bd351fa9db15ee9d22a2c1cd7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 5 13:16:36 2021 -0800
+commit e09bafcfdc3bd8af53efc8c235c25919344231bd
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Mar 8 21:56:25 2021 -0800
 
-    [tlul] Enable tlul integrity check across the design
+    [sram_ctrl dv doc] Update DV doc
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Update terminology (testplan -> DV plan, DV plan -> DV document).
     
-    [tlul] Minor enhancements
-    
-    - remove commented out code after placing tlul_host_adapter inside lc_ctrl
-    - add full width parameters to tlul_pkg.sv
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [dv] Minor hacks to get tlul integrity checks going
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Auto generate files
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [tlul] correct comment typo
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
