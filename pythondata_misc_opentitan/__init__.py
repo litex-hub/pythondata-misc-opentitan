@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5299"
-version_tuple = (0, 0, 5299)
+version_str = "0.0.post5301"
+version_tuple = (0, 0, 5301)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5299")
+    pversion = V("0.0.post5301")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5204"
-data_version_tuple = (0, 0, 5204)
+data_version_str = "0.0.post5206"
+data_version_tuple = (0, 0, 5206)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5204")
+    pdata_version = V("0.0.post5206")
 except ImportError:
     pass
-data_git_hash = "e09bafcfdc3bd8af53efc8c235c25919344231bd"
-data_git_describe = "v0.0-5204-ge09bafcfd"
+data_git_hash = "398824370421e55a297a6a2baa422b3a1d1ff784"
+data_git_describe = "v0.0-5206-g398824370"
 data_git_msg = """\
-commit e09bafcfdc3bd8af53efc8c235c25919344231bd
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Mar 8 21:56:25 2021 -0800
+commit 398824370421e55a297a6a2baa422b3a1d1ff784
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 8 15:34:24 2021 +0000
 
-    [sram_ctrl dv doc] Update DV doc
+    [otbn] Remove unused localparam from otbn_core_model.sv
     
-    Update terminology (testplan -> DV plan, DV plan -> DV document).
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
