@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5294"
-version_tuple = (0, 0, 5294)
+version_str = "0.0.post5295"
+version_tuple = (0, 0, 5295)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5294")
+    pversion = V("0.0.post5295")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5199"
-data_version_tuple = (0, 0, 5199)
+data_version_str = "0.0.post5200"
+data_version_tuple = (0, 0, 5200)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5199")
+    pdata_version = V("0.0.post5200")
 except ImportError:
     pass
-data_git_hash = "6ddbb231d193128aa8738131b58ae367dbfe4ffd"
-data_git_describe = "v0.0-5199-g6ddbb231d"
+data_git_hash = "e17f6b5826dae013e7d29b088c665578618426e8"
+data_git_describe = "v0.0-5200-ge17f6b582"
 data_git_msg = """\
-commit 6ddbb231d193128aa8738131b58ae367dbfe4ffd
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Mar 8 11:16:17 2021 -0800
+commit e17f6b5826dae013e7d29b088c665578618426e8
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 8 13:04:22 2021 -0800
 
-    [otp_ctrl] Properly end cnsty/integ checks that found an error
+    [aon_timer] Add basic dv tb
     
-    This changes the behavior of the buffered partition checker logic such
-    that failing checks signal back to the LFSR timer that they have
-    finished performing the check.
+    - only thing that is tested is CSR
     
-    That way, the LFSR timer can still continue running and triggering
-    checks in other partitions, despite the faulty partition being in the
-    terminal error state.
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
