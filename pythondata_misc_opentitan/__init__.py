@@ -4,37 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5304"
-version_tuple = (0, 0, 5304)
+version_str = "0.0.post5307"
+version_tuple = (0, 0, 5307)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5304")
+    pversion = V("0.0.post5307")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5209"
-data_version_tuple = (0, 0, 5209)
+data_version_str = "0.0.post5212"
+data_version_tuple = (0, 0, 5212)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5209")
+    pdata_version = V("0.0.post5212")
 except ImportError:
     pass
-data_git_hash = "c43c58ba78f1d8fdbfccd8db240926eed6f13923"
-data_git_describe = "v0.0-5209-gc43c58ba7"
+data_git_hash = "eb619e67ff2d81fd4c59c3647254e5dff10563ff"
+data_git_describe = "v0.0-5212-geb619e67f"
 data_git_msg = """\
-commit c43c58ba78f1d8fdbfccd8db240926eed6f13923
-Author: Tarik Graba <tarik.graba@telecom-paris.fr>
-Date:   Mon Mar 8 13:58:30 2021 +0100
+commit eb619e67ff2d81fd4c59c3647254e5dff10563ff
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 5 15:01:54 2021 +0000
 
-    [dv/dpi] Fix assignment to SystemVerilog chandle
+    [topgen] Don't copy data from block into instances
     
-    Section 6.14 of the standard states that assignment to chandle can only
-    be made from `null` or an other chandle, not from an integer literal.
+    There's no need to do this, as long as we can look up the block
+    quickly. The nicest way to do that would be to add a "block" field to
+    the instance dictionary, but that would be enormous when we dumped
+    top_earlgrey.gen.hjson (I tried it - it added 32k lines!), so we just
+    pass around a dictionary mapping block name to the IpBlock object
+    instead.
     
-    This patch allows the compilation of the simulation models with modelsim
+    Note that we do still have to copy inter_signal_list, because that
+    gets annotated (through references; it's not very easy to trace) by
+    the code in intermodule.py.
     
-    Signed-off-by: Tarik Graba <tarik.graba@telecom-paris.fr>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
