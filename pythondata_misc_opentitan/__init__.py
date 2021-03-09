@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5308"
-version_tuple = (0, 0, 5308)
+version_str = "0.0.post5311"
+version_tuple = (0, 0, 5311)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5308")
+    pversion = V("0.0.post5311")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5213"
-data_version_tuple = (0, 0, 5213)
+data_version_str = "0.0.post5216"
+data_version_tuple = (0, 0, 5216)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5213")
+    pdata_version = V("0.0.post5216")
 except ImportError:
     pass
-data_git_hash = "72cb99c3ab0a3e9798dfd62db3193fc5219e1e8c"
-data_git_describe = "v0.0-5213-g72cb99c3a"
+data_git_hash = "67a5d9fc276d74bfbb8af035560a01ade5ae5604"
+data_git_describe = "v0.0-5216-g67a5d9fc2"
 data_git_msg = """\
-commit 72cb99c3ab0a3e9798dfd62db3193fc5219e1e8c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Mar 8 15:58:44 2021 -0800
+commit 67a5d9fc276d74bfbb8af035560a01ade5ae5604
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Thu Feb 25 07:19:46 2021 -0800
 
-    [top] Change edn hook-up
+    [edn/dv] csrng_agent device mode, edn_smoke_test
     
-    see #5487
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
