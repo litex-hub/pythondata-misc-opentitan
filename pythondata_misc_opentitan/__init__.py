@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5311"
-version_tuple = (0, 0, 5311)
+version_str = "0.0.post5312"
+version_tuple = (0, 0, 5312)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5311")
+    pversion = V("0.0.post5312")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5216"
-data_version_tuple = (0, 0, 5216)
+data_version_str = "0.0.post5217"
+data_version_tuple = (0, 0, 5217)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5216")
+    pdata_version = V("0.0.post5217")
 except ImportError:
     pass
-data_git_hash = "67a5d9fc276d74bfbb8af035560a01ade5ae5604"
-data_git_describe = "v0.0-5216-g67a5d9fc2"
+data_git_hash = "046a56b31a495d7fe461029fa494e3e509903dba"
+data_git_describe = "v0.0-5217-g046a56b31"
 data_git_msg = """\
-commit 67a5d9fc276d74bfbb8af035560a01ade5ae5604
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Thu Feb 25 07:19:46 2021 -0800
+commit 046a56b31a495d7fe461029fa494e3e509903dba
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Nov 12 13:25:04 2020 -0800
 
-    [edn/dv] csrng_agent device mode, edn_smoke_test
+    [uart/dv] Update uart baud rate and add coverage
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Address #3599
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
