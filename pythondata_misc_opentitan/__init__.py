@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5307"
-version_tuple = (0, 0, 5307)
+version_str = "0.0.post5308"
+version_tuple = (0, 0, 5308)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5307")
+    pversion = V("0.0.post5308")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5212"
-data_version_tuple = (0, 0, 5212)
+data_version_str = "0.0.post5213"
+data_version_tuple = (0, 0, 5213)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5212")
+    pdata_version = V("0.0.post5213")
 except ImportError:
     pass
-data_git_hash = "eb619e67ff2d81fd4c59c3647254e5dff10563ff"
-data_git_describe = "v0.0-5212-geb619e67f"
+data_git_hash = "72cb99c3ab0a3e9798dfd62db3193fc5219e1e8c"
+data_git_describe = "v0.0-5213-g72cb99c3a"
 data_git_msg = """\
-commit eb619e67ff2d81fd4c59c3647254e5dff10563ff
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 5 15:01:54 2021 +0000
+commit 72cb99c3ab0a3e9798dfd62db3193fc5219e1e8c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 8 15:58:44 2021 -0800
 
-    [topgen] Don't copy data from block into instances
+    [top] Change edn hook-up
     
-    There's no need to do this, as long as we can look up the block
-    quickly. The nicest way to do that would be to add a "block" field to
-    the instance dictionary, but that would be enormous when we dumped
-    top_earlgrey.gen.hjson (I tried it - it added 32k lines!), so we just
-    pass around a dictionary mapping block name to the IpBlock object
-    instead.
+    see #5487
     
-    Note that we do still have to copy inter_signal_list, because that
-    gets annotated (through references; it's not very easy to trace) by
-    the code in intermodule.py.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
