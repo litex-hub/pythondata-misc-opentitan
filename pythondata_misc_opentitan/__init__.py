@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5290"
-version_tuple = (0, 0, 5290)
+version_str = "0.0.post5292"
+version_tuple = (0, 0, 5292)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5290")
+    pversion = V("0.0.post5292")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5195"
-data_version_tuple = (0, 0, 5195)
+data_version_str = "0.0.post5197"
+data_version_tuple = (0, 0, 5197)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5195")
+    pdata_version = V("0.0.post5197")
 except ImportError:
     pass
-data_git_hash = "7db3e0ac186d17bf9d3823750120bf3f413ceae0"
-data_git_describe = "v0.0-5195-g7db3e0ac1"
+data_git_hash = "a1af4ece1395b9fed47475361f1dd867e242d5d2"
+data_git_describe = "v0.0-5197-ga1af4ece1"
 data_git_msg = """\
-commit 7db3e0ac186d17bf9d3823750120bf3f413ceae0
-Author: Cindy Chen <chencindy@google.com>
-Date:   Sun Mar 7 20:55:42 2021 -0800
+commit a1af4ece1395b9fed47475361f1dd867e242d5d2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Mar 5 13:57:00 2021 -0800
 
-    [dv/otp_ctrl] Fix lc sequence mismatch
+    [clkmgr] Fix dft issues
     
-    This PR fixed nightly regression lc sequence mismatch to align with
-    design behavior in PR #5433
+    Addresses #5452 and #5453
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    - force step_down_req to 0 when in test mode
+      - It is assumed the flops inside prim_clock_div are off the scan chain
+    
+    - remove bypass mux functionality when in test mode.  The mux itself is
+      still kept as a constraint anchor point.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
