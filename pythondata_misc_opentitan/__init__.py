@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5289"
-version_tuple = (0, 0, 5289)
+version_str = "0.0.post5290"
+version_tuple = (0, 0, 5290)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5289")
+    pversion = V("0.0.post5290")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5194"
-data_version_tuple = (0, 0, 5194)
+data_version_str = "0.0.post5195"
+data_version_tuple = (0, 0, 5195)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5194")
+    pdata_version = V("0.0.post5195")
 except ImportError:
     pass
-data_git_hash = "1715552d57f007905965062c21d2a0f2e77db554"
-data_git_describe = "v0.0-5194-g1715552d5"
+data_git_hash = "7db3e0ac186d17bf9d3823750120bf3f413ceae0"
+data_git_describe = "v0.0-5195-g7db3e0ac1"
 data_git_msg = """\
-commit 1715552d57f007905965062c21d2a0f2e77db554
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Mar 8 13:00:01 2021 -0800
+commit 7db3e0ac186d17bf9d3823750120bf3f413ceae0
+Author: Cindy Chen <chencindy@google.com>
+Date:   Sun Mar 7 20:55:42 2021 -0800
 
-    [aon_timer] Remove temporary intr_enable for #5260
+    [dv/otp_ctrl] Fix lc sequence mismatch
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR fixed nightly regression lc sequence mismatch to align with
+    design behavior in PR #5433
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
