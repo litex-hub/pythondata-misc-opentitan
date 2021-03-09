@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5301"
-version_tuple = (0, 0, 5301)
+version_str = "0.0.post5304"
+version_tuple = (0, 0, 5304)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5301")
+    pversion = V("0.0.post5304")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5206"
-data_version_tuple = (0, 0, 5206)
+data_version_str = "0.0.post5209"
+data_version_tuple = (0, 0, 5209)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5206")
+    pdata_version = V("0.0.post5209")
 except ImportError:
     pass
-data_git_hash = "398824370421e55a297a6a2baa422b3a1d1ff784"
-data_git_describe = "v0.0-5206-g398824370"
+data_git_hash = "c43c58ba78f1d8fdbfccd8db240926eed6f13923"
+data_git_describe = "v0.0-5209-gc43c58ba7"
 data_git_msg = """\
-commit 398824370421e55a297a6a2baa422b3a1d1ff784
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 8 15:34:24 2021 +0000
+commit c43c58ba78f1d8fdbfccd8db240926eed6f13923
+Author: Tarik Graba <tarik.graba@telecom-paris.fr>
+Date:   Mon Mar 8 13:58:30 2021 +0100
 
-    [otbn] Remove unused localparam from otbn_core_model.sv
+    [dv/dpi] Fix assignment to SystemVerilog chandle
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Section 6.14 of the standard states that assignment to chandle can only
+    be made from `null` or an other chandle, not from an integer literal.
+    
+    This patch allows the compilation of the simulation models with modelsim
+    
+    Signed-off-by: Tarik Graba <tarik.graba@telecom-paris.fr>
 
 """
 
