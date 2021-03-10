@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5318"
-version_tuple = (0, 0, 5318)
+version_str = "0.0.post5320"
+version_tuple = (0, 0, 5320)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5318")
+    pversion = V("0.0.post5320")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5223"
-data_version_tuple = (0, 0, 5223)
+data_version_str = "0.0.post5225"
+data_version_tuple = (0, 0, 5225)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5223")
+    pdata_version = V("0.0.post5225")
 except ImportError:
     pass
-data_git_hash = "7247d8aa62c7fa1878cf91c7bc8a1b2b8dd3fc9e"
-data_git_describe = "v0.0-5223-g7247d8aa6"
+data_git_hash = "0fdf008758da0afbccad7b8d2a9772e3631d5d18"
+data_git_describe = "v0.0-5225-g0fdf00875"
 data_git_msg = """\
-commit 7247d8aa62c7fa1878cf91c7bc8a1b2b8dd3fc9e
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Mar 5 18:07:38 2021 +0000
+commit 0fdf008758da0afbccad7b8d2a9772e3631d5d18
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Mar 9 16:39:48 2021 +0000
 
-    [otbn] Fix read/write enables in tracer
+    [spi_host] Add missing connection to scanmode_i
     
-    * `insn_valid` must be factored in with the read enable for the bignum
-      register file as it uses the raw decoder signal.
-    * `rf_base_wr_commit` must be combined with the write enable for the
-      base register file to determine if the write occurred.
+    The module gained the port in dbd087ed00 but we forgot to add the flag
+    in the hjson to get topgen to wire it up for us. This causes Verilator
+    lint errors.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
