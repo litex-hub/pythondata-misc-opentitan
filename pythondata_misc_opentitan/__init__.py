@@ -4,33 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5321"
-version_tuple = (0, 0, 5321)
+version_str = "0.0.post5324"
+version_tuple = (0, 0, 5324)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5321")
+    pversion = V("0.0.post5324")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5226"
-data_version_tuple = (0, 0, 5226)
+data_version_str = "0.0.post5229"
+data_version_tuple = (0, 0, 5229)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5226")
+    pdata_version = V("0.0.post5229")
 except ImportError:
     pass
-data_git_hash = "11a19b891689f9142d03f44f2879153facc08e7e"
-data_git_describe = "v0.0-5226-g11a19b891"
+data_git_hash = "da341bfe385c6aca906ead47ba7110bd9a8273f6"
+data_git_describe = "v0.0-5229-gda341bfe3"
 data_git_msg = """\
-commit 11a19b891689f9142d03f44f2879153facc08e7e
+commit da341bfe385c6aca906ead47ba7110bd9a8273f6
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 9 16:43:18 2021 +0000
+Date:   Wed Mar 10 15:45:25 2021 +0000
 
-    [spi_host] Remove the ByteOrder and MaxCS parameters from the module
+    [ibex] Just take the bottom 32 bits of dm::FooAddress
     
-    These didn't do anything except to shadow the parameters that are set
-    by reggen (to hopefully the correct values) in spi_host_reg_pkg.
+    The pulp_riscv_dbg module is presumably designed to support 64-bit
+    systems, so its addresses are 64 bits wide. Slice out the bottom 32
+    bits explicitly, avoiding width mismatch warnings for the addition and
+    then for setting a 32-bit parameter with the 64-bit result.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
