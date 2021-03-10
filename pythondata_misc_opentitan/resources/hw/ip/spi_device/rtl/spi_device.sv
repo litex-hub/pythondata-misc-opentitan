@@ -55,6 +55,13 @@ module spi_device (
   tlul_pkg::tl_d2h_t tl_sram_d2h [1];
 
   // Dual-port SRAM Interface: Refer prim_ram_2p_wrapper.sv
+  logic              sram_clk;
+  logic              sram_clk_en;
+  logic              sram_clk_ungated;
+  logic              sram_clk_muxed;
+  logic              sram_rst_n;
+  logic              sram_rst_n_noscan;
+
   logic              mem_a_req;
   logic              mem_a_write;
   logic [SramAw-1:0] mem_a_addr;
@@ -70,6 +77,24 @@ module spi_device (
   logic              mem_b_rvalid;
   logic [SramDw-1:0] mem_b_rdata;
   logic [1:0]        mem_b_rerror;
+
+  // Request from FwMode: peri clock domain when active
+  logic              fwm_req;
+  logic              fwm_write;
+  logic [SramAw-1:0] fwm_addr;
+  logic [SramDw-1:0] fwm_wdata;
+  logic              fwm_rvalid;
+  logic [SramDw-1:0] fwm_rdata;
+  logic [1:0]        fwm_rerror;
+
+  // TODO: Add real mux for FlashMode & PassThrough
+  assign mem_b_req   = fwm_req     ;
+  assign mem_b_write = fwm_write   ;
+  assign mem_b_addr  = fwm_addr    ;
+  assign mem_b_wdata = fwm_wdata   ;
+  assign fwm_rvalid  = mem_b_rvalid;
+  assign fwm_rdata   = mem_b_rdata ;
+  assign fwm_rerror  = mem_b_rerror;
 
   /////////////////////
   // Control signals //
@@ -97,31 +122,8 @@ module spi_device (
   logic intr_fwm_rxlvl, rxlvl, rxlvl_d, intr_fwm_txlvl, txlvl, txlvl_d;
   logic intr_fwm_rxoverflow, intr_fwm_txunderflow;
 
-  // RX Async FIFO Signals
-  //  Write: SCK positive edge
-  logic      rxf_wvalid, rxf_wready;
-  spi_byte_t rxf_wdata;
-  logic      rxf_overflow;
-  //  Read: Main clock
-  logic      rxf_rvalid, rxf_rready;
-  spi_byte_t rxf_rdata;
-  logic      rxf_full_syncd;
+  logic rxf_overflow, txf_underflow;
 
-  // TX Async FIFO Signals
-  //   Read: SCK negative edge
-  logic      txf_rvalid, txf_rready;
-  spi_byte_t txf_rdata;
-  logic      txf_underflow;
-  //   Write: Main clock
-  logic      txf_wvalid, txf_wready;
-  spi_byte_t txf_wdata;
-  logic      txf_empty_syncd;
-
-  // SRAM FIFO control
-  typedef enum int {
-    FwModeRxFifo = 0,
-    FwModeTxFifo = 1
-  } fwm_fifo_e;
   logic        [7:0] timer_v;   // Wait timer inside rxf control
   logic   [PtrW-1:0] sram_rxf_rptr, sram_rxf_wptr;
   logic   [PtrW-1:0] sram_txf_rptr, sram_txf_wptr;
@@ -129,16 +131,11 @@ module spi_device (
 
   logic [SramAw-1:0] sram_rxf_bindex, sram_txf_bindex;
   logic [SramAw-1:0] sram_rxf_lindex, sram_txf_lindex;
-  logic        [1:0] fwm_sram_req;
-  logic [SramAw-1:0] fwm_sram_addr  [2];
-  logic              fwm_sram_write [2];
-  logic [SramDw-1:0] fwm_sram_wdata [2];
-  logic        [1:0] fwm_sram_gnt;
-  logic        [1:0] fwm_sram_rvalid;    // RXF doesn't use
-  logic [SramDw-1:0] fwm_sram_rdata [2]; // RXF doesn't use
-  logic        [1:0] fwm_sram_error [2];
 
   logic [AsFifoDepthW-1:0] as_txfifo_depth, as_rxfifo_depth;
+
+  logic rxf_empty, rxf_full, txf_empty, txf_full;
+  logic rxf_full_syncd, txf_empty_syncd; // sync signals
 
   // SPI S2P signals
   // io_mode: Determine s2p/p2s behavior. As of now, only fwmode exists.
@@ -164,6 +161,8 @@ module spi_device (
   assign rst_txfifo_reg = reg2hw.control.rst_txfifo.q;
   assign rst_rxfifo_reg = reg2hw.control.rst_rxfifo.q;
 
+  assign sram_clk_en = reg2hw.control.sram_clk_en.q;
+
   assign timer_v = reg2hw.cfg.timer_v.q;
 
   assign sram_rxf_bindex = reg2hw.rxf_addr.base.q[SDW+:SramAw];
@@ -182,8 +181,8 @@ module spi_device (
   assign abort = reg2hw.control.abort.q;
   assign hw2reg.status.abort_done.d  = 1'b1;
 
-  assign hw2reg.status.rxf_empty.d = ~rxf_rvalid;
-  assign hw2reg.status.txf_full.d  = ~txf_wready;
+  assign hw2reg.status.rxf_empty.d = rxf_empty;
+  assign hw2reg.status.txf_full.d  = txf_full;
 
   // SYNC logic required
   assign hw2reg.status.rxf_full.d = rxf_full_syncd;
@@ -201,11 +200,11 @@ module spi_device (
   logic rxf_full_q, txf_empty_q;
   always_ff @(posedge clk_spi_in_buf or negedge rst_ni) begin
     if (!rst_ni) rxf_full_q <= 1'b0;
-    else         rxf_full_q <= ~rxf_wready;
+    else         rxf_full_q <= rxf_full;
   end
   always_ff @(posedge clk_spi_out_buf or negedge rst_ni) begin
     if (!rst_ni) txf_empty_q <= 1'b1;
-    else         txf_empty_q <= ~txf_rvalid;
+    else         txf_empty_q <= txf_empty;
   end
   prim_flop_2sync #(.Width(1)) u_sync_rxf (
     .clk_i,
@@ -399,6 +398,68 @@ module spi_device (
     .clk_o(rst_rxfifo_n)
   );
 
+  // SRAM clock
+  // If FwMode, SRAM clock for B port uses peripheral clock (clk_i)
+  // If FlashMode or PassThrough, SRAM clock for B port uses SPI_CLK
+  // To remove glitch, CG cell is put after clock mux
+  // The enable signal is not synchronized to SRAM_CLK when clock is
+  // switched into SPI_CLK. So, change the clock only when SPI_CLK is
+  // not toggle.
+  //
+  // Programming sequence:
+  // Change to SPI_CLK
+  //  1. Check if SPI line is idle.
+  //  2. Clear sram_clk_en to 0.
+  //  3. Change mode to FlashMode or PassThrough
+  //  4. Set sram_clk_en to 1.
+  // Change to peripheral clk
+  //  1. Check if SPI_CLK is idle
+  //  2. Clear sram_clk_en to 0.
+  //  3. Change mode to FwMode
+  //  4. Set sram_clk_en to 1.
+  prim_clock_mux2 #(
+    .NoFpgaBufG(1'b1)
+  ) u_sram_clk_sel (
+    .clk0_i (clk_spi_in_muxed),
+    .clk1_i (clk_i),
+    .sel_i  (spi_mode == FwMode),
+    .clk_o  (sram_clk_ungated)
+  );
+
+  prim_clock_mux2 #(
+    .NoFpgaBufG(1'b1)
+  ) u_sram_clk_scan (
+    .clk0_i (sram_clk_ungated),
+    .clk1_i (scan_clk_i),
+    .sel_i  (scanmode[ClkSramSel] == lc_ctrl_pkg::On),
+    .clk_o  (sram_clk_muxed)
+  );
+
+  prim_clock_gating u_sram_clk_cg (
+    .clk_i  (sram_clk_muxed),
+    .en_i   (sram_clk_en),
+    .test_en_i (scanmode[ClkSramSel] == lc_ctrl_pkg::On),
+    .clk_o  (sram_clk)
+  );
+
+  prim_clock_mux2 #(
+    .NoFpgaBufG (1'b1)
+  ) u_sram_rst_sel (
+    .clk0_i (rst_spi_n),
+    .clk1_i (rst_ni),
+    .sel_i  (spi_mode == FwMode),
+    .clk_o  (sram_rst_n_noscan)
+  );
+
+  prim_clock_mux2 #(
+    .NoFpgaBufG (1'b1)
+  ) u_sram_rst_scanmux (
+    .clk0_i (sram_rst_n_noscan),
+    .clk1_i (scan_rst_ni),
+    .sel_i  (scanmode[RstSramSel] == lc_ctrl_pkg::On),
+    .clk_o  (sram_rst_n)
+  );
+
   //////////////////////////////
   // SPI_DEVICE mode selector //
   //////////////////////////////
@@ -474,19 +535,31 @@ module spi_device (
   /////////////
   // FW Mode //
   /////////////
-  spi_fwmode u_fwmode (
+  spi_fwmode #(
+    .FifoWidth (FifoWidth),
+    .FifoDepth (FifoDepth)
+  ) u_fwmode (
+    .clk_i,
+    .rst_ni,
+
+    .clk_spi_in_i (clk_spi_in_buf),
+    .rst_rxfifo_ni (rst_rxfifo_n),
+    .clk_spi_out_i (clk_spi_out_buf),
+    .rst_txfifo_ni (rst_txfifo_n),
+
     .mode_i        (spi_mode),
 
-    .rx_wvalid_o   (rxf_wvalid),
-    .rx_wready_i   (rxf_wready),
-    .rx_data_o     (rxf_wdata),
+    .rxf_overflow_o  (rxf_overflow),
+    .txf_underflow_o (txf_underflow),
 
-    .tx_rvalid_i   (txf_rvalid),
-    .tx_rready_o   (txf_rready),
-    .tx_data_i     (txf_rdata),
-
-    .rx_overflow_o  (rxf_overflow),
-    .tx_underflow_o (txf_underflow),
+    // SRAM interface
+    .fwm_req_o    (fwm_req    ),
+    .fwm_write_o  (fwm_write  ),
+    .fwm_addr_o   (fwm_addr   ),
+    .fwm_wdata_o  (fwm_wdata  ),
+    .fwm_rvalid_i (fwm_rvalid ),
+    .fwm_rdata_i  (fwm_rdata  ),
+    .fwm_rerror_i (fwm_rerror ),
 
     // Input from S2P
     .rx_data_valid_i (s2p_data_valid),
@@ -498,143 +571,33 @@ module spi_device (
     // P2S
     .tx_wvalid_o (p2s_valid),
     .tx_data_o   (p2s_data),
-    .tx_wready_i (p2s_sent)
-  );
+    .tx_wready_i (p2s_sent),
 
-  // FIFO: Connecting FwMode to SRAM CTRLs
-  prim_fifo_async #(
-    .Width (FifoWidth),
-    .Depth (FifoDepth)
-  ) u_rx_fifo (
-    .clk_wr_i     (clk_spi_in_buf),
-    .rst_wr_ni    (rst_rxfifo_n),
+    // CSRs
+    .timer_v_i   (timer_v),
+    .sram_rxf_bindex_i (sram_rxf_bindex),
+    .sram_txf_bindex_i (sram_txf_bindex),
+    .sram_rxf_lindex_i (sram_rxf_lindex),
+    .sram_txf_lindex_i (sram_txf_lindex),
 
-    .clk_rd_i     (clk_i),
-    .rst_rd_ni    (rst_rxfifo_n),
+    .abort_i (abort),
 
-    .wvalid_i     (rxf_wvalid),
-    .wready_o     (rxf_wready),
-    .wdata_i      (rxf_wdata),
+    .sram_rxf_rptr_i  (sram_rxf_rptr ),
+    .sram_rxf_wptr_o  (sram_rxf_wptr ),
+    .sram_txf_rptr_o  (sram_txf_rptr ),
+    .sram_txf_wptr_i  (sram_txf_wptr ),
+    .sram_rxf_depth_o (sram_rxf_depth),
+    .sram_txf_depth_o (sram_txf_depth),
+    .sram_rxf_full_o  (sram_rxf_full ),
 
-    .rvalid_o     (rxf_rvalid),
-    .rready_i     (rxf_rready),
-    .rdata_o      (rxf_rdata),
+    .as_txfifo_depth_o (as_txfifo_depth),
+    .as_rxfifo_depth_o (as_rxfifo_depth),
 
-    .wdepth_o     (),
-    .rdepth_o     (as_rxfifo_depth)
-  );
+    .rxf_empty_o (rxf_empty),
+    .rxf_full_o  (rxf_full),
+    .txf_empty_o (txf_empty),
+    .txf_full_o  (txf_full)
 
-  prim_fifo_async #(
-    .Width (FifoWidth),
-    .Depth (FifoDepth)
-  ) u_tx_fifo (
-    .clk_wr_i     (clk_i),
-    .rst_wr_ni    (rst_txfifo_n),
-
-    .clk_rd_i     (clk_spi_out_buf),
-    .rst_rd_ni    (rst_txfifo_n),
-
-    .wvalid_i     (txf_wvalid),
-    .wready_o     (txf_wready),
-    .wdata_i      (txf_wdata),
-
-    .rvalid_o     (txf_rvalid),
-    .rready_i     (txf_rready),
-    .rdata_o      (txf_rdata),
-
-    .wdepth_o     (as_txfifo_depth),
-    .rdepth_o     ()
-  );
-
-  // RX Fifo control (FIFO Read port --> SRAM request)
-  spi_fwm_rxf_ctrl #(
-    .FifoDw (FifoWidth),
-    .SramAw (SramAw),
-    .SramDw (SramDw)
-  ) u_rxf_ctrl (
-    .clk_i,
-    .rst_ni,
-
-    .base_index_i  (sram_rxf_bindex),
-    .limit_index_i (sram_rxf_lindex),
-    .timer_v      (timer_v),
-    .rptr         (sram_rxf_rptr),  // Given by FW
-    .wptr         (sram_rxf_wptr),  // to Register interface
-    .depth        (sram_rxf_depth),
-    .full         (sram_rxf_full),
-
-    .fifo_valid  (rxf_rvalid),
-    .fifo_ready  (rxf_rready),
-    .fifo_rdata  (rxf_rdata),
-
-    .sram_req    (fwm_sram_req   [FwModeRxFifo]),
-    .sram_write  (fwm_sram_write [FwModeRxFifo]),
-    .sram_addr   (fwm_sram_addr  [FwModeRxFifo]),
-    .sram_wdata  (fwm_sram_wdata [FwModeRxFifo]),
-    .sram_gnt    (fwm_sram_gnt   [FwModeRxFifo]),
-    .sram_rvalid (fwm_sram_rvalid[FwModeRxFifo]),
-    .sram_rdata  (fwm_sram_rdata [FwModeRxFifo]),
-    .sram_error  (fwm_sram_error [FwModeRxFifo])
-  );
-
-  // TX Fifo control (SRAM read request --> FIFO write)
-  spi_fwm_txf_ctrl #(
-    .FifoDw (FifoWidth),
-    .SramAw (SramAw),
-    .SramDw (SramDw)
-  ) u_txf_ctrl (
-    .clk_i,
-    .rst_ni,
-
-    .base_index_i  (sram_txf_bindex),
-    .limit_index_i (sram_txf_lindex),
-
-    .abort        (abort),
-    .rptr         (sram_txf_rptr),  // Given by FW
-    .wptr         (sram_txf_wptr),  // to Register interface
-    .depth        (sram_txf_depth),
-
-    .fifo_valid  (txf_wvalid),
-    .fifo_ready  (txf_wready),
-    .fifo_wdata  (txf_wdata),
-
-    .sram_req    (fwm_sram_req   [FwModeTxFifo]),
-    .sram_write  (fwm_sram_write [FwModeTxFifo]),
-    .sram_addr   (fwm_sram_addr  [FwModeTxFifo]),
-    .sram_wdata  (fwm_sram_wdata [FwModeTxFifo]),
-    .sram_gnt    (fwm_sram_gnt   [FwModeTxFifo]),
-    .sram_rvalid (fwm_sram_rvalid[FwModeTxFifo]),
-    .sram_rdata  (fwm_sram_rdata [FwModeTxFifo]),
-    .sram_error  (fwm_sram_error [FwModeTxFifo])
-  );
-
-  // Arbiter for FIFOs : Connecting between SRAM Ctrls and SRAM interface
-  prim_sram_arbiter #(
-    .N            (2),  // RXF, TXF
-    .SramDw       (SramDw),
-    .SramAw       (SramAw)   // 2kB
-  ) u_fwmode_arb (
-    .clk_i,
-    .rst_ni,
-
-    .req_i        (fwm_sram_req),
-    .req_addr_i   (fwm_sram_addr),
-    .req_write_i  (fwm_sram_write),
-    .req_wdata_i  (fwm_sram_wdata),
-    .gnt_o        (fwm_sram_gnt),
-
-    .rsp_rvalid_o (fwm_sram_rvalid),
-    .rsp_rdata_o  (fwm_sram_rdata),
-    .rsp_error_o  (fwm_sram_error),
-
-    .sram_req_o   (mem_b_req),
-    .sram_addr_o  (mem_b_addr),
-    .sram_write_o (mem_b_write),
-    .sram_wdata_o (mem_b_wdata),
-
-    .sram_rvalid_i(mem_b_rvalid),
-    .sram_rdata_i (mem_b_rdata),
-    .sram_rerror_i(mem_b_rerror)
   );
 
   tlul_adapter_sram #(
@@ -662,7 +625,7 @@ module spi_device (
   );
 
   // SRAM Wrapper
-  prim_ram_2p_adv #(
+  prim_ram_2p_async_adv #(
     .Depth (SramDepth),
     .Width (SramDw),    // 32 x 512 --> 2kB
     .DataBitsPerMask (8),
@@ -673,8 +636,12 @@ module spi_device (
     .EnableInputPipeline (0),
     .EnableOutputPipeline(0)
   ) u_memory_2p (
-    .clk_i,
-    .rst_ni,
+    .clk_a_i    (clk_i),
+    .rst_a_ni   (rst_ni),
+
+    .clk_b_i    (sram_clk),
+    .rst_b_ni   (sram_rst_n),
+
     .a_req_i    (mem_a_req),
     .a_write_i  (mem_a_write),
     .a_addr_i   (mem_a_addr),
