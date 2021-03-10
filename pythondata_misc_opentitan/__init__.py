@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5314"
-version_tuple = (0, 0, 5314)
+version_str = "0.0.post5315"
+version_tuple = (0, 0, 5315)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5314")
+    pversion = V("0.0.post5315")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5219"
-data_version_tuple = (0, 0, 5219)
+data_version_str = "0.0.post5220"
+data_version_tuple = (0, 0, 5220)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5219")
+    pdata_version = V("0.0.post5220")
 except ImportError:
     pass
-data_git_hash = "44ab47bf0c323a02d59c39ce6c98162338db819e"
-data_git_describe = "v0.0-5219-g44ab47bf0"
+data_git_hash = "e3af4cf067cbf39261a08ab1421789b907f2fb0f"
+data_git_describe = "v0.0-5220-ge3af4cf06"
 data_git_msg = """\
-commit 44ab47bf0c323a02d59c39ce6c98162338db819e
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Mar 8 12:22:02 2021 -0800
+commit e3af4cf067cbf39261a08ab1421789b907f2fb0f
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Mar 9 17:22:01 2021 -0800
 
-    [dv/alert] Add fatal alert check if scb is disabled
+    [dvsim] Fix for #5527
     
-    This PR addes a fatal alert check (check if fatal alert continuously
-    triggered until reset in a nonblocking task).
-    This can be used in aes shadow reg tests and keymgr tests where the scb
-    is disabled.
+    Ignore `--remote` if `--dry-run` is passed.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
