@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5324"
-version_tuple = (0, 0, 5324)
+version_str = "0.0.post5327"
+version_tuple = (0, 0, 5327)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5324")
+    pversion = V("0.0.post5327")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5229"
-data_version_tuple = (0, 0, 5229)
+data_version_str = "0.0.post5232"
+data_version_tuple = (0, 0, 5232)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5229")
+    pdata_version = V("0.0.post5232")
 except ImportError:
     pass
-data_git_hash = "da341bfe385c6aca906ead47ba7110bd9a8273f6"
-data_git_describe = "v0.0-5229-gda341bfe3"
+data_git_hash = "a12231dfc6e370977242d0f18ecf36f7d6816b52"
+data_git_describe = "v0.0-5232-ga12231dfc"
 data_git_msg = """\
-commit da341bfe385c6aca906ead47ba7110bd9a8273f6
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 10 15:45:25 2021 +0000
+commit a12231dfc6e370977242d0f18ecf36f7d6816b52
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Mar 9 13:49:50 2021 -0800
 
-    [ibex] Just take the bottom 32 bits of dm::FooAddress
+    [spi_device] Move modules inside fwmode
     
-    The pulp_riscv_dbg module is presumably designed to support 64-bit
-    systems, so its addresses are 64 bits wide. Slice out the bottom 32
-    bits explicitly, avoiding width mismatch warnings for the addition and
-    then for setting a 32-bit parameter with the 64-bit result.
+    Move FwMode related modules inside fwmode submodules to be
+    self-contained and to increase readability.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
