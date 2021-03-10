@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5327"
-version_tuple = (0, 0, 5327)
+version_str = "0.0.post5328"
+version_tuple = (0, 0, 5328)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5327")
+    pversion = V("0.0.post5328")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5232"
-data_version_tuple = (0, 0, 5232)
+data_version_str = "0.0.post5233"
+data_version_tuple = (0, 0, 5233)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5232")
+    pdata_version = V("0.0.post5233")
 except ImportError:
     pass
-data_git_hash = "a12231dfc6e370977242d0f18ecf36f7d6816b52"
-data_git_describe = "v0.0-5232-ga12231dfc"
+data_git_hash = "54a509970b6499f63f7e98198b17535e64449b9f"
+data_git_describe = "v0.0-5233-g54a509970"
 data_git_msg = """\
-commit a12231dfc6e370977242d0f18ecf36f7d6816b52
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Mar 9 13:49:50 2021 -0800
+commit 54a509970b6499f63f7e98198b17535e64449b9f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Mar 9 17:12:43 2021 -0800
 
-    [spi_device] Move modules inside fwmode
+    [sram_ctrl] Fix potential back-to-back partial write bug
     
-    Move FwMode related modules inside fwmode submodules to be
-    self-contained and to increase readability.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
