@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5328"
-version_tuple = (0, 0, 5328)
+version_str = "0.0.post5329"
+version_tuple = (0, 0, 5329)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5328")
+    pversion = V("0.0.post5329")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5233"
-data_version_tuple = (0, 0, 5233)
+data_version_str = "0.0.post5234"
+data_version_tuple = (0, 0, 5234)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5233")
+    pdata_version = V("0.0.post5234")
 except ImportError:
     pass
-data_git_hash = "54a509970b6499f63f7e98198b17535e64449b9f"
-data_git_describe = "v0.0-5233-g54a509970"
+data_git_hash = "d20804dfa0f1699919dd8c189561a9ec9078d697"
+data_git_describe = "v0.0-5234-gd20804dfa"
 data_git_msg = """\
-commit 54a509970b6499f63f7e98198b17535e64449b9f
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Mar 9 17:12:43 2021 -0800
+commit d20804dfa0f1699919dd8c189561a9ec9078d697
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Mar 10 15:15:31 2021 +0000
 
-    [sram_ctrl] Fix potential back-to-back partial write bug
+    [rstmgr] Remove duplicated parameters from rstmgr_ctrl
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    These are also defined in rstmgr_pkg.sv with the same values, causing
+    a namespace clash. I think we probably just forgot to remove them from
+    rstmgr_ctrl.sv when we added them to the package.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
