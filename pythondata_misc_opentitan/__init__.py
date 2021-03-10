@@ -4,34 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5315"
-version_tuple = (0, 0, 5315)
+version_str = "0.0.post5317"
+version_tuple = (0, 0, 5317)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5315")
+    pversion = V("0.0.post5317")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5220"
-data_version_tuple = (0, 0, 5220)
+data_version_str = "0.0.post5222"
+data_version_tuple = (0, 0, 5222)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5220")
+    pdata_version = V("0.0.post5222")
 except ImportError:
     pass
-data_git_hash = "e3af4cf067cbf39261a08ab1421789b907f2fb0f"
-data_git_describe = "v0.0-5220-ge3af4cf06"
+data_git_hash = "cfcfbce85e182c127b8c4be5cd8bf531e0a4d927"
+data_git_describe = "v0.0-5222-gcfcfbce85"
 data_git_msg = """\
-commit e3af4cf067cbf39261a08ab1421789b907f2fb0f
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Mar 9 17:22:01 2021 -0800
+commit cfcfbce85e182c127b8c4be5cd8bf531e0a4d927
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Mar 9 14:14:30 2021 +0000
 
-    [dvsim] Fix for #5527
+    [reggen] Promote FOO_SIZE to an int unsigned in *_reg_pkg.sv
     
-    Ignore `--remote` if `--dry-run` is passed.
+    With the previous version of the code, there was a problem if the last
+    window happened to finish on the same power of 2 boundary as the
+    block's address space. In that case, we ended up with something like
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+        parameter logic [9:0] BLOCK_FOO_SIZE = 10'd1024;
+    
+    which is, of course, zero.
+    
+    It turns out that the only code in the tree that uses these _SIZE
+    parameters is using them to compute int parameters (rather than
+    something involving the address width). As such, we can just promote
+    the parameter to an int unsigned, fixing various width mismatches as a
+    bonus!
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
