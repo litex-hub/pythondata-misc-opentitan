@@ -4,33 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5312"
-version_tuple = (0, 0, 5312)
+version_str = "0.0.post5313"
+version_tuple = (0, 0, 5313)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5312")
+    pversion = V("0.0.post5313")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5217"
-data_version_tuple = (0, 0, 5217)
+data_version_str = "0.0.post5218"
+data_version_tuple = (0, 0, 5218)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5217")
+    pdata_version = V("0.0.post5218")
 except ImportError:
     pass
-data_git_hash = "046a56b31a495d7fe461029fa494e3e509903dba"
-data_git_describe = "v0.0-5217-g046a56b31"
+data_git_hash = "93daf962b2b90b42879ac0f6ea8b0a17a9a0cb50"
+data_git_describe = "v0.0-5218-g93daf962b"
 data_git_msg = """\
-commit 046a56b31a495d7fe461029fa494e3e509903dba
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Nov 12 13:25:04 2020 -0800
+commit 93daf962b2b90b42879ac0f6ea8b0a17a9a0cb50
+Author: Cindy Chen <chencindy@google.com>
+Date:   Sun Mar 7 15:16:46 2021 -0800
 
-    [uart/dv] Update uart baud rate and add coverage
+    [dv/otp_ctrl] check timeout failure
     
-    Address #3599
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR supports one kind of check failure - the timeout failure.
+    The timoeut failure is triggered by setting the timeout value to a small
+    value. The timeout failure will send out a fatal alert and status
+    timeout error bit will be set.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
