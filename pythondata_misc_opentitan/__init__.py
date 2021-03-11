@@ -4,32 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5354"
-version_tuple = (0, 0, 5354)
+version_str = "0.0.post5355"
+version_tuple = (0, 0, 5355)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5354")
+    pversion = V("0.0.post5355")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5259"
-data_version_tuple = (0, 0, 5259)
+data_version_str = "0.0.post5260"
+data_version_tuple = (0, 0, 5260)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5259")
+    pdata_version = V("0.0.post5260")
 except ImportError:
     pass
-data_git_hash = "da3a0707b397a94406d59973920478ab3a5d52b8"
-data_git_describe = "v0.0-5259-gda3a0707b"
+data_git_hash = "bbba55462b49f139f013fc804e9fb9999cee7102"
+data_git_describe = "v0.0-5260-gbbba55462"
 data_git_msg = """\
-commit da3a0707b397a94406d59973920478ab3a5d52b8
-Author: Eric Shiu <eshiu@google.com>
-Date:   Tue Feb 16 14:36:16 2021 -0800
+commit bbba55462b49f139f013fc804e9fb9999cee7102
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Mar 10 02:42:37 2021 -0800
 
-    [rbox] Added the design files
+    [dv/sram] implement pipelining test and update scb
     
-    Signed-off-by: Eric Shiu <eshiu@google.com>
+    this PR adds the SRAM pipelining test as laid out in the testplan.
+    
+    in this test, we choose a random mem address and send a series of
+    back-to-back transactions to that address, to stress the internal
+    pipelining and forwarding logic.
+    
+    this requires an overhaul of the scoreboard as the SRAM pipelining logic
+    means that while TL memory requests are handled in-order, the underlying
+    memory macro is updated in an out-of-order fashion, leading to several
+    tricky edge cases.
+    
+    NOTE: this PR depends on #5530 to be merged first, as that contains a
+          fix for an issue uncovered by this test.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
