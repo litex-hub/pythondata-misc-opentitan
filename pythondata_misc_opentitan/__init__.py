@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5330"
-version_tuple = (0, 0, 5330)
+version_str = "0.0.post5335"
+version_tuple = (0, 0, 5335)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5330")
+    pversion = V("0.0.post5335")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5235"
-data_version_tuple = (0, 0, 5235)
+data_version_str = "0.0.post5240"
+data_version_tuple = (0, 0, 5240)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5235")
+    pdata_version = V("0.0.post5240")
 except ImportError:
     pass
-data_git_hash = "2612b256efd3a88bf607c195efa2ac838216d2d7"
-data_git_describe = "v0.0-5235-g2612b256e"
+data_git_hash = "bd440d25bc428f82bd2c65f57341587408623d94"
+data_git_describe = "v0.0-5240-gbd440d25b"
 data_git_msg = """\
-commit 2612b256efd3a88bf607c195efa2ac838216d2d7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 10 14:11:26 2021 -0800
+commit bd440d25bc428f82bd2c65f57341587408623d94
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Mar 5 17:51:01 2021 -0800
 
-    [keymgr] latch one-hot error when it happens
+    [jtag_mux] Delete JTAG mux module
     
-    Address #5363
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
