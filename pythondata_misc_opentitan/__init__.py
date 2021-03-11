@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5350"
-version_tuple = (0, 0, 5350)
+version_str = "0.0.post5354"
+version_tuple = (0, 0, 5354)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5350")
+    pversion = V("0.0.post5354")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5255"
-data_version_tuple = (0, 0, 5255)
+data_version_str = "0.0.post5259"
+data_version_tuple = (0, 0, 5259)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5255")
+    pdata_version = V("0.0.post5259")
 except ImportError:
     pass
-data_git_hash = "ee80c35e1cfb3a175bee2d60b4d2691176cf2e2d"
-data_git_describe = "v0.0-5255-gee80c35e1"
+data_git_hash = "da3a0707b397a94406d59973920478ab3a5d52b8"
+data_git_describe = "v0.0-5259-gda3a0707b"
 data_git_msg = """\
-commit ee80c35e1cfb3a175bee2d60b4d2691176cf2e2d
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Mar 9 15:43:23 2021 -0800
+commit da3a0707b397a94406d59973920478ab3a5d52b8
+Author: Eric Shiu <eshiu@google.com>
+Date:   Tue Feb 16 14:36:16 2021 -0800
 
-    [dv/otp_ctrl] support err_code checking
+    [rbox] Added the design files
     
-    This PR adds support for err_code register checking
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Eric Shiu <eshiu@google.com>
 
 """
 
