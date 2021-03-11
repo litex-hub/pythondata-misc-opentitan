@@ -4,35 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5342"
-version_tuple = (0, 0, 5342)
+version_str = "0.0.post5345"
+version_tuple = (0, 0, 5345)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5342")
+    pversion = V("0.0.post5345")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5247"
-data_version_tuple = (0, 0, 5247)
+data_version_str = "0.0.post5250"
+data_version_tuple = (0, 0, 5250)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5247")
+    pdata_version = V("0.0.post5250")
 except ImportError:
     pass
-data_git_hash = "cc0dd2a769f5852b7301848a050531d91f347b41"
-data_git_describe = "v0.0-5247-gcc0dd2a76"
+data_git_hash = "e0d36964c4a56cd4dfb43900550590a45848f140"
+data_git_describe = "v0.0-5250-ge0d36964c"
 data_git_msg = """\
-commit cc0dd2a769f5852b7301848a050531d91f347b41
+commit e0d36964c4a56cd4dfb43900550590a45848f140
 Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Mar 10 15:55:58 2021 +0000
+Date:   Thu Mar 11 11:47:45 2021 +0000
 
-    [otbn] Add second EDN connection
+    [otbn] Expand OTBN DMem/IMem width
     
-    OTBN needs two connections, one for RND and URND. This purely adds the
-    second EDN connection, RND and URND are not yet implemented.
-    
-    Fixes #5523
+    Extra upper bits are ignored. This increase is required to aid area
+    estimations for an OTBN design including integrity features.
     
     Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
