@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5329"
-version_tuple = (0, 0, 5329)
+version_str = "0.0.post5330"
+version_tuple = (0, 0, 5330)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5329")
+    pversion = V("0.0.post5330")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5234"
-data_version_tuple = (0, 0, 5234)
+data_version_str = "0.0.post5235"
+data_version_tuple = (0, 0, 5235)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5234")
+    pdata_version = V("0.0.post5235")
 except ImportError:
     pass
-data_git_hash = "d20804dfa0f1699919dd8c189561a9ec9078d697"
-data_git_describe = "v0.0-5234-gd20804dfa"
+data_git_hash = "2612b256efd3a88bf607c195efa2ac838216d2d7"
+data_git_describe = "v0.0-5235-g2612b256e"
 data_git_msg = """\
-commit d20804dfa0f1699919dd8c189561a9ec9078d697
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 10 15:15:31 2021 +0000
+commit 2612b256efd3a88bf607c195efa2ac838216d2d7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 10 14:11:26 2021 -0800
 
-    [rstmgr] Remove duplicated parameters from rstmgr_ctrl
+    [keymgr] latch one-hot error when it happens
     
-    These are also defined in rstmgr_pkg.sv with the same values, causing
-    a namespace clash. I think we probably just forgot to remove them from
-    rstmgr_ctrl.sv when we added them to the package.
+    Address #5363
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
