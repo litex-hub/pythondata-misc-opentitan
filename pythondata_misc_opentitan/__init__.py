@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5367"
-version_tuple = (0, 0, 5367)
+version_str = "0.0.post5368"
+version_tuple = (0, 0, 5368)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5367")
+    pversion = V("0.0.post5368")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5272"
-data_version_tuple = (0, 0, 5272)
+data_version_str = "0.0.post5273"
+data_version_tuple = (0, 0, 5273)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5272")
+    pdata_version = V("0.0.post5273")
 except ImportError:
     pass
-data_git_hash = "1ae03937f0bb4b146bb6e736bccb4821bfda556b"
-data_git_describe = "v0.0-5272-g1ae03937f"
+data_git_hash = "0cdc34477a53e9958d4cd1d22604a64a1f383b5a"
+data_git_describe = "v0.0-5273-g0cdc34477"
 data_git_msg = """\
-commit 1ae03937f0bb4b146bb6e736bccb4821bfda556b
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Fri Jan 29 10:54:42 2021 +0000
+commit 0cdc34477a53e9958d4cd1d22604a64a1f383b5a
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Mar 11 03:40:15 2021 -0800
 
-    [prim/fifo_async] Add assertions on pointers
+    [entropy_src/rtl] remove duplicate parameter
     
-    Check that pointers are correctly gray coded by checking for one bit
-    transitions.
+    The EsFifoDepth parameter will now only be set in the top file.
+    This parameter is set to the same default value in all cases.
+    Increasing the depth requires a width increase to the debug register.
     
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
