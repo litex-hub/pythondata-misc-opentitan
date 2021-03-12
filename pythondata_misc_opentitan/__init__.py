@@ -4,30 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5356"
-version_tuple = (0, 0, 5356)
+version_str = "0.0.post5357"
+version_tuple = (0, 0, 5357)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5356")
+    pversion = V("0.0.post5357")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5261"
-data_version_tuple = (0, 0, 5261)
+data_version_str = "0.0.post5262"
+data_version_tuple = (0, 0, 5262)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5261")
+    pdata_version = V("0.0.post5262")
 except ImportError:
     pass
-data_git_hash = "fa58e85f97f67ec6ba3435ede5a5d31949dd06c0"
-data_git_describe = "v0.0-5261-gfa58e85f9"
+data_git_hash = "685d649abc269548124e1e16761cf69eb0fef278"
+data_git_describe = "v0.0-5262-g685d649ab"
 data_git_msg = """\
-commit fa58e85f97f67ec6ba3435ede5a5d31949dd06c0
+commit 685d649abc269548124e1e16761cf69eb0fef278
 Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 11 12:00:03 2021 -0800
+Date:   Tue Mar 9 21:28:39 2021 -0800
 
-    [rbox] update hjson to use bus_interfaces
+    [top / ast] Continued ast integration
+    
+    - wire up memory configuration
+    - wire up digital test inputs / outputs
+    - wire up dft_en
+    
+    Minor updates to intermodule script required for memory configuration.
+    Added prim_ram*_pkg and prim_rom*_pkg to represent configuration information.
+    
+    In the future, it would be ideal for ast to directly re-use these declarations.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [top] Auto generate files
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
