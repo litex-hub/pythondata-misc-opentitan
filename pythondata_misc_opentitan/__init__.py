@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5368"
-version_tuple = (0, 0, 5368)
+version_str = "0.0.post5369"
+version_tuple = (0, 0, 5369)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5368")
+    pversion = V("0.0.post5369")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5273"
-data_version_tuple = (0, 0, 5273)
+data_version_str = "0.0.post5274"
+data_version_tuple = (0, 0, 5274)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5273")
+    pdata_version = V("0.0.post5274")
 except ImportError:
     pass
-data_git_hash = "0cdc34477a53e9958d4cd1d22604a64a1f383b5a"
-data_git_describe = "v0.0-5273-g0cdc34477"
+data_git_hash = "e6e919fc89eea96c1e593112009fda349db5949c"
+data_git_describe = "v0.0-5274-ge6e919fc8"
 data_git_msg = """\
-commit 0cdc34477a53e9958d4cd1d22604a64a1f383b5a
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Mar 11 03:40:15 2021 -0800
+commit e6e919fc89eea96c1e593112009fda349db5949c
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Fri Mar 12 04:04:45 2021 -0800
 
-    [entropy_src/rtl] remove duplicate parameter
+    [dv/sram] add address comparison function in SCB
     
-    The EsFifoDepth parameter will now only be set in the top file.
-    This parameter is set to the same default value in all cases.
-    Increasing the depth requires a width increase to the debug register.
+    this minor patch updates how the scoreboard does address comparisons in
+    case of read-after-write hazards to handle data forwarding.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    we add a function to properly mask off the address widths and compare,
+    which allows for better reuse in the scoreboard if needed.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
