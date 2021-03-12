@@ -37,7 +37,7 @@
                 // "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"]
 
   // Add additional tops for simulation.
-  sim_tops: ["aes_bind"]
+  sim_tops: [ "aes_bind", "aes_cov_bind"]
 
   // Default iterations for all tests - each test entry can override this.
   reseed: 50
@@ -45,6 +45,9 @@
   // Default UVM test and seq class name.
   uvm_test: aes_base_test
   uvm_test_seq: aes_wake_up_vseq
+
+  // AES specific exclusions
+  xcelium_cov_refine_files: ["{proj_root}/hw/ip/aes/dv/cov/aes_cov.vRefine"]
 
   // Update all builds to add options specific to AES C model compilation.
   en_build_modes: ["{tool}_aes_model_build_opts"]
@@ -96,7 +99,7 @@
     }
     {
       name: stress
-      tests: ["aes_stress","aes_b2b"]
+      tests: ["aes_stress","aes_b2b", "aes_clear", "aes_config_error", "aes_smoke"]
     }
   ]
 }
