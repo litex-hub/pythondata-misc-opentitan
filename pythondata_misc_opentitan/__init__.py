@@ -4,43 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5357"
-version_tuple = (0, 0, 5357)
+version_str = "0.0.post5358"
+version_tuple = (0, 0, 5358)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5357")
+    pversion = V("0.0.post5358")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5262"
-data_version_tuple = (0, 0, 5262)
+data_version_str = "0.0.post5263"
+data_version_tuple = (0, 0, 5263)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5262")
+    pdata_version = V("0.0.post5263")
 except ImportError:
     pass
-data_git_hash = "685d649abc269548124e1e16761cf69eb0fef278"
-data_git_describe = "v0.0-5262-g685d649ab"
+data_git_hash = "11017d6bb5b510fbdd8d6c91dcb1260ee38d0fe1"
+data_git_describe = "v0.0-5263-g11017d6bb"
 data_git_msg = """\
-commit 685d649abc269548124e1e16761cf69eb0fef278
+commit 11017d6bb5b510fbdd8d6c91dcb1260ee38d0fe1
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 9 21:28:39 2021 -0800
+Date:   Wed Mar 10 15:07:53 2021 -0800
 
-    [top / ast] Continued ast integration
-    
-    - wire up memory configuration
-    - wire up digital test inputs / outputs
-    - wire up dft_en
-    
-    Minor updates to intermodule script required for memory configuration.
-    Added prim_ram*_pkg and prim_rom*_pkg to represent configuration information.
-    
-    In the future, it would be ideal for ast to directly re-use these declarations.
+    [dcd] add auto generated tb
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    [top] Auto generate files
+    [dcd] update fifo depth
+    
+    pending #5028
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [dv] add dcd csr tests to smoke regression
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [dcd] updates to address comments
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [dcd] Add doc placeholder
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
