@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5363"
-version_tuple = (0, 0, 5363)
+version_str = "0.0.post5367"
+version_tuple = (0, 0, 5367)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5363")
+    pversion = V("0.0.post5367")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5268"
-data_version_tuple = (0, 0, 5268)
+data_version_str = "0.0.post5272"
+data_version_tuple = (0, 0, 5272)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5268")
+    pdata_version = V("0.0.post5272")
 except ImportError:
     pass
-data_git_hash = "73b67d7b026f2cb2cb5e2392f7f2c15f70fca3a6"
-data_git_describe = "v0.0-5268-g73b67d7b0"
+data_git_hash = "1ae03937f0bb4b146bb6e736bccb4821bfda556b"
+data_git_describe = "v0.0-5272-g1ae03937f"
 data_git_msg = """\
-commit 73b67d7b026f2cb2cb5e2392f7f2c15f70fca3a6
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Thu Mar 4 02:18:24 2021 -0800
+commit 1ae03937f0bb4b146bb6e736bccb4821bfda556b
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Fri Jan 29 10:54:42 2021 +0000
 
-    [aes/cov] added refine file to aes
+    [prim/fifo_async] Add assertions on pointers
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Check that pointers are correctly gray coded by checking for one bit
+    transitions.
+    
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
