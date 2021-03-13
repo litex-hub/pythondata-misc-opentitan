@@ -4,38 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5369"
-version_tuple = (0, 0, 5369)
+version_str = "0.0.post5370"
+version_tuple = (0, 0, 5370)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5369")
+    pversion = V("0.0.post5370")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5274"
-data_version_tuple = (0, 0, 5274)
+data_version_str = "0.0.post5275"
+data_version_tuple = (0, 0, 5275)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5274")
+    pdata_version = V("0.0.post5275")
 except ImportError:
     pass
-data_git_hash = "e6e919fc89eea96c1e593112009fda349db5949c"
-data_git_describe = "v0.0-5274-ge6e919fc8"
+data_git_hash = "534416961ec3bdb9c5ac09ebc62acfecc7165300"
+data_git_describe = "v0.0-5275-g534416961"
 data_git_msg = """\
-commit e6e919fc89eea96c1e593112009fda349db5949c
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Fri Mar 12 04:04:45 2021 -0800
+commit 534416961ec3bdb9c5ac09ebc62acfecc7165300
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Fri Mar 12 17:30:38 2021 +0000
 
-    [dv/sram] add address comparison function in SCB
+    Update lowrisc_ibex to lowRISC/ibex@42827fc9
     
-    this minor patch updates how the scoreboard does address comparisons in
-    case of read-after-write hazards to handle data forwarding.
+    Update code from upstream repository
+    https://github.com/lowRISC/ibex.git to revision
+    42827fc9cd0b2043d5d179cae46b0238a55d3652
     
-    we add a function to properly mask off the address widths and compare,
-    which allows for better reuse in the scoreboard if needed.
+    * [rtl/icache] Switch ECC granularity to 32bits (Tom Roberts)
+    * Update lowrisc_ip to lowRISC/opentitan@1ae03937f (Tom Roberts)
+    * [rtl] Fix lint issues (Greg Chadwick)
+    * [dv/ibex] filter out tests on a per-config basis (Udi Jonnalagadda)
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
