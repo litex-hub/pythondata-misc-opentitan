@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5389"
-version_tuple = (0, 0, 5389)
+version_str = "0.0.post5393"
+version_tuple = (0, 0, 5393)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5389")
+    pversion = V("0.0.post5393")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5294"
-data_version_tuple = (0, 0, 5294)
+data_version_str = "0.0.post5298"
+data_version_tuple = (0, 0, 5298)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5294")
+    pdata_version = V("0.0.post5298")
 except ImportError:
     pass
-data_git_hash = "40030846f0d617fa191ea1fc45a1f7206b1f2dec"
-data_git_describe = "v0.0-5294-g40030846f"
+data_git_hash = "39a1b96b800d7b1f96fbfd368012c64ff0e867d3"
+data_git_describe = "v0.0-5298-g39a1b96b8"
 data_git_msg = """\
-commit 40030846f0d617fa191ea1fc45a1f7206b1f2dec
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Mon Mar 8 11:41:51 2021 -0800
+commit 39a1b96b800d7b1f96fbfd368012c64ff0e867d3
+Author: Tung Hoang <hoang.tung@wdc.com>
+Date:   Thu Feb 25 19:02:21 2021 -0800
 
-    [tools/dv] added UNR flow for xcelium
+    [spi_host, dv] Add spi_host_testplan.hjson
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
 
 """
 
