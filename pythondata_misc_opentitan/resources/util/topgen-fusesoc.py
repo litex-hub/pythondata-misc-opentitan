@@ -68,7 +68,6 @@ def main():
     files_out = os.getcwd()
     cmd = [files_root + "/util/topgen.py",  # "--verbose",
            "-t", files_data + topname + ".hjson",
-           "-c", files_data,
            "-o", files_out]
     try:
         print("Running topgen.")
@@ -80,6 +79,7 @@ def main():
 
     except subprocess.CalledProcessError as e:
         print("topgen failed: " + str(e))
+        print(e.stdout)
         sys.exit(1)
 
     # Create core files.
