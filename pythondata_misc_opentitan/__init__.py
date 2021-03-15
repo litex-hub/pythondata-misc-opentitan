@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5393"
-version_tuple = (0, 0, 5393)
+version_str = "0.0.post5396"
+version_tuple = (0, 0, 5396)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5393")
+    pversion = V("0.0.post5396")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5298"
-data_version_tuple = (0, 0, 5298)
+data_version_str = "0.0.post5301"
+data_version_tuple = (0, 0, 5301)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5298")
+    pdata_version = V("0.0.post5301")
 except ImportError:
     pass
-data_git_hash = "39a1b96b800d7b1f96fbfd368012c64ff0e867d3"
-data_git_describe = "v0.0-5298-g39a1b96b8"
+data_git_hash = "a40e98ab4d2a215b3297a0f9ea93ac7efb0e6447"
+data_git_describe = "v0.0-5301-ga40e98ab4"
 data_git_msg = """\
-commit 39a1b96b800d7b1f96fbfd368012c64ff0e867d3
-Author: Tung Hoang <hoang.tung@wdc.com>
-Date:   Thu Feb 25 19:02:21 2021 -0800
+commit a40e98ab4d2a215b3297a0f9ea93ac7efb0e6447
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Mar 15 14:19:54 2021 -0700
 
-    [spi_host, dv] Add spi_host_testplan.hjson
+    [dv] Fix CI failure at EDN
     
-    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
+    The update #5532 had null pointer error, somehow, CI didn't fail
+    This should fix it
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
