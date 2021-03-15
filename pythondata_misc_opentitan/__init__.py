@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5388"
-version_tuple = (0, 0, 5388)
+version_str = "0.0.post5389"
+version_tuple = (0, 0, 5389)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5388")
+    pversion = V("0.0.post5389")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5293"
-data_version_tuple = (0, 0, 5293)
+data_version_str = "0.0.post5294"
+data_version_tuple = (0, 0, 5294)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5293")
+    pdata_version = V("0.0.post5294")
 except ImportError:
     pass
-data_git_hash = "58b9bf2326c522ac8869e69524386736ea79a961"
-data_git_describe = "v0.0-5293-g58b9bf232"
+data_git_hash = "40030846f0d617fa191ea1fc45a1f7206b1f2dec"
+data_git_describe = "v0.0-5294-g40030846f"
 data_git_msg = """\
-commit 58b9bf2326c522ac8869e69524386736ea79a961
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Mon Mar 15 09:11:23 2021 -0700
+commit 40030846f0d617fa191ea1fc45a1f7206b1f2dec
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Mon Mar 8 11:41:51 2021 -0800
 
-    [csrng/dv] Added alerts
+    [tools/dv] added UNR flow for xcelium
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
