@@ -4,38 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5375"
-version_tuple = (0, 0, 5375)
+version_str = "0.0.post5381"
+version_tuple = (0, 0, 5381)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5375")
+    pversion = V("0.0.post5381")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5280"
-data_version_tuple = (0, 0, 5280)
+data_version_str = "0.0.post5286"
+data_version_tuple = (0, 0, 5286)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5280")
+    pdata_version = V("0.0.post5286")
 except ImportError:
     pass
-data_git_hash = "8e56cfc0688e07bac071b46126b2317e202e6bd2"
-data_git_describe = "v0.0-5280-g8e56cfc06"
+data_git_hash = "0949e6de79510494050e5aa39121162a0be7aa3b"
+data_git_describe = "v0.0-5286-g0949e6de7"
 data_git_msg = """\
-commit 8e56cfc0688e07bac071b46126b2317e202e6bd2
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Mar 11 15:31:10 2021 -0800
+commit 0949e6de79510494050e5aa39121162a0be7aa3b
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 8 17:01:01 2021 +0000
 
-    [otp_ctrl] Disable assertion due to esc_en failure
+    [lint_commits] Propose a command line which signs the commit
     
-    This PR disables an assertion from `prim_arbiter_tree`. The assertion
-    tries to check if req should stay high until grant signal is set.
-    However, it does not work if `lc_escalate_en` signal is set.
-    Please feel free to discard this PR if you prefer some other ways to fix
-    it.
+    We do some basic checks on the commit author to check if it is likely a
+    "real name." When this check fails we give a git command line to fix it.
+    However in that command line we do not include the `--signoff` flag to add a
+    `Signed-off-by` line, meaning users following our guidance will then be
+    facing another lint failure. This is fixed in this commit, hopefully
+    making our developer experience slightly nicer.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Also replace all uses of `-s` in this doc with `--signoff` to make it
+    clearer to users what this flag actually means.
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
