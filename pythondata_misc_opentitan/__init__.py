@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5383"
-version_tuple = (0, 0, 5383)
+version_str = "0.0.post5387"
+version_tuple = (0, 0, 5387)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5383")
+    pversion = V("0.0.post5387")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5288"
-data_version_tuple = (0, 0, 5288)
+data_version_str = "0.0.post5292"
+data_version_tuple = (0, 0, 5292)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5288")
+    pdata_version = V("0.0.post5292")
 except ImportError:
     pass
-data_git_hash = "4fe07f960e57d0381005de430a896502c7fedb8e"
-data_git_describe = "v0.0-5288-g4fe07f960"
+data_git_hash = "b08d79a9873f730e5d66b5f87ccc40457dc744aa"
+data_git_describe = "v0.0-5292-gb08d79a98"
 data_git_msg = """\
-commit 4fe07f960e57d0381005de430a896502c7fedb8e
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Mar 15 11:06:11 2021 +0000
+commit b08d79a9873f730e5d66b5f87ccc40457dc744aa
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Thu Mar 11 14:04:50 2021 -0800
 
-    Display error message from topgen in topgen-fusesoc
+    [edn/dv] dv doc, testplan, checklist, regression, csrng_agent mod, whitespace removed
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
