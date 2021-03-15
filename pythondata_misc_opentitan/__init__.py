@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5387"
-version_tuple = (0, 0, 5387)
+version_str = "0.0.post5388"
+version_tuple = (0, 0, 5388)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5387")
+    pversion = V("0.0.post5388")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5292"
-data_version_tuple = (0, 0, 5292)
+data_version_str = "0.0.post5293"
+data_version_tuple = (0, 0, 5293)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5292")
+    pdata_version = V("0.0.post5293")
 except ImportError:
     pass
-data_git_hash = "b08d79a9873f730e5d66b5f87ccc40457dc744aa"
-data_git_describe = "v0.0-5292-gb08d79a98"
+data_git_hash = "58b9bf2326c522ac8869e69524386736ea79a961"
+data_git_describe = "v0.0-5293-g58b9bf232"
 data_git_msg = """\
-commit b08d79a9873f730e5d66b5f87ccc40457dc744aa
+commit 58b9bf2326c522ac8869e69524386736ea79a961
 Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Thu Mar 11 14:04:50 2021 -0800
+Date:   Mon Mar 15 09:11:23 2021 -0700
 
-    [edn/dv] dv doc, testplan, checklist, regression, csrng_agent mod, whitespace removed
+    [csrng/dv] Added alerts
     
     Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
