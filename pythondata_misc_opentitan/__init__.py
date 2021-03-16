@@ -4,32 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5407"
-version_tuple = (0, 0, 5407)
+version_str = "0.0.post5408"
+version_tuple = (0, 0, 5408)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5407")
+    pversion = V("0.0.post5408")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5312"
-data_version_tuple = (0, 0, 5312)
+data_version_str = "0.0.post5313"
+data_version_tuple = (0, 0, 5313)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5312")
+    pdata_version = V("0.0.post5313")
 except ImportError:
     pass
-data_git_hash = "9b819fbff4d6f92a440b4c8e075d6fc25d7316f7"
-data_git_describe = "v0.0-5312-g9b819fbff"
+data_git_hash = "25468b4a8a6b3dc53f87a0ccdfb7fde34c1ef657"
+data_git_describe = "v0.0-5313-g25468b4a8"
 data_git_msg = """\
-commit 9b819fbff4d6f92a440b4c8e075d6fc25d7316f7
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Mon Mar 15 11:38:47 2021 -0700
+commit 25468b4a8a6b3dc53f87a0ccdfb7fde34c1ef657
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 11 15:20:10 2021 +0000
 
-    [edn/dv] Added alerts
+    [dv] Get blocks with multiple device interfaces working with chip DV
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    The big change here is that we might now generate several *_ral_pkg.sv
+    files for a block: one per device interface. To support this,
+    gen_dv.py now has a loop over device interfaces (just like gen_rtl.py
+    and gen_fpv.py).
+    
+    What's more, we have the same problem as gen_fpv where we need to list
+    the generated files in the core file properly. To get that right, we
+    pull core file generation out of ralgen.py and put it into gen_fpv,
+    where we know what files we've created.
+    
+    Finally (and this is the biggest part of the patch), we split up the
+    top-level and block-level versions of uvm_reg.sv.tpl. The top-level
+    and block-level templates share functions from uvm_reg_base.sv.tpl,
+    and I think the result is a bit easier to follow. There's also a
+    liberal sprinking of big "##"-style comments to try to make the
+    template code a bit easier to follow.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
