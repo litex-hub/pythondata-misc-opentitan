@@ -4,48 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5406"
-version_tuple = (0, 0, 5406)
+version_str = "0.0.post5407"
+version_tuple = (0, 0, 5407)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5406")
+    pversion = V("0.0.post5407")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5311"
-data_version_tuple = (0, 0, 5311)
+data_version_str = "0.0.post5312"
+data_version_tuple = (0, 0, 5312)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5311")
+    pdata_version = V("0.0.post5312")
 except ImportError:
     pass
-data_git_hash = "e520362accc1c10b37d6b1c65c29de70dab266b8"
-data_git_describe = "v0.0-5311-ge520362ac"
+data_git_hash = "9b819fbff4d6f92a440b4c8e075d6fc25d7316f7"
+data_git_describe = "v0.0-5312-g9b819fbff"
 data_git_msg = """\
-commit e520362accc1c10b37d6b1c65c29de70dab266b8
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Mar 15 19:59:09 2021 +0000
+commit 9b819fbff4d6f92a440b4c8e075d6fc25d7316f7
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Mon Mar 15 11:38:47 2021 -0700
 
-    [doc] Use relative links in Hjson-related shortcodes
+    [edn/dv] Added alerts
     
-    The testplan, hwcfg, and registers shortcodes currently take a single
-    argument referring to the IP description file in Hjson format.
-    
-    Before this commit, the Hjson file path was relative to $REPO_TOP.
-    After this commit, the path is relative to the file using the
-    shortcode. The previous behavior can be achieved by using absolute
-    paths, which are rooted in $REPO_TOP.
-    
-    With this change users of the short codes do not need knowledge
-    about the overall file structure, making the IP directory "relocatable."
-    
-    To avoid doing the same change three times in the testplan, hwcfg, and
-    registers shortcodes, this commit unifies them into a single shortcode.
-    (Unfortunately "inheritance"/"nesting" isn't really easy with Hugo
-    shortcodes.)
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
