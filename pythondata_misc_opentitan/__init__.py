@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5410"
-version_tuple = (0, 0, 5410)
+version_str = "0.0.post5413"
+version_tuple = (0, 0, 5413)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5410")
+    pversion = V("0.0.post5413")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5315"
-data_version_tuple = (0, 0, 5315)
+data_version_str = "0.0.post5318"
+data_version_tuple = (0, 0, 5318)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5315")
+    pdata_version = V("0.0.post5318")
 except ImportError:
     pass
-data_git_hash = "58f3297109e4c51b6c68386f14323ac441287082"
-data_git_describe = "v0.0-5315-g58f329710"
+data_git_hash = "545a28d239e9b6bd3dddd74e4693bfea046c4672"
+data_git_describe = "v0.0-5318-g545a28d23"
 data_git_msg = """\
-commit 58f3297109e4c51b6c68386f14323ac441287082
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Tue Mar 16 13:57:23 2021 +0000
+commit 545a28d239e9b6bd3dddd74e4693bfea046c4672
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Mar 12 14:45:51 2021 -0800
 
-    [doc] Make URLs in prj.hjson files relative to the containing file
+    [spi_device/dv] Fix regression timeout
     
-    Paths to documentation content, such as the test plan, the design
-    specification, etc., were given in the ipname.prj.hjson file as relative
-    path, which was resolved relative to REPO_TOP. This makes IP blocks
-    non-relocateable.
-    
-    With this PR the paths become relative to the file they are written in,
-    i.e. relative to the ipname.prj.hjson file. Absolute paths are resolved
-    absolute to REPO_TOP, effectively producing the previous behavior.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    mem size is increased recently, made these changes to avoid timeout
+    1. increase max timeout timer to 1.5s, 1s takes a bit over 1hr
+    2. reduce num_trans in spi_device_fifo_underflow_overflow_vseq
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
