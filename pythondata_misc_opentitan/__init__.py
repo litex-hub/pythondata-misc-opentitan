@@ -4,56 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5398"
-version_tuple = (0, 0, 5398)
+version_str = "0.0.post5406"
+version_tuple = (0, 0, 5406)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5398")
+    pversion = V("0.0.post5406")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5303"
-data_version_tuple = (0, 0, 5303)
+data_version_str = "0.0.post5311"
+data_version_tuple = (0, 0, 5311)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5303")
+    pdata_version = V("0.0.post5311")
 except ImportError:
     pass
-data_git_hash = "9d9d86fb65b5e5cb16df6cdba89cffe1327ec056"
-data_git_describe = "v0.0-5303-g9d9d86fb6"
+data_git_hash = "e520362accc1c10b37d6b1c65c29de70dab266b8"
+data_git_describe = "v0.0-5311-ge520362ac"
 data_git_msg = """\
-commit 9d9d86fb65b5e5cb16df6cdba89cffe1327ec056
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Mar 2 00:15:51 2021 -0800
+commit e520362accc1c10b37d6b1c65c29de70dab266b8
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 15 19:59:09 2021 +0000
 
-    [dvsim] Implement LsfLauncher
+    [doc] Use relative links in Hjson-related shortcodes
     
-    This is a first cut implementation of the LsfLauncher. There are several
-    items left as TODOs - they will be addressed later.
+    The testplan, hwcfg, and registers shortcodes currently take a single
+    argument referring to the IP description file in Hjson format.
     
-    This implementation dispatches all targets (builds, runs, cov etc) as
-    job arrays by default. Builds are run discretely (array of 1 job) since
-    we consider each build to have specific job requirements that cannot be
-    shared with other builds (cpu/mem/disk/stack usage settings - these will
-    be added in future). Runs pertaining to a build is dispatched as an
-    array. The associated changes made to other sources support the array
-    generation.
+    Before this commit, the Hjson file path was relative to $REPO_TOP.
+    After this commit, the path is relative to the file using the
+    shortcode. The previous behavior can be achieved by using absolute
+    paths, which are rooted in $REPO_TOP.
     
-    The job polling is not done by invoking bjobs or bhist, but by looking
-    for the LSF job output file (unique for each array index), which gets
-    written to only AFTER the job is complete. This offers a really fast way
-    to test for completion rather than invoking bjobs or bhist, which bring
-    the system to a crawl when invoked for 20k tests in flight. This largely
-    works for now, but we need to explore other options such as using IBM's
-    Platform LSF Python APIs (future work!).
+    With this change users of the short codes do not need knowledge
+    about the overall file structure, making the IP directory "relocatable."
     
-    What launcher system to pick is decided by `DVSIM_LAUNCHER` variable.
-    In addition, this PR also adds support for Python virtualenv to isolate
-    project-specific python requirements that need to be met when running
-    tasks on remote machines used by several other projects as well.
+    To avoid doing the same change three times in the testplan, hwcfg, and
+    registers shortcodes, this commit unifies them into a single shortcode.
+    (Unfortunately "inheritance"/"nesting" isn't really easy with Hugo
+    shortcodes.)
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
