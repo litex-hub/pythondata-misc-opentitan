@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5396"
-version_tuple = (0, 0, 5396)
+version_str = "0.0.post5397"
+version_tuple = (0, 0, 5397)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5396")
+    pversion = V("0.0.post5397")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5301"
-data_version_tuple = (0, 0, 5301)
+data_version_str = "0.0.post5302"
+data_version_tuple = (0, 0, 5302)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5301")
+    pdata_version = V("0.0.post5302")
 except ImportError:
     pass
-data_git_hash = "a40e98ab4d2a215b3297a0f9ea93ac7efb0e6447"
-data_git_describe = "v0.0-5301-ga40e98ab4"
+data_git_hash = "c5faffb268237a3f08515d0845d6652c27765dfa"
+data_git_describe = "v0.0-5302-gc5faffb26"
 data_git_msg = """\
-commit a40e98ab4d2a215b3297a0f9ea93ac7efb0e6447
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Mar 15 14:19:54 2021 -0700
+commit c5faffb268237a3f08515d0845d6652c27765dfa
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Mar 15 13:33:40 2021 -0700
 
-    [dv] Fix CI failure at EDN
+    [dv/chip] solve same_csr_outstanding_timeout
     
-    The update #5532 had null pointer error, somehow, CI didn't fail
-    This should fix it
+    This PR fixes same_csr_outstanding timeout issue. The timeout is reached
+    mainly because there are too many resets in this sequence.
+    We removed the reset when writing to wen_regs by manually calling the
+    function to lock lockable regs.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
