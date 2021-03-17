@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5432"
-version_tuple = (0, 0, 5432)
+version_str = "0.0.post5435"
+version_tuple = (0, 0, 5435)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5432")
+    pversion = V("0.0.post5435")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5337"
-data_version_tuple = (0, 0, 5337)
+data_version_str = "0.0.post5340"
+data_version_tuple = (0, 0, 5340)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5337")
+    pdata_version = V("0.0.post5340")
 except ImportError:
     pass
-data_git_hash = "55a311a1dc9e423986d47d1927e74fb518c95aed"
-data_git_describe = "v0.0-5337-g55a311a1d"
+data_git_hash = "6cc21b3666e2863e80067079ba96f6b5968d4c29"
+data_git_describe = "v0.0-5340-g6cc21b366"
 data_git_msg = """\
-commit 55a311a1dc9e423986d47d1927e74fb518c95aed
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 17 15:34:51 2021 +0000
+commit 6cc21b3666e2863e80067079ba96f6b5968d4c29
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 11 22:04:55 2021 -0800
 
-    [util] Don't explode on unexpected format in fix_include_guard.py
+    [tlul] Two minor adapter_reg fixes
     
-    The existing code assumed that there was an #ifndef line somewhere in
-    the file and exploded if not (calling None.group()). This patch
-    handles these cases more gracefully by having a notion of "unfixable"
-    files. It also changes the output format a bit to make the CI
-    wrapper's job a bit easier.
+    - return all 1's (similar to error case) on rdata for write transactions
+    - correct the data used for integrity generation
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
