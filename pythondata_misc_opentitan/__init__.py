@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5415"
-version_tuple = (0, 0, 5415)
+version_str = "0.0.post5417"
+version_tuple = (0, 0, 5417)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5415")
+    pversion = V("0.0.post5417")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5320"
-data_version_tuple = (0, 0, 5320)
+data_version_str = "0.0.post5322"
+data_version_tuple = (0, 0, 5322)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5320")
+    pdata_version = V("0.0.post5322")
 except ImportError:
     pass
-data_git_hash = "3c32208530d35cd7ee4eb620fbd9ba7fbc2639b7"
-data_git_describe = "v0.0-5320-g3c3220853"
+data_git_hash = "bcf75e589ce8590d5e74be15f4c0113e998b2c60"
+data_git_describe = "v0.0-5322-gbcf75e589"
 data_git_msg = """\
-commit 3c32208530d35cd7ee4eb620fbd9ba7fbc2639b7
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Mar 16 15:47:44 2021 -0700
+commit bcf75e589ce8590d5e74be15f4c0113e998b2c60
+Author: Eitan Shapira <eitan.shapira@nuvoton.com>
+Date:   Sun Mar 14 12:41:18 2021 +0200
 
-    [dv/common] Fix regression warnings
+    [dv/flash_ctrl] Added some configs to flash_ctrl_seq_cfg & rand_ops_vseq
     
-    This PR fixes two warnings in regression:
-    1. Add a void cast when using predict function
-    2. Correct apply_reset input name in otp_ctrl dv
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
 
 """
 
