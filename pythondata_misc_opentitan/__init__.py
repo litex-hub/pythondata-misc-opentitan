@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5424"
-version_tuple = (0, 0, 5424)
+version_str = "0.0.post5428"
+version_tuple = (0, 0, 5428)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5424")
+    pversion = V("0.0.post5428")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5329"
-data_version_tuple = (0, 0, 5329)
+data_version_str = "0.0.post5333"
+data_version_tuple = (0, 0, 5333)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5329")
+    pdata_version = V("0.0.post5333")
 except ImportError:
     pass
-data_git_hash = "998b3fabcfbf56ec093d6c13a145e245f19aba52"
-data_git_describe = "v0.0-5329-g998b3fabc"
+data_git_hash = "bfc5bf80a7eaebc8a0a89922f396088dc020f36b"
+data_git_describe = "v0.0-5333-gbfc5bf80a"
 data_git_msg = """\
-commit 998b3fabcfbf56ec093d6c13a145e245f19aba52
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Tue Mar 16 21:55:25 2021 +0000
+commit bfc5bf80a7eaebc8a0a89922f396088dc020f36b
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Tue Mar 16 13:01:06 2021 -0700
 
-    [rv_plic] Clean up core files
+    [edn/dv] V0->V1
     
-    * Only depend primitives which we actually need.
-    * Depend on the tlul code (which is used in the SV files produced by
-      reggen) in the core which actually includes the relevant source files.
-    * Improve the description of core files a bit.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
