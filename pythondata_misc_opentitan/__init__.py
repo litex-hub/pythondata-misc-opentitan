@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5417"
-version_tuple = (0, 0, 5417)
+version_str = "0.0.post5421"
+version_tuple = (0, 0, 5421)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5417")
+    pversion = V("0.0.post5421")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5322"
-data_version_tuple = (0, 0, 5322)
+data_version_str = "0.0.post5326"
+data_version_tuple = (0, 0, 5326)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5322")
+    pdata_version = V("0.0.post5326")
 except ImportError:
     pass
-data_git_hash = "bcf75e589ce8590d5e74be15f4c0113e998b2c60"
-data_git_describe = "v0.0-5322-gbcf75e589"
+data_git_hash = "b5c684b86340ac4502fd34d8b8554575669b174d"
+data_git_describe = "v0.0-5326-gb5c684b86"
 data_git_msg = """\
-commit bcf75e589ce8590d5e74be15f4c0113e998b2c60
-Author: Eitan Shapira <eitan.shapira@nuvoton.com>
-Date:   Sun Mar 14 12:41:18 2021 +0200
+commit b5c684b86340ac4502fd34d8b8554575669b174d
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Mar 11 14:44:55 2021 -0800
 
-    [dv/flash_ctrl] Added some configs to flash_ctrl_seq_cfg & rand_ops_vseq
+    [dv/sram] lc_escalation test
     
-    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
+    this PR adds the lifecycle escalation test as described by the testplan.
+    
+    in this test we randomly inject an escalation request, then expect that
+    the SRAM ignore all following memory requests until a system reset is
+    issued.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
