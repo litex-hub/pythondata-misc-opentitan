@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from collections.abc import MutableMapping
 from typing import Dict, List, Optional, Tuple
 
 from .lib import check_keys, check_str, check_int, check_bool, check_list
@@ -227,34 +228,35 @@ def _parse_parameter(where: str, raw: object) -> BaseParam:
         return Parameter(name, desc, param_type, default, expose)
 
 
-class Params:
+class Params(MutableMapping):
     def __init__(self) -> None:
         self.by_name = {}  # type: Dict[str, BaseParam]
 
-    @staticmethod
-    def from_raw(where: str, raw: object) -> 'Params':
-        ret = Params()
-        rl = check_list(raw, where)
-        for idx, r_param in enumerate(rl):
-            entry_where = 'entry {} in {}'.format(idx + 1, where)
-            param = _parse_parameter(entry_where, r_param)
-            if ret.get(param.name) is not None:
-                raise ValueError('At {}, found a duplicate parameter with '
-                                 'name {}.'
-                                 .format(entry_where, param.name))
-            ret.add(param)
-        return ret
+    def __getitem__(self, key):
+        return self.by_name[key]
+
+    def __delitem__(self, key):
+        del self.by_name[key]
+
+    def __setitem__(self, key, value):
+        self.by_name[key] = value
+
+    def __iter__(self):
+        return iter(self.by_name)
+
+    def __len__(self):
+        return len(self.by_name)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.by_name})"
 
     def add(self, param: BaseParam) -> None:
         assert param.name not in self.by_name
         self.by_name[param.name] = param
 
-    def get(self, name: str) -> Optional[BaseParam]:
-        return self.by_name.get(name)
-
     def apply_defaults(self, defaults: List[Tuple[str, str]]) -> None:
         for idx, (key, value) in enumerate(defaults):
-            param = self.by_name.get(key)
+            param = self.by_name[key]
             if param is None:
                 raise KeyError('Cannot find parameter '
                                '{} to set default value.'
@@ -314,6 +316,22 @@ class Params:
 
     def as_dicts(self) -> List[Dict[str, object]]:
         return [p.as_dict() for p in self.by_name.values()]
+
+
+class ReggenParams(Params):
+    @staticmethod
+    def from_raw(where: str, raw: object) -> 'ReggenParams':
+        ret = ReggenParams()
+        rl = check_list(raw, where)
+        for idx, r_param in enumerate(rl):
+            entry_where = 'entry {} in {}'.format(idx + 1, where)
+            param = _parse_parameter(entry_where, r_param)
+            if param.name in ret:
+                raise ValueError('At {}, found a duplicate parameter with '
+                                 'name {}.'
+                                 .format(entry_where, param.name))
+            ret.add(param)
+        return ret
 
     def get_localparams(self) -> List[LocalParam]:
         ret = []
