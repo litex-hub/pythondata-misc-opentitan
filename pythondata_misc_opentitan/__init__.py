@@ -4,35 +4,52 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5436"
-version_tuple = (0, 0, 5436)
+version_str = "0.0.post5437"
+version_tuple = (0, 0, 5437)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5436")
+    pversion = V("0.0.post5437")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5341"
-data_version_tuple = (0, 0, 5341)
+data_version_str = "0.0.post5342"
+data_version_tuple = (0, 0, 5342)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5341")
+    pdata_version = V("0.0.post5342")
 except ImportError:
     pass
-data_git_hash = "0a49c7e5da806b8c202e446114f371c20ce29d01"
-data_git_describe = "v0.0-5341-g0a49c7e5d"
+data_git_hash = "6f98f3534462701e3bdbe0585782087a3f7a6dcc"
+data_git_describe = "v0.0-5342-g6f98f3534"
 data_git_msg = """\
-commit 0a49c7e5da806b8c202e446114f371c20ce29d01
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 17 10:21:36 2021 -0700
+commit 6f98f3534462701e3bdbe0585782087a3f7a6dcc
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 10 16:27:29 2021 -0800
 
-    [spi_device] Remove cmdparse until read command path implemented
+    [top, dcd] top and dcd updates for integration
     
-    Removing cmdparse temporary until readcmd path is implemented and
-    checked in the synthesis tool.
+    - tie off dcd unused signals
+    - slight rename of inter-module ports
+    - hook-up in top_earlgrey.hjson
+    - hook-up to ast
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw] updates to plic / pwrmgr dif unit tests
+    
+    - increase interrupt number
+    - update wakeup reasons
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [top] Auto generate files
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [dcd] remove non-ascii characters
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
