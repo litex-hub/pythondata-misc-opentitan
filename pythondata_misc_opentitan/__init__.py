@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5428"
-version_tuple = (0, 0, 5428)
+version_str = "0.0.post5430"
+version_tuple = (0, 0, 5430)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5428")
+    pversion = V("0.0.post5430")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5333"
-data_version_tuple = (0, 0, 5333)
+data_version_str = "0.0.post5335"
+data_version_tuple = (0, 0, 5335)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5333")
+    pdata_version = V("0.0.post5335")
 except ImportError:
     pass
-data_git_hash = "bfc5bf80a7eaebc8a0a89922f396088dc020f36b"
-data_git_describe = "v0.0-5333-gbfc5bf80a"
+data_git_hash = "4853e5792c61b6c20b8a4839b157f27e5f140211"
+data_git_describe = "v0.0-5335-g4853e5792"
 data_git_msg = """\
-commit bfc5bf80a7eaebc8a0a89922f396088dc020f36b
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Tue Mar 16 13:01:06 2021 -0700
+commit 4853e5792c61b6c20b8a4839b157f27e5f140211
+Author: Cindy Chen <chencindy@google.com>
+Date:   Tue Mar 16 17:36:45 2021 -0700
 
-    [edn/dv] V0->V1
+    [fpv] compile issue fix
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    This PR fixes two compile issue:
+    1. SPI_DEVICE the fpv.tcl script has a signal name mismatch
+    2. AES has an issue where input is recogized as an array
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
