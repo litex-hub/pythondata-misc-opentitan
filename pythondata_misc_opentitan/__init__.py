@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5413"
-version_tuple = (0, 0, 5413)
+version_str = "0.0.post5415"
+version_tuple = (0, 0, 5415)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5413")
+    pversion = V("0.0.post5415")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5318"
-data_version_tuple = (0, 0, 5318)
+data_version_str = "0.0.post5320"
+data_version_tuple = (0, 0, 5320)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5318")
+    pdata_version = V("0.0.post5320")
 except ImportError:
     pass
-data_git_hash = "545a28d239e9b6bd3dddd74e4693bfea046c4672"
-data_git_describe = "v0.0-5318-g545a28d23"
+data_git_hash = "3c32208530d35cd7ee4eb620fbd9ba7fbc2639b7"
+data_git_describe = "v0.0-5320-g3c3220853"
 data_git_msg = """\
-commit 545a28d239e9b6bd3dddd74e4693bfea046c4672
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Mar 12 14:45:51 2021 -0800
+commit 3c32208530d35cd7ee4eb620fbd9ba7fbc2639b7
+Author: Cindy Chen <chencindy@google.com>
+Date:   Tue Mar 16 15:47:44 2021 -0700
 
-    [spi_device/dv] Fix regression timeout
+    [dv/common] Fix regression warnings
     
-    mem size is increased recently, made these changes to avoid timeout
-    1. increase max timeout timer to 1.5s, 1s takes a bit over 1hr
-    2. reduce num_trans in spi_device_fifo_underflow_overflow_vseq
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR fixes two warnings in regression:
+    1. Add a void cast when using predict function
+    2. Correct apply_reset input name in otp_ctrl dv
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
