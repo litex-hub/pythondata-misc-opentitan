@@ -4,42 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5464"
-version_tuple = (0, 0, 5464)
+version_str = "0.0.post5473"
+version_tuple = (0, 0, 5473)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5464")
+    pversion = V("0.0.post5473")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5369"
-data_version_tuple = (0, 0, 5369)
+data_version_str = "0.0.post5378"
+data_version_tuple = (0, 0, 5378)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5369")
+    pdata_version = V("0.0.post5378")
 except ImportError:
     pass
-data_git_hash = "d0ca7e97ffd988d9d9ec27a73d876ff009b29b79"
-data_git_describe = "v0.0-5369-gd0ca7e97f"
+data_git_hash = "4769007560230561c3575147d4c3cbbc59aa3626"
+data_git_describe = "v0.0-5378-g476900756"
 data_git_msg = """\
-commit d0ca7e97ffd988d9d9ec27a73d876ff009b29b79
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 15 13:00:32 2021 +0000
+commit 4769007560230561c3575147d4c3cbbc59aa3626
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Mon Mar 15 16:07:06 2021 -0700
 
-    [ci] Be more informative if install-package-dependencies fails
+    [dv/kmac] add mem_tests to nightly regression
     
-    Also, use a temporary directory to avoid polluting the checkout and
-    move the logic to a shell script (no real change from the yaml file,
-    but this script has got big enough that it doesn't feel like it should
-    be inlined any more).
+    this PR adds the mem_tests to the nightly KMAC regression,
+    and temporarily removes stress_tests as it is not ready.
     
-    Splitting out into a shell script means a bit of extra work, because
-    we have to pass Azure Pipeline variables through to the script. Use
-    proper command line arguments, rather than environment variables, to
-    make it a bit more obvious what's going on.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
