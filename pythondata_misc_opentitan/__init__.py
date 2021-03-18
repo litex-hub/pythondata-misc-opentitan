@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5473"
-version_tuple = (0, 0, 5473)
+version_str = "0.0.post5478"
+version_tuple = (0, 0, 5478)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5473")
+    pversion = V("0.0.post5478")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5378"
-data_version_tuple = (0, 0, 5378)
+data_version_str = "0.0.post5383"
+data_version_tuple = (0, 0, 5383)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5378")
+    pdata_version = V("0.0.post5383")
 except ImportError:
     pass
-data_git_hash = "4769007560230561c3575147d4c3cbbc59aa3626"
-data_git_describe = "v0.0-5378-g476900756"
+data_git_hash = "07494a3f350b69db7813bbb8f6e4579a05d42038"
+data_git_describe = "v0.0-5383-g07494a3f3"
 data_git_msg = """\
-commit 4769007560230561c3575147d4c3cbbc59aa3626
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Mon Mar 15 16:07:06 2021 -0700
+commit 07494a3f350b69db7813bbb8f6e4579a05d42038
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Thu Mar 18 15:59:57 2021 +0000
 
-    [dv/kmac] add mem_tests to nightly regression
+    [doc] Prefer relative links in Markdown
     
-    this PR adds the mem_tests to the nightly KMAC regression,
-    and temporarily removes stress_tests as it is not ready.
+    Relative links make it easier to relocate files, prefer using them where
+    possible.
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
