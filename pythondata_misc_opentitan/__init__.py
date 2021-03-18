@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5448"
-version_tuple = (0, 0, 5448)
+version_str = "0.0.post5450"
+version_tuple = (0, 0, 5450)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5448")
+    pversion = V("0.0.post5450")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5353"
-data_version_tuple = (0, 0, 5353)
+data_version_str = "0.0.post5355"
+data_version_tuple = (0, 0, 5355)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5353")
+    pdata_version = V("0.0.post5355")
 except ImportError:
     pass
-data_git_hash = "263165193173262dd701517a99da0f271f830222"
-data_git_describe = "v0.0-5353-g263165193"
+data_git_hash = "d2d7608cafffb82230fd8c55df32a2d57a4558c4"
+data_git_describe = "v0.0-5355-gd2d7608ca"
 data_git_msg = """\
-commit 263165193173262dd701517a99da0f271f830222
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Wed Mar 17 16:45:59 2021 -0700
+commit d2d7608cafffb82230fd8c55df32a2d57a4558c4
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Mar 17 16:24:50 2021 -0700
 
-    [dv/sram] refactor sram_zero_delays
+    [lc_ctrl] Transition into D2
     
-    this PR refactors how zero delays are set in the SRAM TL agent,
-    tying it to the main zero_delays knob in the CSR TL agent.
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
