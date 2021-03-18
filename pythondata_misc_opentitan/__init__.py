@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5455"
-version_tuple = (0, 0, 5455)
+version_str = "0.0.post5456"
+version_tuple = (0, 0, 5456)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5455")
+    pversion = V("0.0.post5456")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5360"
-data_version_tuple = (0, 0, 5360)
+data_version_str = "0.0.post5361"
+data_version_tuple = (0, 0, 5361)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5360")
+    pdata_version = V("0.0.post5361")
 except ImportError:
     pass
-data_git_hash = "6307c2a178b90b0ceb63f4e620d2f53223705a63"
-data_git_describe = "v0.0-5360-g6307c2a17"
+data_git_hash = "b1e4b6d9f02e98546200ca88a147a370f3ecc8ef"
+data_git_describe = "v0.0-5361-gb1e4b6d9f"
 data_git_msg = """\
-commit 6307c2a178b90b0ceb63f4e620d2f53223705a63
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 18 08:56:48 2021 +0000
+commit b1e4b6d9f02e98546200ca88a147a370f3ecc8ef
+Author: Tom Roberts <tomroberts@lowrisc.org>
+Date:   Tue Mar 16 15:43:44 2021 +0000
 
-    [lint] Waive Verilator warning about filename for dm package
+    [aon_timer/rtl] Fix bugs found by smoke test
     
-    This file is vendored, so we don't really want to change it. Waive the
-    warning instead.
+    Lifecycle input signals are the wrong way around.
+    Only clock the prescale counter when enabled.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Relates to #5624
+    
+    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
 
 """
 
