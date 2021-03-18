@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5444"
-version_tuple = (0, 0, 5444)
+version_str = "0.0.post5447"
+version_tuple = (0, 0, 5447)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5444")
+    pversion = V("0.0.post5447")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5349"
-data_version_tuple = (0, 0, 5349)
+data_version_str = "0.0.post5352"
+data_version_tuple = (0, 0, 5352)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5349")
+    pdata_version = V("0.0.post5352")
 except ImportError:
     pass
-data_git_hash = "a4e2d7f2e1d7d76455558187a7792fa9176f6ee4"
-data_git_describe = "v0.0-5349-ga4e2d7f2e"
+data_git_hash = "da03e2fce6b2683f4e0e2da82e40bc056910fa03"
+data_git_describe = "v0.0-5352-gda03e2fce"
 data_git_msg = """\
-commit a4e2d7f2e1d7d76455558187a7792fa9176f6ee4
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 11 22:34:21 2021 -0800
+commit da03e2fce6b2683f4e0e2da82e40bc056910fa03
+Author: Cindy Chen <chencindy@google.com>
+Date:   Wed Mar 17 15:04:18 2021 -0700
 
-    [keymgr] Actually increase salt / sw binding sizes
+    [dv/uvmdvgen] Add comment for testplan
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR adds a comment to remind user to add testplan to the
+    `util/build_docs.py` to avoid doc generation error.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
