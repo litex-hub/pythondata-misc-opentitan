@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5479"
-version_tuple = (0, 0, 5479)
+version_str = "0.0.post5480"
+version_tuple = (0, 0, 5480)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5479")
+    pversion = V("0.0.post5480")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5384"
-data_version_tuple = (0, 0, 5384)
+data_version_str = "0.0.post5385"
+data_version_tuple = (0, 0, 5385)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5384")
+    pdata_version = V("0.0.post5385")
 except ImportError:
     pass
-data_git_hash = "540661ebb656caadb5d1e71d920f0e9e88e11451"
-data_git_describe = "v0.0-5384-g540661ebb"
+data_git_hash = "95d23d98b2050f353499e06907c11903ae2ac707"
+data_git_describe = "v0.0-5385-g95d23d98b"
 data_git_msg = """\
-commit 540661ebb656caadb5d1e71d920f0e9e88e11451
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Mar 16 17:40:18 2021 -0700
+commit 95d23d98b2050f353499e06907c11903ae2ac707
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 11 17:44:59 2021 -0800
 
-    [chip/dv] Add chip_stub_cpu_base_vseq
+    [sram] Add memory initialization
     
-    extract it from chip_common_vseq to use for other seq with stub mode
+    - Software can request memory initialization
+    - Memory contents will be written with "random" values
+    - During the duration of initialization, memory reads are blocked
+    - Software should poll on initialization completion before continuing
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
