@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5450"
-version_tuple = (0, 0, 5450)
+version_str = "0.0.post5451"
+version_tuple = (0, 0, 5451)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5450")
+    pversion = V("0.0.post5451")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5355"
-data_version_tuple = (0, 0, 5355)
+data_version_str = "0.0.post5356"
+data_version_tuple = (0, 0, 5356)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5355")
+    pdata_version = V("0.0.post5356")
 except ImportError:
     pass
-data_git_hash = "d2d7608cafffb82230fd8c55df32a2d57a4558c4"
-data_git_describe = "v0.0-5355-gd2d7608ca"
+data_git_hash = "76e35160386278edee3b4bcc5b5a20656a1f6722"
+data_git_describe = "v0.0-5356-g76e351603"
 data_git_msg = """\
-commit d2d7608cafffb82230fd8c55df32a2d57a4558c4
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Mar 17 16:24:50 2021 -0700
+commit 76e35160386278edee3b4bcc5b5a20656a1f6722
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Wed Jan 20 16:37:27 2021 +0000
 
-    [lc_ctrl] Transition into D2
+    [sw] Add API for reading and writing Control and Status Registers
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Add a new API for reading and writing Control and Status Registers
+    (CSRs). This new API allows CSR reads and writes to be mocked
+    allowing code using CSRs to be more easily unit tested.
+    
+    This API and test code is based on a design by Miguel Young (@mcy).
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
