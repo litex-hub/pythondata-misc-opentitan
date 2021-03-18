@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5447"
-version_tuple = (0, 0, 5447)
+version_str = "0.0.post5448"
+version_tuple = (0, 0, 5448)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5447")
+    pversion = V("0.0.post5448")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5352"
-data_version_tuple = (0, 0, 5352)
+data_version_str = "0.0.post5353"
+data_version_tuple = (0, 0, 5353)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5352")
+    pdata_version = V("0.0.post5353")
 except ImportError:
     pass
-data_git_hash = "da03e2fce6b2683f4e0e2da82e40bc056910fa03"
-data_git_describe = "v0.0-5352-gda03e2fce"
+data_git_hash = "263165193173262dd701517a99da0f271f830222"
+data_git_describe = "v0.0-5353-g263165193"
 data_git_msg = """\
-commit da03e2fce6b2683f4e0e2da82e40bc056910fa03
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Mar 17 15:04:18 2021 -0700
+commit 263165193173262dd701517a99da0f271f830222
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Mar 17 16:45:59 2021 -0700
 
-    [dv/uvmdvgen] Add comment for testplan
+    [dv/sram] refactor sram_zero_delays
     
-    This PR adds a comment to remind user to add testplan to the
-    `util/build_docs.py` to avoid doc generation error.
+    this PR refactors how zero delays are set in the SRAM TL agent,
+    tying it to the main zero_delays knob in the CSR TL agent.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
