@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5478"
-version_tuple = (0, 0, 5478)
+version_str = "0.0.post5479"
+version_tuple = (0, 0, 5479)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5478")
+    pversion = V("0.0.post5479")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5383"
-data_version_tuple = (0, 0, 5383)
+data_version_str = "0.0.post5384"
+data_version_tuple = (0, 0, 5384)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5383")
+    pdata_version = V("0.0.post5384")
 except ImportError:
     pass
-data_git_hash = "07494a3f350b69db7813bbb8f6e4579a05d42038"
-data_git_describe = "v0.0-5383-g07494a3f3"
+data_git_hash = "540661ebb656caadb5d1e71d920f0e9e88e11451"
+data_git_describe = "v0.0-5384-g540661ebb"
 data_git_msg = """\
-commit 07494a3f350b69db7813bbb8f6e4579a05d42038
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Thu Mar 18 15:59:57 2021 +0000
+commit 540661ebb656caadb5d1e71d920f0e9e88e11451
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Mar 16 17:40:18 2021 -0700
 
-    [doc] Prefer relative links in Markdown
+    [chip/dv] Add chip_stub_cpu_base_vseq
     
-    Relative links make it easier to relocate files, prefer using them where
-    possible.
+    extract it from chip_common_vseq to use for other seq with stub mode
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
