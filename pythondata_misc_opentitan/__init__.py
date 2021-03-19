@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5495"
-version_tuple = (0, 0, 5495)
+version_str = "0.0.post5497"
+version_tuple = (0, 0, 5497)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5495")
+    pversion = V("0.0.post5497")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5400"
-data_version_tuple = (0, 0, 5400)
+data_version_str = "0.0.post5402"
+data_version_tuple = (0, 0, 5402)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5400")
+    pdata_version = V("0.0.post5402")
 except ImportError:
     pass
-data_git_hash = "fc82225ab99a6e50ce2e9131d564e9a11ea82075"
-data_git_describe = "v0.0-5400-gfc82225ab"
+data_git_hash = "83d1208879fd37e6c31ee357615bee0508f525b1"
+data_git_describe = "v0.0-5402-g83d120887"
 data_git_msg = """\
-commit fc82225ab99a6e50ce2e9131d564e9a11ea82075
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Thu Mar 18 16:17:12 2021 -0700
+commit 83d1208879fd37e6c31ee357615bee0508f525b1
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Mar 19 17:57:20 2021 +0000
 
-    Eliminate `#pragma once` in favor of include guards
+    [doc] Update OpenOCD instructions for Verilator
     
-    The Google C/C++ Style Guide (referenced from the OpenTitan C/C++ guide)
-    requires #define guards in header files.
+    Adds a link to the OpenOCD installation instructions and removes
+    mention of the compliance test as whilst it is still present in OpenOCD
+    it is incomplete and unsupported
+    (https://github.com/riscv/riscv-openocd/issues/462#issuecomment-606155696)
     
-    https://google.github.io/styleguide/cppguide.html#The__define_Guard
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
