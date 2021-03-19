@@ -4,37 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5497"
-version_tuple = (0, 0, 5497)
+version_str = "0.0.post5498"
+version_tuple = (0, 0, 5498)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5497")
+    pversion = V("0.0.post5498")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5402"
-data_version_tuple = (0, 0, 5402)
+data_version_str = "0.0.post5403"
+data_version_tuple = (0, 0, 5403)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5402")
+    pdata_version = V("0.0.post5403")
 except ImportError:
     pass
-data_git_hash = "83d1208879fd37e6c31ee357615bee0508f525b1"
-data_git_describe = "v0.0-5402-g83d120887"
+data_git_hash = "44bf5faa653143c768261e99f80edf1125486b02"
+data_git_describe = "v0.0-5403-g44bf5faa6"
 data_git_msg = """\
-commit 83d1208879fd37e6c31ee357615bee0508f525b1
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Mar 19 17:57:20 2021 +0000
+commit 44bf5faa653143c768261e99f80edf1125486b02
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Mar 19 11:32:26 2021 -0700
 
-    [doc] Update OpenOCD instructions for Verilator
+    [fpv/rv_plic] Fix compile error from auto-gen csr_fpv_assert core file
     
-    Adds a link to the OpenOCD installation instructions and removes
-    mention of the compliance test as whilst it is still present in OpenOCD
-    it is incomplete and unsupported
-    (https://github.com/riscv/riscv-openocd/issues/462#issuecomment-606155696)
+    This PR fixes a fusesoc dependency error from auto-generated
+    csr_fpv_assertion core file.
+    In `ip_block.py` we assume all IP core file names are
+    `lowrisc:ip:{block_name}`. However, for rv_plic, it is called
+    `lowrisc:ip:rv_plic_example`. So in hjson file, I added the core name to
+    avoid fusesoc compile error.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
