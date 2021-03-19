@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5486"
-version_tuple = (0, 0, 5486)
+version_str = "0.0.post5493"
+version_tuple = (0, 0, 5493)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5486")
+    pversion = V("0.0.post5493")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5391"
-data_version_tuple = (0, 0, 5391)
+data_version_str = "0.0.post5398"
+data_version_tuple = (0, 0, 5398)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5391")
+    pdata_version = V("0.0.post5398")
 except ImportError:
     pass
-data_git_hash = "967319ded21fa93734dcc8a2756099dd370b8071"
-data_git_describe = "v0.0-5391-g967319ded"
+data_git_hash = "d0f8ea619a9aed32aa62a83ff5c14dad12fbfadf"
+data_git_describe = "v0.0-5398-gd0f8ea619"
 data_git_msg = """\
-commit 967319ded21fa93734dcc8a2756099dd370b8071
-Author: Tom Roberts <tomroberts@lowrisc.org>
-Date:   Fri Mar 19 09:18:42 2021 +0000
+commit d0f8ea619a9aed32aa62a83ff5c14dad12fbfadf
+Author: Jacob Levy <jacob.levy@opentitan.org>
+Date:   Fri Mar 19 11:29:55 2021 +0200
 
-    [aon_timer] Lint fixes
+    [TLUL] Add ecc calculation functions
     
-    Ascentlint doesn't pick up the unused_* bits from inside a struct and so
-    is failing on the intr_state bits. This commit lists them out explicitly
-    which will hopefully silence the warning.
-    
-    Signed-off-by: Tom Roberts <tomroberts@lowrisc.org>
+    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
 
 """
 
