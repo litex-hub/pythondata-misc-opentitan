@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5480"
-version_tuple = (0, 0, 5480)
+version_str = "0.0.post5483"
+version_tuple = (0, 0, 5483)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5480")
+    pversion = V("0.0.post5483")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5385"
-data_version_tuple = (0, 0, 5385)
+data_version_str = "0.0.post5388"
+data_version_tuple = (0, 0, 5388)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5385")
+    pdata_version = V("0.0.post5388")
 except ImportError:
     pass
-data_git_hash = "95d23d98b2050f353499e06907c11903ae2ac707"
-data_git_describe = "v0.0-5385-g95d23d98b"
+data_git_hash = "f63bf6a5e8bb5f74665420c6b988a757cacc927e"
+data_git_describe = "v0.0-5388-gf63bf6a5e"
 data_git_msg = """\
-commit 95d23d98b2050f353499e06907c11903ae2ac707
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 11 17:44:59 2021 -0800
+commit f63bf6a5e8bb5f74665420c6b988a757cacc927e
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Mar 18 13:48:30 2021 -0700
 
-    [sram] Add memory initialization
+    [xbar/dv] Fix assertion error due to short reset
     
-    - Software can request memory initialization
-    - Memory contents will be written with "random" values
-    - During the duration of initialization, memory reads are blocked
-    - Software should poll on initialization completion before continuing
+    xbar has 2 clock domains. reset needs to last for at least one clock to
+    avoid false alarm from SVA as assertion checks reset at the active clock
+    edge.
+    increase reset to 50-100 TL clock periods, which should be long enough
+    for most of IPs. (default faster clock / slowest clock < 10)
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
