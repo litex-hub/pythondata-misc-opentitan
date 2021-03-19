@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5493"
-version_tuple = (0, 0, 5493)
+version_str = "0.0.post5495"
+version_tuple = (0, 0, 5495)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5493")
+    pversion = V("0.0.post5495")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5398"
-data_version_tuple = (0, 0, 5398)
+data_version_str = "0.0.post5400"
+data_version_tuple = (0, 0, 5400)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5398")
+    pdata_version = V("0.0.post5400")
 except ImportError:
     pass
-data_git_hash = "d0f8ea619a9aed32aa62a83ff5c14dad12fbfadf"
-data_git_describe = "v0.0-5398-gd0f8ea619"
+data_git_hash = "fc82225ab99a6e50ce2e9131d564e9a11ea82075"
+data_git_describe = "v0.0-5400-gfc82225ab"
 data_git_msg = """\
-commit d0f8ea619a9aed32aa62a83ff5c14dad12fbfadf
-Author: Jacob Levy <jacob.levy@opentitan.org>
-Date:   Fri Mar 19 11:29:55 2021 +0200
+commit fc82225ab99a6e50ce2e9131d564e9a11ea82075
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Mar 18 16:17:12 2021 -0700
 
-    [TLUL] Add ecc calculation functions
+    Eliminate `#pragma once` in favor of include guards
     
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    The Google C/C++ Style Guide (referenced from the OpenTitan C/C++ guide)
+    requires #define guards in header files.
+    
+    https://google.github.io/styleguide/cppguide.html#The__define_Guard
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
