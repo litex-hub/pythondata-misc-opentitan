@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5498"
-version_tuple = (0, 0, 5498)
+version_str = "0.0.post5500"
+version_tuple = (0, 0, 5500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5498")
+    pversion = V("0.0.post5500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5403"
-data_version_tuple = (0, 0, 5403)
+data_version_str = "0.0.post5405"
+data_version_tuple = (0, 0, 5405)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5403")
+    pdata_version = V("0.0.post5405")
 except ImportError:
     pass
-data_git_hash = "44bf5faa653143c768261e99f80edf1125486b02"
-data_git_describe = "v0.0-5403-g44bf5faa6"
+data_git_hash = "5270b7c5366f4cd49c0330fc6b1726b174b339f6"
+data_git_describe = "v0.0-5405-g5270b7c53"
 data_git_msg = """\
-commit 44bf5faa653143c768261e99f80edf1125486b02
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Mar 19 11:32:26 2021 -0700
+commit 5270b7c5366f4cd49c0330fc6b1726b174b339f6
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 17 17:38:30 2021 -0700
 
-    [fpv/rv_plic] Fix compile error from auto-gen csr_fpv_assert core file
+    [top] Hook up latest ast ports and complete a few other integration
     
-    This PR fixes a fusesoc dependency error from auto-generated
-    csr_fpv_assertion core file.
-    In `ip_block.py` we assume all IP core file names are
-    `lowrisc:ip:{block_name}`. However, for rv_plic, it is called
-    `lowrisc:ip:rv_plic_example`. So in hjson file, I added the core name to
-    avoid fusesoc compile error.
+    - hookup rng_fips to entropy_src
+    - properly name test_voltage/test_mode ports and hook them up
+    - hookup analog test connections to the pad
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
