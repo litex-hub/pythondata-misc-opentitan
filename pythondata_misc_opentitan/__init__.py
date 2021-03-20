@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5503"
-version_tuple = (0, 0, 5503)
+version_str = "0.0.post5504"
+version_tuple = (0, 0, 5504)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5503")
+    pversion = V("0.0.post5504")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5408"
-data_version_tuple = (0, 0, 5408)
+data_version_str = "0.0.post5409"
+data_version_tuple = (0, 0, 5409)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5408")
+    pdata_version = V("0.0.post5409")
 except ImportError:
     pass
-data_git_hash = "a560a2cedf0b77c94648076578e9954bd8847c00"
-data_git_describe = "v0.0-5408-ga560a2ced"
+data_git_hash = "bca085f33c9266121cc50e3290d1b21282fc9090"
+data_git_describe = "v0.0-5409-gbca085f33"
 data_git_msg = """\
-commit a560a2cedf0b77c94648076578e9954bd8847c00
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Mar 19 14:49:38 2021 -0700
+commit bca085f33c9266121cc50e3290d1b21282fc9090
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Mar 19 17:37:22 2021 -0700
 
-    [dv] Fix mem test hang
+    [keymgr] Fix advance state consistency
     
-    Recently I updated to count N access of read for mem test, but read only
-    occurs after at least a mem address is written. If reset occurs before any write,
-    it will forever sending read access, which creates a deadloop
+    Address #4899
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
