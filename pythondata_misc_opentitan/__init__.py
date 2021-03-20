@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5500"
-version_tuple = (0, 0, 5500)
+version_str = "0.0.post5503"
+version_tuple = (0, 0, 5503)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5500")
+    pversion = V("0.0.post5503")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5405"
-data_version_tuple = (0, 0, 5405)
+data_version_str = "0.0.post5408"
+data_version_tuple = (0, 0, 5408)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5405")
+    pdata_version = V("0.0.post5408")
 except ImportError:
     pass
-data_git_hash = "5270b7c5366f4cd49c0330fc6b1726b174b339f6"
-data_git_describe = "v0.0-5405-g5270b7c53"
+data_git_hash = "a560a2cedf0b77c94648076578e9954bd8847c00"
+data_git_describe = "v0.0-5408-ga560a2ced"
 data_git_msg = """\
-commit 5270b7c5366f4cd49c0330fc6b1726b174b339f6
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 17 17:38:30 2021 -0700
+commit a560a2cedf0b77c94648076578e9954bd8847c00
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Mar 19 14:49:38 2021 -0700
 
-    [top] Hook up latest ast ports and complete a few other integration
+    [dv] Fix mem test hang
     
-    - hookup rng_fips to entropy_src
-    - properly name test_voltage/test_mode ports and hook them up
-    - hookup analog test connections to the pad
+    Recently I updated to count N access of read for mem test, but read only
+    occurs after at least a mem address is written. If reset occurs before any write,
+    it will forever sending read access, which creates a deadloop
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
