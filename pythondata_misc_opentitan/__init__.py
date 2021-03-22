@@ -4,45 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5505"
-version_tuple = (0, 0, 5505)
+version_str = "0.0.post5506"
+version_tuple = (0, 0, 5506)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5505")
+    pversion = V("0.0.post5506")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5410"
-data_version_tuple = (0, 0, 5410)
+data_version_str = "0.0.post5411"
+data_version_tuple = (0, 0, 5411)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5410")
+    pdata_version = V("0.0.post5411")
 except ImportError:
     pass
-data_git_hash = "a4a7e84dec68e8e938d1a28c37468c799d40be78"
-data_git_describe = "v0.0-5410-ga4a7e84de"
+data_git_hash = "0f218e98373626f382511c32bade43bf79596c3b"
+data_git_describe = "v0.0-5411-g0f218e983"
 data_git_msg = """\
-commit a4a7e84dec68e8e938d1a28c37468c799d40be78
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Wed Mar 17 18:01:58 2021 -0700
+commit 0f218e98373626f382511c32bade43bf79596c3b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 19 17:30:39 2021 +0000
 
-    [dv/regr] update result paths for sram/kmac
+    [prim_prince] Annotate some arrays to avoid UNOPTFLAT warnings
     
-    this PR updates the result paths for both the KMAC and SRAM IPs, as both
-    have two variants that are tested.
+    Verilator's block scheduler isn't particularly clever, and it needs a
+    bit of hand-holding when you have an array which updates like this:
     
-    currently, the regression results are published to:
-    `reports.opentitan.org/hw/ip/kmac/dv/latest/results.html`,
-    where the segment of `hw/ip/kmac/dv` is set to a variable called
-    `{rel_path}` inside of `common_project_cfg.hjson`.
+        foo[0] = 123;
+        foo[1] = f(foo[0]);
     
-    having both variants write regression results to the same link
-    will result in something breaking, so this `rel_path` variable is now
-    overridden in the `base_sim_cfg.hjson` for both IPs so that the variant
-    name is now factored into the results link to "uniquify" things.
+    Without the help, it sees foo depending on itself, which triggers an
+    UNOPTFLAT warning (and slow simulation!)
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
