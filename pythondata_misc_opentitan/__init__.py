@@ -4,34 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5504"
-version_tuple = (0, 0, 5504)
+version_str = "0.0.post5505"
+version_tuple = (0, 0, 5505)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5504")
+    pversion = V("0.0.post5505")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5409"
-data_version_tuple = (0, 0, 5409)
+data_version_str = "0.0.post5410"
+data_version_tuple = (0, 0, 5410)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5409")
+    pdata_version = V("0.0.post5410")
 except ImportError:
     pass
-data_git_hash = "bca085f33c9266121cc50e3290d1b21282fc9090"
-data_git_describe = "v0.0-5409-gbca085f33"
+data_git_hash = "a4a7e84dec68e8e938d1a28c37468c799d40be78"
+data_git_describe = "v0.0-5410-ga4a7e84de"
 data_git_msg = """\
-commit bca085f33c9266121cc50e3290d1b21282fc9090
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 19 17:37:22 2021 -0700
+commit a4a7e84dec68e8e938d1a28c37468c799d40be78
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Wed Mar 17 18:01:58 2021 -0700
 
-    [keymgr] Fix advance state consistency
+    [dv/regr] update result paths for sram/kmac
     
-    Address #4899
+    this PR updates the result paths for both the KMAC and SRAM IPs, as both
+    have two variants that are tested.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    currently, the regression results are published to:
+    `reports.opentitan.org/hw/ip/kmac/dv/latest/results.html`,
+    where the segment of `hw/ip/kmac/dv` is set to a variable called
+    `{rel_path}` inside of `common_project_cfg.hjson`.
+    
+    having both variants write regression results to the same link
+    will result in something breaking, so this `rel_path` variable is now
+    overridden in the `base_sim_cfg.hjson` for both IPs so that the variant
+    name is now factored into the results link to "uniquify" things.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
