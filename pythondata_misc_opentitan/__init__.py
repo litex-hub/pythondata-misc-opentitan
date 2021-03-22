@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5515"
-version_tuple = (0, 0, 5515)
+version_str = "0.0.post5517"
+version_tuple = (0, 0, 5517)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5515")
+    pversion = V("0.0.post5517")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5420"
-data_version_tuple = (0, 0, 5420)
+data_version_str = "0.0.post5422"
+data_version_tuple = (0, 0, 5422)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5420")
+    pdata_version = V("0.0.post5422")
 except ImportError:
     pass
-data_git_hash = "4c2b5f4338a93c7b48d33e48fb75478ee558772a"
-data_git_describe = "v0.0-5420-g4c2b5f433"
+data_git_hash = "12ad5412b2697830481f17a49c3f221095c34199"
+data_git_describe = "v0.0-5422-g12ad5412b"
 data_git_msg = """\
-commit 4c2b5f4338a93c7b48d33e48fb75478ee558772a
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Mar 19 14:25:13 2021 -0700
+commit 12ad5412b2697830481f17a49c3f221095c34199
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Mar 22 10:19:51 2021 -0700
 
-    [dv] Update driver to process item at active edge for 1st item
+    [fpv/otp_ctrl] fix assertion issue
     
-    Driver should process items at active edge. For 1st item, we didn't wait
-    for clock edge
+    This PR fixes an assertion error in DV regression. In property, it
+    already includes a one cycle delay. Using `=>` gives an extra cycle that
+    causes the failure.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
