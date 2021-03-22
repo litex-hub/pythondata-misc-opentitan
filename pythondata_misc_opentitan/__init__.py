@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5512"
-version_tuple = (0, 0, 5512)
+version_str = "0.0.post5514"
+version_tuple = (0, 0, 5514)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5512")
+    pversion = V("0.0.post5514")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5417"
-data_version_tuple = (0, 0, 5417)
+data_version_str = "0.0.post5419"
+data_version_tuple = (0, 0, 5419)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5417")
+    pdata_version = V("0.0.post5419")
 except ImportError:
     pass
-data_git_hash = "0c0ece5e19d43c90f4dda64373915cff06394ed7"
-data_git_describe = "v0.0-5417-g0c0ece5e1"
+data_git_hash = "1cbcce42ed2a2583eccb96c64df78468f40b0c40"
+data_git_describe = "v0.0-5419-g1cbcce42e"
 data_git_msg = """\
-commit 0c0ece5e19d43c90f4dda64373915cff06394ed7
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Mon Mar 22 14:35:57 2021 +0000
+commit 1cbcce42ed2a2583eccb96c64df78468f40b0c40
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Mar 18 19:38:03 2021 -0700
 
-    [dif] Add missing `extern "C"` declarations.
+    [dv/otp_ctrl] test_access sequence
     
-    DIFs are implemented in C and so the API requires C linkage in C++.
-    The current template includes the necessary `extern "C"`
-    declaration but the hmac and usbdev header files did not have it.
+    This PR adds a test_access sequence to access otp_ctrl's test_access.
+    For open-sourced testbench, this is a dummy check to ensure the
+    connection is correct. The real output should be checked in
+    proprietary env.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
