@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5517"
-version_tuple = (0, 0, 5517)
+version_str = "0.0.post5518"
+version_tuple = (0, 0, 5518)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5517")
+    pversion = V("0.0.post5518")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5422"
-data_version_tuple = (0, 0, 5422)
+data_version_str = "0.0.post5423"
+data_version_tuple = (0, 0, 5423)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5422")
+    pdata_version = V("0.0.post5423")
 except ImportError:
     pass
-data_git_hash = "12ad5412b2697830481f17a49c3f221095c34199"
-data_git_describe = "v0.0-5422-g12ad5412b"
+data_git_hash = "613d37f0a68ed1943a71e9b10fcf5c0a2d8c0d43"
+data_git_describe = "v0.0-5423-g613d37f0a"
 data_git_msg = """\
-commit 12ad5412b2697830481f17a49c3f221095c34199
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Mar 22 10:19:51 2021 -0700
+commit 613d37f0a68ed1943a71e9b10fcf5c0a2d8c0d43
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 17 20:22:37 2021 -0700
 
-    [fpv/otp_ctrl] fix assertion issue
+    [rstmgr] Fix several controllable reset issues
     
-    This PR fixes an assertion error in DV regression. In property, it
-    already includes a one cycle delay. Using `=>` gives an extra cycle that
-    causes the failure.
+    See #5601 and #5602
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
