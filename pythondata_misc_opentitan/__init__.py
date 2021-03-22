@@ -4,43 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5508"
-version_tuple = (0, 0, 5508)
+version_str = "0.0.post5512"
+version_tuple = (0, 0, 5512)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5508")
+    pversion = V("0.0.post5512")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5413"
-data_version_tuple = (0, 0, 5413)
+data_version_str = "0.0.post5417"
+data_version_tuple = (0, 0, 5417)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5413")
+    pdata_version = V("0.0.post5417")
 except ImportError:
     pass
-data_git_hash = "c42725cdb717f9e059759a26bfbfdc4e37ccf96e"
-data_git_describe = "v0.0-5413-gc42725cdb"
+data_git_hash = "0c0ece5e19d43c90f4dda64373915cff06394ed7"
+data_git_describe = "v0.0-5417-g0c0ece5e1"
 data_git_msg = """\
-commit c42725cdb717f9e059759a26bfbfdc4e37ccf96e
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Mar 19 17:14:37 2021 +0000
+commit 0c0ece5e19d43c90f4dda64373915cff06394ed7
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Mon Mar 22 14:35:57 2021 +0000
 
-    [otbn] Refactor ISS stalling behaviour
+    [dif] Add missing `extern "C"` declarations.
     
-    Previously the ISS would execute an instruction then stall for some
-    number of cycles before committing the result. This alters the behaviour
-    so instructions can explicitly request a stall (via returning False from
-    OTBN.pre_execute) and multi-cycle instructions (LW/BN.LID are the only
-    examples so far) will stall themselves before they execute rather than
-    after.
+    DIFs are implemented in C and so the API requires C linkage in C++.
+    The current template includes the necessary `extern "C"`
+    declaration but the hmac and usbdev header files did not have it.
     
-    A seperate OTBNState.non_insn_stall is introduced to support non
-    instuction related sources of stall. For now this is just used by a
-    single stall cycle at the beginning of execution.
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
