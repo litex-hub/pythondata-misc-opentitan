@@ -4,41 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5506"
-version_tuple = (0, 0, 5506)
+version_str = "0.0.post5508"
+version_tuple = (0, 0, 5508)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5506")
+    pversion = V("0.0.post5508")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5411"
-data_version_tuple = (0, 0, 5411)
+data_version_str = "0.0.post5413"
+data_version_tuple = (0, 0, 5413)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5411")
+    pdata_version = V("0.0.post5413")
 except ImportError:
     pass
-data_git_hash = "0f218e98373626f382511c32bade43bf79596c3b"
-data_git_describe = "v0.0-5411-g0f218e983"
+data_git_hash = "c42725cdb717f9e059759a26bfbfdc4e37ccf96e"
+data_git_describe = "v0.0-5413-gc42725cdb"
 data_git_msg = """\
-commit 0f218e98373626f382511c32bade43bf79596c3b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 19 17:30:39 2021 +0000
+commit c42725cdb717f9e059759a26bfbfdc4e37ccf96e
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Mar 19 17:14:37 2021 +0000
 
-    [prim_prince] Annotate some arrays to avoid UNOPTFLAT warnings
+    [otbn] Refactor ISS stalling behaviour
     
-    Verilator's block scheduler isn't particularly clever, and it needs a
-    bit of hand-holding when you have an array which updates like this:
+    Previously the ISS would execute an instruction then stall for some
+    number of cycles before committing the result. This alters the behaviour
+    so instructions can explicitly request a stall (via returning False from
+    OTBN.pre_execute) and multi-cycle instructions (LW/BN.LID are the only
+    examples so far) will stall themselves before they execute rather than
+    after.
     
-        foo[0] = 123;
-        foo[1] = f(foo[0]);
+    A seperate OTBNState.non_insn_stall is introduced to support non
+    instuction related sources of stall. For now this is just used by a
+    single stall cycle at the beginning of execution.
     
-    Without the help, it sees foo depending on itself, which triggers an
-    UNOPTFLAT warning (and slow simulation!)
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
