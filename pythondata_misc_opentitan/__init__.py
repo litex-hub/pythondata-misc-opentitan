@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5535"
-version_tuple = (0, 0, 5535)
+version_str = "0.0.post5538"
+version_tuple = (0, 0, 5538)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5535")
+    pversion = V("0.0.post5538")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5440"
-data_version_tuple = (0, 0, 5440)
+data_version_str = "0.0.post5443"
+data_version_tuple = (0, 0, 5443)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5440")
+    pdata_version = V("0.0.post5443")
 except ImportError:
     pass
-data_git_hash = "cf02fd2062230a848dc346b670cee722d73ade4d"
-data_git_describe = "v0.0-5440-gcf02fd206"
+data_git_hash = "a96975a5f4a551d804bbd60871712e38eae86248"
+data_git_describe = "v0.0-5443-ga96975a5f"
 data_git_msg = """\
-commit cf02fd2062230a848dc346b670cee722d73ade4d
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Mar 22 20:49:45 2021 -0700
+commit a96975a5f4a551d804bbd60871712e38eae86248
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Tue Mar 23 13:26:09 2021 -0700
 
-    [dv] Fix AST hdl path
+    [sw/dif] Entropy DIF updates
     
-    Add a dict `attrs` in top to contain modules' attr
-    Update based on new reggen #5564, and close previous fix #5558
+    * Documentation updates
+    * Switch constants to enum values
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
