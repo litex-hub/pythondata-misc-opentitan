@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5533"
-version_tuple = (0, 0, 5533)
+version_str = "0.0.post5535"
+version_tuple = (0, 0, 5535)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5533")
+    pversion = V("0.0.post5535")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5438"
-data_version_tuple = (0, 0, 5438)
+data_version_str = "0.0.post5440"
+data_version_tuple = (0, 0, 5440)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5438")
+    pdata_version = V("0.0.post5440")
 except ImportError:
     pass
-data_git_hash = "f89627f2929fa7fa38db8f9bf21279e549612a17"
-data_git_describe = "v0.0-5438-gf89627f29"
+data_git_hash = "cf02fd2062230a848dc346b670cee722d73ade4d"
+data_git_describe = "v0.0-5440-gcf02fd206"
 data_git_msg = """\
-commit f89627f2929fa7fa38db8f9bf21279e549612a17
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 23 14:03:29 2021 +0000
+commit cf02fd2062230a848dc346b670cee722d73ade4d
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Mar 22 20:49:45 2021 -0700
 
-    [pwrmgr] Waive Verilator lint warning about "abort" name
+    [dv] Fix AST hdl path
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Add a dict `attrs` in top to contain modules' attr
+    Update based on new reggen #5564, and close previous fix #5558
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
