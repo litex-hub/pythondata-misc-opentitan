@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5518"
-version_tuple = (0, 0, 5518)
+version_str = "0.0.post5521"
+version_tuple = (0, 0, 5521)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5518")
+    pversion = V("0.0.post5521")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5423"
-data_version_tuple = (0, 0, 5423)
+data_version_str = "0.0.post5426"
+data_version_tuple = (0, 0, 5426)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5423")
+    pdata_version = V("0.0.post5426")
 except ImportError:
     pass
-data_git_hash = "613d37f0a68ed1943a71e9b10fcf5c0a2d8c0d43"
-data_git_describe = "v0.0-5423-g613d37f0a"
+data_git_hash = "3cba4f8e67af5280b89353b458fd76013cbd424a"
+data_git_describe = "v0.0-5426-g3cba4f8e6"
 data_git_msg = """\
-commit 613d37f0a68ed1943a71e9b10fcf5c0a2d8c0d43
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 17 20:22:37 2021 -0700
+commit 3cba4f8e67af5280b89353b458fd76013cbd424a
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 19 17:06:54 2021 +0000
 
-    [rstmgr] Fix several controllable reset issues
+    [prim] Split out PRESENT and PRINCE support from prim:all
     
-    See #5601 and #5602
+    Also move a waiver that applies to prim:cipher_pkg to the right
+    package (it was still in prim.waiver, which is only included by
+    prim:all).
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
