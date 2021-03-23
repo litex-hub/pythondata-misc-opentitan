@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5521"
-version_tuple = (0, 0, 5521)
+version_str = "0.0.post5524"
+version_tuple = (0, 0, 5524)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5521")
+    pversion = V("0.0.post5524")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5426"
-data_version_tuple = (0, 0, 5426)
+data_version_str = "0.0.post5429"
+data_version_tuple = (0, 0, 5429)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5426")
+    pdata_version = V("0.0.post5429")
 except ImportError:
     pass
-data_git_hash = "3cba4f8e67af5280b89353b458fd76013cbd424a"
-data_git_describe = "v0.0-5426-g3cba4f8e6"
+data_git_hash = "306799d9eac2c356263106d284a7f21fff85ff48"
+data_git_describe = "v0.0-5429-g306799d9e"
 data_git_msg = """\
-commit 3cba4f8e67af5280b89353b458fd76013cbd424a
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 19 17:06:54 2021 +0000
+commit 306799d9eac2c356263106d284a7f21fff85ff48
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Mar 22 15:25:08 2021 +0100
 
-    [prim] Split out PRESENT and PRINCE support from prim:all
+    [aes] Replace register file related literals by existing parameters
     
-    Also move a waiver that applies to prim:cipher_pkg to the right
-    package (it was still in prim.waiver, which is only included by
-    prim:all).
+    The register tool exports parameters in aes_reg_pkg.sv that we can use
+    instead of literals.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
