@@ -22,6 +22,7 @@ module aes_core
 
   parameter clearing_lfsr_seed_t   RndCnstClearingLfsrSeed  = RndCnstClearingLfsrSeedDefault,
   parameter clearing_lfsr_perm_t   RndCnstClearingLfsrPerm  = RndCnstClearingLfsrPermDefault,
+  parameter clearing_lfsr_perm_t   RndCnstClearingSharePerm = RndCnstClearingSharePermDefault,
   parameter masking_lfsr_seed_t    RndCnstMaskingLfsrSeed   = RndCnstMaskingLfsrSeedDefault,
   parameter mskg_chunk_lfsr_perm_t RndCnstMskgChunkLfsrPerm = RndCnstMskgChunkLfsrPermDefault
 ) (
@@ -85,13 +86,13 @@ module aes_core
   logic        [3:0][3:0][7:0] state_done [NumShares];
   logic        [3:0][3:0][7:0] state_out;
 
-  logic            [7:0][31:0] key_init [2];
-  logic            [7:0]       key_init_qe [2];
-  logic            [7:0][31:0] key_init_d [2];
-  logic            [7:0][31:0] key_init_q [2];
+  logic            [7:0][31:0] key_init [NumSharesKey];
+  logic            [7:0]       key_init_qe [NumSharesKey];
+  logic            [7:0][31:0] key_init_d [NumSharesKey];
+  logic            [7:0][31:0] key_init_q [NumSharesKey];
   logic            [7:0][31:0] key_init_cipher [NumShares];
-  sp2v_e           [7:0]       key_init_we_ctrl [2];
-  sp2v_e           [7:0]       key_init_we [2];
+  sp2v_e           [7:0]       key_init_we_ctrl [NumSharesKey];
+  sp2v_e           [7:0]       key_init_we [NumSharesKey];
   logic  [KeyInitSelWidth-1:0] key_init_sel_raw;
   key_init_sel_e               key_init_sel_ctrl;
   key_init_sel_e               key_init_sel;
@@ -154,13 +155,14 @@ module aes_core
   logic                        cipher_alert;
 
   // Pseudo-random data for clearing purposes
-  logic [WidthPRDClearing-1:0] prd_clearing;
+  logic [WidthPRDClearing-1:0] cipher_prd_clearing [NumShares];
+  logic [WidthPRDClearing-1:0] prd_clearing [NumSharesKey];
   logic                        prd_clearing_upd_req;
   logic                        prd_clearing_upd_ack;
   logic                        prd_clearing_rsd_req;
   logic                        prd_clearing_rsd_ack;
   logic                [127:0] prd_clearing_128;
-  logic                [255:0] prd_clearing_256;
+  logic                [255:0] prd_clearing_256 [NumSharesKey];
 
   // Unused signals
   logic            [3:0][31:0] unused_data_out_q;
@@ -168,11 +170,12 @@ module aes_core
 
   // The clearing PRNG provides pseudo-random data for register clearing purposes.
   aes_prng_clearing #(
-    .Width                ( WidthPRDClearing        ),
-    .EntropyWidth         ( EntropyWidth            ),
-    .SecSkipPRNGReseeding ( SecSkipPRNGReseeding    ),
-    .RndCnstLfsrSeed      ( RndCnstClearingLfsrSeed ),
-    .RndCnstLfsrPerm      ( RndCnstClearingLfsrPerm )
+    .Width                ( WidthPRDClearing         ),
+    .EntropyWidth         ( EntropyWidth             ),
+    .SecSkipPRNGReseeding ( SecSkipPRNGReseeding     ),
+    .RndCnstLfsrSeed      ( RndCnstClearingLfsrSeed  ),
+    .RndCnstLfsrPerm      ( RndCnstClearingLfsrPerm  ),
+    .RndCnstSharePerm     ( RndCnstClearingSharePerm )
   ) u_aes_prng_clearing (
     .clk_i         ( clk_i                  ),
     .rst_ni        ( rst_ni                 ),
@@ -189,11 +192,15 @@ module aes_core
   );
 
   // Generate clearing signals of appropriate widths.
-  localparam int unsigned NumChunks = 128/WidthPRDClearing;
-  for (genvar c = 0; c < NumChunks; c++) begin : gen_prd_clearing
-    assign prd_clearing_128[c * WidthPRDClearing       +: WidthPRDClearing] = prd_clearing;
-    assign prd_clearing_256[c * WidthPRDClearing       +: WidthPRDClearing] = prd_clearing;
-    assign prd_clearing_256[c * WidthPRDClearing + 128 +: WidthPRDClearing] = prd_clearing;
+  for (genvar c = 0; c < NumChunksPRDClearing128; c++) begin : gen_prd_clearing_128
+    assign prd_clearing_128[c * WidthPRDClearing +: WidthPRDClearing] = prd_clearing[0];
+  end
+  // The initial key is always provided in two shares. The two shares of the initial key register
+  // need to be cleared with different pseudo-random data.
+  for (genvar s = 0; s < NumSharesKey; s++) begin : gen_prd_clearing_256_shares
+    for (genvar c = 0; c < NumChunksPRDClearing256; c++) begin : gen_prd_clearing_256
+      assign prd_clearing_256[s][c * WidthPRDClearing +: WidthPRDClearing] = prd_clearing[s];
+    end
   end
 
   ////////////
@@ -201,7 +208,7 @@ module aes_core
   ////////////
 
   always_comb begin : key_init_get
-    for (int i = 0; i < 8; i++) begin
+    for (int i = 0; i < NumRegsKey; i++) begin
       key_init[0][i]    = reg2hw.key_share0[i].q;
       key_init_qe[0][i] = reg2hw.key_share0[i].qe;
       key_init[1][i]    = reg2hw.key_share1[i].q;
@@ -210,21 +217,21 @@ module aes_core
   end
 
   always_comb begin : iv_get
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsIv; i++) begin
       iv[i]    = reg2hw.iv[i].q;
       iv_qe[i] = reg2hw.iv[i].qe;
     end
   end
 
   always_comb begin : data_in_get
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsData; i++) begin
       data_in[i]    = reg2hw.data_in[i].q;
       data_in_qe[i] = reg2hw.data_in[i].qe;
     end
   end
 
   always_comb begin : data_out_get
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsData; i++) begin
       // data_out is actually hwo, but we need hrw for hwre
       unused_data_out_q[i] = reg2hw.data_out[i].q;
       data_out_re[i]       = reg2hw.data_out[i].re;
@@ -239,8 +246,8 @@ module aes_core
   always_comb begin : key_init_mux
     unique case (key_init_sel)
       KEY_INIT_INPUT: key_init_d = key_init;
-      KEY_INIT_CLEAR: key_init_d = '{default: prd_clearing_256};
-      default:        key_init_d = '{default: prd_clearing_256};
+      KEY_INIT_CLEAR: key_init_d = prd_clearing_256;
+      default:        key_init_d = prd_clearing_256;
     endcase
   end
 
@@ -248,7 +255,7 @@ module aes_core
     if (!rst_ni) begin
       key_init_q <= '{default: '0};
     end else begin
-      for (int s = 0; s < 2; s++) begin
+      for (int s = 0; s < NumSharesKey; s++) begin
         for (int i = 0; i < 8; i++) begin
           if (key_init_we[s][i] == SP2V_HIGH) begin
             key_init_q[s][i] <= key_init_d[s][i];
@@ -330,6 +337,10 @@ module aes_core
                      (aes_mode_q == AES_OFB)                        ? CIPH_FWD :
                      (aes_mode_q == AES_CTR)                        ? CIPH_FWD : CIPH_FWD;
 
+  for (genvar s = 0; s < NumShares; s++) begin : gen_cipher_prd_clearing
+    assign cipher_prd_clearing[s] = prd_clearing[s];
+  end
+
   // Convert input data/IV to state format (every word corresponds to one state column).
   // Mux for state input
   always_comb begin : state_in_mux
@@ -402,7 +413,7 @@ module aes_core
     .data_out_clear_o   ( cipher_data_out_clear_busy ),
     .alert_o            ( cipher_alert               ),
 
-    .prd_clearing_i     ( prd_clearing               ),
+    .prd_clearing_i     ( cipher_prd_clearing        ),
 
     .force_zero_masks_i ( force_zero_masks_q         ),
     .data_in_mask_o     ( state_mask                 ),
@@ -602,7 +613,7 @@ module aes_core
 
   // Input data register clear
   always_comb begin : data_in_reg_clear
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsData; i++) begin
       hw2reg.data_in[i].d  = prd_clearing_128[i*32 +: 32];
       hw2reg.data_in[i].de = data_in_we;
     end
@@ -722,7 +733,7 @@ module aes_core
   logic  [NumSp2VSig-1:0][Sp2VWidth-1:0] sp2v_sig_chk_raw;
   logic  [NumSp2VSig-1:0]                sp2v_sig_err;
 
-  for (genvar s = 0; s < 2; s++) begin : gen_use_key_init_we_ctrl_shares
+  for (genvar s = 0; s < NumSharesKey; s++) begin : gen_use_key_init_we_ctrl_shares
     for (genvar i = 0; i < 8; i++) begin : gen_use_key_init_we_ctrl
       assign sp2v_sig[s*8+i] = key_init_we_ctrl[s][i];
     end
@@ -748,7 +759,7 @@ module aes_core
     assign sp2v_sig_chk[i] = sp2v_e'(sp2v_sig_chk_raw[i]);
   end
 
-  for (genvar s = 0; s < 2; s++) begin : gen_key_init_we_shares
+  for (genvar s = 0; s < NumSharesKey; s++) begin : gen_key_init_we_shares
     for (genvar i = 0; i < 8; i++) begin : gen_key_init_we
       assign key_init_we[s][i] = sp2v_sig_chk[s*8+i];
     end
@@ -787,20 +798,20 @@ module aes_core
   end
 
   always_comb begin : key_reg_put
-    for (int i = 0; i < 8; i++) begin
+    for (int i = 0; i < NumRegsKey; i++) begin
       hw2reg.key_share0[i].d = key_init_q[0][i];
       hw2reg.key_share1[i].d = key_init_q[1][i];
     end
   end
 
   always_comb begin : iv_reg_put
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsIv; i++) begin
       hw2reg.iv[i].d  = {iv_q[2*i+1], iv_q[2*i]};
     end
   end
 
   always_comb begin : data_out_put
-    for (int i = 0; i < 4; i++) begin
+    for (int i = 0; i < NumRegsData; i++) begin
       hw2reg.data_out[i].d = data_out_q[i];
     end
   end

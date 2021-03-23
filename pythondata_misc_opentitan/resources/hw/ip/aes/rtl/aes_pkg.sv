@@ -6,8 +6,16 @@
 
 package aes_pkg;
 
-// Widths of signals carrying pseudo-random data for clearing and masking and purposes
+// The initial key is always provided in two shares, independently whether the cipher core is
+// masked or not.
+parameter int unsigned NumSharesKey = 2;
+
+// Widths of signals carrying pseudo-random data for clearing
 parameter int unsigned WidthPRDClearing = 64;
+parameter int unsigned NumChunksPRDClearing128 = 128/WidthPRDClearing;
+parameter int unsigned NumChunksPRDClearing256 = 256/WidthPRDClearing;
+
+// Widths of signals carrying pseudo-random data for masking
 parameter int unsigned WidthPRDSBox     = 8;  // Number PRD bits per S-Box. This includes the
                                               // 8 bits for the output mask when using any of the
                                               // masked Canright S-Box implementations.
@@ -27,6 +35,11 @@ parameter clearing_lfsr_seed_t RndCnstClearingLfsrSeedDefault = 64'hc32d580f74f1
 parameter clearing_lfsr_perm_t RndCnstClearingLfsrPermDefault = {
   128'hb33fdfc81deb6292c21f8a3102585067,
   256'h9c2f4be1bbe937b4b7c9d7f4e57568d99c8ae291a899143e0d8459d31b143223
+};
+// A second permutation is needed for the second share.
+parameter clearing_lfsr_perm_t RndCnstClearingSharePermDefault = {
+  128'hf66fd61b27847edc2286706fb3a2e900,
+  256'h9736b95ac3f3b5205caf8dc536aad73605d393c8dd94476e830e97891d4828d0
 };
 
 // Masking PRNG default LFSR seed and permutation
@@ -191,7 +204,7 @@ typedef enum logic [Mux4SelWidth-1:0] {
 // Minimum Hamming distance: 3
 // Maximum Hamming distance: 5
 //
-localparam int Mux6SelWidth = 6;
+parameter int Mux6SelWidth = 6;
 typedef enum logic [Mux6SelWidth-1:0] {
   MUX6_SEL_0 = 6'b011101,
   MUX6_SEL_1 = 6'b110000,
