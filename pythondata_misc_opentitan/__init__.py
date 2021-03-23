@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5524"
-version_tuple = (0, 0, 5524)
+version_str = "0.0.post5532"
+version_tuple = (0, 0, 5532)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5524")
+    pversion = V("0.0.post5532")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5429"
-data_version_tuple = (0, 0, 5429)
+data_version_str = "0.0.post5437"
+data_version_tuple = (0, 0, 5437)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5429")
+    pdata_version = V("0.0.post5437")
 except ImportError:
     pass
-data_git_hash = "306799d9eac2c356263106d284a7f21fff85ff48"
-data_git_describe = "v0.0-5429-g306799d9e"
+data_git_hash = "04b1c25924dfc22247a80f44a98577e95c54f994"
+data_git_describe = "v0.0-5437-g04b1c2592"
 data_git_msg = """\
-commit 306799d9eac2c356263106d284a7f21fff85ff48
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Mar 22 15:25:08 2021 +0100
+commit 04b1c25924dfc22247a80f44a98577e95c54f994
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 18 12:22:34 2021 +0000
 
-    [aes] Replace register file related literals by existing parameters
+    [otbn] Use DpiMemutil / MemArea to access memory for otbn_model.cc
     
-    The register tool exports parameters in aes_reg_pkg.sv that we can use
-    instead of literals.
+    This removes the duplicated calls to simutil_get_mem and
+    simutil_set_mem. It also avoids duplicating the SV paths to the guts
+    of the memories: they were in otbn_memutil.cc and otbn.sv and
+    otbn_top_sim.sv; now they're just in otbn_memutil.cc.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
