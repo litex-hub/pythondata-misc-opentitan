@@ -4,40 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5539"
-version_tuple = (0, 0, 5539)
+version_str = "0.0.post5540"
+version_tuple = (0, 0, 5540)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5539")
+    pversion = V("0.0.post5540")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5444"
-data_version_tuple = (0, 0, 5444)
+data_version_str = "0.0.post5445"
+data_version_tuple = (0, 0, 5445)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5444")
+    pdata_version = V("0.0.post5445")
 except ImportError:
     pass
-data_git_hash = "02eaac710afb2080e64706e73b1b5d0f8d017e1b"
-data_git_describe = "v0.0-5444-g02eaac710"
+data_git_hash = "d8f9b6c9a34f1df0a12bd78aabc8f817d4ee42cb"
+data_git_describe = "v0.0-5445-gd8f9b6c9a"
 data_git_msg = """\
-commit 02eaac710afb2080e64706e73b1b5d0f8d017e1b
+commit d8f9b6c9a34f1df0a12bd78aabc8f817d4ee42cb
 Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Mar 23 10:54:25 2021 -0700
+Date:   Tue Mar 23 17:00:26 2021 -0700
 
-    [kmac] Moving KDF struct to KMAC IP
-    
-    Previously KeyMgr KDF interface was defined in KeyMgr IP. The interface
-    has been used for KeyMgr to initiate KMAC operation via side channel
-    interface.
-    
-    As rom_ctrl and otp_ctrl plan to use KMAC as signature verification
-    function, KMAC needs to have more general application interface now.
-    
-    This commit is to move the KDF struct into KMAC and renames it to
-    `app_{req/rsp}_t`.
+    [kmac] Add kmac_pkg.core
     
     Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
