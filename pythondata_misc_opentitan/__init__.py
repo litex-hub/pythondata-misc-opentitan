@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5540"
-version_tuple = (0, 0, 5540)
+version_str = "0.0.post5541"
+version_tuple = (0, 0, 5541)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5540")
+    pversion = V("0.0.post5541")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5445"
-data_version_tuple = (0, 0, 5445)
+data_version_str = "0.0.post5446"
+data_version_tuple = (0, 0, 5446)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5445")
+    pdata_version = V("0.0.post5446")
 except ImportError:
     pass
-data_git_hash = "d8f9b6c9a34f1df0a12bd78aabc8f817d4ee42cb"
-data_git_describe = "v0.0-5445-gd8f9b6c9a"
+data_git_hash = "5c6da15f1b279a95d189974795edcb510c0e2323"
+data_git_describe = "v0.0-5446-g5c6da15f1"
 data_git_msg = """\
-commit d8f9b6c9a34f1df0a12bd78aabc8f817d4ee42cb
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Mar 23 17:00:26 2021 -0700
+commit 5c6da15f1b279a95d189974795edcb510c0e2323
+Author: Cindy Chen <chencindy@google.com>
+Date:   Tue Mar 23 16:44:40 2021 -0700
 
-    [kmac] Add kmac_pkg.core
+    [fpv/rstmgr] FPV compile error
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    This PR fixes a compile error in FPV. I will contact the AE and see if
+    they can fix it. Right now the prim_lc_sync syntax works for simulation
+    but not FPV.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
