@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5560"
-version_tuple = (0, 0, 5560)
+version_str = "0.0.post5561"
+version_tuple = (0, 0, 5561)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5560")
+    pversion = V("0.0.post5561")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5465"
-data_version_tuple = (0, 0, 5465)
+data_version_str = "0.0.post5466"
+data_version_tuple = (0, 0, 5466)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5465")
+    pdata_version = V("0.0.post5466")
 except ImportError:
     pass
-data_git_hash = "027e77ae2d4cb1ab4dcd0b17c0b1f0ac35be939d"
-data_git_describe = "v0.0-5465-g027e77ae2"
+data_git_hash = "7df143402a6908521013b717e14f2041d00978e4"
+data_git_describe = "v0.0-5466-g7df143402"
 data_git_msg = """\
-commit 027e77ae2d4cb1ab4dcd0b17c0b1f0ac35be939d
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 23 08:48:30 2021 +0000
+commit 7df143402a6908521013b717e14f2041d00978e4
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 23 17:05:38 2021 -0700
 
-    [kmac, lint] Waive unused tlram_addr signal
+    [util] Fix some minor indent issues
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
