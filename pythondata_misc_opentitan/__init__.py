@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5569"
-version_tuple = (0, 0, 5569)
+version_str = "0.0.post5572"
+version_tuple = (0, 0, 5572)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5569")
+    pversion = V("0.0.post5572")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5474"
-data_version_tuple = (0, 0, 5474)
+data_version_str = "0.0.post5477"
+data_version_tuple = (0, 0, 5477)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5474")
+    pdata_version = V("0.0.post5477")
 except ImportError:
     pass
-data_git_hash = "5f1d304ad5c63a428219d1881479707727a559de"
-data_git_describe = "v0.0-5474-g5f1d304ad"
+data_git_hash = "1676b1b9ead14fab4463977a9c2132a00fc7f8ec"
+data_git_describe = "v0.0-5477-g1676b1b9e"
 data_git_msg = """\
-commit 5f1d304ad5c63a428219d1881479707727a559de
-Author: Eric Shiu <eshiu@google.com>
-Date:   Wed Mar 17 17:24:11 2021 -0700
+commit 1676b1b9ead14fab4463977a9c2132a00fc7f8ec
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 19 14:50:50 2021 +0000
 
-    [adc_ctrl] rename dcd to adc_ctrl
+    [otbn] Track the operation of the idle_o interface
     
-    Signed-off-by: Eric Shiu <eshiu@google.com>
+    This is possible in the scoreboard, but it's probably easier to just
+    model with an FSM. Apart from anything else, getting the DONE signal
+    out with a proper monitor would be rather difficult.
+    
+    Note that this commit slightly changes the behaviour of idle_o,
+    removing a combinatorial path from the TL input to idle_o. There
+    doesn't seem to be any need for it, and it makes the behaviour
+    slightly easier to describe.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
