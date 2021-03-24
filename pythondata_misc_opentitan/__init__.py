@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5543"
-version_tuple = (0, 0, 5543)
+version_str = "0.0.post5550"
+version_tuple = (0, 0, 5550)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5543")
+    pversion = V("0.0.post5550")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5448"
-data_version_tuple = (0, 0, 5448)
+data_version_str = "0.0.post5455"
+data_version_tuple = (0, 0, 5455)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5448")
+    pdata_version = V("0.0.post5455")
 except ImportError:
     pass
-data_git_hash = "f2b7ef068d6414314c2f0f51ea73d8d1c339f1dd"
-data_git_describe = "v0.0-5448-gf2b7ef068"
+data_git_hash = "a558aaa3f1924b72f47cb98196e3d0a6f2635a3f"
+data_git_describe = "v0.0-5455-ga558aaa3f"
 data_git_msg = """\
-commit f2b7ef068d6414314c2f0f51ea73d8d1c339f1dd
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 22 11:19:10 2021 +0000
+commit a558aaa3f1924b72f47cb98196e3d0a6f2635a3f
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Wed Mar 17 15:48:03 2021 +0000
 
-    [otbn] Add a "multi" vseq to run binaries back-to-back
+    [test, systemtest] Add DIF AON smoketest to CI
     
-    This should catch errors where we don't re-initialise enough of the
-    design when starting a new operation. It intentionally doesn't do a
-    reset, which would hide that sort of thing.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
