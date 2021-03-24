@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5564"
-version_tuple = (0, 0, 5564)
+version_str = "0.0.post5565"
+version_tuple = (0, 0, 5565)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5564")
+    pversion = V("0.0.post5565")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5469"
-data_version_tuple = (0, 0, 5469)
+data_version_str = "0.0.post5470"
+data_version_tuple = (0, 0, 5470)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5469")
+    pdata_version = V("0.0.post5470")
 except ImportError:
     pass
-data_git_hash = "2e6a6c60964fac43b9dfd3a9de5057154107248d"
-data_git_describe = "v0.0-5469-g2e6a6c609"
+data_git_hash = "4ca4a2f07bce8912d6adc10a56584319cea67491"
+data_git_describe = "v0.0-5470-g4ca4a2f07"
 data_git_msg = """\
-commit 2e6a6c60964fac43b9dfd3a9de5057154107248d
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Mar 23 15:43:08 2021 +0100
+commit 4ca4a2f07bce8912d6adc10a56584319cea67491
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Mar 19 13:51:39 2021 -0700
 
-    [aes] Add documentation on security hardening, enable masking by default
+    [sw] Prototype hardware memory init
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
