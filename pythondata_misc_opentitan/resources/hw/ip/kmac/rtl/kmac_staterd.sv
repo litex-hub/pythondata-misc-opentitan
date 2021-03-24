@@ -15,7 +15,7 @@ module kmac_staterd
 
   // EnMasking: Enable masking security hardening inside keccak_round
   // If it is enabled, the result digest will be two set of 1600bit.
-  parameter  int EnMasking = 0,
+  parameter  bit EnMasking = 1'b0,
   localparam int Share = (EnMasking) ? 2 : 1  // derived parameter
 ) (
   input clk_i,
@@ -114,13 +114,6 @@ module kmac_staterd
   logic [SelAddrW-1:0] addr_sel;
   assign addr_sel = tlram_addr[StateAddrW+:SelAddrW];
 
-  always_comb begin
-    tlram_rdata_endian = '0;
-    for (int i = 0 ; i < Share ; i++) begin
-      if ($unsigned(i) == addr_sel) begin
-        tlram_rdata_endian = muxed_state[i];
-      end
-    end
-  end
+  assign tlram_rdata_endian = int'(addr_sel) < Share ? muxed_state[addr_sel] : 0;
 
 endmodule

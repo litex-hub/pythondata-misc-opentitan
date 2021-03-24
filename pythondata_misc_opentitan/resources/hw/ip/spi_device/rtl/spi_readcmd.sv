@@ -83,9 +83,6 @@
 module spi_readcmd
   import spi_device_pkg::*;
 #(
-  parameter int unsigned SramAw = 10, // 4kB
-  parameter int unsigned SramDw = 32, // 4B
-
   // Read command configurations
   // Base address: Index of DPSRAM
   // Buffer size: # of indices assigned to Read Buffer.
@@ -161,7 +158,7 @@ module spi_readcmd
 );
 
   logic unused_threshold;
-  assign unused_threshold = readbuf_threshold_i;
+  assign unused_threshold = &{1'b0, readbuf_threshold_i};
   assign read_watermark_o = 1'b 0;
 
   /////////////////
@@ -360,8 +357,8 @@ module spi_readcmd
   // Address conversion
   // Convert into masked address
   localparam int unsigned MailboxAw = $clog2(MailboxDepth);
-  localparam logic [31:0] MailboxMask = 32'h FFFF_FFFF
-                                      ^ {(2+MailboxAw){1'b1}};
+  localparam logic [31:0] MailboxMask = {{30-MailboxAw{1'b1}}, {2+MailboxAw{1'b0}}};
+
   assign mailbox_masked_addr = addr_d & MailboxMask;
 
   // Only valid when logic sends SRAM request
@@ -388,7 +385,7 @@ module spi_readcmd
   assign sram_addr_o = sram_addr;
 
   assign sram_req_o = sram_req;
-  assign sram_write_o = 1'b 0; // always read
+  assign sram_we_o = 1'b 0;    // always read
   assign sram_wdata_o = '0;    // always read
 
   //- END:   SRAM Datapath ----------------------------------------------------
@@ -488,14 +485,14 @@ module spi_readcmd
             CmdReadData: main_st_d = MainOutput;
 
             // Dummy cycle for commands other than IO
-            {CmdReadFast, CmdReadDual, CmdReadQuad}: begin
+            CmdReadFast, CmdReadDual, CmdReadQuad: begin
               main_st_d = MainDummy;
               // TODO: Reset dummy counter
               load_dummycnt = 1'b 1;
             end
 
             // MByte for IO commands
-            {CmdReadDualIO, CmdReadQuadIO}: begin
+            CmdReadDualIO, CmdReadQuadIO: begin
               main_st_d = MainMByte;
             end
 
@@ -536,9 +533,9 @@ module spi_readcmd
         // Change Mode based on the input opcode
         // Return data from FIFO
         unique case (opcode_i) inside
-          {CmdReadData, CmdReadFast}:   io_mode_o = SingleIO;
-          {CmdReadDual, CmdReadDualIO}: io_mode_o = DualIO;
-          {CmdReadQuad, CmdReadQuadIO}: io_mode_o = QuadIO;
+          CmdReadData, CmdReadFast:   io_mode_o = SingleIO;
+          CmdReadDual, CmdReadDualIO: io_mode_o = DualIO;
+          CmdReadQuad, CmdReadQuadIO: io_mode_o = QuadIO;
           default: io_mode_o = SingleIO;
         endcase
 
@@ -597,13 +594,13 @@ module spi_readcmd
   // Assertions //
   // FIFO should not overflow. The Main state machine shall send request only
   // when it needs the data within 2 cycles
-  `ASSERT(NotOverflow_A, sram_req_o && !sram_write_o |-> !unused_full)
+  `ASSERT(NotOverflow_A, sram_req_o && !sram_we_o |-> !unused_full)
 
   // SRAM access always read
-  `ASSERT(SramReadOnly_A, sram_req_o |-> !sram_write_o)
+  `ASSERT(SramReadOnly_A, sram_req_o |-> !sram_we_o)
 
   // SRAM data should return in next cycle
-  `ASSUME(SramDataReturnRequirement_M, sram_req_o && !sram_write_o |=> sram_rvalid_i)
+  `ASSUME(SramDataReturnRequirement_M, sram_req_o && !sram_we_o |=> sram_rvalid_i)
 
   // TODO: When main state machine returns data to SPI (via p2s), the FIFO shall
   // not be empty
