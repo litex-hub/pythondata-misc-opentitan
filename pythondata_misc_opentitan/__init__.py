@@ -4,41 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5572"
-version_tuple = (0, 0, 5572)
+version_str = "0.0.post5573"
+version_tuple = (0, 0, 5573)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5572")
+    pversion = V("0.0.post5573")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5477"
-data_version_tuple = (0, 0, 5477)
+data_version_str = "0.0.post5478"
+data_version_tuple = (0, 0, 5478)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5477")
+    pdata_version = V("0.0.post5478")
 except ImportError:
     pass
-data_git_hash = "1676b1b9ead14fab4463977a9c2132a00fc7f8ec"
-data_git_describe = "v0.0-5477-g1676b1b9e"
+data_git_hash = "5e75c8a3b08a6eab05d7bc71e3d7bfbc761ec94f"
+data_git_describe = "v0.0-5478-g5e75c8a3b"
 data_git_msg = """\
-commit 1676b1b9ead14fab4463977a9c2132a00fc7f8ec
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 19 14:50:50 2021 +0000
+commit 5e75c8a3b08a6eab05d7bc71e3d7bfbc761ec94f
+Author: Hoang Tung <Hoang.Tung@wdc.com>
+Date:   Tue Mar 9 17:10:39 2021 -0800
 
-    [otbn] Track the operation of the idle_o interface
+    [spi_host, dv] Add baseline DV for csr_test
     
-    This is possible in the scoreboard, but it's probably easier to just
-    model with an FSM. Apart from anything else, getting the DONE signal
-    out with a proper monitor would be rather difficult.
+      - add spi_host_agent (device mode)
+      - add env dv supports *csr tests
+      - add tb.sv with 2 independent clock and reset sources
+      - add spi_host_testplan.hjson to the list in build_docs.py script
     
-    Note that this commit slightly changes the behaviour of idle_o,
-    removing a combinatorial path from the TL input to idle_o. There
-    doesn't seem to be any need for it, and it makes the behaviour
-    slightly easier to describe.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Hoang Tung <Hoang.Tung@wdc.com>
 
 """
 
