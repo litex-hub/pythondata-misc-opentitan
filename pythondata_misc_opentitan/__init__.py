@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5561"
-version_tuple = (0, 0, 5561)
+version_str = "0.0.post5564"
+version_tuple = (0, 0, 5564)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5561")
+    pversion = V("0.0.post5564")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5466"
-data_version_tuple = (0, 0, 5466)
+data_version_str = "0.0.post5469"
+data_version_tuple = (0, 0, 5469)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5466")
+    pdata_version = V("0.0.post5469")
 except ImportError:
     pass
-data_git_hash = "7df143402a6908521013b717e14f2041d00978e4"
-data_git_describe = "v0.0-5466-g7df143402"
+data_git_hash = "2e6a6c60964fac43b9dfd3a9de5057154107248d"
+data_git_describe = "v0.0-5469-g2e6a6c609"
 data_git_msg = """\
-commit 7df143402a6908521013b717e14f2041d00978e4
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 23 17:05:38 2021 -0700
+commit 2e6a6c60964fac43b9dfd3a9de5057154107248d
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Mar 23 15:43:08 2021 +0100
 
-    [util] Fix some minor indent issues
+    [aes] Add documentation on security hardening, enable masking by default
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
