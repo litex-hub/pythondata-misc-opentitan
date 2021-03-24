@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5550"
-version_tuple = (0, 0, 5550)
+version_str = "0.0.post5551"
+version_tuple = (0, 0, 5551)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5550")
+    pversion = V("0.0.post5551")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5455"
-data_version_tuple = (0, 0, 5455)
+data_version_str = "0.0.post5456"
+data_version_tuple = (0, 0, 5456)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5455")
+    pdata_version = V("0.0.post5456")
 except ImportError:
     pass
-data_git_hash = "a558aaa3f1924b72f47cb98196e3d0a6f2635a3f"
-data_git_describe = "v0.0-5455-ga558aaa3f"
+data_git_hash = "edbd19b2f9d21161d5a4aa781fc89a2bfd515855"
+data_git_describe = "v0.0-5456-gedbd19b2f"
 data_git_msg = """\
-commit a558aaa3f1924b72f47cb98196e3d0a6f2635a3f
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Wed Mar 17 15:48:03 2021 +0000
+commit edbd19b2f9d21161d5a4aa781fc89a2bfd515855
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Tue Feb 23 21:53:18 2021 +0000
 
-    [test, systemtest] Add DIF AON smoketest to CI
+    [sw, dif_sram_ctrl] Add DIF header and checklist for SRAM Controller
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
