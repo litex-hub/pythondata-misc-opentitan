@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5579"
-version_tuple = (0, 0, 5579)
+version_str = "0.0.post5580"
+version_tuple = (0, 0, 5580)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5579")
+    pversion = V("0.0.post5580")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5484"
-data_version_tuple = (0, 0, 5484)
+data_version_str = "0.0.post5485"
+data_version_tuple = (0, 0, 5485)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5484")
+    pdata_version = V("0.0.post5485")
 except ImportError:
     pass
-data_git_hash = "da490e7b187050ddad51bd093a3df9fc63abf8af"
-data_git_describe = "v0.0-5484-gda490e7b1"
+data_git_hash = "9855d4bb1e0d6664c4a33882fd896c4ebabef02b"
+data_git_describe = "v0.0-5485-g9855d4bb1"
 data_git_msg = """\
-commit da490e7b187050ddad51bd093a3df9fc63abf8af
+commit 9855d4bb1e0d6664c4a33882fd896c4ebabef02b
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 25 08:29:42 2021 +0000
+Date:   Wed Dec 2 08:41:35 2020 +0000
 
-    [otbn] Document the idle_o signal
+    [rom_ctrl] Add initial RTL
     
-    As Sri pointed out, I've just added some DV code that checks the
-    idle_o signal does what I think it should do, but this isn't actually
-    specced anywhere. Fix that!
+    This doesn't really do anything very interesting: it just replaces the
+    ROM instantiation that was in top_earlgrey.sv and generates a verbose
+    wrapper around it.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
