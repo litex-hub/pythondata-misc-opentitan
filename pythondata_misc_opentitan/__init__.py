@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5587"
-version_tuple = (0, 0, 5587)
+version_str = "0.0.post5589"
+version_tuple = (0, 0, 5589)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5587")
+    pversion = V("0.0.post5589")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5492"
-data_version_tuple = (0, 0, 5492)
+data_version_str = "0.0.post5494"
+data_version_tuple = (0, 0, 5494)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5492")
+    pdata_version = V("0.0.post5494")
 except ImportError:
     pass
-data_git_hash = "4791da5f71cb7c93104059fe6ffd120091cf9622"
-data_git_describe = "v0.0-5492-g4791da5f7"
+data_git_hash = "b9b6165d496eb31731bfea755f0e01b0876faffd"
+data_git_describe = "v0.0-5494-gb9b6165d4"
 data_git_msg = """\
-commit 4791da5f71cb7c93104059fe6ffd120091cf9622
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 24 20:45:45 2021 -0700
+commit b9b6165d496eb31731bfea755f0e01b0876faffd
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 25 08:40:09 2021 +0000
 
-    [pwrmgr / usbdev] Minor fixes for low power entry / exit
+    [sram_ctrl,lint] Fix width of RndCnstSramLfsrPermDefault
     
-    - fix wakeup reason mapping to be consistent with registers
-    - correct reversed polarity on low power activation
-    - add missing dependency in core file
+    This is a 160-bit parameter, so we should use a 160-bit
+    default (silencing a lint warning). This is grabbed from the random
+    constant we've currently got in top_earlgrey.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
