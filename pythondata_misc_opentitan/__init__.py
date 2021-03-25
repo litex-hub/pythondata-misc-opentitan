@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5575"
-version_tuple = (0, 0, 5575)
+version_str = "0.0.post5576"
+version_tuple = (0, 0, 5576)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5575")
+    pversion = V("0.0.post5576")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5480"
-data_version_tuple = (0, 0, 5480)
+data_version_str = "0.0.post5481"
+data_version_tuple = (0, 0, 5481)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5480")
+    pdata_version = V("0.0.post5481")
 except ImportError:
     pass
-data_git_hash = "abd74ca59e5387d905fc60501dd905647d1bbc12"
-data_git_describe = "v0.0-5480-gabd74ca59"
+data_git_hash = "e390f206647af8a380cfaa406b157deca6f3e78b"
+data_git_describe = "v0.0-5481-ge390f2066"
 data_git_msg = """\
-commit abd74ca59e5387d905fc60501dd905647d1bbc12
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 23 18:36:11 2021 -0700
+commit e390f206647af8a380cfaa406b157deca6f3e78b
+Author: Cindy Chen <chencindy@google.com>
+Date:   Wed Mar 24 13:00:52 2021 -0700
 
-    [spi] Remove a few lint errors to clean-up output
+    [dv/otp_ctrl] Add back tlul error data check
     
-    - tie off unused from spi host
-    - temporarily remove combo loop in spi device
-    - changes to case inside usage
+    This PR is based on PR #5784 that design will always return d_data as 0
+    when d_error occurred in tlul memory read.
+    This PR also:
+    1. add more possiblilities to hit the TLUL sw partition memory error
+    case
+    2. include digest address in tlul memory error check
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
