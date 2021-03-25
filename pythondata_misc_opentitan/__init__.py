@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5580"
-version_tuple = (0, 0, 5580)
+version_str = "0.0.post5583"
+version_tuple = (0, 0, 5583)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5580")
+    pversion = V("0.0.post5583")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5485"
-data_version_tuple = (0, 0, 5485)
+data_version_str = "0.0.post5488"
+data_version_tuple = (0, 0, 5488)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5485")
+    pdata_version = V("0.0.post5488")
 except ImportError:
     pass
-data_git_hash = "9855d4bb1e0d6664c4a33882fd896c4ebabef02b"
-data_git_describe = "v0.0-5485-g9855d4bb1"
+data_git_hash = "8f4d13d6b387c0aa5610ede6312dc21385dea265"
+data_git_describe = "v0.0-5488-g8f4d13d6b"
 data_git_msg = """\
-commit 9855d4bb1e0d6664c4a33882fd896c4ebabef02b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Dec 2 08:41:35 2020 +0000
+commit 8f4d13d6b387c0aa5610ede6312dc21385dea265
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Mar 24 20:17:56 2021 -0700
 
-    [rom_ctrl] Add initial RTL
+    [primgen] Minor fix to enable types with underscores
     
-    This doesn't really do anything very interesting: it just replaces the
-    ROM instantiation that was in top_earlgrey.sv and generates a verbose
-    wrapper around it.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
