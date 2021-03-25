@@ -4,39 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5576"
-version_tuple = (0, 0, 5576)
+version_str = "0.0.post5577"
+version_tuple = (0, 0, 5577)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5576")
+    pversion = V("0.0.post5577")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5481"
-data_version_tuple = (0, 0, 5481)
+data_version_str = "0.0.post5482"
+data_version_tuple = (0, 0, 5482)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5481")
+    pdata_version = V("0.0.post5482")
 except ImportError:
     pass
-data_git_hash = "e390f206647af8a380cfaa406b157deca6f3e78b"
-data_git_describe = "v0.0-5481-ge390f2066"
+data_git_hash = "f49bee189f77c731ad00b92627c1b70d905b2a90"
+data_git_describe = "v0.0-5482-gf49bee189"
 data_git_msg = """\
-commit e390f206647af8a380cfaa406b157deca6f3e78b
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Mar 24 13:00:52 2021 -0700
+commit f49bee189f77c731ad00b92627c1b70d905b2a90
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Mar 24 17:55:16 2021 -0700
 
-    [dv/otp_ctrl] Add back tlul error data check
+    [dvsim] Prevent command echo suppression
     
-    This PR is based on PR #5784 that design will always return d_data as 0
-    when d_error occurred in tlul memory read.
-    This PR also:
-    1. add more possiblilities to hit the TLUL sw partition memory error
-    case
-    2. include digest address in tlul memory error check
+    At some point in the past, I had refactored the way SW images were
+    handled. I had added `.ONESHELL:` to the `sw_build` target, assuming
+    that the `.ONESHELL` would only affect that target (cause all recipes of
+    a target to execute in the same shell). Turns out, its more of a global
+    setting - it affects ALL recipes of all targets.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    This had an unintended consequence:
+    For all targets, the first recipe is an echo command printing the name
+    of that target, the echoing of which is suppressed with an `@`. Because the
+    rest of the recipes get invoked in the same shell, their echoing is also
+    suppressed. This makes issues hard to debug.
+    
+    In this change, the `.ONESHELL` is removed, and all recipes of
+    `sw_build` are invoked one the same line with a trailing `\`. The first
+    command is `set -e` which is the equivalent of all commands chained with
+    `&&` (which is already what we want).
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
