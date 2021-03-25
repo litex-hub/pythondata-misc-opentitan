@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5590"
-version_tuple = (0, 0, 5590)
+version_str = "0.0.post5591"
+version_tuple = (0, 0, 5591)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5590")
+    pversion = V("0.0.post5591")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5495"
-data_version_tuple = (0, 0, 5495)
+data_version_str = "0.0.post5496"
+data_version_tuple = (0, 0, 5496)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5495")
+    pdata_version = V("0.0.post5496")
 except ImportError:
     pass
-data_git_hash = "be7f5a59dca20ad84db4d5b16e89268a9a46c005"
-data_git_describe = "v0.0-5495-gbe7f5a59d"
+data_git_hash = "2a142ffbbe2f65367e03852f75bb18be4e79e75c"
+data_git_describe = "v0.0-5496-g2a142ffbb"
 data_git_msg = """\
-commit be7f5a59dca20ad84db4d5b16e89268a9a46c005
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Mar 25 08:31:49 2021 -0700
+commit 2a142ffbbe2f65367e03852f75bb18be4e79e75c
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Mar 25 11:31:16 2021 -0700
 
-    [kmac] Change App Intf to unpacked array
+    [prim_prince] Reverse the k0||k1 mapping to match with the paper
     
-    This commit changes `app_i/o` to array port in kmac_app module.
-    Its size is determined by `NumAppIntf` parameter in kmac_pkg.
+    This aligns the logical mapping of the key into the k0/k1 halves.
+    The implementation and golden model mapped the LSBs of the key to k0,
+    and the MSBs to k1, whereas they are actually reversed in the paper.
     
-    To arbitrate among the requests, fixed priority arbiter module is used.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
