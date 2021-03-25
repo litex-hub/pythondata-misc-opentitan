@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5573"
-version_tuple = (0, 0, 5573)
+version_str = "0.0.post5575"
+version_tuple = (0, 0, 5575)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5573")
+    pversion = V("0.0.post5575")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5478"
-data_version_tuple = (0, 0, 5478)
+data_version_str = "0.0.post5480"
+data_version_tuple = (0, 0, 5480)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5478")
+    pdata_version = V("0.0.post5480")
 except ImportError:
     pass
-data_git_hash = "5e75c8a3b08a6eab05d7bc71e3d7bfbc761ec94f"
-data_git_describe = "v0.0-5478-g5e75c8a3b"
+data_git_hash = "abd74ca59e5387d905fc60501dd905647d1bbc12"
+data_git_describe = "v0.0-5480-gabd74ca59"
 data_git_msg = """\
-commit 5e75c8a3b08a6eab05d7bc71e3d7bfbc761ec94f
-Author: Hoang Tung <Hoang.Tung@wdc.com>
-Date:   Tue Mar 9 17:10:39 2021 -0800
+commit abd74ca59e5387d905fc60501dd905647d1bbc12
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 23 18:36:11 2021 -0700
 
-    [spi_host, dv] Add baseline DV for csr_test
+    [spi] Remove a few lint errors to clean-up output
     
-      - add spi_host_agent (device mode)
-      - add env dv supports *csr tests
-      - add tb.sv with 2 independent clock and reset sources
-      - add spi_host_testplan.hjson to the list in build_docs.py script
+    - tie off unused from spi host
+    - temporarily remove combo loop in spi device
+    - changes to case inside usage
     
-    Signed-off-by: Hoang Tung <Hoang.Tung@wdc.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
