@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5589"
-version_tuple = (0, 0, 5589)
+version_str = "0.0.post5590"
+version_tuple = (0, 0, 5590)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5589")
+    pversion = V("0.0.post5590")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5494"
-data_version_tuple = (0, 0, 5494)
+data_version_str = "0.0.post5495"
+data_version_tuple = (0, 0, 5495)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5494")
+    pdata_version = V("0.0.post5495")
 except ImportError:
     pass
-data_git_hash = "b9b6165d496eb31731bfea755f0e01b0876faffd"
-data_git_describe = "v0.0-5494-gb9b6165d4"
+data_git_hash = "be7f5a59dca20ad84db4d5b16e89268a9a46c005"
+data_git_describe = "v0.0-5495-gbe7f5a59d"
 data_git_msg = """\
-commit b9b6165d496eb31731bfea755f0e01b0876faffd
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 25 08:40:09 2021 +0000
+commit be7f5a59dca20ad84db4d5b16e89268a9a46c005
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Mar 25 08:31:49 2021 -0700
 
-    [sram_ctrl,lint] Fix width of RndCnstSramLfsrPermDefault
+    [kmac] Change App Intf to unpacked array
     
-    This is a 160-bit parameter, so we should use a 160-bit
-    default (silencing a lint warning). This is grabbed from the random
-    constant we've currently got in top_earlgrey.
+    This commit changes `app_i/o` to array port in kmac_app module.
+    Its size is determined by `NumAppIntf` parameter in kmac_pkg.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    To arbitrate among the requests, fixed priority arbiter module is used.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
