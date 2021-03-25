@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5583"
-version_tuple = (0, 0, 5583)
+version_str = "0.0.post5587"
+version_tuple = (0, 0, 5587)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5583")
+    pversion = V("0.0.post5587")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5488"
-data_version_tuple = (0, 0, 5488)
+data_version_str = "0.0.post5492"
+data_version_tuple = (0, 0, 5492)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5488")
+    pdata_version = V("0.0.post5492")
 except ImportError:
     pass
-data_git_hash = "8f4d13d6b387c0aa5610ede6312dc21385dea265"
-data_git_describe = "v0.0-5488-g8f4d13d6b"
+data_git_hash = "4791da5f71cb7c93104059fe6ffd120091cf9622"
+data_git_describe = "v0.0-5492-g4791da5f7"
 data_git_msg = """\
-commit 8f4d13d6b387c0aa5610ede6312dc21385dea265
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Mar 24 20:17:56 2021 -0700
+commit 4791da5f71cb7c93104059fe6ffd120091cf9622
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 24 20:45:45 2021 -0700
 
-    [primgen] Minor fix to enable types with underscores
+    [pwrmgr / usbdev] Minor fixes for low power entry / exit
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    - fix wakeup reason mapping to be consistent with registers
+    - correct reversed polarity on low power activation
+    - add missing dependency in core file
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
