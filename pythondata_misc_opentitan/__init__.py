@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5600"
-version_tuple = (0, 0, 5600)
+version_str = "0.0.post5601"
+version_tuple = (0, 0, 5601)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5600")
+    pversion = V("0.0.post5601")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5505"
-data_version_tuple = (0, 0, 5505)
+data_version_str = "0.0.post5506"
+data_version_tuple = (0, 0, 5506)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5505")
+    pdata_version = V("0.0.post5506")
 except ImportError:
     pass
-data_git_hash = "b506aa33a6db353d73f2a98e24604c4ce6381558"
-data_git_describe = "v0.0-5505-gb506aa33a"
+data_git_hash = "fa60a60581561cfd5f616f95ee8af3ec84ce30d2"
+data_git_describe = "v0.0-5506-gfa60a6058"
 data_git_msg = """\
-commit b506aa33a6db353d73f2a98e24604c4ce6381558
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Mar 25 15:04:54 2021 -0700
+commit fa60a60581561cfd5f616f95ee8af3ec84ce30d2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 23 14:29:40 2021 -0700
 
-    [csnrg/rtl] remove incorrect TODO
+    [top, clkmgr] Add external clock switch support
     
-    The TODO says that the GEN command does not update working state, but it does.
+    Address #5566
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
