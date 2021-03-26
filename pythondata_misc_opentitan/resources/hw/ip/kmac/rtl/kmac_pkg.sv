@@ -99,6 +99,8 @@ package kmac_pkg;
   // 0: KeyMgr
   // 1: OTP_CTRL
   // 2: ROM_CTRL
+  // Make sure to change `width` of app inter-module signal definition
+  // if this value is changed.
   parameter int unsigned NumAppIntf = 3;
 
   // Application Algorithm
@@ -119,6 +121,8 @@ package kmac_pkg;
   typedef struct {
     app_mode_e                         Mode;
 
+    sha3_pkg::keccak_strength_e        Strength;
+
     // PrefixMode determines the origin value of Prefix that is used in KMAC
     // and cSHAKE operations.
     // Choose **0** for CSRs (!!PREFIX), or **1** to use `Prefix` parameter
@@ -127,13 +131,14 @@ package kmac_pkg;
 
     // If `PrefixMode` is 1'b 1, then this `Prefix` value will be used in
     // cSHAKE or KMAC operation.
-    logic [sha3_pkg::PrefixIndexW-1:0] Prefix;
+    logic [sha3_pkg::NSRegisterSize*8-1:0] Prefix;
   } app_config_t;
 
   parameter app_config_t AppCfg [NumAppIntf] = '{
     // KeyMgr
     '{
       Mode:       AppKMAC, // KeyMgr uses KMAC operation
+      Strength:   sha3_pkg::L256,
       PrefixMode: 1'b 0,   // Use CSR for prefix
       Prefix:     '0       // Not used in CSR prefix mode
     },
@@ -141,6 +146,7 @@ package kmac_pkg;
     // OTP
     '{
       Mode:       AppCShake,
+      Strength:   sha3_pkg::L256,
       PrefixMode: 1'b 1,     // Use prefix parameter
       Prefix:     'h 0       // TODO: Determine the prefix value
     },
@@ -148,6 +154,7 @@ package kmac_pkg;
     // ROM_CTRL
     '{
       Mode:       AppCShake,
+      Strength:   sha3_pkg::L256,
       PrefixMode: 1'b 1,     // Use prefix parameter
       Prefix:     'h 0       // TODO: Determine the prefix value
     }
