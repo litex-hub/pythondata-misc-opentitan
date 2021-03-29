@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5615"
-version_tuple = (0, 0, 5615)
+version_str = "0.0.post5616"
+version_tuple = (0, 0, 5616)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5615")
+    pversion = V("0.0.post5616")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5520"
-data_version_tuple = (0, 0, 5520)
+data_version_str = "0.0.post5521"
+data_version_tuple = (0, 0, 5521)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5520")
+    pdata_version = V("0.0.post5521")
 except ImportError:
     pass
-data_git_hash = "d0111856d59cf53046fd2d372e0bbbd3bfb2d9bc"
-data_git_describe = "v0.0-5520-gd0111856d"
+data_git_hash = "fb12cc291fe0328250ac69d6484649cd5f2c54a1"
+data_git_describe = "v0.0-5521-gfb12cc291"
 data_git_msg = """\
-commit d0111856d59cf53046fd2d372e0bbbd3bfb2d9bc
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Mar 29 14:02:26 2021 +0100
+commit fb12cc291fe0328250ac69d6484649cd5f2c54a1
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Mar 25 14:14:42 2021 -0700
 
-    [otbn] Move loop nesting into programmers guide
+    [dv/otp_ctrl] fix regression otp ecc error
     
-    The "Loop nesting" section in the OTBN documentation is targeting
-    programmers. Move it from the "Processor state" section to the
-    "Programmers guide" section.
+    This PR fixes regression ECC error. If there is an ACCESS ERROR, OTP
+    won't detect ECC error because the read is blocked.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
