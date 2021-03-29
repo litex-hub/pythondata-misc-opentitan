@@ -54,10 +54,16 @@ jobs:
   - bash: ci/scripts/check-licence-headers.sh $SYSTEM_PULLREQUEST_TARGETBRANCH
     condition: eq(variables['Build.Reason'], 'PullRequest')
     displayName: Check Licence Headers
+  - bash: ci/scripts/exec-check.sh
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    displayName: Check executable bits
   - bash: ci/scripts/python-lint.sh $SYSTEM_PULLREQUEST_TARGETBRANCH
     condition: eq(variables['Build.Reason'], 'PullRequest')
-    displayName: Run Python lint
+    displayName: Run Python lint (flake8)
     continueOnError: true
+  - bash: ci/scripts/mypy.sh
+    condition: eq(variables['Build.Reason'], 'PullRequest')
+    displayName: Run Python lint (mypy)
   - bash: ci/scripts/check-generated.sh
     displayName: Ensure all generated files are clean and up-to-date
   - bash: ci/scripts/clang-format.sh $SYSTEM_PULLREQUEST_TARGETBRANCH
