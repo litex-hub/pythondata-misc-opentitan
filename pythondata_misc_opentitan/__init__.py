@@ -4,33 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5616"
-version_tuple = (0, 0, 5616)
+version_str = "0.0.post5618"
+version_tuple = (0, 0, 5618)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5616")
+    pversion = V("0.0.post5618")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5521"
-data_version_tuple = (0, 0, 5521)
+data_version_str = "0.0.post5523"
+data_version_tuple = (0, 0, 5523)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5521")
+    pdata_version = V("0.0.post5523")
 except ImportError:
     pass
-data_git_hash = "fb12cc291fe0328250ac69d6484649cd5f2c54a1"
-data_git_describe = "v0.0-5521-gfb12cc291"
+data_git_hash = "e051f4c7c73ee5de7e3f8cd0ddb40a6368b2cb7c"
+data_git_describe = "v0.0-5523-ge051f4c7c"
 data_git_msg = """\
-commit fb12cc291fe0328250ac69d6484649cd5f2c54a1
+commit e051f4c7c73ee5de7e3f8cd0ddb40a6368b2cb7c
 Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Mar 25 14:14:42 2021 -0700
+Date:   Tue Mar 23 17:08:15 2021 -0700
 
-    [dv/otp_ctrl] fix regression otp ecc error
+    [formal/conn] Support connectivity test locally
     
-    This PR fixes regression ECC error. If there is an ACCESS ERROR, OTP
-    won't detect ECC error because the read is blocked.
+    This PR adds basic configs to run connecivity test locally.
+    This is the first step to support running connecivity test using dvsim.
+    The reason we are adding this local option is because we can temporarily
+    using this script to run with GUI.
+    
+    Next PR will support running the connectivity test on dvsim.
     
     Signed-off-by: Cindy Chen <chencindy@google.com>
 
