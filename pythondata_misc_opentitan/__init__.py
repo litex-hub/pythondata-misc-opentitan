@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5613"
-version_tuple = (0, 0, 5613)
+version_str = "0.0.post5615"
+version_tuple = (0, 0, 5615)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5613")
+    pversion = V("0.0.post5615")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5518"
-data_version_tuple = (0, 0, 5518)
+data_version_str = "0.0.post5520"
+data_version_tuple = (0, 0, 5520)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5518")
+    pdata_version = V("0.0.post5520")
 except ImportError:
     pass
-data_git_hash = "f0d5b0cfb27f804d41057dbbbfda276e21703430"
-data_git_describe = "v0.0-5518-gf0d5b0cfb"
+data_git_hash = "d0111856d59cf53046fd2d372e0bbbd3bfb2d9bc"
+data_git_describe = "v0.0-5520-gd0111856d"
 data_git_msg = """\
-commit f0d5b0cfb27f804d41057dbbbfda276e21703430
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 26 11:48:42 2021 +0000
+commit d0111856d59cf53046fd2d372e0bbbd3bfb2d9bc
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 29 14:02:26 2021 +0100
 
-    [ci] Add a CI check to avoid committing executable .sv files
+    [otbn] Move loop nesting into programmers guide
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    The "Loop nesting" section in the OTBN documentation is targeting
+    programmers. Move it from the "Processor state" section to the
+    "Programmers guide" section.
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
