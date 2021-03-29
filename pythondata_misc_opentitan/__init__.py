@@ -4,38 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5609"
-version_tuple = (0, 0, 5609)
+version_str = "0.0.post5613"
+version_tuple = (0, 0, 5613)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5609")
+    pversion = V("0.0.post5613")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5514"
-data_version_tuple = (0, 0, 5514)
+data_version_str = "0.0.post5518"
+data_version_tuple = (0, 0, 5518)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5514")
+    pdata_version = V("0.0.post5518")
 except ImportError:
     pass
-data_git_hash = "0c49992bc0b713f91bb7ba01cd78eaf89f49d04a"
-data_git_describe = "v0.0-5514-g0c49992bc"
+data_git_hash = "f0d5b0cfb27f804d41057dbbbfda276e21703430"
+data_git_describe = "v0.0-5518-gf0d5b0cfb"
 data_git_msg = """\
-commit 0c49992bc0b713f91bb7ba01cd78eaf89f49d04a
+commit f0d5b0cfb27f804d41057dbbbfda276e21703430
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 26 11:05:20 2021 +0000
+Date:   Fri Mar 26 11:48:42 2021 +0000
 
-    [kmac] Fix app_config_t to work with Verilator
-    
-    Verilator doesn't have proper support for unpacked structs. Since we
-    don't need one here, we can just declare app_config_t to be packed.
-    
-    Also, it seems to have rather strange behaviour with int enums when
-    used as fields in a struct. I've reported this on the Verilator bug
-    tracker as issue #2855 but there's an easy workaround here, which is
-    probably what we'd want for synthesizable code anyway.
+    [ci] Add a CI check to avoid committing executable .sv files
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
