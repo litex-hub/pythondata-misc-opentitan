@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5627"
-version_tuple = (0, 0, 5627)
+version_str = "0.0.post5628"
+version_tuple = (0, 0, 5628)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5627")
+    pversion = V("0.0.post5628")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5532"
-data_version_tuple = (0, 0, 5532)
+data_version_str = "0.0.post5533"
+data_version_tuple = (0, 0, 5533)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5532")
+    pdata_version = V("0.0.post5533")
 except ImportError:
     pass
-data_git_hash = "5ae27ddee53838fef73512ea3cee1f4170e5312f"
-data_git_describe = "v0.0-5532-g5ae27ddee"
+data_git_hash = "fd9f58c7d21564d67a17c6d0cce3465beeca70a2"
+data_git_describe = "v0.0-5533-gfd9f58c7d"
 data_git_msg = """\
-commit 5ae27ddee53838fef73512ea3cee1f4170e5312f
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Mar 29 22:49:59 2021 +0100
+commit fd9f58c7d21564d67a17c6d0cce3465beeca70a2
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Tue Mar 30 09:56:23 2021 +0100
 
-    [otbn] Pedantic style fix
+    [sw] Add MSECCFGH register to CSR library
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    This CSR represents the high 32 bits of MSECCFG and was added to
+    Ibex in:
+    
+    https://github.com/lowRISC/ibex/pull/1310
+    
+    We should probably autogenerate this list at some point but it
+    isn't a priority right now.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
