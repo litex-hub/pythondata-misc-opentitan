@@ -4,40 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5628"
-version_tuple = (0, 0, 5628)
+version_str = "0.0.post5629"
+version_tuple = (0, 0, 5629)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5628")
+    pversion = V("0.0.post5629")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5533"
-data_version_tuple = (0, 0, 5533)
+data_version_str = "0.0.post5534"
+data_version_tuple = (0, 0, 5534)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5533")
+    pdata_version = V("0.0.post5534")
 except ImportError:
     pass
-data_git_hash = "fd9f58c7d21564d67a17c6d0cce3465beeca70a2"
-data_git_describe = "v0.0-5533-gfd9f58c7d"
+data_git_hash = "c658d4ee08be6a20c9925f1013346777fe1a7f21"
+data_git_describe = "v0.0-5534-gc658d4ee0"
 data_git_msg = """\
-commit fd9f58c7d21564d67a17c6d0cce3465beeca70a2
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Tue Mar 30 09:56:23 2021 +0100
+commit c658d4ee08be6a20c9925f1013346777fe1a7f21
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Wed Mar 24 14:43:11 2021 +0000
 
-    [sw] Add MSECCFGH register to CSR library
+    [dif_alert_handler] Use auto-generated Hjson file
     
-    This CSR represents the high 32 bits of MSECCFG and was added to
-    Ibex in:
+    The alert_handler is an IP template which is instantiated with a
+    top_earlgrey-specific configuration. The C header file must be generated
+    from the templated Hjson file, not the example Hjson file which happens
+    to be in the tree as well, but doesn't contain the right configuration.
     
-    https://github.com/lowRISC/ibex/pull/1310
+    Fixes #5778
     
-    We should probably autogenerate this list at some point but it
-    isn't a priority right now.
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
