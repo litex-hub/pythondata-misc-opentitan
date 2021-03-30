@@ -4,39 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5637"
-version_tuple = (0, 0, 5637)
+version_str = "0.0.post5638"
+version_tuple = (0, 0, 5638)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5637")
+    pversion = V("0.0.post5638")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5542"
-data_version_tuple = (0, 0, 5542)
+data_version_str = "0.0.post5543"
+data_version_tuple = (0, 0, 5543)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5542")
+    pdata_version = V("0.0.post5543")
 except ImportError:
     pass
-data_git_hash = "ee472e9f0c70126004d433c9c2b4ab05f4528b38"
-data_git_describe = "v0.0-5542-gee472e9f0"
+data_git_hash = "5f6bc725d60d2d1cdc7c7eb592e6f3d5eb064126"
+data_git_describe = "v0.0-5543-g5f6bc725d"
 data_git_msg = """\
-commit ee472e9f0c70126004d433c9c2b4ab05f4528b38
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Mar 23 22:46:26 2021 -0700
+commit 5f6bc725d60d2d1cdc7c7eb592e6f3d5eb064126
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Mar 29 21:20:47 2021 -0700
 
-    [dv] Fix reg backdoor
+    [dv/otp_ctrl] fix lc_esc_req regression failure
     
-    3 fixes in this PR
-    1. Fix hier_path not used in top reg
-    2. Fix path check didn't run properly as path types weren't given
-    3. Fix wrong error message `does not have hdl path defined for
-    abstraction 'RTL'`, we don't use `RTL` as hdl path, it should be
-    `BkdrRegPathRtl`
+    This PR fixes lc_esc_req regression failure.
+    Current issue:
+    If reset is issued during lc_prog_req, scb cannot predict how many OTP
+    memory cells have been programmed.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
