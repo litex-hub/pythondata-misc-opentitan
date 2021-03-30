@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5631"
-version_tuple = (0, 0, 5631)
+version_str = "0.0.post5632"
+version_tuple = (0, 0, 5632)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5631")
+    pversion = V("0.0.post5632")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5536"
-data_version_tuple = (0, 0, 5536)
+data_version_str = "0.0.post5537"
+data_version_tuple = (0, 0, 5537)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5536")
+    pdata_version = V("0.0.post5537")
 except ImportError:
     pass
-data_git_hash = "ffbfb492e072ffb8c8785452f6ded8b62035fc22"
-data_git_describe = "v0.0-5536-gffbfb492e"
+data_git_hash = "d15513ae70572efa698d4c5113302b9f81af8be7"
+data_git_describe = "v0.0-5537-gd15513ae7"
 data_git_msg = """\
-commit ffbfb492e072ffb8c8785452f6ded8b62035fc22
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Mar 26 14:59:47 2021 +0100
+commit d15513ae70572efa698d4c5113302b9f81af8be7
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 15 11:54:37 2021 +0000
 
-    [aes/doc] Add missing line breaks to correct formatting
+    [rv_dm] Sign off debug module into D1
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
