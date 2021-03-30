@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5620"
-version_tuple = (0, 0, 5620)
+version_str = "0.0.post5627"
+version_tuple = (0, 0, 5627)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5620")
+    pversion = V("0.0.post5627")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5525"
-data_version_tuple = (0, 0, 5525)
+data_version_str = "0.0.post5532"
+data_version_tuple = (0, 0, 5532)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5525")
+    pdata_version = V("0.0.post5532")
 except ImportError:
     pass
-data_git_hash = "41d815de155cb672b069155963395d104b1d71a6"
-data_git_describe = "v0.0-5525-g41d815de1"
+data_git_hash = "5ae27ddee53838fef73512ea3cee1f4170e5312f"
+data_git_describe = "v0.0-5532-g5ae27ddee"
 data_git_msg = """\
-commit 41d815de155cb672b069155963395d104b1d71a6
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Mar 29 15:07:02 2021 -0700
+commit 5ae27ddee53838fef73512ea3cee1f4170e5312f
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 29 22:49:59 2021 +0100
 
-    [uvmdvgen] Fix has_interrupts in env_cfg
+    [otbn] Pedantic style fix
     
-    This PR fixes `env_cfg.sv.tpl` to not generate interrupt related code
-    when `has_interrupts` is not set.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
