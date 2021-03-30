@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5619"
-version_tuple = (0, 0, 5619)
+version_str = "0.0.post5620"
+version_tuple = (0, 0, 5620)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5619")
+    pversion = V("0.0.post5620")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5524"
-data_version_tuple = (0, 0, 5524)
+data_version_str = "0.0.post5525"
+data_version_tuple = (0, 0, 5525)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5524")
+    pdata_version = V("0.0.post5525")
 except ImportError:
     pass
-data_git_hash = "3800c6dc1f36b4134bc2b3a9eb0a90889e980f9c"
-data_git_describe = "v0.0-5524-g3800c6dc1"
+data_git_hash = "41d815de155cb672b069155963395d104b1d71a6"
+data_git_describe = "v0.0-5525-g41d815de1"
 data_git_msg = """\
-commit 3800c6dc1f36b4134bc2b3a9eb0a90889e980f9c
+commit 41d815de155cb672b069155963395d104b1d71a6
 Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Mar 29 15:00:04 2021 -0700
+Date:   Mon Mar 29 15:07:02 2021 -0700
 
-    [dv/otp] fix number of edn required for sram
+    [uvmdvgen] Fix has_interrupts in env_cfg
     
-    The num of EDN required for SRAM should be 12 instead of 10.
+    This PR fixes `env_cfg.sv.tpl` to not generate interrupt related code
+    when `has_interrupts` is not set.
     
     Signed-off-by: Cindy Chen <chencindy@google.com>
 
