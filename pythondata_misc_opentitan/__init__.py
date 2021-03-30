@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5632"
-version_tuple = (0, 0, 5632)
+version_str = "0.0.post5635"
+version_tuple = (0, 0, 5635)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5632")
+    pversion = V("0.0.post5635")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5537"
-data_version_tuple = (0, 0, 5537)
+data_version_str = "0.0.post5540"
+data_version_tuple = (0, 0, 5540)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5537")
+    pdata_version = V("0.0.post5540")
 except ImportError:
     pass
-data_git_hash = "d15513ae70572efa698d4c5113302b9f81af8be7"
-data_git_describe = "v0.0-5537-gd15513ae7"
+data_git_hash = "be2128572d11a544d589cd752e35e58efa312951"
+data_git_describe = "v0.0-5540-gbe2128572"
 data_git_msg = """\
-commit d15513ae70572efa698d4c5113302b9f81af8be7
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Mar 15 11:54:37 2021 +0000
+commit be2128572d11a544d589cd752e35e58efa312951
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Mar 30 08:43:11 2021 +0100
 
-    [rv_dm] Sign off debug module into D1
+    [reggen] Fix name for "u_reg" backdoor in RAL code
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    The generated RAL code needs to know where to find the generated
+    register in the design. Before this patch, we had it hardcoded as
+    "u_reg" but that isn't going to work if there are multiple register
+    blocks in the design(!).
+    
+    Here, we use the same naming convention as the rest of the reggen
+    code: if a device interface has an explicit name, "foo", we assume
+    things relating to the interface get a "_foo" suffix.
+    
+    Also fix the name of the one example in the tree (in rom_ctrl.sv) to
+    match this convention.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
