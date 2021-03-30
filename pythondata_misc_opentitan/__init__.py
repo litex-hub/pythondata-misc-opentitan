@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5636"
-version_tuple = (0, 0, 5636)
+version_str = "0.0.post5637"
+version_tuple = (0, 0, 5637)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5636")
+    pversion = V("0.0.post5637")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5541"
-data_version_tuple = (0, 0, 5541)
+data_version_str = "0.0.post5542"
+data_version_tuple = (0, 0, 5542)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5541")
+    pdata_version = V("0.0.post5542")
 except ImportError:
     pass
-data_git_hash = "63ebea223a80c9b088090d3c7547dd7db3af5bbb"
-data_git_describe = "v0.0-5541-g63ebea223"
+data_git_hash = "ee472e9f0c70126004d433c9c2b4ab05f4528b38"
+data_git_describe = "v0.0-5542-gee472e9f0"
 data_git_msg = """\
-commit 63ebea223a80c9b088090d3c7547dd7db3af5bbb
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Mar 30 18:48:34 2021 +0200
+commit ee472e9f0c70126004d433c9c2b4ab05f4528b38
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Mar 23 22:46:26 2021 -0700
 
-    [aes] Replace '{default:} by loop statements for parameterized signals
+    [dv] Fix reg backdoor
     
-    This is needed for Synopsys Design Compiler.
+    3 fixes in this PR
+    1. Fix hier_path not used in top reg
+    2. Fix path check didn't run properly as path types weren't given
+    3. Fix wrong error message `does not have hdl path defined for
+    abstraction 'RTL'`, we don't use `RTL` as hdl path, it should be
+    `BkdrRegPathRtl`
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
