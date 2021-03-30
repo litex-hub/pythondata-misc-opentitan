@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5629"
-version_tuple = (0, 0, 5629)
+version_str = "0.0.post5631"
+version_tuple = (0, 0, 5631)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5629")
+    pversion = V("0.0.post5631")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5534"
-data_version_tuple = (0, 0, 5534)
+data_version_str = "0.0.post5536"
+data_version_tuple = (0, 0, 5536)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5534")
+    pdata_version = V("0.0.post5536")
 except ImportError:
     pass
-data_git_hash = "c658d4ee08be6a20c9925f1013346777fe1a7f21"
-data_git_describe = "v0.0-5534-gc658d4ee0"
+data_git_hash = "ffbfb492e072ffb8c8785452f6ded8b62035fc22"
+data_git_describe = "v0.0-5536-gffbfb492e"
 data_git_msg = """\
-commit c658d4ee08be6a20c9925f1013346777fe1a7f21
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Mar 24 14:43:11 2021 +0000
+commit ffbfb492e072ffb8c8785452f6ded8b62035fc22
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Mar 26 14:59:47 2021 +0100
 
-    [dif_alert_handler] Use auto-generated Hjson file
+    [aes/doc] Add missing line breaks to correct formatting
     
-    The alert_handler is an IP template which is instantiated with a
-    top_earlgrey-specific configuration. The C header file must be generated
-    from the templated Hjson file, not the example Hjson file which happens
-    to be in the tree as well, but doesn't contain the right configuration.
-    
-    Fixes #5778
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
