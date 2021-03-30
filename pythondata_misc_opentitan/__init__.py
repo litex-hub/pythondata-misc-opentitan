@@ -4,44 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5635"
-version_tuple = (0, 0, 5635)
+version_str = "0.0.post5636"
+version_tuple = (0, 0, 5636)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5635")
+    pversion = V("0.0.post5636")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5540"
-data_version_tuple = (0, 0, 5540)
+data_version_str = "0.0.post5541"
+data_version_tuple = (0, 0, 5541)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5540")
+    pdata_version = V("0.0.post5541")
 except ImportError:
     pass
-data_git_hash = "be2128572d11a544d589cd752e35e58efa312951"
-data_git_describe = "v0.0-5540-gbe2128572"
+data_git_hash = "63ebea223a80c9b088090d3c7547dd7db3af5bbb"
+data_git_describe = "v0.0-5541-g63ebea223"
 data_git_msg = """\
-commit be2128572d11a544d589cd752e35e58efa312951
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 30 08:43:11 2021 +0100
+commit 63ebea223a80c9b088090d3c7547dd7db3af5bbb
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Mar 30 18:48:34 2021 +0200
 
-    [reggen] Fix name for "u_reg" backdoor in RAL code
+    [aes] Replace '{default:} by loop statements for parameterized signals
     
-    The generated RAL code needs to know where to find the generated
-    register in the design. Before this patch, we had it hardcoded as
-    "u_reg" but that isn't going to work if there are multiple register
-    blocks in the design(!).
+    This is needed for Synopsys Design Compiler.
     
-    Here, we use the same naming convention as the rest of the reggen
-    code: if a device interface has an explicit name, "foo", we assume
-    things relating to the interface get a "_foo" suffix.
-    
-    Also fix the name of the one example in the tree (in rom_ctrl.sv) to
-    match this convention.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
