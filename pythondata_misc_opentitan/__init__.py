@@ -4,53 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5651"
-version_tuple = (0, 0, 5651)
+version_str = "0.0.post5652"
+version_tuple = (0, 0, 5652)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5651")
+    pversion = V("0.0.post5652")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5556"
-data_version_tuple = (0, 0, 5556)
+data_version_str = "0.0.post5557"
+data_version_tuple = (0, 0, 5557)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5556")
+    pdata_version = V("0.0.post5557")
 except ImportError:
     pass
-data_git_hash = "0e71a67020285dda3a24a9fce6c5ca38d0025f9e"
-data_git_describe = "v0.0-5556-g0e71a6702"
+data_git_hash = "a46be154ebbcb7b0d5e310b5510a4ac700adc9df"
+data_git_describe = "v0.0-5557-ga46be154e"
 data_git_msg = """\
-commit 0e71a67020285dda3a24a9fce6c5ca38d0025f9e
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 31 10:46:42 2021 +0100
+commit a46be154ebbcb7b0d5e310b5510a4ac700adc9df
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Wed Mar 31 15:52:54 2021 +0100
 
-    [topgen] Impose an ordering on blocks in top_uvm_reg.sv.tpl
+    [otbn] Remove WIP marker from documentation
     
-    Tracing things back through topgen.py, the insertion order of
-    top.blocks depends on the order that the glob returns filenames in
-    search_ips (in lib.py). This isn't guaranteed to be stable across
-    machines and the whole thing feels a bit delicate either way.
+    The OTBN specification/documentation is mostly consistent, well-written,
+    tested and implemented, so there is no more need for a big warning sign
+    at the beginning. This aligns OTBN with all other IP blocks in OpenTitan,
+    none of which have a similar warning.
     
-    This commit uses the blocks in alphabetical order. Another option
-    would be to order by the base address of the first instance: maybe a
-    bit nicer, but more work so I've gone with the easy solution first.
+    Of course, there's always more to do and OTBN (like all other IP blocks
+    in OpenTitan) isn't "done" yet. These improvements will happen as evolutions
+    to the current design.
     
-    To check this works on a single machine, add the line
-    
-        ips.reverse()
-    
-    just after the definition of ips in search_ips (in lib.py). The
-    generate results before and after the addition, diffing the two
-    
-        mkdir -p X
-        util/topgen.py -t hw/top_earlgrey/data/top_earlgrey.hjson -r -o X
-    
-    With this patch, nothing changes.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
