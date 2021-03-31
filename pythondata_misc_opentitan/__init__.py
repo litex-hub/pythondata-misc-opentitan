@@ -4,35 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5642"
-version_tuple = (0, 0, 5642)
+version_str = "0.0.post5647"
+version_tuple = (0, 0, 5647)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5642")
+    pversion = V("0.0.post5647")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5547"
-data_version_tuple = (0, 0, 5547)
+data_version_str = "0.0.post5552"
+data_version_tuple = (0, 0, 5552)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5547")
+    pdata_version = V("0.0.post5552")
 except ImportError:
     pass
-data_git_hash = "58c0c4bed88beab02800a235adc09e2104ba39ab"
-data_git_describe = "v0.0-5547-g58c0c4bed"
+data_git_hash = "f87ad8a574888a33f920b0c9e09beea5a33f690a"
+data_git_describe = "v0.0-5552-gf87ad8a57"
 data_git_msg = """\
-commit 58c0c4bed88beab02800a235adc09e2104ba39ab
+commit f87ad8a574888a33f920b0c9e09beea5a33f690a
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 29 16:07:45 2021 +0100
+Date:   Tue Mar 30 11:25:37 2021 +0100
 
-    [aon_timer,dv] Initial DV document
+    [otbn] Move from V0 to V1
     
-    This fills out the document template, describing the overall structure
-    of the DV environment and the rough plan of how things will work.
-    Details are likely to change as we come to implement the scoreboard
-    and test sequences.
+    For the checklist items that have changed:
+    
+     - We're not using FPV for OTBN at the moment
+    
+     - We've seen OTBN tests run on xcelium
+    
+     - The nightly and CI regressions are now running (at last!)
+    
+     - The design spec has had innumerable reviews and discussions, as
+       you'd expect given how complicated the block is.
+    
+     - We've had a DV plan / testplan review (with Cindy, Sri, Weicai,
+       Chris Gori, Philipp and me) and the testplan has been updated as a
+       result.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
