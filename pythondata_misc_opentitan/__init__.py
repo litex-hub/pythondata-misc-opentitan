@@ -4,45 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5647"
-version_tuple = (0, 0, 5647)
+version_str = "0.0.post5651"
+version_tuple = (0, 0, 5651)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5647")
+    pversion = V("0.0.post5651")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5552"
-data_version_tuple = (0, 0, 5552)
+data_version_str = "0.0.post5556"
+data_version_tuple = (0, 0, 5556)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5552")
+    pdata_version = V("0.0.post5556")
 except ImportError:
     pass
-data_git_hash = "f87ad8a574888a33f920b0c9e09beea5a33f690a"
-data_git_describe = "v0.0-5552-gf87ad8a57"
+data_git_hash = "0e71a67020285dda3a24a9fce6c5ca38d0025f9e"
+data_git_describe = "v0.0-5556-g0e71a6702"
 data_git_msg = """\
-commit f87ad8a574888a33f920b0c9e09beea5a33f690a
+commit 0e71a67020285dda3a24a9fce6c5ca38d0025f9e
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 30 11:25:37 2021 +0100
+Date:   Wed Mar 31 10:46:42 2021 +0100
 
-    [otbn] Move from V0 to V1
+    [topgen] Impose an ordering on blocks in top_uvm_reg.sv.tpl
     
-    For the checklist items that have changed:
+    Tracing things back through topgen.py, the insertion order of
+    top.blocks depends on the order that the glob returns filenames in
+    search_ips (in lib.py). This isn't guaranteed to be stable across
+    machines and the whole thing feels a bit delicate either way.
     
-     - We're not using FPV for OTBN at the moment
+    This commit uses the blocks in alphabetical order. Another option
+    would be to order by the base address of the first instance: maybe a
+    bit nicer, but more work so I've gone with the easy solution first.
     
-     - We've seen OTBN tests run on xcelium
+    To check this works on a single machine, add the line
     
-     - The nightly and CI regressions are now running (at last!)
+        ips.reverse()
     
-     - The design spec has had innumerable reviews and discussions, as
-       you'd expect given how complicated the block is.
+    just after the definition of ips in search_ips (in lib.py). The
+    generate results before and after the addition, diffing the two
     
-     - We've had a DV plan / testplan review (with Cindy, Sri, Weicai,
-       Chris Gori, Philipp and me) and the testplan has been updated as a
-       result.
+        mkdir -p X
+        util/topgen.py -t hw/top_earlgrey/data/top_earlgrey.hjson -r -o X
+    
+    With this patch, nothing changes.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
