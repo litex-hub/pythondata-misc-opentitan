@@ -4,33 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5655"
-version_tuple = (0, 0, 5655)
+version_str = "0.0.post5656"
+version_tuple = (0, 0, 5656)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5655")
+    pversion = V("0.0.post5656")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5560"
-data_version_tuple = (0, 0, 5560)
+data_version_str = "0.0.post5561"
+data_version_tuple = (0, 0, 5561)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5560")
+    pdata_version = V("0.0.post5561")
 except ImportError:
     pass
-data_git_hash = "39abe941ebe45d6673ebc522875b1274470e2b8f"
-data_git_describe = "v0.0-5560-g39abe941e"
+data_git_hash = "0eefaf1aebe450ea71e2ddc370dea85964f684fb"
+data_git_describe = "v0.0-5561-g0eefaf1ae"
 data_git_msg = """\
-commit 39abe941ebe45d6673ebc522875b1274470e2b8f
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Mar 30 18:57:44 2021 -0700
+commit 0eefaf1aebe450ea71e2ddc370dea85964f684fb
+Author: Tung Hoang <hoang.tung@wdc.com>
+Date:   Fri Mar 26 10:51:53 2021 -0700
 
-    [spi_device/dv] Disable overflow assertion for overflow seq
+    [i2c, dv] Refactor i2c_agent to support dual-mode (host and target) dut
     
-    The overflow is intentional, disable the assertion check in RTL
-    Signed-off-by: Weicai Yang <weicai@google.com>
+      - Remove separerate i2c_device/host_driver and i2c_device/host_seq,
+        only use i2c_driver/i2c_base_seq for the dual-mode dut
+      - Add knob control to i2c_driver and i2c_base_seq
+      - Update test to setup the dual-mode dut
+      - Clean up code
+    
+    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
 
 """
 
