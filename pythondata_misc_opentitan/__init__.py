@@ -4,50 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5640"
-version_tuple = (0, 0, 5640)
+version_str = "0.0.post5642"
+version_tuple = (0, 0, 5642)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5640")
+    pversion = V("0.0.post5642")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5545"
-data_version_tuple = (0, 0, 5545)
+data_version_str = "0.0.post5547"
+data_version_tuple = (0, 0, 5547)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5545")
+    pdata_version = V("0.0.post5547")
 except ImportError:
     pass
-data_git_hash = "d37d10da59d9e217e5aff158d0783f88ca71c3f4"
-data_git_describe = "v0.0-5545-gd37d10da5"
+data_git_hash = "58c0c4bed88beab02800a235adc09e2104ba39ab"
+data_git_describe = "v0.0-5547-g58c0c4bed"
 data_git_msg = """\
-commit d37d10da59d9e217e5aff158d0783f88ca71c3f4
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Mar 25 18:35:36 2021 -0700
+commit 58c0c4bed88beab02800a235adc09e2104ba39ab
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 29 16:07:45 2021 +0100
 
-    [dvsim] Add GUI mode for running simulations
+    [aon_timer,dv] Initial DV document
     
-    The adds support for running simulations in GUI mode. This change plumbs
-    the dvsim switch `--gui` to the underlying tools. With VCS and Xcelium,
-    the respective GUI windows will open, exposing the UCLI prompt, where
-    the user can take control of running the simulation (debugging, adding
-    breakpoints etc).
+    This fills out the document template, describing the overall structure
+    of the DV environment and the rough plan of how things will work.
+    Details are likely to change as we come to implement the scoreboard
+    and test sequences.
     
-    If GUI mode is enabled and multiple tests are provided for run, it picks
-    the first and drops everything else. The onus is on the user to pick
-    correctly (pass a single test with `--items` and a specific seed with
-    `--seed`).
-    
-    Further, in GUI mode, it drops the pass and fail patterns, since the
-    whole simulation is run from inside the tool (the log file is not
-    generated).
-    
-    Only VCS and Xcelium are currently fully supported. For all others,
-    `--gui` has no effect.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
