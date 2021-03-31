@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5653"
-version_tuple = (0, 0, 5653)
+version_str = "0.0.post5655"
+version_tuple = (0, 0, 5655)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5653")
+    pversion = V("0.0.post5655")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5558"
-data_version_tuple = (0, 0, 5558)
+data_version_str = "0.0.post5560"
+data_version_tuple = (0, 0, 5560)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5558")
+    pdata_version = V("0.0.post5560")
 except ImportError:
     pass
-data_git_hash = "34f334fb211b04e7fabce1ae7b42f5ef1cf6ad58"
-data_git_describe = "v0.0-5558-g34f334fb2"
+data_git_hash = "39abe941ebe45d6673ebc522875b1274470e2b8f"
+data_git_describe = "v0.0-5560-g39abe941e"
 data_git_msg = """\
-commit 34f334fb211b04e7fabce1ae7b42f5ef1cf6ad58
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Thu Mar 25 17:01:55 2021 -0700
+commit 39abe941ebe45d6673ebc522875b1274470e2b8f
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Mar 30 18:57:44 2021 -0700
 
-    [dv/kmac] rework prefix calculation to fix #5755
+    [spi_device/dv] Disable overflow assertion for overflow seq
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    The overflow is intentional, disable the assertion check in RTL
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
