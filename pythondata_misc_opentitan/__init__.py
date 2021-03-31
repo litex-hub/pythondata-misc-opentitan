@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5652"
-version_tuple = (0, 0, 5652)
+version_str = "0.0.post5653"
+version_tuple = (0, 0, 5653)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5652")
+    pversion = V("0.0.post5653")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5557"
-data_version_tuple = (0, 0, 5557)
+data_version_str = "0.0.post5558"
+data_version_tuple = (0, 0, 5558)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5557")
+    pdata_version = V("0.0.post5558")
 except ImportError:
     pass
-data_git_hash = "a46be154ebbcb7b0d5e310b5510a4ac700adc9df"
-data_git_describe = "v0.0-5557-ga46be154e"
+data_git_hash = "34f334fb211b04e7fabce1ae7b42f5ef1cf6ad58"
+data_git_describe = "v0.0-5558-g34f334fb2"
 data_git_msg = """\
-commit a46be154ebbcb7b0d5e310b5510a4ac700adc9df
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Mar 31 15:52:54 2021 +0100
+commit 34f334fb211b04e7fabce1ae7b42f5ef1cf6ad58
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Mar 25 17:01:55 2021 -0700
 
-    [otbn] Remove WIP marker from documentation
+    [dv/kmac] rework prefix calculation to fix #5755
     
-    The OTBN specification/documentation is mostly consistent, well-written,
-    tested and implemented, so there is no more need for a big warning sign
-    at the beginning. This aligns OTBN with all other IP blocks in OpenTitan,
-    none of which have a similar warning.
-    
-    Of course, there's always more to do and OTBN (like all other IP blocks
-    in OpenTitan) isn't "done" yet. These improvements will happen as evolutions
-    to the current design.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
