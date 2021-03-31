@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5656"
-version_tuple = (0, 0, 5656)
+version_str = "0.0.post5657"
+version_tuple = (0, 0, 5657)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5656")
+    pversion = V("0.0.post5657")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5561"
-data_version_tuple = (0, 0, 5561)
+data_version_str = "0.0.post5562"
+data_version_tuple = (0, 0, 5562)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5561")
+    pdata_version = V("0.0.post5562")
 except ImportError:
     pass
-data_git_hash = "0eefaf1aebe450ea71e2ddc370dea85964f684fb"
-data_git_describe = "v0.0-5561-g0eefaf1ae"
+data_git_hash = "df7aa7163d1642f4d0029a6d3217259974c5c957"
+data_git_describe = "v0.0-5562-gdf7aa7163"
 data_git_msg = """\
-commit 0eefaf1aebe450ea71e2ddc370dea85964f684fb
-Author: Tung Hoang <hoang.tung@wdc.com>
-Date:   Fri Mar 26 10:51:53 2021 -0700
+commit df7aa7163d1642f4d0029a6d3217259974c5c957
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Sat Mar 27 17:25:14 2021 -0700
 
-    [i2c, dv] Refactor i2c_agent to support dual-mode (host and target) dut
+    [sw/dif] Entropy source implementation
     
-      - Remove separerate i2c_device/host_driver and i2c_device/host_seq,
-        only use i2c_driver/i2c_base_seq for the dual-mode dut
-      - Add knob control to i2c_driver and i2c_base_seq
-      - Update test to setup the dual-mode dut
-      - Clean up code
+    Implement the following function calls:
     
-    Signed-off-by: Tung Hoang <hoang.tung@wdc.com>
+    *   `dif_entropy_init()`
+    *   `dif_entropy_configure()`
+    *   `dif_entropy_read()`
+    
+    Add the following test targets:
+    
+    *   `dif_entropy_unittest`
+    *   `dif_entropy_smoketest`
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
