@@ -4,69 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5663"
-version_tuple = (0, 0, 5663)
+version_str = "0.0.post5666"
+version_tuple = (0, 0, 5666)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5663")
+    pversion = V("0.0.post5666")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5568"
-data_version_tuple = (0, 0, 5568)
+data_version_str = "0.0.post5571"
+data_version_tuple = (0, 0, 5571)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5568")
+    pdata_version = V("0.0.post5571")
 except ImportError:
     pass
-data_git_hash = "a753d34a477855925ce634d02e9d7445411b629c"
-data_git_describe = "v0.0-5568-ga753d34a4"
+data_git_hash = "2799bf0de69b3d7878375a51901fba96aeadac45"
+data_git_describe = "v0.0-5571-g2799bf0de"
 data_git_msg = """\
-commit a753d34a477855925ce634d02e9d7445411b629c
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Mon Mar 22 14:08:15 2021 +0000
+commit 2799bf0de69b3d7878375a51901fba96aeadac45
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 18 14:48:47 2021 -0700
 
-    [dif_kmac] Add header file and checklist for KMAC DIF.
+    [tlul] Add support for data integrity passthrough
     
-    This API provides a streaming interface to the KMAC unit. The KMAC
-    unit will be initialized with information about how entropy will be
-    generated and the endianness of the message and digest. After that
-    a transaction can be started by passing the required information
-    (e.g. key) to a `dif_kmac_mode_{sha3,shake,cshake,kmac}_start`
-    function. Data is then passed into the hash function using the
-    `dif_kmac_absorb` function. Once the data to be hashed has been
-    completely absorbed the output (a.k.a. digest) can be written out
-    using the `dif_kmac_squeeze` function. The output may be a variable
-    or fixed length depending on the mode. Once the squeeze has been
-    started no further absorb operations can be performed. Finally,
-    `dif_kmac_end` is called to end the operation ready for a new
-    operation to be started.
+    - Top level/otbn rams are now fully connected without dropping or pading bits
+    - The integrity is fully passed through, however, integrity recalculation on byte writes for top level memories will be done in a separate PR.
+    - ROM handling will also be separately done as it needs to be padded out to byte alignment
     
-    Example:
-    
-    ```c
-    // Initial hardware configuration.
-      dif_kmac_config_t config = (dif_kmac_config_t) {
-        .entropy_mode = kDifKmacEntropyModeSoftware,
-        .entropy_seed = generate_seed(),
-        .entropy_fast_process = kDifKmacToggleEnabled,
-        .message_endianness = kDifKmacEndiannessLittle,
-        .output_state_endianness = kDifKmacEndiannessLittle,
-      };
-      CHECK(dif_kmac_configure(&kmac, config));
-    
-      // Example KMAC XOF calculation with empty customization string.
-      CHECK(dif_kmac_mode_kmac_start(&kmac,
-                                     0 /* L=0 (XOF) */,
-                                     &key,
-                                     nullptr /* S="" */));
-      CHECK(dif_kmac_absorb(&kmac, msg, len, nullptr /* block */));
-      CHECK(dif_kmac_squeeze(&kmac, out, len, nullptr /* block */));
-      CHECK(dif_kmac_end(&kmac));
-    ```
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
