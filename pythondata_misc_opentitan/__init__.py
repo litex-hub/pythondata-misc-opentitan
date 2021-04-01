@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5657"
-version_tuple = (0, 0, 5657)
+version_str = "0.0.post5659"
+version_tuple = (0, 0, 5659)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5657")
+    pversion = V("0.0.post5659")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5562"
-data_version_tuple = (0, 0, 5562)
+data_version_str = "0.0.post5564"
+data_version_tuple = (0, 0, 5564)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5562")
+    pdata_version = V("0.0.post5564")
 except ImportError:
     pass
-data_git_hash = "df7aa7163d1642f4d0029a6d3217259974c5c957"
-data_git_describe = "v0.0-5562-gdf7aa7163"
+data_git_hash = "51761ca5e5f714e621d3ca58902e3e4512c387a7"
+data_git_describe = "v0.0-5564-g51761ca5e"
 data_git_msg = """\
-commit df7aa7163d1642f4d0029a6d3217259974c5c957
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Sat Mar 27 17:25:14 2021 -0700
+commit 51761ca5e5f714e621d3ca58902e3e4512c387a7
+Author: Cindy Chen <chencindy@google.com>
+Date:   Tue Mar 30 17:39:19 2021 -0700
 
-    [sw/dif] Entropy source implementation
+    [otp_ctrl/rtl] Fix otp_ctrl consistency check false alert
     
-    Implement the following function calls:
+    Solve issue #5870
     
-    *   `dif_entropy_init()`
-    *   `dif_entropy_configure()`
-    *   `dif_entropy_read()`
-    
-    Add the following test targets:
-    
-    *   `dif_entropy_unittest`
-    *   `dif_entropy_smoketest`
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
