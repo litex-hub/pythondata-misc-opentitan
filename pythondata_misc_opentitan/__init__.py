@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5659"
-version_tuple = (0, 0, 5659)
+version_str = "0.0.post5662"
+version_tuple = (0, 0, 5662)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5659")
+    pversion = V("0.0.post5662")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5564"
-data_version_tuple = (0, 0, 5564)
+data_version_str = "0.0.post5567"
+data_version_tuple = (0, 0, 5567)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5564")
+    pdata_version = V("0.0.post5567")
 except ImportError:
     pass
-data_git_hash = "51761ca5e5f714e621d3ca58902e3e4512c387a7"
-data_git_describe = "v0.0-5564-g51761ca5e"
+data_git_hash = "3d70205aa1aac2abbccbea2743293a589b404330"
+data_git_describe = "v0.0-5567-g3d70205aa"
 data_git_msg = """\
-commit 51761ca5e5f714e621d3ca58902e3e4512c387a7
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Mar 30 17:39:19 2021 -0700
+commit 3d70205aa1aac2abbccbea2743293a589b404330
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 25 08:51:18 2021 +0000
 
-    [otp_ctrl/rtl] Fix otp_ctrl consistency check false alert
+    [flash_ctrl,lint] Fix width mismatch warnings
     
-    Solve issue #5870
+    The idx variable has width WordSelW, which is at least
+    $clog2(WidthMultiple). Explicitly slice out the relevant bits from
+    WidthMultiple - 1 to avoid a Verilator width mismatch warning.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
