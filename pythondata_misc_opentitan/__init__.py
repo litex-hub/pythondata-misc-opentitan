@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5671"
-version_tuple = (0, 0, 5671)
+version_str = "0.0.post5673"
+version_tuple = (0, 0, 5673)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5671")
+    pversion = V("0.0.post5673")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5576"
-data_version_tuple = (0, 0, 5576)
+data_version_str = "0.0.post5578"
+data_version_tuple = (0, 0, 5578)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5576")
+    pdata_version = V("0.0.post5578")
 except ImportError:
     pass
-data_git_hash = "555451bb2b83399efdec11dca83916bf3ee207d8"
-data_git_describe = "v0.0-5576-g555451bb2"
+data_git_hash = "4653df9a423b5c13ea33da5bd0d50a756aee9667"
+data_git_describe = "v0.0-5578-g4653df9a4"
 data_git_msg = """\
-commit 555451bb2b83399efdec11dca83916bf3ee207d8
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Tue Mar 16 12:46:40 2021 -0700
+commit 4653df9a423b5c13ea33da5bd0d50a756aee9667
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Apr 1 11:21:27 2021 -0700
 
-    [entropy_src/dv] Adding entropy_src_rng_test
+    [fpv] Fix connectivity script folder name
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    This PR fixes connectivity script folder name.
+    Also small fix on auto-exit in gui mode.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
