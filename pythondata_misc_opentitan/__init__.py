@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5670"
-version_tuple = (0, 0, 5670)
+version_str = "0.0.post5671"
+version_tuple = (0, 0, 5671)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5670")
+    pversion = V("0.0.post5671")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5575"
-data_version_tuple = (0, 0, 5575)
+data_version_str = "0.0.post5576"
+data_version_tuple = (0, 0, 5576)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5575")
+    pdata_version = V("0.0.post5576")
 except ImportError:
     pass
-data_git_hash = "b398b1181febe5acbdfd084dbe31818f520ecabd"
-data_git_describe = "v0.0-5575-gb398b1181"
+data_git_hash = "555451bb2b83399efdec11dca83916bf3ee207d8"
+data_git_describe = "v0.0-5576-g555451bb2"
 data_git_msg = """\
-commit b398b1181febe5acbdfd084dbe31818f520ecabd
-Author: Eitan Shapira <eitan.shapira@nuvoton.com>
-Date:   Wed Mar 31 18:42:57 2021 +0300
+commit 555451bb2b83399efdec11dca83916bf3ee207d8
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Tue Mar 16 12:46:40 2021 -0700
 
-    [dv/flash] Small changes to improve integration with partner env
+    [entropy_src/dv] Adding entropy_src_rng_test
     
-    Signed-off-by: Eitan Shapira <eitan.shapira@nuvoton.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
