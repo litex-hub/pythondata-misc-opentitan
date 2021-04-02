@@ -4,54 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5674"
-version_tuple = (0, 0, 5674)
+version_str = "0.0.post5681"
+version_tuple = (0, 0, 5681)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5674")
+    pversion = V("0.0.post5681")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5579"
-data_version_tuple = (0, 0, 5579)
+data_version_str = "0.0.post5586"
+data_version_tuple = (0, 0, 5586)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5579")
+    pdata_version = V("0.0.post5586")
 except ImportError:
     pass
-data_git_hash = "62dabf7c512b09d6e185df52752d82393338c0b0"
-data_git_describe = "v0.0-5579-g62dabf7c5"
+data_git_hash = "10c6e5bfd6bbd2255a2f043ef34106b529eed481"
+data_git_describe = "v0.0-5586-g10c6e5bfd"
 data_git_msg = """\
-commit 62dabf7c512b09d6e185df52752d82393338c0b0
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 24 12:09:27 2021 -0700
+commit 10c6e5bfd6bbd2255a2f043ef34106b529eed481
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Apr 1 11:18:54 2021 -0700
 
-    [reggen, util] Add support for data integrity passthrough
+    [dv/otp_ctrl] Support ecc correctable error in otp check
     
-    - When a module has no window or has windows with no integrity passthrough,
-      data integrity can be generated at a common location.
+    This PR supports ECC correctable error in otp_checks.
+    This error not trigger any alert, but just trigger an interrupt and
+    update error code accordingly.
     
-    - When a module window has data integrity passthrough, the regfile
-      registers must separately generate data integrity so as to not
-      duplicate.
-    
-    - When a module has a mix of windows with and without integrity, common
-      generation is not possible, and data integrity is selectively generated
-      for those windows that do not directly pass them in.
-    
-    - The only module that is currently impacted is otbn (and soon rom_ctrl)
-      Otbn dmem / imem each contain their own integrity, and thus can directly
-      pass them through.  The regfile for otbn thus no longer generates data
-      integrity at a common location, and instead generates it only for data
-      passed through tlul_adapter_reg.  The data integrity for the windows are
-      fed through directly.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Auto generate files
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
