@@ -12,13 +12,13 @@
 # More options:
 # -top: which top_level module to run
 # -p:  provide core file path
-# -batch: run batch mode without GUI
+# -gui: run with GUI mode
 # -cov: run coverage
 # -f: path to the csv file
 # -t: choose which formal tool to use, current only support jaspergold
 #
 # Example:
-#   formal_conn -cov -f top_earlgrey_conn.csv
+#   formal_conn -f {path_to_csv_file}
 #
 
 set -e
@@ -27,7 +27,7 @@ CORE_PATH=systems:top_earlgrey
 REPO_PATH=$(readlink -f ../..)
 
 export TOP="top_earlgrey"
-batch=""
+gui="-batch -command exit"  # default Batch mode
 tool="jg"
 export COV=0
 export CSV_PATH
@@ -42,9 +42,9 @@ while [ "$1" != "" ]; do
       shift
       CORE_PATH=$1
       ;;
-    "-batch")
-      batch="-batch -command exit"
-      echo "runnin in batch mode"
+    "-gui")
+      gui=""
+      echo "runnin in GUI mode"
       ;;
     "-cov")
       COV=1
@@ -57,7 +57,7 @@ while [ "$1" != "" ]; do
       ;;
     "-f")
       shift
-      CSV_PATH=../../../../top_earlgrey/formal/fconn_csvs/$1
+      CSV_PATH=$1
       echo "csv path: $CSV_PATH"
       ;;
     *)
@@ -90,7 +90,7 @@ echo "-------------------------------------------------------------------------"
 cd build/*${TOP}*/default-icarus
 
 if [ "${tool}" == "jg" ]; then
-    jg ${batch} \
+    jg ${gui} \
       ${REPO_PATH}/hw/formal/tools/jaspergold/conn.tcl \
       -proj {REPO_PATH}/hw/formal/jgproject \
       -allow_unsupported_OS \
