@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5699"
-version_tuple = (0, 0, 5699)
+version_str = "0.0.post5703"
+version_tuple = (0, 0, 5703)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5699")
+    pversion = V("0.0.post5703")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5604"
-data_version_tuple = (0, 0, 5604)
+data_version_str = "0.0.post5608"
+data_version_tuple = (0, 0, 5608)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5604")
+    pdata_version = V("0.0.post5608")
 except ImportError:
     pass
-data_git_hash = "f309ea551de2c7dea8024a9002f7086591177952"
-data_git_describe = "v0.0-5604-gf309ea551"
+data_git_hash = "9c0ed3194f337e376aa2f130088f060f46498874"
+data_git_describe = "v0.0-5608-g9c0ed3194"
 data_git_msg = """\
-commit f309ea551de2c7dea8024a9002f7086591177952
+commit 9c0ed3194f337e376aa2f130088f060f46498874
 Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Apr 1 18:16:57 2021 -0700
+Date:   Thu Apr 1 14:58:35 2021 -0700
 
-    [fpv] revert back the FPV compile error
+    [formal] Update readme
     
-    This PR revert back the previous workaround to avoid the compile error.
-    Now the JasperGold is fixed to support this `prim_lc_sync` syntax.
+    This PR udpates README for OT formal to include connectivity test.
     
     Signed-off-by: Cindy Chen <chencindy@google.com>
 
