@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5683"
-version_tuple = (0, 0, 5683)
+version_str = "0.0.post5686"
+version_tuple = (0, 0, 5686)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5683")
+    pversion = V("0.0.post5686")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5588"
-data_version_tuple = (0, 0, 5588)
+data_version_str = "0.0.post5591"
+data_version_tuple = (0, 0, 5591)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5588")
+    pdata_version = V("0.0.post5591")
 except ImportError:
     pass
-data_git_hash = "76eb883ebbb734764bf81f8531d02f1aa9f207f0"
-data_git_describe = "v0.0-5588-g76eb883eb"
+data_git_hash = "5bf75e9351e9eef509a967f80eb3e37015cc9ca0"
+data_git_describe = "v0.0-5591-g5bf75e935"
 data_git_msg = """\
-commit 76eb883ebbb734764bf81f8531d02f1aa9f207f0
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 25 16:49:58 2021 -0700
+commit 5bf75e9351e9eef509a967f80eb3e37015cc9ca0
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Wed Mar 31 11:33:08 2021 -0700
 
-    [top] Auto generate files
+    [sw/dif] CSRNG Initial Implementation
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This commits adds the following dif_csrng functions:
+    
+    *   `dif_csrng_init()`
+    *   `dif_csrng_configure()`
+    *   `dif_csrng_get_cmd_interface()`
+    *   `dif_csrng_get_output_status()`
+    
+    Added unittest and smoketest boilerplate.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
