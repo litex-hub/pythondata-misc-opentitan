@@ -164,13 +164,13 @@ class Deploy():
         """
         for attr in self.mandatory_cmd_attrs.keys():
             if self.mandatory_cmd_attrs[attr] is False:
-                raise AttributeError("Attribute \"{!r}\" not found for "
-                                     "\"{!r}\".".format(attr, self.name))
+                raise AttributeError("Attribute {!r} not found for "
+                                     "{!r}.".format(attr, self.name))
 
         for attr in self.mandatory_misc_attrs.keys():
             if self.mandatory_misc_attrs[attr] is False:
-                raise AttributeError("Attribute \"{!r}\" not found for "
-                                     "\"{!r}\".".format(attr, self.name))
+                raise AttributeError("Attribute {!r} not found for "
+                                     "{!r}.".format(attr, self.name))
 
     def _subst_vars(self, ignored_subst_vars=[]):
         """Recursively search and replace substitution variables.
@@ -203,25 +203,22 @@ class Deploy():
     def _construct_cmd(self):
         """Construct the command that will eventually be launched."""
 
-        cmd = "make -f " + self.flow_makefile + " " + self.target
+        args = ["make", "-f", self.flow_makefile, self.target]
         if self.dry_run is True:
-            cmd += " -n"
+            args += ["-n"]
         for attr in sorted(self.mandatory_cmd_attrs.keys()):
             value = getattr(self, attr)
             if type(value) is list:
-                pretty_value = []
-                for item in value:
-                    pretty_value.append(item.strip())
                 # Join attributes that are list of commands with '&&' to chain
                 # them together when executed as a Make target's recipe.
                 separator = " && " if attr in self.cmds_list_vars else " "
-                value = separator.join(pretty_value)
+                value = separator.join(item.strip() for item in value)
             if type(value) is bool:
                 value = int(value)
             if type(value) is str:
                 value = value.strip()
-            cmd += " {}={}".format(attr, shlex.quote(value))
-        return cmd
+            args += ["{}={}".format(attr, shlex.quote(value))]
+        return " ".join(args)
 
     def is_equivalent_job(self, item):
         """Checks if job that would be dispatched with 'item' is equivalent to
@@ -321,13 +318,14 @@ class CompileSim(Deploy):
         self.build_mode = self.name
         self.job_name = "{}_{}_{}".format(self.sim_cfg.name, self.target,
                                           self.build_mode)
-        self.output_dirs += [self.cov_db_dir]
+        if self.sim_cfg.cov:
+            self.output_dirs += [self.cov_db_dir]
         self.pass_patterns = self.build_pass_patterns
         self.fail_patterns = self.build_fail_patterns
 
     def pre_launch(self):
         # Delete old coverage database directories before building again. We
-        # need to do this becuase build directory is not 'renewed'.
+        # need to do this because the build directory is not 'renewed'.
         rm_path(self.cov_db_dir)
 
 
@@ -364,6 +362,10 @@ class CompileOneShot(Deploy):
             "report_opts": False
         })
 
+        self.mandatory_misc_attrs.update({
+            "build_fail_patterns": False
+        })
+
     def _set_attrs(self):
         super()._extract_attrs(self.build_mode_obj.__dict__)
         super()._set_attrs()
@@ -372,6 +374,7 @@ class CompileOneShot(Deploy):
         self.build_mode = self.name
         self.job_name = "{}_{}_{}".format(self.sim_cfg.name, self.target,
                                           self.build_mode)
+        self.fail_patterns = self.build_fail_patterns
 
 
 class RunTest(Deploy):
@@ -434,7 +437,8 @@ class RunTest(Deploy):
         self.full_name = self.sim_cfg.name + ":" + self.qual_name
         self.job_name = "{}_{}_{}".format(self.sim_cfg.name, self.target,
                                           self.build_mode)
-        self.output_dirs += [self.cov_db_test_dir]
+        if self.sim_cfg.cov:
+            self.output_dirs += [self.cov_db_test_dir]
 
         # In GUI mode, the log file is not updated; hence, nothing to check.
         if not self.sim_cfg.gui:
@@ -487,6 +491,7 @@ class CovUnr(Deploy):
 
         self.mandatory_misc_attrs.update({
             "cov_unr_dir": False,
+            "cov_merge_db_dir": False,
             "build_fail_patterns": False
         })
 
@@ -494,6 +499,7 @@ class CovUnr(Deploy):
         super()._set_attrs()
         self.qual_name = self.target
         self.full_name = self.sim_cfg.name + ":" + self.qual_name
+        self.input_dirs += [self.cov_merge_db_dir]
 
         # Reuse the build_fail_patterns set in the HJson.
         self.fail_patterns = self.build_fail_patterns
@@ -553,8 +559,8 @@ class CovMerge(Deploy):
 
         # For merging coverage db, the precise output dir is set in the HJson.
         self.odir = self.cov_merge_db_dir
-
         self.input_dirs += self.cov_db_dirs
+        self.output_dirs = [self.odir]
 
 
 class CovReport(Deploy):
@@ -623,6 +629,8 @@ class CovAnalyze(Deploy):
     target = "cov_analyze"
 
     def __init__(self, sim_cfg):
+        # Enforce GUI mode for coverage analysis.
+        sim_cfg.gui = True
         super().__init__(sim_cfg)
 
     def _define_attrs(self):
@@ -643,3 +651,4 @@ class CovAnalyze(Deploy):
         super()._set_attrs()
         self.qual_name = self.target
         self.full_name = self.sim_cfg.name + ":" + self.qual_name
+        self.input_dirs += [self.cov_merge_db_dir]

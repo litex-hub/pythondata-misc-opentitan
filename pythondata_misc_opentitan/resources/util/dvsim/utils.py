@@ -165,7 +165,7 @@ def _subst_wildcards(var, mdict, ignored, ignore_error, seen):
             # command and we're done.
             cmd_matches = list(wildcard_re.finditer(cmd))
             if not cmd_matches:
-                var = var[:idx] + run_cmd(cmd)
+                var = var[:match.start()] + run_cmd(cmd)
                 continue
 
             # Otherwise, check that each of them is ignored, or that
@@ -579,7 +579,7 @@ def clean_odirs(odir, max_odirs, ts_format=TS_FORMAT):
                   key=os.path.getctime,
                   reverse=True)
 
-    for old in dirs[max_odirs - 1:]:
+    for old in dirs[max(0, max_odirs - 1):]:
         shutil.rmtree(old, ignore_errors=True)
 
-    return dirs[0:max_odirs - 2]
+    return [] if max_odirs == 0 else dirs[:max_odirs - 1]
