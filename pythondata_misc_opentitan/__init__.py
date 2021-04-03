@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5703"
-version_tuple = (0, 0, 5703)
+version_str = "0.0.post5704"
+version_tuple = (0, 0, 5704)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5703")
+    pversion = V("0.0.post5704")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5608"
-data_version_tuple = (0, 0, 5608)
+data_version_str = "0.0.post5609"
+data_version_tuple = (0, 0, 5609)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5608")
+    pdata_version = V("0.0.post5609")
 except ImportError:
     pass
-data_git_hash = "9c0ed3194f337e376aa2f130088f060f46498874"
-data_git_describe = "v0.0-5608-g9c0ed3194"
+data_git_hash = "e0eefbce8f1639d5e2e265442bfcec466ef57369"
+data_git_describe = "v0.0-5609-ge0eefbce8"
 data_git_msg = """\
-commit 9c0ed3194f337e376aa2f130088f060f46498874
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Apr 1 14:58:35 2021 -0700
+commit e0eefbce8f1639d5e2e265442bfcec466ef57369
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Apr 2 11:37:18 2021 -0700
 
-    [formal] Update readme
+    [keymgr/dv] Fix scb for LC disable
     
-    This PR udpates README for OT formal to include connectivity test.
+    update state to StInvalid for LC disable
+    and align with design when LC disable occurs, no hw/sw input error will happen
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
