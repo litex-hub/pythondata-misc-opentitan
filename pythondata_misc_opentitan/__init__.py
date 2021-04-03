@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5704"
-version_tuple = (0, 0, 5704)
+version_str = "0.0.post5705"
+version_tuple = (0, 0, 5705)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5704")
+    pversion = V("0.0.post5705")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5609"
-data_version_tuple = (0, 0, 5609)
+data_version_str = "0.0.post5610"
+data_version_tuple = (0, 0, 5610)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5609")
+    pdata_version = V("0.0.post5610")
 except ImportError:
     pass
-data_git_hash = "e0eefbce8f1639d5e2e265442bfcec466ef57369"
-data_git_describe = "v0.0-5609-ge0eefbce8"
+data_git_hash = "2366e55ff0f14ef05445b3251c1dd1c03dd69d6d"
+data_git_describe = "v0.0-5610-g2366e55ff"
 data_git_msg = """\
-commit e0eefbce8f1639d5e2e265442bfcec466ef57369
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Apr 2 11:37:18 2021 -0700
+commit 2366e55ff0f14ef05445b3251c1dd1c03dd69d6d
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Apr 2 11:34:36 2021 -0700
 
-    [keymgr/dv] Fix scb for LC disable
+    [dv/otp] build-in fcov
     
-    update state to StInvalid for LC disable
-    and align with design when LC disable occurs, no hw/sw input error will happen
+    This PR adds interrupt related build-in fcov. And it updates
+    max_outstanding_item to 1, according to design.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
