@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5705"
-version_tuple = (0, 0, 5705)
+version_str = "0.0.post5707"
+version_tuple = (0, 0, 5707)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5705")
+    pversion = V("0.0.post5707")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5610"
-data_version_tuple = (0, 0, 5610)
+data_version_str = "0.0.post5612"
+data_version_tuple = (0, 0, 5612)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5610")
+    pdata_version = V("0.0.post5612")
 except ImportError:
     pass
-data_git_hash = "2366e55ff0f14ef05445b3251c1dd1c03dd69d6d"
-data_git_describe = "v0.0-5610-g2366e55ff"
+data_git_hash = "4c519c5563c3da902c7170b46b119a054bc0ac80"
+data_git_describe = "v0.0-5612-g4c519c556"
 data_git_msg = """\
-commit 2366e55ff0f14ef05445b3251c1dd1c03dd69d6d
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Apr 2 11:34:36 2021 -0700
+commit 4c519c5563c3da902c7170b46b119a054bc0ac80
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Apr 2 09:39:12 2021 -0700
 
-    [dv/otp] build-in fcov
+    [sw/dif] Fix dif_hmac.h clang-format
     
-    This PR adds interrupt related build-in fcov. And it updates
-    max_outstanding_item to 1, according to design.
+    Also small compile fixes to dif_hmac_smoketest.c
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
