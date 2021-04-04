@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5709"
-version_tuple = (0, 0, 5709)
+version_str = "0.0.post5710"
+version_tuple = (0, 0, 5710)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5709")
+    pversion = V("0.0.post5710")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5614"
-data_version_tuple = (0, 0, 5614)
+data_version_str = "0.0.post5615"
+data_version_tuple = (0, 0, 5615)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5614")
+    pdata_version = V("0.0.post5615")
 except ImportError:
     pass
-data_git_hash = "414f7a74d775b88c842e508c4e036ea539cd3355"
-data_git_describe = "v0.0-5614-g414f7a74d"
+data_git_hash = "e371842b0efb9a7d160f7909415190fd583b6c68"
+data_git_describe = "v0.0-5615-ge371842b0"
 data_git_msg = """\
-commit 414f7a74d775b88c842e508c4e036ea539cd3355
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Apr 2 13:58:57 2021 -0700
+commit e371842b0efb9a7d160f7909415190fd583b6c68
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Apr 2 18:25:42 2021 -0700
 
-    [dv/otp_ctrl] otp init failure test
+    [docs/hugo] Move to hugo version 0.82.0
     
-    This PR adds a otp_init failure test. This test will cause otp init
-    failure by creating init check errors. Scb is disabled in this test.
+    When adding more pinmux signals and pads, we run into a
+    funny error where HUGO can't read the generated pinmux register
+    documentation anymore since the file is too big. This file
+    limitation has just recently (3 months ago) been removed.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    See https://github.com/gohugoio/hugo/pull/8172 for reference.
+    
+    This commit moves to HUGO 0.82.0 which contains this fix.
+    
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
