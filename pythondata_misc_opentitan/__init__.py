@@ -4,36 +4,56 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5711"
-version_tuple = (0, 0, 5711)
+version_str = "0.0.post5712"
+version_tuple = (0, 0, 5712)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5711")
+    pversion = V("0.0.post5712")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5616"
-data_version_tuple = (0, 0, 5616)
+data_version_str = "0.0.post5617"
+data_version_tuple = (0, 0, 5617)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5616")
+    pdata_version = V("0.0.post5617")
 except ImportError:
     pass
-data_git_hash = "f29a0f7a7115e03fba734b1c00691c253aceb07e"
-data_git_describe = "v0.0-5616-gf29a0f7a7"
+data_git_hash = "a14b2ce07f0dec3bdd692e61671a4a6e417a5399"
+data_git_describe = "v0.0-5617-ga14b2ce07"
 data_git_msg = """\
-commit f29a0f7a7115e03fba734b1c00691c253aceb07e
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Mar 30 12:36:44 2021 +0100
+commit a14b2ce07f0dec3bdd692e61671a4a6e417a5399
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Dec 9 08:50:51 2020 -0500
 
-    [dv] Allow monitor items to have different types from sequence items
+    Initial commit
     
-    This was broken by 47c9510. This isn't the cleanest fix, because the
-    monitor class is still parameterised by types that it has no business
-    knowing about.
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    [sw] Add dif_pwrmgr_smoktest
+    
+    - The test puts the device to sleep and immediately wakes up via usb
+    - The usb wakeup is FAKE, the usb device is not actually enumerated.  Instead the usbdev presents to be in suspend to activate the wake logic, which is then used to trigger a wakeup.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [dv] Convert existing dif_pwrmgr_smoketest into a dv only test
+    
+    - The test relies on specific dv behvaior that cannot always be replicated in other systems without intervention.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw] update dif_pwrmgr_smoketest
+    
+    - use aon_timer for wakeup instead of usb
+    - this should now be portable across all targets
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw] Fix typo
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
