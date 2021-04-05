@@ -4,41 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5710"
-version_tuple = (0, 0, 5710)
+version_str = "0.0.post5711"
+version_tuple = (0, 0, 5711)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5710")
+    pversion = V("0.0.post5711")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5615"
-data_version_tuple = (0, 0, 5615)
+data_version_str = "0.0.post5616"
+data_version_tuple = (0, 0, 5616)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5615")
+    pdata_version = V("0.0.post5616")
 except ImportError:
     pass
-data_git_hash = "e371842b0efb9a7d160f7909415190fd583b6c68"
-data_git_describe = "v0.0-5615-ge371842b0"
+data_git_hash = "f29a0f7a7115e03fba734b1c00691c253aceb07e"
+data_git_describe = "v0.0-5616-gf29a0f7a7"
 data_git_msg = """\
-commit e371842b0efb9a7d160f7909415190fd583b6c68
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Apr 2 18:25:42 2021 -0700
+commit f29a0f7a7115e03fba734b1c00691c253aceb07e
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Mar 30 12:36:44 2021 +0100
 
-    [docs/hugo] Move to hugo version 0.82.0
+    [dv] Allow monitor items to have different types from sequence items
     
-    When adding more pinmux signals and pads, we run into a
-    funny error where HUGO can't read the generated pinmux register
-    documentation anymore since the file is too big. This file
-    limitation has just recently (3 months ago) been removed.
+    This was broken by 47c9510. This isn't the cleanest fix, because the
+    monitor class is still parameterised by types that it has no business
+    knowing about.
     
-    See https://github.com/gohugoio/hugo/pull/8172 for reference.
-    
-    This commit moves to HUGO 0.82.0 which contains this fix.
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
