@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5714"
-version_tuple = (0, 0, 5714)
+version_str = "0.0.post5715"
+version_tuple = (0, 0, 5715)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5714")
+    pversion = V("0.0.post5715")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5619"
-data_version_tuple = (0, 0, 5619)
+data_version_str = "0.0.post5620"
+data_version_tuple = (0, 0, 5620)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5619")
+    pdata_version = V("0.0.post5620")
 except ImportError:
     pass
-data_git_hash = "551695c501766bcc10a64fff1ba714720e62e349"
-data_git_describe = "v0.0-5619-g551695c50"
+data_git_hash = "29fa927b57d57e3baa542aea71ce1ed216b2bff7"
+data_git_describe = "v0.0-5620-g29fa927b5"
 data_git_msg = """\
-commit 551695c501766bcc10a64fff1ba714720e62e349
-Author: Jake Ke <jackieke724@hotmail.com>
-Date:   Fri Jan 22 14:22:38 2021 +0800
+commit 29fa927b57d57e3baa542aea71ce1ed216b2bff7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Apr 5 11:31:18 2021 -0700
 
-    [util/simplespi] PyFtdi updated, remove '.tobytes()' for spi read
+    [usbdev] Exclude wake enable from being turned on by csr tests
     
-    Signed-off-by: Jake Ke <jackieke724@hotmail.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
