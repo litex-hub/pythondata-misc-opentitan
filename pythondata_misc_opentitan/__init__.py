@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5730"
-version_tuple = (0, 0, 5730)
+version_str = "0.0.post5733"
+version_tuple = (0, 0, 5733)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5730")
+    pversion = V("0.0.post5733")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5635"
-data_version_tuple = (0, 0, 5635)
+data_version_str = "0.0.post5638"
+data_version_tuple = (0, 0, 5638)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5635")
+    pdata_version = V("0.0.post5638")
 except ImportError:
     pass
-data_git_hash = "eae77096b27abf66eef85dca0e437706cda37eae"
-data_git_describe = "v0.0-5635-geae77096b"
+data_git_hash = "d4d59930e0091fe5b45e0a9d079962b27e430bcc"
+data_git_describe = "v0.0-5638-gd4d59930e"
 data_git_msg = """\
-commit eae77096b27abf66eef85dca0e437706cda37eae
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 31 10:45:48 2021 -0700
+commit d4d59930e0091fe5b45e0a9d079962b27e430bcc
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Apr 2 08:03:58 2021 -0700
 
-    [spi] Define Passthrough interface
+    Correct a documentation error regarding DIFs
     
-    `passthrough_req/rsp_t` are for SPI passthrough communications between
-    SPI_DEVICE and SPI_HOST, more broadly between host system and downstream
-    flash device.
+    DIFs are a verification resource and are intended to make writing DV and
+    silicon bringup code easier.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    DIFs are not primitives for writing production code such as ROM, ROM_EXT,
+    bootloaders or kernel drivers.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
