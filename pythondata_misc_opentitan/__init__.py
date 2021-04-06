@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5716"
-version_tuple = (0, 0, 5716)
+version_str = "0.0.post5719"
+version_tuple = (0, 0, 5719)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5716")
+    pversion = V("0.0.post5719")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5621"
-data_version_tuple = (0, 0, 5621)
+data_version_str = "0.0.post5624"
+data_version_tuple = (0, 0, 5624)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5621")
+    pdata_version = V("0.0.post5624")
 except ImportError:
     pass
-data_git_hash = "3ce3f7743be2075561554cf18176ba283941ccfd"
-data_git_describe = "v0.0-5621-g3ce3f7743"
+data_git_hash = "070d956d1d5191074df7e8815f300e9ff0267adc"
+data_git_describe = "v0.0-5624-g070d956d1"
 data_git_msg = """\
-commit 3ce3f7743be2075561554cf18176ba283941ccfd
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Apr 2 16:59:38 2021 -0700
+commit 070d956d1d5191074df7e8815f300e9ff0267adc
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Apr 5 11:50:29 2021 -0700
 
-    [dv] Support multi-ral (part 1)
+    [dv/otp_ctrl] Add macro failure to otp init test
     
-    1. create a queue for names of ral models. RAL models will be created
-    automatically based the names
-    2. excl_item is generated in reg_block, don't need to supply this from
-    outside. Clean this up to support multi-ral
+    The otp_init_fail can also be triggered by ECC failure.
+    ECC correctable failure will pass OTP init with an error.
+    ECC uncorrectable failure will fail OTP init with an alert.
     
-    CSR seq, multiple TL agents, scb update will come in next PR
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
