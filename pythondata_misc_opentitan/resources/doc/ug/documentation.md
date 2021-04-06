@@ -14,12 +14,7 @@ All processing steps as well as the invocation to Hugo are combined in the scrip
 
 ### Prerequisites
 
-Install the required tools by running the following command from the repository root.
-
-```console
-$ sudo apt install curl python3 python3-pip
-$ pip3 install --user -r python-requirements.txt
-```
+The documentation build requirements are covered in the [install instructions 'System preperation' section]({{< relref "install_instructions#system-preparation" >}}). You don't need to install the compiler or fpga tools for building documentation. 
 
 ### Running the server
 
