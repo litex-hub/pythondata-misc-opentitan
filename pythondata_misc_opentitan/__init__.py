@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5733"
-version_tuple = (0, 0, 5733)
+version_str = "0.0.post5734"
+version_tuple = (0, 0, 5734)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5733")
+    pversion = V("0.0.post5734")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5638"
-data_version_tuple = (0, 0, 5638)
+data_version_str = "0.0.post5639"
+data_version_tuple = (0, 0, 5639)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5638")
+    pdata_version = V("0.0.post5639")
 except ImportError:
     pass
-data_git_hash = "d4d59930e0091fe5b45e0a9d079962b27e430bcc"
-data_git_describe = "v0.0-5638-gd4d59930e"
+data_git_hash = "9bff8eae22c7aef750394cc36b76f3c696025e38"
+data_git_describe = "v0.0-5639-g9bff8eae2"
 data_git_msg = """\
-commit d4d59930e0091fe5b45e0a9d079962b27e430bcc
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Fri Apr 2 08:03:58 2021 -0700
+commit 9bff8eae22c7aef750394cc36b76f3c696025e38
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Apr 2 15:14:04 2021 -0700
 
-    Correct a documentation error regarding DIFs
+    [dvsim] Fix remaining comments  from #5876
     
-    DIFs are a verification resource and are intended to make writing DV and
-    silicon bringup code easier.
-    
-    DIFs are not primitives for writing production code such as ROM, ROM_EXT,
-    bootloaders or kernel drivers.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
