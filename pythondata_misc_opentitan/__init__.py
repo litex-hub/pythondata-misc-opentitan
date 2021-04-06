@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5727"
-version_tuple = (0, 0, 5727)
+version_str = "0.0.post5728"
+version_tuple = (0, 0, 5728)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5727")
+    pversion = V("0.0.post5728")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5632"
-data_version_tuple = (0, 0, 5632)
+data_version_str = "0.0.post5633"
+data_version_tuple = (0, 0, 5633)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5632")
+    pdata_version = V("0.0.post5633")
 except ImportError:
     pass
-data_git_hash = "77106b793f5b60d6323d53c885f1d47d1efff76d"
-data_git_describe = "v0.0-5632-g77106b793"
+data_git_hash = "0d62c3c104417b714d6713444d2bef4815be9709"
+data_git_describe = "v0.0-5633-g0d62c3c10"
 data_git_msg = """\
-commit 77106b793f5b60d6323d53c885f1d47d1efff76d
-Author: Colin O'Flynn <coflynn@newae.com>
-Date:   Tue Apr 6 10:14:22 2021 -0300
+commit 0d62c3c104417b714d6713444d2bef4815be9709
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Sun Mar 21 17:44:58 2021 -0700
 
-    [doc] Remove separate doc build package list
+    [entropy_src/rtl] increase health teset fail counter
     
-    Signed-off-by: Colin O'Flynn <coflynn@newae.com>
+    Allow a large number of health test fails with larger counter.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
