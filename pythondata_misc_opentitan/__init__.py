@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5728"
-version_tuple = (0, 0, 5728)
+version_str = "0.0.post5730"
+version_tuple = (0, 0, 5730)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5728")
+    pversion = V("0.0.post5730")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5633"
-data_version_tuple = (0, 0, 5633)
+data_version_str = "0.0.post5635"
+data_version_tuple = (0, 0, 5635)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5633")
+    pdata_version = V("0.0.post5635")
 except ImportError:
     pass
-data_git_hash = "0d62c3c104417b714d6713444d2bef4815be9709"
-data_git_describe = "v0.0-5633-g0d62c3c10"
+data_git_hash = "eae77096b27abf66eef85dca0e437706cda37eae"
+data_git_describe = "v0.0-5635-geae77096b"
 data_git_msg = """\
-commit 0d62c3c104417b714d6713444d2bef4815be9709
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Sun Mar 21 17:44:58 2021 -0700
+commit eae77096b27abf66eef85dca0e437706cda37eae
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Mar 31 10:45:48 2021 -0700
 
-    [entropy_src/rtl] increase health teset fail counter
+    [spi] Define Passthrough interface
     
-    Allow a large number of health test fails with larger counter.
+    `passthrough_req/rsp_t` are for SPI passthrough communications between
+    SPI_DEVICE and SPI_HOST, more broadly between host system and downstream
+    flash device.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
