@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5715"
-version_tuple = (0, 0, 5715)
+version_str = "0.0.post5716"
+version_tuple = (0, 0, 5716)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5715")
+    pversion = V("0.0.post5716")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5620"
-data_version_tuple = (0, 0, 5620)
+data_version_str = "0.0.post5621"
+data_version_tuple = (0, 0, 5621)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5620")
+    pdata_version = V("0.0.post5621")
 except ImportError:
     pass
-data_git_hash = "29fa927b57d57e3baa542aea71ce1ed216b2bff7"
-data_git_describe = "v0.0-5620-g29fa927b5"
+data_git_hash = "3ce3f7743be2075561554cf18176ba283941ccfd"
+data_git_describe = "v0.0-5621-g3ce3f7743"
 data_git_msg = """\
-commit 29fa927b57d57e3baa542aea71ce1ed216b2bff7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Apr 5 11:31:18 2021 -0700
+commit 3ce3f7743be2075561554cf18176ba283941ccfd
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Apr 2 16:59:38 2021 -0700
 
-    [usbdev] Exclude wake enable from being turned on by csr tests
+    [dv] Support multi-ral (part 1)
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    1. create a queue for names of ral models. RAL models will be created
+    automatically based the names
+    2. excl_item is generated in reg_block, don't need to supply this from
+    outside. Clean this up to support multi-ral
+    
+    CSR seq, multiple TL agents, scb update will come in next PR
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
