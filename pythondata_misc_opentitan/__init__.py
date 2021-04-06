@@ -4,37 +4,60 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5723"
-version_tuple = (0, 0, 5723)
+version_str = "0.0.post5724"
+version_tuple = (0, 0, 5724)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5723")
+    pversion = V("0.0.post5724")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5628"
-data_version_tuple = (0, 0, 5628)
+data_version_str = "0.0.post5629"
+data_version_tuple = (0, 0, 5629)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5628")
+    pdata_version = V("0.0.post5629")
 except ImportError:
     pass
-data_git_hash = "751a37dd5cee1822c6c706c1c9a4f9210f322997"
-data_git_describe = "v0.0-5628-g751a37dd5"
+data_git_hash = "4458f8377c5e0015c81802b321f22873b4097a23"
+data_git_describe = "v0.0-5629-g4458f8377"
 data_git_msg = """\
-commit 751a37dd5cee1822c6c706c1c9a4f9210f322997
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Apr 5 11:13:40 2021 +0100
+commit 4458f8377c5e0015c81802b321f22873b4097a23
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Wed Mar 31 15:51:58 2021 +0100
 
-    [otp_ctrl,lint] Explicitly compare multi-bit signals with zero
+    [otbn] Move to version 0.2
     
-    This is actually in our style guide ("Do not use multi-bit signals in
-    a boolean context"). The implicit boolean conversion also caused a
-    Verilator width warning. Use the relevant enum value (NoError)
-    instead.
+    OTBN is now in a consistent state from a specification, RTL,
+    verification, and software perspective. The respective D1/V1/S1 status
+    indicates that. We would like to use this opportunity to mark this state
+    as version 0.1 before we move out of this consistent state again.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Version 0.1 of OTBN isn't perfect -- there are known bugs and gaps in
+    the implementation, in the verification, in the DIF and test software,
+    and in the specification, as it would be expected for a design in
+    L1/D1/V1/S1 state. However, OTBN in its current state is good enough
+    to be synthesized properly, run RSA and ECDSA-P256 on it, and pass basic
+    verification. The specification has seen extensive review.
+    
+    Going forward in version 0.2 we will (re-)open the discussion around some
+    aspects of the specification, mostly to add security hardening features,
+    and likely to be better suited for workloads we haven't considered so
+    far (e.g. SIMD instructions for SHA2).
+    
+    For now, I'm leaving the D1/V1/S1 status in place (instead of going down
+    e.g. to D0), as it is still valid. In the past we were able in OTBN to
+    reasonably synchronously add support for new features to DIF, RTL, and
+    verification, which would keep the *1 status in place. However, we don't
+    have that many examples of version bumps in OpenTitan, and with that not
+    that many established guidelines that we could follow.
+    
+    Finally: The version number does not have any semantic meaning whatsoever.
+    
+    Documentation on versioning: https://docs.opentitan.org/doc/project/development_stages/#versioning
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
