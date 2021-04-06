@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5720"
-version_tuple = (0, 0, 5720)
+version_str = "0.0.post5723"
+version_tuple = (0, 0, 5723)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5720")
+    pversion = V("0.0.post5723")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5625"
-data_version_tuple = (0, 0, 5625)
+data_version_str = "0.0.post5628"
+data_version_tuple = (0, 0, 5628)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5625")
+    pdata_version = V("0.0.post5628")
 except ImportError:
     pass
-data_git_hash = "8235b73df356a92b7fb99e29e864c7086b6860b1"
-data_git_describe = "v0.0-5625-g8235b73df"
+data_git_hash = "751a37dd5cee1822c6c706c1c9a4f9210f322997"
+data_git_describe = "v0.0-5628-g751a37dd5"
 data_git_msg = """\
-commit 8235b73df356a92b7fb99e29e864c7086b6860b1
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Wed Mar 31 15:37:52 2021 +0100
+commit 751a37dd5cee1822c6c706c1c9a4f9210f322997
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Apr 5 11:13:40 2021 +0100
 
-    [sw, dif_aon_timer] Minor naming and documentation fixups
+    [otp_ctrl,lint] Explicitly compare multi-bit signals with zero
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    This is actually in our style guide ("Do not use multi-bit signals in
+    a boolean context"). The implicit boolean conversion also caused a
+    Verilator width warning. Use the relevant enum value (NoError)
+    instead.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
