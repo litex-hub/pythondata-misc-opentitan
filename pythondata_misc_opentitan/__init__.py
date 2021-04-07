@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5743"
-version_tuple = (0, 0, 5743)
+version_str = "0.0.post5746"
+version_tuple = (0, 0, 5746)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5743")
+    pversion = V("0.0.post5746")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5648"
-data_version_tuple = (0, 0, 5648)
+data_version_str = "0.0.post5651"
+data_version_tuple = (0, 0, 5651)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5648")
+    pdata_version = V("0.0.post5651")
 except ImportError:
     pass
-data_git_hash = "3590a1d81431713d283937ff3fe3267b69af844b"
-data_git_describe = "v0.0-5648-g3590a1d81"
+data_git_hash = "8e68433118aa8b335b9a92eb8e9a1e9ff44e49da"
+data_git_describe = "v0.0-5651-g8e6843311"
 data_git_msg = """\
-commit 3590a1d81431713d283937ff3fe3267b69af844b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Apr 6 17:46:48 2021 +0100
+commit 8e68433118aa8b335b9a92eb8e9a1e9ff44e49da
+Author: Felix Miller <felix.miller@gi-de.com>
+Date:   Mon Apr 5 12:31:05 2021 +0200
 
-    [ci] Switch from a blacklist to a whitelist for executable files
+    [otbn] add scalar multiplication for P-384 points
     
-    And remove executable bits from everything that's not allowed.
+    Adds routine and test for scalar multiplication in
+    projective space.
+    This does not yet contain conversion to affine space
+    of the resulting point.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
 
 """
 
