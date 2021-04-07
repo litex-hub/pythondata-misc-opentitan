@@ -73,13 +73,22 @@ module otp_ctrl_part_buf
 
   import prim_util_pkg::vbits;
 
-  localparam int DigestOffset = int'(Info.offset) + int'(Info.size) - ScrmblBlockWidth/8;
+  localparam int unsigned DigestOffsetInt = (int'(Info.offset) +
+                                             int'(Info.size) - ScrmblBlockWidth/8);
   localparam int NumScrmblBlocks = int'(Info.size) / (ScrmblBlockWidth/8);
   localparam int CntWidth = vbits(NumScrmblBlocks);
+
+  localparam bit [OtpByteAddrWidth-1:0] DigestOffset = DigestOffsetInt[OtpByteAddrWidth-1:0];
+
+  localparam int unsigned LastScrmblBlockInt = NumScrmblBlocks - 1;
+  localparam int unsigned PenultimateScrmblBlockInt = NumScrmblBlocks - 2;
+  localparam bit [CntWidth-1:0] LastScrmblBlock = LastScrmblBlockInt[CntWidth-1:0];
+  localparam bit [CntWidth-1:0] PenultimateScrmblBlock = PenultimateScrmblBlockInt[CntWidth-1:0];
 
   // Integration checks for parameters.
   `ASSERT_INIT(OffsetMustBeBlockAligned_A, (Info.offset % (ScrmblBlockWidth/8)) == 0)
   `ASSERT_INIT(SizeMustBeBlockAligned_A, (Info.size % (ScrmblBlockWidth/8)) == 0)
+  `ASSERT_INIT(DigestOffsetMustBeRepresentable_A, DigestOffsetInt == int'(DigestOffset))
   `ASSERT(ScrambledImpliesDigest_A, Info.secret |-> Info.hw_digest)
   `ASSERT(WriteLockImpliesDigest_A, Info.read_lock |-> Info.hw_digest)
   `ASSERT(ReadLockImpliesDigest_A, Info.write_lock |-> Info.hw_digest)
@@ -232,7 +241,7 @@ module otp_ctrl_part_buf
             // Once we've read and descrambled the whole partition, we can go to integrity
             // verification. Note that the last block is the digest value, which does not
             // have to be descrambled.
-            if (cnt_q == NumScrmblBlocks-1) begin
+            if (cnt_q == LastScrmblBlock) begin
               state_d = IntegDigClrSt;
             // Only need to descramble if this is a scrambled partition.
             // Otherwise, we can just go back to InitSt and read the next block.
@@ -345,7 +354,7 @@ module otp_ctrl_part_buf
               if (scrmbl_data_o == data_mux || check_byp_en_i == lc_ctrl_pkg::On) begin
                 // Can go back to idle and acknowledge the
                 // request if this is the last block.
-                if (cnt_q == NumScrmblBlocks-1) begin
+                if (cnt_q == LastScrmblBlock) begin
                   state_d = IdleSt;
                   cnsty_chk_ack_o = 1'b1;
                 // Need to go back and read out more blocks.
@@ -435,7 +444,7 @@ module otp_ctrl_part_buf
         if (scrmbl_ready_i) begin
           cnt_en = 1'b1;
           // No need to digest the digest value itself
-          if (cnt_q == NumScrmblBlocks-2) begin
+          if (cnt_q == PenultimateScrmblBlock) begin
             // Note that the digest operates on 128bit blocks since the data is fed in via the
             // PRESENT key input. Therefore, we only trigger a digest update on every second
             // 64bit block that is pushed into the scrambling datapath.
@@ -567,7 +576,7 @@ module otp_ctrl_part_buf
   // shift the addresses appropriately.
   logic [OtpByteAddrWidth-1:0] addr_calc;
   assign addr_calc = OtpByteAddrWidth'({cnt_q, {$clog2(ScrmblBlockWidth/8){1'b0}}}) + addr_base;
-  assign otp_addr_o = addr_calc >> OtpAddrShift;
+  assign otp_addr_o = addr_calc[OtpByteAddrWidth-1:OtpAddrShift];
 
   // Always transfer 64bit blocks.
   assign otp_size_o = OtpSizeWidth'(unsigned'(ScrmblBlockWidth / OtpWidth) - 1);
