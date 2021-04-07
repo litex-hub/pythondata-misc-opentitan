@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5734"
-version_tuple = (0, 0, 5734)
+version_str = "0.0.post5737"
+version_tuple = (0, 0, 5737)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5734")
+    pversion = V("0.0.post5737")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5639"
-data_version_tuple = (0, 0, 5639)
+data_version_str = "0.0.post5642"
+data_version_tuple = (0, 0, 5642)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5639")
+    pdata_version = V("0.0.post5642")
 except ImportError:
     pass
-data_git_hash = "9bff8eae22c7aef750394cc36b76f3c696025e38"
-data_git_describe = "v0.0-5639-g9bff8eae2"
+data_git_hash = "aad796e1182f239766ab0f1d0c650ab36b937936"
+data_git_describe = "v0.0-5642-gaad796e11"
 data_git_msg = """\
-commit 9bff8eae22c7aef750394cc36b76f3c696025e38
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Apr 2 15:14:04 2021 -0700
+commit aad796e1182f239766ab0f1d0c650ab36b937936
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 24 17:21:33 2021 -0700
 
-    [dvsim] Fix remaining comments  from #5876
+    [top] Auto generate files
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
