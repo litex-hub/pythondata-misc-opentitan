@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5758"
-version_tuple = (0, 0, 5758)
+version_str = "0.0.post5763"
+version_tuple = (0, 0, 5763)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5758")
+    pversion = V("0.0.post5763")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5663"
-data_version_tuple = (0, 0, 5663)
+data_version_str = "0.0.post5668"
+data_version_tuple = (0, 0, 5668)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5663")
+    pdata_version = V("0.0.post5668")
 except ImportError:
     pass
-data_git_hash = "de7eba3d7af1f55b7bda8104152b4240f3d37456"
-data_git_describe = "v0.0-5663-gde7eba3d7"
+data_git_hash = "be6710805572fb696968751d1e679e783efae050"
+data_git_describe = "v0.0-5668-gbe6710805"
 data_git_msg = """\
-commit de7eba3d7af1f55b7bda8104152b4240f3d37456
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Mar 22 14:18:38 2021 -0700
+commit be6710805572fb696968751d1e679e783efae050
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Apr 6 19:19:18 2021 -0700
 
-    [csrng/entropy_src] fix for #4601
+    [pattgen] Add missing core file dependency
     
-    Inter-module signals to prevent power spikes.
-    Changed permissions for several files to not be executable.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
