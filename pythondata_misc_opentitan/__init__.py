@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5739"
-version_tuple = (0, 0, 5739)
+version_str = "0.0.post5743"
+version_tuple = (0, 0, 5743)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5739")
+    pversion = V("0.0.post5743")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5644"
-data_version_tuple = (0, 0, 5644)
+data_version_str = "0.0.post5648"
+data_version_tuple = (0, 0, 5648)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5644")
+    pdata_version = V("0.0.post5648")
 except ImportError:
     pass
-data_git_hash = "12841fcca27cdfa68c62eeee834793ad4a120795"
-data_git_describe = "v0.0-5644-g12841fcca"
+data_git_hash = "3590a1d81431713d283937ff3fe3267b69af844b"
+data_git_describe = "v0.0-5648-g3590a1d81"
 data_git_msg = """\
-commit 12841fcca27cdfa68c62eeee834793ad4a120795
+commit 3590a1d81431713d283937ff3fe3267b69af844b
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 22 10:25:15 2021 +0000
+Date:   Tue Apr 6 17:46:48 2021 +0100
 
-    [flash_ctrl,lint] Fix width errors for parameters in flash_ctrl_pkg
+    [ci] Switch from a blacklist to a whitelist for executable files
     
-    Most of these changes are pretty mechanical, silencing Verilator
-    warnings by making casts explicit.
-    
-    The only non-trivial change is in flash_ctrl_info_cfg.sv, where a
-    page_addr_t structure (normally used for addressing pages within a
-    data partition) is used to address pages in an info partition. This
-    means that the "CurPage" index needs expanding from InfoPageW to
-    PageW. In practice, Info partitions are no bigger than data
-    partitions, so this should be fine, but we also add a comment and an
-    ASSERT_INIT to make sure this holds.
+    And remove executable bits from everything that's not allowed.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
