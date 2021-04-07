@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5752"
-version_tuple = (0, 0, 5752)
+version_str = "0.0.post5758"
+version_tuple = (0, 0, 5758)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5752")
+    pversion = V("0.0.post5758")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5657"
-data_version_tuple = (0, 0, 5657)
+data_version_str = "0.0.post5663"
+data_version_tuple = (0, 0, 5663)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5657")
+    pdata_version = V("0.0.post5663")
 except ImportError:
     pass
-data_git_hash = "84f7b4c15f037168261b52c838418ba4d69d5c96"
-data_git_describe = "v0.0-5657-g84f7b4c15"
+data_git_hash = "de7eba3d7af1f55b7bda8104152b4240f3d37456"
+data_git_describe = "v0.0-5663-gde7eba3d7"
 data_git_msg = """\
-commit 84f7b4c15f037168261b52c838418ba4d69d5c96
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Apr 5 23:03:09 2021 -0700
+commit de7eba3d7af1f55b7bda8104152b4240f3d37456
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Mar 22 14:18:38 2021 -0700
 
-    [dv/otp_ctrl] Fix lc program checking and order
+    [csrng/entropy_src] fix for #4601
     
-    This PR reflects the change in issue #5942 where we decided to reverse
-    the order of LC_state and LC_cnt.
-    This PR also adds checking for otp_lc_data_o.
+    Inter-module signals to prevent power spikes.
+    Changed permissions for several files to not be executable.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
