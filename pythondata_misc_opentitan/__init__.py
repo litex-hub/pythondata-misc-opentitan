@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5751"
-version_tuple = (0, 0, 5751)
+version_str = "0.0.post5752"
+version_tuple = (0, 0, 5752)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5751")
+    pversion = V("0.0.post5752")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5656"
-data_version_tuple = (0, 0, 5656)
+data_version_str = "0.0.post5657"
+data_version_tuple = (0, 0, 5657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5656")
+    pdata_version = V("0.0.post5657")
 except ImportError:
     pass
-data_git_hash = "571196deff2682a5bdc509bd2fb440014fa1eaca"
-data_git_describe = "v0.0-5656-g571196def"
+data_git_hash = "84f7b4c15f037168261b52c838418ba4d69d5c96"
+data_git_describe = "v0.0-5657-g84f7b4c15"
 data_git_msg = """\
-commit 571196deff2682a5bdc509bd2fb440014fa1eaca
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Apr 6 16:50:31 2021 +0100
+commit 84f7b4c15f037168261b52c838418ba4d69d5c96
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Apr 5 23:03:09 2021 -0700
 
-    [otp_ctrl,lint] Use explicit cast for round count in otp_ctrl_scrmbl
+    [dv/otp_ctrl] Fix lc program checking and order
     
-    This silences a Verilator width mismatch warning.
+    This PR reflects the change in issue #5942 where we decided to reverse
+    the order of LC_state and LC_cnt.
+    This PR also adds checking for otp_lc_data_o.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
