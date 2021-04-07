@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5738"
-version_tuple = (0, 0, 5738)
+version_str = "0.0.post5739"
+version_tuple = (0, 0, 5739)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5738")
+    pversion = V("0.0.post5739")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5643"
-data_version_tuple = (0, 0, 5643)
+data_version_str = "0.0.post5644"
+data_version_tuple = (0, 0, 5644)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5643")
+    pdata_version = V("0.0.post5644")
 except ImportError:
     pass
-data_git_hash = "71174e0585ac0611566754b28a303b21faaba700"
-data_git_describe = "v0.0-5643-g71174e058"
+data_git_hash = "12841fcca27cdfa68c62eeee834793ad4a120795"
+data_git_describe = "v0.0-5644-g12841fcca"
 data_git_msg = """\
-commit 71174e0585ac0611566754b28a303b21faaba700
-Author: Cindy Chen <chencindy@google.com>
-Date:   Mon Apr 5 16:17:29 2021 -0700
+commit 12841fcca27cdfa68c62eeee834793ad4a120795
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 22 10:25:15 2021 +0000
 
-    [dv/otp_ctrl] stress_all_with_rand_reset test part 1
+    [flash_ctrl,lint] Fix width errors for parameters in flash_ctrl_pkg
     
-    This PR clears up stress_all_with_rand_reset test compile issues.
-    1. Fix the constraint names that does not match the base constraint name
-    2. Clean up cfg.hjson and testplan
-    3. Turn on the access mode for test_access region, so tl_error in
-    stress_all_with_reset sequence won't hang
+    Most of these changes are pretty mechanical, silencing Verilator
+    warnings by making casts explicit.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    The only non-trivial change is in flash_ctrl_info_cfg.sv, where a
+    page_addr_t structure (normally used for addressing pages within a
+    data partition) is used to address pages in an info partition. This
+    means that the "CurPage" index needs expanding from InfoPageW to
+    PageW. In practice, Info partitions are no bigger than data
+    partitions, so this should be fine, but we also add a comment and an
+    ASSERT_INIT to make sure this holds.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
