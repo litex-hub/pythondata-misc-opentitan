@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5737"
-version_tuple = (0, 0, 5737)
+version_str = "0.0.post5738"
+version_tuple = (0, 0, 5738)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5737")
+    pversion = V("0.0.post5738")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5642"
-data_version_tuple = (0, 0, 5642)
+data_version_str = "0.0.post5643"
+data_version_tuple = (0, 0, 5643)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5642")
+    pdata_version = V("0.0.post5643")
 except ImportError:
     pass
-data_git_hash = "aad796e1182f239766ab0f1d0c650ab36b937936"
-data_git_describe = "v0.0-5642-gaad796e11"
+data_git_hash = "71174e0585ac0611566754b28a303b21faaba700"
+data_git_describe = "v0.0-5643-g71174e058"
 data_git_msg = """\
-commit aad796e1182f239766ab0f1d0c650ab36b937936
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 24 17:21:33 2021 -0700
+commit 71174e0585ac0611566754b28a303b21faaba700
+Author: Cindy Chen <chencindy@google.com>
+Date:   Mon Apr 5 16:17:29 2021 -0700
 
-    [top] Auto generate files
+    [dv/otp_ctrl] stress_all_with_rand_reset test part 1
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR clears up stress_all_with_rand_reset test compile issues.
+    1. Fix the constraint names that does not match the base constraint name
+    2. Clean up cfg.hjson and testplan
+    3. Turn on the access mode for test_access region, so tl_error in
+    stress_all_with_reset sequence won't hang
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
