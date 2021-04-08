@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5782"
-version_tuple = (0, 0, 5782)
+version_str = "0.0.post5785"
+version_tuple = (0, 0, 5785)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5782")
+    pversion = V("0.0.post5785")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5687"
-data_version_tuple = (0, 0, 5687)
+data_version_str = "0.0.post5690"
+data_version_tuple = (0, 0, 5690)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5687")
+    pdata_version = V("0.0.post5690")
 except ImportError:
     pass
-data_git_hash = "57be47e8aba1edb9d40c1d8f1fe725ce80506d9d"
-data_git_describe = "v0.0-5687-g57be47e8a"
+data_git_hash = "e7caaa137d2dc3a5479bb1bebe37f4e62c409f36"
+data_git_describe = "v0.0-5690-ge7caaa137"
 data_git_msg = """\
-commit 57be47e8aba1edb9d40c1d8f1fe725ce80506d9d
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Apr 8 10:08:35 2021 -0700
+commit e7caaa137d2dc3a5479bb1bebe37f4e62c409f36
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Thu Apr 8 16:22:09 2021 +0100
 
-    [kmac] Fix typo in kmac.waiver
+    [sw, rom_ext_signer] Run the workspace through with `cargo fmt`
     
-    while renaming kmac_keymgr.sv to kmac_app.sv, kmac.waiver was left
-    behind having its original name in the waiver rule. This commit
-    corrected it and slightly revised the priority condition too.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
