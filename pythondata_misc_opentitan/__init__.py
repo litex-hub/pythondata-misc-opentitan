@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5785"
-version_tuple = (0, 0, 5785)
+version_str = "0.0.post5788"
+version_tuple = (0, 0, 5788)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5785")
+    pversion = V("0.0.post5788")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5690"
-data_version_tuple = (0, 0, 5690)
+data_version_str = "0.0.post5693"
+data_version_tuple = (0, 0, 5693)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5690")
+    pdata_version = V("0.0.post5693")
 except ImportError:
     pass
-data_git_hash = "e7caaa137d2dc3a5479bb1bebe37f4e62c409f36"
-data_git_describe = "v0.0-5690-ge7caaa137"
+data_git_hash = "c2a8fc9b1a06f70258e1de3a7facbfb0ca1e9536"
+data_git_describe = "v0.0-5693-gc2a8fc9b1"
 data_git_msg = """\
-commit e7caaa137d2dc3a5479bb1bebe37f4e62c409f36
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Thu Apr 8 16:22:09 2021 +0100
+commit c2a8fc9b1a06f70258e1de3a7facbfb0ca1e9536
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Apr 6 17:37:34 2021 -0700
 
-    [sw, rom_ext_signer] Run the workspace through with `cargo fmt`
+    [dv] Update `process_tl_access` args for all blocks
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
