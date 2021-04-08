@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5770"
-version_tuple = (0, 0, 5770)
+version_str = "0.0.post5771"
+version_tuple = (0, 0, 5771)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5770")
+    pversion = V("0.0.post5771")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5675"
-data_version_tuple = (0, 0, 5675)
+data_version_str = "0.0.post5676"
+data_version_tuple = (0, 0, 5676)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5675")
+    pdata_version = V("0.0.post5676")
 except ImportError:
     pass
-data_git_hash = "da747944e586427d3e8cd316a85d90febc01e211"
-data_git_describe = "v0.0-5675-gda747944e"
+data_git_hash = "7651597e2db5c021ee004b7b23395483df477378"
+data_git_describe = "v0.0-5676-g7651597e2"
 data_git_msg = """\
-commit da747944e586427d3e8cd316a85d90febc01e211
+commit 7651597e2db5c021ee004b7b23395483df477378
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Apr 8 07:49:48 2021 +0100
+Date:   Thu Apr 8 07:41:34 2021 +0100
 
-    [rom_ctrl] Hook up the other bus integrity error signals in rom_ctrl
+    [otbn] Wire up bus intg_error_o signals
     
-    It seems that I managed one register top but not the other one, or the
-    SRAM adapter. Oops!
+    These are merged together and cause a "bus integrity error", which is
+    a fatal alert.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
