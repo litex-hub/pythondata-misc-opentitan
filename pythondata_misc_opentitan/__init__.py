@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5773"
-version_tuple = (0, 0, 5773)
+version_str = "0.0.post5774"
+version_tuple = (0, 0, 5774)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5773")
+    pversion = V("0.0.post5774")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5678"
-data_version_tuple = (0, 0, 5678)
+data_version_str = "0.0.post5679"
+data_version_tuple = (0, 0, 5679)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5678")
+    pdata_version = V("0.0.post5679")
 except ImportError:
     pass
-data_git_hash = "72b1230e9e0063625d7c8e3da60fb957627cdfe5"
-data_git_describe = "v0.0-5678-g72b1230e9"
+data_git_hash = "9eb2a9c9fd5d8e8342b2a9da5d7e6470e2a26ebf"
+data_git_describe = "v0.0-5679-g9eb2a9c9f"
 data_git_msg = """\
-commit 72b1230e9e0063625d7c8e3da60fb957627cdfe5
+commit 9eb2a9c9fd5d8e8342b2a9da5d7e6470e2a26ebf
 Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Apr 7 13:31:22 2021 -0700
+Date:   Sat Mar 20 15:53:30 2021 -0700
 
-    [csrng/rtl] prevent x's from entering prim_arbiter_ppc_acmd
+    [entropy_src/rtl] symbol-based repetition count health test
     
-    Changing the data bus mux that feeds the app cmd arbiter to send zeros instead of x's when the mop signal is active.
+    An additional symobl-based repetition count health test is added.
+    Changed the rep counter to initialize to 1, as NIST shows.
     
     Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
