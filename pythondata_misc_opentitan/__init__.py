@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5771"
-version_tuple = (0, 0, 5771)
+version_str = "0.0.post5773"
+version_tuple = (0, 0, 5773)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5771")
+    pversion = V("0.0.post5773")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5676"
-data_version_tuple = (0, 0, 5676)
+data_version_str = "0.0.post5678"
+data_version_tuple = (0, 0, 5678)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5676")
+    pdata_version = V("0.0.post5678")
 except ImportError:
     pass
-data_git_hash = "7651597e2db5c021ee004b7b23395483df477378"
-data_git_describe = "v0.0-5676-g7651597e2"
+data_git_hash = "72b1230e9e0063625d7c8e3da60fb957627cdfe5"
+data_git_describe = "v0.0-5678-g72b1230e9"
 data_git_msg = """\
-commit 7651597e2db5c021ee004b7b23395483df477378
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Apr 8 07:41:34 2021 +0100
+commit 72b1230e9e0063625d7c8e3da60fb957627cdfe5
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Apr 7 13:31:22 2021 -0700
 
-    [otbn] Wire up bus intg_error_o signals
+    [csrng/rtl] prevent x's from entering prim_arbiter_ppc_acmd
     
-    These are merged together and cause a "bus integrity error", which is
-    a fatal alert.
+    Changing the data bus mux that feeds the app cmd arbiter to send zeros instead of x's when the mop signal is active.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
