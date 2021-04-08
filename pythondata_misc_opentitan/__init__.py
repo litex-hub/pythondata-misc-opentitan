@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5763"
-version_tuple = (0, 0, 5763)
+version_str = "0.0.post5764"
+version_tuple = (0, 0, 5764)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5763")
+    pversion = V("0.0.post5764")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5668"
-data_version_tuple = (0, 0, 5668)
+data_version_str = "0.0.post5669"
+data_version_tuple = (0, 0, 5669)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5668")
+    pdata_version = V("0.0.post5669")
 except ImportError:
     pass
-data_git_hash = "be6710805572fb696968751d1e679e783efae050"
-data_git_describe = "v0.0-5668-gbe6710805"
+data_git_hash = "05ef653345ee6b8eb7cb8fc13df22e499c511d1d"
+data_git_describe = "v0.0-5669-g05ef65334"
 data_git_msg = """\
-commit be6710805572fb696968751d1e679e783efae050
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Apr 6 19:19:18 2021 -0700
+commit 05ef653345ee6b8eb7cb8fc13df22e499c511d1d
+Author: Cindy Chen <chencindy@google.com>
+Date:   Wed Apr 7 15:20:30 2021 -0700
 
-    [pattgen] Add missing core file dependency
+    [otp_ctrl] fix compile error
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    TLUL port `req_type_o` was declared twice and has a compile error.
+    This PR fixes it.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
