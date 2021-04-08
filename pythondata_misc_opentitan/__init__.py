@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5774"
-version_tuple = (0, 0, 5774)
+version_str = "0.0.post5777"
+version_tuple = (0, 0, 5777)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5774")
+    pversion = V("0.0.post5777")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5679"
-data_version_tuple = (0, 0, 5679)
+data_version_str = "0.0.post5682"
+data_version_tuple = (0, 0, 5682)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5679")
+    pdata_version = V("0.0.post5682")
 except ImportError:
     pass
-data_git_hash = "9eb2a9c9fd5d8e8342b2a9da5d7e6470e2a26ebf"
-data_git_describe = "v0.0-5679-g9eb2a9c9f"
+data_git_hash = "bf57a5c1e1f8a87a3bc8ba57a50c08c650c72479"
+data_git_describe = "v0.0-5682-gbf57a5c1e"
 data_git_msg = """\
-commit 9eb2a9c9fd5d8e8342b2a9da5d7e6470e2a26ebf
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Sat Mar 20 15:53:30 2021 -0700
+commit bf57a5c1e1f8a87a3bc8ba57a50c08c650c72479
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Fri Mar 19 01:15:24 2021 -0700
 
-    [entropy_src/rtl] symbol-based repetition count health test
+    [dv/kmac] add cycle accurate model in scoreboard
     
-    An additional symobl-based repetition count health test is added.
-    Changed the rep counter to initialize to 1, as NIST shows.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
