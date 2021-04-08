@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5767"
-version_tuple = (0, 0, 5767)
+version_str = "0.0.post5768"
+version_tuple = (0, 0, 5768)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5767")
+    pversion = V("0.0.post5768")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5672"
-data_version_tuple = (0, 0, 5672)
+data_version_str = "0.0.post5673"
+data_version_tuple = (0, 0, 5673)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5672")
+    pdata_version = V("0.0.post5673")
 except ImportError:
     pass
-data_git_hash = "8961a8026331fcf39899d73e10a9e5a3c69193b2"
-data_git_describe = "v0.0-5672-g8961a8026"
+data_git_hash = "e029a68b6e781d14b5f1e51068b803837c0c62cd"
+data_git_describe = "v0.0-5673-ge029a68b6"
 data_git_msg = """\
-commit 8961a8026331fcf39899d73e10a9e5a3c69193b2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 31 19:56:10 2021 -0700
+commit e029a68b6e781d14b5f1e51068b803837c0c62cd
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Apr 6 16:21:30 2021 -0700
 
-    [sw] Minor software updates for dif_entropy_src and test
+    [sysrst_ctrl/top] Instantiate sysrst_ctrl in top_earlgrey
     
-    - This change should now ensure the new seed is used and
-      the entropy reads should be different between reads.
-    - Lastly, a few auxillary functions are added to poll for specific
-      status.  These likely should be replaced long term by something
-      more robust
-    - unittests are also udpated for the slightly tweaked sequence
-    - At the moment, since we disable / re-enable entropy_src, the
-      timing differences between platforms (dv vs verilator) causes
-      the test to spit out different results.  For the time being,
-      favor verilator until #5941 is in.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
