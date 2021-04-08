@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5777"
-version_tuple = (0, 0, 5777)
+version_str = "0.0.post5782"
+version_tuple = (0, 0, 5782)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5777")
+    pversion = V("0.0.post5782")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5682"
-data_version_tuple = (0, 0, 5682)
+data_version_str = "0.0.post5687"
+data_version_tuple = (0, 0, 5687)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5682")
+    pdata_version = V("0.0.post5687")
 except ImportError:
     pass
-data_git_hash = "bf57a5c1e1f8a87a3bc8ba57a50c08c650c72479"
-data_git_describe = "v0.0-5682-gbf57a5c1e"
+data_git_hash = "57be47e8aba1edb9d40c1d8f1fe725ce80506d9d"
+data_git_describe = "v0.0-5687-g57be47e8a"
 data_git_msg = """\
-commit bf57a5c1e1f8a87a3bc8ba57a50c08c650c72479
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Fri Mar 19 01:15:24 2021 -0700
+commit 57be47e8aba1edb9d40c1d8f1fe725ce80506d9d
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Apr 8 10:08:35 2021 -0700
 
-    [dv/kmac] add cycle accurate model in scoreboard
+    [kmac] Fix typo in kmac.waiver
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    while renaming kmac_keymgr.sv to kmac_app.sv, kmac.waiver was left
+    behind having its original name in the waiver rule. This commit
+    corrected it and slightly revised the priority condition too.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
