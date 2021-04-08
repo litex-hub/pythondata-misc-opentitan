@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5764"
-version_tuple = (0, 0, 5764)
+version_str = "0.0.post5765"
+version_tuple = (0, 0, 5765)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5764")
+    pversion = V("0.0.post5765")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5669"
-data_version_tuple = (0, 0, 5669)
+data_version_str = "0.0.post5670"
+data_version_tuple = (0, 0, 5670)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5669")
+    pdata_version = V("0.0.post5670")
 except ImportError:
     pass
-data_git_hash = "05ef653345ee6b8eb7cb8fc13df22e499c511d1d"
-data_git_describe = "v0.0-5669-g05ef65334"
+data_git_hash = "74c4ff235ba08caef2e970f98e0efd1318daea4a"
+data_git_describe = "v0.0-5670-g74c4ff235"
 data_git_msg = """\
-commit 05ef653345ee6b8eb7cb8fc13df22e499c511d1d
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Apr 7 15:20:30 2021 -0700
+commit 74c4ff235ba08caef2e970f98e0efd1318daea4a
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Mar 30 15:43:46 2021 -0700
 
-    [otp_ctrl] fix compile error
+    [topgen] Rework pinmux datastructure and templatize tops
     
-    TLUL port `req_type_o` was declared twice and has a compile error.
-    This PR fixes it.
+    This is a complete overhaul of the pinmux / padctrl configuration
+    datastructure in the top Hjson.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    The new datastructures are used to provide more control over the
+    DIO/MIO configuration, pinout and target-specific differences
+    (ASIC vs FPGA vs Verilator).
+    
+    The chip-level files are now generated from one common template,
+    and all regular DIO/MIO connections are made automatically.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
