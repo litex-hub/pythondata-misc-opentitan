@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5798"
-version_tuple = (0, 0, 5798)
+version_str = "0.0.post5799"
+version_tuple = (0, 0, 5799)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5798")
+    pversion = V("0.0.post5799")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5703"
-data_version_tuple = (0, 0, 5703)
+data_version_str = "0.0.post5704"
+data_version_tuple = (0, 0, 5704)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5703")
+    pdata_version = V("0.0.post5704")
 except ImportError:
     pass
-data_git_hash = "ad336af23b0fcf8edefc2b8163291ee715475b08"
-data_git_describe = "v0.0-5703-gad336af23"
+data_git_hash = "2d1514875d58abf19939ba1432ddc5006f7f282c"
+data_git_describe = "v0.0-5704-g2d1514875"
 data_git_msg = """\
-commit ad336af23b0fcf8edefc2b8163291ee715475b08
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Apr 8 18:44:12 2021 -0700
+commit 2d1514875d58abf19939ba1432ddc5006f7f282c
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Apr 7 13:27:48 2021 +0100
 
-    [pinmux] Update pad attribute documentation
+    [alert,lint] Add explicit cast for comparison in ping timer
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This cast is safe because IdDw is $clog2(NAlerts + N_ESC_SEV) and
+    N_ESC_SEV (the number of escalation severities, defined in the hjson)
+    is positive.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
