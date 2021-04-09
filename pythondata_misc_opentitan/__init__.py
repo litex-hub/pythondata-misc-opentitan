@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5804"
-version_tuple = (0, 0, 5804)
+version_str = "0.0.post5809"
+version_tuple = (0, 0, 5809)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5804")
+    pversion = V("0.0.post5809")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5709"
-data_version_tuple = (0, 0, 5709)
+data_version_str = "0.0.post5714"
+data_version_tuple = (0, 0, 5714)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5709")
+    pdata_version = V("0.0.post5714")
 except ImportError:
     pass
-data_git_hash = "6abe0ff0129c6e24ae170e2162869c9bd0c64902"
-data_git_describe = "v0.0-5709-g6abe0ff01"
+data_git_hash = "6a2bdce17f36dff79004a9f632e8514c558e417e"
+data_git_describe = "v0.0-5714-g6a2bdce17"
 data_git_msg = """\
-commit 6abe0ff0129c6e24ae170e2162869c9bd0c64902
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Apr 6 20:32:10 2021 +0200
+commit 6a2bdce17f36dff79004a9f632e8514c558e417e
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Apr 7 14:08:03 2021 -0700
 
-    [kmac, sha3] Add separate Verilator lint waiver files, fix some warnings
+    [dv] Update scb for all blocks
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    one line update in all blocks for multi-ral
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
