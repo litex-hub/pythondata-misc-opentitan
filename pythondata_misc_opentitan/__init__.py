@@ -4,34 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5799"
-version_tuple = (0, 0, 5799)
+version_str = "0.0.post5800"
+version_tuple = (0, 0, 5800)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5799")
+    pversion = V("0.0.post5800")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5704"
-data_version_tuple = (0, 0, 5704)
+data_version_str = "0.0.post5705"
+data_version_tuple = (0, 0, 5705)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5704")
+    pdata_version = V("0.0.post5705")
 except ImportError:
     pass
-data_git_hash = "2d1514875d58abf19939ba1432ddc5006f7f282c"
-data_git_describe = "v0.0-5704-g2d1514875"
+data_git_hash = "e1bc36198309dcbe9a993d7cc4067a1011deb455"
+data_git_describe = "v0.0-5705-ge1bc36198"
 data_git_msg = """\
-commit 2d1514875d58abf19939ba1432ddc5006f7f282c
+commit e1bc36198309dcbe9a993d7cc4067a1011deb455
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Apr 7 13:27:48 2021 +0100
+Date:   Thu Apr 8 13:00:14 2021 +0100
 
-    [alert,lint] Add explicit cast for comparison in ping timer
+    [edn,lint] Fix width mismatch in the definition of cmd_sent
     
-    This cast is safe because IdDw is $clog2(NAlerts + N_ESC_SEV) and
-    N_ESC_SEV (the number of escalation severities, defined in the hjson)
-    is positive.
+    cmd_fifo_cnt_q is actually 4 bits wide in the current design. The
+    mismatch between that and 13'h01 causes Verilator width warnings.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
