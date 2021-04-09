@@ -4,52 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5793"
-version_tuple = (0, 0, 5793)
+version_str = "0.0.post5794"
+version_tuple = (0, 0, 5794)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5793")
+    pversion = V("0.0.post5794")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5698"
-data_version_tuple = (0, 0, 5698)
+data_version_str = "0.0.post5699"
+data_version_tuple = (0, 0, 5699)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5698")
+    pdata_version = V("0.0.post5699")
 except ImportError:
     pass
-data_git_hash = "a0980d323ab319d2467e6bc79dfc9331b0649654"
-data_git_describe = "v0.0-5698-ga0980d323"
+data_git_hash = "7571540532f42d5371f312b4e0443a5a70b1034e"
+data_git_describe = "v0.0-5699-g757154053"
 data_git_msg = """\
-commit a0980d323ab319d2467e6bc79dfc9331b0649654
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Apr 7 22:34:02 2021 -0700
+commit 7571540532f42d5371f312b4e0443a5a70b1034e
+Author: Cindy Chen <chencindy@google.com>
+Date:   Thu Apr 8 17:01:24 2021 -0700
 
-    [flash_ctrl] Correct behavior when buffer not enabled.
+    [dv/otp_ctrl] Fix regression stress_all_with_reset error
     
-    When buffer is not enabled, the flash_phy_rd may erroneously return data
-    to back to back transactions when it is not supposed to.
+    This PR fixes two errors in stress_all_with_reset test:
+    1. Constraint conflict: I will disable this constriant when
+    stress_all_with_reset test is running.
     
-    This happens because even when buffers are not enabled, the read data is
-    written into the holding FIFO between read and descramble stages.  As a
-    result, the return path falsely thinks the data is available and returns
-    it.
+    2. When reset is issued during OTP write, the scb cannot accurately
+    predict how much writing has OTP memory done. So the plan is to backdoor
+    read back the specific address after reset is issued.
     
-    This causes an issue because even though the data is returned, the front door
-    logic has already created 2 transactions to the flash, and a result, we have
-    extra data returning.
-    
-    The buffer not enabled case can be caused by otp_ctrl not returning the
-    flash controller's request for a key.  This in turn can happen because
-    entropy is not yet enabled.  This latter point deserves a wider discussion
-    as to the right solution.
-    
-    To fix this, the forward hint is used to distinguish when the data in the
-    FIFO is valid vs when it is not.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
