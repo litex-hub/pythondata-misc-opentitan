@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5795"
-version_tuple = (0, 0, 5795)
+version_str = "0.0.post5798"
+version_tuple = (0, 0, 5798)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5795")
+    pversion = V("0.0.post5798")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5700"
-data_version_tuple = (0, 0, 5700)
+data_version_str = "0.0.post5703"
+data_version_tuple = (0, 0, 5703)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5700")
+    pdata_version = V("0.0.post5703")
 except ImportError:
     pass
-data_git_hash = "f479b9e782c4ecab04b08ce2c9081809129524b2"
-data_git_describe = "v0.0-5700-gf479b9e78"
+data_git_hash = "ad336af23b0fcf8edefc2b8163291ee715475b08"
+data_git_describe = "v0.0-5703-gad336af23"
 data_git_msg = """\
-commit f479b9e782c4ecab04b08ce2c9081809129524b2
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Apr 8 16:03:11 2021 -0700
+commit ad336af23b0fcf8edefc2b8163291ee715475b08
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Apr 8 18:44:12 2021 -0700
 
-    [dvsim] Scratch root default to $REPO_TOP/scratch
+    [pinmux] Update pad attribute documentation
     
-    Use $REPO_TOP/scratch rather than CWD/scratch as the default scratch
-    area.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
