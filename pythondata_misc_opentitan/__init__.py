@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5789"
-version_tuple = (0, 0, 5789)
+version_str = "0.0.post5790"
+version_tuple = (0, 0, 5790)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5789")
+    pversion = V("0.0.post5790")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5694"
-data_version_tuple = (0, 0, 5694)
+data_version_str = "0.0.post5695"
+data_version_tuple = (0, 0, 5695)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5694")
+    pdata_version = V("0.0.post5695")
 except ImportError:
     pass
-data_git_hash = "3ecdcc05d4980fc776e9000a7da5e723e0a977f8"
-data_git_describe = "v0.0-5694-g3ecdcc05d"
+data_git_hash = "7e26d6f4afaf1488e4987d3ee6cb991d4dc4fdab"
+data_git_describe = "v0.0-5695-g7e26d6f4a"
 data_git_msg = """\
-commit 3ecdcc05d4980fc776e9000a7da5e723e0a977f8
-Author: Cindy Chen <chencindy@google.com>
-Date:   Wed Apr 7 11:06:12 2021 -0700
+commit 7e26d6f4afaf1488e4987d3ee6cb991d4dc4fdab
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Thu Apr 8 14:05:11 2021 -0700
 
-    [dv/otp_ctrl] Add coverpoint for scb checks
+    [dv/sram] increase timeout for bijecttion test
     
-    In otp_ctrl scb, there are cases where we might waive checks (due to
-    background checks, etc). I added some coverpoint to only collect
-    coverage after these checks are done.
+    this PR increases the timeout period for the bijection test,
+    fixing some nightly regression timeout failures.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
