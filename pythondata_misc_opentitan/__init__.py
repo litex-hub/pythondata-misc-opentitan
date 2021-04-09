@@ -4,35 +4,52 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5790"
-version_tuple = (0, 0, 5790)
+version_str = "0.0.post5793"
+version_tuple = (0, 0, 5793)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5790")
+    pversion = V("0.0.post5793")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5695"
-data_version_tuple = (0, 0, 5695)
+data_version_str = "0.0.post5698"
+data_version_tuple = (0, 0, 5698)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5695")
+    pdata_version = V("0.0.post5698")
 except ImportError:
     pass
-data_git_hash = "7e26d6f4afaf1488e4987d3ee6cb991d4dc4fdab"
-data_git_describe = "v0.0-5695-g7e26d6f4a"
+data_git_hash = "a0980d323ab319d2467e6bc79dfc9331b0649654"
+data_git_describe = "v0.0-5698-ga0980d323"
 data_git_msg = """\
-commit 7e26d6f4afaf1488e4987d3ee6cb991d4dc4fdab
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Thu Apr 8 14:05:11 2021 -0700
+commit a0980d323ab319d2467e6bc79dfc9331b0649654
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Apr 7 22:34:02 2021 -0700
 
-    [dv/sram] increase timeout for bijecttion test
+    [flash_ctrl] Correct behavior when buffer not enabled.
     
-    this PR increases the timeout period for the bijection test,
-    fixing some nightly regression timeout failures.
+    When buffer is not enabled, the flash_phy_rd may erroneously return data
+    to back to back transactions when it is not supposed to.
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    This happens because even when buffers are not enabled, the read data is
+    written into the holding FIFO between read and descramble stages.  As a
+    result, the return path falsely thinks the data is available and returns
+    it.
+    
+    This causes an issue because even though the data is returned, the front door
+    logic has already created 2 transactions to the flash, and a result, we have
+    extra data returning.
+    
+    The buffer not enabled case can be caused by otp_ctrl not returning the
+    flash controller's request for a key.  This in turn can happen because
+    entropy is not yet enabled.  This latter point deserves a wider discussion
+    as to the right solution.
+    
+    To fix this, the forward hint is used to distinguish when the data in the
+    FIFO is valid vs when it is not.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
