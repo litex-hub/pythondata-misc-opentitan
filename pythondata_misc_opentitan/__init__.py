@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5794"
-version_tuple = (0, 0, 5794)
+version_str = "0.0.post5795"
+version_tuple = (0, 0, 5795)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5794")
+    pversion = V("0.0.post5795")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5699"
-data_version_tuple = (0, 0, 5699)
+data_version_str = "0.0.post5700"
+data_version_tuple = (0, 0, 5700)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5699")
+    pdata_version = V("0.0.post5700")
 except ImportError:
     pass
-data_git_hash = "7571540532f42d5371f312b4e0443a5a70b1034e"
-data_git_describe = "v0.0-5699-g757154053"
+data_git_hash = "f479b9e782c4ecab04b08ce2c9081809129524b2"
+data_git_describe = "v0.0-5700-gf479b9e78"
 data_git_msg = """\
-commit 7571540532f42d5371f312b4e0443a5a70b1034e
-Author: Cindy Chen <chencindy@google.com>
-Date:   Thu Apr 8 17:01:24 2021 -0700
+commit f479b9e782c4ecab04b08ce2c9081809129524b2
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Apr 8 16:03:11 2021 -0700
 
-    [dv/otp_ctrl] Fix regression stress_all_with_reset error
+    [dvsim] Scratch root default to $REPO_TOP/scratch
     
-    This PR fixes two errors in stress_all_with_reset test:
-    1. Constraint conflict: I will disable this constriant when
-    stress_all_with_reset test is running.
+    Use $REPO_TOP/scratch rather than CWD/scratch as the default scratch
+    area.
     
-    2. When reset is issued during OTP write, the scb cannot accurately
-    predict how much writing has OTP memory done. So the plan is to backdoor
-    read back the specific address after reset is issued.
-    
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
