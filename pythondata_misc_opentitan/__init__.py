@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5809"
-version_tuple = (0, 0, 5809)
+version_str = "0.0.post5812"
+version_tuple = (0, 0, 5812)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5809")
+    pversion = V("0.0.post5812")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5714"
-data_version_tuple = (0, 0, 5714)
+data_version_str = "0.0.post5717"
+data_version_tuple = (0, 0, 5717)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5714")
+    pdata_version = V("0.0.post5717")
 except ImportError:
     pass
-data_git_hash = "6a2bdce17f36dff79004a9f632e8514c558e417e"
-data_git_describe = "v0.0-5714-g6a2bdce17"
+data_git_hash = "6c5f7a7d702ede73a4ade4bd440e9e8d3078d5a8"
+data_git_describe = "v0.0-5717-g6c5f7a7d7"
 data_git_msg = """\
-commit 6a2bdce17f36dff79004a9f632e8514c558e417e
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Apr 7 14:08:03 2021 -0700
+commit 6c5f7a7d702ede73a4ade4bd440e9e8d3078d5a8
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Apr 9 11:51:10 2021 -0700
 
-    [dv] Update scb for all blocks
+    [pinout] Update flash test mode and voltage signals/pads
     
-    one line update in all blocks for multi-ral
+    This instantiates the newly added analog pad for the flash test voltage,
+    and updates the flash test mode pinout (reduction from 4 to 2 bit).
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
