@@ -4,42 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5813"
-version_tuple = (0, 0, 5813)
+version_str = "0.0.post5815"
+version_tuple = (0, 0, 5815)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5813")
+    pversion = V("0.0.post5815")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5718"
-data_version_tuple = (0, 0, 5718)
+data_version_str = "0.0.post5720"
+data_version_tuple = (0, 0, 5720)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5718")
+    pdata_version = V("0.0.post5720")
 except ImportError:
     pass
-data_git_hash = "ea71b7116ac631f3fd752bf9decf9dc4ea8545c2"
-data_git_describe = "v0.0-5718-gea71b7116"
+data_git_hash = "28047086d5d14a00c1feac17c5616fde871d0a31"
+data_git_describe = "v0.0-5720-g28047086d"
 data_git_msg = """\
-commit ea71b7116ac631f3fd752bf9decf9dc4ea8545c2
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Apr 8 17:13:44 2021 -0700
+commit 28047086d5d14a00c1feac17c5616fde871d0a31
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Apr 8 09:18:13 2021 -0700
 
-    [padring] Scan role parameters
+    [ci] Remove dif_entropy_smoketest completely from CI
     
-    Ideally, the scan role (none, scan-in, scan-out) would be captured as
-    part of the pinout Hjson description.
-    However, due to the need to keep this information in the foundry
-    repo, an approach with a separate SV package is taken.
+    - The test will be reintroduced when #5941 is ready
+      and can produce reliable results.
     
-    The open-source version is just a generic assignment of scan roles.
-    The scan role parameters for the synthesized ASIC target are defined in
-    the foundry repo and will be read in when the "fileset_partner" flag is
-    defined in the build flow.
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
