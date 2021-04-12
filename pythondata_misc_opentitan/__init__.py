@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5823"
-version_tuple = (0, 0, 5823)
+version_str = "0.0.post5824"
+version_tuple = (0, 0, 5824)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5823")
+    pversion = V("0.0.post5824")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5728"
-data_version_tuple = (0, 0, 5728)
+data_version_str = "0.0.post5729"
+data_version_tuple = (0, 0, 5729)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5728")
+    pdata_version = V("0.0.post5729")
 except ImportError:
     pass
-data_git_hash = "c1227938a29e89417ac2aabcf1ce86cffe754872"
-data_git_describe = "v0.0-5728-gc1227938a"
+data_git_hash = "6925c6f6d2d389f89751c58a574dd83c9150cf58"
+data_git_describe = "v0.0-5729-g6925c6f6d"
 data_git_msg = """\
-commit c1227938a29e89417ac2aabcf1ce86cffe754872
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sun Nov 15 21:18:59 2020 -0800
+commit 6925c6f6d2d389f89751c58a574dd83c9150cf58
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Apr 9 17:19:27 2021 -0700
 
-    [ pwm, rtl ] Initial implementation for PWM
+    [top] Connect raw pad outputs to ast
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    - pad2ast
+    - external clock
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
