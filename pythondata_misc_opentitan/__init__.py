@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5821"
-version_tuple = (0, 0, 5821)
+version_str = "0.0.post5823"
+version_tuple = (0, 0, 5823)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5821")
+    pversion = V("0.0.post5823")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5726"
-data_version_tuple = (0, 0, 5726)
+data_version_str = "0.0.post5728"
+data_version_tuple = (0, 0, 5728)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5726")
+    pdata_version = V("0.0.post5728")
 except ImportError:
     pass
-data_git_hash = "085e2fbc092b63104842f1fec0541cb48e795125"
-data_git_describe = "v0.0-5726-g085e2fbc0"
+data_git_hash = "c1227938a29e89417ac2aabcf1ce86cffe754872"
+data_git_describe = "v0.0-5728-gc1227938a"
 data_git_msg = """\
-commit 085e2fbc092b63104842f1fec0541cb48e795125
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Apr 9 18:03:59 2021 -0700
+commit c1227938a29e89417ac2aabcf1ce86cffe754872
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sun Nov 15 21:18:59 2020 -0800
 
-    [dv] Fix tl_error failure
+    [ pwm, rtl ] Initial implementation for PWM
     
-    Thanks @cindychip for finding this failure
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
