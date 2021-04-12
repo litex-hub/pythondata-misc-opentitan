@@ -4,33 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5824"
-version_tuple = (0, 0, 5824)
+version_str = "0.0.post5826"
+version_tuple = (0, 0, 5826)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5824")
+    pversion = V("0.0.post5826")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5729"
-data_version_tuple = (0, 0, 5729)
+data_version_str = "0.0.post5731"
+data_version_tuple = (0, 0, 5731)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5729")
+    pdata_version = V("0.0.post5731")
 except ImportError:
     pass
-data_git_hash = "6925c6f6d2d389f89751c58a574dd83c9150cf58"
-data_git_describe = "v0.0-5729-g6925c6f6d"
+data_git_hash = "60526ac6589067a97246923aa8fc3e93dc16a29c"
+data_git_describe = "v0.0-5731-g60526ac65"
 data_git_msg = """\
-commit 6925c6f6d2d389f89751c58a574dd83c9150cf58
+commit 60526ac6589067a97246923aa8fc3e93dc16a29c
 Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Apr 9 17:19:27 2021 -0700
+Date:   Wed Apr 7 16:48:55 2021 -0700
 
-    [top] Connect raw pad outputs to ast
-    
-    - pad2ast
-    - external clock
+    [top] Auto generate files
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
