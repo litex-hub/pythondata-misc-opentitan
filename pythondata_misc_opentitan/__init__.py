@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5840"
-version_tuple = (0, 0, 5840)
+version_str = "0.0.post5841"
+version_tuple = (0, 0, 5841)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5840")
+    pversion = V("0.0.post5841")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5745"
-data_version_tuple = (0, 0, 5745)
+data_version_str = "0.0.post5746"
+data_version_tuple = (0, 0, 5746)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5745")
+    pdata_version = V("0.0.post5746")
 except ImportError:
     pass
-data_git_hash = "d0936b2abea12fac6951252dbc86a167c1cc0ec5"
-data_git_describe = "v0.0-5745-gd0936b2ab"
+data_git_hash = "fa3103653c863c1bd43b71cb69852d31c03f3bcf"
+data_git_describe = "v0.0-5746-gfa3103653"
 data_git_msg = """\
-commit d0936b2abea12fac6951252dbc86a167c1cc0ec5
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Apr 12 16:01:45 2021 -0700
+commit fa3103653c863c1bd43b71cb69852d31c03f3bcf
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Apr 9 10:33:38 2021 -0700
 
-    [otp_ctrl] Align lock bits in otp_ctrl Hjson to use rw0c
+    [dv/otp_ctrl] Add more sequence to stress_all test
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This PR adds all sequences to stress_all test.
+    And a few updates:
+    1. SCB when read back secret, needs to descramble it first
+    2. Change post_start from apply_reset to dut_init so it can be used in
+    stress_all sequence
+    3. Force to have a reset at the end of each sequence.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
