@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5839"
-version_tuple = (0, 0, 5839)
+version_str = "0.0.post5840"
+version_tuple = (0, 0, 5840)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5839")
+    pversion = V("0.0.post5840")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5744"
-data_version_tuple = (0, 0, 5744)
+data_version_str = "0.0.post5745"
+data_version_tuple = (0, 0, 5745)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5744")
+    pdata_version = V("0.0.post5745")
 except ImportError:
     pass
-data_git_hash = "5b548d5645334578da42e06c8539c57a2a8bffaf"
-data_git_describe = "v0.0-5744-g5b548d564"
+data_git_hash = "d0936b2abea12fac6951252dbc86a167c1cc0ec5"
+data_git_describe = "v0.0-5745-gd0936b2ab"
 data_git_msg = """\
-commit 5b548d5645334578da42e06c8539c57a2a8bffaf
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Apr 12 11:15:22 2021 -0700
+commit d0936b2abea12fac6951252dbc86a167c1cc0ec5
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Apr 12 16:01:45 2021 -0700
 
-    [csrng/rtl] Two csrng app interfaces working
+    [otp_ctrl] Align lock bits in otp_ctrl Hjson to use rw0c
     
-    Fixes to remove hang conditions.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
