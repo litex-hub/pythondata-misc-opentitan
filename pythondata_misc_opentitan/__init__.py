@@ -4,38 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5845"
-version_tuple = (0, 0, 5845)
+version_str = "0.0.post5847"
+version_tuple = (0, 0, 5847)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5845")
+    pversion = V("0.0.post5847")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5750"
-data_version_tuple = (0, 0, 5750)
+data_version_str = "0.0.post5752"
+data_version_tuple = (0, 0, 5752)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5750")
+    pdata_version = V("0.0.post5752")
 except ImportError:
     pass
-data_git_hash = "f8b33d6e46fbc8024c37e64f02ecb6d08be5b192"
-data_git_describe = "v0.0-5750-gf8b33d6e4"
+data_git_hash = "aa96b51e9a70e92051fd3a15b9b1567a74c5d8a8"
+data_git_describe = "v0.0-5752-gaa96b51e9"
 data_git_msg = """\
-commit f8b33d6e46fbc8024c37e64f02ecb6d08be5b192
-Author: Felix Miller <felix.miller@gi-de.com>
-Date:   Thu Apr 8 13:53:04 2021 +0200
+commit aa96b51e9a70e92051fd3a15b9b1567a74c5d8a8
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Apr 9 22:12:25 2021 -0700
 
-    [otbn] add coordinate transformation for P-384
+    [dv/otp_ctrl] Fix regression lc output mismatch
     
-    Adds a routine for coordinate transformation from
-    projective space to affine space for P-384 curve
-    points.
-    Enables back transformation of coordinates at
-    the end of the scalar multiplication routine.
+    This PR fixes three lc_esc related mismatch:
+    1). when lc_esc is On, the otp_lc_o should return default value.
+    2). when lc_esc is issued during otp write, it will wait until OTP write
+    complete, then backdoor align
+    3). when reset/lc_esc_on is issued during digest calculate, will use
+    backdoor to recover digest value.
     
-    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
+    This PR also adds lc_esc_en sequence to stress_all test.
+    
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
