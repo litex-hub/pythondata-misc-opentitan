@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5830"
-version_tuple = (0, 0, 5830)
+version_str = "0.0.post5839"
+version_tuple = (0, 0, 5839)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5830")
+    pversion = V("0.0.post5839")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5735"
-data_version_tuple = (0, 0, 5735)
+data_version_str = "0.0.post5744"
+data_version_tuple = (0, 0, 5744)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5735")
+    pdata_version = V("0.0.post5744")
 except ImportError:
     pass
-data_git_hash = "a6b5a1e33f5164f45812839f4f32430ee2a60c26"
-data_git_describe = "v0.0-5735-ga6b5a1e33"
+data_git_hash = "5b548d5645334578da42e06c8539c57a2a8bffaf"
+data_git_describe = "v0.0-5744-g5b548d564"
 data_git_msg = """\
-commit a6b5a1e33f5164f45812839f4f32430ee2a60c26
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Apr 12 14:20:30 2021 -0700
+commit 5b548d5645334578da42e06c8539c57a2a8bffaf
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Apr 12 11:15:22 2021 -0700
 
-    [top] Turn on secure ibex for asic
+    [csrng/rtl] Two csrng app interfaces working
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Fixes to remove hang conditions.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
