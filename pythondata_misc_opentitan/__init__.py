@@ -4,40 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5850"
-version_tuple = (0, 0, 5850)
+version_str = "0.0.post5853"
+version_tuple = (0, 0, 5853)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5850")
+    pversion = V("0.0.post5853")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5755"
-data_version_tuple = (0, 0, 5755)
+data_version_str = "0.0.post5758"
+data_version_tuple = (0, 0, 5758)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5755")
+    pdata_version = V("0.0.post5758")
 except ImportError:
     pass
-data_git_hash = "ca40353361b0bcc80c7b6f4f93e0b6a0c0f0213b"
-data_git_describe = "v0.0-5755-gca4035336"
+data_git_hash = "fe1494799fbafaece75e0ea2d7e20d129e11bcfa"
+data_git_describe = "v0.0-5758-gfe1494799"
 data_git_msg = """\
-commit ca40353361b0bcc80c7b6f4f93e0b6a0c0f0213b
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Tue Apr 13 09:15:28 2021 +0100
+commit fe1494799fbafaece75e0ea2d7e20d129e11bcfa
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Mon Apr 12 17:13:21 2021 -0700
 
-    Update to rebuilt device toolchain
+    [dv/cip_lib] create `cip_tl_host_single_seq`
     
-    The previously used toolchain in version 20200904-1 was targeting Ubuntu
-    16.04 or RHEL7 and newer. The version this commit switches to targets
-    RHEL6/CentOS6 or newer.
+    this PR creates a custom extension of `tl_host_single_seq` to allow for
+    full flexibility in creating cmd integrity related test sequences, and
+    adds basic functionality to swap between TL access types (DataType or
+    InstrType).
     
-    Beyond a rebuild to be more compatible with older Linux distributions
-    nothing changed: the toolchain contains the same versions of GCC, clang,
-    and all associated tools.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
