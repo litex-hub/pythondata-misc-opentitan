@@ -4,41 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5847"
-version_tuple = (0, 0, 5847)
+version_str = "0.0.post5849"
+version_tuple = (0, 0, 5849)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5847")
+    pversion = V("0.0.post5849")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5752"
-data_version_tuple = (0, 0, 5752)
+data_version_str = "0.0.post5754"
+data_version_tuple = (0, 0, 5754)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5752")
+    pdata_version = V("0.0.post5754")
 except ImportError:
     pass
-data_git_hash = "aa96b51e9a70e92051fd3a15b9b1567a74c5d8a8"
-data_git_describe = "v0.0-5752-gaa96b51e9"
+data_git_hash = "17f4bf815e5eed73c1c16d0260862c5b6d54a1ee"
+data_git_describe = "v0.0-5754-g17f4bf815"
 data_git_msg = """\
-commit aa96b51e9a70e92051fd3a15b9b1567a74c5d8a8
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Apr 9 22:12:25 2021 -0700
+commit 17f4bf815e5eed73c1c16d0260862c5b6d54a1ee
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Apr 9 17:04:32 2021 -0700
 
-    [dv/otp_ctrl] Fix regression lc output mismatch
+    [pinmux] Update strap sampling mode in DFT-enabled LC states
     
-    This PR fixes three lc_esc related mismatch:
-    1). when lc_esc is On, the otp_lc_o should return default value.
-    2). when lc_esc is issued during otp write, it will wait until OTP write
-    complete, then backdoor align
-    3). when reset/lc_esc_on is issued during digest calculate, will use
-    backdoor to recover digest value.
+    This slightly modifies the strap sampling behavior in DFT-enabled
+    LC states. In particular, we now continously sample the straps in
+    those states, instead of gating the continous sampling mode
+    on whether the initial sample was nonzero or not.
     
-    This PR also adds lc_esc_en sequence to stress_all test.
+    This puts less burden on the emulation and simulation environments
+    where it the device can run in a DFT-enabled mode, since the
+    strap values may be changed arbitrarily during the test sequence.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    This also changes the default life cycle state to RMA instead of DEV
+    for simulation and emulation environments to ungate all debug
+    infrastructure and functional modes.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
