@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5826"
-version_tuple = (0, 0, 5826)
+version_str = "0.0.post5830"
+version_tuple = (0, 0, 5830)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5826")
+    pversion = V("0.0.post5830")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5731"
-data_version_tuple = (0, 0, 5731)
+data_version_str = "0.0.post5735"
+data_version_tuple = (0, 0, 5735)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5731")
+    pdata_version = V("0.0.post5735")
 except ImportError:
     pass
-data_git_hash = "60526ac6589067a97246923aa8fc3e93dc16a29c"
-data_git_describe = "v0.0-5731-g60526ac65"
+data_git_hash = "a6b5a1e33f5164f45812839f4f32430ee2a60c26"
+data_git_describe = "v0.0-5735-ga6b5a1e33"
 data_git_msg = """\
-commit 60526ac6589067a97246923aa8fc3e93dc16a29c
+commit a6b5a1e33f5164f45812839f4f32430ee2a60c26
 Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Apr 7 16:48:55 2021 -0700
+Date:   Mon Apr 12 14:20:30 2021 -0700
 
-    [top] Auto generate files
+    [top] Turn on secure ibex for asic
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
