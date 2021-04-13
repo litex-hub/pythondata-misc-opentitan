@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5843"
-version_tuple = (0, 0, 5843)
+version_str = "0.0.post5845"
+version_tuple = (0, 0, 5845)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5843")
+    pversion = V("0.0.post5845")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5748"
-data_version_tuple = (0, 0, 5748)
+data_version_str = "0.0.post5750"
+data_version_tuple = (0, 0, 5750)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5748")
+    pdata_version = V("0.0.post5750")
 except ImportError:
     pass
-data_git_hash = "90427aa3864cd39d75366ec8f202ee3e9f35df95"
-data_git_describe = "v0.0-5748-g90427aa38"
+data_git_hash = "f8b33d6e46fbc8024c37e64f02ecb6d08be5b192"
+data_git_describe = "v0.0-5750-gf8b33d6e4"
 data_git_msg = """\
-commit 90427aa3864cd39d75366ec8f202ee3e9f35df95
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Apr 12 11:33:20 2021 -0700
+commit f8b33d6e46fbc8024c37e64f02ecb6d08be5b192
+Author: Felix Miller <felix.miller@gi-de.com>
+Date:   Thu Apr 8 13:53:04 2021 +0200
 
-    [csrng/doc] updated diagram routing ids
+    [otbn] add coordinate transformation for P-384
     
-    Changed the Generate routing ids to match the RTL.
+    Adds a routine for coordinate transformation from
+    projective space to affine space for P-384 curve
+    points.
+    Enables back transformation of coordinates at
+    the end of the scalar multiplication routine.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
 
 """
 
