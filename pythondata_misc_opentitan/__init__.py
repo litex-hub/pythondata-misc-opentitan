@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5842"
-version_tuple = (0, 0, 5842)
+version_str = "0.0.post5843"
+version_tuple = (0, 0, 5843)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5842")
+    pversion = V("0.0.post5843")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5747"
-data_version_tuple = (0, 0, 5747)
+data_version_str = "0.0.post5748"
+data_version_tuple = (0, 0, 5748)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5747")
+    pdata_version = V("0.0.post5748")
 except ImportError:
     pass
-data_git_hash = "6f9c25b351c6e1c09197010da87c20e03466b49b"
-data_git_describe = "v0.0-5747-g6f9c25b35"
+data_git_hash = "90427aa3864cd39d75366ec8f202ee3e9f35df95"
+data_git_describe = "v0.0-5748-g90427aa38"
 data_git_msg = """\
-commit 6f9c25b351c6e1c09197010da87c20e03466b49b
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Apr 12 19:28:16 2021 -0700
+commit 90427aa3864cd39d75366ec8f202ee3e9f35df95
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Apr 12 11:33:20 2021 -0700
 
-    [top] Fix a templating bug that breaks CI
+    [csrng/doc] updated diagram routing ids
     
-    This appears to be a CI escape (possibly due to multiple PRs colliding),
-    and causes multiply-driven errors in VCS.
+    Changed the Generate routing ids to match the RTL.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
