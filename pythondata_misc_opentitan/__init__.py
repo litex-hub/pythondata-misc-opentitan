@@ -4,37 +4,52 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5853"
-version_tuple = (0, 0, 5853)
+version_str = "0.0.post5854"
+version_tuple = (0, 0, 5854)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5853")
+    pversion = V("0.0.post5854")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5758"
-data_version_tuple = (0, 0, 5758)
+data_version_str = "0.0.post5759"
+data_version_tuple = (0, 0, 5759)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5758")
+    pdata_version = V("0.0.post5759")
 except ImportError:
     pass
-data_git_hash = "fe1494799fbafaece75e0ea2d7e20d129e11bcfa"
-data_git_describe = "v0.0-5758-gfe1494799"
+data_git_hash = "22c185623d66436e3ffa3da9da33235f6d3d9fb3"
+data_git_describe = "v0.0-5759-g22c185623"
 data_git_msg = """\
-commit fe1494799fbafaece75e0ea2d7e20d129e11bcfa
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Mon Apr 12 17:13:21 2021 -0700
+commit 22c185623d66436e3ffa3da9da33235f6d3d9fb3
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Apr 9 14:52:12 2021 -0700
 
-    [dv/cip_lib] create `cip_tl_host_single_seq`
+    [usb / top] Hook-up usb rx enable
     
-    this PR creates a custom extension of `tl_host_single_seq` to allow for
-    full flexibility in creating cmd integrity related test sequences, and
-    adds basic functionality to swap between TL access types (DataType or
-    InstrType).
+    - Currently the rx enable is assumed to be dynamic, but this may
+      change based on Nuvoton feedback.
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    There was a discussion regarding whether we should make most of the usbdev inter-signals instead of pinmux signals.
+    See below for rationale.
+    
+    In addition to dp/dn, sense and dp/dn_pullup_en all have to remain pinmux-able signals.
+    Sense may need to come through pinmux since it is used to detect vbus power.  As long as the vbus voltage is not too high (or is clamped to a safe range), it can be muxed on nay pin.
+    dp/dn_pullup_en make use of pinmux's sleep capture as part of usbdev's suspend / resume feature.
+    
+    This ends up leaving a few scattered signals that may or may not fall into the pinmux category.
+    Ultimateily, it is difficult from the perspective of the usbdev to know whether a signal should be pinmuxed or directly signaled out.
+    
+    The ideal solution are two-fold
+    
+    1. Make all signals inter-signal, and use a top specific wrapper that connects the necessary signals to pinmux.
+    2. Make all signals pinmuxable, and manually handle the pad connections where required.
+    
+    In our design, we currently have most of the support needed for 2, (see #6042) for possible enhancements
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
