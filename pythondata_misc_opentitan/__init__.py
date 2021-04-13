@@ -4,45 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5849"
-version_tuple = (0, 0, 5849)
+version_str = "0.0.post5850"
+version_tuple = (0, 0, 5850)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5849")
+    pversion = V("0.0.post5850")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5754"
-data_version_tuple = (0, 0, 5754)
+data_version_str = "0.0.post5755"
+data_version_tuple = (0, 0, 5755)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5754")
+    pdata_version = V("0.0.post5755")
 except ImportError:
     pass
-data_git_hash = "17f4bf815e5eed73c1c16d0260862c5b6d54a1ee"
-data_git_describe = "v0.0-5754-g17f4bf815"
+data_git_hash = "ca40353361b0bcc80c7b6f4f93e0b6a0c0f0213b"
+data_git_describe = "v0.0-5755-gca4035336"
 data_git_msg = """\
-commit 17f4bf815e5eed73c1c16d0260862c5b6d54a1ee
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Apr 9 17:04:32 2021 -0700
+commit ca40353361b0bcc80c7b6f4f93e0b6a0c0f0213b
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Tue Apr 13 09:15:28 2021 +0100
 
-    [pinmux] Update strap sampling mode in DFT-enabled LC states
+    Update to rebuilt device toolchain
     
-    This slightly modifies the strap sampling behavior in DFT-enabled
-    LC states. In particular, we now continously sample the straps in
-    those states, instead of gating the continous sampling mode
-    on whether the initial sample was nonzero or not.
+    The previously used toolchain in version 20200904-1 was targeting Ubuntu
+    16.04 or RHEL7 and newer. The version this commit switches to targets
+    RHEL6/CentOS6 or newer.
     
-    This puts less burden on the emulation and simulation environments
-    where it the device can run in a DFT-enabled mode, since the
-    strap values may be changed arbitrarily during the test sequence.
+    Beyond a rebuild to be more compatible with older Linux distributions
+    nothing changed: the toolchain contains the same versions of GCC, clang,
+    and all associated tools.
     
-    This also changes the default life cycle state to RMA instead of DEV
-    for simulation and emulation environments to ungate all debug
-    infrastructure and functional modes.
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
