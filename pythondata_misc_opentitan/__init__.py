@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5857"
-version_tuple = (0, 0, 5857)
+version_str = "0.0.post5858"
+version_tuple = (0, 0, 5858)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5857")
+    pversion = V("0.0.post5858")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5762"
-data_version_tuple = (0, 0, 5762)
+data_version_str = "0.0.post5763"
+data_version_tuple = (0, 0, 5763)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5762")
+    pdata_version = V("0.0.post5763")
 except ImportError:
     pass
-data_git_hash = "071e62a3a221357a033dec34f5854958f1f2b91e"
-data_git_describe = "v0.0-5762-g071e62a3a"
+data_git_hash = "07302adc818271b9d2d7e1c3c353053955183121"
+data_git_describe = "v0.0-5763-g07302adc8"
 data_git_msg = """\
-commit 071e62a3a221357a033dec34f5854958f1f2b91e
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Apr 12 18:14:22 2021 -0700
+commit 07302adc818271b9d2d7e1c3c353053955183121
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Apr 13 11:50:31 2021 -0700
 
-    [dv] Update tl_agent to not always allow abort a_valid
+    [pwrmgr] Create an early indication of pwr_clamp
     
-    Most likely our host won't abort a_valid. Don't always allow abort, so
-    that if device doesn't respond, let it hang rather than abort and re-send
-    request
+    The pwr_clamp_early signal asserts before pwr_clamp and de-asserts
+    after pwr_clamp.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This gives some modules an early indication that pwr_clamp is about
+    to assert envelopes the pwr_clamp signal in timing.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
