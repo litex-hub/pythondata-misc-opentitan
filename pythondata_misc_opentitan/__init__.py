@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5864"
-version_tuple = (0, 0, 5864)
+version_str = "0.0.post5865"
+version_tuple = (0, 0, 5865)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5864")
+    pversion = V("0.0.post5865")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5769"
-data_version_tuple = (0, 0, 5769)
+data_version_str = "0.0.post5770"
+data_version_tuple = (0, 0, 5770)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5769")
+    pdata_version = V("0.0.post5770")
 except ImportError:
     pass
-data_git_hash = "d9dc048680d89bd630ffae673103509e28017709"
-data_git_describe = "v0.0-5769-gd9dc04868"
+data_git_hash = "952b714368b8af072c7b3376c9f593633c72a157"
+data_git_describe = "v0.0-5770-g952b71436"
 data_git_msg = """\
-commit d9dc048680d89bd630ffae673103509e28017709
-Author: Cindy Chen <chencindy@google.com>
-Date:   Sun Apr 11 12:46:21 2021 -0700
+commit 952b714368b8af072c7b3376c9f593633c72a157
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Apr 14 13:51:33 2021 +0100
 
-    [dv/otp_ctrl] Add background check
+    [otbn,dv] Use "done" directly in the idle checker module
     
-    This PR adds a single test to check OTP_background checks. This test
-    wanted to ensure the background check can be triggered automatically
-    once we configured the check periods.
+    We were reconstructing "done" by looking at the hw2reg signals. This
+    is sort of nice, because you can do it by just looking at OTBN's
+    output ports. Unfortunately, it doesn't quite work because these
+    signals are also triggered by writes to the INTR_TEST register.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Since we're binding otbn_idle_checker into otbn anyway, just snoop on
+    the internal "done" signal that we actually want.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
