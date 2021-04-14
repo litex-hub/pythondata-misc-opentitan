@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5859"
-version_tuple = (0, 0, 5859)
+version_str = "0.0.post5860"
+version_tuple = (0, 0, 5860)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5859")
+    pversion = V("0.0.post5860")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5764"
-data_version_tuple = (0, 0, 5764)
+data_version_str = "0.0.post5765"
+data_version_tuple = (0, 0, 5765)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5764")
+    pdata_version = V("0.0.post5765")
 except ImportError:
     pass
-data_git_hash = "9312b9e529636114dc33dbd2937b489fe338af98"
-data_git_describe = "v0.0-5764-g9312b9e52"
+data_git_hash = "76caf9ac8c8b4a416422f75c3317e0fbf6cf1a7f"
+data_git_describe = "v0.0-5765-g76caf9ac8"
 data_git_msg = """\
-commit 9312b9e529636114dc33dbd2937b489fe338af98
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Apr 13 17:51:01 2021 -0700
+commit 76caf9ac8c8b4a416422f75c3317e0fbf6cf1a7f
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Apr 8 14:04:15 2021 -0700
 
-    [lint/docs] Update ascentlint dvsim command in readme
+    [dv/dvsim] Adds failure bucketizer for triage.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Changes _post_finish to take an ErrorMessage as second argument.
+    Moves class SimCfg's Results to its own file and renames it to SimResults.
+    The bucketizer is called when initializing SimResults.
+    This will change when reruns are implemented, since we would want to
+    rerun one test per bucket as soon as the failing test completes.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
