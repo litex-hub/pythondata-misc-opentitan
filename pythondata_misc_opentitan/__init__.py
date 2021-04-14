@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5868"
-version_tuple = (0, 0, 5868)
+version_str = "0.0.post5869"
+version_tuple = (0, 0, 5869)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5868")
+    pversion = V("0.0.post5869")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5773"
-data_version_tuple = (0, 0, 5773)
+data_version_str = "0.0.post5774"
+data_version_tuple = (0, 0, 5774)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5773")
+    pdata_version = V("0.0.post5774")
 except ImportError:
     pass
-data_git_hash = "3b847a73a8f1eb302fa02c21c648d8271f2c82e4"
-data_git_describe = "v0.0-5773-g3b847a73a"
+data_git_hash = "587b7a3cb073cb47cb85f953e1981f1767affdd9"
+data_git_describe = "v0.0-5774-g587b7a3cb"
 data_git_msg = """\
-commit 3b847a73a8f1eb302fa02c21c648d8271f2c82e4
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Apr 9 17:59:02 2021 -0700
+commit 587b7a3cb073cb47cb85f953e1981f1767affdd9
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Apr 14 15:39:28 2021 -0700
 
-    [dv] Support multi-ral (part 4)
+    [dvsim] Fix local run error.
     
-    Just realized we should have different clock/rst for different TL
-    interface.
-    store multiple tl_vif in `clk_rst_vifs` and keep the default
-    `clk_rst_vif`
-    
-    This is probably the final part of multi-ral support
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
