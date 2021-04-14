@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5862"
-version_tuple = (0, 0, 5862)
+version_str = "0.0.post5864"
+version_tuple = (0, 0, 5864)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5862")
+    pversion = V("0.0.post5864")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5767"
-data_version_tuple = (0, 0, 5767)
+data_version_str = "0.0.post5769"
+data_version_tuple = (0, 0, 5769)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5767")
+    pdata_version = V("0.0.post5769")
 except ImportError:
     pass
-data_git_hash = "0e8660b15f0f27bfbadc7dacfd0aae0542be3b0e"
-data_git_describe = "v0.0-5767-g0e8660b15"
+data_git_hash = "d9dc048680d89bd630ffae673103509e28017709"
+data_git_describe = "v0.0-5769-gd9dc04868"
 data_git_msg = """\
-commit 0e8660b15f0f27bfbadc7dacfd0aae0542be3b0e
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Apr 12 14:59:18 2021 +0100
+commit d9dc048680d89bd630ffae673103509e28017709
+Author: Cindy Chen <chencindy@google.com>
+Date:   Sun Apr 11 12:46:21 2021 -0700
 
-    [top] Slightly tidy up some auto-generated signals
+    [dv/otp_ctrl] Add background check
     
-    Group together adjacent bits into a range select to make the generated
-    code a bit easier to read.
+    This PR adds a single test to check OTP_background checks. This test
+    wanted to ensure the background check can be triggered automatically
+    once we configured the check periods.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
