@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5866"
-version_tuple = (0, 0, 5866)
+version_str = "0.0.post5868"
+version_tuple = (0, 0, 5868)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5866")
+    pversion = V("0.0.post5868")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5771"
-data_version_tuple = (0, 0, 5771)
+data_version_str = "0.0.post5773"
+data_version_tuple = (0, 0, 5773)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5771")
+    pdata_version = V("0.0.post5773")
 except ImportError:
     pass
-data_git_hash = "cc5e3e02b6321423daa5c578aa3cd77ff6fce57b"
-data_git_describe = "v0.0-5771-gcc5e3e02b"
+data_git_hash = "3b847a73a8f1eb302fa02c21c648d8271f2c82e4"
+data_git_describe = "v0.0-5773-g3b847a73a"
 data_git_msg = """\
-commit cc5e3e02b6321423daa5c578aa3cd77ff6fce57b
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Thu Apr 8 16:07:29 2021 -0700
+commit 3b847a73a8f1eb302fa02c21c648d8271f2c82e4
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Apr 9 17:59:02 2021 -0700
 
-    [dv/sram] check sram initialization in scb
+    [dv] Support multi-ral (part 4)
     
-    this PR adds support for checking `CTRL.init`in the scoreboard,
-    using a simple timing model to do so.
+    Just realized we should have different clock/rst for different TL
+    interface.
+    store multiple tl_vif in `clk_rst_vifs` and keep the default
+    `clk_rst_vif`
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    This is probably the final part of multi-ral support
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
