@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5872"
-version_tuple = (0, 0, 5872)
+version_str = "0.0.post5883"
+version_tuple = (0, 0, 5883)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5872")
+    pversion = V("0.0.post5883")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5777"
-data_version_tuple = (0, 0, 5777)
+data_version_str = "0.0.post5788"
+data_version_tuple = (0, 0, 5788)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5777")
+    pdata_version = V("0.0.post5788")
 except ImportError:
     pass
-data_git_hash = "0d63fe0a21729f9d8882c3aee387a05173d75a33"
-data_git_describe = "v0.0-5777-g0d63fe0a2"
+data_git_hash = "69b1c4225ffefde014c8e45efd17802c1b6d426d"
+data_git_describe = "v0.0-5788-g69b1c4225"
 data_git_msg = """\
-commit 0d63fe0a21729f9d8882c3aee387a05173d75a33
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Wed Mar 10 17:30:37 2021 -0800
+commit 69b1c4225ffefde014c8e45efd17802c1b6d426d
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Wed Apr 14 12:29:34 2021 +0200
 
-    [ pwm, earlgrey ] Adding PWM to top_earlgrey
+    [aes] Fix and realign LEC script for the different combinational S-Boxes
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
