@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5888"
-version_tuple = (0, 0, 5888)
+version_str = "0.0.post5889"
+version_tuple = (0, 0, 5889)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5888")
+    pversion = V("0.0.post5889")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5793"
-data_version_tuple = (0, 0, 5793)
+data_version_str = "0.0.post5794"
+data_version_tuple = (0, 0, 5794)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5793")
+    pdata_version = V("0.0.post5794")
 except ImportError:
     pass
-data_git_hash = "683f9ece3b584737fdabf966c11548e8853cd73b"
-data_git_describe = "v0.0-5793-g683f9ece3"
+data_git_hash = "9ffffe099c3605b27e21993dd8cb857e717566f7"
+data_git_describe = "v0.0-5794-g9ffffe099"
 data_git_msg = """\
-commit 683f9ece3b584737fdabf966c11548e8853cd73b
-Author: Jacob Levy <jacob.levy@opentitan.org>
-Date:   Thu Apr 15 11:40:29 2021 +0300
+commit 9ffffe099c3605b27e21993dd8cb857e717566f7
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Apr 14 11:04:08 2021 -0700
 
-    [AST] Update parameters
+    [entropy_src/rtl] add a clean halt/start sequence
     
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    This change allows entropy_src to stop immediately when disabled.
+    It also locks all registers when enabled, except for the CONF register.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
