@@ -4,48 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5870"
-version_tuple = (0, 0, 5870)
+version_str = "0.0.post5872"
+version_tuple = (0, 0, 5872)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5870")
+    pversion = V("0.0.post5872")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5775"
-data_version_tuple = (0, 0, 5775)
+data_version_str = "0.0.post5777"
+data_version_tuple = (0, 0, 5777)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5775")
+    pdata_version = V("0.0.post5777")
 except ImportError:
     pass
-data_git_hash = "32655b71b78659f94d07b2f06575cb23f58c89c0"
-data_git_describe = "v0.0-5775-g32655b71b"
+data_git_hash = "0d63fe0a21729f9d8882c3aee387a05173d75a33"
+data_git_describe = "v0.0-5777-g0d63fe0a2"
 data_git_msg = """\
-commit 32655b71b78659f94d07b2f06575cb23f58c89c0
+commit 0d63fe0a21729f9d8882c3aee387a05173d75a33
 Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Apr 1 21:38:30 2021 -0700
+Date:   Wed Mar 10 17:30:37 2021 -0800
 
-    [ spi_host ] SPI_HOST Implementation
-    
-    Register Changes:
-    
-    - Simplified Command structure to speed, direction, length, and CSAAT
-    - CSAAT moved out of CONFIGOPTS
-    - COMMAND register no longer a multi-reg
-    - Added a separate CSID register
-    - Added two new types of errors for command checking
-    - Removed Manual CS feature
-    - Made RX and TX FIFO come through the same register
-    - Simplified all reset registers into one SW_RST
-    - Renamed "BUSYERR" field to CMDBUSY, and homogenized dashes of similar registers
-    - Harmonized all FIFO related sizes and quantities to word-units and
-      8 bit sizes
-    - ByteOrder now defaults to 1 (Little-Endian)
-    - Clarified operation of ByteOrder in description of !!DATA register
-    
-    Inital implementation included
+    [ pwm, earlgrey ] Adding PWM to top_earlgrey
     
     Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
