@@ -37,7 +37,6 @@ filesets:
       - rtl/io_osc.sv
       - rtl/rglts_pdm_3p3v.sv
       - rtl/rng.sv
-      - rtl/rng_osc.sv
       - rtl/sys_clk.sv
       - rtl/sys_osc.sv
       - rtl/usb_clk.sv
@@ -79,3 +78,4 @@ targets:
       vcs:
         vcs_options: [-timescale=1ns/1ps -l vcs.log]
     toplevel: ast
+
