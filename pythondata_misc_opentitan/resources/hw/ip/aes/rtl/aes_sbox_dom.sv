@@ -19,15 +19,23 @@
 // [2] Canright, "A very compact 'perfectly masked' S-box for AES (corrected)" available at
 //     https://eprint.iacr.org/2009/011.pdf
 // [3] Canright, "A very compact Rijndael S-box" available at https://hdl.handle.net/10945/25608
+//
+// Using the Coco-Alma tool in transient mode, this implementation has been formally verified to be
+// secure against first-order side-channel analysis (SCA). For more information on the tool,
+// refer to the following papers:
+// [4] Gigerl, "COCO: Co-design and co-verification of masked software implementations on CPUs"
+//     available at https://eprint.iacr.org/2020/1294.pdf
+// [5] Bloem, "Formal verification of masked hardware implementations in the presence of glitches"
+//     available at https://eprint.iacr.org/2017/897.pdf
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // IMPORTANT NOTE:                                                                               //
 //                            DO NOT USE THIS FOR SYNTHESIS BLINDLY!                             //
 //                                                                                               //
-// This implementation targets primarily Xilinx Vivado synthesis as well as RTL simulation. It   //
-// contains synthesis attributes specific to Xilinx Vivado to prevent the synthesis tool from    //
-// optimizing away registers and to enforce the correct ordering of operations. Other synthesis  //
-// tools might still heavily optimize the design. The result is likely insecure. Use with care.  //
+// This implementation relies on primitive cells like prim_buf/flop_en containing tool-specific  //
+// synthesis attributes to prevent the synthesis tool from optimizing away/re-ordering registers //
+// and to enforce the correct ordering of operations. Without the proper primitives, synthesis   //
+// tools might heavily optimize the design. The result is likely insecure. Use with care.        //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 `include "prim_assert.sv"
@@ -68,7 +76,7 @@ module aes_dom_indep_mul_gf2pn #(
   // Calculation //
   /////////////////
   // Inner-domain terms
-  (* keep = "true" *) logic [NPower-1:0] mul_ax_ay_d, mul_bx_by_d;
+  logic [NPower-1:0] mul_ax_ay_d, mul_bx_by_d;
   if (NPower == 4) begin : gen_inner_mul_gf2p4
     assign mul_ax_ay_d = aes_mul_gf2p4(a_x, a_y);
     assign mul_bx_by_d = aes_mul_gf2p4(b_x, b_y);
@@ -94,20 +102,21 @@ module aes_dom_indep_mul_gf2pn #(
   ///////////////
   // Resharing of cross-domain terms
   logic [NPower-1:0] aq_z0_d, bq_z0_d;
-  (* keep = "true" *) logic [NPower-1:0] aq_z0_q, bq_z0_q;
+  logic [NPower-1:0] aq_z0_q, bq_z0_q;
   assign aq_z0_d = z_0 ^ mul_ax_by;
   assign bq_z0_d = z_0 ^ mul_ay_bx;
 
   // Registers
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      aq_z0_q <= '0;
-      bq_z0_q <= '0;
-    end else if (we_i) begin
-      aq_z0_q <= aq_z0_d;
-      bq_z0_q <= bq_z0_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 2*NPower ),
+    .ResetValue ( '0       )
+  ) u_prim_flop_abq_z0 (
+    .clk_i  ( clk_i              ),
+    .rst_ni ( rst_ni             ),
+    .en_i   ( we_i               ),
+    .d_i    ( {aq_z0_d, bq_z0_d} ),
+    .q_o    ( {aq_z0_q, bq_z0_q} )
+  );
 
   /////////////////////////
   // Optional Pipelining //
@@ -119,16 +128,17 @@ module aes_dom_indep_mul_gf2pn #(
     // input data every clock cycle and prevents SCA leakage occurring due to the integration of
     // reshared cross-domain terms with inner-domain terms derived from different input data.
 
-    (* keep = "true" *) logic [NPower-1:0] mul_ax_ay_q, mul_bx_by_q;
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        mul_ax_ay_q <= '0;
-        mul_bx_by_q <= '0;
-      end else if (we_i) begin
-        mul_ax_ay_q <= mul_ax_ay_d;
-        mul_bx_by_q <= mul_bx_by_d;
-      end
-    end
+    logic [NPower-1:0] mul_ax_ay_q, mul_bx_by_q;
+    prim_flop_en #(
+      .Width      ( 2*NPower ),
+      .ResetValue ( '0       )
+    ) u_prim_flop_mul_abx_aby (
+      .clk_i  ( clk_i                      ),
+      .rst_ni ( rst_ni                     ),
+      .en_i   ( we_i                       ),
+      .d_i    ( {mul_ax_ay_d, mul_bx_by_d} ),
+      .q_o    ( {mul_ax_ay_q, mul_bx_by_q} )
+    );
 
     assign mul_ax_ay = mul_ax_ay_q;
     assign mul_bx_by = mul_bx_by_q;
@@ -139,8 +149,17 @@ module aes_dom_indep_mul_gf2pn #(
     // this can cause SCA leakage as during the clock cycle in which new data arrives, the new
     // inner-domain terms are integrated with the previous, reshared cross-domain terms.
 
-    assign mul_ax_ay = mul_ax_ay_d;
-    assign mul_bx_by = mul_bx_by_d;
+    // Avoid aggressive synthesis optimizations.
+    logic [NPower-1:0] mul_ax_ay_buf, mul_bx_by_buf;
+    prim_buf #(
+      .Width  ( 2*NPower )
+    ) u_prim_buf_mul_abx_aby (
+      .in_i  ( {mul_ax_ay_d,   mul_bx_by_d}   ),
+      .out_o ( {mul_ax_ay_buf, mul_bx_by_buf} )
+    );
+
+    assign mul_ax_ay = mul_ax_ay_buf;
+    assign mul_bx_by = mul_bx_by_buf;
   end
 
   /////////////////
@@ -185,20 +204,21 @@ module aes_dom_dep_mul_gf2pn_unopt #(
   //////////////
   // Blinding of y by z.
   logic [NPower-1:0] a_yz_d, b_yz_d;
-  (* keep = "true" *) logic [NPower-1:0] a_yz_q, b_yz_q;
+  logic [NPower-1:0] a_yz_q, b_yz_q;
   assign a_yz_d = a_y ^ a_z;
   assign b_yz_d = b_y ^ b_z;
 
   // Registers
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_yz_q <= '0;
-      b_yz_q <= '0;
-    end else if (we_i) begin
-      a_yz_q <= a_yz_d;
-      b_yz_q <= b_yz_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 2*NPower ),
+    .ResetValue ( '0       )
+  ) u_prim_flop_ab_yz (
+    .clk_i  ( clk_i            ),
+    .rst_ni ( rst_ni           ),
+    .en_i   ( we_i             ),
+    .d_i    ( {a_yz_d, b_yz_d} ),
+    .q_o    ( {a_yz_q, b_yz_q} )
+  );
 
   ////////////////
   // Correction //
@@ -207,7 +227,7 @@ module aes_dom_dep_mul_gf2pn_unopt #(
   aes_dom_indep_mul_gf2pn #(
     .NPower   ( NPower   ),
     .Pipeline ( Pipeline )
-  ) aes_dom_indep_mul_gf2pn (
+  ) u_aes_dom_indep_mul_gf2pn (
     .clk_i  ( clk_i     ),
     .rst_ni ( rst_ni    ),
     .we_i   ( we_i      ),
@@ -230,16 +250,17 @@ module aes_dom_dep_mul_gf2pn_unopt #(
     // and prevents SCA leakage occurring due to the multiplication of input x with b belonging to
     // different clock cycles.
 
-    (* keep = "true" *) logic [NPower-1:0] a_x_q, b_x_q;
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        a_x_q <= '0;
-        b_x_q <= '0;
-      end else if (we_i) begin
-        a_x_q <= a_x;
-        b_x_q <= b_x;
-      end
-    end
+    logic [NPower-1:0] a_x_q, b_x_q;
+    prim_flop_en #(
+      .Width      ( 2*NPower ),
+      .ResetValue ( '0       )
+    ) u_prim_flop_ab_x (
+      .clk_i  ( clk_i          ),
+      .rst_ni ( rst_ni         ),
+      .en_i   ( we_i           ),
+      .d_i    ( {a_x,   b_x}   ),
+      .q_o    ( {a_x_q, b_x_q} )
+    );
 
     assign a_x_calc = a_x_q;
     assign b_x_calc = b_x_q;
@@ -318,20 +339,21 @@ module aes_dom_dep_mul_gf2pn #(
   //////////////
   // Blinding of y by z_0.
   logic [NPower-1:0] a_yz0_d, b_yz0_d;
-  (* keep = "true" *) logic [NPower-1:0] a_yz0_q, b_yz0_q;
+  logic [NPower-1:0] a_yz0_q, b_yz0_q;
   assign a_yz0_d = a_y ^ z_0;
   assign b_yz0_d = b_y ^ z_0;
 
   // Registers
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_yz0_q <= '0;
-      b_yz0_q <= '0;
-    end else if (we_i) begin
-      a_yz0_q <= a_yz0_d;
-      b_yz0_q <= b_yz0_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 2*NPower ),
+    .ResetValue ( '0       )
+  ) u_prim_flop_ab_yz0 (
+    .clk_i  ( clk_i              ),
+    .rst_ni ( rst_ni             ),
+    .en_i   ( we_i               ),
+    .d_i    ( {a_yz0_d, b_yz0_d} ),
+    .q_o    ( {a_yz0_q, b_yz0_q} )
+  );
 
   ////////////////
   // Correction //
@@ -342,7 +364,7 @@ module aes_dom_dep_mul_gf2pn #(
   // which allows for further optimizations.
 
   // Calculation
-  (* keep = "true" *) logic [NPower-1:0] mul_ax_z0, mul_bx_z0;
+  logic [NPower-1:0] mul_ax_z0, mul_bx_z0;
   if (NPower == 4) begin : gen_corr_mul_gf2p4
     assign mul_ax_z0 = aes_mul_gf2p4(a_x, z_0);
     assign mul_bx_z0 = aes_mul_gf2p4(b_x, z_0);
@@ -352,22 +374,32 @@ module aes_dom_dep_mul_gf2pn #(
     assign mul_bx_z0 = aes_mul_gf2p2(b_x, z_0);
   end
 
+  // Avoid aggressive synthesis optimizations.
+  logic [NPower-1:0] mul_ax_z0_buf, mul_bx_z0_buf;
+  prim_buf #(
+    .Width ( 2*NPower )
+  ) u_prim_buf_mul_abx_z0 (
+    .in_i  ( {mul_ax_z0,     mul_bx_z0}     ),
+    .out_o ( {mul_ax_z0_buf, mul_bx_z0_buf} )
+  );
+
   // Resharing
   logic [NPower-1:0] axz0_z1_d, bxz0_z1_d;
-  (* keep = "true" *) logic [NPower-1:0] axz0_z1_q, bxz0_z1_q;
-  assign axz0_z1_d = mul_ax_z0 ^ z_1;
-  assign bxz0_z1_d = mul_bx_z0 ^ z_1;
+  logic [NPower-1:0] axz0_z1_q, bxz0_z1_q;
+  assign axz0_z1_d = mul_ax_z0_buf ^ z_1;
+  assign bxz0_z1_d = mul_bx_z0_buf ^ z_1;
 
   // Registers
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      axz0_z1_q <= '0;
-      bxz0_z1_q <= '0;
-    end else if (we_i) begin
-      axz0_z1_q <= axz0_z1_d;
-      bxz0_z1_q <= bxz0_z1_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 2*NPower ),
+    .ResetValue ( '0       )
+  ) u_prim_flop_abxz0_z1 (
+    .clk_i  ( clk_i                  ),
+    .rst_ni ( rst_ni                 ),
+    .en_i   ( we_i                   ),
+    .d_i    ( {axz0_z1_d, bxz0_z1_d} ),
+    .q_o    ( {axz0_z1_q, bxz0_z1_q} )
+  );
 
   /////////////////////////
   // Optional Pipelining //
@@ -381,20 +413,17 @@ module aes_dom_dep_mul_gf2pn #(
     //
     // The PreDomIndep variant has the required pipeline registers built in already.
 
-    (* keep = "true" *) logic [NPower-1:0] a_x_q, b_x_q, a_y_q, b_y_q;
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        a_x_q <= '0;
-        b_x_q <= '0;
-        a_y_q <= '0;
-        b_y_q <= '0;
-      end else if (we_i) begin
-        a_x_q <= a_x;
-        b_x_q <= b_x;
-        a_y_q <= a_y;
-        b_y_q <= b_y;
-      end
-    end
+    logic [NPower-1:0] a_x_q, b_x_q, a_y_q, b_y_q;
+    prim_flop_en #(
+      .Width      ( 4*NPower ),
+      .ResetValue ( '0       )
+    ) u_prim_flop_ab_xy (
+      .clk_i  ( clk_i                        ),
+      .rst_ni ( rst_ni                       ),
+      .en_i   ( we_i                         ),
+      .d_i    ( {a_x,   b_x,   a_y,   b_y}   ),
+      .q_o    ( {a_x_q, b_x_q, a_y_q, b_y_q} )
+    );
 
     assign a_x_calc = a_x_q;
     assign b_x_calc = b_x_q;
@@ -434,7 +463,7 @@ module aes_dom_dep_mul_gf2pn #(
 
     // d_y part: Inner-domain terms of x * y
     logic [NPower-1:0] mul_ax_ay_d, mul_bx_by_d;
-    (* keep = "true" *) logic [NPower-1:0] mul_ax_ay_q, mul_bx_by_q;
+    logic [NPower-1:0] mul_ax_ay_q, mul_bx_by_q;
     if (NPower == 4) begin : gen_inner_mul_gf2p4
       assign mul_ax_ay_d = aes_mul_gf2p4(a_x_calc, a_y_calc);
       assign mul_bx_by_d = aes_mul_gf2p4(b_x_calc, b_y_calc);
@@ -445,31 +474,33 @@ module aes_dom_dep_mul_gf2pn #(
     end
 
     // Registers
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        mul_ax_ay_q <= '0;
-        mul_bx_by_q <= '0;
-      end else if (we_i) begin
-        mul_ax_ay_q <= mul_ax_ay_d;
-        mul_bx_by_q <= mul_bx_by_d;
-      end
-    end
+    prim_flop_en #(
+      .Width      ( 2*NPower ),
+      .ResetValue ( '0       )
+    ) u_prim_flop_mul_abx_aby (
+      .clk_i  ( clk_i                      ),
+      .rst_ni ( rst_ni                     ),
+      .en_i   ( we_i                       ),
+      .d_i    ( {mul_ax_ay_d, mul_bx_by_d} ),
+      .q_o    ( {mul_ax_ay_q, mul_bx_by_q} )
+    );
 
     // Input Registers
-    (* keep = "true" *) logic [NPower-1:0] a_x_q, b_x_q;
-    always_ff @(posedge clk_i or negedge rst_ni) begin
-      if (!rst_ni) begin
-        a_x_q <= '0;
-        b_x_q <= '0;
-      end else if (we_i) begin
-        a_x_q <= a_x_calc;
-        b_x_q <= b_x_calc;
-      end
-    end
+    logic [NPower-1:0] a_x_q, b_x_q;
+    prim_flop_en #(
+      .Width      ( 2*NPower ),
+      .ResetValue ( '0       )
+    ) u_prim_flop_ab_xy (
+      .clk_i  ( clk_i                ),
+      .rst_ni ( rst_ni               ),
+      .en_i   ( we_i                 ),
+      .d_i    ( {a_x_calc, b_x_calc} ),
+      .q_o    ( {a_x_q,    b_x_q}    )
+    );
 
     // _D_y_z0 part: Cross-domain terms: d_x * _D_y_z0
     // Need to use registered version of input x.
-    (* keep = "true" *) logic [NPower-1:0] mul_ax_byz0, mul_bx_ayz0;
+    logic [NPower-1:0] mul_ax_byz0, mul_bx_ayz0;
     if (NPower == 4) begin : gen_cross_mul_gf2p4
       assign mul_ax_byz0 = aes_mul_gf2p4(a_x_q, b_yz0_q);
       assign mul_bx_ayz0 = aes_mul_gf2p4(b_x_q, a_yz0_q);
@@ -479,9 +510,18 @@ module aes_dom_dep_mul_gf2pn #(
       assign mul_bx_ayz0 = aes_mul_gf2p2(b_x_q, a_yz0_q);
     end
 
+    // Avoid aggressive synthesis optimizations.
+    logic [NPower-1:0] mul_ax_byz0_buf, mul_bx_ayz0_buf;
+    prim_buf #(
+      .Width ( 2*NPower )
+    ) u_prim_buf_mul_abx_bayz0 (
+      .in_i  ( {mul_ax_byz0,     mul_bx_ayz0}     ),
+      .out_o ( {mul_ax_byz0_buf, mul_bx_ayz0_buf} )
+    );
+
     // Integration
-    assign a_q = axz0_z1_q ^ mul_ax_ay_q ^ mul_ax_byz0;
-    assign b_q = bxz0_z1_q ^ mul_bx_by_q ^ mul_bx_ayz0;
+    assign a_q = axz0_z1_q ^ mul_ax_ay_q ^ mul_ax_byz0_buf;
+    assign b_q = bxz0_z1_q ^ mul_bx_by_q ^ mul_bx_ayz0_buf;
 
   end else begin : gen_not_pre_dom_indep
     // This DOM-dep multiplier is not directly followed by an un-pipelined DOM-indep multiplier. As
@@ -489,23 +529,41 @@ module aes_dom_dep_mul_gf2pn #(
     // with input x which allows saving 2 GF multipliers.
 
     // Sum up d_y and _D_y_z0.
-    (* keep = "true" *) logic [NPower-1:0] a_b, b_b;
+    logic [NPower-1:0] a_b, b_b;
     assign a_b = a_y_calc ^ b_yz0_q;
     assign b_b = b_y_calc ^ a_yz0_q;
 
+    // Avoid aggressive synthesis optimizations.
+    logic [NPower-1:0] a_b_buf, b_b_buf;
+    prim_buf #(
+      .Width ( 2*NPower )
+    ) u_prim_buf_ab_b (
+      .in_i  ( {a_b,     b_b}     ),
+      .out_o ( {a_b_buf, b_b_buf} )
+    );
+
     // GF multiplications
-    (* keep = "true" *) logic [NPower-1:0] a_mul_ax_b, b_mul_bx_b;
+    logic [NPower-1:0] a_mul_ax_b, b_mul_bx_b;
     if (NPower == 4) begin : gen_mul_gf2p4
-      assign a_mul_ax_b = aes_mul_gf2p4(a_x_calc, a_b);
-      assign b_mul_bx_b = aes_mul_gf2p4(b_x_calc, b_b);
+      assign a_mul_ax_b = aes_mul_gf2p4(a_x_calc, a_b_buf);
+      assign b_mul_bx_b = aes_mul_gf2p4(b_x_calc, b_b_buf);
     end else begin : gen_mul_gf2p2
-      assign a_mul_ax_b = aes_mul_gf2p2(a_x_calc, a_b);
-      assign b_mul_bx_b = aes_mul_gf2p2(b_x_calc, b_b);
+      assign a_mul_ax_b = aes_mul_gf2p2(a_x_calc, a_b_buf);
+      assign b_mul_bx_b = aes_mul_gf2p2(b_x_calc, b_b_buf);
     end
 
+    // Avoid aggressive synthesis optimizations.
+    logic [NPower-1:0] a_mul_ax_b_buf, b_mul_bx_b_buf;
+    prim_buf #(
+      .Width ( 2*NPower )
+    ) u_prim_buf_ab_mul_abx_b (
+      .in_i  ( {a_mul_ax_b,     b_mul_bx_b}     ),
+      .out_o ( {a_mul_ax_b_buf, b_mul_bx_b_buf} )
+    );
+
     // Integration
-    assign a_q = axz0_z1_q ^ a_mul_ax_b;
-    assign b_q = bxz0_z1_q ^ b_mul_bx_b;
+    assign a_q = axz0_z1_q ^ a_mul_ax_b_buf;
+    assign b_q = bxz0_z1_q ^ b_mul_bx_b_buf;
   end
 
   // Only GF(2^4) and GF(2^2) is supported.
@@ -541,24 +599,25 @@ module aes_dom_inverse_gf2p4 (
   assign b_gamma0 = b_gamma[1:0];
 
   logic [1:0] a_gamma_ss_d, b_gamma_ss_d;
-  (* keep = "true" *) logic [1:0] a_gamma_ss_q, b_gamma_ss_q;
+  logic [1:0] a_gamma_ss_q, b_gamma_ss_q;
   assign a_gamma_ss_d = aes_scale_omega2_gf2p2(aes_square_gf2p2(a_gamma1 ^ a_gamma0));
   assign b_gamma_ss_d = aes_scale_omega2_gf2p2(aes_square_gf2p2(b_gamma1 ^ b_gamma0));
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_gamma_ss_q <= '0;
-      b_gamma_ss_q <= '0;
-    end else if (we_i[0]) begin
-      a_gamma_ss_q <= a_gamma_ss_d;
-      b_gamma_ss_q <= b_gamma_ss_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 4  ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_ab_gamma_ss (
+    .clk_i  ( clk_i                        ),
+    .rst_ni ( rst_ni                       ),
+    .en_i   ( we_i[0]                      ),
+    .d_i    ( {a_gamma_ss_d, b_gamma_ss_d} ),
+    .q_o    ( {a_gamma_ss_q, b_gamma_ss_q} )
+  );
 
   aes_dom_dep_mul_gf2pn #(
     .NPower      ( 2    ),
     .Pipeline    ( 1'b1 ),
     .PreDomIndep ( 1'b0 )
-  ) aes_dom_mul_gamma1_gamma0 (
+  ) u_aes_dom_mul_gamma1_gamma0 (
     .clk_i  ( clk_i           ),
     .rst_ni ( rst_ni          ),
     .we_i   ( we_i[0]         ),
@@ -577,39 +636,45 @@ module aes_dom_inverse_gf2p4 (
   /////////////
 
   // Formulas 14 and 15 in [2].
-  (* keep = "true" *) logic [1:0] a_omega, b_omega;
+  logic [1:0] a_omega, b_omega;
   assign a_omega = aes_square_gf2p2(a_gamma1_gamma0 ^ a_gamma_ss_q);
   assign b_omega = aes_square_gf2p2(b_gamma1_gamma0 ^ b_gamma_ss_q);
 
+  // Avoid aggressive synthesis optimizations.
+  logic [1:0] a_omega_buf, b_omega_buf;
+  prim_buf #(
+    .Width ( 4 )
+  ) u_prim_buf_ab_omega (
+    .in_i  ( {a_omega,     b_omega}     ),
+    .out_o ( {a_omega_buf, b_omega_buf} )
+  );
+
   // Formulas 16 and 17 in [2].
 
-  (* keep = "true" *) logic [1:0] a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q;
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_gamma1_q <= '0;
-      a_gamma0_q <= '0;
-      b_gamma1_q <= '0;
-      b_gamma0_q <= '0;
-    end else if (we_i[0]) begin
-      a_gamma1_q <= a_gamma1;
-      a_gamma0_q <= a_gamma0;
-      b_gamma1_q <= b_gamma1;
-      b_gamma0_q <= b_gamma0;
-    end
-  end
+  logic [1:0] a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q;
+  prim_flop_en #(
+    .Width      ( 8  ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_ab_gamma10 (
+    .clk_i  ( clk_i                                            ),
+    .rst_ni ( rst_ni                                           ),
+    .en_i   ( we_i[0]                                          ),
+    .d_i    ( {a_gamma1,   a_gamma0,   b_gamma1,   b_gamma0}   ),
+    .q_o    ( {a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q} )
+  );
 
   aes_dom_dep_mul_gf2pn #(
     .NPower      ( 2    ),
     .Pipeline    ( 1'b1 ),
     .PreDomIndep ( 1'b0 )
-  ) aes_dom_mul_omega_gamma1 (
+  ) u_aes_dom_mul_omega_gamma1 (
     .clk_i  ( clk_i            ),
     .rst_ni ( rst_ni           ),
     .we_i   ( we_i[1]          ),
     .a_x    ( a_gamma1_q       ), // Share a of x
-    .a_y    ( a_omega          ), // Share a of y
+    .a_y    ( a_omega_buf      ), // Share a of y
     .b_x    ( b_gamma1_q       ), // Share b of x
-    .b_y    ( b_omega          ), // Share b of y
+    .b_y    ( b_omega_buf      ), // Share b of y
     .z_0    ( prd_3[5:4]       ), // Randomness for blinding
     .z_1    ( prd_3[7:6]       ), // Randomness for resharing
     .a_q    ( a_gamma_inv[1:0] ), // Share a of q
@@ -620,13 +685,13 @@ module aes_dom_inverse_gf2p4 (
     .NPower      ( 2    ),
     .Pipeline    ( 1'b1 ),
     .PreDomIndep ( 1'b0 )
-  ) aes_dom_mul_omega_gamma0 (
+  ) u_aes_dom_mul_omega_gamma0 (
     .clk_i  ( clk_i            ),
     .rst_ni ( rst_ni           ),
     .we_i   ( we_i[1]          ),
-    .a_x    ( a_omega          ), // Share a of x
+    .a_x    ( a_omega_buf      ), // Share a of x
     .a_y    ( a_gamma0_q       ), // Share a of y
-    .b_x    ( b_omega          ), // Share b of x
+    .b_x    ( b_omega_buf      ), // Share b of x
     .b_y    ( b_gamma0_q       ), // Share b of y
     .z_0    ( prd_3[1:0]       ), // Randomness for blinding
     .z_1    ( prd_3[3:2]       ), // Randomness for resharing
@@ -657,31 +722,31 @@ module aes_dom_inverse_gf2p8 (
   // Formula 12 in [2].
 
   logic [3:0] a_y1, a_y0, b_y1, b_y0, a_y1_y0, b_y1_y0;
-  (* keep = "true" *) logic [3:0] a_gamma, b_gamma;
   assign a_y1 = a_y[7:4];
   assign a_y0 = a_y[3:0];
   assign b_y1 = b_y[7:4];
   assign b_y0 = b_y[3:0];
 
   logic [3:0] a_y_ss_d, b_y_ss_d;
-  (* keep = "true" *) logic [3:0] a_y_ss_q, b_y_ss_q;
+  logic [3:0] a_y_ss_q, b_y_ss_q;
   assign a_y_ss_d = aes_square_scale_gf2p4_gf2p2(a_y1 ^ a_y0);
   assign b_y_ss_d = aes_square_scale_gf2p4_gf2p2(b_y1 ^ b_y0);
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_y_ss_q <= '0;
-      b_y_ss_q <= '0;
-    end else if (we_i[0]) begin
-      a_y_ss_q <= a_y_ss_d;
-      b_y_ss_q <= b_y_ss_d;
-    end
-  end
+  prim_flop_en #(
+    .Width      ( 8  ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_ab_y_ss (
+    .clk_i  ( clk_i                ),
+    .rst_ni ( rst_ni               ),
+    .en_i   ( we_i[0]              ),
+    .d_i    ( {a_y_ss_d, b_y_ss_d} ),
+    .q_o    ( {a_y_ss_q, b_y_ss_q} )
+  );
 
   aes_dom_dep_mul_gf2pn #(
     .NPower      ( 4    ),
     .Pipeline    ( 1'b1 ),
     .PreDomIndep ( 1'b0 )
-  ) aes_dom_mul_y1_y0 (
+  ) u_aes_dom_mul_y1_y0 (
     .clk_i  ( clk_i          ),
     .rst_ni ( rst_ni         ),
     .we_i   ( we_i[0]        ),
@@ -695,8 +760,18 @@ module aes_dom_inverse_gf2p8 (
     .b_q    ( b_y1_y0        )  // Share b of q
   );
 
+  logic [3:0] a_gamma, b_gamma;
   assign a_gamma = a_y_ss_q ^ a_y1_y0;
   assign b_gamma = b_y_ss_q ^ b_y1_y0;
+
+  // Avoid aggressive synthesis optimizations.
+  logic [3:0] a_gamma_buf, b_gamma_buf;
+  prim_buf #(
+    .Width ( 8 )
+  ) u_prim_buf_ab_gamma (
+    .in_i  ( {a_gamma,     b_gamma}     ),
+    .out_o ( {a_gamma_buf, b_gamma_buf} )
+  );
 
   ////////////////////
   // Stages 2 and 3 //
@@ -705,16 +780,16 @@ module aes_dom_inverse_gf2p8 (
   logic [3:0] a_theta, b_theta;
 
   // a_gamma is masked by b_gamma, a_gamma_inv is masked by b_gamma_inv.
-  aes_dom_inverse_gf2p4 aes_dom_inverse_gf2p4 (
-    .clk_i       ( clk_i     ),
-    .rst_ni      ( rst_ni    ),
-    .we_i        ( we_i[2:1] ),
-    .a_gamma     ( a_gamma   ),
-    .b_gamma     ( b_gamma   ),
-    .prd_2       ( prd.prd_2 ),
-    .prd_3       ( prd.prd_3 ),
-    .a_gamma_inv ( a_theta   ),
-    .b_gamma_inv ( b_theta   )
+  aes_dom_inverse_gf2p4 u_aes_dom_inverse_gf2p4 (
+    .clk_i       ( clk_i       ),
+    .rst_ni      ( rst_ni      ),
+    .we_i        ( we_i[2:1]   ),
+    .a_gamma     ( a_gamma_buf ),
+    .b_gamma     ( b_gamma_buf ),
+    .prd_2       ( prd.prd_2   ),
+    .prd_3       ( prd.prd_3   ),
+    .a_gamma_inv ( a_theta     ),
+    .b_gamma_inv ( b_theta     )
   );
 
   /////////////
@@ -722,25 +797,22 @@ module aes_dom_inverse_gf2p8 (
   /////////////
   // Formulas 18 and 19 in [2].
 
-  (* keep = "true" *) logic [3:0] a_y1_q, a_y0_q, b_y1_q, b_y0_q;
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      a_y1_q <= '0;
-      a_y0_q <= '0;
-      b_y1_q <= '0;
-      b_y0_q <= '0;
-    end else if (we_i[2]) begin
-      a_y1_q <= a_y1;
-      a_y0_q <= a_y0;
-      b_y1_q <= b_y1;
-      b_y0_q <= b_y0;
-    end
-  end
+  logic [3:0] a_y1_q, a_y0_q, b_y1_q, b_y0_q;
+  prim_flop_en #(
+    .Width      ( 16 ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_ab_y10 (
+    .clk_i  ( clk_i                            ),
+    .rst_ni ( rst_ni                           ),
+    .en_i   ( we_i[2]                          ),
+    .d_i    ( {a_y1,   a_y0,   b_y1,   b_y0}   ),
+    .q_o    ( {a_y1_q, a_y0_q, b_y1_q, b_y0_q} )
+  );
 
   aes_dom_indep_mul_gf2pn #(
     .NPower   ( 4    ),
     .Pipeline ( 1'b1 )
-  ) aes_dom_mul_theta_y1 (
+  ) u_aes_dom_mul_theta_y1 (
     .clk_i  ( clk_i          ),
     .rst_ni ( rst_ni         ),
     .we_i   ( we_i[3]        ),
@@ -756,7 +828,7 @@ module aes_dom_inverse_gf2p8 (
   aes_dom_indep_mul_gf2pn #(
     .NPower   ( 4    ),
     .Pipeline ( 1'b1 )
-  ) aes_dom_mul_theta_y0 (
+  ) u_aes_dom_mul_theta_y0 (
     .clk_i  ( clk_i          ),
     .rst_ni ( rst_ni         ),
     .we_i   ( we_i[3]        ),
@@ -804,7 +876,7 @@ module aes_sbox_dom (
                                                  aes_mvm(mask_i, S2X);
 
   // Do the inversion in normal basis X.
-  aes_dom_inverse_gf2p8 aes_dom_inverse_gf2p8 (
+  aes_dom_inverse_gf2p8 u_aes_dom_inverse_gf2p8 (
     .clk_i   ( clk_i            ),
     .rst_ni  ( rst_ni           ),
     .we_i    ( we               ),

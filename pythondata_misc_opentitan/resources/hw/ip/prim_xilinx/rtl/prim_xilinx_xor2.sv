@@ -4,13 +4,15 @@
 
 `include "prim_assert.sv"
 
-module prim_generic_buf #(
+module prim_xilinx_xor2 #(
   parameter int Width = 1
 ) (
-  input        [Width-1:0] in_i,
-  output logic [Width-1:0] out_o
+  input [Width-1:0] in0_i,
+  input [Width-1:0] in1_i,
+  // Prevent Vivado from optimizing this signal away.
+  (* keep = "true" *) output logic [Width-1:0] out_o
 );
 
-  assign out_o = in_i;
+  assign out_o = in0_i ^ in1_i;
 
 endmodule
