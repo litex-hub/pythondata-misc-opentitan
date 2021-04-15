@@ -4,32 +4,50 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5869"
-version_tuple = (0, 0, 5869)
+version_str = "0.0.post5870"
+version_tuple = (0, 0, 5870)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5869")
+    pversion = V("0.0.post5870")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5774"
-data_version_tuple = (0, 0, 5774)
+data_version_str = "0.0.post5775"
+data_version_tuple = (0, 0, 5775)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5774")
+    pdata_version = V("0.0.post5775")
 except ImportError:
     pass
-data_git_hash = "587b7a3cb073cb47cb85f953e1981f1767affdd9"
-data_git_describe = "v0.0-5774-g587b7a3cb"
+data_git_hash = "32655b71b78659f94d07b2f06575cb23f58c89c0"
+data_git_describe = "v0.0-5775-g32655b71b"
 data_git_msg = """\
-commit 587b7a3cb073cb47cb85f953e1981f1767affdd9
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Apr 14 15:39:28 2021 -0700
+commit 32655b71b78659f94d07b2f06575cb23f58c89c0
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Thu Apr 1 21:38:30 2021 -0700
 
-    [dvsim] Fix local run error.
+    [ spi_host ] SPI_HOST Implementation
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Register Changes:
+    
+    - Simplified Command structure to speed, direction, length, and CSAAT
+    - CSAAT moved out of CONFIGOPTS
+    - COMMAND register no longer a multi-reg
+    - Added a separate CSID register
+    - Added two new types of errors for command checking
+    - Removed Manual CS feature
+    - Made RX and TX FIFO come through the same register
+    - Simplified all reset registers into one SW_RST
+    - Renamed "BUSYERR" field to CMDBUSY, and homogenized dashes of similar registers
+    - Harmonized all FIFO related sizes and quantities to word-units and
+      8 bit sizes
+    - ByteOrder now defaults to 1 (Little-Endian)
+    - Clarified operation of ByteOrder in description of !!DATA register
+    
+    Inital implementation included
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
