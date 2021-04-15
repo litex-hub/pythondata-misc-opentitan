@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5883"
-version_tuple = (0, 0, 5883)
+version_str = "0.0.post5884"
+version_tuple = (0, 0, 5884)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5883")
+    pversion = V("0.0.post5884")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5788"
-data_version_tuple = (0, 0, 5788)
+data_version_str = "0.0.post5789"
+data_version_tuple = (0, 0, 5789)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5788")
+    pdata_version = V("0.0.post5789")
 except ImportError:
     pass
-data_git_hash = "69b1c4225ffefde014c8e45efd17802c1b6d426d"
-data_git_describe = "v0.0-5788-g69b1c4225"
+data_git_hash = "624ff14a9075db1cd1c9cfd7aac8569ef094ce67"
+data_git_describe = "v0.0-5789-g624ff14a9"
 data_git_msg = """\
-commit 69b1c4225ffefde014c8e45efd17802c1b6d426d
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Wed Apr 14 12:29:34 2021 +0200
+commit 624ff14a9075db1cd1c9cfd7aac8569ef094ce67
+Author: Rafal Kapuscik <rkapuscik@antmicro.com>
+Date:   Wed Apr 7 09:37:51 2021 +0200
 
-    [aes] Fix and realign LEC script for the different combinational S-Boxes
+    Add formatting changes from allow list
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rafal Kapuscik <rkapuscik@antmicro.com>
 
 """
 
