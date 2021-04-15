@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5884"
-version_tuple = (0, 0, 5884)
+version_str = "0.0.post5888"
+version_tuple = (0, 0, 5888)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5884")
+    pversion = V("0.0.post5888")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5789"
-data_version_tuple = (0, 0, 5789)
+data_version_str = "0.0.post5793"
+data_version_tuple = (0, 0, 5793)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5789")
+    pdata_version = V("0.0.post5793")
 except ImportError:
     pass
-data_git_hash = "624ff14a9075db1cd1c9cfd7aac8569ef094ce67"
-data_git_describe = "v0.0-5789-g624ff14a9"
+data_git_hash = "683f9ece3b584737fdabf966c11548e8853cd73b"
+data_git_describe = "v0.0-5793-g683f9ece3"
 data_git_msg = """\
-commit 624ff14a9075db1cd1c9cfd7aac8569ef094ce67
-Author: Rafal Kapuscik <rkapuscik@antmicro.com>
-Date:   Wed Apr 7 09:37:51 2021 +0200
+commit 683f9ece3b584737fdabf966c11548e8853cd73b
+Author: Jacob Levy <jacob.levy@opentitan.org>
+Date:   Thu Apr 15 11:40:29 2021 +0300
 
-    Add formatting changes from allow list
+    [AST] Update parameters
     
-    Signed-off-by: Rafal Kapuscik <rkapuscik@antmicro.com>
+    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
 
 """
 
