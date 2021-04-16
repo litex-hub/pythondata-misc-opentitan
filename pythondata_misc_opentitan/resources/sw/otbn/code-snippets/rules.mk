@@ -95,6 +95,18 @@ $(otbn-code-snippets-bin-dir)/rsa_1024_enc_test.elf: \
 $(otbn-code-snippets-bin-dir)/rsa_1024_enc_test.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/modexp.o
 
+# rsa_verify_test depends on code defined in rsa_verify.s
+$(otbn-code-snippets-bin-dir)/rsa_verify_test.elf: \
+  $(otbn-code-snippets-obj-dir)/rsa_verify.o
+$(otbn-code-snippets-bin-dir)/rsa_verify_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/rsa_verify.o
+
+# rsa_verify_test_exp3 depends on code defined in rsa_verify.s
+$(otbn-code-snippets-bin-dir)/rsa_verify_test_exp3.elf: \
+  $(otbn-code-snippets-obj-dir)/rsa_verify.o
+$(otbn-code-snippets-bin-dir)/rsa_verify_test_exp3.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/rsa_verify.o
+
 # p256 curve point test depends on p256init, p256isoncurve, defined in p256.s
 $(otbn-code-snippets-bin-dir)/p256_curve_point_test.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
