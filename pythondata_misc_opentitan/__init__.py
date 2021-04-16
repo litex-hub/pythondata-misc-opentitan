@@ -4,35 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5907"
-version_tuple = (0, 0, 5907)
+version_str = "0.0.post5913"
+version_tuple = (0, 0, 5913)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5907")
+    pversion = V("0.0.post5913")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5812"
-data_version_tuple = (0, 0, 5812)
+data_version_str = "0.0.post5818"
+data_version_tuple = (0, 0, 5818)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5812")
+    pdata_version = V("0.0.post5818")
 except ImportError:
     pass
-data_git_hash = "e489c4a7ee47909576f8840f75ae490ff69f996e"
-data_git_describe = "v0.0-5812-ge489c4a7e"
+data_git_hash = "35d771817d33442ab8ef32e22598f8998c26a06b"
+data_git_describe = "v0.0-5818-g35d771817"
 data_git_msg = """\
-commit e489c4a7ee47909576f8840f75ae490ff69f996e
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Apr 15 12:08:01 2021 -0700
+commit 35d771817d33442ab8ef32e22598f8998c26a06b
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Wed Apr 7 00:12:46 2021 -0700
 
-    [tools] simple instructions for interactive synth
+    [sw/dif] CSRNG Updates
     
-    - The steps are still pretty manual and not ideal, but at least we can do it for now.
-    - Long term it may be good to have this built directly into dvsim with some kind of -interactive command.
+    Add implementations for the following functions
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    *   `dif_csrng_instantiate()`
+    *   `dif_csrng_reseed()`
+    *   `dif_csrng_update()`
+    *   `dif_csrng_generate()`
+    *   `dif_csrng_read_output()`
+    
+    Update `dif_csrng_smoketest.cc` to run the CSRNG in software mode
+    with a determistic seed.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
