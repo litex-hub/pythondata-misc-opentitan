@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5895"
-version_tuple = (0, 0, 5895)
+version_str = "0.0.post5901"
+version_tuple = (0, 0, 5901)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5895")
+    pversion = V("0.0.post5901")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5800"
-data_version_tuple = (0, 0, 5800)
+data_version_str = "0.0.post5806"
+data_version_tuple = (0, 0, 5806)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5800")
+    pdata_version = V("0.0.post5806")
 except ImportError:
     pass
-data_git_hash = "bd9c77eac8f19a27de3c6e8e92235eab81937793"
-data_git_describe = "v0.0-5800-gbd9c77eac"
+data_git_hash = "0828ce5b7c6b5d32bc33a0e26c1f3c0591bab3d8"
+data_git_describe = "v0.0-5806-g0828ce5b7"
 data_git_msg = """\
-commit bd9c77eac8f19a27de3c6e8e92235eab81937793
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Mar 5 16:15:16 2021 +0000
+commit 0828ce5b7c6b5d32bc33a0e26c1f3c0591bab3d8
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Apr 15 21:49:44 2021 -0700
 
-    [otbn] Add URND/RND details to documentation
+    [sw/test] Remove sha256_test
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    This is now covered by dif_hmac_smoketest.c
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
