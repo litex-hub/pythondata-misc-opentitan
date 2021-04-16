@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5904"
-version_tuple = (0, 0, 5904)
+version_str = "0.0.post5907"
+version_tuple = (0, 0, 5907)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5904")
+    pversion = V("0.0.post5907")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5809"
-data_version_tuple = (0, 0, 5809)
+data_version_str = "0.0.post5812"
+data_version_tuple = (0, 0, 5812)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5809")
+    pdata_version = V("0.0.post5812")
 except ImportError:
     pass
-data_git_hash = "207cce085604ae6cb3978b43611d1d31b4682e47"
-data_git_describe = "v0.0-5809-g207cce085"
+data_git_hash = "e489c4a7ee47909576f8840f75ae490ff69f996e"
+data_git_describe = "v0.0-5812-ge489c4a7e"
 data_git_msg = """\
-commit 207cce085604ae6cb3978b43611d1d31b4682e47
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Apr 16 14:00:22 2021 +0100
+commit e489c4a7ee47909576f8840f75ae490ff69f996e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Apr 15 12:08:01 2021 -0700
 
-    [pwm,lint] Hush an unused signal warning for regen signal
+    [tools] simple instructions for interactive synth
     
-    We're not actually using this signal yet, and there's a TODO saying
-    that we intend to. Rename it to "unused_regen" to silence both
-    linters' warnings about it.
+    - The steps are still pretty manual and not ideal, but at least we can do it for now.
+    - Long term it may be good to have this built directly into dvsim with some kind of -interactive command.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
