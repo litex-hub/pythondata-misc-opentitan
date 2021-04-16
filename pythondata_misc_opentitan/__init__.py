@@ -4,43 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5913"
-version_tuple = (0, 0, 5913)
+version_str = "0.0.post5916"
+version_tuple = (0, 0, 5916)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5913")
+    pversion = V("0.0.post5916")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5818"
-data_version_tuple = (0, 0, 5818)
+data_version_str = "0.0.post5821"
+data_version_tuple = (0, 0, 5821)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5818")
+    pdata_version = V("0.0.post5821")
 except ImportError:
     pass
-data_git_hash = "35d771817d33442ab8ef32e22598f8998c26a06b"
-data_git_describe = "v0.0-5818-g35d771817"
+data_git_hash = "0caa13957ad09bb47d066653f2ce9a134b07fb98"
+data_git_describe = "v0.0-5821-g0caa13957"
 data_git_msg = """\
-commit 35d771817d33442ab8ef32e22598f8998c26a06b
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Apr 7 00:12:46 2021 -0700
+commit 0caa13957ad09bb47d066653f2ce9a134b07fb98
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 16 12:48:38 2021 +0100
 
-    [sw/dif] CSRNG Updates
+    [keymgr,lint] Waive some Verilator warnings about array accesses
     
-    Add implementations for the following functions
+    "Fixing" this in the RTL would be hard. The problem is that you'd need
+    to make some 2-bit signals to represent the enum entries.
+    Unfortunately, AscentLint (the lint tool that we use for signoff)
+    doesn't accept code that extracts bits from enum values without an
+    explicit concatenation. So you end up having to write something like
+    this for each enum entry:
     
-    *   `dif_csrng_instantiate()`
-    *   `dif_csrng_reseed()`
-    *   `dif_csrng_update()`
-    *   `dif_csrng_generate()`
-    *   `dif_csrng_read_output()`
+      localparam bit [2:0] OpAdvanceBits = {OpAdvance};
+      localparam bit [1:0] ShortOpAdvance = OpAdvanceBits[1:0];
     
-    Update `dif_csrng_smoketest.cc` to run the CSRNG in software mode
-    with a determistic seed.
+    which is getting a bit ridiculous. Just waive the warning.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
