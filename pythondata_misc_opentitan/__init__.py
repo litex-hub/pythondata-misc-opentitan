@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5890"
-version_tuple = (0, 0, 5890)
+version_str = "0.0.post5891"
+version_tuple = (0, 0, 5891)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5890")
+    pversion = V("0.0.post5891")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5795"
-data_version_tuple = (0, 0, 5795)
+data_version_str = "0.0.post5796"
+data_version_tuple = (0, 0, 5796)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5795")
+    pdata_version = V("0.0.post5796")
 except ImportError:
     pass
-data_git_hash = "53b946bbb6c87072d6f57697155f56fd41372a4b"
-data_git_describe = "v0.0-5795-g53b946bbb"
+data_git_hash = "63011da45db8257635c117517309f7d204325554"
+data_git_describe = "v0.0-5796-g63011da45"
 data_git_msg = """\
-commit 53b946bbb6c87072d6f57697155f56fd41372a4b
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Apr 15 12:27:57 2021 -0700
+commit 63011da45db8257635c117517309f7d204325554
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Thu Apr 15 08:23:12 2021 -0700
 
-    [topgen] Fix enum type warnings
+    [edn/dv] Added cfg variables/knobs
     
-    enum for top package did not define any type. Change them to `int
-    unsigned`.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
