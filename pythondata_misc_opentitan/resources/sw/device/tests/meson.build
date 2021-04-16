@@ -32,22 +32,6 @@ subdir('sca')
 subdir('sim_dv')
 subdir('otbn')
 
-aes_test_lib = declare_dependency(
-  link_with: static_library(
-    'aes_test_lib',
-    sources: ['aes_test.c'],
-    dependencies: [
-      sw_lib_aes,
-      sw_lib_runtime_log,
-    ],
-  ),
-)
-sw_tests += {
-  'aes_test': {
-    'library': aes_test_lib,
-  }
-}
-
 flash_ctrl_test_lib = declare_dependency(
   link_with: static_library(
     'flash_ctrl_test_lib',
@@ -63,23 +47,6 @@ flash_ctrl_test_lib = declare_dependency(
 sw_tests += {
   'flash_ctrl_test': {
     'library': flash_ctrl_test_lib,
-  }
-}
-
-sha256_test_lib = declare_dependency(
-  link_with: static_library(
-    'sha256_test_lib',
-    sources: ['sha256_test.c'],
-    dependencies: [
-      sw_lib_hmac,
-      sw_lib_flash_ctrl,
-      sw_lib_runtime_log,
-    ],
-  ),
-)
-sw_tests += {
-  'sha256_test': {
-    'library': sha256_test_lib,
   }
 }
 
