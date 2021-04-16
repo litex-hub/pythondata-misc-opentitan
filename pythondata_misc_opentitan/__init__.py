@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5891"
-version_tuple = (0, 0, 5891)
+version_str = "0.0.post5895"
+version_tuple = (0, 0, 5895)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5891")
+    pversion = V("0.0.post5895")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5796"
-data_version_tuple = (0, 0, 5796)
+data_version_str = "0.0.post5800"
+data_version_tuple = (0, 0, 5800)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5796")
+    pdata_version = V("0.0.post5800")
 except ImportError:
     pass
-data_git_hash = "63011da45db8257635c117517309f7d204325554"
-data_git_describe = "v0.0-5796-g63011da45"
+data_git_hash = "bd9c77eac8f19a27de3c6e8e92235eab81937793"
+data_git_describe = "v0.0-5800-gbd9c77eac"
 data_git_msg = """\
-commit 63011da45db8257635c117517309f7d204325554
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Thu Apr 15 08:23:12 2021 -0700
+commit bd9c77eac8f19a27de3c6e8e92235eab81937793
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Mar 5 16:15:16 2021 +0000
 
-    [edn/dv] Added cfg variables/knobs
+    [otbn] Add URND/RND details to documentation
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
