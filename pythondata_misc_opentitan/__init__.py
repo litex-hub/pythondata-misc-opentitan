@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5930"
-version_tuple = (0, 0, 5930)
+version_str = "0.0.post5937"
+version_tuple = (0, 0, 5937)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5930")
+    pversion = V("0.0.post5937")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5835"
-data_version_tuple = (0, 0, 5835)
+data_version_str = "0.0.post5842"
+data_version_tuple = (0, 0, 5842)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5835")
+    pdata_version = V("0.0.post5842")
 except ImportError:
     pass
-data_git_hash = "38f5cac489b1a30ee1555866178423327d4bcf53"
-data_git_describe = "v0.0-5835-g38f5cac48"
+data_git_hash = "45b996fbabb7c2a51e96825e9a78a9fdb4694e76"
+data_git_describe = "v0.0-5842-g45b996fba"
 data_git_msg = """\
-commit 38f5cac489b1a30ee1555866178423327d4bcf53
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Apr 14 07:34:23 2021 -0700
+commit 45b996fbabb7c2a51e96825e9a78a9fdb4694e76
+Author: Felix Miller <felix.miller@gi-de.com>
+Date:   Thu Apr 15 23:11:02 2021 +0200
 
-    [csrng/rtl] added tracking sm fields to reg for debug
+    [otbn] add test for RSA verify with exp=3
     
-    The csrng command tracking state machine values have now been attached to an
-    observation register.
+    Adds a test for RSA signature verification including
+    an appropriate test key.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Felix Miller <felix.miller@gi-de.com>
 
 """
 
