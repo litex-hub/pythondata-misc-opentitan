@@ -4,44 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5916"
-version_tuple = (0, 0, 5916)
+version_str = "0.0.post5930"
+version_tuple = (0, 0, 5930)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5916")
+    pversion = V("0.0.post5930")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5821"
-data_version_tuple = (0, 0, 5821)
+data_version_str = "0.0.post5835"
+data_version_tuple = (0, 0, 5835)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5821")
+    pdata_version = V("0.0.post5835")
 except ImportError:
     pass
-data_git_hash = "0caa13957ad09bb47d066653f2ce9a134b07fb98"
-data_git_describe = "v0.0-5821-g0caa13957"
+data_git_hash = "38f5cac489b1a30ee1555866178423327d4bcf53"
+data_git_describe = "v0.0-5835-g38f5cac48"
 data_git_msg = """\
-commit 0caa13957ad09bb47d066653f2ce9a134b07fb98
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Apr 16 12:48:38 2021 +0100
+commit 38f5cac489b1a30ee1555866178423327d4bcf53
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Apr 14 07:34:23 2021 -0700
 
-    [keymgr,lint] Waive some Verilator warnings about array accesses
+    [csrng/rtl] added tracking sm fields to reg for debug
     
-    "Fixing" this in the RTL would be hard. The problem is that you'd need
-    to make some 2-bit signals to represent the enum entries.
-    Unfortunately, AscentLint (the lint tool that we use for signoff)
-    doesn't accept code that extracts bits from enum values without an
-    explicit concatenation. So you end up having to write something like
-    this for each enum entry:
+    The csrng command tracking state machine values have now been attached to an
+    observation register.
     
-      localparam bit [2:0] OpAdvanceBits = {OpAdvance};
-      localparam bit [1:0] ShortOpAdvance = OpAdvanceBits[1:0];
-    
-    which is getting a bit ridiculous. Just waive the warning.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
