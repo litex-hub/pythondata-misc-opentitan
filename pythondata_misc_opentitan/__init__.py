@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5889"
-version_tuple = (0, 0, 5889)
+version_str = "0.0.post5890"
+version_tuple = (0, 0, 5890)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5889")
+    pversion = V("0.0.post5890")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5794"
-data_version_tuple = (0, 0, 5794)
+data_version_str = "0.0.post5795"
+data_version_tuple = (0, 0, 5795)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5794")
+    pdata_version = V("0.0.post5795")
 except ImportError:
     pass
-data_git_hash = "9ffffe099c3605b27e21993dd8cb857e717566f7"
-data_git_describe = "v0.0-5794-g9ffffe099"
+data_git_hash = "53b946bbb6c87072d6f57697155f56fd41372a4b"
+data_git_describe = "v0.0-5795-g53b946bbb"
 data_git_msg = """\
-commit 9ffffe099c3605b27e21993dd8cb857e717566f7
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Apr 14 11:04:08 2021 -0700
+commit 53b946bbb6c87072d6f57697155f56fd41372a4b
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Apr 15 12:27:57 2021 -0700
 
-    [entropy_src/rtl] add a clean halt/start sequence
+    [topgen] Fix enum type warnings
     
-    This change allows entropy_src to stop immediately when disabled.
-    It also locks all registers when enabled, except for the CONF register.
+    enum for top package did not define any type. Change them to `int
+    unsigned`.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
