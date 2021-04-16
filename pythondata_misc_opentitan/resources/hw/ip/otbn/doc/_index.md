@@ -103,6 +103,7 @@ Providing the stack has at least one element, this is allowed, even if the stack
 Control and Status Registers (CSRs) are 32b wide registers used for "special" purposes, as detailed in their description;
 they are not related to the GPRs.
 CSRs can be accessed through dedicated instructions, `CSRRS` and `CSRRW`.
+Writes to read-only registers are ignored; they do not signal an error.
 All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.start" >}}).
 
 <table>
@@ -259,6 +260,27 @@ All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.
       <td>
         <strong>RND</strong>.
         A random number.
+        The number is sourced from the EDN via a single-entry cache.
+        Reads when the cache is empty will cause OTBN to be stalled until a new random number is available.
+      </td>
+    </tr>
+    <tr>
+      <td>0xFC1</td>
+      <td>RW</td>
+      <td>
+        <strong>RND_PREFETCH</strong>.
+        Write to this CSR to begin a request to fill the RND cache.
+        Always reads as 0.
+      </td>
+    </tr>
+    <tr>
+      <td>0xFC2</td>
+      <td>R</td>
+      <td>
+        <strong>URND</strong>.
+        A random number.
+        The number is sourced from an LFSR.
+        Reads never stall.
       </td>
     </tr>
   </tbody>
@@ -286,6 +308,7 @@ GPRs are accessible from the base instruction subset, and WDRs are accessible fr
 OTBN has 256b Wide Special purpose Registers (WSRs).
 These are analogous to the 32b CSRs, but are used by big number instructions.
 They can be accessed with the [`BN.WSRRS`]({{< relref "isa#bnwsrrs" >}}) and [`BN.WSRRW`]({{< relref "isa#bnwsrrw" >}}) instructions.
+Writes to read-only registers are ignored; they do not signal an error.
 All RW WSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.start" >}}).
 
 <table>
@@ -315,6 +338,8 @@ This WSR is also visible as CSRs `MOD0` through to `MOD7`.
       <td>R</td>
       <td>
         A random number.
+        The number is sourced from the EDN via a single-entry cache.
+        Reads when the cache is empty will cause OTBN to be stalled until a new random number is fetched from the EDN.
       </td>
     </tr>
     <tr>
@@ -323,6 +348,16 @@ This WSR is also visible as CSRs `MOD0` through to `MOD7`.
       <td>RW</td>
       <td>
         The accumulator register used by the BN.MULQACC instruction.
+      </td>
+    </tr>
+    <tr>
+      <td>0x3</td>
+      <td><strong>URND</strong></td>
+      <td>R</td>
+      <td>
+        A random number.
+        The number is sourced from an LFSR.
+        Reads never stall.
       </td>
     </tr>
   </tbody>
@@ -390,6 +425,25 @@ Both memories can be accessed through OTBN's register interface ({{< regref "DME
 These accesses are ignored if OTBN is busy.
 A host processor can check whether OTBN is busy by reading the {{< regref "STATUS.busy">}} flag.
 All memory accesses through the register interface must be word-aligned 32b word accesses.
+
+### Random Numbers
+
+OTBN is connected to the [Entropy Distribution Network (EDN)]({{< relref "hw/ip/edn/doc" >}}) which can provide random numbers via the `RND` and `URND` CSRs and WSRs.
+
+`RND` provides bits taken directly from the EDN.
+As an EDN request can take time, `RND` is backed by a single-entry cache containing the result of the most recent EDN request.
+A read from `RND` empties this cache.
+A prefetch into the cache, which can be used to hide the EDN latency, is triggered on any write to the `RND_PREFETCH` CSR.
+Writes to `RND_PREFETCH` will be ignored whilst a prefetch is in progress or when the cache is already full.
+OTBN will stall until the request provides bits.
+Both the `RND` CSR and WSR take their bits from the same cache.
+`RND` CSR reads simply discard the other 192 bits on a read.
+When stalling on an `RND` read, OTBN will unstall on the cycle after `otbn_core` receives WLEN RND data from the EDN.
+
+`URND` provides bits from an LFSR; reads from it never stall.
+The `URND` LFSR is seeded once from the EDN when OTBN starts execution.
+Each new execution of OTBN will reseed the `URND` LFSR.
+The LFSR state is advanced every cycle when OTBN is running.
 
 ### Error Handling and Reporting
 
