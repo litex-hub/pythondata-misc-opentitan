@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5901"
-version_tuple = (0, 0, 5901)
+version_str = "0.0.post5904"
+version_tuple = (0, 0, 5904)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5901")
+    pversion = V("0.0.post5904")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5806"
-data_version_tuple = (0, 0, 5806)
+data_version_str = "0.0.post5809"
+data_version_tuple = (0, 0, 5809)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5806")
+    pdata_version = V("0.0.post5809")
 except ImportError:
     pass
-data_git_hash = "0828ce5b7c6b5d32bc33a0e26c1f3c0591bab3d8"
-data_git_describe = "v0.0-5806-g0828ce5b7"
+data_git_hash = "207cce085604ae6cb3978b43611d1d31b4682e47"
+data_git_describe = "v0.0-5809-g207cce085"
 data_git_msg = """\
-commit 0828ce5b7c6b5d32bc33a0e26c1f3c0591bab3d8
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Apr 15 21:49:44 2021 -0700
+commit 207cce085604ae6cb3978b43611d1d31b4682e47
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 16 14:00:22 2021 +0100
 
-    [sw/test] Remove sha256_test
+    [pwm,lint] Hush an unused signal warning for regen signal
     
-    This is now covered by dif_hmac_smoketest.c
+    We're not actually using this signal yet, and there's a TODO saying
+    that we intend to. Rename it to "unused_regen" to silence both
+    linters' warnings about it.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
