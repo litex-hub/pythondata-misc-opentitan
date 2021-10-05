@@ -23,6 +23,8 @@ module flash_phy import flash_ctrl_pkg::*; (
   output logic host_rderr_o,
   input flash_req_t flash_ctrl_i,
   output flash_rsp_t flash_ctrl_o,
+  input tlul_pkg::tl_h2d_t tl_i,
+  output tlul_pkg::tl_d2h_t tl_o,
   input lc_ctrl_pkg::lc_tx_t scanmode_i,
   input scan_en_i,
   input scan_rst_ni,
@@ -31,7 +33,8 @@ module flash_phy import flash_ctrl_pkg::*; (
   inout [1:0] flash_test_mode_a_io,
   inout flash_test_voltage_h_io,
   input lc_ctrl_pkg::lc_tx_t flash_bist_enable_i,
-  input lc_ctrl_pkg::lc_tx_t lc_nvm_debug_en_i
+  input lc_ctrl_pkg::lc_tx_t lc_nvm_debug_en_i,
+  output ast_pkg::ast_dif_t flash_alert_o
 );
 
   // Flash macro outstanding refers to how many reads we allow a macro to move ahead of an
@@ -40,15 +43,21 @@ module flash_phy import flash_ctrl_pkg::*; (
   localparam int FlashMacroOustanding = 1;
   localparam int SeqFifoDepth = FlashMacroOustanding * NumBanks;
 
-  // flash_phy forwards incoming host transactions to the appropriate bank but is not aware of
-  // any controller / host arbitration within the bank.  This means it is possible for
-  // flash_phy to forward one transaction to bank N and another to bank N+1 only for bank N+1
-  // to finish its transaction first (if for example a controller operation were ongoing in bank
-  // N).
-  // This implies that even though transactions are received in-order, they can complete out of
+  // flash_phy forwards incoming host transactions to the appropriate bank.  However, depending
+  // on the transaction type, the completion times may differ (for example, a transaction
+  // requiring de-scramble will take significantly longer than one that hits in the read buffers).
+  // This implies that it is possible for flash_phy to forward one transaction to bank N and another
+  // to bank N+1 only for bank N+1 to finish its transaction first.
+  //
+  // This suggests that even though transactions are received in-order, they can complete out of
   // order.  Thus it is the responsibility of the flash_phy to sequence the responses correctly.
-  // For banks that have finished ahead of time, it is also important to hold its output until
-  // consumed.
+  // For banks that have finished ahead of time, it is also important to hold their output until
+  // consumption by the host.
+  //
+  // The sequence fifo below holds the correct response order, while each flash_phy_core is
+  // paired with a small passthrough response FIFO to hold the data if necessary.
+  // If one bank finishes "ahead" of schedule, the response FIFO will hold the response, and no new
+  // transactions will be issued to that bank until the response is consumed by the host.
 
   // host to flash_phy interface
   logic [BankW-1:0]     host_bank_sel;
@@ -150,12 +159,21 @@ module flash_phy import flash_ctrl_pkg::*; (
   flash_phy_pkg::flash_phy_prim_flash_req_t [NumBanks-1:0] prim_flash_req;
   flash_phy_pkg::flash_phy_prim_flash_rsp_t [NumBanks-1:0] prim_flash_rsp;
   logic [NumBanks-1:0] ecc_single_err;
-  logic [NumBanks-1:0] ecc_multi_err;
   logic [NumBanks-1:0][BusAddrW-1:0] ecc_addr;
 
   assign flash_ctrl_o.ecc_single_err = ecc_single_err;
-  assign flash_ctrl_o.ecc_multi_err = ecc_multi_err;
   assign flash_ctrl_o.ecc_addr = ecc_addr;
+
+  lc_ctrl_pkg::lc_tx_t [NumBanks-1:0] flash_disable;
+  prim_lc_sync #(
+    .NumCopies(NumBanks),
+    .AsyncOn(0)
+  ) u_flash_disable_sync (
+    .clk_i('0),
+    .rst_ni('0),
+    .lc_en_i(flash_ctrl_i.flash_disable),
+    .lc_en_o(flash_disable)
+  );
 
   for (genvar bank = 0; bank < NumBanks; bank++) begin : gen_flash_cores
 
@@ -226,10 +244,10 @@ module flash_phy import flash_ctrl_pkg::*; (
       .erase_done_o(erase_done[bank]),
       .rd_data_o(rd_data[bank]),
       .rd_err_o(rd_err[bank]),
+      .flash_disable_i(flash_disable[bank]),
       .prim_flash_req_o(prim_flash_req[bank]),
       .prim_flash_rsp_i(prim_flash_rsp[bank]),
       .ecc_single_err_o(ecc_single_err[bank]),
-      .ecc_multi_err_o(ecc_multi_err[bank]),
       .ecc_addr_o(ecc_addr[bank][BusBankAddrW-1:0])
     );
   end // block: gen_flash_banks
@@ -265,8 +283,8 @@ module flash_phy import flash_ctrl_pkg::*; (
   ) u_flash (
     .clk_i,
     .rst_ni,
-    .tl_i(flash_ctrl_i.tl_flash_c2p),
-    .tl_o(flash_ctrl_o.tl_flash_p2c),
+    .tl_i,
+    .tl_o,
     .devmode_i(1'b1),
     .flash_req_i(prim_flash_req),
     .flash_rsp_o(prim_flash_rsp),
@@ -285,11 +303,11 @@ module flash_phy import flash_ctrl_pkg::*; (
     .flash_test_mode_a_io,
     .flash_test_voltage_h_io,
     .flash_err_o(flash_ctrl_o.flash_err),
-    .flash_alert_po(flash_ctrl_o.flash_alert_p),
-    .flash_alert_no(flash_ctrl_o.flash_alert_n),
-    .flash_alert_ack_i(flash_ctrl_i.alert_ack),
-    .flash_alert_trig_i(flash_ctrl_i.alert_trig)
+    // There alert signals are forwarded to both flash controller and ast
+    .fl_alert_src_o(flash_alert_o)
   );
+  logic unused_alert;
+  assign unused_alert = flash_ctrl_i.alert_trig & flash_ctrl_i.alert_ack;
 
   logic unused_trst_n;
   assign unused_trst_n = flash_ctrl_i.jtag_req.trst_n;

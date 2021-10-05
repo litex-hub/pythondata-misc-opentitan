@@ -130,6 +130,18 @@ There is a page for creator and a page for the owner.
 The seed pages are read under the following initialization conditions:
 *  life cycle sets provision enable
 
+See [life cycle]({{< relref "hw/ip/lc_ctrl/doc/_index.md#creator_seed_sw_rw_en-and-owner_seed_sw_rw_en" >}}) for more details.
+
+#### Isolated Information Partitions
+
+One information partition page in the design is used for manufacturing time authentication.
+The accessibility of this page is controlled by life cycle and otp.
+
+During TEST states, the isolated page is only progrmmable.
+During production and RMA states, the isolated page is also readable.
+
+See [life cycle]({{< relref "hw/ip/lc_ctrl/doc/_index.md#iso_part_sw_rd_en-and-iso_part_sw_wr_en" >}}) for more details
+
 
 # Theory of Operation
 
@@ -161,6 +173,15 @@ When an RMA entry request is received from the life cycle manager, the flash con
 The flash controller then initiates RMA entry process and notifies the life cycle controller when it is complete.
 Unlike the seed phase, after the RMA phase, the flash controller does not grant control back to software as the system is expected to reboot after an RMA attempt.
 
+#### RMA Entry
+During RMA entry, the flash controller "wipes" the contents of the following
+- Creator partition
+- Owner partition
+- Isolated partition
+- All data partitions
+
+This process ensures that after RMA there is no sensitive information left that can be made use on the tester.
+
 #### Memory Protection
 
 Flash memory protection is handled differently depending on what type of partition is accessed.
@@ -175,6 +196,14 @@ For information partitions, the protection is done per indvidual page.
 Each page can be configured with access privileges.
 As a result, software does not need to define a start and end page for information partitions.
 See {{< regref "BANK0_INFO_PAGE_CFG0" >}} as an example.
+
+#### Address Out of Bounds Check
+In addition to memory protection, the flash controller also explicitly checks to ensure the supplied input is not too large.
+Normally, if software supplies an address that is larger than the flash, the address bits are truncated and the operation wraps.
+However, this can lead to unintentional side effects where it seems like the controller is erasing, programming or reading the wrong location.
+
+Instead the controller explicitly creates an error when the address is out of bounds.
+This terminates the transaction immediately and notifies software of the error.
 
 #### Memory Protection for Key Manager and Life Cycle
 
@@ -290,6 +319,23 @@ However, one TBD feature is related to flash support of life cycle and manufactu
 It may be required for manufacturers to directly inject data into specific pages flash information partitions via die contacts.
 For these pages, scramble shall be permanently disabled as the manufacturer should not be aware of scrambling functions.
 
+## Flash Default Configuration
+Since the flash controller is highly dependent on the specific flavor of flash memory chosen underneath, its configuration can vary widely between different integrations.
+
+This sections details the default settings used by the flash controller:
+* Number of banks: 2
+* Number of pages per bank: 256
+* [Program resolution](#program-resolution): 8 flash words
+* Flash word data bits: 64
+* Flash word metadata bits: 8
+* ECC choice: Hamming code SECDED
+* Information partition types: 3
+* Size of information partition type 0: 10 pages
+* Size of information partition type 1: 1 page
+* Size of information partition type 2: 2 pages
+* Secret partition 0 (used for creator): Bank 0, information partition 0, page 1
+* Secret partition 1 (used for owner): Bank 0, information partition 0, page 2
+* Isolated partition: Bank 0, information partition 0, page 3
 
 ## Hardware Interfaces
 

@@ -9,8 +9,9 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
   `uvm_component_param_utils(cip_base_scoreboard #(RAL_T, CFG_T, COV_T))
 
   // TLM fifos to pick up the packets
-  uvm_tlm_analysis_fifo #(tl_seq_item)  tl_a_chan_fifos[string];
-  uvm_tlm_analysis_fifo #(tl_seq_item)  tl_d_chan_fifos[string];
+  uvm_tlm_analysis_fifo #(tl_channels_e) tl_dir_fifos[string];
+  uvm_tlm_analysis_fifo #(tl_seq_item)   tl_a_chan_fifos[string];
+  uvm_tlm_analysis_fifo #(tl_seq_item)   tl_d_chan_fifos[string];
 
   // Alert_fifo to notify scb if DUT sends an alert
   uvm_tlm_analysis_fifo #(alert_esc_seq_item) alert_fifos[string];
@@ -27,6 +28,10 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
   local bit is_fatal_alert[string];
   local int alert_chk_max_delay[string];
 
+  // covergroups
+  tl_errors_cg_wrap   tl_errors_cgs_wrap[string];
+  tl_intg_err_cg_wrap tl_intg_err_cgs_wrap[string];
+  tl_intg_err_mem_subword_cg_wrap tl_intg_err_mem_subword_cgs_wrap[string];
   `uvm_component_new
 
   virtual function void build_phase(uvm_phase phase);
@@ -34,6 +39,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     foreach (cfg.m_tl_agent_cfgs[i]) begin
       tl_a_chan_fifos[i] = new({"tl_a_chan_fifo_", i}, this);
       tl_d_chan_fifos[i] = new({"tl_d_chan_fifo_", i}, this);
+      tl_dir_fifos[i] = new({"tl_dir_fifo_", i}, this);
     end
     foreach(cfg.list_of_alerts[i]) begin
       string alert_name = cfg.list_of_alerts[i];
@@ -43,66 +49,123 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     foreach (cfg.m_tl_agent_cfgs[i]) begin
       exp_mem[i] = mem_model#()::type_id::create({"exp_mem_", i}, this);
     end
+
+    foreach (cfg.ral_models[ral_name]) begin
+      bit has_unmapped  = (cfg.ral_models[ral_name].unmapped_addr_ranges.size > 0);
+      bit has_csr       = (cfg.ral_models[ral_name].csr_addrs.size > 0);
+      bit has_mem       = (cfg.ral_models[ral_name].mem_ranges.size > 0);
+      bit has_mem_byte_access_err;
+      bit has_wo_mem;
+      bit has_ro_mem;
+
+      if (has_mem) begin
+        get_all_mem_attrs(cfg.ral_models[ral_name], has_mem_byte_access_err, has_wo_mem, has_ro_mem);
+      end
+
+      tl_errors_cgs_wrap[ral_name] = new($sformatf("tl_errors_cgs_wrap[%0s]", ral_name));
+      if (!has_csr) begin
+        tl_errors_cgs_wrap[ral_name].tl_errors_cg.cp_csr_size_err.option.weight = 0;
+      end
+      if (!has_unmapped) begin
+        tl_errors_cgs_wrap[ral_name].tl_errors_cg.cp_unmapped_err.option.weight = 0;
+      end
+      if (!has_mem_byte_access_err) begin
+        tl_errors_cgs_wrap[ral_name].tl_errors_cg.cp_mem_byte_access_err.option.weight = 0;
+      end
+      if (!has_wo_mem) begin
+        tl_errors_cgs_wrap[ral_name].tl_errors_cg.cp_mem_wo_err.option.weight = 0;
+      end
+      if (!has_ro_mem) begin
+        tl_errors_cgs_wrap[ral_name].tl_errors_cg.cp_mem_ro_err.option.weight = 0;
+      end
+
+      if (has_mem) begin
+        tl_intg_err_mem_subword_cgs_wrap[ral_name] = new(
+            $sformatf("tl_intg_err_mem_subword_cgs_wrap[%0s]", ral_name));
+      end
+
+      if (cfg.en_tl_intg_gen) begin
+        tl_intg_err_cgs_wrap[ral_name] = new($sformatf("tl_intg_err_cgs_wrap[%0s]", ral_name));
+        if (!has_mem) tl_intg_err_cgs_wrap[ral_name].tl_intg_err_cg.cp_is_mem.option.weight = 0;
+      end
+    end
   endfunction
 
   virtual task run_phase(uvm_phase phase);
     super.run_phase(phase);
     fork
-      process_tl_a_chan_fifo();
-      process_tl_d_chan_fifo();
+      process_tl_fifos();
       if (cfg.list_of_alerts.size()) process_alert_fifos();
       if (cfg.list_of_alerts.size()) check_alerts();
     join_none
   endtask
 
-  virtual task process_tl_a_chan_fifo();
-    foreach (tl_a_chan_fifos[i]) begin
+  task process_tl_fifos();
+    foreach (cfg.m_tl_agent_cfgs[i]) begin
       automatic string ral_name = i;
-      fork
-        forever begin
-          tl_seq_item item;
-          tl_a_chan_fifos[ral_name].get(item);
-          `uvm_info(`gfn, $sformatf("received tl a_chan item:\n%0s", item.sprint()), UVM_HIGH)
-
-          if (cfg.en_scb_tl_err_chk) begin
-            if (predict_tl_err(item, AddrChannel, ral_name)) continue;
-          end
-          if (cfg.en_scb_mem_chk && item.is_write() && is_mem_addr(item, ral_name)) begin
-            process_mem_write(item, ral_name);
-          end
-
-          if (!cfg.en_scb) continue;
-
-          process_tl_access(item, AddrChannel, ral_name);
-        end // forever
-      join_none
+      process_tl_fifo(i, tl_dir_fifos[i], tl_a_chan_fifos[i], tl_d_chan_fifos[i]);
     end
   endtask
 
-  virtual task process_tl_d_chan_fifo();
-    foreach (tl_d_chan_fifos[i]) begin
-      automatic string ral_name = i;
-      fork
-        forever begin
-          tl_seq_item item;
-          tl_d_chan_fifos[ral_name].get(item);
-          `uvm_info(`gfn, $sformatf("received tl d_chan item:\n%0s", item.sprint()), UVM_HIGH)
+  task process_tl_fifo(string ral_name,
+                       uvm_tlm_analysis_fifo #(tl_channels_e) dir_fifo,
+                       uvm_tlm_analysis_fifo #(tl_seq_item) a_chan_fifo,
+                       uvm_tlm_analysis_fifo #(tl_seq_item) d_chan_fifo);
+    tl_channels_e dir;
+    tl_seq_item   item;
 
-          if (cfg.en_scb_tl_err_chk) begin
-            // check tl packet integrity
-            void'(item.is_ok());
-            if (predict_tl_err(item, DataChannel, ral_name)) continue;
+    fork
+      forever begin
+        dir_fifo.get(dir);
+        case (dir)
+          AddrChannel: begin
+            `DV_CHECK_FATAL(a_chan_fifo.try_get(item),
+                            "dir_fifo pointed at A channel, but a_chan_fifo empty")
+            process_tl_a_item(ral_name, item);
           end
-          if (cfg.en_scb_mem_chk && !item.is_write() && is_mem_addr(item, ral_name)) begin
-            process_mem_read(item, ral_name);
+
+          DataChannel: begin
+            `DV_CHECK_FATAL(d_chan_fifo.try_get(item),
+                            "dir_fifo pointed at D channel, but d_chan_fifo empty")
+            process_tl_d_item(ral_name, item);
           end
 
-          if (!cfg.en_scb) continue;
+          default: `uvm_fatal(`gfn, "Invalid entry in dir_fifo")
+        endcase
+      end
+    join_none
+  endtask
 
-          process_tl_access(item, DataChannel, ral_name);
-        end // forever
-      join_none
+  task process_tl_a_item(string ral_name, tl_seq_item item);
+    `uvm_info(`gfn, $sformatf("received tl a_chan item: %0s", item.convert2string()), UVM_HIGH)
+
+    if (cfg.en_scb_tl_err_chk) begin
+      if (predict_tl_err(item, AddrChannel, ral_name)) return;
     end
+    if (cfg.en_scb_mem_chk && item.is_write() && is_mem_addr(item, ral_name)) begin
+      process_mem_write(item, ral_name);
+    end
+
+    if (!cfg.en_scb) return;
+
+    process_tl_access(item, AddrChannel, ral_name);
+  endtask
+
+  task process_tl_d_item(string ral_name, tl_seq_item item);
+    `uvm_info(`gfn, $sformatf("received tl d_chan item: %0s", item.convert2string()), UVM_HIGH)
+
+    if (cfg.en_scb_tl_err_chk) begin
+      // check tl packet integrity
+      void'(item.is_ok());
+      if (predict_tl_err(item, DataChannel, ral_name)) return;
+    end
+    if (cfg.en_scb_mem_chk && !item.is_write() && is_mem_addr(item, ral_name)) begin
+      process_mem_read(item, ral_name);
+    end
+
+    if (!cfg.en_scb) return;
+
+    process_tl_access(item, DataChannel, ral_name);
   endtask
 
   virtual task process_alert_fifos();
@@ -221,12 +284,12 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
   endtask
 
   virtual task process_mem_write(tl_seq_item item, string ral_name);
-    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
     if (!cfg.under_reset)  exp_mem[ral_name].write(addr, item.a_data, item.a_mask);
   endtask
 
   virtual task process_mem_read(tl_seq_item item, string ral_name);
-    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
     if (!cfg.under_reset && get_mem_access_by_addr(cfg.ral_models[ral_name], addr) == "RW") begin
       exp_mem[ral_name].compare(addr, item.d_data, item.a_mask);
     end
@@ -234,8 +297,8 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
 
   // check if it's mem addr
   virtual function bit is_mem_addr(tl_seq_item item, string ral_name);
-    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
-    addr_range_t   loc_mem_ranges[$] = cfg.mem_ranges[ral_name];
+    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
+    addr_range_t   loc_mem_ranges[$] = cfg.ral_models[ral_name].mem_ranges;
     foreach (loc_mem_ranges[i]) begin
       if (addr inside {[loc_mem_ranges[i].start_addr : loc_mem_ranges[i].end_addr]}) begin
         return 1;
@@ -244,16 +307,28 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     return 0;
   endfunction
 
-  // check if there is any tl error, return 1 in case of error or if it is an unmapped addr
-  // if it is data channel, will check if d_error is set correctly
-  //  - access unmapped address
-  //  - memory/register write addr isn't word-aligned
-  //  - memory write isn't full word
+  // Check if there is any tl error.
+  //
+  // On the Addr channel, returns 1 if the item should cause a TL error.
+  //
+  // On the Data channel, this also asserts that the item's D channel integrity is correct (because
+  // the DUT should never inject errors) and that item.d_error matches the prediction (to check that
+  // the DUT correctly spots TL errors on the A channel). If TL integrity generation is enabled,
+  // this also calls update_tl_alert_field_prediction() to update the mirrored value of any "I've
+  // seen an integrity error" bit.
+  //
+  // The following situations might cause a TL error:
+  //
+  //  - unmapped address
+  //  - write address isn't word-aligned
+  //  - memory write isn't a full word
   //  - register write size is less than actual register width
   //  - TL protocol violation
   virtual function bit predict_tl_err(tl_seq_item item, tl_channels_e channel, string ral_name);
     bit is_tl_unmapped_addr, is_tl_err, mem_access_err;
-    bit csr_aligned_err, csr_size_err, tl_item_err;
+    bit csr_size_err, tl_item_err;
+    bit has_intg_err;
+    bit mem_byte_access_err, mem_wo_err, mem_ro_err;
 
     if (!is_tl_access_mapped_addr(item, ral_name)) begin
       is_tl_unmapped_addr = 1;
@@ -263,35 +338,85 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
       end
     end
 
-    mem_access_err  = !is_tl_mem_access_allowed(item, ral_name);
-    csr_aligned_err = !is_tl_csr_write_addr_word_aligned(item, ral_name);
+    mem_access_err  = !is_tl_mem_access_allowed(item, ral_name, mem_byte_access_err, mem_wo_err,
+                                                mem_ro_err);
     csr_size_err    = !is_tl_csr_write_size_gte_csr_width(item, ral_name);
     tl_item_err     = item.get_exp_d_error();
-    if (!is_tl_err && (mem_access_err || csr_aligned_err || csr_size_err || tl_item_err)) begin
+
+    if (cfg.en_tl_intg_gen) begin
+      has_intg_err = !item.is_a_chan_intg_ok(.throw_error(0));
+
+      // If we got an error response caused by an integrity failure, update the mirrored value for
+      // any bus integrity alert field (if there is one).
+      if (has_intg_err) begin
+        update_tl_alert_field_prediction();
+      end
+
+      if (channel == DataChannel) begin
+        cip_tl_seq_item cip_item;
+        tl_intg_err_e tl_intg_err_type;
+        uint num_cmd_err_bits, num_data_err_bits;
+
+        // integrity at d_user is from DUT, which should be always correct
+        void'(item.is_d_chan_intg_ok(.throw_error(1)));
+
+        // sample covergroup
+        `downcast(cip_item, item)
+        cip_item.get_a_chan_err_info(tl_intg_err_type, num_cmd_err_bits, num_data_err_bits);
+        tl_intg_err_cgs_wrap[ral_name].sample(tl_intg_err_type, num_cmd_err_bits, num_data_err_bits,
+                                              is_mem_addr(item, ral_name));
+
+        if (tl_intg_err_mem_subword_cgs_wrap.exists(ral_name)) begin
+          tl_intg_err_mem_subword_cgs_wrap[ral_name].sample(
+              .tl_intg_err_type(tl_intg_err_type),
+              .write(item.a_opcode != tlul_pkg::Get),
+              .num_enable_bytes($countones(item.a_mask)));
+        end
+      end
+    end
+
+    if (!is_tl_err && (mem_access_err || csr_size_err || tl_item_err ||
+                       has_intg_err)) begin
       is_tl_err = 1;
     end
     if (channel == DataChannel) begin
       `DV_CHECK_EQ(item.d_error, is_tl_err,
-          $sformatf("unmapped: %0d, mem_access_err: %0d, csr_aligned_err: %0d, csr_size_err: %0d, \
-                    item_err: %0d", is_tl_unmapped_addr, mem_access_err, csr_aligned_err,
-                    csr_size_err, tl_item_err))
+          $sformatf({"unmapped: %0d, mem_access_err: %0d, csr_size_err: %0d, tl_item_err: %0d, ",
+                    "has_intg_err: %0d"}, is_tl_unmapped_addr, mem_access_err,
+                    csr_size_err, tl_item_err, has_intg_err))
+
+      // these errors all have the same outcome. Only sample coverages when there is just one
+      // error, so that we know the error actually triggers the outcome
+      if (is_tl_unmapped_addr + csr_size_err + mem_byte_access_err + mem_wo_err +
+          mem_ro_err + tl_item_err == 1) begin
+        tl_errors_cgs_wrap[ral_name].sample(.unmapped_err(is_tl_unmapped_addr),
+                                            .csr_size_err(csr_size_err),
+                                            .mem_byte_access_err(mem_byte_access_err),
+                                            .mem_wo_err(mem_wo_err),
+                                            .mem_ro_err(mem_ro_err),
+                                            .tl_protocol_err(tl_item_err));
+      end
+
     end
     return (is_tl_unmapped_addr || is_tl_err);
   endfunction
 
   // check if address is mapped
   virtual function bit is_tl_access_mapped_addr(tl_seq_item item, string ral_name);
-    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
     // check if it's mem addr or reg addr
-    return is_mem_addr(item, ral_name) || addr inside {cfg.csr_addrs[ral_name]};
+    return is_mem_addr(item, ral_name) || addr inside {cfg.ral_models[ral_name].csr_addrs};
   endfunction
 
   // check if tl mem access will trigger error or not
-  virtual function bit is_tl_mem_access_allowed(tl_seq_item item, string ral_name);
+  virtual function bit is_tl_mem_access_allowed(input tl_seq_item item, input string ral_name,
+                                                output bit mem_byte_access_err,
+                                                output bit mem_wo_err,
+                                                output bit mem_ro_err);
     if (is_mem_addr(item, ral_name)) begin
       bit mem_partial_write_support;
       dv_base_mem mem;
-      uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+      uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
       string mem_access = get_mem_access_by_addr(cfg.ral_models[ral_name], addr);
 
       `downcast(mem, get_mem_by_addr(cfg.ral_models[ral_name], addr))
@@ -300,17 +425,16 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
       // check if write isn't full word for mem that doesn't allow byte access
       if (!mem_partial_write_support && (item.a_size != 2 || item.a_mask != '1) &&
            item.a_opcode inside {tlul_pkg::PutFullData, tlul_pkg::PutPartialData}) begin
-        return 0;
+        mem_byte_access_err = 1;
       end
       // check if mem read happens while mem doesn't allow read (WO)
-      if (mem_access == "WO" && (item.a_opcode == tlul_pkg::Get)) return 0;
+      mem_wo_err = (mem_access == "WO") && (item.a_opcode == tlul_pkg::Get);
+      // check if mem write happens while mem is RO
+      mem_ro_err = (mem_access == "RO") && (item.a_opcode != tlul_pkg::Get);
+
+      if (mem_byte_access_err || mem_wo_err || mem_ro_err) return 0;
     end
     return 1;
-  endfunction
-
-  // check if csr write word-aligned
-  virtual function bit is_tl_csr_write_addr_word_aligned(tl_seq_item item, string ral_name);
-    return !item.is_write() || item.a_addr[1:0] == 0 || is_mem_addr(item, ral_name);
   endfunction
 
   // check if csr write size greater or equal to csr width
@@ -318,7 +442,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     if (!is_tl_access_mapped_addr(item, ral_name) || is_mem_addr(item, ral_name)) return 1;
     if (item.is_write()) begin
       dv_base_reg    csr;
-      uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+      uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
       `DV_CHECK_FATAL($cast(csr,
                             cfg.ral_models[ral_name].default_map.get_reg_by_offset(addr)))
       if (csr.get_msb_pos >= 24 && item.a_mask[3:0] != 'b1111 ||
@@ -345,10 +469,31 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     end
   endfunction
 
+  virtual task sample_resets();
+    if (cfg.has_edn && cfg.en_cov) begin
+      // Discard the first resets
+      wait(cfg.clk_rst_vif.rst_n && cfg.edn_clk_rst_vif.rst_n);
+      forever begin
+        @(cfg.clk_rst_vif.rst_n or cfg.edn_clk_rst_vif.rst_n);
+        cov.resets_cg.sample({cfg.clk_rst_vif.rst_n, cfg.edn_clk_rst_vif.rst_n});
+      end
+    end
+  endtask
+
   virtual function void check_phase(uvm_phase phase);
     super.check_phase(phase);
     foreach (tl_a_chan_fifos[i]) `DV_EOT_PRINT_TLM_FIFO_CONTENTS(tl_seq_item, tl_a_chan_fifos[i])
     foreach (tl_d_chan_fifos[i]) `DV_EOT_PRINT_TLM_FIFO_CONTENTS(tl_seq_item, tl_d_chan_fifos[i])
+  endfunction
+
+  virtual function void update_tl_alert_field_prediction();
+    foreach (cfg.tl_intg_alert_fields[field]) begin
+      uvm_reg_data_t value = cfg.tl_intg_alert_fields[field];
+      `DV_CHECK_FATAL(field, "field is Null in tl_intg_alert_fields")
+
+      // Set the field
+      `DV_CHECK_FATAL(field.predict(.value(value), .kind(UVM_PREDICT_READ)));
+    end
   endfunction
 
 endclass

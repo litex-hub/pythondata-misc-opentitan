@@ -21,7 +21,10 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
   input ack_pwrdn_i,
   input low_power_entry_i,
   input main_pd_ni,
-  input [NumRstReqs:0] reset_reqs_i,
+  input [TotalResetWidth-1:0] reset_reqs_i,
+  input fsm_invalid_i,
+  output logic clr_slow_req_o,
+  input clr_slow_ack_i,
 
   // consumed in pwrmgr
   output logic wkup_o,        // generate wake interrupt
@@ -49,13 +52,18 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
   input lc_idle_i,
 
   // flash
-  output logic flash_init_o,
-  input flash_done_i,
   input flash_idle_i,
+
+  // rom_ctrl
+  input rom_ctrl_done_i,
+  input rom_ctrl_good_i,
 
   // pinmux
   output logic strap_o,
-  output logic low_power_o
+  output logic low_power_o,
+
+  // processing elements
+  output lc_ctrl_pkg::lc_tx_t fetch_en_o
 );
 
   // The code below always assumes the always on domain is index 0
@@ -77,11 +85,15 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
   reset_cause_e reset_cause_q, reset_cause_d;
 
   // reset request
+  logic direct_rst_req;
   logic reset_req;
 
   // strap sample should only happen on cold boot or when the
   // the system goes through a reset cycle
   logic strap_sampled;
+
+  // disable processing element fetching
+  lc_ctrl_pkg::lc_tx_t fetch_en_q, fetch_en_d;
 
   fast_pwr_state_e state_d, state_q;
   logic reset_ongoing_q, reset_ongoing_d;
@@ -92,16 +104,17 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
   logic [PowerDomains-1:0] rst_lc_req_d, rst_sys_req_d;
   logic otp_init;
   logic lc_init;
-  logic flash_init_d;
   logic low_power_q, low_power_d;
 
-  assign pd_n_rsts_asserted = pwr_rst_i.rst_lc_src_n[PowerDomains-1:1] == '0 &
-                              pwr_rst_i.rst_sys_src_n[PowerDomains-1:1] == '0;
+  assign pd_n_rsts_asserted = pwr_rst_i.rst_lc_src_n[PowerDomains-1:OffDomainSelStart] == '0 &
+                              pwr_rst_i.rst_sys_src_n[PowerDomains-1:OffDomainSelStart] == '0;
 
   assign all_rsts_asserted = pwr_rst_i.rst_lc_src_n == '0 &
                              pwr_rst_i.rst_sys_src_n == '0;
 
   assign reset_req = |reset_reqs_i;
+  assign direct_rst_req = reset_reqs_i[ResetEscIdx] |
+                          reset_reqs_i[ResetMainPwrIdx];
 
   // when in low power path, resets are controlled by domain power down
   // when in reset path, all resets must be asserted
@@ -111,7 +124,6 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q <= FastPwrStateLowPower;
       ack_pwrup_q <= 1'b0;
       req_pwrdn_q <= 1'b0;
       reset_ongoing_q <= 1'b0;
@@ -121,7 +133,6 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
       reset_cause_q <= ResetUndefined;
       low_power_q <= 1'b1;
     end else begin
-      state_q <= state_d;
       ack_pwrup_q <= ack_pwrup_d;
       req_pwrdn_q <= req_pwrdn_d;
       reset_ongoing_q <= reset_ongoing_d;
@@ -133,6 +144,18 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
     end
   end
 
+  logic [FastPwrStateWidth-1:0] state_raw_q;
+  assign state_q = fast_pwr_state_e'(state_raw_q);
+  prim_flop #(
+    .Width(FastPwrStateWidth),
+    .ResetValue(FastPwrStateWidth'(FastPwrStateLowPower))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( state_d     ),
+    .q_o ( state_raw_q )
+  );
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       strap_sampled <= 1'b0;
@@ -142,6 +165,14 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
       strap_sampled <= 1'b1;
     end
   end
+
+  prim_lc_sender u_fetch_en (
+    .clk_i,
+    .rst_ni,
+    .lc_en_i(fetch_en_d),
+    .lc_en_o(fetch_en_q)
+  );
+  assign fetch_en_o = fetch_en_q;
 
   // Life cycle broadcast may take time to propagate through the system.
   // The sync below simulates that behavior using the slowest clock in the
@@ -176,6 +207,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
     clr_hint_o = 1'b0;
     clr_cfg_lock_o = 1'b0;
     strap_o = 1'b0;
+    clr_slow_req_o = 1'b0;
 
     state_d = state_q;
     ack_pwrup_d = ack_pwrup_q;
@@ -185,8 +217,8 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
     rst_lc_req_d = rst_lc_req_q;
     rst_sys_req_d = rst_sys_req_q;
     reset_cause_d = reset_cause_q;
-    flash_init_d = 1'b0;
     low_power_d = low_power_q;
+    fetch_en_d = fetch_en_q;
 
     unique case(state_q)
 
@@ -231,15 +263,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
 
       FastPwrStateStrap: begin
         strap_o = ~strap_sampled;
-        state_d =  FastPwrStateFlashInit;
-      end
-
-      FastPwrStateFlashInit: begin
-        flash_init_d = 1'b1;
-
-        if (flash_done_i) begin
-          state_d = FastPwrStateAckPwrUp;
-        end
+        state_d =  FastPwrStateAckPwrUp;
       end
 
       FastPwrStateAckPwrUp: begin
@@ -251,17 +275,29 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
           ack_pwrup_d = 1'b0;
           clr_cfg_lock_o = 1'b1;
           wkup_o = pwrup_cause_i == Wake;
-          state_d = FastPwrStateActive;
+          state_d = FastPwrStateRomCheck;
         end
       end
 
-      FastPwrStateActive: begin
+      FastPwrStateRomCheck: begin
         // zero outgoing low power indication
         low_power_d = '0;
         rst_sys_req_d = '0;
         reset_cause_d = ResetNone;
 
+        if (rom_ctrl_done_i && rom_ctrl_good_i) begin
+          state_d = FastPwrStateActive;
+        end
+      end
+
+      FastPwrStateActive: begin
+        // only in active state, allow processor to execute
+        fetch_en_d = lc_ctrl_pkg::On;
+
+        // when handling reset request or low power entry of any
+        // kind, stop processor from fetching
         if (reset_req || low_power_entry_i) begin
+          fetch_en_d = lc_ctrl_pkg::Off;
           reset_cause_d = ResetUndefined;
           state_d = FastPwrStateDisClks;
         end
@@ -273,6 +309,10 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
         if (!clk_en_status_i) begin
           state_d = reset_req ? FastPwrStateNvmShutDown : FastPwrStateFallThrough;
           low_power_d = ~reset_req;
+        end else begin
+          // escalation was received, skip all handshaking and directly reset
+          state_d = direct_rst_req ? FastPwrStateNvmShutDown : state_q;
+          low_power_d = ~reset_req;
         end
       end
 
@@ -280,12 +320,12 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
       FastPwrStateFallThrough: begin
         clr_hint_o = 1'b1;
 
-        // the processor was interrupted after it asserted WFI and is executing again
+        // The processor was interrupted after it asserted WFI and is executing again
         if (!low_power_entry_i) begin
           ip_clk_en_d = 1'b1;
           wkup_o = 1'b1;
           fall_through_o = 1'b1;
-          state_d = FastPwrStateActive;
+          state_d = FastPwrStateRomCheck;
         end else begin
           state_d = FastPwrStateNvmIdleChk;
         end
@@ -299,11 +339,12 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
           ip_clk_en_d = 1'b1;
           wkup_o = 1'b1;
           abort_o = 1'b1;
-          state_d = FastPwrStateActive;
+          state_d = FastPwrStateRomCheck;
         end
       end
 
       FastPwrStateLowPowerPrep: begin
+        // reset cause is set only if main power domain will be turned off
         reset_cause_d = LowPwrEntry;
 
         // reset non-always-on domains if requested
@@ -329,7 +370,6 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
       end
 
       // Reset Path
-      // This state is TODO, the details are still under discussion
       FastPwrStateNvmShutDown: begin
         clr_hint_o = 1'b1;
         reset_ongoing_d = 1'b1;
@@ -340,8 +380,11 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
         reset_cause_d = HwReq;
         rst_lc_req_d = {PowerDomains{1'b1}};
         rst_sys_req_d = {PowerDomains{1'b1}};
-
-        if (reset_valid) begin
+        clr_slow_req_o = 1'b1;
+        // okay to be pending here, since reset is already asserted
+        // if the handshake were attacked in any way, the device
+        // would simply be dead.
+        if (reset_valid && (clr_slow_req_o && clr_slow_ack_i)) begin
           state_d = FastPwrStateLowPower;
         end
       end
@@ -352,8 +395,14 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
         rst_sys_req_d = {PowerDomains{1'b1}};
         ip_clk_en_d = 1'b0;
       end
-
     endcase // unique case (state_q)
+
+    if (fsm_invalid_i) begin
+      // the slow fsm is completely out of sync, transition to terminal state
+      state_d = FastPwrStateInvalid;
+    end
+
+
   end // always_comb
 
   assign ack_pwrup_o = ack_pwrup_q;
@@ -366,17 +415,6 @@ module pwrmgr_fsm import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;(
   assign pwr_rst_o.rstreqs = reset_reqs_i;
 
   assign ips_clk_en_o = ip_clk_en_q;
-
-  prim_flop #(
-    .Width(1),
-    // TODO: Is a value of 1 correct here?
-    .ResetValue(1'b1)
-  ) u_reg_flash_init (
-    .clk_i,
-    .rst_ni,
-    .d_i(flash_init_d),
-    .q_o(flash_init_o)
-  );
 
   prim_flop #(
     .Width(1),

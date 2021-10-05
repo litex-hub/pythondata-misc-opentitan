@@ -11,9 +11,9 @@ interface lc_ctrl_if(input clk, input rst_n);
   import otp_ctrl_part_pkg::*;
 
   logic tdo_oe; // TODO: add assertions
-  logic prog_err; // TODO: remove once push-pull can constrain data
   otp_lc_data_t otp_i;
-  otp_hw_cfg_t  otp_hw_cfg_i;
+  otp_device_id_t otp_device_id_i;
+  otp_device_id_t otp_manuf_state_i;
   lc_token_t    hashed_token;
 
   lc_tx_t lc_dft_en_o;
@@ -45,18 +45,19 @@ interface lc_ctrl_if(input clk, input rst_n);
     otp_i.error = 0;
     otp_i.state = lc_state;
     otp_i.count = lc_cnt;
-    otp_i.test_unlock_token = 0;
-    otp_i.test_exit_token = 0;
-    otp_i.rma_token = 0;
-    otp_i.id_state = LcIdBlank;
+    otp_i.test_unlock_token = lc_ctrl_env_pkg::get_random_token();
+    otp_i.test_exit_token   = lc_ctrl_env_pkg::get_random_token();
+    otp_i.rma_token         = lc_ctrl_env_pkg::get_random_token();
+    // TODO: need to randomize this,
+    otp_i.secrets_valid = Off;
+    otp_i.test_tokens_valid = On;
+    otp_i.rma_token_valid = On;
 
-    otp_hw_cfg_i.valid = Off;
-    otp_hw_cfg_i.data = 0;
+    otp_device_id_i = 0;
+    otp_manuf_state_i = 0;
 
     clk_byp_ack_i = clk_byp_ack;
     flash_rma_ack_i = flash_rma_ack;
-    prog_err = 0;
-    hashed_token = '0;
   endtask
 
   task automatic set_clk_byp_ack(lc_tx_t val);
@@ -67,7 +68,4 @@ interface lc_ctrl_if(input clk, input rst_n);
     flash_rma_ack_i = val;
   endtask
 
-  task automatic set_hashed_token(lc_token_t val);
-    hashed_token = val;
-  endtask
 endinterface

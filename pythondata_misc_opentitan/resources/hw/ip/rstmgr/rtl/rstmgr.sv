@@ -9,7 +9,10 @@
 `include "prim_assert.sv"
 
 // This top level controller is fairly hardcoded right now, but will be switched to a template
-module rstmgr import rstmgr_pkg::*; (
+module rstmgr
+  import rstmgr_pkg::*;
+  import rstmgr_reg_pkg::*;
+(
   // Primary module clocks
   input clk_i,
   input rst_ni, // this is currently connected to top level reset, but will change once ast is in
@@ -46,8 +49,6 @@ module rstmgr import rstmgr_pkg::*; (
   output rstmgr_out_t resets_o
 
 );
-
-  import rstmgr_reg_pkg::*;
 
   // receive POR and stretch
   // The por is at first stretched and synced on clk_aon
@@ -163,7 +164,7 @@ module rstmgr import rstmgr_pkg::*; (
   for (genvar i=0; i < NumSwResets; i++) begin : gen_sw_rst_ext_regs
     prim_subreg #(
       .DW(1),
-      .SWACCESS("RW"),
+      .SwAccess(prim_subreg_pkg::SwAccessRW),
       .RESVAL(1)
     ) u_rst_sw_ctrl_reg (
       .clk_i,

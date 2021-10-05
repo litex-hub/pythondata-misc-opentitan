@@ -10,8 +10,10 @@ filesets:
     depend:
       - lowrisc:prim:assert
       - lowrisc:prim:secded
-      - lowrisc:tlul:common
+      - lowrisc:tlul:headers
     files:
+      - rtl/tlul_data_integ_enc.sv
+      - rtl/tlul_data_integ_dec.sv
       - rtl/tlul_cmd_intg_gen.sv
       - rtl/tlul_cmd_intg_chk.sv
       - rtl/tlul_rsp_intg_gen.sv

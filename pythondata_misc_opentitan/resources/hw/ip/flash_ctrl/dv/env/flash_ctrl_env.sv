@@ -16,6 +16,8 @@ class flash_ctrl_env #(type CFG_T = flash_ctrl_env_cfg,
   tl_agent        m_eflash_tl_agent;
   tl_reg_adapter  m_eflash_tl_reg_adapter;
 
+  string hdl_path_root;
+
   `uvm_component_new
 
   virtual function void build_phase(uvm_phase phase);
@@ -31,20 +33,17 @@ class flash_ctrl_env #(type CFG_T = flash_ctrl_env_cfg,
       cfg.m_eflash_tl_agent_cfg.d_ready_delay_max = 0;
     end
 
-    // get the vifs from config db
-    if (`PRIM_DEFAULT_IMPL == prim_pkg::ImplGeneric) begin // If using open-source flash
-      flash_dv_part_e part = part.first(); 
-      for (int i = 0; i < part.num(); i++, part = part.next()) begin
-        foreach (cfg.mem_bkdr_vifs[, bank]) begin
-          string vif_name = $sformatf("mem_bkdr_vifs[%0s][%0d]", part.name(), bank);
-          if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", vif_name,
-                                                 cfg.mem_bkdr_vifs[part][bank])) begin
-            `uvm_fatal(`gfn, $sformatf("failed to get %s from uvm_config_db", vif_name))
-          end
+    // Retrieve the mem backdoor util instances.
+    for (int i = 0, flash_dv_part_e part = part.first(); i < part.num();
+         i++, part = part.next()) begin
+      foreach (cfg.mem_bkdr_util_h[, bank]) begin
+        string name = $sformatf("mem_bkdr_util[%0s][%0d]", part.name(), bank);
+        if (!uvm_config_db#(mem_bkdr_util)::get(this, "", name,
+                                                cfg.mem_bkdr_util_h[part][bank])) begin
+          `uvm_fatal(`gfn, $sformatf("failed to get %s from uvm_config_db", name))
         end
       end
     end
-
 
     // create components
     m_eflash_tl_agent = tl_agent::type_id::create("m_eflash_tl_agent", this);
@@ -66,14 +65,5 @@ class flash_ctrl_env #(type CFG_T = flash_ctrl_env_cfg,
       virtual_sequencer.eflash_tl_sequencer_h = m_eflash_tl_agent.sequencer;
     end
   endfunction
-
-  virtual function void end_of_elaboration_phase(uvm_phase phase);
-    // We have a custom design wrapper around the flash controller, so we need to fix the
-    // HDL path root.
-    if (`PRIM_DEFAULT_IMPL == prim_pkg::ImplGeneric) begin // If using open-source flash
-      cfg.ral.set_hdl_path_root("tb.dut.u_flash_ctrl", "BkdrRegPathRtl");
-    end
-    super.end_of_elaboration_phase(phase);
-  endfunction : end_of_elaboration_phase
 
 endclass

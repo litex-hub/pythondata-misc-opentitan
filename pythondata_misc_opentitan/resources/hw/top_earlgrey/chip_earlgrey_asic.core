@@ -30,6 +30,8 @@ filesets:
       # common waivers
       - lowrisc:lint:common
       - lowrisc:lint:comportable
+    files:
+      - lint/chip_earlgrey_asic.waiver
     file_type: waiver
 
   files_veriblelint_waiver:
@@ -40,6 +42,9 @@ filesets:
 
 parameters:
   SYNTHESIS:
+    datatype: bool
+    paramtype: vlogdefine
+  AST_BYPASS_CLK:
     datatype: bool
     paramtype: vlogdefine
 
@@ -57,6 +62,7 @@ targets:
     default_tool: verilator
     parameters:
       - SYNTHESIS=true
+      - AST_BYPASS_CLK=true
     tools:
       verilator:
         mode: lint-only
@@ -71,6 +77,7 @@ targets:
     default_tool: icarus
     parameters:
       - SYNTHESIS=true
+      - AST_BYPASS_CLK=true
     toplevel: chip_earlgrey_asic
 
   formal:

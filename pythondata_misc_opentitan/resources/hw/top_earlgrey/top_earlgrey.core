@@ -13,8 +13,7 @@ filesets:
       - lowrisc:ip:rv_core_ibex
       - lowrisc:ip:rv_dm
       - lowrisc:top_earlgrey:rv_plic
-      - lowrisc:top_earlgrey:pinmux_reg
-      - lowrisc:ip:pinmux_component
+      - lowrisc:ip:pinmux
       - lowrisc:ip:rv_timer
       - lowrisc:ip:tlul
       - lowrisc:ip:spi_device
@@ -30,13 +29,11 @@ filesets:
       - lowrisc:ip:kmac
       - lowrisc:ip:otbn
       - lowrisc:prim:ram_1p_scr
-      - lowrisc:prim:rom_adv
       - lowrisc:prim:flash
       - lowrisc:ip:flash_ctrl
       - lowrisc:ip:sram_ctrl
       - lowrisc:ip:keymgr
       - lowrisc:constants:top_pkg
-      - lowrisc:ip:nmi_gen
       - lowrisc:ip:otp_ctrl
       - lowrisc:ip:lc_ctrl
       - lowrisc:ip:usbdev
@@ -84,6 +81,9 @@ filesets:
       # common waivers
       - lowrisc:lint:common
       - lowrisc:lint:comportable
+    files:
+      - lint/top_earlgrey.vbw
+    file_type: veribleLintWaiver
 
 
 parameters:

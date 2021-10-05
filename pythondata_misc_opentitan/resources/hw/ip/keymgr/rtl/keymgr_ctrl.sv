@@ -7,19 +7,33 @@
 
 `include "prim_assert.sv"
 
-module keymgr_ctrl import keymgr_pkg::*;(
+module keymgr_ctrl
+  import keymgr_pkg::*;
+  import keymgr_reg_pkg::*;
+#(
+  parameter bit KmacEnMasking = 1'b1
+) (
   input clk_i,
   input rst_ni,
 
   // lifecycle enforcement
   input en_i,
 
+  // faults that can occur outside of operations
+  input regfile_intg_err_i,
+  input shadowed_update_err_i,
+  input shadowed_storage_err_i,
+  input reseed_cnt_err_i,
+  input sideload_fsm_err_i,
+
   // Software interface
   input op_start_i,
   input keymgr_ops_e op_i,
+  input [CdiWidth-1:0] op_cdi_sel_i,
   output logic op_done_o,
   output keymgr_op_status_e status_o,
   output logic [ErrLastPos-1:0] error_o,
+  output logic [FaultLastPos-1:0] fault_o,
   output logic data_en_o,
   output logic data_valid_o,
   output logic wipe_key_o,
@@ -31,13 +45,14 @@ module keymgr_ctrl import keymgr_pkg::*;(
   input  otp_ctrl_pkg::otp_keymgr_key_t root_key_i,
   output keymgr_gen_out_e hw_sel_o,
   output keymgr_stage_e stage_sel_o,
+  output logic invalid_stage_sel_o,
+  output logic [CdiWidth-1:0] cdi_sel_o,
 
   // KMAC ctrl interface
   output logic adv_en_o,
   output logic id_en_o,
   output logic gen_en_o,
   output hw_key_req_t key_o,
-  output logic load_key_o,
   input kmac_done_i,
   input kmac_input_invalid_i, // asserted when selected data fails criteria check
   input kmac_fsm_err_i, // asserted when kmac fsm reaches unexpected state
@@ -54,91 +69,191 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
   localparam int EntropyWidth = LfsrWidth / 2;
   localparam int EntropyRounds = KeyWidth / EntropyWidth;
-  localparam int CntWidth = $clog2(EntropyRounds);
+  localparam int EntropyRndWidth = prim_util_pkg::vbits(EntropyRounds);
+  localparam int CntWidth = EntropyRounds > CDIs ? EntropyRndWidth : CdiWidth;
 
   // Enumeration for working state
-  typedef enum logic [3:0] {
-    StCtrlReset,
-    StCtrlEntropyReseed,
-    StCtrlRandom,
-    StCtrlRootKey,
-    StCtrlInit,
-    StCtrlCreatorRootKey,
-    StCtrlOwnerIntKey,
-    StCtrlOwnerKey,
-    StCtrlDisabled,
-    StCtrlWipe,
-    StCtrlInvalid
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 5 -m 11 -n 10 \
+  //      -s 4101887575 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: --
+  //  4: --
+  //  5: |||||||||||||||||||| (54.55%)
+  //  6: |||||||||||||||| (45.45%)
+  //  7: --
+  //  8: --
+  //  9: --
+  // 10: --
+  //
+  // Minimum Hamming distance: 5
+  // Maximum Hamming distance: 6
+  // Minimum Hamming weight: 2
+  // Maximum Hamming weight: 8
+  //
+  localparam int StateWidth = 10;
+  typedef enum logic [StateWidth-1:0] {
+    StCtrlReset          = 10'b1101100001,
+    StCtrlEntropyReseed  = 10'b1110010010,
+    StCtrlRandom         = 10'b0011110100,
+    StCtrlRootKey        = 10'b0110101111,
+    StCtrlInit           = 10'b0100000100,
+    StCtrlCreatorRootKey = 10'b1000011101,
+    StCtrlOwnerIntKey    = 10'b0001001010,
+    StCtrlOwnerKey       = 10'b1101111110,
+    StCtrlDisabled       = 10'b1010101000,
+    StCtrlWipe           = 10'b0000110011,
+    StCtrlInvalid        = 10'b1011000111
   } keymgr_ctrl_state_e;
 
+  // Enumeration for operation handling
+  typedef enum logic [1:0] {
+    StIdle,
+    StAdv,
+    StAdvAck,
+    StWait
+  } keymgr_op_state_e;
+
   keymgr_ctrl_state_e state_q, state_d;
-  logic [Shares-1:0][EntropyRounds-1:0][EntropyWidth-1:0] key_state_q, key_state_d;
+  keymgr_op_state_e op_state_q, op_state_d;
 
+  // There are two versions of the key state, one for sealing one for attestation
+  // Among each version, there are multiple shares
+  // Each share is a fixed multiple of the entropy width
+  logic [CDIs-1:0][Shares-1:0][EntropyRounds-1:0][EntropyWidth-1:0] key_state_q, key_state_d;
   logic [CntWidth-1:0] cnt;
-  logic cnt_en;
-  logic cnt_clr;
-  logic key_update;
-  logic data_update;
-  logic kmac_out_valid;
-  logic op_accept;
-  logic invalid_op;
+  logic [CdiWidth-1:0] cdi_cnt;
 
+  // error conditions
+  logic invalid_kmac_out;
+  logic invalid_op;
+  logic cnt_err;
+  // states fall out of sparsely encoded range
+  logic state_intg_err_q, state_intg_err_d;
+
+  ///////////////////////////
+  //  General operation decode
+  ///////////////////////////
+
+  logic adv_op, dis_op, gen_id_op, gen_sw_op, gen_hw_op, gen_op;
+  assign adv_op    = (op_i == OpAdvance);
+  assign gen_id_op = (op_i == OpGenId);
+  assign gen_sw_op = (op_i == OpGenSwOut);
+  assign gen_hw_op = (op_i == OpGenHwOut);
+  assign dis_op    = ~(op_i inside {OpAdvance, OpGenId, OpGenSwOut, OpGenHwOut});
+  assign gen_op    = (gen_id_op | gen_sw_op | gen_hw_op);
+
+  ///////////////////////////
+  //  interaction between software and main fsm
+  ///////////////////////////
   // disable is treated like an advanced call
   logic advance_sel;
   logic disable_sel;
-  logic gen_id_sel;
-  logic gen_out_sw_sel;
   logic gen_out_hw_sel;
-  logic gen_out_sel;
-  logic gen_sel;
 
-  // error types
-  logic op_err;
-  logic fault_err;
+  assign advance_sel    = op_start_i & adv_op    & en_i;
+  assign gen_out_hw_sel = op_start_i & gen_hw_op & en_i;
 
+  // disable is selected whenever a normal operation is not set
+  assign disable_sel    = (op_start_i & dis_op) | !en_i;
+
+
+  ///////////////////////////
+  //  interaction between main control fsm and operation fsm
+  ///////////////////////////
+
+  // req/ack interface with op handling fsm
+  logic op_req;
   logic op_ack;
+  logic op_update;
+  logic op_busy;
+  logic disabled;
+  logic invalid;
 
-  assign advance_sel    = op_start_i & op_i == OpAdvance  & en_i;
-  assign gen_id_sel     = op_start_i & op_i == OpGenId    & en_i;
-  assign gen_out_sw_sel = op_start_i & op_i == OpGenSwOut & en_i;
-  assign gen_out_hw_sel = op_start_i & op_i == OpGenHwOut & en_i;
-  assign gen_out_sel    = gen_out_sw_sel | gen_out_hw_sel;
-  assign gen_sel        = gen_id_sel | gen_out_sel;
+  logic adv_req, dis_req, id_req, gen_req;
+  assign adv_req = op_req & adv_op;
+  assign dis_req = op_req & dis_op;
+  assign id_req  = op_req & gen_id_op;
+  assign gen_req = op_req & (gen_sw_op | gen_hw_op);
 
-  // disable is selected whenever a normal operation is not, and when
-  // keymgr is disabled
-  assign disable_sel    = (op_start_i & !(gen_sel | advance_sel)) |
-                          !en_i;
+  ///////////////////////////
+  //  interaction between operation fsm and software
+  ///////////////////////////
+  // categories of keymgr errors
+  logic [SyncErrLastIdx-1:0] sync_err;
+  logic [AsyncErrLastIdx-1:0] async_err;
+  logic [SyncFaultLastIdx-1:0] sync_fault;
+  logic [AsyncFaultLastIdx-1:0] async_fault;
 
-  assign load_key_o = op_start_i & op_accept;
-  assign adv_en_o   = load_key_o & (advance_sel | disable_sel);
-  assign id_en_o    = load_key_o & gen_id_sel;
-  assign gen_en_o   = load_key_o & gen_out_sel;
-
+  logic op_err;
+  logic op_fault_err;
 
   // unlock sw binding configuration whenever an advance call is made without errors
-  assign op_ack = op_accept & op_done_o;
-  assign sw_binding_unlock_o = adv_en_o & op_ack & ~|error_o;
-
-  // check incoming kmac data validity
-  assign kmac_out_valid = valid_data_chk(kmac_data_i[0]) & valid_data_chk(kmac_data_i[1]);
+  assign sw_binding_unlock_o = adv_req & op_ack & ~(op_err | op_fault_err);
 
   // error definition
-  assign fault_err = kmac_cmd_err_i | kmac_fsm_err_i | kmac_op_err_i | ~kmac_out_valid;
-  assign op_err = kmac_input_invalid_i | invalid_op;
+  // check incoming kmac data validity
+  // Only check during the periods when there is actual kmac output
+  assign invalid_kmac_out = (op_update | op_ack) &
+                            (~valid_data_chk(kmac_data_i[0]) |
+                            (~valid_data_chk(kmac_data_i[1]) & KmacEnMasking));
 
-  // key update conditions
-  assign key_update = op_ack & (advance_sel | disable_sel);
+  assign op_err = sync_err[SyncErrInvalidOp] |
+                  sync_err[SyncErrInvalidIn];
 
-  // external collateral update conditions
-  assign data_update = op_ack & gen_sel;
+  assign op_fault_err = |sync_fault |
+                        |async_fault;
 
-  // Unlike the key state, the working state can be safely reset.
+
+  ///////////////////////////
+  //  key update controls
+  ///////////////////////////
+
+  // update select can come from both main and operation fsm's
+  keymgr_key_update_e update_sel, op_update_sel;
+
+  // req from main control fsm to key update controls
+  logic wipe_req;
+  logic random_req;
+  logic random_ack;
+
+  // wipe and initialize take precedence
+  assign update_sel = wipe_req   ? KeyUpdateWipe   :
+                      random_req ? KeyUpdateRandom :
+                      init_o     ? KeyUpdateRoot   : op_update_sel;
+
+  ///////////////////////////
+  //  interaction between main fsm and prng
+  ///////////////////////////
+
+  assign prng_en_o = random_req | disabled | invalid | wipe_req;
+
+  //////////////////////////
+  // Main Control FSM
+  //////////////////////////
+
+  logic [StateWidth-1:0] state_raw_q;
+  assign state_q = keymgr_ctrl_state_e'(state_raw_q);
+  prim_flop #(
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StCtrlReset))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( state_d     ),
+    .q_o ( state_raw_q )
+  );
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q <= StCtrlReset;
+      state_intg_err_q <= '0;
     end else begin
-      state_q <= state_d;
+      state_intg_err_q <= state_intg_err_d;
     end
   end
 
@@ -146,17 +261,24 @@ module keymgr_ctrl import keymgr_pkg::*;(
   // - whatever operation causes the input data select to be disabled should not expose the key
   //   state.
   // - when there are no operations, the key state also should be exposed.
-  assign key_o.valid = load_key_o;
-  assign key_o.key_share0 = (~op_start_i | stage_sel_o == Disable) ?
-                            {EntropyRounds{entropy_i[0]}} :
-                            key_state_q[0];
-  assign key_o.key_share1 = (~op_start_i | stage_sel_o == Disable) ?
-                            {EntropyRounds{entropy_i[1]}} :
-                            key_state_q[1];
+  assign key_o.valid = op_req;
+  assign cdi_sel_o = advance_sel ? cdi_cnt : op_cdi_sel_i;
+
+  assign invalid_stage_sel_o = ~(stage_sel_o inside {Creator, OwnerInt, Owner});
+  for (genvar i = 0; i < Shares; i++) begin : gen_key_out_assign
+    assign key_o.key[i] = invalid_stage_sel_o ?
+                          {EntropyRounds{entropy_i[i]}} :
+                          key_state_q[cdi_sel_o][i];
+  end
+
 
   // key state is intentionally not reset
-  always_ff @(posedge clk_i) begin
-    key_state_q <= key_state_d;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      key_state_q <= '0;
+    end else begin
+      key_state_q <= key_state_d;
+    end
   end
 
   // root key valid sync
@@ -171,44 +293,57 @@ module keymgr_ctrl import keymgr_pkg::*;(
     .q_o(root_key_valid_q)
   );
 
-  keymgr_key_update_e update_sel;
-  logic key_update_vld;
+  // Do not let the count toggle unless an advance operation is
+  // selected
+  assign cdi_cnt = op_req ? cnt[CdiWidth-1:0] : '0;
+
   always_comb begin
     key_state_d = key_state_q;
     data_valid_o = 1'b0;
     wipe_key_o = 1'b0;
-    key_update_vld = 1'b0;
 
+    // if a wipe request arrives, immediately destroy the
+    // keys regardless of current state
     unique case (update_sel)
       KeyUpdateRandom: begin
-        for (int i = 0; i < Shares; i++) begin
-          key_state_d[i][cnt] = entropy_i[i];
+        for (int i = 0; i < CDIs; i++) begin
+          for (int j = 0; j < Shares; j++) begin
+            key_state_d[i][j][cnt[EntropyRndWidth-1:0]] = entropy_i[j];
+          end
         end
       end
 
       KeyUpdateRoot: begin
         if (root_key_valid_q) begin
-          key_state_d[0] = root_key_i.key_share0;
-          key_state_d[1] = root_key_i.key_share1;
+          for (int i = 0; i < CDIs; i++) begin
+            if (KmacEnMasking) begin : gen_two_share_key
+              key_state_d[i][0] = root_key_i.key_share0;
+              key_state_d[i][1] = root_key_i.key_share1;
+            end else begin : gen_one_share_key
+              key_state_d[i][0] = root_key_i.key_share0 ^ root_key_i.key_share1;
+              key_state_d[i][1] = '0;
+            end
+          end
+        end else begin
+          // if root key is not valid, load and invalid value
+          for (int i = 0; i < CDIs; i++) begin
+              key_state_d[i][0] = '0;
+              key_state_d[i][1] = '{default: '1};
+          end
         end
       end
 
       KeyUpdateKmac: begin
-        data_valid_o = data_update & ~fault_err & ~op_err;
-        key_update_vld = key_update & ~fault_err & ~op_err;
-        key_state_d = key_update_vld ? kmac_data_i : key_state_q;
-      end
-
-      KeyUpdateInvalid: begin
-        data_valid_o = data_update;
-        key_update_vld = key_update;
-        key_state_d = key_update_vld ? kmac_data_i : key_state_q;
+        data_valid_o = gen_op;
+        key_state_d[cdi_sel_o] = (adv_op || dis_op) ? kmac_data_i : key_state_q[cdi_sel_o];
       end
 
       KeyUpdateWipe: begin
         wipe_key_o = 1'b1;
-        for (int i = 0; i < Shares; i++) begin
-          key_state_d[i] = {EntropyRounds{entropy_i[i]}};
+        for (int i = 0; i < CDIs; i++) begin
+          for (int j = 0; j < Shares; j++) begin
+            key_state_d[i][j] = {EntropyRounds{entropy_i[j]}};
+          end
         end
       end
 
@@ -216,43 +351,54 @@ module keymgr_ctrl import keymgr_pkg::*;(
     endcase // unique case (update_sel)
   end
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      cnt <= '0;
-    end else if (cnt_clr) begin
-      cnt <= '0;
-    end else if (cnt_en) begin
-      cnt <= cnt + 1'b1;
-    end
-  end
+  prim_count #(
+    .Width(CntWidth),
+    .OutSelDnCnt(1'b0),
+    .CntStyle(prim_count_pkg::DupCnt)
+  ) u_cnt (
+    .clk_i,
+    .rst_ni,
+    .clr_i(op_ack | random_ack),
+    .set_i('0),
+    .set_cnt_i('0),
+    .en_i(op_update | random_req),
+    .step_i(CntWidth'(1'b1)),
+    .cnt_o(cnt),
+    .err_o(cnt_err)
+  );
 
   // TODO: Create a no select option, do not leave this as binary
   assign hw_sel_o = gen_out_hw_sel ? HwKey : SwKey;
 
-  logic in_disabled;
-  assign in_disabled = (state_q == StCtrlDisabled);
 
-  // when in a state that accepts commands, look at kmac completion for operation done.
+  // when in a state that accepts commands, look at op_ack for completion
   // when in a state that does not accept commands, wait for other triggers.
-  assign op_done_o = op_accept ? op_start_i & kmac_done_i :
-                                 (init_o | invalid_op);
+  assign op_done_o = op_req ? op_ack :
+                     (init_o | invalid_op);
 
 
-  logic next_state;
-  logic invalid_state;
-  assign next_state = op_ack && advance_sel && key_update_vld;
-  assign invalid_state = op_ack && (disable_sel || fault_err);
+  // There are 3 possibilities
+  // advance to next state (software command)
+  // advance to disabled state (software command)
+  // advance to invalid state (detected fault)
+  logic adv_state;
+  logic dis_state;
+  logic inv_state;
+  assign adv_state = op_ack & adv_req & ~op_err;
+  assign dis_state = op_ack & dis_req;
+  assign inv_state = op_ack & op_fault_err;
+
   always_comb begin
     // persistent data
     state_d = state_q;
-    update_sel = KeyUpdateIdle;
 
-    // counter controls
-    cnt_en = 1'b0;
-    cnt_clr = 1'b0;
+    // request to op handling
+    op_req = 1'b0;
+    random_req = 1'b0;
+    random_ack = 1'b0;
 
-    // state OK to accept KMAC operations
-    op_accept = 1'b0;
+    // request to key updates
+    wipe_req = 1'b0;
 
     // invalid operation issued
     invalid_op = 1'b0;
@@ -260,18 +406,25 @@ module keymgr_ctrl import keymgr_pkg::*;(
     // data update and select signals
     stage_sel_o = Disable;
 
+    // indication that state is disabled
+    disabled = 1'b0;
+
+    // indication that state is invalid
+    invalid = 1'b0;
+
     // enable prng toggling
     prng_reseed_req_o = 1'b0;
-    prng_en_o = 1'b0;
 
     // initialization complete
     init_o = 1'b0;
 
+    // if state is ever faulted, hold on to this indication
+    // until reset.
+    state_intg_err_d = state_intg_err_q;
+
     unique case (state_q)
       // Only advance can be called from reset state
       StCtrlReset: begin
-        // in reset state, don't enable entropy yet, since there are no users.
-        prng_en_o = 1'b0;
 
         // always use random data for advance, since out of reset state
         // the key state will be randomized.
@@ -289,6 +442,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
       // reseed entropy
       StCtrlEntropyReseed: begin
         prng_reseed_req_o = 1'b1;
+
         if (prng_reseed_ack_i) begin
           state_d = StCtrlRandom;
         end
@@ -296,55 +450,49 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
       // This state does not accept any command.
       StCtrlRandom: begin
-        prng_en_o = 1'b1;
-        // populate both shares with the same entropy
-        // This is the default mask
-        update_sel = KeyUpdateRandom;
+        random_req = 1'b1;
 
-        if (cnt < EntropyRounds-1) begin
-          cnt_en = 1'b1;
-        end
         // when mask population is complete, xor the root_key into the zero share
         // if in the future the root key is updated to 2 shares, it will direclty overwrite
         // the values here
-        else begin
-          cnt_clr = 1'b1;
+        if (cnt == EntropyRounds-1) begin
+          random_ack = 1'b1;
           state_d = StCtrlRootKey;
         end
       end
 
       // load the root key.
       StCtrlRootKey: begin
-        update_sel = KeyUpdateRoot;
-        init_o = 1'b1;
-        state_d = StCtrlInit;
+        // we cannot directly use inv_state here for 2 reasons
+        // - inv_state is sync'd to the completion of a real kmac operation,
+        //   which is not the case here.
+        // - using inv_state would cause a combo loop between init_o and inv_state.
+        init_o = en_i & ~|async_fault;
+        state_d = !init_o ? StCtrlWipe : StCtrlInit;
       end
 
       // Beginning from the Init state, operations are accepted.
       // Only valid operation is advance state. If invalid command received,
       // random data is selected for operation and no persistent state is changed.
       StCtrlInit: begin
-        op_accept = 1'b1;
+        op_req = op_start_i;
 
         // when advancing select creator data, otherwise use random input
         stage_sel_o = advance_sel ? Creator : Disable;
         invalid_op = op_start_i & ~(advance_sel | disable_sel);
 
-        // key state is updated when it is an advance call
-        update_sel = KeyUpdateKmac;
-        if (!en_i) begin
+        if (!en_i || inv_state) begin
           state_d = StCtrlWipe;
-        end else if (invalid_state) begin
-          update_sel = KeyUpdateInvalid;
+        end else if (dis_state) begin
           state_d = StCtrlDisabled;
-        end else if (next_state) begin
+        end else if (adv_state) begin
           state_d = StCtrlCreatorRootKey;
         end
       end
 
-      // all commands are valid during this stage
+      // all commands  are valid during this stage
       StCtrlCreatorRootKey: begin
-        op_accept = 1'b1;
+        op_req = op_start_i;
 
         // when generating, select creator data input
         // when advancing, select owner intermediate key as target
@@ -352,21 +500,18 @@ module keymgr_ctrl import keymgr_pkg::*;(
         stage_sel_o = disable_sel ? Disable  :
                       advance_sel ? OwnerInt : Creator;
 
-        // key state is updated when it is an advance call
-        update_sel = KeyUpdateKmac;
-        if (!en_i) begin
+        if (!en_i || inv_state) begin
           state_d = StCtrlWipe;
-        end else if (invalid_state) begin
-          update_sel = KeyUpdateInvalid;
+        end else if (dis_state) begin
           state_d = StCtrlDisabled;
-        end else if (next_state) begin
+        end else if (adv_state) begin
           state_d = StCtrlOwnerIntKey;
         end
       end
 
       // all commands are valid during this stage
       StCtrlOwnerIntKey: begin
-        op_accept = 1'b1;
+        op_req = op_start_i;
 
         // when generating, select owner intermediate data input
         // when advancing, select owner as target
@@ -374,13 +519,11 @@ module keymgr_ctrl import keymgr_pkg::*;(
         stage_sel_o = disable_sel ? Disable  :
                       advance_sel ? Owner : OwnerInt;
 
-        update_sel = KeyUpdateKmac;
-        if (!en_i) begin
+        if (!en_i || inv_state) begin
           state_d = StCtrlWipe;
-        end else if (invalid_state) begin
-          update_sel = KeyUpdateInvalid;
+        end else if (dis_state) begin
           state_d = StCtrlDisabled;
-        end else if (next_state) begin
+        end else if (adv_state) begin
           state_d = StCtrlOwnerKey;
         end
       end
@@ -388,20 +531,16 @@ module keymgr_ctrl import keymgr_pkg::*;(
       // all commands are valid during this stage
       // however advance goes directly to disabled state
       StCtrlOwnerKey: begin
-        update_sel = KeyUpdateKmac;
-        op_accept = 1'b1;
+        op_req = op_start_i;
 
         // when generating, select owner data input
         // when advancing, select disable as target
         // when disabling, select random data input
         stage_sel_o = disable_sel | advance_sel ? Disable : Owner;
 
-        // Calling advanced from ownerKey also leads to disable
-        // Thus data_valid is not checked
-        if (!en_i) begin
+        if (!en_i || inv_state) begin
           state_d = StCtrlWipe;
-        end else if (op_ack && (advance_sel || disable_sel || fault_err)) begin
-          update_sel = KeyUpdateInvalid;
+        end else if (adv_state || dis_state) begin
           state_d = StCtrlDisabled;
         end
       end
@@ -411,12 +550,10 @@ module keymgr_ctrl import keymgr_pkg::*;(
       // Unlike the random state, this is an immedaite shutdown request, so all parts of the
       // key are wiped.
       StCtrlWipe: begin
-        update_sel = KeyUpdateWipe;
-        stage_sel_o = Disable;
-
-        // while wiping, accept commands, but treat them all as invalid operations
-        op_accept = 1'b1;
-        invalid_op = 1'b1;
+        wipe_req = 1'b1;
+        // if there was already an operation ongoing, maintain the request until completion
+        op_req = op_busy;
+        invalid_op = op_start_i;
 
         // If the enable is dropped during the middle of a transaction, we clear and wait for that
         // transaction to gracefully complete (if it can).
@@ -430,28 +567,50 @@ module keymgr_ctrl import keymgr_pkg::*;(
         end
       end
 
-      // Default state (StCtrlDisabled and StCtrlInvalid included)
-      // Continue to kick off random transactions
-      default: begin
-        if (!en_i && in_disabled) begin
-          state_d = StCtrlWipe;
-          op_accept = 1'b1;
-        end else begin
-          update_sel = KeyUpdateInvalid;
-          op_accept = 1'b1;
-          stage_sel_o = Disable;
+      // StCtrlDisabled and StCtrlInvalid are almost functionally equivalent
+      // The only difference is that Disabled is entered through software invocation,
+      // while Invalid is entered through life cycle disable or operational fault.
+      //
+      // Both states continue to kick off random transactions
+      // All transactions are treated as invalid despite completing
+      StCtrlDisabled: begin
+        op_req = op_start_i;
+        disabled = 1'b1;
 
-          // Despite accepting all commands, operations are always
-          // considered invalid in disabled / invalid states
-          invalid_op = 1'b1;
+        if (!en_i || inv_state) begin
+          state_d = StCtrlWipe;
         end
       end
+
+      StCtrlInvalid: begin
+        op_req = op_start_i;
+        invalid = 1'b1;
+      end
+
+      // latch the fault indication and start to wipe the key manager
+      default: begin
+        state_intg_err_d = 1'b1;
+        state_d = StCtrlWipe;
+      end
+
     endcase // unique case (state_q)
   end // always_comb
 
   // Current working state provided for software read
   // Certain states are collapsed for simplicity
+  keymgr_working_state_e last_working_st;
+  logic state_update;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      last_working_st <= StReset;
+    end else if (state_update) begin
+      last_working_st <= working_state_o;
+    end
+  end
+
   always_comb begin
+    state_update = 1'b1;
     working_state_o = StInvalid;
 
     unique case (state_q)
@@ -473,7 +632,12 @@ module keymgr_ctrl import keymgr_pkg::*;(
       StCtrlDisabled:
         working_state_o = StDisabled;
 
-      StCtrlWipe, StCtrlInvalid:
+      StCtrlWipe: begin
+        state_update = 1'b0;
+        working_state_o = last_working_st;
+      end
+
+      StCtrlInvalid:
         working_state_o = StInvalid;
 
       default:
@@ -481,17 +645,165 @@ module keymgr_ctrl import keymgr_pkg::*;(
     endcase // unique case (state_q)
   end
 
-  // data errors are not relevant when operation was not accepted.
-  // invalid operation errors can happen even when operations are not accepted.
-  assign error_o[ErrInvalidOp]  = op_done_o & invalid_op;
-  assign error_o[ErrInvalidCmd] = op_ack & fault_err;
-  assign error_o[ErrInvalidIn]  = op_ack & kmac_input_invalid_i;
-  assign error_o[ErrInvalidOut] = op_ack & ~kmac_out_valid;
+
+  /////////////////////////
+  // Operateion state, handle advance and generate
+  /////////////////////////
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      op_state_q <= StIdle;
+    end else begin
+      op_state_q <= op_state_d;
+    end
+  end
+
+  always_comb begin
+    op_state_d = op_state_q;
+    op_update = 1'b0;
+    op_ack = 1'b0;
+    op_busy = 1'b1;
+
+    // output to kmac interface
+    adv_en_o = 1'b0;
+    id_en_o = 1'b0;
+    gen_en_o = 1'b0;
+
+    unique case (op_state_q)
+      StIdle: begin
+        op_busy = '0;
+        if (adv_req || dis_req) begin
+          op_state_d = StAdv;
+        end else if (id_req || gen_req) begin
+          op_state_d = StWait;
+        end
+      end
+
+      StAdv: begin
+        adv_en_o = 1'b1;
+
+        if (kmac_done_i && (cdi_cnt == CDIs-1)) begin
+          op_ack = 1'b1;
+          op_state_d = StIdle;
+        end else if (kmac_done_i && (cdi_cnt < CDIs-1)) begin
+          op_update = 1'b1;
+          op_state_d = StAdvAck;
+        end
+      end
+
+      // drop adv_en_o to allow kmac interface handshake
+      StAdvAck: begin
+        op_state_d = StAdv;
+      end
+
+      // Not an advanced operation
+      StWait: begin
+        id_en_o = gen_id_op;
+        gen_en_o = gen_sw_op | gen_hw_op;
+
+        if (kmac_done_i) begin
+          op_ack = 1'b1;
+          op_state_d = StIdle;
+        end
+      end
+
+      // What should go here?
+      default:;
+
+    endcase // unique case (adv_state_q)
+  end
+
+  // operations fsm update precedence
+  // when in invalid state, always update.
+  // when in disabled state, always update unless a fault is encountered.
+  assign op_update_sel = (op_ack | op_update) & invalid      ? KeyUpdateKmac :
+                         (op_ack | op_update) & op_fault_err ? KeyUpdateWipe :
+                         (op_ack | op_update) & disabled     ? KeyUpdateKmac :
+                         (op_ack | op_update) & op_err       ? KeyUpdateIdle :
+                         (op_ack | op_update)                ? KeyUpdateKmac : KeyUpdateIdle;
+
+
+  // Advance calls are made up of multiple rounds of kmac operations.
+  // Any sync error that occurs is treated as an error of the entire call.
+  // Therefore sync errors that happen before the end of the call must be
+  // latched.
+  logic[SyncErrLastIdx-1:0] sync_err_q, sync_err_d;
+  logic[SyncFaultLastIdx-1:0] sync_fault_q, sync_fault_d;
+
+  logic err_vld;
+  assign err_vld = op_update | op_done_o;
+
+  // sync errors
+  // When an operation encounters a fault, the operation is always rejected as the FSM
+  // transitions to wipe.  When an operation is ongoing and en drops, it is also rejected.
+  assign sync_err_d[SyncErrInvalidOp] = err_vld & (invalid_op | disabled | invalid | op_fault_err);
+  assign sync_err_d[SyncErrInvalidIn] = err_vld & kmac_input_invalid_i;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      sync_err_q <= '0;
+    end else if (op_done_o) begin
+      sync_err_q <= '0;
+    end else if (op_update) begin
+      sync_err_q <= sync_err_d;
+    end
+  end
+  assign sync_err = sync_err_q | sync_err_d;
+
+  // async errors
+  assign async_err[AsyncErrShadowUpdate] = shadowed_update_err_i;
+
+  // sync faults
+  assign sync_fault_d[SyncFaultKmacOp] = err_vld & kmac_op_err_i;
+  assign sync_fault_d[SyncFaultKmacOut] = err_vld & invalid_kmac_out;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      sync_fault_q <= '0;
+    end else if (op_update) begin
+      sync_fault_q <= sync_fault_d;
+    end
+  end
+  assign sync_fault = sync_fault_q | sync_fault_d;
+
+  // async faults
+  logic [AsyncFaultLastIdx-1:0] async_fault_q, async_fault_d;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      async_fault_q <= '0;
+    end else begin
+      async_fault_q <= async_fault;
+    end
+  end
+  assign async_fault = async_fault_q | async_fault_d;
+  assign async_fault_d[AsyncFaultKmacCmd] = kmac_cmd_err_i;
+  assign async_fault_d[AsyncFaultKmacFsm] = kmac_fsm_err_i;
+  assign async_fault_d[AsyncFaultRegIntg] = regfile_intg_err_i;
+  assign async_fault_d[AsyncFaultShadow ] = shadowed_storage_err_i;
+  assign async_fault_d[AsyncFaultFsmIntg] = state_intg_err_q;
+  assign async_fault_d[AsyncFaultCntErr ] = cnt_err;
+  assign async_fault_d[AsyncFaultRCntErr] = reseed_cnt_err_i;
+  assign async_fault_d[AsyncFaultSideErr] = sideload_fsm_err_i;
+
+  // output to error code register
+  assign error_o[ErrInvalidOp]    = op_done_o & sync_err[SyncErrInvalidOp];
+  assign error_o[ErrInvalidIn]    = op_done_o & sync_err[SyncErrInvalidIn];
+  assign error_o[ErrShadowUpdate] = async_err[AsyncErrShadowUpdate];
+
+  // output to fault code register
+  assign fault_o[FaultKmacOp]    = op_done_o & sync_fault[SyncFaultKmacOp];
+  assign fault_o[FaultKmacOut]   = op_done_o & sync_fault[SyncFaultKmacOut];
+  assign fault_o[FaultKmacCmd]   = async_fault[AsyncFaultKmacCmd];
+  assign fault_o[FaultKmacFsm]   = async_fault[AsyncFaultKmacFsm];
+  assign fault_o[FaultRegIntg]   = async_fault[AsyncFaultRegIntg];
+  assign fault_o[FaultShadow]    = async_fault[AsyncFaultShadow];
+  assign fault_o[FaultCtrlFsm]   = async_fault[AsyncFaultFsmIntg];
+  assign fault_o[FaultCtrlCnt]   = async_fault[AsyncFaultCntErr];
+  assign fault_o[FaultReseedCnt] = async_fault[AsyncFaultRCntErr];
+  assign fault_o[FaultSideFsm]   = async_fault[AsyncFaultSideErr];
 
   always_comb begin
     status_o = OpIdle;
     if (op_done_o) begin
-      status_o = |error_o ? OpDoneFail : OpDoneSuccess;
+      status_o = |error_o | |fault_o ? OpDoneFail : OpDoneSuccess;
     end else if (op_start_i) begin
       status_o = OpWip;
     end
@@ -542,7 +854,9 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
       StCtrlDataEn: begin
         data_en_o = 1'b1;
-        if (adv_en_o) begin
+        if (op_done_o) begin
+          data_st_d = StCtrlDataWait;
+        end else if (adv_en_o) begin
           data_st_d = StCtrlDataDis;
         end
       end
@@ -564,9 +878,6 @@ module keymgr_ctrl import keymgr_pkg::*;(
     endcase // unique case (data_st_q)
   end
 
-
-
-
   ///////////////////////////////
   // Functions
   ///////////////////////////////
@@ -582,6 +893,11 @@ module keymgr_ctrl import keymgr_pkg::*;(
   /////////////////////////////////
   // Assertions
   /////////////////////////////////
+
+  // This assertion will not work if fault_status ever takes on metafields such as
+  // qe / re etc.
+  `ASSERT_INIT(SameErrCnt_A, $bits(keymgr_reg2hw_fault_status_reg_t) ==
+                             (SyncFaultLastIdx + AsyncFaultLastIdx))
 
   // stage select should always be Disable whenever it is not enabled
   `ASSERT(StageDisableSel_A, !en_i |-> stage_sel_o == Disable)
@@ -599,6 +915,16 @@ module keymgr_ctrl import keymgr_pkg::*;(
                                 (op_i inside {OpAdvance, OpDisable}) |-> stage_sel_o == Disable)
 
   // load_key should not be high if there is no ongoing operation
-  `ASSERT(LoadKey_A, load_key_o |-> op_start_i)
+  `ASSERT(LoadKey_A, key_o.valid |-> op_start_i)
+
+  // The count value should always be 0 when a transaction start
+  `ASSERT(CntZero_A, $rose(op_start_i) |-> cnt == '0)
+
+  // Whenever a transaction completes, data_en must return to 0 on the next cycle
+  `ASSERT(DataEnDis_A, op_start_i & op_done_o |=> ~data_en_o)
+
+  // Whenever data enable asserts, it must be the case that there was a generate or
+  // id operation
+  `ASSERT(DataEn_A, data_en_o |-> (id_en_o | gen_en_o) & ~adv_en_o)
 
 endmodule

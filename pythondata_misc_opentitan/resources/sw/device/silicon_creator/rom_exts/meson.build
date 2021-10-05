@@ -17,11 +17,7 @@ rom_ext_link_info = {
     [
       '-Wl,-L,@0@'.format(meson.source_root()),
       '-Wl,-T,@0@/@1@'.format(meson.source_root(), rom_ext_linkfile_slot_a[0]),
-      # Flatten the array, otherwise `rom_ext_base_for_testing` generation
-      # fails.
-      ''.join(embedded_target_extra_link_args),
-      '-Wl,--build-id=none',
-    ],
+    ] + embedded_target_extra_link_args,
     # Link dependency file for slot A.
     [
       rom_ext_linkfile_slot_a,
@@ -33,10 +29,7 @@ rom_ext_link_info = {
     [
       '-Wl,-L,@0@'.format(meson.source_root()),
       '-Wl,-T,@0@/@1@'.format(meson.source_root(), rom_ext_linkfile_slot_b[0]),
-      # Flatten the array, otherwise `rom_ext_slot_libs` generation fails.
-      ''.join(embedded_target_extra_link_args),
-      '-Wl,--build-id=none',
-    ],
+    ] + embedded_target_extra_link_args,
     # Link dependency file for slot B.
     [
       rom_ext_linkfile_slot_b,
@@ -49,7 +42,6 @@ foreach slot, slot_link_args : rom_ext_link_info
   rom_ext_slot_libs += {
     slot: declare_dependency(
       sources: [
-        'rom_ext_manifest.S',
         'rom_ext_start.S',
       ],
       link_args: slot_link_args[0],
@@ -59,50 +51,24 @@ foreach slot, slot_link_args : rom_ext_link_info
         sw_lib_dif_uart,
         sw_lib_runtime_hart,
         sw_lib_runtime_print,
+        sw_silicon_creator_lib_base_sec_mmio,
+        sw_silicon_creator_lib_manifest_section,
+
+        # TODO: ePMP test status dependency should be removed from
+        # production ROM_EXT. Tests should unlock the test status
+        # address themselves (via a library or similar).
+        sw_silicon_creator_lib_epmp_test_unlock,
       ],
       link_with: static_library(
         slot + '_rom_ext_lib',
-        sources: ['rom_ext.c'],
+        sources: [
+          'rom_ext.c',
+        ],
         link_depends: [slot_link_args[1]],
     )
   )
 }
 endforeach
-
-# ROM_EXT manifest generator.
-rom_exts_manifest_offsets_header = custom_target(
-  'rom_exts_manifest_h',
-  output: 'manifest.h',
-  depend_files: [
-    'manifest.h.tpl',
-    'manifest.hjson',
-    meson.source_root() / 'util/rom-ext-manifest-generator.py',
-  ],
-  command: [
-    prog_python,
-    meson.source_root() / 'util/rom-ext-manifest-generator.py',
-    '--input-dir', meson.current_source_dir(),
-    '--output-dir', meson.current_build_dir(),
-    '--output-files', 'c',
-  ],
-)
-
-# ROM_EXT manifest parser.
-rom_ext_manifest_parser = declare_dependency(
-  link_with: static_library(
-    'rom_ext_manifest_parser',
-    sources: [
-      'rom_ext_manifest_parser.c',
-      rom_exts_manifest_offsets_header,
-    ],
-    dependencies: [
-      sw_lib_mmio,
-    ],
-  ),
-  sources: [
-    rom_exts_manifest_offsets_header,
-  ],
-)
 
 foreach device_name, device_lib : sw_lib_arch_core_devices
   foreach slot, slot_lib : rom_ext_slot_libs
@@ -121,24 +87,46 @@ foreach device_name, device_lib : sw_lib_arch_core_devices
       ]
     )
 
-    rom_ext_embedded = custom_target(
-      slot + '_' + device_name,
-      command: make_embedded_target_command,
-      depend_files: [make_embedded_target_depend_files,],
+    target_name = slot + '_@0@_' + device_name
+
+    rom_ext_dis = custom_target(
+      target_name.format('dis'),
       input: rom_ext_elf,
-      output: make_embedded_target_outputs,
-      build_by_default: true,
+      kwargs: elf_to_dis_custom_target_args,
+    )
+  
+    rom_ext_bin = custom_target(
+      target_name.format('bin'),
+      input: rom_ext_elf,
+      kwargs: elf_to_bin_custom_target_args,
+    )
+  
+    rom_ext_vmem32 = custom_target(
+      target_name.format('vmem32'),
+      input: rom_ext_bin,
+      kwargs: bin_to_vmem32_custom_target_args,
+    )
+  
+    rom_ext_vmem64 = custom_target(
+      target_name.format('vmem64'),
+      input: rom_ext_bin,
+      kwargs: bin_to_vmem64_custom_target_args,
     )
 
     custom_target(
-      slot + '_export_' + device_name,
+      target_name.format('export'),
       command: export_target_command,
       depend_files: [export_target_depend_files,],
-      input: [rom_ext_elf, rom_ext_embedded],
-      output: slot + '_export_' + device_name,
+      input: [
+        rom_ext_elf, 
+        rom_ext_dis,
+        rom_ext_bin,
+        rom_ext_vmem32,
+        rom_ext_vmem64,
+      ],
+      output: target_name.format('export'),
       build_always_stale: true,
       build_by_default: true,
     )
   endforeach
 endforeach
-

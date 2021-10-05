@@ -128,17 +128,17 @@ module xbar_peri_bind;
     .h2d    (tl_pinmux_aon_o),
     .d2h    (tl_pinmux_aon_i)
   );
-  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_ram_ret_aon (
+  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_otp_ctrl__core (
     .clk_i  (clk_peri_i),
     .rst_ni (rst_peri_ni),
-    .h2d    (tl_ram_ret_aon_o),
-    .d2h    (tl_ram_ret_aon_i)
+    .h2d    (tl_otp_ctrl__core_o),
+    .d2h    (tl_otp_ctrl__core_i)
   );
-  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_otp_ctrl (
+  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_otp_ctrl__prim (
     .clk_i  (clk_peri_i),
     .rst_ni (rst_peri_ni),
-    .h2d    (tl_otp_ctrl_o),
-    .d2h    (tl_otp_ctrl_i)
+    .h2d    (tl_otp_ctrl__prim_o),
+    .d2h    (tl_otp_ctrl__prim_i)
   );
   bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_lc_ctrl (
     .clk_i  (clk_peri_i),
@@ -146,11 +146,11 @@ module xbar_peri_bind;
     .h2d    (tl_lc_ctrl_o),
     .d2h    (tl_lc_ctrl_i)
   );
-  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_sensor_ctrl_aon (
+  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_sensor_ctrl (
     .clk_i  (clk_peri_i),
     .rst_ni (rst_peri_ni),
-    .h2d    (tl_sensor_ctrl_aon_o),
-    .d2h    (tl_sensor_ctrl_aon_i)
+    .h2d    (tl_sensor_ctrl_o),
+    .d2h    (tl_sensor_ctrl_i)
   );
   bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_alert_handler (
     .clk_i  (clk_peri_i),
@@ -158,11 +158,17 @@ module xbar_peri_bind;
     .h2d    (tl_alert_handler_o),
     .d2h    (tl_alert_handler_i)
   );
-  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_ret_aon (
+  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_ret_aon__regs (
     .clk_i  (clk_peri_i),
     .rst_ni (rst_peri_ni),
-    .h2d    (tl_sram_ctrl_ret_aon_o),
-    .d2h    (tl_sram_ctrl_ret_aon_i)
+    .h2d    (tl_sram_ctrl_ret_aon__regs_o),
+    .d2h    (tl_sram_ctrl_ret_aon__regs_i)
+  );
+  bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_ret_aon__ram (
+    .clk_i  (clk_peri_i),
+    .rst_ni (rst_peri_ni),
+    .h2d    (tl_sram_ctrl_ret_aon__ram_o),
+    .d2h    (tl_sram_ctrl_ret_aon__ram_i)
   );
   bind xbar_peri tlul_assert #(.EndpointType("Host")) tlul_assert_device_aon_timer_aon (
     .clk_i  (clk_peri_i),

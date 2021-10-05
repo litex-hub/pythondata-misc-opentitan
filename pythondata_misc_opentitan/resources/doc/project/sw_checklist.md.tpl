@@ -1,14 +1,20 @@
 ---
-title: "${display_name} DIF Checklist"
+title: "${ip.name_long_upper} DIF Checklist"
 ---
+
+<%doc>
+    This templates requires the following Python objects to be passed:
+
+    1. ip: See util/make_new_dif.py for the definition of the `ip` obj.
+</%doc>
 
 <!--
 NOTE: This is a template checklist document that is required to be copied over
-to `sw/device/lib/dif/dif_${dif_name}.md` for a new DIF that transitions
+to `sw/device/lib/dif/dif_${ip.name_snake}.md` for a new DIF that transitions
 from L0 (Specification) to L1 (Development) stage, and updated as needed.
 Once done, please remove this comment before checking it in.
 -->
-This checklist is for [Development Stage]({{< relref "/doc/project/development_stages.md" >}}) transitions for the [${display_name} DIF]({{< relref "hw/ip/${ip_name}/doc" >}}).
+This checklist is for [Development Stage]({{< relref "/doc/project/development_stages.md" >}}) transitions for the [${ip.name_long_upper} DIF]({{< relref "hw/ip/${ip.name_snake}/doc" >}}).
 All checklist items refer to the content in the [Checklist]({{< relref "/doc/project/checklist.md" >}}).
 
 ## DIF Checklist
@@ -39,7 +45,6 @@ Documentation  | [DIF_DOC_HW][]              | Not Started |
 Documentation  | [DIF_DOC_API][]             | Not Started |
 Code Quality   | [DIF_CODE_STYLE][]          | Not Started |
 Coordination   | [DIF_DV_TESTS][]            | Not Started |
-Implementation | [DIF_USED_TOCK][]           | Not Started |
 Review         | HW IP Usage Reviewer(s)     | Not Started |
 
 [DIF_FEATURES]:            {{< relref "/doc/project/checklist.md#dif_features" >}}
@@ -50,7 +55,6 @@ Review         | HW IP Usage Reviewer(s)     | Not Started |
 [DIF_DOC_API]:             {{< relref "/doc/project/checklist.md#dif_doc_api" >}}
 [DIF_CODE_STYLE]:          {{< relref "/doc/project/checklist.md#dif_code_style" >}}
 [DIF_DV_TESTS]:            {{< relref "/doc/project/checklist.md#dif_dv_tests" >}}
-[DIF_USED_TOCK]:           {{< relref "/doc/project/checklist.md#dif_used_tock" >}}
 
 ### S3
 
@@ -61,7 +65,6 @@ Coordination   | [DIF_HW_VERIFICATION_COMPLETE][] | Not Started |
 Review         | [DIF_REVIEW_C_STABLE][]          | Not Started |
 Tests          | [DIF_TEST_UNIT_COMPLETE][]       | Not Started |
 Review         | [DIF_TODO_COMPLETE][]            | Not Started |
-Review         | [DIF_REVIEW_TOCK_STABLE][]       | Not Started |
 Review         | Reviewer(s)                      | Not Started |
 Review         | Signoff date                     | Not Started |
 
@@ -70,4 +73,3 @@ Review         | Signoff date                     | Not Started |
 [DIF_REVIEW_C_STABLE]:          {{< relref "/doc/project/checklist.md#dif_review_c_stable" >}}
 [DIF_TEST_UNIT_COMPLETE]:       {{< relref "/doc/project/checklist.md#dif_test_unit_complete" >}}
 [DIF_TODO_COMPLETE]:            {{< relref "/doc/project/checklist.md#dif_todo_complete" >}}
-[DIF_REVIEW_TOCK_STABLE]:       {{< relref "/doc/project/checklist.md#dif_review_tock_stable" >}}

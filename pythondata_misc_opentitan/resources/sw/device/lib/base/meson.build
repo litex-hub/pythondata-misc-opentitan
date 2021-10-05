@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 subdir('freestanding')
+subdir('testing')
 
 # Non volatile bit manipulation helper library (sw_lib_bitfield).
 sw_lib_bitfield = declare_dependency(
@@ -30,5 +31,12 @@ sw_lib_mmio = declare_dependency(
       sw_lib_bitfield,
       sw_lib_mem,
     ],
+  )
+)
+
+sw_lib_hardened = declare_dependency(
+  link_with: static_library(
+    'hardened_ot',
+    sources: ['hardened.c'],
   )
 )

@@ -11,10 +11,10 @@
 #include "sw/device/lib/base/stdasm.h"
 #include "sw/device/lib/dif/dif_uart.h"
 #include "sw/device/lib/testing/check.h"
-#include "sw/device/lib/testing/test_status.h"
+#include "sw/device/lib/testing/test_framework/test_status.h"
 #include "sw/vendor/eembc_coremark/coremark.h"
 
-#include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"  // Generated.
+#include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
 #if VALIDATION_RUN
 volatile ee_s32 seed1_volatile = 0x3415;
@@ -114,21 +114,15 @@ static dif_uart_t uart;
         Test for some common mistakes.
 */
 void portable_init(core_portable *p, int *argc, char *argv[]) {
-  CHECK(
-      dif_uart_init(
-          (dif_uart_params_t){
-              .base_addr = mmio_region_from_addr(TOP_EARLGREY_UART0_BASE_ADDR),
-          },
-          &uart) == kDifUartOk,
-      "failed to init UART");
-  CHECK(dif_uart_configure(&uart,
-                           (dif_uart_config_t){
-                               .baudrate = kUartBaudrate,
-                               .clk_freq_hz = kClockFreqPeripheralHz,
-                               .parity_enable = kDifUartToggleDisabled,
-                               .parity = kDifUartParityEven,
-                           }) == kDifUartConfigOk,
-        "failed to configure UART");
+  CHECK_DIF_OK(dif_uart_init(
+      mmio_region_from_addr(TOP_EARLGREY_UART0_BASE_ADDR), &uart));
+  CHECK_DIF_OK(
+      dif_uart_configure(&uart, (dif_uart_config_t){
+                                    .baudrate = kUartBaudrate,
+                                    .clk_freq_hz = kClockFreqPeripheralHz,
+                                    .parity_enable = kDifToggleDisabled,
+                                    .parity = kDifUartParityEven,
+                                }));
 
   if (sizeof(ee_ptr_int) != sizeof(ee_u8 *)) {
     ee_printf(

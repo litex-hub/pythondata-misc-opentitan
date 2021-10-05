@@ -12,7 +12,11 @@
 // This is the maximum width of a memory that's supported by the code in
 // prim_util_memload.svh
 #define SV_MEM_WIDTH_BITS 312
-#define SV_MEM_WIDTH_BYTES ((SV_MEM_WIDTH_BITS + 7) / 8)
+
+// This is the number of bytes to reserve for buffers used to pass data between
+// C++ and SystemVerilog using prim_util_memload.svh. Since this goes over DPI
+// using the svBitVecVal type, we have to round up to the next 32-bit word.
+#define SV_MEM_WIDTH_BYTES (4 * ((SV_MEM_WIDTH_BITS + 31) / 32))
 
 /**
  * A "memory area", representing a memory in the simulated design.
@@ -92,10 +96,11 @@ class MemArea {
    * @param buf       Destination buffer
    * @param data      A large buffer that contains the data to be written
    * @param start_idx An offset into \p data for the start of the memory word
+   * @param dst_word  Logical address of the location being written
    */
   virtual void WriteBuffer(uint8_t buf[SV_MEM_WIDTH_BYTES],
-                           const std::vector<uint8_t> &data,
-                           size_t start_idx) const;
+                           const std::vector<uint8_t> &data, size_t start_idx,
+                           uint32_t dst_word) const;
 
   /** Extract the logical memory contents corresponding to the physical
    * memory contents in \p buf and append them to \p data.
@@ -104,13 +109,26 @@ class MemArea {
    * across. Other implementations might undo scrambling, remove ECC bits or
    * similar.
    *
-   * @param data The target, onto which the extracted memory contents should be
-   *             appended.
+   * @param data     The target, onto which the extracted memory contents should
+   * be appended.
    *
-   * @param buf  Source buffer (physical memory bits)
+   * @param buf      Source buffer (physical memory bits)
+   * @param src_word Logical address of the location being read
    */
   virtual void ReadBuffer(std::vector<uint8_t> &data,
-                          const uint8_t buf[SV_MEM_WIDTH_BYTES]) const;
+                          const uint8_t buf[SV_MEM_WIDTH_BYTES],
+                          uint32_t src_word) const;
+
+  /** Convert a logical address to physical address
+   *
+   * Some memories may have a mapping between the address supplied on the
+   * request and the physical address used to access the memory array (for
+   * example scrambled memories). By default logical and physical address are
+   * the same.
+   */
+  virtual uint32_t ToPhysAddr(uint32_t logical_addr) const {
+    return logical_addr;
+  }
 };
 
 #endif  // OPENTITAN_HW_DV_VERILATOR_CPP_MEM_AREA_H_

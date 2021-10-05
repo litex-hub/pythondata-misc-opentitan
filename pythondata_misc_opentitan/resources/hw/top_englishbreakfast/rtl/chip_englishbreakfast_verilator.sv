@@ -157,24 +157,19 @@ module chip_englishbreakfast_verilator (
     .SecAesStartTriggerDelay(40),
     .SecAesAllowForcingMasks(1'b1),
     .SecAesSkipPRNGReseeding(1'b1),
-    .IbexICache(0),
+    .RvCoreIbexICache(0),
     .SramCtrlRetAonInstrExec(0),
     .SramCtrlMainInstrExec(1),
     .PinmuxAonTargetCfg(PinmuxTargetCfg)
   ) top_englishbreakfast (
-    .rst_ni                       (rst_ni            ),
+    .por_n_i                      ({rst_ni, rst_ni}  ),
     .clk_main_i                   (clk_i             ),
     .clk_io_i                     (clk_i             ),
     .clk_usb_i                    (clk_i             ),
     .clk_aon_i                    (clk_aon           ),
-    .clks_ast_o                   (                  ),
     .clk_main_jitter_en_o         (                  ),
-    .rsts_ast_o                   (                  ),
     .pwrmgr_ast_req_o             (                  ),
     .pwrmgr_ast_rsp_i             ( ast_base_pwr     ),
-    .sensor_ctrl_ast_alert_req_i  ( ast_base_alerts  ),
-    .sensor_ctrl_ast_alert_rsp_o  (                  ),
-    .sensor_ctrl_ast_status_i     ( ast_base_status  ),
     .usbdev_usb_ref_val_o         (                  ),
     .usbdev_usb_ref_pulse_o       (                  ),
     .ast_edn_req_i                ( '0               ),
@@ -319,12 +314,12 @@ module chip_englishbreakfast_verilator (
     .tl_in_i  (`RV_CORE_IBEX.tl_d_o_int),
     .tl_in_o  (),
     .tl_out_o (),
-    .tl_out_i (`RV_CORE_IBEX.tl_d_i)
+    .tl_out_i (`RV_CORE_IBEX.cored_tl_h_i)
   );
 
   // Connect the sim SRAM directly inside rv_core_ibex.
-  assign `RV_CORE_IBEX.tl_d_i_int = u_sim_sram.tl_in_o;
-  assign `RV_CORE_IBEX.tl_d_o     = u_sim_sram.tl_out_o;
+  assign `RV_CORE_IBEX.tl_d_i_int   = u_sim_sram.tl_in_o;
+  assign `RV_CORE_IBEX.cored_tl_h_o = u_sim_sram.tl_out_o;
 
   // Instantiate the SW test status interface & connect signals from sim_sram_if instance
   // instantiated inside sim_sram. Bind would have worked nicely here, but Verilator segfaults

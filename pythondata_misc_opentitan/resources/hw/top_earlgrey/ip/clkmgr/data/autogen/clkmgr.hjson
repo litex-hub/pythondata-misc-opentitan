@@ -7,28 +7,35 @@
 // Copyright lowRISC contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
-// TODO: This module is only a draft implementation that covers most of the clkmgr
-// functionality but is incomplete
-
-
 
 # CLKMGR register template
 #
 {
   name: "CLKMGR",
   scan: "true",
-  clock_primary: "clk_i",
-  other_clock_list: [],
-  reset_primary: "rst_ni",
-  other_reset_list: [
-    "rst_main_ni"
-    "rst_io_ni"
-    "rst_usb_ni"
-    "rst_io_div2_ni"
-    "rst_io_div4_ni"
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {clock: "clk_main_i", reset: "rst_main_ni"},
+    {clock: "clk_io_i", reset: "rst_io_ni"},
+    {clock: "clk_usb_i", reset: "rst_usb_ni"},
+    {clock: "clk_aon_i", reset: "rst_aon_ni"},
+    {clock: "clk_io_div2_i", reset: "rst_io_div2_ni", internal: true},
+    {clock: "clk_io_div4_i", reset: "rst_io_div4_ni", internal: true},
   ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
+  ],
+  alert_list: [
+    { name: "recov_fault",
+      desc: '''
+      This recoverable alert is triggered when there are measurement errors.
+      '''
+    }
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
+    }
   ],
   regwidth: "32",
   param_list: [
@@ -44,6 +51,13 @@
     { struct:  "clkmgr_out",
       type:    "uni",
       name:    "clocks",
+      act:     "req",
+      package: "clkmgr_pkg",
+    },
+
+    { struct:  "clkmgr_cg_en",
+      type:    "uni",
+      name:    "cg_en",
       act:     "req",
       package: "clkmgr_pkg",
     },
@@ -90,39 +104,7 @@
       package: ""
     },
 
-  // All clock inputs
-    { struct:  "logic",
-      type:    "uni",
-      name:    "clk_main",
-      act:     "rcv",
-      package: "",
-    },
-    { struct:  "logic",
-      type:    "uni",
-      name:    "clk_io",
-      act:     "rcv",
-      package: "",
-    },
-    { struct:  "logic",
-      type:    "uni",
-      name:    "clk_usb",
-      act:     "rcv",
-      package: "",
-    },
-    { struct:  "logic",
-      type:    "uni",
-      name:    "clk_aon",
-      act:     "rcv",
-      package: "",
-    },
-
   // Exported clocks
-    { struct:  "clkmgr_ast_out",
-      type:    "uni",
-      name:    "clocks_ast",
-      act:     "req",
-      package: "clkmgr_pkg",
-    },
 
     { struct:  "pwr_clk",
       type:    "req_rsp",
@@ -135,14 +117,14 @@
       name:    "idle",
       act:     "rcv",
       package: "",
-      width:   "4"
+      width:   "5"
     },
   ],
 
 
   registers: [
-    { name: "EXTCLK_SEL_REGWEN",
-      desc: "External clock select write enable",
+    { name: "EXTCLK_CTRL_REGWEN",
+      desc: "External clock control write enable",
       swaccess: "rw0c",
       hwaccess: "none",
       fields: [
@@ -150,30 +132,41 @@
           name: "EN",
           resval: "1"
           desc: '''
-            When 1, the value of !!EXTCLK_SEL can be set.  When 0, writes to !!EXTCLK_SEL have no
+            When 1, the value of !!EXTCLK_CTRL can be set.  When 0, writes to !!EXTCLK_CTRL have no
             effect.
           '''
         },
       ]
     },
 
-    { name: "EXTCLK_SEL",
+    { name: "EXTCLK_CTRL",
       desc: '''
         Select external clock
       ''',
-      regwen: "EXTCLK_SEL_REGWEN",
+      regwen: "EXTCLK_CTRL_REGWEN",
       swaccess: "rw",
       hwaccess: "hro",
       fields: [
         {
           bits: "3:0",
-          name: "VAL",
+          name: "SEL",
           desc: '''
             A value of b1010 selects external clock as clock for the system.
             While this register can always be programmed, it only takes effect when the system is in
             life cycle TEST or RMA states when DFT is enabled.
 
             All other values are invalid and keep clocks on internal sources.
+          '''
+          resval: "0x5"
+        },
+        {
+          bits: "7:4",
+          name: "STEP_DOWN",
+          desc: '''
+            A value of b1010 steps down the clock dividers by a factor of 2 if the !!EXTCLK_CTRL.SEL
+            field is also set to b1010.
+
+            All other values have no effect.
           '''
           resval: "0x5"
         }
@@ -224,6 +217,15 @@
         }
         {
           bits: "2",
+          name: "CLK_IO_PERI_EN",
+          resval: 1,
+          desc: '''
+            0 CLK_IO_PERI is disabled.
+            1 CLK_IO_PERI is enabled.
+          '''
+        }
+        {
+          bits: "3",
           name: "CLK_USB_PERI_EN",
           resval: 1,
           desc: '''
@@ -239,12 +241,17 @@
 
     { name: "CLK_HINTS",
       desc: '''
-        Clock hint for software gateable clocks.
-        These clocks are not fully controlled by software.
+        Clock hint for software gateable transactional clocks during active mode.
+        During low power mode, all clocks are gated off regardless of the software hint.
 
-        For disable, software only provides a hint, and hardware determines the final clock state based on the
-        hint and whether the block in question is idle.
+        Transactional clocks are not fully controlled by software.  Instead software provides only a disable hint.
 
+        When software provides a disable hint, the clock manager checks to see if the associated hardware block is idle.
+        If the hardware block is idle, then the clock is disabled.
+        If the hardware block is not idle, the clock is kept on.
+
+        For the enable case, the software hint is immediately honored and the clock turned on.  Hardware does not provide any
+        feedback in this case.
       ''',
       swaccess: "rw",
       hwaccess: "hro",
@@ -278,6 +285,15 @@
         }
         {
           bits: "3",
+          name: "CLK_IO_DIV4_OTBN_HINT",
+          resval: 1,
+          desc: '''
+            0 CLK_IO_DIV4_OTBN can be disabled.
+            1 CLK_IO_DIV4_OTBN is enabled.
+          '''
+        }
+        {
+          bits: "4",
           name: "CLK_MAIN_OTBN_HINT",
           resval: 1,
           desc: '''
@@ -329,6 +345,15 @@
         }
         {
           bits: "3",
+          name: "CLK_IO_DIV4_OTBN_VAL",
+          resval: 1,
+          desc: '''
+            0 CLK_IO_DIV4_OTBN is disabled.
+            1 CLK_IO_DIV4_OTBN is enabled.
+          '''
+        }
+        {
+          bits: "4",
           name: "CLK_MAIN_OTBN_VAL",
           resval: 1,
           desc: '''
@@ -336,6 +361,286 @@
             1 CLK_MAIN_OTBN is enabled.
           '''
         }
+      ]
+    },
+
+    { name: "MEASURE_CTRL_REGWEN",
+      desc: "Measurement control write enable",
+      swaccess: "rw0c",
+      hwaccess: "none",
+      fields: [
+        { bits: "0",
+          name: "EN",
+          resval: "1"
+          desc: '''
+            When 1, the value of the measurement control can be set.  When 0, writes have no
+            effect.
+          '''
+        },
+      ]
+    },
+
+      { name: "IO_MEASURE_CTRL",
+      desc: '''
+        Configuration controls for io measurement.
+
+        The threshold fields are made wider than required (by 1 bit) to ensure
+        there is room to adjust for measurement inaccuracies.
+      ''',
+      regwen: "MEASURE_CTRL_REGWEN",
+      swaccess: "rw",
+      hwaccess: "hro",
+      async: "clk_io_i",
+      fields: [
+        {
+          bits: "0",
+          name: "EN",
+          desc: "Enable measurement for io",
+          resval: "0"
+        },
+
+        {
+          bits: "13:4",
+          name: "MAX_THRESH",
+          desc: "Max threshold for io measurement",
+          resval: "490",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+
+        {
+          bits: "23:14",
+          name: "MIN_THRESH",
+          desc: "Min threshold for io measurement",
+          resval: "470",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+      ]
+    },
+      { name: "IO_DIV2_MEASURE_CTRL",
+      desc: '''
+        Configuration controls for io_div2 measurement.
+
+        The threshold fields are made wider than required (by 1 bit) to ensure
+        there is room to adjust for measurement inaccuracies.
+      ''',
+      regwen: "MEASURE_CTRL_REGWEN",
+      swaccess: "rw",
+      hwaccess: "hro",
+      async: "clk_io_div2_i",
+      fields: [
+        {
+          bits: "0",
+          name: "EN",
+          desc: "Enable measurement for io_div2",
+          resval: "0"
+        },
+
+        {
+          bits: "12:4",
+          name: "MAX_THRESH",
+          desc: "Max threshold for io_div2 measurement",
+          resval: "250",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+
+        {
+          bits: "21:13",
+          name: "MIN_THRESH",
+          desc: "Min threshold for io_div2 measurement",
+          resval: "230",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+      ]
+    },
+      { name: "IO_DIV4_MEASURE_CTRL",
+      desc: '''
+        Configuration controls for io_div4 measurement.
+
+        The threshold fields are made wider than required (by 1 bit) to ensure
+        there is room to adjust for measurement inaccuracies.
+      ''',
+      regwen: "MEASURE_CTRL_REGWEN",
+      swaccess: "rw",
+      hwaccess: "hro",
+      async: "clk_io_div4_i",
+      fields: [
+        {
+          bits: "0",
+          name: "EN",
+          desc: "Enable measurement for io_div4",
+          resval: "0"
+        },
+
+        {
+          bits: "11:4",
+          name: "MAX_THRESH",
+          desc: "Max threshold for io_div4 measurement",
+          resval: "130",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+
+        {
+          bits: "19:12",
+          name: "MIN_THRESH",
+          desc: "Min threshold for io_div4 measurement",
+          resval: "110",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+      ]
+    },
+      { name: "MAIN_MEASURE_CTRL",
+      desc: '''
+        Configuration controls for main measurement.
+
+        The threshold fields are made wider than required (by 1 bit) to ensure
+        there is room to adjust for measurement inaccuracies.
+      ''',
+      regwen: "MEASURE_CTRL_REGWEN",
+      swaccess: "rw",
+      hwaccess: "hro",
+      async: "clk_main_i",
+      fields: [
+        {
+          bits: "0",
+          name: "EN",
+          desc: "Enable measurement for main",
+          resval: "0"
+        },
+
+        {
+          bits: "13:4",
+          name: "MAX_THRESH",
+          desc: "Max threshold for main measurement",
+          resval: "510",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+
+        {
+          bits: "23:14",
+          name: "MIN_THRESH",
+          desc: "Min threshold for main measurement",
+          resval: "490",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+      ]
+    },
+      { name: "USB_MEASURE_CTRL",
+      desc: '''
+        Configuration controls for usb measurement.
+
+        The threshold fields are made wider than required (by 1 bit) to ensure
+        there is room to adjust for measurement inaccuracies.
+      ''',
+      regwen: "MEASURE_CTRL_REGWEN",
+      swaccess: "rw",
+      hwaccess: "hro",
+      async: "clk_usb_i",
+      fields: [
+        {
+          bits: "0",
+          name: "EN",
+          desc: "Enable measurement for usb",
+          resval: "0"
+        },
+
+        {
+          bits: "12:4",
+          name: "MAX_THRESH",
+          desc: "Max threshold for usb measurement",
+          resval: "250",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+
+        {
+          bits: "21:13",
+          name: "MIN_THRESH",
+          desc: "Min threshold for usb measurement",
+          resval: "230",
+          // random updates to this field if measurements are turned on can
+          // cause the results to fail
+          tags: ["excl:CsrNonInitTests:CsrExclWrite"]
+        },
+      ]
+    },
+
+    { name: "RECOV_ERR_CODE",
+      desc: "Recoverable Error code ",
+      swaccess: "rw1c",
+      hwaccess: "hrw",
+      fields: [
+        {
+          bits: "0",
+          name: "IO_MEASURE_ERR",
+          resval: 0,
+          desc: '''
+            io has encountered a measurement error.
+          '''
+        }
+        {
+          bits: "1",
+          name: "IO_DIV2_MEASURE_ERR",
+          resval: 0,
+          desc: '''
+            io_div2 has encountered a measurement error.
+          '''
+        }
+        {
+          bits: "2",
+          name: "IO_DIV4_MEASURE_ERR",
+          resval: 0,
+          desc: '''
+            io_div4 has encountered a measurement error.
+          '''
+        }
+        {
+          bits: "3",
+          name: "MAIN_MEASURE_ERR",
+          resval: 0,
+          desc: '''
+            main has encountered a measurement error.
+          '''
+        }
+        {
+          bits: "4",
+          name: "USB_MEASURE_ERR",
+          resval: 0,
+          desc: '''
+            usb has encountered a measurement error.
+          '''
+        }
+      ]
+    },
+
+    { name: "FATAL_ERR_CODE",
+      desc: "Error code ",
+      swaccess: "ro",
+      hwaccess: "hrw",
+      fields: [
+        { bits: "0",
+          name: "REG_INTG",
+          resval: 0
+          desc: '''
+            Register file has experienced a fatal integrity error.
+          '''
+        },
       ]
     },
   ]

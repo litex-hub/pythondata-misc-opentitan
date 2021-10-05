@@ -3,37 +3,35 @@
 // SPDX-License-Identifier: Apache-2.0
 
 <%
-from collections import OrderedDict
-
-clks_attr = cfg['clocks']
-grps = clks_attr['groups']
-num_hints = len(hint_clks)
+num_hints = len(typed_clocks.hint_clks)
 %>
 
 package clkmgr_pkg;
 
   typedef enum int {
-% for hint, v in hint_clks.items():
-    ${v['name'].capitalize()} = ${loop.index}${"," if not loop.last else ""}
+% for idx, hint_name in list(enumerate(hint_names.values())):
+    ${hint_name} = ${idx}${"," if not loop.last else ""}
 % endfor
   } hint_names_e;
 
+  // clocks generated and broadcast
   typedef struct packed {
-<%
-# Merge Clock Dicts together
-all_clocks = OrderedDict()
-all_clocks.update(ft_clks)
-all_clocks.update(hint_clks)
-all_clocks.update(rg_clks)
-all_clocks.update(sw_clks)
-%>\
-% for clk in all_clocks:
-  logic ${clk};
+% for clk in typed_clocks.all_clocks():
+    logic ${clk};
 % endfor
-
   } clkmgr_out_t;
 
-% for intf, eps in export_clks.items():
+  // clock gating indication for alert handler
+  typedef struct packed {
+<% n_clk = 0 %>\
+% for clk in typed_clocks.all_clocks():
+    lc_ctrl_pkg::lc_tx_t ${clk.split('clk_')[-1]};<% n_clk += 1 %>
+% endfor
+  } clkmgr_cg_en_t;
+
+  parameter int NumOutputClk = ${n_clk};
+
+% for intf, eps in cfg['exported_clks'].items():
   typedef struct packed {
   % for ep, clks in eps.items():
     % for clk in clks:

@@ -52,11 +52,6 @@
             // The other digest configurations below are used for
             // key derivation and token hashing.
             {
-                name:       "LcRawDigest",
-                iv_value:   "<random>",
-                cnst_value: "<random>",
-            }
-            {
                 name:       "FlashDataKey",
                 iv_value:   "<random>",
                 cnst_value: "<random>",
@@ -79,20 +74,58 @@
     // Note that the digest items are added automatically to the address map.
     partitions: [
         {
-            name:       "CREATOR_SW_CFG",
+            name:       "VENDOR_TEST",
             variant:    "Unbuffered",
-            size:       "768", // in bytes
-            secret:     "False",
-            sw_digest:  "True",
-            hw_digest:  "False",
+            size:       "64", // in bytes
+            secret:     false,
+            sw_digest:  true,
+            hw_digest:  false,
             write_lock: "Digest",
             read_lock:  "CSR",
             key_sel:    "NoKey",
-            bkout_type: "False", // Do not generate a breakout type for this partition.
+            ecc_fatal:  false, // Do not send out a fatal alert upon detection of uncorrectable ECC errors.
+            bkout_type: false, // Do not generate a breakout type for this partition.
             items: [
                 {
-                    name: "CREATOR_SW_CFG_CONTENT",
-                    size: "760"
+                    name: "SCRATCH",
+                    size: "56"
+                }
+            ],
+            desc: '''Vendor test partition for OTP smoke checks
+            during manufacturing. The OTP wrapper control logic inside prim_otp is allowed
+            to read/write to this region. ECC uncorrectable errors seen on the functional
+            prim_otp interface will not lead to an alert for this partition.
+            '''
+        }
+        {
+            name:       "CREATOR_SW_CFG",
+            variant:    "Unbuffered",
+            absorb:     true,
+            size:       "768", // in bytes
+            secret:     false,
+            sw_digest:  true,
+            hw_digest:  false,
+            write_lock: "Digest",
+            read_lock:  "CSR",
+            key_sel:    "NoKey",
+            ecc_fatal:  true, // Uncorrectable ECC errors trigger a fatal alert.
+            bkout_type: false, // Do not generate a breakout type for this partition.
+            items: [
+                {
+                    name: "CREATOR_SW_CFG_AST_CFG",
+                    size: "256"
+                }
+                {
+                    name: "CREATOR_SW_CFG_ROM_EXT_SKU",
+                    size: "4"
+                }
+                {
+                    name: "CREATOR_SW_CFG_USE_SW_RSA_VERIFY",
+                    size: "4"
+                }
+                {
+                    name: "CREATOR_SW_CFG_KEY_IS_VALID",
+                    size: "8"
                 }
             ],
             desc: '''Software configuration partition for
@@ -103,18 +136,56 @@
         {
             name:       "OWNER_SW_CFG",
             variant:    "Unbuffered",
+            absorb:     true,
             size:       "768", // in bytes
-            secret:     "False",
-            sw_digest:  "True",
-            hw_digest:  "False",
+            secret:     false,
+            sw_digest:  true,
+            hw_digest:  false,
             write_lock: "Digest",
             read_lock:  "CSR",
             key_sel:    "NoKey",
-            bkout_type: "False",
+            ecc_fatal:  true,
+            bkout_type: false,
             items: [
                 {
-                    name: "OWNER_SW_CFG_CONTENT",
-                    size: "760"
+                    name: "ROM_ERROR_REPORTING",
+                    size: "4"
+                }
+                {
+                    name: "ROM_BOOTSTRAP_EN",
+                    size: "4"
+                }
+                {
+                    name: "ROM_FAULT_RESPONSE",
+                    size: "4"
+                }
+                {
+                    name: "ROM_ALERT_CLASS_EN",
+                    size: "4"
+                }
+                {
+                    name: "ROM_ALERT_ESCALATION",
+                    size: "4"
+                }
+                {
+                    name: "ROM_ALERT_CLASSIFICATION",
+                    size: "320"
+                }
+                {
+                    name: "ROM_LOCAL_ALERT_CLASSIFICATION",
+                    size: "64"
+                }
+                {
+                    name: "ROM_ALERT_ACCUM_THRESH",
+                    size: "16"
+                }
+                {
+                    name: "ROM_ALERT_TIMEOUT_CYCLES",
+                    size: "16"
+                }
+                {
+                    name: "ROM_ALERT_PHASE_CYCLES",
+                    size: "64"
                 }
             ],
             desc: '''Software configuration partition for
@@ -126,48 +197,70 @@
         {
             name:       "HW_CFG",
             variant:    "Buffered",
-            size:       "240", // in bytes
-            secret:     "False",
-            sw_digest:  "False",
-            hw_digest:  "True",
+            secret:     false,
+            sw_digest:  false,
+            hw_digest:  true,
             write_lock: "Digest",
             read_lock:  "None",
             key_sel:    "NoKey",
-            bkout_type: "True",
+            ecc_fatal:  true,
+            bkout_type: true,
             items: [
                 {
-                    name:    "DEVICE_ID",
-                    size:    "32",
+                    name:        "DEVICE_ID",
+                    size:        "32",
                     // Default value to be output in case partition has not
                     // initialized or is in error state. If not specified,
                     // a value of '0 will be used.
                     inv_default: "<random>",
                 },
                 {
-                    name:    "EN_SRAM_IFETCH",
-                    size:    "1",
+                    name:        "MANUF_STATE",
+                    size:        "32",
+                    inv_default: "<random>",
                 },
                 {
-                    name:    "EN_ENTROPY_SRC_FW_READ",
-                    size:    "1",
+                    name:        "EN_SRAM_IFETCH",
+                    size:        "1",
+                    inv_default: "0",
+                },
+                {
+                    name:        "EN_CSRNG_SW_APP_READ",
+                    size:        "1",
+                    inv_default: "0",
+                },
+                {
+                    name:        "EN_ENTROPY_SRC_FW_READ",
+                    size:        "1",
+                    inv_default: "0",
+                },
+                {
+                    name:        "EN_ENTROPY_SRC_FW_OVER",
+                    size:        "1",
+                    inv_default: "0",
                 },
             ],
-            desc: '''Hardware configuration bits used to hardwire
-            specific hardware functionality. E.g., raw entropy
-            accessibility or FLASH scrambling bypass range.
+            desc: '''
+            EN_SRAM_IFETCH: Enable / disable execute from SRAM CSR switch.
+            EN_CSRNG_SW_APP_READ: This input efuse is used to enable access
+            to the NIST internal state per instance.
+            EN_ENTROPY_SRC_FW_READ: This input efuse is used to enable access
+            to the ENTROPY_DATA register directly.
+            EN_ENTROPY_SRC_FW_OVER: This input efuse is used to enable access
+            to the firmware override FIFO and other related functions.
             '''
         }
         {
             name:       "SECRET0",
             variant:    "Buffered",
-            size:       "40", // in bytes
-            secret:     "True",
-            sw_digest:  "False",
-            hw_digest:  "True",
+            secret:     true,
+            sw_digest:  false,
+            hw_digest:  true,
             write_lock: "Digest",
             read_lock:  "Digest",
             key_sel:    "Secret0Key",
-            bkout_type: "False",
+            ecc_fatal:  true,
+            bkout_type: false,
             items: [
                 {
                     name: "TEST_UNLOCK_TOKEN",
@@ -189,14 +282,14 @@
         {
             name:       "SECRET1",
             variant:    "Buffered",
-            size:       "88", // in bytes
-            secret:     "True",
-            sw_digest:  "False",
-            hw_digest:  "True",
+            secret:     true,
+            sw_digest:  false,
+            hw_digest:  true,
             write_lock: "Digest",
             read_lock:  "Digest",
             key_sel:    "Secret1Key",
-            bkout_type: "False",
+            ecc_fatal:  true,
+            bkout_type: false,
             items: [
                 {
                     name: "FLASH_ADDR_KEY_SEED",
@@ -221,14 +314,14 @@
         {
             name:       "SECRET2",
             variant:    "Buffered",
-            size:       "88", // in bytes
-            secret:     "True",
-            sw_digest:  "False",
-            hw_digest:  "True",
+            secret:     true,
+            sw_digest:  false,
+            hw_digest:  true,
             write_lock: "Digest",
             read_lock:  "Digest",
             key_sel:    "Secret2Key",
-            bkout_type: "False",
+            ecc_fatal:  true,
+            bkout_type: false,
             items: [
                 {
                     name: "RMA_TOKEN",
@@ -252,14 +345,14 @@
         {
             name:       "LIFE_CYCLE",
             variant:    "LifeCycle",
-            size:       "56", // in bytes
-            secret:     "False",
-            sw_digest:  "False",
-            hw_digest:  "False",
+            secret:     false,
+            sw_digest:  false,
+            hw_digest:  false,
             write_lock: "None",
             read_lock:  "None",
             key_sel:    "NoKey",
-            bkout_type: "False",
+            ecc_fatal:  true,
+            bkout_type: false,
             items: [
                 // The life cycle transition count is specified
                 // first such that any programming attempt of the life cycle
@@ -275,12 +368,12 @@
                 {
                     name: "LC_TRANSITION_CNT",
                     inv_default: "<random>",
-                    size: "32"
+                    size: "48"
                 }
                 {
                     name: "LC_STATE",
                     inv_default: "<random>",
-                    size: "24"
+                    size: "40"
                 }
             ],
             desc: '''Life-cycle related bits. This

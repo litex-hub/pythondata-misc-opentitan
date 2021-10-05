@@ -36,6 +36,8 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
   uvm_reg_data_t masked_out_lower_mask;
   uvm_reg_data_t masked_out_upper_mask;
 
+  string common_seq_type;
+
   `uvm_component_utils(gpio_scoreboard)
 
   `uvm_component_new
@@ -47,6 +49,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
 
   // Task: run_phase
   task run_phase(uvm_phase phase);
+    void'($value$plusargs("run_%0s", common_seq_type));
     super.run_phase(phase);
     fork
       monitor_gpio_i();
@@ -63,7 +66,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
     uvm_reg_addr_t csr_addr = ral.get_word_aligned_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
-    if (csr_addr inside {cfg.csr_addrs[ral_name]}) begin
+    if (csr_addr inside {cfg.ral_models[ral_name].csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
     end else begin
@@ -76,7 +79,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
       real clk_period = cfg.clk_rst_vif.clk_period_ps / 1000;
       time crnt_time = $time;
 
-      // apply pending update for interrupt state
+      // apply pending update for `data_in` register
       if (data_in_update_queue.size() > 0) begin
         if (data_in_update_queue[$].needs_update == 1'b1 &&
             (int'((crnt_time - data_in_update_queue[$].eval_time) / clk_period)) > 1) begin
@@ -107,6 +110,14 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
 
       // if incoming access is a write to a valid csr, then make updates right away
       if (write) begin
+        // GPIO scoreboard is cycle accurate and will only update `intr_state` mirrored value at
+        // the address phase of the next read operation.
+        // This is too late for intr_test and intr_test does not need this cycle accurate model,
+        // So we use csr predict function right after the write operations.
+        if ((common_seq_type == "intr_test") &&
+            (csr.get_name() inside {"intr_state", "intr_enable", "intr_test"})) begin
+          void'(csr.predict(.value(item.a_data), .kind(UVM_PREDICT_WRITE), .be(item.a_mask)));
+        end
         if (csr.get_name() == "intr_state") begin
           // As per rtl definition of W1C, hardware must get a chance to make update
           // to interrupt state first, so we need to clear interrupt only after possible
@@ -161,7 +172,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
             // Push new interrupt state update entry into queue
             intr_state_update_queue.push_back(intr_state_write_to_clear_update);
             if (intr_state_update_queue.size() > 2) begin
-              // Delete extra unenecessary entry
+              // Delete extra unnecessary entry
               intr_state_update_queue.delete(0);
             end
           end

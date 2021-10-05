@@ -13,29 +13,15 @@
 
 #include <stdint.h>
 
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/mmio.h"
-#include "sw/device/lib/dif/dif_warn_unused_result.h"
+#include "sw/device/lib/dif/dif_base.h"
+
+#include "sw/device/lib/dif/autogen/dif_alert_handler_autogen.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
-
-/**
- * A toggle state: enabled, or disabled.
- *
- * This enum may be used instead of a `bool` when describing an enabled/disabled
- * state.
- */
-typedef enum dif_alert_handler_toggle {
-  /**
-   * The "enabled" state.
-   */
-  kDifAlertHandlerToggleEnabled,
-  /**
-   * The "disabled" state.
-   */
-  kDifAlertHandlerToggleDisabled,
-} dif_alert_handler_toggle_t;
 
 /**
  * Hardware instantiation parameters for the alert handler.
@@ -45,10 +31,6 @@ typedef enum dif_alert_handler_toggle {
  * design.
  */
 typedef struct dif_alert_handler_params {
-  /**
-   * The base address for the alert handler hardware registers.
-   */
-  mmio_region_t base_addr;
   /**
    * The configured number of alerts.
    *
@@ -64,62 +46,6 @@ typedef struct dif_alert_handler_params {
   // configurable too.
   uint32_t escalation_signal_count;
 } dif_alert_handler_params_t;
-
-/**
- * A handle to alert handler.
- *
- * This type should be treated as opaque by users.
- */
-typedef struct dif_alert_handler {
-  dif_alert_handler_params_t params;
-} dif_alert_handler_t;
-
-/**
- * The result of an alert handler operation.
- */
-typedef enum dif_alert_handler_result {
-  /**
-   * Indicates that the operation succeeded.
-   */
-  kDifAlertHandlerOk = 0,
-  /**
-   * Indicates some unspecified failure.
-   */
-  kDifAlertHandlerError = 1,
-  /**
-   * Indicates that some parameter passed into a function failed a
-   * precondition.
-   *
-   * When this value is returned, no hardware operations occurred.
-   */
-  kDifAlertHandlerBadArg = 2,
-} dif_alert_handler_result_t;
-
-/**
- * The result of an alert handler configuration operation.
- */
-typedef enum dif_alert_handler_config_result {
-  /**
-   * Indicates that the operation succeeded.
-   */
-  kDifAlertHandlerConfigOk = kDifAlertHandlerOk,
-  /**
-   * Indicates some unspecified failure.
-   */
-  kDifAlertHandlerConfigError = kDifAlertHandlerError,
-  /**
-   * Indicates that some parameter passed into a function failed a
-   * precondition.
-   *
-   * When this value is returned, no hardware operations occurred.
-   */
-  kDifAlertHandlerConfigBadArg = kDifAlertHandlerBadArg,
-  /**
-   * Indicates that this operation has been locked out, and can never
-   * succeed until hardware reset.
-   */
-  kDifAlertHandlerConfigLocked = 3,
-} dif_alert_handler_config_result_t;
 
 /**
  * An alert class.
@@ -153,15 +79,6 @@ typedef enum dif_alert_handler_class {
 } dif_alert_handler_class_t;
 
 /**
- * A snapshot of the enablement state of the interrupts for alert handler.
- *
- * This is an opaque type, to be used with the
- * `dif_alert_handler_irq_disable_all()` and
- * `dif_alert_handler_irq_restore_all()` functions.
- */
-typedef uint32_t dif_alert_handler_irq_snapshot_t;
-
-/**
  * An alert, identified by a numeric id.
  *
  * Alerts are hardware-level events indicating that something catastrophic
@@ -186,6 +103,9 @@ typedef enum dif_alert_handler_local_alert {
   kDifAlertHandlerLocalAlertEscalationPingFail,
   kDifAlertHandlerLocalAlertAlertIntegrityFail,
   kDifAlertHandlerLocalAlertEscalationIntegrityFail,
+  kDifAlertHandlerLocalAlertBusIntegrityFail,
+  kDifAlertHandlerLocalAlertShadowedUpdateError,
+  kDifAlertHandlerLocalAlertShadowedStorageError,
 } dif_alert_handler_local_alert_t;
 
 /**
@@ -204,7 +124,7 @@ typedef uint32_t dif_alert_handler_signal_t;
  *
  * This enum describes the sequence of states in the *escalation protocol*,
  * which triggers under two different conditions:
- * - If too many alerts of a particular class accumualte.
+ * - If too many alerts of a particular class accumulate.
  * - If the software IRQ handler for that class times out.
  *
  * When either of these conditions is reached, phase 0 begins. This may trigger
@@ -336,7 +256,7 @@ typedef struct dif_alert_handler_class_config {
    *
    * Class IRQs will still fire regardless of this setting.
    */
-  dif_alert_handler_toggle_t use_escalation_protocol;
+  dif_toggle_t use_escalation_protocol;
 
   /**
    * Whether automatic escalation locking should be used for this class.
@@ -346,7 +266,7 @@ typedef struct dif_alert_handler_class_config {
    * the escalation clear bit, so that software cannot stop escalation once it
    * has begun.
    */
-  dif_alert_handler_toggle_t automatic_locking;
+  dif_toggle_t automatic_locking;
 
   /**
    * The threshold for the class accmulator which, when reached, will
@@ -422,13 +342,15 @@ typedef struct dif_alert_handler_config {
  *
  * This function does not actuate the hardware.
  *
+ * @param base_addr Hardware instantiation base address.
  * @param params Hardware instantiation parameters.
  * @param handler Out param for the initialized handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_init(
-    dif_alert_handler_params_t params, dif_alert_handler_t *handler);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_init(mmio_region_t base_addr,
+                                    dif_alert_handler_params_t params,
+                                    dif_alert_handler_t *alert_handler);
 
 /**
  * Configures alert handler with runtime information.
@@ -441,9 +363,10 @@ dif_alert_handler_result_t dif_alert_handler_init(
  * @param config Runtime configuration parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_config_result_t dif_alert_handler_configure(
-    const dif_alert_handler_t *handler, dif_alert_handler_config_t config);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_configure(
+    const dif_alert_handler_t *alert_handler, dif_alert_handler_params_t params,
+    dif_alert_handler_config_t config);
 /**
  * Locks out alert handler configuration functionality.
  *
@@ -459,9 +382,8 @@ dif_alert_handler_config_result_t dif_alert_handler_configure(
  * @param handler An alert handler handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_lock(
-    const dif_alert_handler_t *handler);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_lock(const dif_alert_handler_t *alert_handler);
 
 /**
  * Checks whether this alert handler is locked.
@@ -472,101 +394,9 @@ dif_alert_handler_result_t dif_alert_handler_lock(
  * @param is_locked Out-param for the locked state.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_is_locked(
-    const dif_alert_handler_t *handler, bool *is_locked);
-
-/**
- * Returns whether a particular interrupt is currently pending.
- *
- * @param handler An alert handler handle.
- * @param alert_class An alert class.
- * @param is_pending Out-param for whether the interrupt is pending.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_is_pending(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    bool *is_pending);
-
-/**
- * Acknowledges a particular interrupt, indicating to the hardware that it has
- * been successfully serviced.
- *
- * @param handler An alert handler handle.
- * @param alert_class An alert class.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_acknowledge(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class);
-
-/**
- * Checks whether a particular interrupt is currently enabled or disabled.
- *
- * @param handler An alert handler handle.
- * @param alert_class An alert class.
- * @param state Out-param toggle state of the interrupt.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_get_enabled(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    dif_alert_handler_toggle_t *state);
-
-/**
- * Sets whether a particular interrupt is currently enabled or disabled.
- *
- * @param handler An alert handler handle.
- * @param alert_class An alert class.
- * @param state The new toggle state for the interrupt.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_set_enabled(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    dif_alert_handler_toggle_t state);
-
-/**
- * Forces a particular interrupt, causing it to be serviced as if hardware had
- * asserted it.
- *
- * @param handler An alert handler handle.
- * @param alert_class An alert class.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_force(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class);
-
-/**
- * Disables all interrupts, optionally snapshotting all toggle state for later
- * restoration.
- *
- * @param handler An alert handler handle.
- * @param snapshot Out-param for the snapshot; may be `NULL`.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_disable_all(
-    const dif_alert_handler_t *handler,
-    dif_alert_handler_irq_snapshot_t *snapshot);
-
-/**
- * Restores interrupts from the given snapshot.
- *
- * This function can be used with `dif_alert_handler_irq_disable_all()` to
- * temporary
- * interrupt save-and-restore.
- *
- * @param handler An alert handler handle.
- * @param snapshot A snapshot to restore from.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_irq_restore_all(
-    const dif_alert_handler_t *handler,
-    const dif_alert_handler_irq_snapshot_t *snapshot);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_is_locked(
+    const dif_alert_handler_t *alert_handler, bool *is_locked);
 
 /**
  * Checks whether an alert is one of the causes for an alert IRQ.
@@ -578,10 +408,10 @@ dif_alert_handler_result_t dif_alert_handler_irq_restore_all(
  * @param is_cause Out-param for whether this alert is a cause.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_alert_is_cause(
-    const dif_alert_handler_t *handler, dif_alert_handler_alert_t alert,
-    bool *is_cause);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_alert_is_cause(
+    const dif_alert_handler_t *alert_handler, dif_alert_handler_params_t params,
+    dif_alert_handler_alert_t alert, bool *is_cause);
 
 /**
  * Clears an alert from the cause vector, similar to an IRQ acknowledgement.
@@ -590,9 +420,10 @@ dif_alert_handler_result_t dif_alert_handler_alert_is_cause(
  * @param alert The alert to acknowledge.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_alert_acknowledge(
-    const dif_alert_handler_t *handler, dif_alert_handler_alert_t alert);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_alert_acknowledge(
+    const dif_alert_handler_t *alert_handler, dif_alert_handler_params_t params,
+    dif_alert_handler_alert_t alert);
 
 /**
  * Checks whether a local alert is one of the causes for an alert IRQ.
@@ -604,10 +435,10 @@ dif_alert_handler_result_t dif_alert_handler_alert_acknowledge(
  * @param is_cause Out-param for whether this alert is a cause.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_local_alert_is_cause(
-    const dif_alert_handler_t *handler, dif_alert_handler_local_alert_t alert,
-    bool *is_cause);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_local_alert_is_cause(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_local_alert_t alert, bool *is_cause);
 
 /**
  * Clears a local alert from the cause vector, similar to an IRQ
@@ -617,9 +448,10 @@ dif_alert_handler_result_t dif_alert_handler_local_alert_is_cause(
  * @param alert The alert to acknowledge.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_local_alert_acknowledge(
-    const dif_alert_handler_t *handler, dif_alert_handler_local_alert_t alert);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_local_alert_acknowledge(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_local_alert_t alert);
 
 /**
  * Checks whether software can clear escalations for this class.
@@ -633,10 +465,10 @@ dif_alert_handler_result_t dif_alert_handler_local_alert_acknowledge(
  * @param can_clear Out-param for the clear enablement state.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_escalation_can_clear(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    bool *can_clear);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_escalation_can_clear(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class, bool *can_clear);
 
 /**
  * Disables escalation clearing for this class.
@@ -647,9 +479,10 @@ dif_alert_handler_result_t dif_alert_handler_escalation_can_clear(
  * @param alert_class The class to disable clearing for.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_escalation_disable_clearing(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_escalation_disable_clearing(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class);
 
 /**
  * Clears an on-going escalation, as well as the class accumulator.
@@ -661,9 +494,10 @@ dif_alert_handler_result_t dif_alert_handler_escalation_disable_clearing(
  * @param alert_class The class to clear an escalation for.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_escalation_clear(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_escalation_clear(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class);
 
 /**
  * Gets the accumulator value for this class.
@@ -681,10 +515,10 @@ dif_alert_handler_result_t dif_alert_handler_escalation_clear(
  * @param alerts Out-param for the accumulator.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_get_accumulator(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    uint16_t *alerts);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_get_accumulator(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class, uint16_t *alerts);
 
 /**
  * Gets the current value of the "escalation counter".
@@ -700,10 +534,10 @@ dif_alert_handler_result_t dif_alert_handler_get_accumulator(
  * @param cycles Out-param for the counter.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_get_escalation_counter(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
-    uint32_t *cycles);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_get_escalation_counter(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class, uint32_t *cycles);
 
 /**
  * Gets the current state of this class.
@@ -715,9 +549,10 @@ dif_alert_handler_result_t dif_alert_handler_get_escalation_counter(
  * @param state Out-param for the class state.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_alert_handler_result_t dif_alert_handler_get_class_state(
-    const dif_alert_handler_t *handler, dif_alert_handler_class_t alert_class,
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_alert_handler_get_class_state(
+    const dif_alert_handler_t *alert_handler,
+    dif_alert_handler_class_t alert_class,
     dif_alert_handler_class_state_t *state);
 
 #ifdef __cplusplus

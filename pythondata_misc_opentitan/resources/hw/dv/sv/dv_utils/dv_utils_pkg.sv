@@ -14,8 +14,11 @@ package dv_utils_pkg;
 `endif
 
   // common parameters used across all benches
-  parameter int NUM_MAX_INTERRUPTS  = 32;
-  parameter int NUM_MAX_ALERTS      = 32;
+  parameter int NUM_MAX_INTERRUPTS = 32;
+  typedef logic [NUM_MAX_INTERRUPTS-1:0] interrupt_t;
+
+  parameter int NUM_MAX_ALERTS = 32;
+  typedef logic [NUM_MAX_ALERTS-1:0] alert_t;
 
   // types & variables
   typedef bit [31:0] uint;
@@ -23,6 +26,13 @@ package dv_utils_pkg;
   typedef bit [15:0] uint16;
   typedef bit [31:0] uint32;
   typedef bit [63:0] uint64;
+
+  // TODO: The above typedefs violate the name rule, which is fixed below. Cleanup the codebase to
+  // use the typedefs below and remove the ones above.
+  typedef bit [7:0]  uint8_t;
+  typedef bit [15:0] uint16_t;
+  typedef bit [31:0] uint32_t;
+  typedef bit [63:0] uint64_t;
 
   // typedef parameterized pins_if for ease of implementation for interrupts and alerts
   typedef virtual pins_if #(NUM_MAX_INTERRUPTS) intr_vif;
@@ -33,15 +43,6 @@ package dv_utils_pkg;
     Host,
     Device
   } if_mode_e;
-
-  // speed for the clock
-  typedef enum int {
-    ClkFreq24Mhz  = 24,
-    ClkFreq25Mhz  = 25,
-    ClkFreq48Mhz  = 48,
-    ClkFreq50Mhz  = 50,
-    ClkFreq100Mhz = 100
-  } clk_freq_mhz_e;
 
   // compare operator types
   typedef enum {
@@ -75,6 +76,14 @@ package dv_utils_pkg;
     HostReqReadWrite = 3
   } host_req_type_e;
 
+  // Enum representing clock frequency difference on 2 clocks
+  typedef enum bit [1:0] {
+    ClkFreqDiffNone,
+    ClkFreqDiffSmall,
+    ClkFreqDiffBig,
+    ClkFreqDiffAny
+  } clk_freq_diff_e;
+
   string msg_id = "dv_utils_pkg";
 
   // return the smaller value of 2 inputs
@@ -85,6 +94,16 @@ package dv_utils_pkg;
   // return the bigger value of 2 inputs
   function automatic int max2(int a, int b);
     return (a > b) ? a : b;
+  endfunction
+
+  // return the biggest value within the given queue of integers.
+  function automatic int max(const ref int int_q[$]);
+    `DV_CHECK_GT_FATAL(int_q.size(), 0, "max function cannot accept an empty queue of integers!",
+                       msg_id)
+    // Assign the first value from the queue in case of negative integers.
+    max = int_q[0];
+    foreach (int_q[i]) max = max2(max, int_q[i]);
+    return max;
   endfunction
 
   // get absolute value of the input. Usage: absolute(val) or absolute(a - b)
@@ -182,7 +201,7 @@ package dv_utils_pkg;
 
   // Periodically check for the existence of a magic file (dv.stop). Exit if it exists. This
   // provides a mechanism to gracefully kill a simulation without direct access to the process.
-  task automatic poll_for_stop(uint interval_ns = 1000, string filename = "dv.stop");
+  task automatic poll_for_stop(uint interval_ns = 10_000, string filename = "dv.stop");
     fork
       while (1) begin
         #(interval_ns * 1ns);

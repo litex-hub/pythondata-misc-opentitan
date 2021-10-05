@@ -193,10 +193,13 @@ static uint32_t read_hex_32(const char *str) {
 }
 
 // Read through trace output (in the lines argument) to pick up any write to
-// the named CSR register. If there is no such write, return default_val.
-static uint32_t read_ext_reg(const std::string &reg_name,
-                             const std::vector<std::string> &lines,
-                             uint32_t default_val) {
+// the named CSR register, updating *dest. If there is no such write and
+// required is true, returns false. Otherwise returns true.
+static bool read_ext_reg(const std::string &reg_name,
+                         const std::vector<std::string> &lines, uint32_t *dest,
+                         bool required) {
+  assert(dest);
+
   // We're interested in lines that show an update to the external register
   // called reg_name. These look something like this:
   //
@@ -204,7 +207,8 @@ static uint32_t read_ext_reg(const std::string &reg_name,
   std::regex re("! otbn\\." + reg_name + ": 0x([0-9a-f]{8})");
   std::smatch match;
 
-  uint32_t val = default_val;
+  uint32_t val = 0;
+  bool found = false;
 
   for (const auto &line : lines) {
     if (std::regex_match(line, match, re)) {
@@ -212,22 +216,17 @@ static uint32_t read_ext_reg(const std::string &reg_name,
       // that we can safely parse them to a uint32_t without risking a parse
       // failure or overflow.
       assert(match.size() == 2);
-      val = (uint32_t)strtoul(match[1].str().c_str(), nullptr, 16);
+      *dest = (uint32_t)strtoul(match[1].str().c_str(), nullptr, 16);
+      found = true;
     }
   }
 
-  return val;
-}
-
-static std::string wlen_val_to_hex_str(uint32_t val[8]) {
-  std::ostringstream oss;
-
-  oss << std::hex << "0x";
-  for (int i = 7; i >= 0; --i) {
-    oss << std::setfill('0') << std::setw(8) << val[i];
+  if (required && !found) {
+    std::cerr << "ERROR: Expected register `" << reg_name
+              << "' not found in output.";
+    return false;
   }
-
-  return oss.str();
+  return true;
 }
 
 ISSWrapper::ISSWrapper() : tmpdir(new TmpDir()) {
@@ -322,21 +321,49 @@ void ISSWrapper::load_i(const std::string &path) {
   run_command(oss.str(), nullptr);
 }
 
+void ISSWrapper::add_loop_warp(uint32_t addr, uint32_t from_cnt,
+                               uint32_t to_cnt) {
+  std::ostringstream oss;
+  oss << "add_loop_warp 0x" << std::hex << addr << std::dec << " " << from_cnt
+      << " " << to_cnt << "\n";
+  run_command(oss.str(), nullptr);
+}
+
+void ISSWrapper::clear_loop_warps() {
+  run_command("clear_loop_warps\n", nullptr);
+}
+
 void ISSWrapper::dump_d(const std::string &path) const {
   std::ostringstream oss;
   oss << "dump_d " << path << "\n";
   run_command(oss.str(), nullptr);
 }
 
-void ISSWrapper::start(uint32_t addr) {
+void ISSWrapper::start() {
   std::ostringstream oss;
-  oss << "start " << addr << "\n";
+  oss << "start "
+      << "\n";
   run_command(oss.str(), nullptr);
+
+  // Zero our mirror of INSN_CNT. This gets zeroed on this cycle in the Python
+  // model, but the text-based interface doesn't expose the change (and doing
+  // so would require some complicated rejigging). We'll get valid numbers as
+  // soon as an instruction executes, but zeroing here avoids having an old
+  // number for the stall cycles at the start of the second and subsequent
+  // runs.
+  mirrored_.insn_cnt = 0;
+
+  // Set our mirror of STATUS to BUSY_EXECUTE (= 1).
+  mirrored_.status = 1;
 }
 
-void ISSWrapper::edn_rnd_data(uint32_t edn_rnd_data[8]) {
+void ISSWrapper::edn_rnd_cdc_done() {
+  run_command("edn_rnd_cdc_done\n", nullptr);
+}
+
+void ISSWrapper::edn_step(uint32_t edn_rnd_data) {
   std::ostringstream oss;
-  oss << "edn_rnd_data " << wlen_val_to_hex_str(edn_rnd_data) << "\n";
+  oss << "edn_step " << std::hex << "0x" << edn_rnd_data << "\n";
   run_command(oss.str(), nullptr);
 }
 
@@ -344,22 +371,38 @@ void ISSWrapper::edn_urnd_reseed_complete() {
   run_command("edn_urnd_reseed_complete\n", nullptr);
 }
 
-std::pair<int, uint32_t> ISSWrapper::step(bool gen_trace) {
+int ISSWrapper::step(bool gen_trace) {
   std::vector<std::string> lines;
-  bool mismatch = false;
+  bool error = false;
 
   run_command("step\n", &lines);
   if (gen_trace) {
-    mismatch = !OtbnTraceChecker::get().OnIssTrace(lines);
+    error = !OtbnTraceChecker::get().OnIssTrace(lines);
   }
 
-  // The busy flag is bit 0 of the STATUS register, so is cleared on this cycle
-  // if we see a write that sets the value to an even number.
-  bool done = (read_ext_reg("STATUS", lines, 1) & 1) == 0;
-  uint32_t err_bits = done ? read_ext_reg("ERR_BITS", lines, 0) : 0;
+  // Try to read STATUS, which is written when execution ends. Execution has
+  // finished if status_ is either 0 (IDLE) or 0xff (LOCKED)
+  read_ext_reg("STATUS", lines, &mirrored_.status, false);
+  bool done = (mirrored_.status == 0) || (mirrored_.status == 0xff);
 
-  int ret_code = mismatch ? -1 : (done ? 1 : 0);
-  return std::make_pair(ret_code, err_bits);
+  // Always try to read INSN_CNT
+  read_ext_reg("INSN_CNT", lines, &mirrored_.insn_cnt, false);
+
+  // If we've just finished, try to read ERR_BITS and STOP_PC, storing
+  // them into fields on this structure. The caller will retrieve them
+  // after we've returned.
+  if (done) {
+    error |= !read_ext_reg("ERR_BITS", lines, &mirrored_.err_bits, true);
+    error |= !read_ext_reg("STOP_PC", lines, &mirrored_.stop_pc, true);
+  }
+
+  return error ? -1 : (done ? 1 : 0);
+}
+
+void ISSWrapper::reset(bool gen_trace) {
+  if (gen_trace)
+    OtbnTraceChecker::get().Flush();
+  run_command("reset\n", nullptr);
 }
 
 void ISSWrapper::get_regs(std::array<uint32_t, 32> *gprs,
@@ -533,12 +576,17 @@ bool ISSWrapper::read_child_response(std::vector<std::string> *dst) const {
   }
 }
 
-bool ISSWrapper::run_command(const std::string &cmd,
+void ISSWrapper::run_command(const std::string &cmd,
                              std::vector<std::string> *dst) const {
   assert(cmd.size() > 0);
   assert(cmd.back() == '\n');
 
   fputs(cmd.c_str(), child_write_file);
   fflush(child_write_file);
-  return read_child_response(dst);
+  if (!read_child_response(dst)) {
+    std::ostringstream oss;
+    std::string cmd_line = cmd.substr(0, cmd.size() - 1);
+    oss << "Failed to run command '" << cmd_line << "': EOF from ISS.";
+    throw std::runtime_error(oss.str());
+  }
 }

@@ -69,36 +69,56 @@ module prim_alert_sender
   /////////////////////////////////
   // decode differential signals //
   /////////////////////////////////
-  logic ping_sigint, ping_event;
+  logic ping_sigint, ping_event, ping_n, ping_p;
 
-  prim_diff_decode #(
-    .AsyncOn(AsyncOn)
-  ) i_decode_ping (
-    .clk_i,
-    .rst_ni,
-    .diff_pi  ( alert_rx_i.ping_p ),
-    .diff_ni  ( alert_rx_i.ping_n ),
-    .level_o  (                   ),
-    .rise_o   (                   ),
-    .fall_o   (                   ),
-    .event_o  ( ping_event        ),
-    .sigint_o ( ping_sigint       )
+  // This prevents further tool optimizations of the differential signal.
+  prim_buf #(
+    .Width(2)
+  ) u_prim_buf_ping (
+    .in_i({alert_rx_i.ping_n,
+           alert_rx_i.ping_p}),
+    .out_o({ping_n,
+            ping_p})
   );
 
-  logic ack_sigint, ack_level;
+  prim_diff_decode #(
+    .AsyncOn(AsyncOn)
+  ) u_decode_ping (
+    .clk_i,
+    .rst_ni,
+    .diff_pi  ( ping_p      ),
+    .diff_ni  ( ping_n      ),
+    .level_o  (             ),
+    .rise_o   (             ),
+    .fall_o   (             ),
+    .event_o  ( ping_event  ),
+    .sigint_o ( ping_sigint )
+  );
+
+  logic ack_sigint, ack_level, ack_n, ack_p;
+
+  // This prevents further tool optimizations of the differential signal.
+  prim_buf #(
+    .Width(2)
+  ) u_prim_buf_ack (
+    .in_i({alert_rx_i.ack_n,
+           alert_rx_i.ack_p}),
+    .out_o({ack_n,
+            ack_p})
+  );
 
   prim_diff_decode #(
     .AsyncOn(AsyncOn)
-  ) i_decode_ack (
+  ) u_decode_ack (
     .clk_i,
     .rst_ni,
-    .diff_pi  ( alert_rx_i.ack_p ),
-    .diff_ni  ( alert_rx_i.ack_n ),
-    .level_o  ( ack_level        ),
-    .rise_o   (                  ),
-    .fall_o   (                  ),
-    .event_o  (                  ),
-    .sigint_o ( ack_sigint       )
+    .diff_pi  ( ack_p      ),
+    .diff_ni  ( ack_n      ),
+    .level_o  ( ack_level  ),
+    .rise_o   (            ),
+    .fall_o   (            ),
+    .event_o  (            ),
+    .sigint_o ( ack_sigint )
   );
 
 
@@ -111,12 +131,11 @@ module prim_alert_sender
     AlertHsPhase2,
     PingHsPhase1,
     PingHsPhase2,
-    SigInt,
     Pause0,
     Pause1
     } state_e;
   state_e state_d, state_q;
-  logic alert_p, alert_n, alert_pq, alert_nq, alert_pd, alert_nd;
+  logic alert_pq, alert_nq, alert_pd, alert_nd;
   logic sigint_detected;
 
   assign sigint_detected = ack_sigint | ping_sigint;
@@ -164,8 +183,8 @@ module prim_alert_sender
   always_comb begin : p_fsm
     // default
     state_d   = state_q;
-    alert_p   = 1'b0;
-    alert_n   = 1'b1;
+    alert_pd  = 1'b0;
+    alert_nd  = 1'b1;
     ping_clr  = 1'b0;
     alert_clr = 1'b0;
 
@@ -174,8 +193,8 @@ module prim_alert_sender
         // alert always takes precedence
         if (alert_trigger || ping_trigger) begin
           state_d = (alert_trigger) ? AlertHsPhase1 : PingHsPhase1;
-          alert_p = 1'b1;
-          alert_n = 1'b0;
+          alert_pd = 1'b1;
+          alert_nd = 1'b0;
         end
       end
       // waiting for ack from receiver
@@ -183,8 +202,8 @@ module prim_alert_sender
         if (ack_level) begin
           state_d  = AlertHsPhase2;
         end else begin
-          alert_p  = 1'b1;
-          alert_n  = 1'b0;
+          alert_pd = 1'b1;
+          alert_nd = 1'b0;
         end
       end
       // wait for deassertion of ack
@@ -199,8 +218,8 @@ module prim_alert_sender
         if (ack_level) begin
           state_d  = PingHsPhase2;
         end else begin
-          alert_p  = 1'b1;
-          alert_n  = 1'b0;
+          alert_pd = 1'b1;
+          alert_nd = 1'b0;
         end
       end
       // wait for deassertion of ack
@@ -214,60 +233,45 @@ module prim_alert_sender
       Pause0: begin
         state_d = Pause1;
       end
-
       // clear and ack alert request if it was set
       Pause1: begin
         state_d = Idle;
       end
-
-      // we have a signal integrity issue at one of
-      // the incoming diff pairs. this condition is
-      // signalled by setting the output diffpair
-      // to the same value and continuously toggling
-      // them.
-      SigInt: begin
-        state_d  = Idle;
-        if (sigint_detected) begin
-          state_d  = SigInt;
-          alert_p  = ~alert_pq;
-          alert_n  = ~alert_pq;
-        end
-      end
       // catch parasitic states
       default : state_d = Idle;
     endcase
-    // bail out if a signal integrity issue has been detected
-    if (sigint_detected && (state_q != SigInt)) begin
-      state_d   = SigInt;
-      alert_p   = 1'b0;
-      alert_n   = 1'b0;
-      ping_clr  = 1'b0;
+
+    // we have a signal integrity issue at one of the incoming diff pairs. this condition is
+    // signalled by setting the output diffpair to zero. If the sigint has disappeared, we clear
+    // the ping request state of this sender and go back to idle.
+    if (sigint_detected) begin
+      state_d   = Idle;
+      alert_pd  = 1'b0;
+      alert_nd  = 1'b0;
+      ping_clr  = 1'b1;
       alert_clr = 1'b0;
     end
   end
 
   // This prevents further tool optimizations of the differential signal.
-  prim_buf u_prim_buf_p (
-    .in_i(alert_p),
-    .out_o(alert_pd)
-  );
-  prim_buf u_prim_buf_n (
-    .in_i(alert_n),
-    .out_o(alert_nd)
+  prim_generic_flop #(
+    .Width     (2),
+    .ResetValue(2'b10)
+  ) u_prim_generic_flop (
+    .clk_i,
+    .rst_ni,
+    .d_i({alert_nd, alert_pd}),
+    .q_o({alert_nq, alert_pq})
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_reg
     if (!rst_ni) begin
       state_q          <= Idle;
-      alert_pq         <= 1'b0;
-      alert_nq         <= 1'b1;
       alert_set_q      <= 1'b0;
       alert_test_set_q <= 1'b0;
       ping_set_q       <= 1'b0;
     end else begin
       state_q          <= state_d;
-      alert_pq         <= alert_pd;
-      alert_nq         <= alert_nd;
       alert_set_q      <= alert_set_d;
       alert_test_set_q <= alert_test_set_d;
       ping_set_q       <= ping_set_d;
@@ -279,15 +283,28 @@ module prim_alert_sender
   // assertions //
   ////////////////
 
+// however, since we use sequence constructs below, we need to wrap the entire block again.
+// typically, the ASSERT macros already contain this INC_ASSERT macro.
+`ifdef INC_ASSERT
   // check whether all outputs have a good known state after reset
   `ASSERT_KNOWN(AlertPKnownO_A, alert_tx_o)
 
   if (AsyncOn) begin : gen_async_assert
+    sequence PingSigInt_S;
+      alert_rx_i.ping_p == alert_rx_i.ping_n [*2];
+    endsequence
+    sequence AckSigInt_S;
+      alert_rx_i.ping_p == alert_rx_i.ping_n [*2];
+    endsequence
     // check propagation of sigint issues to output within three cycles
-    `ASSERT(SigIntPing_A, alert_rx_i.ping_p == alert_rx_i.ping_n [*2] |->
+    // shift sequence to the right to avoid reset effects.
+    `ASSERT(SigIntPing_A, ##1 PingSigInt_S |->
         ##3 alert_tx_o.alert_p == alert_tx_o.alert_n)
-    `ASSERT(SigIntAck_A,  alert_rx_i.ack_p == alert_rx_i.ack_n   [*2] |->
+    `ASSERT(SigIntAck_A, ##1 AckSigInt_S |->
         ##3 alert_tx_o.alert_p == alert_tx_o.alert_n)
+    // Test in-band FSM reset request (via signal integrity error)
+    `ASSERT(InBandInitFsm_A, PingSigInt_S or AckSigInt_S |-> ##3 state_q == Idle)
+    `ASSERT(InBandInitPing_A, PingSigInt_S or AckSigInt_S |-> ##3 !ping_set_q)
     // output must be driven diff unless sigint issue detected
     `ASSERT(DiffEncoding_A, (alert_rx_i.ack_p ^ alert_rx_i.ack_n) &&
         (alert_rx_i.ping_p ^ alert_rx_i.ping_n) |->
@@ -301,11 +318,20 @@ module prim_alert_sender
         (alert_rx_i.ping_p ^ alert_rx_i.ping_n) ##2 state_q == Idle |=>
         $rose(alert_tx_o.alert_p), clk_i, !rst_ni || (alert_tx_o.alert_p == alert_tx_o.alert_n))
   end else begin : gen_sync_assert
+    sequence PingSigInt_S;
+      alert_rx_i.ping_p == alert_rx_i.ping_n;
+    endsequence
+    sequence AckSigInt_S;
+      alert_rx_i.ping_p == alert_rx_i.ping_n;
+    endsequence
     // check propagation of sigint issues to output within one cycle
-    `ASSERT(SigIntPing_A, alert_rx_i.ping_p == alert_rx_i.ping_n |=>
+    `ASSERT(SigIntPing_A, PingSigInt_S |=>
         alert_tx_o.alert_p == alert_tx_o.alert_n)
-    `ASSERT(SigIntAck_A,  alert_rx_i.ack_p == alert_rx_i.ack_n   |=>
+    `ASSERT(SigIntAck_A,  AckSigInt_S |=>
         alert_tx_o.alert_p == alert_tx_o.alert_n)
+    // Test in-band FSM reset request (via signal integrity error)
+    `ASSERT(InBandInitFsm_A, PingSigInt_S or AckSigInt_S |=> state_q == Idle)
+    `ASSERT(InBandInitPing_A, PingSigInt_S or AckSigInt_S |=> !ping_set_q)
     // output must be driven diff unless sigint issue detected
     `ASSERT(DiffEncoding_A, (alert_rx_i.ack_p ^ alert_rx_i.ack_n) &&
         (alert_rx_i.ping_p ^ alert_rx_i.ping_n) |=> alert_tx_o.alert_p ^ alert_tx_o.alert_n)
@@ -338,5 +364,6 @@ module prim_alert_sender
   // if alert_test_i is true, handshakes should be continuously repeated
   `ASSERT(AlertTestHs_A, alert_test_i && state_q == Idle |=> $rose(alert_tx_o.alert_p),
       clk_i, !rst_ni || (alert_tx_o.alert_p == alert_tx_o.alert_n))
+`endif
 
 endmodule : prim_alert_sender

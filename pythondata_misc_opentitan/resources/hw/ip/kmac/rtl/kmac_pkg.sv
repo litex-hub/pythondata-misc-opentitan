@@ -80,8 +80,8 @@ package kmac_pkg;
   } kmac_cmd_e;
 
   // Timer
-  parameter int unsigned EntropyTimerW = 16;
-  parameter int unsigned EdnWaitTimerW = 16;
+  parameter int unsigned TimerPrescalerW = 10;
+  parameter int unsigned EdnWaitTimerW   = 16;
 
   // Entropy Mode Selection : Should be matched to register package Enum value
   typedef enum logic [1:0] {
@@ -90,6 +90,14 @@ package kmac_pkg;
     EntropyModeSw   = 2'h 2
   } entropy_mode_e;
 
+  // entropy lfsr related
+  parameter int unsigned EntropyLfsrW = 64;
+  typedef logic [EntropyLfsrW-1:0][$clog2(EntropyLfsrW)-1:0] lfsr_perm_t;
+  parameter lfsr_perm_t RndCnstLfsrPermDefault = {
+    128'h810970222da1b1b1187551c3ff94574a,
+    256'h970d171aa41948cbe3a58167d3b47c268acfcbb2fa627b9c0a2fdf578f4ed32b
+  };
+
   ///////////////////////////
   // Application interface //
   ///////////////////////////
@@ -97,7 +105,7 @@ package kmac_pkg;
   // Number of the application interface
   // Currently KMAC has three interface.
   // 0: KeyMgr
-  // 1: OTP_CTRL
+  // 1: LC_CTRL
   // 2: ROM_CTRL
   // Make sure to change `width` of app inter-module signal definition
   // if this value is changed.
@@ -118,20 +126,25 @@ package kmac_pkg;
     AppKMAC   = 2
   } app_mode_e;
 
-  typedef struct packed {
-    app_mode_e                         Mode;
+  // Predefined encoded_string
+  parameter logic [15:0] EncodedStringEmpty = 16'h 0001;
+  parameter logic [47:0] EncodedStringKMAC = 48'h 4341_4D4B_2001;
+  parameter int unsigned NSPrefixW = sha3_pkg::NSRegisterSize*8;
 
-    sha3_pkg::keccak_strength_e        Strength;
+  typedef struct packed {
+    app_mode_e Mode;
+
+    sha3_pkg::keccak_strength_e Strength;
 
     // PrefixMode determines the origin value of Prefix that is used in KMAC
     // and cSHAKE operations.
     // Choose **0** for CSRs (!!PREFIX), or **1** to use `Prefix` parameter
     // below.
-    bit                                PrefixMode;
+    bit PrefixMode;
 
     // If `PrefixMode` is 1'b 1, then this `Prefix` value will be used in
     // cSHAKE or KMAC operation.
-    logic [sha3_pkg::NSRegisterSize*8-1:0] Prefix;
+    logic [NSPrefixW-1:0] Prefix;
   } app_config_t;
 
   parameter app_config_t AppCfg [NumAppIntf] = '{
@@ -143,12 +156,13 @@ package kmac_pkg;
       Prefix:     '0       // Not used in CSR prefix mode
     },
 
-    // OTP
+    // LC_CTRL
     '{
       Mode:       AppCShake,
-      Strength:   sha3_pkg::L256,
+      Strength:   sha3_pkg::L128,
       PrefixMode: 1'b 1,     // Use prefix parameter
-      Prefix:     'h 0       // TODO: Determine the prefix value
+      // {fname: encode_string(""), custom_str: encode_string("LC_CTRL")}
+      Prefix: NSPrefixW'(88'h 4c_5254_435f_434C_3801_0001)
     },
 
     // ROM_CTRL
@@ -156,13 +170,26 @@ package kmac_pkg;
       Mode:       AppCShake,
       Strength:   sha3_pkg::L256,
       PrefixMode: 1'b 1,     // Use prefix parameter
-      Prefix:     'h 0       // TODO: Determine the prefix value
+      // {fname: encode_string(""), custom_str: encode_string("ROM_CTRL")}
+      Prefix: NSPrefixW'(96'h 4c52_5443_5f4d_4f52_4001_0001)
     }
   };
 
+  // Exporting the app internal mux selection enum into the package. So that DV
+  // can use this enum in its scoreboard.
+  typedef enum logic [2:0] {
+    SelNone   = 3'b 000,
+    SelApp    = 3'b 101,
+    SelOutLen = 3'b 110,
+    SelSw     = 3'b 010
+  } app_mux_sel_e ;
+
+
+
   // MsgWidth : 64
   // MsgStrbW : 8
-  parameter int unsigned AppDigestW = 256;
+  parameter int unsigned AppDigestW = 384;
+  parameter int unsigned AppKeyW = 256;
 
   typedef struct packed {
     logic valid;
@@ -223,9 +250,9 @@ package kmac_pkg;
     //   - Sw writes data into Msg FIFO when KeyMgr is in operating
     ErrSwPushedMsgFifo = 8'h 02,
 
-    // ErrSwPushWrongCmd
-    //  - Sw writes any command except CmdStart when Idle.
-    ErrSwPushedWrongCmd = 8'h 03,
+    // ErrSwIssuedCmdInAppActive
+    //  - Sw writes any command while AppIntf is in active.
+    ErrSwIssuedCmdInAppActive = 8'h 03,
 
     // ErrWaitTimerExpired
     // Entropy Wait timer expired. Something wrong on EDN i/f
@@ -233,7 +260,16 @@ package kmac_pkg;
 
     // ErrIncorrectEntropyMode
     // Incorrect Entropy mode when entropy is ready
-    ErrIncorrectEntropyMode = 8'h 05
+    ErrIncorrectEntropyMode = 8'h 05,
+
+    // ErrUnexpectedModeStrength
+    ErrUnexpectedModeStrength = 8'h 06,
+
+    // ErrIncorrectFunctionName "KMAC"
+    ErrIncorrectFunctionName = 8'h 07,
+
+    // ErrSwCmdSequence
+    ErrSwCmdSequence = 8'h 08
   } err_code_e;
 
   typedef struct packed {

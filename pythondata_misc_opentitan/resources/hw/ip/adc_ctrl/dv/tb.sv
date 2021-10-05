@@ -17,6 +17,8 @@ module tb;
   wire devmode;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
 
+  `DV_ALERT_IF_CONNECT
+
   // interfaces
   clk_rst_if clk_rst_if (
     .clk  (clk),
@@ -39,13 +41,15 @@ module tb;
     .clk_i               (clk),
     .rst_ni              (rst_n),
     .clk_aon_i           (clk_aon),
-    .rst_slow_ni         (rst_aon_n),
+    .rst_aon_ni          (rst_aon_n),
     .tl_i                (tl_if.h2d),
     .tl_o                (tl_if.d2h),
+    .alert_rx_i          (alert_rx),
+    .alert_tx_o          (alert_tx),
     .adc_o               (),
     .adc_i               ('0),
     .intr_debug_cable_o  (interrupts[0]),
-    .debug_cable_wakeup_o()
+    .wkup_req_o          ()
   );
 
   initial begin

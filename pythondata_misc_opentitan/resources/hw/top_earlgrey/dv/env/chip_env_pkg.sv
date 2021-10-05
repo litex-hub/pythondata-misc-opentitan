@@ -3,26 +3,31 @@
 // SPDX-License-Identifier: Apache-2.0
 
 package chip_env_pkg;
+
   // dep packages
   import uvm_pkg::*;
   import top_pkg::*;
-  import flash_ctrl_pkg::*;
-  import otp_ctrl_pkg::*;
-  import sram_ctrl_pkg::*;
-  import dv_utils_pkg::*;
-  import dv_base_reg_pkg::*;
+
+  import bus_params_pkg::*;
+  import chip_ral_pkg::*;
+  import cip_base_pkg::*;
   import csr_utils_pkg::*;
+  import digestpp_dpi_pkg::*;
+  import dv_base_reg_pkg::*;
+  import dv_lib_pkg::*;
+  import dv_utils_pkg::*;
+  import flash_ctrl_pkg::*;
+  import jtag_riscv_agent_pkg::*;
+  import kmac_pkg::*;
+  import mem_bkdr_util_pkg::*;
+  import otp_ctrl_pkg::*;
+  import spi_agent_pkg::*;
+  import sram_ctrl_pkg::*;
+  import str_utils_pkg::*;
+  import sw_test_status_pkg::*;
   import tl_agent_pkg::*;
   import uart_agent_pkg::*;
-  import jtag_agent_pkg::*;
-  import spi_agent_pkg::*;
-  import dv_lib_pkg::*;
-  import cip_base_pkg::*;
-  import chip_ral_pkg::*;
-  import sw_test_status_pkg::*;
   import xbar_env_pkg::*;
-  import bus_params_pkg::*;
-  import str_utils_pkg::*;
 
   // macro includes
   `include "uvm_macros.svh"
@@ -33,6 +38,7 @@ package chip_env_pkg;
 
   // local parameters and types
   parameter uint NUM_GPIOS = 16;
+  parameter uint NUM_UARTS = 4;
   // Buffer is half of SPI_DEVICE Dual Port SRAM
   parameter uint SPI_FRAME_BYTE_SIZE = spi_device_reg_pkg::SPI_DEVICE_BUFFER_SIZE/2;
 
@@ -45,22 +51,16 @@ package chip_env_pkg;
   typedef virtual sw_logger_if          sw_logger_vif;
   typedef virtual sw_test_status_if     sw_test_status_vif;
 
-  // backdoors
-  typedef virtual mem_bkdr_if mem_bkdr_vif;
-  typedef virtual mem_bkdr_if #(.MEM_PARITY(1)) parity_mem_bkdr_vif;
-  typedef virtual mem_bkdr_if #(.MEM_ECC(1)) ecc_mem_bkdr_vif;
-
   // Types of memories in the chip.
   typedef enum {
-    Rom,
-    RamMain,
-    RamRet,
-    FlashBank0,
-    FlashBank1,
+    FlashBank0Data,
+    FlashBank1Data,
     FlashBank0Info,
     FlashBank1Info,
     Otp,
-    SpiMem
+    RamMain,
+    RamRet,
+    Rom
   } chip_mem_e;
 
   // On OpenTitan, we deal with 4 types of SW - ROM, the main test, the OTBN test and the OTP image.
@@ -72,22 +72,17 @@ package chip_env_pkg;
     SwTypeOtp   // OTP image.
   } sw_type_e;
 
-  // functions
-  function automatic bit [bus_params_pkg::BUS_AW-1:0] get_chip_mem_base_addr(chip_mem_e mem);
-    case (mem)
-      Rom:    return top_earlgrey_pkg::TOP_EARLGREY_ROM_CTRL_ROM_BASE_ADDR;
-      RamMain:return top_earlgrey_pkg::TOP_EARLGREY_RAM_MAIN_BASE_ADDR;
-      RamRet: return top_earlgrey_pkg::TOP_EARLGREY_RAM_RET_AON_BASE_ADDR;
-      FlashBank0, FlashBank0Info: return top_earlgrey_pkg::TOP_EARLGREY_EFLASH_BASE_ADDR;
-      FlashBank1, FlashBank1Info: return top_earlgrey_pkg::TOP_EARLGREY_EFLASH_BASE_ADDR +
-                                         flash_ctrl_pkg::PagesPerBank *
-                                         flash_ctrl_pkg::WordsPerPage *
-                                         flash_ctrl_pkg::DataWidth / 8;
-      SpiMem: return top_earlgrey_pkg::TOP_EARLGREY_SPI_DEVICE_BASE_ADDR
-                      + spi_device_reg_pkg::SPI_DEVICE_BUFFER_OFFSET ; // TODO
-      default:`uvm_fatal("chip_env_pkg", {"Invalid input: ", mem.name()})
-    endcase
-  endfunction
+  typedef enum bit [1:0] {
+    DeselectJtagTap = 2'b00,
+    SelectLCJtagTap = 2'b01,
+    SelectRVJtagTap = 2'b10
+  } chip_tap_type_e;
+
+  // Two status for LC JTAG to identify if LC state transition is successful.
+  typedef enum {
+    LcReady,
+    LcTransitionSuccessful
+  } lc_ctrl_status_e;
 
   // Extracts the address and size of a const symbol in a SW test (supplied as an ELF file).
   //

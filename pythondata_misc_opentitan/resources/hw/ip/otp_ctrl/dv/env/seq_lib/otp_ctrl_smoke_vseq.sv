@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // smoke test vseq to walk through DAI states and request keys
-`define PART_ADDR_RANGE(i) \
+`define PART_CONTENT_RANGE(i) \
     {[PartInfo[``i``].offset : (PartInfo[``i``].offset + PartInfo[``i``].size - DIGEST_SIZE - 1)]}
 
 class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
@@ -11,42 +11,42 @@ class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
 
   `uvm_object_new
 
-  bit do_reset_in_seq = 1;
-
   rand bit                           do_req_keys, do_lc_trans;
   rand bit                           access_locked_parts;
-  rand bit [TL_AW-1:0]               dai_addr;
+  rand bit                           rand_wr, rand_rd, rd_sw_tlul_rd;
+  rand bit [TL_DW-1:0]               dai_addr;
   rand bit [TL_DW-1:0]               wdata0, wdata1;
   rand int                           num_dai_op;
   rand otp_ctrl_part_pkg::part_idx_e part_idx;
   rand bit                           check_regwen_val, check_trigger_regwen_val;
   rand bit [TL_DW-1:0]               check_timeout_val;
   rand bit [1:0]                     check_trigger_val;
-  rand bit [TL_DW-1:0]               ecc_err_mask, ecc_chk_err_mask;
+  rand otp_ecc_err_e                 ecc_otp_err, ecc_chk_err;
 
   constraint no_access_err_c {access_locked_parts == 0;}
 
   // LC partition does not allow DAI access
-  constraint partition_index_c {part_idx inside {[CreatorSwCfgIdx:Secret2Idx]};}
+  constraint partition_index_c {part_idx inside {[VendorTestIdx:Secret2Idx]};}
 
   constraint dai_wr_legal_addr_c {
-    if (part_idx == CreatorSwCfgIdx) dai_addr inside `PART_ADDR_RANGE(CreatorSwCfgIdx);
-    if (part_idx == OwnerSwCfgIdx)   dai_addr inside `PART_ADDR_RANGE(OwnerSwCfgIdx);
-    if (part_idx == HwCfgIdx)        dai_addr inside `PART_ADDR_RANGE(HwCfgIdx);
-    if (part_idx == Secret0Idx)      dai_addr inside `PART_ADDR_RANGE(Secret0Idx);
-    if (part_idx == Secret1Idx)      dai_addr inside `PART_ADDR_RANGE(Secret1Idx);
-    if (part_idx == Secret2Idx)      dai_addr inside `PART_ADDR_RANGE(Secret2Idx);
-    if (part_idx == LifeCycleIdx)    dai_addr inside `PART_ADDR_RANGE(LifeCycleIdx);
+    if (part_idx == VendorTestIdx)   dai_addr inside `PART_CONTENT_RANGE(VendorTestIdx);
+    if (part_idx == CreatorSwCfgIdx) dai_addr inside `PART_CONTENT_RANGE(CreatorSwCfgIdx);
+    if (part_idx == OwnerSwCfgIdx)   dai_addr inside `PART_CONTENT_RANGE(OwnerSwCfgIdx);
+    if (part_idx == HwCfgIdx)        dai_addr inside `PART_CONTENT_RANGE(HwCfgIdx);
+    if (part_idx == Secret0Idx)      dai_addr inside `PART_CONTENT_RANGE(Secret0Idx);
+    if (part_idx == Secret1Idx)      dai_addr inside `PART_CONTENT_RANGE(Secret1Idx);
+    if (part_idx == Secret2Idx)      dai_addr inside `PART_CONTENT_RANGE(Secret2Idx);
+    if (part_idx == LifeCycleIdx)    dai_addr inside `PART_CONTENT_RANGE(LifeCycleIdx);
+    solve part_idx before dai_addr;
   }
 
   constraint dai_wr_blank_addr_c {
-    dai_addr inside {used_dai_addr_q} == 0;
     dai_addr % 4 == 0;
     if (part_idx inside {[Secret0Idx:Secret2Idx]}) dai_addr % 8 == 0;
   }
 
   constraint num_trans_c {
-    num_trans  inside {[1:20]};
+    num_trans  inside {[1:2]};
     num_dai_op inside {[1:50]};
   }
 
@@ -59,12 +59,12 @@ class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
     check_timeout_val inside {0, [100_000:'1]};
   }
 
-  constraint ecc_err_c {ecc_err_mask == 0;}
+  constraint ecc_otp_err_c {ecc_otp_err == OtpNoEccErr;}
 
-  constraint ecc_chk_err_c {ecc_chk_err_mask == 0;}
+  constraint ecc_chk_err_c {ecc_chk_err == OtpNoEccErr;}
 
   virtual task dut_init(string reset_kind = "HARD");
-    if (do_reset_in_seq && do_apply_reset) begin
+    if (do_apply_reset) begin
       lc_prog_blocking = 1;
       super.dut_init(reset_kind);
       csr_wr(ral.intr_enable, en_intr);
@@ -111,13 +111,18 @@ class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
       if (check_trigger_val && `gmv(ral.check_trigger_regwen)) begin
         csr_wr(ral.check_timeout, check_timeout_val);
       end
-      trigger_checks(.val(check_trigger_val), .wait_done(1), .ecc_err_mask(ecc_chk_err_mask));
+      trigger_checks(.val(check_trigger_val), .wait_done(1), .ecc_err(ecc_chk_err));
 
-      if (do_req_keys) begin
+      if (do_req_keys && !cfg.otp_ctrl_vif.alert_reqs) begin
         req_otbn_key();
         req_flash_addr_key();
         req_flash_data_key();
         req_all_sram_keys();
+      end
+
+      if (do_lc_trans && !cfg.otp_ctrl_vif.alert_reqs) begin
+        req_lc_transition(do_lc_trans, lc_prog_blocking);
+        if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code[0]), .value(tlul_val));
       end
 
       if ($urandom_range(0, 1) && access_locked_parts) write_sw_rd_locks();
@@ -132,36 +137,26 @@ class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
                   i, num_dai_op, dai_addr, part_idx), UVM_HIGH)
 
         // OTP write via DAI
-        if ($urandom_range(0, 1) && !digest_calculated[part_idx]) begin
+        if (rand_wr && !digest_calculated[part_idx]) begin
           dai_wr(dai_addr, wdata0, wdata1);
-          if (collect_used_addr) used_dai_addr_q.push_back(dai_addr);
+          if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code[0]), .value(tlul_val));
         end
 
-        if ($urandom_range(0, 1)) begin
+        if (rand_rd) begin
           // OTP read via DAI, check data in scb
-          dai_rd(dai_addr, ecc_err_mask, rdata0, rdata1);
+          dai_rd(dai_addr, ecc_otp_err, rdata0, rdata1);
         end
 
         // if write sw partitions, check tlul window
-        if (is_sw_part(dai_addr) && ($urandom_range(0, 1))) begin
+        if (is_sw_part(dai_addr) && rd_sw_tlul_rd) begin
           uvm_reg_addr_t tlul_addr = cfg.ral.get_addr_from_offset(get_sw_window_offset(dai_addr));
-
-          // random issue reset, OTP content should not be cleared
-          if ($urandom_range(0, 9) == 9) dut_init();
-
           // tlul error rsp is checked in scoreboard
           tl_access(.addr(tlul_addr), .write(0), .data(tlul_val), .blocking(1), .check_rsp(0));
         end
 
         if ($urandom_range(0, 1)) csr_rd(.ptr(ral.direct_access_regwen), .value(tlul_val));
         if ($urandom_range(0, 1)) csr_rd(.ptr(ral.status), .value(tlul_val));
-        if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code), .value(tlul_val));
-      end
-
-      if (do_lc_trans) begin
-        req_lc_transition(do_lc_trans, lc_prog_blocking);
-        req_lc_token();
-        if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code), .value(tlul_val));
+        if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code[0]), .value(tlul_val));
       end
 
       // Read/write test access memory
@@ -174,17 +169,31 @@ class otp_ctrl_smoke_vseq extends otp_ctrl_base_vseq;
       write_sw_digests();
       if ($urandom_range(0, 1)) csr_rd(.ptr(ral.status), .value(tlul_val));
 
-      if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code), .value(tlul_val));
+      if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code[0]), .value(tlul_val));
 
       if ($urandom_range(0, 1)) rd_digests();
       dut_init();
 
       // read and check digest in scb
       rd_digests();
+
+      // send request to the interfaces again after partitions are locked
+      if (do_lc_trans && !cfg.otp_ctrl_vif.alert_reqs) begin
+        req_lc_transition(do_lc_trans, lc_prog_blocking);
+        if (cfg.otp_ctrl_vif.lc_prog_req == 0) csr_rd(.ptr(ral.err_code[0]), .value(tlul_val));
+      end
+
+      if (do_req_keys && !cfg.otp_ctrl_vif.alert_reqs) begin
+        req_otbn_key();
+        req_flash_addr_key();
+        req_flash_data_key();
+        req_all_sram_keys();
+      end
+
     end
 
   endtask : body
 
 endclass : otp_ctrl_smoke_vseq
 
-`undef PART_ADDR_RANGE
+`undef PART_CONTENT_RANGE

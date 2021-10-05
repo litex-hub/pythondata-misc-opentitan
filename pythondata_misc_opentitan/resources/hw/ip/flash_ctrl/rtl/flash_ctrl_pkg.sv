@@ -7,6 +7,9 @@
 
 package flash_ctrl_pkg;
 
+  // End address of flash
+  parameter logic [top_pkg::TL_AW-1:0] EndAddr = 'h20100000;
+
   // design parameters that can be altered through topgen
   parameter int unsigned NumBanks        = flash_ctrl_reg_pkg::RegNumBanks;
   parameter int unsigned PagesPerBank    = flash_ctrl_reg_pkg::RegPagesPerBank;
@@ -110,9 +113,76 @@ package flash_ctrl_pkg;
     PhaseInvalid
   } flash_lcmgr_phase_e;
 
+  import flash_ctrl_reg_pkg::flash_ctrl_reg2hw_mp_bank_cfg_shadowed_mreg_t;
+  import flash_ctrl_reg_pkg::flash_ctrl_reg2hw_mp_region_cfg_shadowed_mreg_t;
+  import flash_ctrl_reg_pkg::flash_ctrl_reg2hw_bank0_info0_page_cfg_shadowed_mreg_t;
+  import flash_ctrl_reg_pkg::flash_ctrl_reg2hw_default_region_shadowed_reg_t;
+
+  typedef flash_ctrl_reg2hw_mp_bank_cfg_shadowed_mreg_t sw_bank_cfg_t;
+  typedef flash_ctrl_reg2hw_mp_region_cfg_shadowed_mreg_t sw_region_cfg_t;
+  typedef flash_ctrl_reg2hw_default_region_shadowed_reg_t sw_default_cfg_t;
+  typedef flash_ctrl_reg2hw_bank0_info0_page_cfg_shadowed_mreg_t sw_info_cfg_t;
+
   // alias for super long reg_pkg typedef
-  typedef flash_ctrl_reg_pkg::flash_ctrl_reg2hw_bank0_info0_page_cfg_mreg_t info_page_cfg_t;
-  typedef flash_ctrl_reg_pkg::flash_ctrl_reg2hw_mp_region_cfg_mreg_t mp_region_cfg_t;
+  typedef struct packed {
+    logic        q;
+  } bank_cfg_t;
+
+  // This is identical to the reg structures but do not have err_updates / storage
+  typedef struct packed {
+    struct packed {
+      logic        q;
+    } en;
+    struct packed {
+      logic        q;
+    } rd_en;
+    struct packed {
+      logic        q;
+    } prog_en;
+    struct packed {
+      logic        q;
+    } erase_en;
+    struct packed {
+      logic        q;
+    } scramble_en;
+    struct packed {
+      logic        q;
+    } ecc_en;
+    struct packed {
+      logic        q;
+    } he_en;
+  } info_page_cfg_t;
+
+  // This is identical to the reg structures but do not have err_updates / storage
+  typedef struct packed {
+    struct packed {
+      logic        q;
+    } en;
+    struct packed {
+      logic        q;
+    } rd_en;
+    struct packed {
+      logic        q;
+    } prog_en;
+    struct packed {
+      logic        q;
+    } erase_en;
+    struct packed {
+      logic        q;
+    } scramble_en;
+    struct packed {
+      logic        q;
+    } ecc_en;
+    struct packed {
+      logic        q;
+    } he_en;
+    struct packed {
+      logic [8:0]  q;
+    } base;
+    struct packed {
+      logic [9:0] q;
+    } size;
+  } mp_region_cfg_t;
 
   // memory protection specific structs
   typedef struct packed {
@@ -164,7 +234,7 @@ package flash_ctrl_pkg;
   };
 
   // hardware interface memory protection rules
-  parameter int HwInfoRules = 3;
+  parameter int HwInfoRules = 5;
   parameter int HwDataRules = 1;
 
   parameter info_page_cfg_t CfgAllowRead = '{
@@ -201,7 +271,19 @@ package flash_ctrl_pkg;
      },
 
     '{
+       page:  SeedInfoPageSel[CreatorSeedIdx],
+       phase: PhaseRma,
+       cfg:   CfgAllowReadProgErase
+     },
+
+    '{
        page:  SeedInfoPageSel[OwnerSeedIdx],
+       phase: PhaseRma,
+       cfg:   CfgAllowReadProgErase
+     },
+
+    '{
+       page:  IsolatedPageSel,
        phase: PhaseRma,
        cfg:   CfgAllowReadProgErase
      }
@@ -301,11 +383,11 @@ package flash_ctrl_pkg;
     logic [KeyWidth-1:0]  data_key;
     logic [KeyWidth-1:0]  rand_addr_key;
     logic [KeyWidth-1:0]  rand_data_key;
-    tlul_pkg::tl_h2d_t    tl_flash_c2p;
     logic                 alert_trig;
     logic                 alert_ack;
     jtag_pkg::jtag_req_t  jtag_req;
     logic                 intg_err;
+    lc_ctrl_pkg::lc_tx_t  flash_disable;
   } flash_req_t;
 
   // default value of flash_req_t (for dangling ports)
@@ -332,11 +414,11 @@ package flash_ctrl_pkg;
     data_key:      RndCnstDataKeyDefault,
     rand_addr_key: '0,
     rand_data_key: '0,
-    tl_flash_c2p:  '0,
     alert_trig:    1'b0,
     alert_ack:     1'b0,
     jtag_req:      '0,
-    intg_err:      '0
+    intg_err:      '0,
+    flash_disable:       lc_ctrl_pkg::Off
   };
 
   // memory to flash controller
@@ -348,12 +430,8 @@ package flash_ctrl_pkg;
     logic                rd_err;
     logic [BusWidth-1:0] rd_data;
     logic                init_busy;
-    tlul_pkg::tl_d2h_t   tl_flash_p2c;
     logic                flash_err;
-    logic                flash_alert_p;
-    logic                flash_alert_n;
     logic [NumBanks-1:0] ecc_single_err;
-    logic [NumBanks-1:0] ecc_multi_err;
     logic [NumBanks-1:0][BusAddrW-1:0] ecc_addr;
     jtag_pkg::jtag_rsp_t jtag_rsp;
     logic                intg_err;
@@ -368,12 +446,8 @@ package flash_ctrl_pkg;
     rd_err:             '0,
     rd_data:            '0,
     init_busy:          1'b0,
-    tl_flash_p2c:       '0,
     flash_err:          1'b0,
-    flash_alert_p:      1'b0,
-    flash_alert_n:      1'b1,
     ecc_single_err:     '0,
-    ecc_multi_err:      '0,
     ecc_addr:           '0,
     jtag_rsp:           '0,
     intg_err:           '0
@@ -389,13 +463,29 @@ package flash_ctrl_pkg;
   } rma_wipe_entry_t;
 
   // entries to be wiped
-  parameter int WipeEntries = 3;
+  parameter int WipeEntries = 5;
   parameter rma_wipe_entry_t RmaWipeEntries[WipeEntries] = '{
     '{
        bank: SeedBank,
        part: FlashPartInfo,
        info_sel: SeedInfoSel,
+       start_page: {1'b0, CreatorInfoPage},
+       num_pages: 1
+     },
+
+    '{
+       bank: SeedBank,
+       part: FlashPartInfo,
+       info_sel: SeedInfoSel,
        start_page: {1'b0, OwnerInfoPage},
+       num_pages: 1
+     },
+
+    '{
+       bank: SeedBank,
+       part: FlashPartInfo,
+       info_sel: SeedInfoSel,
+       start_page: {1'b0, IsolatedInfoPage},
        num_pages: 1
      },
 
@@ -439,6 +529,27 @@ package flash_ctrl_pkg;
     FlashLcDftLast
   } flash_lc_jtag_e;
 
+  // Error bit positioning
+  typedef struct packed {
+    logic oob_err;
+    logic mp_err;
+    logic rd_err;
+    logic prog_win_err;
+    logic prog_type_err;
+    logic phy_err;
+  } flash_ctrl_err_t;
+
+  // interrupt bit positioning
+  typedef enum logic[2:0] {
+    ProgEmpty,
+    ProgLvl,
+    RdFull,
+    RdLvl,
+    OpDone,
+    CorrErr,
+    LastIntrIdx
+  } flash_ctrl_intr_e;
+
   // find the max number pages among info types
   function automatic integer max_info_pages(int infos[InfoTypes]);
     int current_max = 0;
@@ -450,5 +561,38 @@ package flash_ctrl_pkg;
     return current_max;
   endfunction // max_info_banks
 
+  // RMA control FSM encoding
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 5 -m 7 -n 10   //      -s 3319803877 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: --
+  //  4: --
+  //  5: |||||||||||||||||||| (47.62%)
+  //  6: |||||||||||||||| (38.10%)
+  //  7: |||| (9.52%)
+  //  8: || (4.76%)
+  //  9: --
+  // 10: --
+  //
+  // Minimum Hamming distance: 5
+  // Maximum Hamming distance: 8
+  // Minimum Hamming weight: 3
+  // Maximum Hamming weight: 6
+  //
+  localparam int RmaStateWidth = 10;
+  typedef enum logic [RmaStateWidth-1:0] {
+    StRmaIdle        = 10'b1000000111,
+    StRmaPageSel     = 10'b0110100101,
+    StRmaErase       = 10'b0100011100,
+    StRmaWordSel     = 10'b1011110010,
+    StRmaProgram     = 10'b0000111011,
+    StRmaProgramWait = 10'b0011001000,
+    StRmaRdVerify    = 10'b1101101001
+  } rma_state_e;
 
 endpackage : flash_ctrl_pkg

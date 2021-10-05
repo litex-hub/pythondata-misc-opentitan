@@ -8,33 +8,31 @@ class alert_handler_smoke_vseq extends alert_handler_base_vseq;
 
   `uvm_object_new
 
-  rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] intr_en;
-  rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] clr_en;
-  rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] lock_bit_en;
-  rand bit [NUM_ALERTS-1:0]                alert_trigger;
-  rand bit [NUM_ALERTS-1:0]                alert_int_err;
-  rand bit [NUM_ALERTS-1:0]                alert_en;
-  rand bit [NUM_ALERTS-1:0]                alert_ping_timeout;
-  rand bit [NUM_ALERTS*2-1:0]              alert_class_map;
-  rand bit [NUM_LOCAL_ALERT-1:0]           local_alert_en;
-  rand bit [NUM_LOCAL_ALERT*2-1:0]         local_alert_class_map;
-  rand bit [NUM_ESCS-1:0]                  esc_int_err;
-  rand bit [NUM_ESCS-1:0]                  esc_standalone_int_err;
-  rand bit [NUM_ESCS-1:0]                  esc_ping_timeout;
+  rand bit [NUM_ALERT_CLASSES-1:0]                       intr_en;
+  rand bit [NUM_ALERT_CLASSES-1:0]                       clr_en;
+  rand bit [NUM_ALERT_CLASSES-1:0]                       lock_bit_en;
+  rand bit [NUM_ALERTS-1:0]                              alert_trigger;
+  rand bit [NUM_ALERTS-1:0]                              alert_int_err;
+  rand bit [NUM_ALERTS-1:0]                              alert_en;
+  rand bit [NUM_ALERTS-1:0]                              alert_ping_timeout;
+  rand bit [NUM_ALERT_CLASSES-1:0][NUM_ALERTS-1:0]       alert_class_map;
+  rand bit [NUM_LOCAL_ALERTS-1:0]                        local_alert_en;
+  rand bit [NUM_ALERT_CLASSES-1:0][NUM_LOCAL_ALERTS-1:0] local_alert_class_map;
+  rand bit [NUM_ESCS-1:0]                                esc_int_err;
+  rand bit [NUM_ESCS-1:0]                                esc_standalone_int_err;
+  rand bit [NUM_ESCS-1:0]                                esc_ping_timeout;
 
   rand bit do_clr_esc;
   rand bit do_wr_phases_cyc;
   rand bit do_esc_intr_timeout;
   rand bit do_lock_config;
-  rand bit rand_drive_entropy;
   rand bit [TL_DW-1:0] ping_timeout_cyc;
   rand bit [TL_DW-1:0] max_phase_cyc;
-  rand bit [TL_DW-1:0] intr_timeout_cyc [NUM_ALERT_HANDLER_CLASSES];
-  rand bit [TL_DW-1:0] accum_thresh     [NUM_ALERT_HANDLER_CLASSES];
+  rand bit [TL_DW-1:0] intr_timeout_cyc [NUM_ALERT_CLASSES];
+  rand bit [TL_DW-1:0] accum_thresh     [NUM_ALERT_CLASSES];
 
   int max_wait_phases_cyc = MIN_CYCLE_PER_PHASE * NUM_ESC_PHASES;
   int max_intr_timeout_cyc;
-  bit do_standalone_alert_handler_init = 1;
 
   uvm_verbosity verbosity = UVM_LOW;
 
@@ -55,9 +53,12 @@ class alert_handler_smoke_vseq extends alert_handler_base_vseq;
     max_phase_cyc inside {[0:1_000]};
   }
 
-  // set min to 32 cycles (default value) to avoid alert ping timeout due to random delay
+  // Set min to 120 cycles to avoid alert ping timeout due to random delay.
+  // The max delay after ping request is 10 cycles plus 2 cycles async delay.
+  // Also the alert_sender and alert_handlers are in different clock domains, with a max 10 times
+  // difference in clock frequency.
   constraint ping_timeout_cyc_c {
-    ping_timeout_cyc inside {[32:MAX_PING_TIMEOUT_CYCLE]};
+    ping_timeout_cyc inside {[120:MAX_PING_TIMEOUT_CYCLE]};
   }
 
   constraint enable_classa_only_c {
@@ -109,21 +110,22 @@ class alert_handler_smoke_vseq extends alert_handler_base_vseq;
       `DV_CHECK_RANDOMIZE_FATAL(this)
 
       `uvm_info(`gfn,
-          $sformatf("start seq %0d/%0d: intr_en=%0b, alert=%0b, alert_en=%0b, alert_class=%0b",
-          i, num_trans, intr_en, alert_trigger, alert_en, alert_class_map), verbosity)
+          $sformatf("start seq %0d/%0d: intr_en=%0b, alert=%0b, alert_en=%0b, loc_alert_en=%0b",
+          i, num_trans, intr_en, alert_trigger, alert_en, local_alert_en), verbosity)
 
       // write initial settings (enable and mapping csrs)
-      if (do_standalone_alert_handler_init) begin
-        alert_handler_init(.intr_en(intr_en),
-                           .alert_en(alert_en),
-                           .alert_class(alert_class_map),
-                           .loc_alert_en(local_alert_en),
-                           .loc_alert_class(local_alert_class_map));
-      end
+      alert_handler_init(.intr_en(intr_en),
+                         .alert_en(alert_en),
+                         .alert_class(alert_class_map),
+                         .loc_alert_en(local_alert_en),
+                         .loc_alert_class(local_alert_class_map));
 
       // write class_ctrl and clren_reg
       alert_handler_rand_wr_class_ctrl(lock_bit_en);
       alert_handler_wr_regwen_regs(clr_en);
+
+      // randomize crashdump triggered phases
+      alert_handler_crashdump_phases();
 
       // randomly write phase cycle registers
       // always set phase_cycle for the first iteration, in order to pass stress_all test
@@ -133,9 +135,6 @@ class alert_handler_smoke_vseq extends alert_handler_base_vseq;
       if (do_esc_intr_timeout) wr_intr_timeout_cycle(intr_timeout_cyc);
       wr_class_accum_threshold(accum_thresh);
       wr_ping_timeout_cycle(ping_timeout_cyc);
-
-      //drive entropy
-      cfg.entropy_vif.drive(rand_drive_entropy);
 
       // when all configuration registers are set, write lock register
       lock_config(do_lock_config);
@@ -161,27 +160,30 @@ class alert_handler_smoke_vseq extends alert_handler_base_vseq;
       end
       // only check interrupt when no esc_int_err, otherwise clear interrupt might happen the
       // same cycle as interrupt triggered by esc_int_err
-      if (esc_int_err == 0) check_alert_interrupts();
+      if ((esc_int_err == 0) && (esc_ping_timeout == 0)) check_alert_interrupts();
 
       // if ping timeout enabled, wait for ping timeout done before checking escalation phases
-      if ((esc_int_err | alert_ping_timeout) > 0) cfg.clk_rst_vif.wait_clks(MAX_PING_TIMEOUT_CYCLE);
+      if ((esc_int_err | alert_ping_timeout) > 0) begin
+        cfg.clk_rst_vif.wait_clks(MAX_PING_TIMEOUT_CYCLE);
+      end
 
       // wait escalation done, and random interrupt with clear_esc
-      wait_alert_handshake_done();
-      fork
-        begin
-          wait_esc_handshake_done();
-        end
-        begin
-          cfg.clk_rst_vif.wait_clks($urandom_range(0, max_wait_phases_cyc));
-          if ($urandom_range(0, 1) && (esc_int_err == 0)) clear_esc();
-        end
-      join
+      wait_alert_esc_done();
+
       read_alert_cause();
       read_esc_status();
       if (do_clr_esc) clear_esc();
       check_alert_interrupts();
     end
+  endtask
+
+  virtual task wait_alert_esc_done();
+    wait_alert_handshake_done();
+    if ($urandom_range(0, 1) && (esc_int_err == 0)) begin
+      cfg.clk_rst_vif.wait_clks($urandom_range(0, max_wait_phases_cyc));
+      clear_esc();
+    end
+    wait_esc_handshake_done();
   endtask
 
 endclass : alert_handler_smoke_vseq

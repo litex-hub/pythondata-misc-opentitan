@@ -17,17 +17,68 @@ import logging as log
 import math
 import random
 import hjson
+import subprocess
 
 COPYRIGHT = """// Copyright lowRISC contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 //
 """
+
+C_SRC_TOP = """#include <stdbool.h>
+#include <stdint.h>
+
+#include "secded_enc.h"
+
+// Calculates even parity for a 64-bit word
+static uint8_t calc_parity(uint64_t word) {
+  bool parity = false;
+
+  while (word) {
+    if (word & 1) {
+      parity = !parity;
+    }
+
+    word >>= 1;
+  }
+
+  return parity;
+}
+"""
+
+C_H_TOP = """
+#ifndef OPENTITAN_HW_IP_PRIM_DV_PRIM_SECDED_SECDED_ENC_H_
+#define OPENTITAN_HW_IP_PRIM_DV_PRIM_SECDED_SECDED_ENC_H_
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+// Integrity encode functions for varying bit widths matching the functionality
+// of the RTL modules of the same name. Each takes an array of bytes in
+// little-endian order and returns the calculated integrity bits.
+
+"""
+
+C_H_FOOT = """
+#ifdef __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
+
+#endif  // OPENTITAN_HW_IP_PRIM_DV_PRIM_SECDED_SECDED_ENC_H_
+"""
+
 CODE_OPTIONS = {'hsiao': '', 'hamming': '_hamming'}
 PRINT_OPTIONS = {"logic": "assign ", "function": "  "}
 
 # secded configurations
 SECDED_CFG_FILE = "util/design/data/secded_cfg.hjson"
+
+# The seed we use to initialise the PRNG when running the randomised algorithm
+# to choose constants for Hsiao codes.
+_RND_SEED = 123
 
 
 def min_paritysize(k):
@@ -80,6 +131,54 @@ def calc_bitmasks(k, m, codes, dec):
     return fanin_masks
 
 
+def print_secded_enum_and_util_fns(cfgs):
+    enum_vals = ["    SecdedNone"]
+    parity_width_vals = []
+    data_width_vals = []
+    for cfg in cfgs:
+        k = cfg['k']
+        m = cfg['m']
+        n = k + m
+        suffix = CODE_OPTIONS[cfg['code_type']]
+        formatted_suffix = suffix.replace('_', '').capitalize()
+
+        enum_name = "    Secded%s_%s_%s" % (formatted_suffix, n, k)
+        enum_vals.append(enum_name)
+
+        parity_width = "  %s: return %s;" % (enum_name, m)
+        parity_width_vals.append(parity_width)
+
+        data_width = "  %s: return %s;" % (enum_name, k)
+        data_width_vals.append(data_width)
+
+    enum_str = ",\n".join(enum_vals)
+    parity_width_fn_str = "\n".join(parity_width_vals)
+    data_width_fn_str = "\n".join(data_width_vals)
+
+    enum_str = '''
+  typedef enum int {{
+{}
+  }} prim_secded_e;
+
+  function automatic int get_ecc_data_width(prim_secded_e ecc_type);
+    case (ecc_type)
+{}
+      // Return a non-zero width to avoid VCS compile issues
+      default: return 32;
+    endcase
+  endfunction
+
+  function automatic int get_ecc_parity_width(prim_secded_e ecc_type);
+    case (ecc_type)
+{}
+      default: return 0;
+    endcase
+  endfunction
+'''.format(enum_str, data_width_fn_str, parity_width_fn_str)
+
+    return enum_str
+
+
 def print_pkg_types(n, k, m, codes, suffix, codetype):
     typename = "secded%s_%d_%d_t" % (suffix, n, k)
 
@@ -98,24 +197,24 @@ def print_fn(n, k, m, codes, suffix, codetype):
     enc_out = print_enc(n, k, m, codes)
     dec_out = print_dec(n, k, m, codes, codetype, "function")
 
-    typename = "secded%s_%d_%d_t" % (suffix, n, k)
+    typename = "secded_%d_%d_t" % (n, k)
     module_name = "prim_secded%s_%d_%d" % (suffix, n, k)
 
     outstr = '''
-  function automatic logic [{}:0] {}_enc (logic [{}:0] in);
-    logic [{}:0] out;
-{}    return out;
+  function automatic logic [{}:0] {}_enc (logic [{}:0] data_i);
+    logic [{}:0] data_o;
+{}    return data_o;
   endfunction
 
-  function automatic {} {}_dec (logic [{}:0] in);
-    logic [{}:0] d_o;
+  function automatic {} {}_dec (logic [{}:0] data_i);
+    logic [{}:0] data_o;
     logic [{}:0] syndrome_o;
     logic [1:0]  err_o;
 
     {} dec;
 
 {}
-    dec.data      = d_o;
+    dec.data      = data_o;
     dec.syndrome  = syndrome_o;
     dec.err       = err_o;
     return dec;
@@ -128,8 +227,8 @@ def print_fn(n, k, m, codes, suffix, codetype):
 
 
 def print_enc(n, k, m, codes):
-    outstr = "    out = {}'(in);\n".format(n)
-    format_str = "    out[{}] = ^(out & " + str(n) + "'h{:0" + str(
+    outstr = "    data_o = {}'(data_i);\n".format(n)
+    format_str = "    data_o[{}] = ^(data_o & " + str(n) + "'h{:0" + str(
         (n + 3) // 4) + "X});\n"
     # Print parity computation
     for j, mask in enumerate(calc_bitmasks(k, m, codes, False)):
@@ -154,7 +253,7 @@ def print_dec(n, k, m, codes, codetype, print_type="logic"):
     outstr += "\n"
     outstr += "  {}// Syndrome calculation\n".format(
         preamble if print_type == "function" else "")
-    format_str = "  {}".format(preamble) + "syndrome_o[{}] = ^(in & " \
+    format_str = "  {}".format(preamble) + "syndrome_o[{}] = ^(data_i & " \
         + str(n) + "'h{:0" + str((n + 3) // 4) + "X});\n"
 
     # Print syndrome computation
@@ -164,7 +263,8 @@ def print_dec(n, k, m, codes, codetype, print_type="logic"):
     outstr += "  {}// Corrected output calculation\n".format(
         preamble if print_type == "function" else "")
     for i in range(k):
-        outstr += "  {}".format(preamble) + "d_o[%d] = (syndrome_o == %d'h%x) ^ in[%d];\n" % (
+        outstr += "  {}".format(preamble)
+        outstr += "data_o[%d] = (syndrome_o == %d'h%x) ^ data_i[%d];\n" % (
             i, m, calc_syndrome(codes[i]), i)
     outstr += "\n"
     outstr += "  {}// err_o calc. bit0: single error, bit1: double error\n".format(
@@ -192,12 +292,6 @@ def is_odd(n):
 
 def verify(cfgs):
     error = 0
-
-    # Check that the provided seed is 32-bit int
-    if (cfgs['seed'].bit_length() > 31):
-        error += 1
-        log.error("Seed {} must be a 32-bit integer".format(cfgs['seed']))
-
     for cfg in cfgs['cfgs']:
         if (cfg['k'] <= 1 or cfg['k'] > 120):
             error += 1
@@ -223,9 +317,37 @@ def verify(cfgs):
     return error
 
 
-def generate(cfgs, args, seed):
+def gen_code(codetype, k, m):
+    # The hsiao_code generator uses (pseudo)random values to pick good ECC
+    # constants. Rather than exposing the seed, we pick a fixed one here to
+    # ensure everything stays stable in future.
+    old_rnd_state = random.getstate()
+    random.seed(_RND_SEED)
+    try:
+        return globals()["_{}_code".format(codetype)](k, m)
+    finally:
+        random.setstate(old_rnd_state)
+
+
+def generate(cfgs, args):
     pkg_out_str = ""
     pkg_type_str = ""
+
+    c_src_filename = args.c_outdir + "/" + "secded_enc.c"
+    c_h_filename = args.c_outdir + "/" + "secded_enc.h"
+
+    with open(c_src_filename, "w") as f:
+        f.write(COPYRIGHT)
+        f.write("// SECDED encode code generated by\n")
+        f.write(f"// util/design/secded_gen.py from {SECDED_CFG_FILE}\n\n")
+        f.write(C_SRC_TOP)
+
+    with open(c_h_filename, "w") as f:
+        f.write(COPYRIGHT)
+        f.write("// SECDED encode code generated by\n")
+        f.write(f"// util/design/secded_gen.py from {SECDED_CFG_FILE}\n")
+        f.write(C_H_TOP)
+
     for cfg in cfgs['cfgs']:
         log.debug("Working on {}".format(cfg))
         k = cfg['k']
@@ -233,13 +355,14 @@ def generate(cfgs, args, seed):
         n = k + m
         codetype = cfg['code_type']
         suffix = CODE_OPTIONS[codetype]
-        codes = []
-
-        # update value based on target selection
-        codes = globals()["{}_code".format(codetype)](cfg['k'], cfg['m'])
+        codes = gen_code(codetype, k, m)
 
         # write out rtl files
-        write_enc_dec_files(n, k, m, seed, codes, suffix, args.outdir, codetype)
+        write_enc_dec_files(n, k, m, codes, suffix, args.outdir, codetype)
+
+        # write out C files, only hsiao codes are supported
+        if codetype == "hsiao":
+            write_c_files(n, k, m, codes, suffix, c_src_filename, c_h_filename)
 
         # write out package typedefs
         pkg_type_str += print_pkg_types(n, k, m, codes, suffix, codetype)
@@ -247,17 +370,24 @@ def generate(cfgs, args, seed):
         pkg_out_str += print_fn(n, k, m, codes, suffix, codetype)
 
         if not args.no_fpv:
-            write_fpv_files(n, k, m, codes, codetype, args.fpv_outdir)
+            write_fpv_files(n, k, m, codes, suffix, args.fpv_outdir)
 
+    with open(c_h_filename, "a") as f:
+        f.write(C_H_FOOT)
+
+    format_c_files(c_src_filename, c_h_filename)
+
+    # create enum of various ECC types - useful for DV purposes in mem_bkdr_if
+    enum_str = print_secded_enum_and_util_fns(cfgs['cfgs'])
     # write out package file
-    full_pkg_str = pkg_type_str + pkg_out_str
-    write_pkg_file(seed, args.outdir, full_pkg_str)
+    full_pkg_str = enum_str + pkg_type_str + pkg_out_str
+    write_pkg_file(args.outdir, full_pkg_str)
 
 
 # k = data bits
 # m = parity bits
 # generate hsiao code
-def hsiao_code(k, m):
+def _hsiao_code(k, m):
     # using itertools combinations, generate odd number of 1 in a row
 
     required_row = k  # k rows are needed, decreasing everytime when it acquite
@@ -344,7 +474,7 @@ def hsiao_code(k, m):
 # k = data bits
 # m = parity bits
 # generate hamming code
-def hamming_code(k, m):
+def _hamming_code(k, m):
 
     n = k + m
 
@@ -385,59 +515,127 @@ def hamming_code(k, m):
     return codes
 
 
-def write_pkg_file(s, outdir, pkg_str):
-
+def write_pkg_file(outdir, pkg_str):
     with open(outdir + "/" + "prim_secded_pkg.sv", "w") as f:
-        outstr = '''{}// SECDED Encoder generated by
-// util/design/secded_gen.py -s {} from {}
+        outstr = '''{}// SECDED package generated by
+// util/design/secded_gen.py from {}
 
 package prim_secded_pkg;
 {}
 
 endpackage
-'''.format(COPYRIGHT, s, SECDED_CFG_FILE, pkg_str)
+'''.format(COPYRIGHT, SECDED_CFG_FILE, pkg_str)
         f.write(outstr)
 
 
-def write_enc_dec_files(n, k, m, s, codes, suffix, outdir, codetype):
+def bytes_to_c_type(num_bytes):
+    if num_bytes == 1:
+        return 'uint8_t'
+    elif num_bytes <= 2:
+        return 'uint16_t'
+    elif num_bytes <= 4:
+        return 'uint32_t'
+    elif num_bytes <= 8:
+        return 'uint64_t'
+
+    return None
+
+
+def write_c_files(n, k, m, codes, suffix, c_src_filename, c_h_filename):
+    in_bytes = math.ceil(k / 8)
+    out_bytes = math.ceil(m / 8)
+
+    if (k > 64):
+        log.warning(f"Cannot generate C encoder for k = {k}."
+                    " The tool has no support for k > 64 for C encoder "
+                    "generation")
+        return
+
+    in_type = bytes_to_c_type(in_bytes)
+    out_type = bytes_to_c_type(out_bytes)
+
+    assert in_type
+    assert out_type
+
+    with open(c_src_filename, "a") as f:
+        # Write out function prototype in src
+        f.write(f"\n{out_type} enc_secded_{n}_{k}{suffix}"
+                f"(const uint8_t bytes[{in_bytes}]) {{\n")
+
+        # Form a single word from the incoming byte data
+        f.write(f"{in_type} word = ")
+        f.write(" | ".join(
+                [f"(({in_type})bytes[{i}] << {i*8})" for i in range(in_bytes)]))
+        f.write(";\n\n")
+
+        # AND the word with the codes, calculating parity of each and combine
+        # into a single word of integrity bits
+        f.write("return ")
+        parity_bit_masks = enumerate(calc_bitmasks(k, m, codes, False))
+        f.write(" | ".join(
+                [f"(calc_parity(word & 0x{mask:x}) << {par_bit})" for par_bit,
+                    mask in parity_bit_masks]))
+
+        f.write(";\n}\n")
+
+    with open(c_h_filename, "a") as f:
+        # Write out function declaration in header
+        f.write(f"{out_type} enc_secded_{n}_{k}{suffix}"
+                f"(const uint8_t bytes[{in_bytes}]);\n")
+
+
+def format_c_files(c_src_filename, c_h_filename):
+    try:
+        # Call clang-format to in-place format generated C code. If there are
+        # any issues log a warning.
+        result = subprocess.run(['clang-format', '-i', c_src_filename,
+                                c_h_filename], stderr=subprocess.PIPE,
+                                universal_newlines=True)
+        result.check_returncode()
+    except Exception as e:
+        stderr = ''
+        if result:
+            stderr = '\n' + result.stderr
+
+        log.warning(f"Could not format generated C source: {e}{stderr}")
+
+
+def write_enc_dec_files(n, k, m, codes, suffix, outdir, codetype):
     enc_out = print_enc(n, k, m, codes)
 
     module_name = "prim_secded%s_%d_%d" % (suffix, n, k)
 
     with open(outdir + "/" + module_name + "_enc.sv", "w") as f:
-        outstr = '''{}// SECDED Encoder generated by
-// util/design/secded_gen.py -m {} -k {} -s {} -c {}
+        outstr = '''{}// SECDED encoder generated by util/design/secded_gen.py
 
 module {}_enc (
-  input        [{}:0] in,
-  output logic [{}:0] out
+  input        [{}:0] data_i,
+  output logic [{}:0] data_o
 );
 
   always_comb begin : p_encode
 {}  end
 
 endmodule : {}_enc
-'''.format(COPYRIGHT, m, k, s, codetype, module_name, (k - 1), (n - 1),
-           enc_out, module_name)
+'''.format(COPYRIGHT, module_name, (k - 1), (n - 1), enc_out, module_name)
         f.write(outstr)
 
     dec_out = print_dec(n, k, m, codes, codetype)
 
     with open(outdir + "/" + module_name + "_dec.sv", "w") as f:
-        outstr = '''{}// SECDED Decoder generated by
-// util/design/secded_gen.py -m {} -k {} -s {} -c {}
+        outstr = '''{}// SECDED decoder generated by util/design/secded_gen.py
 
 module {}_dec (
-  input        [{}:0] in,
-  output logic [{}:0] d_o,
+  input        [{}:0] data_i,
+  output logic [{}:0] data_o,
   output logic [{}:0] syndrome_o,
   output logic [1:0] err_o
 );
 
 {}
 endmodule : {}_dec
-'''.format(COPYRIGHT, m, k, s, codetype, module_name, (n - 1), (k - 1),
-           (m - 1), dec_out, module_name)
+'''.format(COPYRIGHT, module_name, (n - 1), (k - 1), (m - 1),
+           dec_out, module_name)
         f.write(outstr)
 
 
@@ -450,8 +648,8 @@ def write_fpv_files(n, k, m, codes, suffix, outdir):
 module {}_fpv (
   input               clk_i,
   input               rst_ni,
-  input        [{}:0] in,
-  output logic [{}:0] d_o,
+  input        [{}:0] data_i,
+  output logic [{}:0] data_o,
   output logic [{}:0] syndrome_o,
   output logic [1:0]  err_o,
   input        [{}:0] error_inject_i
@@ -460,13 +658,13 @@ module {}_fpv (
   logic [{}:0] data_enc;
 
   {}_enc {}_enc (
-    .in,
-    .out(data_enc)
+    .data_i,
+    .data_o(data_enc)
   );
 
   {}_dec {}_dec (
-    .in(data_enc ^ error_inject_i),
-    .d_o,
+    .data_i(data_enc ^ error_inject_i),
+    .data_o,
     .syndrome_o,
     .err_o
   );
@@ -482,8 +680,8 @@ endmodule : {}_fpv
 module {}_assert_fpv (
   input        clk_i,
   input        rst_ni,
-  input [{}:0] in,
-  input [{}:0] d_o,
+  input [{}:0] data_i,
+  input [{}:0] data_o,
   input [{}:0] syndrome_o,
   input [1:0]  err_o,
   input [{}:0] error_inject_i
@@ -492,7 +690,7 @@ module {}_assert_fpv (
   // Inject a maximum of two errors simultaneously.
   `ASSUME_FPV(MaxTwoErrors_M, $countones(error_inject_i) <= 2)
   // This bounds the input data state space to make sure the solver converges.
-  `ASSUME_FPV(DataLimit_M, $onehot0(in) || $onehot0(~in))
+  `ASSUME_FPV(DataLimit_M, $onehot0(data_i) || $onehot0(~data_i))
   // Single bit error detection
   `ASSERT(SingleErrorDetect_A, $countones(error_inject_i) == 1 |-> err_o[0])
   `ASSERT(SingleErrorDetectReverse_A, err_o[0] |-> $countones(error_inject_i) == 1)
@@ -500,7 +698,7 @@ module {}_assert_fpv (
   `ASSERT(DoubleErrorDetect_A, $countones(error_inject_i) == 2 |-> err_o[1])
   `ASSERT(DoubleErrorDetectReverse_A, err_o[1] |-> $countones(error_inject_i) == 2)
   // Single bit error correction (implicitly tests the syndrome output)
-  `ASSERT(SingleErrorCorrect_A, $countones(error_inject_i) < 2 |-> in == d_o)
+  `ASSERT(SingleErrorCorrect_A, $countones(error_inject_i) < 2 |-> data_i == data_o)
   // Basic syndrome check
   `ASSERT(SyndromeCheck_A, |syndrome_o |-> $countones(error_inject_i) > 0)
   `ASSERT(SyndromeCheckReverse_A, $countones(error_inject_i) > 0 |-> |syndrome_o)
@@ -519,8 +717,8 @@ module {}_bind_fpv;
     {}_assert_fpv {}_assert_fpv (
     .clk_i,
     .rst_ni,
-    .in,
-    .d_o,
+    .data_i,
+    .data_o,
     .syndrome_o,
     .err_o,
     .error_inject_i
@@ -575,10 +773,6 @@ def main():
         description='''This tool generates Single Error Correction Double Error
         Detection(SECDED) encoder and decoder modules in SystemVerilog.
         ''')
-    parser.add_argument('-s',
-                        type=int,
-                        metavar='<seed>',
-                        help='Custom seed for RNG.')
     parser.add_argument('--no_fpv',
                         action='store_true',
                         help='Do not generate FPV testbench.')
@@ -593,6 +787,12 @@ def main():
                         help='''
         FPV output directory. The output files will have
         the base name `prim_secded_<n>_<k>_*_fpv` (default: %(default)s)
+        ''')
+    parser.add_argument('--c_outdir',
+                        default='hw/ip/prim/dv/prim_secded',
+                        help='''
+        C output directory. The output files are named secded_enc.c and
+        secded_enc.h
         ''')
     parser.add_argument('--verbose', '-v', action='store_true', help='Verbose')
 
@@ -611,15 +811,8 @@ def main():
     if (error):
         exit(1)
 
-    # If no seed is provided from the command line, use the seed provided in
-    # data/secded_cfg.hjson by default, such that runs of this script can be
-    # reproduced.
-    random.seed()
-    rand_seed = config['seed'] if args.s is None else args.s
-    random.seed(rand_seed)
-
     # Generate outputs
-    generate(config, args, rand_seed)
+    generate(config, args)
 
 
 if __name__ == "__main__":

@@ -9,11 +9,12 @@ description: "A wrapper around memutil_verilator for OTBN"
 filesets:
   files_cpp:
     depend:
-      - lowrisc:dv_verilator:memutil_dpi
+      - lowrisc:dv_verilator:memutil_dpi_scrambled
     files:
       - otbn_memutil.cc
       - otbn_memutil.h: { is_include_file: true }
       - otbn_memutil_pkg.sv: { file_type: systemVerilogSource }
+      - sv_utils.h: { file_type: cppSource, is_include_file: true }
     file_type: cppSource
 
 targets:

@@ -47,23 +47,18 @@ encoding-schemes: enc-schemes.yml
 #             are taken to be required literal syntax. So "foo<bar>" means "the
 #             string 'foo', followed by the bar operand".
 #
-#  doc:       Documentation for the instruction in markdown. (optional)
-#
-#  decode:    Python pseudocode for decoding instruction objects (optional)
-#
-#  operation: Python pseudocode for the operation of the instruction (optional)
-#
-#  note:      Text that should appear in a callout banner at the top of the
-#             instruction documentation. (optional)
-#
 #  glued-ops: A boolean. If true, the first operand in the syntax can appear
 #             immediately after the mnemonic (with no space). Optional,
 #             defaults to false.
 #
-#  trailing-doc: Documentation that should appear after the syntax example but
-#                before the operand table. Useful for things like alternative
-#                assembly syntax, or deviations from the usual meaning of the
-#                instruction. (optional)
+#  doc:       Documentation for the instruction in markdown. (optional)
+#
+#  note:      Text that should appear in a callout banner at the top of the
+#             instruction documentation. (optional)
+#
+#  errs:      A list of errors that might be signalled by this instruction.
+#             This should be a list of strings, each of which is interpreted as
+#             markdown.
 #
 #  literal-pseudo-op: This instruction is a pseudo-operation that expands into
 #                     a list of underlying RISC-V operations, given as a list.
@@ -107,47 +102,51 @@ encoding-schemes: enc-schemes.yml
 #             encoded relative to the current PC. Optional boolean,
 #             defaults to false.
 #
-# The valid operand types are as follows:
+# The allowed values for the "type" field are:
 #
-#  gpr:       The name of a general purpose register. Syntax "grs" for a
-#             source; "grd" for a destination.
+#  grs    A source GPR. Read and not written.
 #
-#  wdr:       The name of a wide register. Syntax "wrs" for a source;
-#             "wrd" for a destination.
+#  grd    A destination GPR. Written and not read.
 #
-#  csr:       The name of a CSR. Syntax "csr" (always considered a destination)
+#  wrs    A source WDR. Read and not written.
 #
-#  wsr:       The name of a WSR. Syntax "wsr" (always considered a destination)
+#  wrd    A source WDR. Written and not read.
 #
-#  simm:      A signed immediate operand. The full syntax is simm12<<3 to mean
-#             a signed immediate of width 12 which must be divisible by 2**3
-#             and is encoded by shifting right by 3. If there is no shift, the
-#             syntax simm12 is the same as simm12<<0. Similarly, if there is no
-#             known width (which should be inferred from any encoding scheme),
-#             it can be written as just simm or simm<<3.
+#  wrb    A WDR that is both read and written.
 #
-#  uimm:      An unsigned immediate operand. Syntax as with simm, but starting
-#             with "uimm".
+#  csr    A CSR (may be read and/or written)
 #
-#  enum:      An immediate with weird syntax. The syntax is "enum(a,b,c,d)"
-#             where a..d are the different possible syntaxes that can be used.
-#             The values are interpreted as immediates in enumeration order (so
-#             a is 0; d is 3).
+#  wsr    A WSR (may be read and/or written)
 #
-#  option:    A 1-bit immediate with weird syntax. Written "option(foo)" to
-#             mean that if the string "foo" appears then the immediate has
-#             value 1 and if it doesn't the immediate has value 0.
+#  simm   A signed immediate operand. The full syntax is simm12<<3 to mean a
+#         signed immediate of width 12 which must be divisible by 2**3 and is
+#         encoded by shifting right by 3. The syntax simm12 means the same as
+#         simm12<<0. If there is no known width (which should be inferred from
+#         any encoding scheme), the type can be written as just simm or
+#         simm<<3.
+#
+#  uimm   An unsigned immediate operand. The full syntax is as with simm, but
+#         starting with "uimm".
+#
+#  enum   An immediate with weird syntax. The syntax is "enum(a,b,c,d)" where
+#         a..d are the different possible syntaxes that can be used. The values
+#         are interpreted as immediates in enumeration order (so a is 0; d is
+#         3).
+#
+#  option A 1-bit immediate with weird syntax. Written "option(foo)" to
+#         mean that if the string "foo" appears then the immediate has
+#         value 1 and if it doesn't the immediate has value 0.
 #
 # Operand types are inferred from names as follows:
 #
-#  grd:        GPR destination
-#  grs, grs<n> GPR source
-#  wrd:        WDR destination
-#  wrs, wrs<n> WDR source
-#  csr         CSR name
-#  wsr         WSR name
-#  imm, imm<n> Signed immediate (width <n> if specified)
-#  offset      Signed immediate (unspecified width)
+#  grd:        GPR destination (type grd)
+#  grs, grs<n> GPR source (type grs)
+#  wrd:        WDR destination (type wrd)
+#  wrs, wrs<n> WDR source (type wrs)
+#  csr         CSR (type csr)
+#  wsr         WSR (type wsr)
+#  imm, imm<n> Signed immediate (width <n> if specified) (type simm or simm<n>)
+#  offset      Signed immediate (unspecified width) (type simm)
 #
 # If specified, the lsu field for an instruction should be a dictionary with
 # the following fields:
@@ -172,8 +171,8 @@ insn-groups:
       It is used together with the 32b wide General Purpose Register file.
       The primary use of the base instruction set is the control flow in applications.
 
-      The base instruction set is an extended subset of [RISC-V's RV32I_Zcsr](https://riscv.org/specifications/isa-spec-pdf/).
-      Refer to the [RISC-V Unprivileged Specification](https://riscv.org/specifications/isa-spec-pdf/) for a detailed instruction specification.
+      The base instruction set is an extended subset of RISC-V's RV32I_Zcsr.
+      Refer to the [RISC-V Unprivileged Specification](https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf) for a detailed instruction specification.
       Not all RV32 instructions are implemented.
       The implemented subset is shown below.
     insns: base-insns.yml

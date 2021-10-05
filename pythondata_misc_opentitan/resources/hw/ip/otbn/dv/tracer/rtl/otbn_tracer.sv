@@ -123,12 +123,12 @@ module otbn_tracer
   endfunction
 
   function automatic void trace_bignum_rf();
-    if (otbn_trace.rf_ren_a_bignum) begin
+    if (otbn_trace.rf_bignum_rd_en_a) begin
       output_trace(RegReadPrefix, $sformatf("w%02d: %s", otbn_trace.rf_bignum_rd_addr_a,
                                             otbn_wlen_data_str(otbn_trace.rf_bignum_rd_data_a)));
     end
 
-    if (otbn_trace.rf_ren_b_bignum) begin
+    if (otbn_trace.rf_bignum_rd_en_b) begin
       output_trace(RegReadPrefix, $sformatf("w%02d: %s", otbn_trace.rf_bignum_rd_addr_b,
                                             otbn_wlen_data_str(otbn_trace.rf_bignum_rd_data_b)));
     end
@@ -189,9 +189,17 @@ module otbn_tracer
 
   function automatic void trace_insn();
     if (otbn_trace.insn_valid) begin
-      output_trace(otbn_trace.insn_stall ? InsnStallPrefix : InsnExecutePrefix,
-                   $sformatf("PC: 0x%08x, insn: 0x%08x", otbn_trace.insn_addr,
-                             otbn_trace.insn_data));
+      if (otbn_trace.insn_fetch_err) begin
+        // This means that we've seen an IMEM integrity error. Squash the reported instruction bits
+        // and ignore any stall: this will be the last cycle of the instruction either way.
+        output_trace(InsnExecutePrefix,
+                     $sformatf("PC: 0x%08x, insn: ??", otbn_trace.insn_addr));
+      end else begin
+        // We have a valid instruction, either stalled or completing its execution
+        output_trace(otbn_trace.insn_stall ? InsnStallPrefix : InsnExecutePrefix,
+                     $sformatf("PC: 0x%08x, insn: 0x%08x", otbn_trace.insn_addr,
+                               otbn_trace.insn_data));
+      end
     end
   endfunction
 

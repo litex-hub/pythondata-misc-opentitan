@@ -8,6 +8,7 @@
 
 module kmac
   import kmac_pkg::*;
+  import kmac_reg_pkg::*;
 #(
   // EnMasking: Enable masking security hardening inside keccak_round
   // If it is enabled, the result digest will be two set of 1600bit.
@@ -17,7 +18,20 @@ module kmac
   // entropy, not 1600bit of entropy at every round. It uses adjacent shares
   // as entropy inside Domain-Oriented Masking AND logic.
   // This parameter only affects when `EnMasking` is set.
-  parameter bit ReuseShare = 0
+  parameter bit ReuseShare = 0,
+
+  // Command delay, useful for SCA measurements only. A value of e.g. 40 allows the processor to go
+  // into sleep before KMAC starts operation. If a value > 0 is chosen, the processor can provide
+  // two commands subsquently and then go to sleep. The second command is buffered internally and
+  // will be presented to the hardware SecCmdDelay number of cycles after the first one.
+  parameter int SecCmdDelay = 0,
+
+  // Accept SW message when idle and before receiving a START command. Useful for SCA only.
+  parameter bit SecIdleAcceptSwMsg = 1'b0,
+
+  parameter lfsr_perm_t RndCnstLfsrPerm = RndCnstLfsrPermDefault,
+
+  parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}}
 ) (
   input clk_i,
   input rst_ni,
@@ -27,6 +41,10 @@ module kmac
 
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
+
+  // Alerts
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
 
   // KeyMgr sideload (secret key) interface
   input keymgr_pkg::hw_key_req_t keymgr_key_i,
@@ -44,11 +62,12 @@ module kmac
   output logic intr_fifo_empty_o,
   output logic intr_kmac_err_o,
 
+  // parameter consistency check with keymgr
+  output logic en_masking_o,
+
   // Idle signal
   output logic idle_o
 );
-
-  import kmac_reg_pkg::*;
 
   ////////////////
   // Parameters //
@@ -85,8 +104,7 @@ module kmac
   kmac_reg2hw_t reg2hw;
   kmac_hw2reg_t hw2reg;
 
-  // devmode signals comes from LifeCycle.
-  // TODO: Implement
+  // devmode ties to 1 as KMAC should be operated at the beginning for ROM_CTRL.
   logic devmode;
   assign devmode = 1'b 1;
 
@@ -107,7 +125,7 @@ module kmac
   logic sha3_block_processed;
 
   // EStatus for entropy
-  logic entropy_in_progress, entropy_in_keyblock;
+  logic entropy_in_keyblock;
 
   // KeyMgr interface logic generates event_absorbed from sha3_absorbed.
   // It is active only if SW initiates the hashing engine.
@@ -205,21 +223,31 @@ module kmac
   sha3_pkg::sha3_mode_e       reg_sha3_mode,       app_sha3_mode;
   sha3_pkg::keccak_strength_e reg_keccak_strength, app_keccak_strength;
 
+  // Indicating AppIntf is active. This signal is used to check SW error
+  logic app_active;
 
   // Command
   // sw_cmd is the command written by SW
+  // checked_sw_cmd is checked in the kmac_errchk module.
+  //   Invalid command is filtered out in the module.
   // kmac_cmd is generated in KeyMgr interface.
   // If SW initiates the KMAC/SHA3, kmac_cmd represents SW command,
   // if KeyMgr drives the data, kmac_cmd is controled in the state machine
   // in KeyMgr interface logic.
-  kmac_cmd_e sw_cmd, kmac_cmd;
+  kmac_cmd_e sw_cmd, checked_sw_cmd, kmac_cmd, cmd_q;
+  logic      cmd_update;
 
   // Entropy configurations
-  logic [15:0] entropy_timer_limit;
+  logic [9:0]  wait_timer_prescaler;
   logic [15:0] wait_timer_limit;
   logic        entropy_seed_update;
   logic        unused_entropy_seed_upper_qe;
   logic [63:0] entropy_seed_data;
+  logic        entropy_refresh_req;
+
+  logic [HashCntW-1:0] entropy_hash_threshold;
+  logic [HashCntW-1:0] entropy_hash_cnt;
+  logic                entropy_hash_clr;
 
   logic entropy_ready;
   entropy_mode_e entropy_mode;
@@ -229,10 +257,13 @@ module kmac
   sha3_pkg::err_t sha3_err;
 
   // KeyMgr Error response
-  kmac_pkg::err_t keymgr_err;
+  kmac_pkg::err_t app_err;
 
   // Entropy Generator Error
   kmac_pkg::err_t entropy_err;
+
+  // Error checker
+  kmac_pkg::err_t errchecker_err;
 
   logic err_processed;
 
@@ -247,9 +278,83 @@ module kmac
     end
   end
 
+  if (SecCmdDelay > 0) begin : gen_cmd_delay_buf
+    // Delay and buffer commands for SCA measurements.
+    localparam int unsigned WidthCounter = $clog2(SecCmdDelay+1);
+    logic [WidthCounter-1:0] count_d, count_q;
+    logic                    counting_d, counting_q;
+    logic                    cmd_buf_empty;
+    kmac_cmd_e               cmd_buf_q;
+
+    assign cmd_buf_empty = (cmd_buf_q == CmdNone);
+
+    // When seeing a write to the cmd register, we start counting. We stop counting once the
+    // counter has expired and the command buffer is empty.
+    assign counting_d = reg2hw.cmd.cmd.qe          ? 1'b1 :
+                        cmd_update & cmd_buf_empty ? 1'b0 : counting_q;
+
+    // Clear counter upon writes to the cmd register or if the specified delay is reached.
+    assign count_d = reg2hw.cmd.cmd.qe ? '0             :
+                     cmd_update        ? '0             :
+                     counting_q        ? count_q + 1'b1 : count_q;
+
+    // The manual run command cannot be delayed. Software expects this to be triggered immediately
+    // and will poll the status register to wait for the SHA3 engine to return back to the squeeze
+    // state.
+    assign cmd_update = (cmd_q == CmdManualRun)                    ? 1'b1 :
+                        (count_q == SecCmdDelay[WidthCounter-1:0]) ? 1'b1 : 1'b0;
+
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (!rst_ni) begin
+        count_q    <= '0;
+        counting_q <= 1'b0;
+      end else begin
+        count_q    <= count_d;
+        counting_q <= counting_d;
+      end
+    end
+
+    // cmd.q is valid while cmd.qe is high, meaning it needs to be registered. We buffer one
+    // additional command such that software can write START followed by PROCESS and then go to
+    // sleep.
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (!rst_ni) begin
+        cmd_q     <= CmdNone;
+        cmd_buf_q <= CmdNone;
+      end else begin
+        if (reg2hw.cmd.cmd.qe && cmd_update) begin
+          // New write & counter expired.
+          cmd_q     <= cmd_buf_q;
+          cmd_buf_q <= kmac_cmd_e'(reg2hw.cmd.cmd.q);
+
+        end else if (reg2hw.cmd.cmd.qe) begin
+          // New write.
+          if (counting_q == 1'b0) begin
+            cmd_q     <= kmac_cmd_e'(reg2hw.cmd.cmd.q);
+          end else begin
+            cmd_buf_q <= kmac_cmd_e'(reg2hw.cmd.cmd.q);
+          end
+
+        end else if (cmd_update) begin
+          // Counter expired.
+          cmd_q     <= cmd_buf_q;
+          cmd_buf_q <= CmdNone;
+        end
+      end
+    end
+
+    // Create a lint error to reduce the risk of accidentally enabling this feature.
+    logic sec_cmd_delay_dummy;
+    assign sec_cmd_delay_dummy = cmd_update;
+
+  end else begin : gen_no_cmd_delay_buf
+    // Directly forward signals from register IF.
+    assign cmd_update = reg2hw.cmd.cmd.qe;
+    assign cmd_q      = kmac_cmd_e'(reg2hw.cmd.cmd.q);
+  end
+
   // Command signals
-  // TODO: Make the entire logic to use enum rather than signal
-  assign sw_cmd = (reg2hw.cmd.qe) ? kmac_cmd_e'(reg2hw.cmd.q) : CmdNone;
+  assign sw_cmd = (cmd_update) ? cmd_q : CmdNone;
   `ASSERT_KNOWN(KmacCmd_A, sw_cmd)
   always_comb begin
     sha3_start = 1'b 0;
@@ -279,7 +384,6 @@ module kmac
       end
 
       default: begin
-        // TODO: Raise an error here
       end
     endcase
   end
@@ -293,7 +397,6 @@ module kmac
   assign hw2reg.status.sha3_squeeze.d  = sha3_fsm == sha3_pkg::StSqueeze;
 
   // FIFO related status
-  // TODO: handle if register width of `depth` is not same to MsgFifoDepthW
   assign hw2reg.status.fifo_depth.d[MsgFifoDepthW-1:0] = msgfifo_depth;
   if ($bits(hw2reg.status.fifo_depth.d) != MsgFifoDepthW) begin : gen_fifo_depth_tie
     assign hw2reg.status.fifo_depth.d[$bits(hw2reg.status.fifo_depth.d)-1:MsgFifoDepthW] = '0;
@@ -342,14 +445,23 @@ module kmac
   assign sw_key_len = key_len_e'(reg2hw.key_len.q);
 
   // Entropy configurations
-  assign entropy_timer_limit = reg2hw.entropy_period.entropy_timer.q;
-  assign wait_timer_limit    = reg2hw.entropy_period.wait_timer.q;
+  assign wait_timer_prescaler = reg2hw.entropy_period.prescaler.q;
+  assign wait_timer_limit     = reg2hw.entropy_period.wait_timer.q;
 
   // Seed updated when the software writes Entropy Seed [31:0]
   assign unused_entropy_seed_upper_qe = reg2hw.entropy_seed_upper.qe;
   assign entropy_seed_update = reg2hw.entropy_seed_lower.qe ;
   assign entropy_seed_data = { reg2hw.entropy_seed_lower.q,
                                reg2hw.entropy_seed_upper.q};
+  assign entropy_refresh_req = reg2hw.cmd.entropy_req.q
+                            && reg2hw.cmd.entropy_req.qe;
+
+  assign entropy_hash_threshold = reg2hw.entropy_refresh.threshold.q;
+  assign hw2reg.entropy_refresh.hash_cnt.de = 1'b 1;
+  assign hw2reg.entropy_refresh.hash_cnt.d  = entropy_hash_cnt;
+
+  assign entropy_hash_clr = reg2hw.cmd.hash_cnt_clr.qe
+                         && reg2hw.cmd.hash_cnt_clr.q;
 
   // Entropy config
   assign entropy_ready = reg2hw.cfg.entropy_ready.q;
@@ -366,7 +478,7 @@ module kmac
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       idle_o <= 1'b 1;
-    end else if ((sha3_fsm == sha3_pkg::StIdle) && msgfifo_empty) begin
+    end else if ((sha3_fsm == sha3_pkg::StIdle) && (msgfifo_empty || SecIdleAcceptSwMsg)) begin
       idle_o <= 1'b 1;
     end else begin
       idle_o <= 1'b 0;
@@ -432,21 +544,39 @@ module kmac
   // As of now, only SHA3 error exists. More error codes will be added.
 
   logic event_error;
-  assign event_error =  sha3_err.valid | keymgr_err.valid | entropy_err.valid;
+  assign event_error = sha3_err.valid    | app_err.valid
+                     | entropy_err.valid | errchecker_err.valid;
 
   // Assing error code to the register
   assign hw2reg.err_code.de = event_error;
 
   always_comb begin
-    if (sha3_err.valid) begin
-      hw2reg.err_code.d = {sha3_err.code , sha3_err.info};
-    end else if (keymgr_err.valid) begin
-      hw2reg.err_code.d = {keymgr_err.code, keymgr_err.info};
-    end else if (entropy_err.valid) begin
-      hw2reg.err_code.d = {entropy_err.code, entropy_err.info};
-    end else begin
-      hw2reg.err_code.d = '0;
-    end
+    hw2reg.err_code.d = '0;
+
+    priority case (1'b 1)
+      // app_err has the highest priority. If SW issues an incorrect command
+      // while app is in active state, the error from AppIntf is passed
+      // through.
+      app_err.valid: begin
+        hw2reg.err_code.d = {app_err.code, app_err.info};
+      end
+
+      errchecker_err.valid: begin
+        hw2reg.err_code.d = {errchecker_err.code , errchecker_err.info};
+      end
+
+      sha3_err.valid: begin
+        hw2reg.err_code.d = {sha3_err.code , sha3_err.info};
+      end
+
+      entropy_err.valid: begin
+        hw2reg.err_code.d = {entropy_err.code, entropy_err.info};
+      end
+
+      default: begin
+        hw2reg.err_code.d = '0;
+      end
+    endcase
   end
 
   prim_intr_hw #(.Width(1)) intr_kmac_err (
@@ -478,7 +608,6 @@ module kmac
     // Default value
     kmac_st_d = KmacIdle;
 
-    entropy_in_progress = 1'b 0;
     entropy_in_keyblock = 1'b 0;
 
     unique case (kmac_st)
@@ -497,17 +626,15 @@ module kmac
       end
 
       KmacPrefix: begin
-        entropy_in_progress =1'b 1;
         // Wait until SHA3 processes one block
         if (sha3_block_processed) begin
-          kmac_st_d = (reg2hw.cfg.kmac_en.q) ? KmacKeyBlock : KmacMsgFeed ;
+          kmac_st_d = (app_kmac_en) ? KmacKeyBlock : KmacMsgFeed ;
         end else begin
           kmac_st_d = KmacPrefix;
         end
       end
 
       KmacKeyBlock: begin
-        entropy_in_progress = 1'b 1;
         entropy_in_keyblock = 1'b 1;
         if (sha3_block_processed) begin
           kmac_st_d = KmacMsgFeed;
@@ -517,9 +644,13 @@ module kmac
       end
 
       KmacMsgFeed: begin
-        entropy_in_progress = 1'b 1;
         // If absorbed, move to Digest
-        if (sha3_absorbed) begin
+        if (sha3_absorbed && sha3_done) begin
+          // absorbed and done can be asserted at a cycle if Applications have
+          // requested the hash operation. kmac_app FSM issues CmdDone command
+          // if it receives absorbed signal.
+          kmac_st_d = KmacIdle;
+        end else if (sha3_absorbed && !sha3_done) begin
           kmac_st_d = KmacDigest;
         end else begin
           kmac_st_d = KmacMsgFeed;
@@ -527,7 +658,6 @@ module kmac
       end
 
       KmacDigest: begin
-        entropy_in_progress = 1'b 1;
         // SW can manually run it, wait till done
         if (sha3_done) begin
           kmac_st_d = KmacIdle;
@@ -683,7 +813,8 @@ module kmac
 
   // Application interface Mux/Demux
   kmac_app #(
-    .EnMasking(EnMasking)
+    .EnMasking(EnMasking),
+    .SecIdleAcceptSwMsg(SecIdleAcceptSwMsg)
   ) u_app_intf (
     .clk_i,
     .rst_ni,
@@ -742,14 +873,17 @@ module kmac
     .absorbed_i (sha3_absorbed), // from SHA3
     .absorbed_o (event_absorbed), // to SW
 
-    .error_i  (sha3_err.valid),
+    .app_active_o(app_active),
+
+    .error_i         (sha3_err.valid),
+    .err_processed_i (err_processed),
 
     // Command interface
-    .sw_cmd_i (sw_cmd),
+    .sw_cmd_i (checked_sw_cmd),
     .cmd_o    (kmac_cmd),
 
     // Error report
-    .error_o (keymgr_err)
+    .error_o (app_err)
 
   );
 
@@ -797,6 +931,32 @@ module kmac
     .endian_swap_i (reg2hw.cfg.state_endianness.q)
   );
 
+  // Error checker
+  kmac_errchk u_errchk (
+    .clk_i,
+    .rst_ni,
+
+    // Configurations
+    .cfg_mode_i    (reg_sha3_mode      ),
+    .cfg_strength_i(reg_keccak_strength),
+
+    .kmac_en_i      (reg_kmac_en        ),
+    .cfg_prefix_6B_i(reg_ns_prefix[47:0]), // first 6B of PREFIX
+
+    // SW commands
+    .sw_cmd_i(sw_cmd),
+    .sw_cmd_o(checked_sw_cmd),
+
+    // Status from KMAC_APP
+    .app_active_i(app_active),
+
+    // Status from SHA3 core
+    .sha3_absorbed_i(sha3_absorbed       ),
+    .keccak_done_i  (sha3_block_processed),
+
+    .error_o(errchecker_err)
+  );
+
   // Entropy Generator
   if (EnMasking == 1) begin : gen_entropy
     logic entropy_req, entropy_ack, entropy_fips;
@@ -806,15 +966,17 @@ module kmac
 
     // EDN Request
     prim_edn_req #(
-      .OutWidth (MsgWidth)
+      .OutWidth   (MsgWidth),
+      .MaxLatency (500000)  // 5ms expected
     ) u_edn_req (
       // Design side
       .clk_i,
       .rst_ni,
-      .req_i (entropy_req),
-      .ack_o (entropy_ack),
-      .data_o(entropy_data),
-      .fips_o(entropy_fips),
+      .req_chk_i (1'b1),
+      .req_i     (entropy_req),
+      .ack_o     (entropy_ack),
+      .data_o    (entropy_data),
+      .fips_o    (entropy_fips),
       // EDN side
       .clk_edn_i,
       .rst_edn_ni,
@@ -822,7 +984,9 @@ module kmac
       .edn_i (entropy_i)
     );
 
-    kmac_entropy u_entropy (
+    kmac_entropy #(
+     .RndCnstLfsrPerm(RndCnstLfsrPerm)
+    ) u_entropy (
       .clk_i,
       .rst_ni,
 
@@ -837,8 +1001,6 @@ module kmac
       .rand_consumed_i (sha3_rand_consumed),
 
       // Status from internal logic
-      //// SHA3 engine run indicator
-      .in_progress_i (entropy_in_progress),
       //// KMAC secret block handling indicator
       .in_keyblock_i (entropy_in_keyblock),
 
@@ -848,21 +1010,33 @@ module kmac
       .fast_process_i  (entropy_fast_process),
 
       //// Entropy refresh period in clk cycles
-      .entropy_timer_limit_i (entropy_timer_limit),
-      .wait_timer_limit_i    (wait_timer_limit),
+      .wait_timer_prescaler_i (wait_timer_prescaler),
+      .wait_timer_limit_i     (wait_timer_limit),
 
       //// SW update of seed
-      .seed_update_i (entropy_seed_update),
-      .seed_data_i   (entropy_seed_data),
+      .seed_update_i         (entropy_seed_update),
+      .seed_data_i           (entropy_seed_data),
+      .entropy_refresh_req_i (entropy_refresh_req),
+
+      // Status
+      .hash_cnt_o       (entropy_hash_cnt),
+      .hash_cnt_clr_i   (entropy_hash_clr),
+      .hash_threshold_i (entropy_hash_threshold),
 
       // Error
-      .err_o (entropy_err),
+      .err_o           (entropy_err),
       .err_processed_i (err_processed)
     );
   end else begin : gen_empty_entropy
-    // If Masking is not used, no need of entropy. Tieing 0
+    // If Masking is not used, no need of entropy. Ignore inputs and config; tie output to 0.
     edn_pkg::edn_rsp_t unused_entropy_input;
-    assign unused_entropy_input = entropy_i;
+    entropy_mode_e     unused_entropy_mode;
+    logic              unused_entropy_fast_process;
+
+    assign unused_entropy_input        = entropy_i;
+    assign unused_entropy_mode         = entropy_mode;
+    assign unused_entropy_fast_process = entropy_fast_process;
+
     assign entropy_o = '{default: '0};
 
     logic unused_sha3_rand_consumed;
@@ -873,17 +1047,24 @@ module kmac
     logic unused_seed_update;
     logic [63:0] unused_seed_data;
     logic [31:0] unused_refresh_period;
+    logic unused_entropy_refresh_req;
     assign unused_seed_data = entropy_seed_data;
     assign unused_seed_update = entropy_seed_update;
-    assign unused_refresh_period = {wait_timer_limit, entropy_timer_limit};
+    assign unused_refresh_period = ^{wait_timer_limit, wait_timer_prescaler};
+    assign unused_entropy_refresh_req = entropy_refresh_req;
+
+    logic unused_entropy_hash;
+    assign unused_entropy_hash = ^{entropy_hash_clr, entropy_hash_threshold};
+    assign entropy_hash_cnt = '0;
 
     assign entropy_err = '{valid: 1'b 0, code: ErrNone, info: '0};
 
     logic [1:0] unused_entropy_status;
-    assign unused_entropy_status = {entropy_in_keyblock, entropy_in_progress};
+    assign unused_entropy_status = entropy_in_keyblock;
   end
 
   // Register top
+  logic [NumAlerts-1:0] alert_test, alerts;
   kmac_reg_top u_reg (
     .clk_i,
     .rst_ni,
@@ -896,9 +1077,33 @@ module kmac
 
     .reg2hw,
     .hw2reg,
-    .intg_err_o(),
+    .intg_err_o(alerts[0]),
     .devmode_i (devmode)
   );
+
+  // Alerts
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
+
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(i)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
+
+  assign en_masking_o = EnMasking;
 
   ////////////////
   // Assertions //
@@ -910,10 +1115,12 @@ module kmac
   `ASSERT_KNOWN(KmacErr_A, intr_kmac_err_o)
   `ASSERT_KNOWN(TlODValidKnown_A, tl_o.d_valid)
   `ASSERT_KNOWN(TlOAReadyKnown_A, tl_o.a_ready)
+  `ASSERT_KNOWN(AlertKnownO_A, alert_tx_o)
+  `ASSERT_KNOWN(EnMaskingKnown_A, en_masking_o)
 
   // Parameter as desired
   `ASSERT_INIT(SecretKeyDivideBy32_A, (kmac_pkg::MaxKeyLen % 32) == 0)
 
   // Command input should be onehot0
-  `ASSUME(CmdOneHot0_M, reg2hw.cmd.qe |-> $onehot0(reg2hw.cmd.q))
+  `ASSUME(CmdOneHot0_M, reg2hw.cmd.cmd.qe |-> $onehot0(reg2hw.cmd.cmd.q))
 endmodule

@@ -20,6 +20,11 @@ class chip_base_vseq extends cip_base_vseq #(
   // Local queue for holding received UART TX data.
   byte uart_tx_data_q[$];
 
+  // Default only iterate through SW code once.
+  constraint num_trans_c {
+    num_trans == 1;
+  }
+
   `uvm_object_new
 
   task post_start();
@@ -38,20 +43,20 @@ class chip_base_vseq extends cip_base_vseq #(
     // TODO: Cannot assert different types of resets in parallel; due to randomization
     // resets de-assert at different times. If the main rst_n de-asserts before others,
     // the CPU starts executing right away which can cause breakages.
-    cfg.m_jtag_agent_cfg.do_trst_n();
+    cfg.m_jtag_riscv_agent_cfg.do_trst_n();
     super.apply_reset(kind);
   endtask
 
   virtual task dut_init(string reset_kind = "HARD");
-    // Set default frequencies.
-    cfg.usb_clk_rst_vif.set_freq_mhz(dv_utils_pkg::ClkFreq48Mhz);
     // Initialize gpio pin default states
     cfg.gpio_vif.set_pulldown_en({chip_env_pkg::NUM_GPIOS{1'b1}});
     // Initialize flash seeds
-    cfg.flash_info0_bkdr_vif.set_mem();
-    cfg.flash_info1_bkdr_vif.set_mem();
+    cfg.mem_bkdr_util_h[FlashBank0Info].set_mem();
+    cfg.mem_bkdr_util_h[FlashBank1Info].set_mem();
     // Backdoor load the OTP image.
-    cfg.otp_bkdr_vif.load_mem_from_file({cfg.sw_images[SwTypeOtp], ".vmem"});
+    cfg.mem_bkdr_util_h[Otp].load_mem_from_file({cfg.sw_images[SwTypeOtp], ".vmem"});
+    // Randomize the ROM image. Subclasses that have an actual ROM image will load it later.
+    cfg.mem_bkdr_util_h[Rom].randomize_mem();
     // Bring the chip out of reset.
     super.dut_init(reset_kind);
   endtask
@@ -65,12 +70,13 @@ class chip_base_vseq extends cip_base_vseq #(
     // Do DUT init after some additional settings.
     bit do_dut_init_save = do_dut_init;
     do_dut_init = 1'b0;
+    cfg.sw_test_status_vif.set_sw_test_last_iteration(num_trans == 1);
     super.pre_start();
     do_dut_init = do_dut_init_save;
 
     // Drive strap signals at the start.
     if (do_strap_pins_init) begin
-      cfg.tap_straps_vif.drive(2'b10); // Select JTAG.
+      cfg.tap_straps_vif.drive(SelectRVJtagTap); // Select JTAG.
       cfg.dft_straps_vif.drive(2'b00);
       cfg.sw_straps_vif.drive({2'b00, cfg.use_spi_load_bootstrap});
     end
@@ -80,10 +86,10 @@ class chip_base_vseq extends cip_base_vseq #(
   endtask
 
   // Grab packets sent by the DUT over the UART TX port.
-  virtual task get_uart_tx_items();
+  virtual task get_uart_tx_items(int uart_idx = 0);
     uart_item item;
     forever begin
-      p_sequencer.uart_tx_fifo.get(item);
+      p_sequencer.uart_tx_fifos[uart_idx].get(item);
       `uvm_info(`gfn, $sformatf("Received UART data over TX:\n%0h", item.data), UVM_HIGH)
       uart_tx_data_q.push_back(item.data);
     end

@@ -9,12 +9,11 @@ filesets:
     depend:
       - lowrisc:ip:sram_ctrl
       - lowrisc:prim:ram_1p_scr
-    files:
-      - sram_ctrl_wrapper.sv
     file_type: systemVerilogSource
 
   files_dv:
     depend:
+      - lowrisc:dv:mem_bkdr_util
       - lowrisc:dv:sram_ctrl_test
       - lowrisc:dv:sram_ctrl_sva
     files:

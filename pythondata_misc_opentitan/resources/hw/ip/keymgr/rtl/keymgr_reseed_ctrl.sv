@@ -26,7 +26,10 @@ module keymgr_reseed_ctrl import keymgr_pkg::*; (
 
   // interface to lfsr
   output logic seed_en_o,
-  output logic [LfsrWidth-1:0] seed_o
+  output logic [LfsrWidth-1:0] seed_o,
+
+  // error condition
+  output logic cnt_err_o
 );
 
   localparam int unsigned EdnRounds = LfsrWidth / EdnWidth;
@@ -37,7 +40,7 @@ module keymgr_reseed_ctrl import keymgr_pkg::*; (
   logic [EdnCntWidth-1:0] edn_cnt;
   logic edn_txn_done;
   logic edn_done;
-  logic edn_req, edn_ack;
+  logic edn_req, edn_req_d, edn_req_q, edn_ack;
   logic [EdnWidth-1:0] edn_data;
 
   // This tracks how many edn rounds are required to fill up
@@ -64,21 +67,40 @@ module keymgr_reseed_ctrl import keymgr_pkg::*; (
     end
   end
 
-  // whenever reseed count drops to 0, issue a request and wait for ack
+  // whenever reseed count reaches reseed_interval, issue a request and wait for ack
   logic [15:0] reseed_cnt;
+  prim_count #(
+    .Width(16),
+    .OutSelDnCnt(0),
+    .CntStyle(prim_count_pkg::DupCnt)
+  ) u_reseed_cnt (
+    .clk_i,
+    .rst_ni,
+    .clr_i(edn_done),
+    .set_i('0),
+    .set_cnt_i('0),
+    .en_i(~edn_req & ~first_use),
+    .step_i(16'h1),
+    .cnt_o(reseed_cnt),
+    .err_o(cnt_err_o)
+  );
+
+  // latch edn request to ensure even if interval is changed in the middle
+  // the req/ack protocol is respected
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      reseed_cnt <= '{default: 1};
-    end else if(edn_done) begin
-      reseed_cnt <= reseed_interval_i;
-    end else if(reseed_req_i) begin
-      reseed_cnt <= '0;
-    end else if(|reseed_cnt && !first_use) begin
-      reseed_cnt <= reseed_cnt - 1'b1;
+      edn_req_q <= '0;
+    end else if (edn_done) begin
+      edn_req_q <= '0;
+    end else begin
+      edn_req_q <= edn_req_q | edn_req_d;
     end
   end
 
-  assign edn_req = (reseed_cnt == '0);
+  // An edn request can either come from counter or from external
+  assign edn_req_d = reseed_req_i | (~first_use & (reseed_cnt == reseed_interval_i));
+  assign edn_req = edn_req_q | edn_req_d;
+
   assign reseed_ack_o = reseed_req_i & edn_done;
   assign seed_en_o = edn_done;
 
@@ -112,6 +134,7 @@ module keymgr_reseed_ctrl import keymgr_pkg::*; (
     .rst_src_ni(rst_ni),
     .clk_dst_i(clk_edn_i),
     .rst_dst_ni(rst_edn_ni),
+    .req_chk_i(1'b1),
     .src_req_i(edn_req),
     .src_ack_o(edn_ack),
     .dst_req_o(edn_o.edn_req),

@@ -8,15 +8,24 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 { name: "PWRMGR",
-  clock_primary: "clk_i",
-  other_clock_list: [ "clk_slow_i" ]
-  reset_primary: "rst_ni",
-  other_reset_list: [ "rst_slow_ni" ]
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {reset: "rst_main_ni"},
+    {clock: "clk_slow_i", reset: "rst_slow_ni"},
+    {clock: "clk_esc_i", reset: "rst_esc_ni"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
   interrupt_list: [
     { name: "wakeup", desc: "Wake from low power state. See wake info for more details" },
+  ],
+  alert_list: [
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
+    }
   ],
 
   // Define flash_ctrl <-> flash_phy struct package
@@ -57,9 +66,9 @@
     },
 
     { struct:  "pwr_flash",
-      type:    "req_rsp",
+      type:    "uni",
       name:    "pwr_flash",
-      act:     "req",
+      act:     "rcv",
       package: "pwrmgr_pkg",
     },
 
@@ -85,7 +94,7 @@
     },
 
     { struct:  "logic",
-      width:   4,
+      width:   6,
       type:    "uni",
       name:    "wakeups",
       act:     "rcv",
@@ -93,7 +102,7 @@
     },
 
     { struct:  "logic",
-      width:   1,
+      width:   2,
       type:    "uni",
       name:    "rstreqs",
       act:     "rcv",
@@ -113,41 +122,69 @@
       act:     "req",
       package: "",
     },
+
+    { struct:  "pwrmgr_data",
+      type:    "uni",
+      name:    "rom_ctrl",
+      act:     "rcv",
+      package: "rom_ctrl_pkg",
+    },
+
+    { struct:  "lc_tx",
+      type:    "uni",
+      name:    "fetch_en",
+      act:     "req",
+      package: "lc_ctrl_pkg",
+    },
   ],
 
   param_list: [
     { name: "NumWkups",
       desc: "Number of wakeups",
       type: "int",
-      default: "4",
+      default: "6",
       local: "true"
     },
 
-    { name: "DEBUG_CABLE_WAKEUP_IDX",
-      desc: "Vector index for debug_cable_wakeup, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+    { name: "SYSRST_CTRL_AON_WKUP_REQ_IDX",
+      desc: "Vector index for sysrst_ctrl_aon wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
       type: "int",
       default: "0",
       local: "true"
     },
 
-    { name: "AON_WKUP_REQ_IDX",
-      desc: "Vector index for aon_wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+    { name: "ADC_CTRL_AON_WKUP_REQ_IDX",
+      desc: "Vector index for adc_ctrl_aon wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
       type: "int",
       default: "1",
       local: "true"
     },
 
-    { name: "USB_WKUP_REQ_IDX",
-      desc: "Vector index for usb_wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+    { name: "PINMUX_AON_PIN_WKUP_REQ_IDX",
+      desc: "Vector index for pinmux_aon pin_wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
       type: "int",
       default: "2",
       local: "true"
     },
 
-    { name: "AON_TIMER_WKUP_REQ_IDX",
-      desc: "Vector index for aon_timer_wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+    { name: "PINMUX_AON_USB_WKUP_REQ_IDX",
+      desc: "Vector index for pinmux_aon usb_wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
       type: "int",
       default: "3",
+      local: "true"
+    },
+
+    { name: "AON_TIMER_AON_WKUP_REQ_IDX",
+      desc: "Vector index for aon_timer_aon wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+      type: "int",
+      default: "4",
+      local: "true"
+    },
+
+    { name: "SENSOR_CTRL_WKUP_REQ_IDX",
+      desc: "Vector index for sensor_ctrl wkup_req, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+      type: "int",
+      default: "5",
       local: "true"
     },
 
@@ -155,7 +192,7 @@
     { name: "NumRstReqs",
       desc: "Number of reset requets",
       type: "int",
-      default: "1",
+      default: "2",
       local: "true"
     },
   ],
@@ -208,7 +245,7 @@
           desc: '''
             The low power hint to power manager.
             The hint is an indication for how the manager should treat the next WFI.
-            Once the power manager begins a low power transition, or if a valid reset request is registerd,
+            Once the power manager begins a low power transition, or if a valid reset request is registered,
             this bit is automatically cleared by HW.
             '''
           resval: "0"
@@ -319,14 +356,12 @@
               name: "Power down",
               desc: '''
                 Main power domain is powered down during low power state.
-                Note this signal is active low.
                 '''
             },
             { value: "1",
               name: "Power up",
               desc: '''
                 Main power domain is kept powered during low power state
-                Note this signal is active low.
                 '''
             },
           ]
@@ -356,7 +391,7 @@
             the sync completes, this bit then self clears.
 
             Software should write this bit to 1, wait for it to clear, before assuming the slow clock
-            domain has assumed the programmaed values.
+            domain has assumed the programmed values.
           ''',
           resval: "0",
         },
@@ -367,7 +402,7 @@
     },
 
     { name: "WAKEUP_EN_REGWEN",
-      desc: "Configuration enable for wakeup register",
+      desc: "Configuration enable for wakeup_en register",
       swaccess: "rw0c",
       hwaccess: "none",
       fields: [
@@ -375,8 +410,8 @@
           resval: "1"
           name: "EN",
           desc: '''
-            When 1, WAKEUP register can be configured.
-            When 0, WAKEUP register cannot be configured.
+            When 1, WAKEUP_EN register can be configured.
+            When 0, WAKEUP_EN register cannot be configured.
           ''',
         },
       ]
@@ -425,7 +460,7 @@
     },
 
     { name: "RESET_EN_REGWEN",
-      desc: "Configuration enable for reset register",
+      desc: "Configuration enable for reset_en register",
       swaccess: "rw0c",
       hwaccess: "none",
       fields: [
@@ -433,8 +468,8 @@
           resval: "1"
           name: "EN",
           desc: '''
-            When 1, RESET register can be configured.
-            When 0, RESET register cannot be configured.
+            When 1, RESET_EN register can be configured.
+            When 0, RESET_EN register cannot be configured.
           ''',
         },
       ]
@@ -458,6 +493,8 @@
             ''',
           },
         ]
+        tags: [// Self resets should never be triggered by automated tests
+        "excl:CsrAllTests:CsrExclWrite"]
       },
     },
 
@@ -526,11 +563,11 @@
       hwqe: "true",
       resval: "0"
       fields: [
-        { bits: "3:0",
+        { bits: "5:0",
           name: "REASONS",
           desc: "Various peripheral wake reasons"
         },
-        { bits: "4",
+        { bits: "6",
           name: "FALL_THROUGH",
           desc: '''
             The fall through wakeup reason indicates that despite setting a WFI and providing a low power
@@ -539,7 +576,7 @@
             The power manager detects this condition, halts low power entry and reports as a wakeup reason
           ''',
         },
-        { bits: "5",
+        { bits: "7",
           name: "ABORT",
           desc: '''
             The abort wakeup reason indicates that despite setting a WFI and providing a low power

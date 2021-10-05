@@ -18,6 +18,9 @@ waive -rules CLOCK_USE -location {rv_dm.sv} \
 waive -rules CLOCK_USE -location {rv_dm.sv} \
       -msg {'clk_i' is connected to 'prim_clock_mux2' port 'clk1_i',} \
       -comment "This clock usage is OK and is due to hand instantiated primitives on the clock line."
+waive -rules RESET_MUX -location {rv_dm.sv} \
+      -msg {Asynchronous reset 'trst_n_muxed' is driven by a multiplexer here, used as a reset 'trst_ni' at} \
+      -comment "This is needed such that the reset can be properly controlled during scanmode."
 
 # dmi_jtag_tap
 waive -rules CLOCK_MUX -location {dmi_jtag_tap.sv} -regexp {Clock 'tck_n' is driven by a multiplexer here, used as a clock at dmi_jtag_tap.sv} \
@@ -49,8 +52,6 @@ waive -rules CONST_FF -location {dm_csrs.sv} -regexp {Flip-flop 'sbcs_q.sbaccess
       -comment "Parts of this struct are constantly set to zero."
 waive -rules CASE_SEL_EXPR -location {dm_csrs.sv} -regexp {Expression 'dm::dm_csr_e.*as case selector} \
       -comment "acceptable use"
-waive -rules NOT_READ -location {dm_csrs.sv} -regexp {Signal 'dmcontrol.(clrresethaltreq|dmactive|haltreq|hartreset|hartselhi|hartsello|hasel|ndmreset|resumereq|setresethaltreq|zero[0-1])' is not read from} \
-      -comment "These signals are not needed by dm_csrs module"
 waive -rules NOT_READ -location {dm_csrs.sv} -regexp {Signal 'a_abstractcs.(busy|datacount|progbufsize|zero[0-3])' is not read from} \
       -comment "These signals are not needed by dm_csrs module"
 waive -rules ARITH_CONTEXT -location {dm_csrs.sv} \

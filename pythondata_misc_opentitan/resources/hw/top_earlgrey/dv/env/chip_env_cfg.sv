@@ -18,22 +18,14 @@ class chip_env_cfg extends cip_base_env_cfg #(.RAL_T(chip_reg_block));
   bit                 use_spi_load_bootstrap = 0;
 
   // chip top interfaces
-  virtual clk_rst_if  usb_clk_rst_vif;
   gpio_vif            gpio_vif;
   virtual pins_if#(2) tap_straps_vif;
   virtual pins_if#(2) dft_straps_vif;
   virtual pins_if#(3) sw_straps_vif;
   virtual pins_if#(1) rst_n_mon_vif;
 
-  // mem backdoors
-  mem_bkdr_vif        rom_bkdr_vif;
-  parity_mem_bkdr_vif ram_main_bkdr_vif;
-  parity_mem_bkdr_vif ram_ret_bkdr_vif;
-  mem_bkdr_vif        flash_bank0_bkdr_vif;
-  mem_bkdr_vif        flash_bank1_bkdr_vif;
-  mem_bkdr_vif        flash_info0_bkdr_vif;
-  mem_bkdr_vif        flash_info1_bkdr_vif;
-  ecc_mem_bkdr_vif    otp_bkdr_vif;
+  // Memory backdoor util instances for all memory instances in the chip.
+  mem_bkdr_util mem_bkdr_util_h[chip_mem_e];
 
   // sw related
   // Directory from where to pick up the SW test images -default to PWD {run_dir}.
@@ -66,21 +58,20 @@ class chip_env_cfg extends cip_base_env_cfg #(.RAL_T(chip_reg_block));
   sw_test_status_vif  sw_test_status_vif;
 
   // ext component cfgs
-  rand uart_agent_cfg m_uart_agent_cfg;
-  rand jtag_agent_cfg m_jtag_agent_cfg;
-  rand spi_agent_cfg  m_spi_agent_cfg;
+  rand uart_agent_cfg       m_uart_agent_cfgs[NUM_UARTS];
+  rand jtag_riscv_agent_cfg m_jtag_riscv_agent_cfg;
+  rand spi_agent_cfg        m_spi_agent_cfg;
 
   `uvm_object_utils_begin(chip_env_cfg)
-    `uvm_field_int   (stub_cpu,             UVM_DEFAULT)
-    `uvm_field_object(m_uart_agent_cfg,     UVM_DEFAULT)
-    `uvm_field_object(m_jtag_agent_cfg,     UVM_DEFAULT)
-    `uvm_field_object(m_spi_agent_cfg,      UVM_DEFAULT)
+    `uvm_field_int   (stub_cpu,               UVM_DEFAULT)
+    `uvm_field_object(m_jtag_riscv_agent_cfg, UVM_DEFAULT)
+    `uvm_field_object(m_spi_agent_cfg,        UVM_DEFAULT)
   `uvm_object_utils_end
 
   // TODO: Fixing core clk freq to 50MHz for now.
   // Need to find a way to pass this to the SW test.
   constraint clk_freq_mhz_c {
-    clk_freq_mhz == dv_utils_pkg::ClkFreq50Mhz;
+    clk_freq_mhz == 50;
   }
 
   `uvm_object_new
@@ -97,10 +88,12 @@ class chip_env_cfg extends cip_base_env_cfg #(.RAL_T(chip_reg_block));
     m_tl_agent_cfg.valid_a_source_width = 6;
 
     // create uart agent config obj
-    m_uart_agent_cfg = uart_agent_cfg::type_id::create("m_uart_agent_cfg");
+    foreach (m_uart_agent_cfgs[i]) begin
+      m_uart_agent_cfgs[i] = uart_agent_cfg::type_id::create($sformatf("m_uart_agent_cfg%0d", i));
+    end
 
     // create jtag agent config obj
-    m_jtag_agent_cfg = jtag_agent_cfg::type_id::create("m_jtag_agent_cfg");
+    m_jtag_riscv_agent_cfg = jtag_riscv_agent_cfg::type_id::create("m_jtag_riscv_agent_cfg");
 
     // create spi agent config obj
     m_spi_agent_cfg = spi_agent_cfg::type_id::create("m_spi_agent_cfg");

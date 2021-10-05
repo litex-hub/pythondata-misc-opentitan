@@ -48,6 +48,7 @@ module csrng_cmd_stage import csrng_pkg::*; #(
 
   localparam int GenBitsFifoWidth = 1+128;
   localparam int GenBitsFifoDepth = 1;
+  localparam int GenBitsCntrWidth = 19;
 
   // signals
   // command fifo
@@ -76,6 +77,7 @@ module csrng_cmd_stage import csrng_pkg::*; #(
   logic                    cmd_gen_cnt_dec;
   logic                    cmd_gen_1st_req;
   logic                    cmd_gen_inc_req;
+  logic                    cmd_gen_cnt_last;
   logic                    cmd_final_ack;
 
   // flops
@@ -83,7 +85,7 @@ module csrng_cmd_stage import csrng_pkg::*; #(
   logic                    cmd_ack_sts_q, cmd_ack_sts_d;
   logic [3:0]              cmd_len_q, cmd_len_d;
   logic                    cmd_gen_flag_q, cmd_gen_flag_d;
-  logic [18:0]             cmd_gen_cnt_q, cmd_gen_cnt_d; // max_nuber_of_bits_per_request = 2^19
+  logic [GenBitsCntrWidth-1:0] cmd_gen_cnt_q, cmd_gen_cnt_d; // max_nuber_of_bits_per_request = 2^19
   logic [11:0]             cmd_gen_cmd_q, cmd_gen_cmd_d;
 
 
@@ -132,15 +134,16 @@ module csrng_cmd_stage import csrng_pkg::*; #(
 
   assign sfifo_cmd_wdata = cmd_stage_bus_i;
 
-  assign sfifo_cmd_push = cs_enable_i && cmd_stage_vld_i;
+  assign sfifo_cmd_push = cs_enable_i && cmd_stage_rdy_o && cmd_stage_vld_i;
 
   assign sfifo_cmd_pop = cs_enable_i && cmd_fifo_pop;
 
   assign cmd_arb_bus_o =
-         cmd_gen_inc_req ? {16'b0,cmd_stage_shid_i,cmd_gen_cmd_q} :
-         cmd_gen_1st_req ? {16'b0,cmd_stage_shid_i,sfifo_cmd_rdata[11:0]} :  // pad,id,f,clen,cmd
-         cmd_arb_mop_o   ? sfifo_cmd_rdata :
-         '0;
+         cmd_gen_inc_req ? {15'b0,cmd_gen_cnt_last,cmd_stage_shid_i,cmd_gen_cmd_q} :
+        // pad,glast,id,f,clen,cmd
+        cmd_gen_1st_req ? {15'b0,cmd_gen_cnt_last,cmd_stage_shid_i,sfifo_cmd_rdata[11:0]} :
+        cmd_arb_mop_o   ? sfifo_cmd_rdata :
+        '0;
 
   assign cmd_stage_rdy_o = !sfifo_cmd_full;
 
@@ -155,19 +158,26 @@ module csrng_cmd_stage import csrng_pkg::*; #(
   assign cmd_len = sfifo_cmd_rdata[7:4];
 
   // capture the length of csrng command
-  assign cmd_len_d = cmd_arb_sop_o ? cmd_len :
+  assign cmd_len_d =
+         (!cs_enable_i) ? '0 :
+         cmd_arb_sop_o ? cmd_len :
          cmd_len_dec ? (cmd_len_q-1) :
          cmd_len_q;
 
   // for gen commands, capture information from the orignal command for use later
-  assign cmd_gen_flag_d = cmd_gen_1st_req ? (sfifo_cmd_rdata[2:0] == GEN) :
+  assign cmd_gen_flag_d =
+         (!cs_enable_i) ? '0 :
+         cmd_gen_1st_req ? (sfifo_cmd_rdata[2:0] == GEN) :
          cmd_gen_flag_q;
 
-  assign cmd_gen_cnt_d = cmd_gen_1st_req ? sfifo_cmd_rdata[30:12] :
+  assign cmd_gen_cnt_d =
+         (!cs_enable_i) ? '0 :
+         cmd_gen_1st_req ? sfifo_cmd_rdata[30:12] :
          cmd_gen_cnt_dec ? (cmd_gen_cnt_q-1) :
          cmd_gen_cnt_q;
 
   assign cmd_gen_cmd_d =
+         (!cs_enable_i) ? '0 :
          cmd_gen_1st_req ? {sfifo_cmd_rdata[11:0]} :
          cmd_gen_cmd_q;
 
@@ -175,36 +185,41 @@ module csrng_cmd_stage import csrng_pkg::*; #(
   //---------------------------------------------------------
   // state machine to process command
   //---------------------------------------------------------
-
 // Encoding generated with:
-// $ ./util/design/sparse-fsm-encode.py -d 3 -m 7 -n 6 \
-//      -s 2519129599 --language=sv
+// $ ./util/design/sparse-fsm-encode.py -d 3 -m 10 -n 8 \
+//      -s 170131814 --language=sv
 //
 // Hamming distance histogram:
 //
 //  0: --
 //  1: --
 //  2: --
-//  3: |||||||||||||||||||| (57.14%)
-//  4: ||||||||||||||| (42.86%)
-//  5: --
-//  6: --
+//  3: |||||||||||||||| (28.89%)
+//  4: |||||||||||||||||||| (35.56%)
+//  5: |||||||||||| (22.22%)
+//  6: ||||| (8.89%)
+//  7: | (2.22%)
+//  8: | (2.22%)
 //
 // Minimum Hamming distance: 3
-// Maximum Hamming distance: 4
+// Maximum Hamming distance: 8
 // Minimum Hamming weight: 1
-// Maximum Hamming weight: 5
+// Maximum Hamming weight: 7
 //
 
-  localparam int StateWidth = 6;
+// Encoding generated with:
+  localparam int StateWidth = 8;
   typedef    enum logic [StateWidth-1:0] {
-    Idle      = 6'b001010, // idle
-    SendSOP   = 6'b000111, // send sop (start of packet)
-    SendMOP   = 6'b010000, // send mop (middle of packet)
-    GenCmdChk = 6'b011101, // gen cmd check
-    CmdAck    = 6'b111011, // wait for command ack
-    GenReq    = 6'b110110, // process gen requests
-    Error     = 6'b101100  // illegal state reached and hang
+    Idle      = 8'b00011011, // idle
+    ArbGnt    = 8'b11110101, // general arbiter request
+    SendSOP   = 8'b00011100, // send sop (start of packet)
+    SendMOP   = 8'b00000001, // send mop (middle of packet)
+    GenCmdChk = 8'b01010110, // gen cmd check
+    CmdAck    = 8'b10001101, // wait for command ack
+    GenReq    = 8'b11000000, // process gen requests
+    GenArbGnt = 8'b11111110, // generate subsequent arb request
+    GenSOP    = 8'b10110010, // generate subsequent request
+    Error     = 8'b10111001  // illegal state reached and hang
   } state_e;
 
   state_e state_d, state_q;
@@ -229,9 +244,10 @@ module csrng_cmd_stage import csrng_pkg::*; #(
     state_d = state_q;
     cmd_fifo_pop = 1'b0;
     cmd_len_dec = 1'b0;
-    cmd_gen_cnt_dec= 1'b0;
+    cmd_gen_cnt_dec = 1'b0;
     cmd_gen_1st_req = 1'b0;
     cmd_gen_inc_req = 1'b0;
+    cmd_gen_cnt_last = 1'b0;
     cmd_final_ack = 1'b0;
     cmd_arb_req_o = 1'b0;
     cmd_arb_sop_o = 1'b0;
@@ -241,25 +257,30 @@ module csrng_cmd_stage import csrng_pkg::*; #(
     unique case (state_q)
       Idle: begin
         if (!cmd_fifo_zero) begin
+          state_d = ArbGnt;
+        end
+      end
+      ArbGnt: begin
+        cmd_arb_req_o = 1'b1;
+        if (cmd_arb_gnt_i) begin
           state_d = SendSOP;
         end
       end
       SendSOP: begin
-        cmd_arb_req_o = 1'b1;
-        if (cmd_arb_gnt_i) begin
-          cmd_gen_1st_req = 1'b1;
-          cmd_arb_sop_o = 1'b1;
-          cmd_fifo_pop = 1'b1;
-          if (cmd_len == '0) begin
-            cmd_arb_eop_o = 1'b1;
-            state_d = GenCmdChk;
-          end else begin
-            state_d = SendMOP;
-          end
+        cmd_gen_1st_req = 1'b1;
+        cmd_arb_sop_o = 1'b1;
+        cmd_fifo_pop = 1'b1;
+        if (sfifo_cmd_rdata[30:12] == GenBitsCntrWidth'(1)) begin
+          cmd_gen_cnt_last = 1'b1;
+        end
+        if (cmd_len == '0) begin
+          cmd_arb_eop_o = 1'b1;
+          state_d = GenCmdChk;
+        end else begin
+          state_d = SendMOP;
         end
       end
       SendMOP: begin
-        cmd_arb_req_o = 1'b1;
         if (!cmd_fifo_zero) begin
           cmd_fifo_pop = 1'b1;
           cmd_len_dec = 1'b1;
@@ -293,19 +314,29 @@ module csrng_cmd_stage import csrng_pkg::*; #(
               state_d = Idle;
             end else begin
               // issue a subsequent gen request
-              cmd_arb_req_o = 1'b1;
-              if (cmd_arb_gnt_i) begin
-                cmd_arb_sop_o = 1'b1;
-                cmd_arb_eop_o = 1'b1;
-                cmd_gen_inc_req = 1'b1;
-                state_d = GenCmdChk;
-              end
+              state_d = GenArbGnt;
             end
           end
         end else begin
           // ack for the non-gen request case
           cmd_final_ack = 1'b1;
           state_d = Idle;
+        end
+      end
+      GenArbGnt: begin
+        cmd_arb_req_o = 1'b1;
+        if (cmd_arb_gnt_i) begin
+          state_d = GenSOP;
+        end
+      end
+      GenSOP: begin
+        cmd_arb_sop_o = 1'b1;
+        cmd_arb_eop_o = 1'b1;
+        cmd_gen_inc_req = 1'b1;
+        state_d = GenCmdChk;
+        // check for final genbits beat
+        if (cmd_gen_cnt_q == GenBitsCntrWidth'(1)) begin
+          cmd_gen_cnt_last = 1'b1;
         end
       end
       Error: begin
@@ -357,10 +388,17 @@ module csrng_cmd_stage import csrng_pkg::*; #(
   // ack logic
   //---------------------------------------------------------
 
-  assign cmd_ack_d = cmd_final_ack;
+  assign cmd_ack_d =
+         (!cs_enable_i) ? '0 :
+         cmd_final_ack;
+
   assign cmd_stage_ack_o = cmd_ack_q;
 
-  assign cmd_ack_sts_d = cmd_final_ack ? cmd_ack_sts_i : cmd_ack_sts_q;
+  assign cmd_ack_sts_d =
+         (!cs_enable_i) ? '0 :
+         cmd_final_ack ? cmd_ack_sts_i :
+         cmd_ack_sts_q;
+
   assign cmd_stage_ack_sts_o = cmd_ack_sts_q;
 
 endmodule

@@ -9,12 +9,17 @@
 module hmac
   import hmac_pkg::*;
   import hmac_reg_pkg::*;
-(
+#(
+  parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}}
+) (
   input clk_i,
   input rst_ni,
 
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
+
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
 
   output logic intr_hmac_done_o,
   output logic intr_fifo_empty_o,
@@ -30,8 +35,8 @@ module hmac
   hmac_reg2hw_t reg2hw;
   hmac_hw2reg_t hw2reg;
 
-  tlul_pkg::tl_h2d_t  tl_win_h2d[1];
-  tlul_pkg::tl_d2h_t  tl_win_d2h[1];
+  tlul_pkg::tl_h2d_t  tl_win_h2d;
+  tlul_pkg::tl_d2h_t  tl_win_d2h;
 
   logic [255:0] secret_key;
 
@@ -51,7 +56,6 @@ module hmac
   logic        msg_fifo_req;
   logic        msg_fifo_gnt;
   logic        msg_fifo_we;
-  logic [8:0]  msg_fifo_addr;   // NOT_READ
   logic [31:0] msg_fifo_wdata;
   logic [31:0] msg_fifo_wmask;
   logic [31:0] msg_fifo_rdata;
@@ -99,6 +103,9 @@ module hmac
   hmac_reg2hw_cfg_reg_t cfg_reg;
   logic                 cfg_block;  // Prevent changing config
   logic                 msg_allowed; // MSG_FIFO from software is allowed
+
+  logic hmac_core_idle;
+  logic sha_core_idle;
 
   ///////////////////////
   // Connect registers //
@@ -291,14 +298,14 @@ module hmac
   ) u_tlul_adapter (
     .clk_i,
     .rst_ni,
-    .tl_i        (tl_win_h2d[0]),
-    .tl_o        (tl_win_d2h[0]),
+    .tl_i        (tl_win_h2d),
+    .tl_o        (tl_win_d2h),
     .en_ifetch_i (tlul_pkg::InstrDis),
     .req_o       (msg_fifo_req   ),
-    .req_type_o  (),
+    .req_type_o  (               ),
     .gnt_i       (msg_fifo_gnt   ),
     .we_o        (msg_fifo_we    ),
-    .addr_o      (msg_fifo_addr  ), // Doesn't care the address other than sub-word
+    .addr_o      (               ), // Doesn't care the address other than sub-word
     .wdata_o     (msg_fifo_wdata ),
     .wmask_o     (msg_fifo_wmask ),
     .intg_error_o(               ),
@@ -400,7 +407,9 @@ module hmac
     .fifo_wready,
 
     .message_length,
-    .sha_message_length
+    .sha_message_length,
+
+    .idle           (hmac_core_idle)
   );
 
   sha2 u_sha2 (
@@ -421,9 +430,13 @@ module hmac
 
     .message_length   (sha_message_length),
 
-    .digest
+    .digest,
+
+    .idle             (sha_core_idle)
   );
 
+  // Register top
+  logic [NumAlerts-1:0] alert_test, alerts;
   hmac_reg_top u_reg (
     .clk_i,
     .rst_ni,
@@ -437,9 +450,31 @@ module hmac
     .reg2hw,
     .hw2reg,
 
-    .intg_err_o (),
+    .intg_err_o (alerts[0]),
     .devmode_i  (1'b1)
   );
+
+  // Alerts
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
+
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(i)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
 
   /////////////////////////
   // HMAC Error Handling //
@@ -512,7 +547,23 @@ module hmac
   // Idle output     //
   /////////////////////
   // TBD this should be connected later
-  assign idle_o = 1'b1;
+  // Idle: AND condition of:
+  //  - packer empty: Currently no way to guarantee the packer is empty.
+  //    temporary, the logic uses packer output (reg_fifo_wvalid)
+  //  - MSG_FIFO  --> fifo_rvalid
+  //  - HMAC_CORE --> hmac_core_idle
+  //  - SHA2_CORE --> sha_core_idle
+  //  - Clean interrupt status
+  logic idle;
+  assign idle = !reg_fifo_wvalid && !fifo_rvalid
+              && hmac_core_idle && sha_core_idle;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      idle_o <= 1'b 1;
+    end else begin
+      idle_o <= idle;
+    end
+  end
 
   //////////////////////////////////////////////
   // Assertions, Assumptions, and Coverpoints //
@@ -568,6 +619,7 @@ module hmac
   `ASSERT_KNOWN(IntrFifoEmptyOKnown, intr_fifo_empty_o)
   `ASSERT_KNOWN(TlODValidKnown, tl_o.d_valid)
   `ASSERT_KNOWN(TlOAReadyKnown, tl_o.a_ready)
+  `ASSERT_KNOWN(AlertKnownO_A, alert_tx_o)
 
 `endif // SYNTHESIS
 `endif // VERILATOR

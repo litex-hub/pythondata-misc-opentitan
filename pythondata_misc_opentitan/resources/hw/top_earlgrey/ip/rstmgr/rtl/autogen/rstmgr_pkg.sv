@@ -25,14 +25,16 @@ package rstmgr_pkg;
   // positions of software controllable reset bits
   parameter int SPI_DEVICE = 0;
   parameter int SPI_HOST0 = 1;
-  parameter int SPI_HOST1 = 2;
-  parameter int USB = 3;
-  parameter int I2C0 = 4;
-  parameter int I2C1 = 5;
-  parameter int I2C2 = 6;
+  parameter int SPI_HOST0_CORE = 2;
+  parameter int SPI_HOST1 = 3;
+  parameter int SPI_HOST1_CORE = 4;
+  parameter int USB = 5;
+  parameter int USBIF = 6;
+  parameter int I2C0 = 7;
+  parameter int I2C1 = 8;
+  parameter int I2C2 = 9;
 
   // resets generated and broadcast
-  // This should be templatized and generated
   typedef struct packed {
     logic [PowerDomains-1:0] rst_por_aon_n;
     logic [PowerDomains-1:0] rst_por_n;
@@ -40,19 +42,57 @@ package rstmgr_pkg;
     logic [PowerDomains-1:0] rst_por_io_div2_n;
     logic [PowerDomains-1:0] rst_por_io_div4_n;
     logic [PowerDomains-1:0] rst_por_usb_n;
+    logic [PowerDomains-1:0] rst_lc_shadowed_n;
     logic [PowerDomains-1:0] rst_lc_n;
+    logic [PowerDomains-1:0] rst_lc_io_div4_shadowed_n;
     logic [PowerDomains-1:0] rst_lc_io_div4_n;
+    logic [PowerDomains-1:0] rst_lc_aon_n;
+    logic [PowerDomains-1:0] rst_sys_shadowed_n;
     logic [PowerDomains-1:0] rst_sys_n;
     logic [PowerDomains-1:0] rst_sys_io_div4_n;
     logic [PowerDomains-1:0] rst_sys_aon_n;
     logic [PowerDomains-1:0] rst_spi_device_n;
     logic [PowerDomains-1:0] rst_spi_host0_n;
+    logic [PowerDomains-1:0] rst_spi_host0_core_n;
     logic [PowerDomains-1:0] rst_spi_host1_n;
+    logic [PowerDomains-1:0] rst_spi_host1_core_n;
     logic [PowerDomains-1:0] rst_usb_n;
+    logic [PowerDomains-1:0] rst_usbif_n;
     logic [PowerDomains-1:0] rst_i2c0_n;
     logic [PowerDomains-1:0] rst_i2c1_n;
     logic [PowerDomains-1:0] rst_i2c2_n;
   } rstmgr_out_t;
+
+  // reset indication for alert handler
+  typedef struct packed {
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por_aon;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por_io;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por_io_div2;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por_io_div4;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] por_usb;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] lc_shadowed;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] lc;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] lc_io_div4_shadowed;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] lc_io_div4;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] lc_aon;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] sys_shadowed;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] sys;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] sys_io_div4;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] sys_aon;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] spi_device;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] spi_host0;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] spi_host0_core;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] spi_host1;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] spi_host1_core;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] usb;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] usbif;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] i2c0;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] i2c1;
+    lc_ctrl_pkg::lc_tx_t [PowerDomains-1:0] i2c2;
+  } rstmgr_rst_en_t;
+
+  parameter int NumOutputRst = 25 * PowerDomains;
 
   // cpu reset requests and status
   typedef struct packed {
@@ -61,17 +101,6 @@ package rstmgr_pkg;
   } rstmgr_cpu_t;
 
   // exported resets
-  typedef struct packed {
-    logic [PowerDomains-1:0] rst_ast_usbdev_sys_io_div4_n;
-    logic [PowerDomains-1:0] rst_ast_usbdev_sys_aon_n;
-    logic [PowerDomains-1:0] rst_ast_usbdev_usb_n;
-    logic [PowerDomains-1:0] rst_ast_adc_ctrl_aon_sys_io_div4_n;
-    logic [PowerDomains-1:0] rst_ast_adc_ctrl_aon_sys_aon_n;
-    logic [PowerDomains-1:0] rst_ast_ast_sys_io_div4_n;
-    logic [PowerDomains-1:0] rst_ast_sensor_ctrl_aon_sys_io_div4_n;
-    logic [PowerDomains-1:0] rst_ast_entropy_src_sys_n;
-    logic [PowerDomains-1:0] rst_ast_edn0_sys_n;
-  } rstmgr_ast_out_t;
 
   // default value for rstmgr_ast_rsp_t (for dangling ports)
   parameter rstmgr_cpu_t RSTMGR_CPU_DEFAULT = '{

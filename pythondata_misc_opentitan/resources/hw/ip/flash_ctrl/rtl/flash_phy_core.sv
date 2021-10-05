@@ -41,6 +41,7 @@ module flash_phy_core import flash_phy_pkg::*; #(
   input [KeySize-1:0]                rand_addr_key_i,
   input [KeySize-1:0]                rand_data_key_i,
   input                              rd_buf_en_i,
+  input lc_ctrl_pkg::lc_tx_t         flash_disable_i,
   input  flash_phy_prim_flash_rsp_t  prim_flash_rsp_i,
   output flash_phy_prim_flash_req_t  prim_flash_req_o,
   output logic                       host_req_rdy_o,
@@ -51,7 +52,6 @@ module flash_phy_core import flash_phy_pkg::*; #(
   output logic [BusWidth-1:0]        rd_data_o,
   output logic                       rd_err_o,
   output logic                       ecc_single_err_o,
-  output logic                       ecc_multi_err_o,
   output logic [BusBankAddrW-1:0]    ecc_addr_o
 );
 
@@ -63,7 +63,8 @@ module flash_phy_core import flash_phy_pkg::*; #(
     StHostRead,
     StCtrlRead,
     StCtrlProg,
-    StCtrl
+    StCtrl,
+    StDisable
   } arb_state_e;
 
   arb_state_e state_q, state_d;
@@ -156,7 +157,11 @@ module flash_phy_core import flash_phy_pkg::*; #(
 
     unique case (state_q)
       StIdle: begin
-        if (host_req_masked) begin
+        // escalation handling is always done gracefully after an
+        // existing transaction terminates, otherwise we may risk damaging flash
+        if (flash_disable_i != lc_ctrl_pkg::Off) begin
+          state_d = StDisable;
+        end else if (host_req_masked) begin
           reqs[PhyRead] = 1'b1;
           host_sel = 1'b1;
           host_req_rdy_o = rd_stage_rdy;
@@ -185,7 +190,8 @@ module flash_phy_core import flash_phy_pkg::*; #(
       // with controller
       StHostRead: begin
         host_rsp = 1'b1;
-        if (host_req_masked) begin
+        // if escalation occurs, do not accept more read transactions
+        if (host_req_masked && (flash_disable_i == lc_ctrl_pkg::Off)) begin
           reqs[PhyRead] = 1'b1;
           host_sel = 1'b1;
           host_req_rdy_o = rd_stage_rdy;
@@ -229,6 +235,7 @@ module flash_phy_core import flash_phy_pkg::*; #(
 
       // state is terminal, no flash transactions are ever accepted again
       // until reboot
+      // This also handles Disabled state
       default:;
     endcase // unique case (state_q)
   end // always_comb
@@ -290,7 +297,6 @@ module flash_phy_core import flash_phy_pkg::*; #(
     .mask_i(scramble_mask),
     .descrambled_data_i(rd_descrambled_data),
     .ecc_single_err_o,
-    .ecc_multi_err_o,
     .ecc_addr_o
     );
 
@@ -366,7 +372,8 @@ module flash_phy_core import flash_phy_pkg::*; #(
   flash_phy_scramble u_scramble (
     .clk_i,
     .rst_ni,
-    .intg_err_i,
+    // both escalation and and integrity error cause the scramble keys to change
+    .intg_err_i(intg_err_i || flash_disable_i != lc_ctrl_pkg::Off),
     .calc_req_i(prog_calc_req | rd_calc_req),
     .op_req_i(prog_op_req | rd_op_req),
     .op_type_i(prog_op_req ? ScrambleOp : DeScrambleOp),

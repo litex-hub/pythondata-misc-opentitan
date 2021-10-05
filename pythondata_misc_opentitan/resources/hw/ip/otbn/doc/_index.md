@@ -18,7 +18,6 @@ See that document for integration overview within the broader top level system.
 * Full control-flow support with conditional branch and unconditional jump instructions, hardware loops, and hardware-managed call/return stacks.
 * Reduced, security-focused instruction set architecture for easier verification and the prevention of data leaks.
 * Built-in access to random numbers.
-  Note: The (quality) properties of the provided random numbers are not currently specified; this gap in the specification will be addressed in a future revision.
 
 ## Description
 
@@ -46,7 +45,7 @@ The instruction set is split into two groups:
 
 * The **base instruction subset** operates on the 32b General Purpose Registers (GPRs).
   Its instructions are used for the control flow of a OTBN application.
-  The base instructions are inspired by RISC-V’s RV32I instruction set, but not compatible with it.
+  The base instructions are inspired by RISC-V's RV32I instruction set, but not compatible with it.
 * The **big number instruction subset** operates on 256b Wide Data Registers (WDRs).
   Its instructions are used for data processing.
 
@@ -57,7 +56,7 @@ The instruction set is split into two groups:
 OTBN has 32 General Purpose Registers (GPRs), each of which is 32b wide.
 The GPRs are defined in line with RV32I and are mainly used for control flow.
 They are accessed through the base instruction subset.
-GPRs aren't used by the main data path; this operates on the [wide data registers](#wide-data-registers-wdrs), a separate register file, controlled by the big number instructions.
+GPRs aren't used by the main data path; this operates on the [Wide Data Registers](#wide-data-registers-wdrs), a separate register file, controlled by the big number instructions.
 
 <table>
   <tr>
@@ -87,30 +86,33 @@ For example, good choices for temporary registers are `x6`, `x7`, `x28`, `x29`, 
 
 OTBN has an in-built call stack which is accessed through the `x1` GPR.
 This is intended to be used as a return address stack, containing return addresses for the current stack of function calls.
-See the documentation for [`JAL`]({{< relref "isa#jal" >}}) and [`JALR`]({{< relref "isa#jalr" >}}) for a description of how to use it for this purpose.
+See the documentation for {{< otbnInsnRef "JAL" >}} and {{< otbnInsnRef "JALR" >}} for a description of how to use it for this purpose.
 
 The call stack has a maximum depth of 8 elements.
 Each instruction that reads from `x1` pops a single element from the stack.
 Each instruction that writes to `x1` pushes a single element onto the stack.
-An instruction that reads from an empty stack or writes to a full stack causes OTBN to stop, raising an alert and setting the `ErrBitCallStack` bit in the {{< regref "ERR_BITS" >}} register.
+An instruction that reads from an empty stack or writes to a full stack causes a `CALL_STACK` [software error](#design-details-errors).
 
 A single instruction can both read and write to the stack.
 In this case, the read is ordered before the write.
 Providing the stack has at least one element, this is allowed, even if the stack is full.
 
-### Control and Status Registers (CSRs)
+### Control and Status Registers (CSRs) {#csrs}
 
 Control and Status Registers (CSRs) are 32b wide registers used for "special" purposes, as detailed in their description;
 they are not related to the GPRs.
-CSRs can be accessed through dedicated instructions, `CSRRS` and `CSRRW`.
-Writes to read-only registers are ignored; they do not signal an error.
-All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.start" >}}).
+CSRs can be accessed through dedicated instructions, {{< otbnInsnRef "CSRRS" >}} and {{< otbnInsnRef "CSRRW" >}}.
+Writes to read-only (RO) registers are ignored; they do not signal an error.
+All read-write (RW) CSRs are set to 0 when OTBN starts an operation (when 1 is written to {{< regref "CMD.start" >}}).
 
+<!-- This list of CSRs is replicated in otbn_env_cov.sv, wsr.py, the
+     RTL and in rig/model.py. If editing one, edit the other four as well. -->
 <table>
   <thead>
     <tr>
       <th>Number</th>
-      <th>Privilege</th>
+      <th>Access</th>
+      <th>Name</th>
       <th>Description</th>
     </tr>
   </thead>
@@ -118,8 +120,8 @@ All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.
     <tr>
       <td>0x7C0</td>
       <td>RW</td>
+      <td>FG0</td>
       <td>
-        <strong>FG0</strong>.
         Wide arithmetic flag group 0.
         This CSR provides access to flag group 0 used by wide integer arithmetic.
         <strong>FLAGS</strong>, <strong>FG0</strong> and <strong>FG1</strong> provide different views on the same underlying bits.
@@ -139,8 +141,8 @@ All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.
     <tr>
       <td>0x7C1</td>
       <td>RW</td>
+      <td>FG1</td>
       <td>
-        <strong>FG1</strong>.
         Wide arithmetic flag group 1.
         This CSR provides access to flag group 1 used by wide integer arithmetic.
         <strong>FLAGS</strong>, <strong>FG0</strong> and <strong>FG1</strong> provide different views on the same underlying bits.
@@ -160,8 +162,8 @@ All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.
     <tr>
       <td>0x7C8</td>
       <td>RW</td>
+      <td>FLAGS</td>
       <td>
-        <strong>FLAGS</strong>.
         Wide arithmetic flag groups.
         This CSR provides access to both flags groups used by wide integer arithmetic.
         <strong>FLAGS</strong>, <strong>FG0</strong> and <strong>FG1</strong> provide different views on the same underlying bits.
@@ -185,102 +187,107 @@ All RW CSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.
     <tr>
       <td>0x7D0</td>
       <td>RW</td>
+      <td>MOD0</td>
       <td>
-        <strong>MOD0</strong>.
-        Bits [31:0] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [31:0] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D1</td>
       <td>RW</td>
+      <td>MOD1</td>
       <td>
-        <strong>MOD1</strong>.
-        Bits [63:32] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [63:32] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D2</td>
       <td>RW</td>
+      <td>MOD2</td>
       <td>
-        <strong>MOD2</strong>.
-        Bits [95:64] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [95:64] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D3</td>
       <td>RW</td>
+      <td>MOD3</td>
       <td>
-        <strong>MOD3</strong>.
-        Bits [127:96] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [127:96] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D4</td>
       <td>RW</td>
+      <td>MOD4</td>
       <td>
-        <strong>MOD4</strong>.
-        Bits [159:128] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [159:128] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D5</td>
       <td>RW</td>
+      <td>MOD5</td>
       <td>
-        <strong>MOD5</strong>.
-        Bits [191:160] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [191:160] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D6</td>
       <td>RW</td>
+      <td>MOD6</td>
       <td>
-        <strong>MOD6</strong>.
-        Bits [223:192] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [223:192] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
       <td>0x7D7</td>
       <td>RW</td>
+      <td>MOD7</td>
       <td>
-        <strong>MOD7</strong>.
-        Bits [255:224] of the modulus operand, used in the BN.ADDM/BN.SUBM instructions.
+        Bits [255:224] of the modulus operand, used in the {{< otbnInsnRef "BN.ADDM" >}}/{{< otbnInsnRef "BN.SUBM" >}} instructions.
         This CSR is mapped to the MOD WSR.
       </td>
     </tr>
     <tr>
-      <td>0xFC0</td>
-      <td>R</td>
-      <td>
-        <strong>RND</strong>.
-        A random number.
-        The number is sourced from the EDN via a single-entry cache.
-        Reads when the cache is empty will cause OTBN to be stalled until a new random number is available.
-      </td>
-    </tr>
-    <tr>
-      <td>0xFC1</td>
+      <td>0x7D8</td>
       <td>RW</td>
+      <td>RND_PREFETCH</td>
       <td>
-        <strong>RND_PREFETCH</strong>.
         Write to this CSR to begin a request to fill the RND cache.
         Always reads as 0.
       </td>
     </tr>
     <tr>
-      <td>0xFC2</td>
-      <td>R</td>
+      <td>0xFC0</td>
+      <td>RO</td>
+      <td>RND</td>
       <td>
-        <strong>URND</strong>.
-        A random number.
-        The number is sourced from an LFSR.
-        Reads never stall.
+An AIS31-compliant class PTG.3 random number with guaranteed entropy and forward and backward secrecy.
+Primarily intended to be used for key generation.
+
+The number is sourced from the EDN via a single-entry cache.
+Reads when the cache is empty will cause OTBN to be stalled until a new random number is fetched from the EDN.
+      </td>
+    </tr>
+    <tr>
+      <td>0xFC1</td>
+      <td>RO</td>
+      <td>URND</td>
+      <td>
+A random number without guaranteed secrecy properties or specific statistical properties.
+Intended for use in masking and blinding schemes.
+Use RND for high-quality randomness.
+
+The number is sourced from an LFSR.
+Reads never stall.
       </td>
     </tr>
   </tbody>
@@ -303,61 +310,68 @@ GPRs are accessible from the base instruction subset, and WDRs are accessible fr
 | ...      |
 | w31      |
 
-### Wide Special Purpose Registers (WSRs)
+### Wide Special Purpose Registers (WSRs) {#wsrs}
 
 OTBN has 256b Wide Special purpose Registers (WSRs).
 These are analogous to the 32b CSRs, but are used by big number instructions.
-They can be accessed with the [`BN.WSRRS`]({{< relref "isa#bnwsrrs" >}}) and [`BN.WSRRW`]({{< relref "isa#bnwsrrw" >}}) instructions.
-Writes to read-only registers are ignored; they do not signal an error.
-All RW WSRs are set to 0 when OTBN starts (when 1 is written to {{< regref "CMD.start" >}}).
+They can be accessed with the {{< otbnInsnRef "BN.WSRR" >}} and {{< otbnInsnRef "BN.WSRW" >}} instructions.
+Writes to read-only (RO) registers are ignored; they do not signal an error.
+All read-write (RW) WSRs are set to 0 when OTBN starts an operation (when 1 is written to {{< regref "CMD.start" >}}).
 
+<!-- This list of WSRs is replicated in otbn_env_cov.sv, wsr.py, the
+     RTL and in rig/model.py. If editing one, edit the other four as well. -->
 <table>
   <thead>
     <tr>
       <th>Number</th>
+      <th>Access</th>
       <th>Name</th>
-      <th>R/W</th>
       <th>Description</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>0x0</td>
-      <td><strong>MOD</strong></td>
       <td>RW</td>
+      <td>MOD</td>
 <td>
 
-The modulus used by the [`BN.ADDM`]({{< relref "isa#bnaddm" >}}) and [`BN.SUBM`]({{< relref "isa#bnsubm" >}}) instructions.
+The modulus used by the {{< otbnInsnRef "BN.ADDM" >}} and {{< otbnInsnRef "BN.SUBM" >}} instructions.
 This WSR is also visible as CSRs `MOD0` through to `MOD7`.
 
 </td>
     </tr>
     <tr>
       <td>0x1</td>
-      <td><strong>RND</strong></td>
-      <td>R</td>
+      <td>RO</td>
+      <td>RND</td>
       <td>
-        A random number.
-        The number is sourced from the EDN via a single-entry cache.
-        Reads when the cache is empty will cause OTBN to be stalled until a new random number is fetched from the EDN.
+An AIS31-compliant class PTG.3 random number with guaranteed entropy and forward and backward secrecy.
+Primarily intended to be used for key generation.
+
+The number is sourced from the EDN via a single-entry cache.
+Reads when the cache is empty will cause OTBN to be stalled until a new random number is fetched from the EDN.
       </td>
     </tr>
     <tr>
       <td>0x2</td>
-      <td><strong>ACC</strong></td>
-      <td>RW</td>
+      <td>RO</td>
+      <td>URND</td>
       <td>
-        The accumulator register used by the BN.MULQACC instruction.
+A random number without guaranteed secrecy properties or specific statistical properties.
+Intended for use in masking and blinding schemes.
+Use RND for high-quality randomness.
+
+The number is sourced from an LFSR.
+Reads never stall.
       </td>
     </tr>
     <tr>
       <td>0x3</td>
-      <td><strong>URND</strong></td>
-      <td>R</td>
+      <td>RW</td>
+      <td>ACC</td>
       <td>
-        A random number.
-        The number is sourced from an LFSR.
-        Reads never stall.
+        The accumulator register used by the {{< otbnInsnRef "BN.MULQACC" >}} instruction.
       </td>
     </tr>
   </tbody>
@@ -386,10 +400,54 @@ The `M`, `L`, and `Z` flags are determined based on the result of the operation 
 
 ### Loop Stack
 
-OTBN has two instructions for hardware-assisted loops: [`LOOP`]({{< relref "isa#loop" >}}) and [`LOOPI`]({{< relref "isa#loopi" >}}).
+OTBN has two instructions for hardware-assisted loops: {{< otbnInsnRef "LOOP" >}} and {{< otbnInsnRef "LOOPI" >}}.
 Both use the same state for tracking control flow.
 This is a stack of tuples containing a loop count, start address and end address.
 The stack has a maximum depth of eight and the top of the stack is the current loop.
+
+# Security Features
+
+<div class="bd-callout bd-callout-warning">
+  <h5>Work in progress</h5>
+
+  Work on OTBN is ongoing, including work on the specification and implementation of its security features.
+  Do not treat the following description (or anything in this documentation) as final, fully implemented, or verified.
+</div>
+
+OTBN is a security co-processor.
+It contains various security features and is hardened against side-channel analysis and fault injection attacks.
+The following sections describe the high-level security features of OTBN.
+Refer to the [Design Details]({{< relref "#design-details" >}}) section for a more in-depth description.
+
+## Data Integrity Protection
+
+OTBN's data integrity protection is designed to protect the data stored and processed within OTBN from modifications through physical attacks.
+
+Data in OTBN travels along a data path which includes the data memory (DMEM), the load-store-unit (LSU), the register files (GPR and WDR), and the execution units.
+Whenever possible, data transmitted or stored within OTBN is protected with an integrity protection code which guarantees the detection of at least three modified bits per 32 bit word.
+Additionally, instructions and data stored in the instruction and data memory, respectively, are scrambled with a lightweight, non-cryptographically-secure cipher.
+
+Refer to the [Data Integrity Protection]({{<relref "#design-details-data-integrity-protection">}}) section for details of how the data integrity protections are implemented.
+
+## Secure Wipe
+
+OTBN provides a mechanism to securely wipe all state it stores, including the instruction memory.
+
+The full secure wipe mechanism is split into three parts:
+- [Data memory secure wipe]({{<relref "#design-details-secure-wipe-dmem">}})
+- [Instruction memory secure wipe]({{<relref "#design-details-secure-wipe-imem">}})
+- [Internal state secure wipe]({{<relref "#design-details-secure-wipe-internal">}})
+
+A secure wipe is performed automatically in certain situations, or can be requested manually by the host software.
+The full secure wipe is automatically initiated as a local reaction to a fatal error.
+A secure wipe of only the internal state is performed whenever an OTBN operation is complete and after a recoverable error.
+Finally, host software can manually trigger the data memory and instruction memory secure wipe operations by issuing an appropriate [command](#design-details-commands).
+
+Refer to the [Secure Wipe]({{<relref "#design-details-secure-wipe">}}) section for implementation details.
+
+## Instruction Counter
+
+In order to detect and mitigate fault injection attacks on the OTBN, the host CPU can read the number of executed instructions from {{< regref "INSN_CNT">}} and verify whether it matches the expectation.
 
 # Theory of Operations
 
@@ -401,7 +459,23 @@ The stack has a maximum depth of eight and the top of the stack is the current l
 
 {{< incGenFromIpDesc "../data/otbn.hjson" "hwcfg" >}}
 
-## Design Details
+### Hardware Interface Requirements
+
+OTBN connects to other components in an OpenTitan system.
+This section lists requirements on those interfaces that go beyond the physical connectivity.
+
+#### Entropy Distribution Network (EDN)
+
+OTBN has two EDN connections: `edn_urnd` and `edn_rnd`.
+What kind of randomness is provided on the EDN connections is configurable at runtime, but unknown to OTBN.
+To maintain its security properties, OTBN requires the following configuration for the two EDN connections:
+
+* OTBN has no specific requirements on the randomness drawn from `edn_urnd`.
+  For performance reasons, requests on this EDN connection should be answered quickly.
+* `edn_rnd` must provide AIS31-compliant class PTG.3 random numbers.
+  The randomness from this interface is made available through the `RND` WSR and intended to be used for key generation.
+
+## Design Details {#design-details}
 
 ### Memories
 
@@ -416,86 +490,416 @@ It cannot be read from or written to by user code through load or store instruct
 
 The data memory (DMEM) is 256b wide and read-write accessible from the base and big number instruction subsets of the OTBN processor core.
 There are four instructions that can access data memory.
-In the base instruction subset, there are `LW` (load word) and `SW` (store word).
+In the base instruction subset, there are {{< otbnInsnRef "LW" >}} (load word) and {{< otbnInsnRef "SW" >}} (store word).
 These access 32b-aligned 32b words.
-In the big number instruction subset, there are `BN.LID` (load indirect) and `BN.SID` (store indirect).
+In the big number instruction subset, there are {{< otbnInsnRef "BN.LID" >}} (load indirect) and {{< otbnInsnRef "BN.SID" >}} (store indirect).
 These access 256b-aligned 256b words.
 
 Both memories can be accessed through OTBN's register interface ({{< regref "DMEM" >}} and {{< regref "IMEM" >}}).
 These accesses are ignored if OTBN is busy.
-A host processor can check whether OTBN is busy by reading the {{< regref "STATUS.busy">}} flag.
+A host processor can check whether OTBN is busy by reading the {{< regref "STATUS">}} register.
 All memory accesses through the register interface must be word-aligned 32b word accesses.
 
 ### Random Numbers
 
 OTBN is connected to the [Entropy Distribution Network (EDN)]({{< relref "hw/ip/edn/doc" >}}) which can provide random numbers via the `RND` and `URND` CSRs and WSRs.
 
-`RND` provides bits taken directly from the EDN.
-As an EDN request can take time, `RND` is backed by a single-entry cache containing the result of the most recent EDN request.
+`RND` provides bits taken directly from the EDN connected via `edn_rnd`.
+The EDN interface provides 32b of entropy per transaction and comes from a different clock domain to the OTBN core.
+A FIFO is used to synchronize the incoming package to the OTBN clock domain.
+Synchronized packages are then stacked up to a single `WLEN` value of 256b.
+In order to service a single EDN request, a total of 8 transactions are required from EDN interface.
+
+As an EDN request can take time, `RND` is backed by a single-entry cache containing the result of the most recent EDN request in OTBN core level.
 A read from `RND` empties this cache.
 A prefetch into the cache, which can be used to hide the EDN latency, is triggered on any write to the `RND_PREFETCH` CSR.
 Writes to `RND_PREFETCH` will be ignored whilst a prefetch is in progress or when the cache is already full.
 OTBN will stall until the request provides bits.
 Both the `RND` CSR and WSR take their bits from the same cache.
 `RND` CSR reads simply discard the other 192 bits on a read.
-When stalling on an `RND` read, OTBN will unstall on the cycle after `otbn_core` receives WLEN RND data from the EDN.
+When stalling on an `RND` read, OTBN will unstall on the cycle after it receives WLEN RND data from the EDN.
 
-`URND` provides bits from an LFSR; reads from it never stall.
-The `URND` LFSR is seeded once from the EDN when OTBN starts execution.
+`URND` provides bits from an LFSR within OTBN; reads from it never stall.
+The `URND` LFSR is seeded once from the EDN connected via `edn_urnd` when OTBN starts execution.
 Each new execution of OTBN will reseed the `URND` LFSR.
 The LFSR state is advanced every cycle when OTBN is running.
 
-### Error Handling and Reporting
+### Operational States {#design-details-operational-states}
 
-By design, OTBN is a simple processor and provides no error handling support to code that runs on it.
+<!--
+Source: https://docs.google.com/drawings/d/1C0D4UriRk5pKGFoFtAXYLcJ1oBG1BCDd2omCLPYHtr0/edit
 
-Whenever OTBN observes an error, it will generate an alert.
-This gets sent to the alert manager.
-The alert will either be fatal or recoverable, depending on the class of error: see [Alerts]({{< relref "#alerts" >}}) and {{< regref "ERR_BITS" >}} below for details.
+Download the SVG from Google Draw, open it in Inkscape once and save it without changes to add width/height information to the image.
+-->
+![OTBN operational states](otbn_operational_states.svg)
 
-If OTBN was running when the alert occurred (this is true whenever {{< regref "STATUS.busy" >}} is high), it will also:
-- Immediately stop fetching and executing instructions.
-- Set {{< regref "INTR_STATE.done" >}} and clear {{< regref "STATUS.busy" >}}, marking the operation as completed.
-- Set the {{< regref "ERR_BITS" >}} register to a non-zero value describing the error.
+OTBN can be in different operational states.
+OTBN is *busy* for as long it is performing an operation.
+OTBN is *locked* if a fatal error was observed.
+Otherwise OTBN is *idle*.
+
+The current operational state is reflected in the {{< regref "STATUS" >}} register.
+- If OTBN is idle, the {{< regref "STATUS" >}} register is set to `IDLE`.
+- If OTBN is busy, the {{< regref "STATUS" >}} register is set to one of the values starting with `BUSY_`.
+- If OTBN is locked, the {{< regref "STATUS" >}} register is set to `LOCKED`.
+
+OTBN transitions into the busy state as result of host software [issuing a command](#design-details-commands); OTBN is then said to perform an operation.
+OTBN transitions out of the busy state whenever the operation has completed.
+In the {{< regref "STATUS" >}} register the different `BUSY_*` values represent the operation that is currently being performed.
+
+A transition out of the busy state is signaled by the `done` interrupt ({{< regref "INTR_STATE.done" >}}).
+
+The locked state is a terminal state; transitioning out of it requires an OTBN reset.
+
+### Operations and Commands {#design-details-commands}
+
+OTBN understands a set of commands to perform certain operations.
+Commands are issued by writing to the {{< regref "CMD" >}} register.
+
+The `EXECUTE` command starts the [execution of the application](#design-details-software-execution) contained in OTBN's instruction memory.
+
+The `SEC_WIPE_DMEM` command [securely wipes the data memory](#design-details-secure-wipe).
+
+The `SEC_WIPE_IMEM` command [securely wipes the instruction memory](#design-details-secure-wipe).
+
+### Software Execution {#design-details-software-execution}
+
+Software execution on OTBN is triggered by host software by [issuing the `EXECUTE` command](#design-details-commands).
+The software then runs to completion, without the ability for host software to interrupt or inspect the execution.
+
+- OTBN transitions into the busy state, and reflects this by setting {{< regref "STATUS">}} to `BUSY_EXECUTE`.
+- The internal randomness source, which provides random numbers to the `URND` CSR and WSR, is re-seeded from the EDN.
+- The instruction at address zero is fetched and executed.
+- From this point on, all subsequent instructions are executed according to their semantics until either an {{< otbnInsnRef "ECALL" >}} instruction is executed, or an error is detected.
+- A [secure wipe of internal state](#design-details-secure-wipe-internal) is performed.
+- The {{< regref "ERR_BITS" >}} register is set to indicate either a successful execution (value `0`), or to indicate the error that was observed (a non-zero value).
+- OTBN transitions into the [idle state](#design-details-operational-states) (in case of a successful execution, or a recoverable error) or the locked state (in case of a fatal error).
+  This transition is signaled by raising the `done` interrupt ({{< regref "INTR_STATE.done" >}}), and reflected in the {{< regref "STATUS" >}} register.
+
+### Errors {#design-details-errors}
+
+OTBN is able to detect a range of errors, which are classified as *software errors* or *fatal errors*.
+A software error is an error in the code that OTBN executes.
+In the absence of an attacker, these errors are due to a programmer's mistake.
+A fatal error is typically the violation of a security property.
+All errors and their classification are listed in the [List of Errors](#design-details-list-of-errors).
+
+Whenever an error is detected, OTBN reacts locally, and informs the OpenTitan system about it by raising an alert.
+OTBN generally does not try to recover from errors itself, and provides no error handling support to code that runs on it.
+
+OTBN gives host software the option to recover from some errors by restarting the operation.
+All software errors are treated as recoverable, unless {{< regref "CTRL.software_errs_fatal" >}} is set, and are handled as described in the section [Reaction to Recoverable Errors](#design-details-recoverable-errors).
+When {{< regref "CTRL.software_errs_fatal" >}} is set, software errors become fatal errors.
+
+Fatal errors are treated as described in the section [Reaction to Fatal Errors](#design-details-fatal-errors).
+
+### Reaction to Recoverable Errors {#design-details-recoverable-errors}
+
+Recoverable errors can be the result of a programming error in OTBN software.
+Recoverable errors can only occur during the execution of software on OTBN, and not in other situations in which OTBN might be busy.
+
+The following actions are taken when OTBN detects a recoverable error:
+
+1. The currently running operation is terminated, similar to the way an {{< otbnInsnRef "ECALL" >}} instruction [is executed](#writing-otbn-applications-ecall):
+   - No more instructions are fetched or executed.
+   - A [secure wipe of internal state](#design-details-secure-wipe-internal) is performed.
+   - The {{< regref "ERR_BITS" >}} register is set to a non-zero value that describes the error.
+   - The current operation is marked as complete by setting {{< regref "INTR_STATE.done" >}}.
+   - The {{< regref "STATUS" >}} register is set to `IDLE`.
+2. A [recoverable alert]({{< relref "#alerts" >}}) is raised.
+
+The host software can start another operation on OTBN after a recoverable error was detected.
+
+### Reaction to Fatal Errors {#design-details-fatal-errors}
+
+Fatal errors are generally seen as a sign of an intrusion, resulting in more drastic measures to protect the secrets stored within OTBN.
+Fatal errors can occur at any time, even when an OTBN operation isn't in progress.
+
+The following actions are taken when OTBN detects a fatal error:
+
+1. A [secure wipe of the data memory](#design-details-secure-wipe-dmem) and a [secure wipe of the instruction memory](#design-details-secure-wipe-imem) is initiated.
+2. If OTBN [is not idle](#design-details-operational-states), then the currently running operation is terminated, similarly to how an operation ends after an {{< otbnInsnRef "ECALL" >}} instruction [is executed](#writing-otbn-applications-ecall):
+   - No more instructions are fetched or executed.
+   - A [secure wipe of internal state](#design-details-secure-wipe-internal) is performed.
+   - The {{< regref "ERR_BITS" >}} register is set to a non-zero value that describes the error.
+   - The current operation is marked as complete by setting {{< regref "INTR_STATE.done" >}}.
+3. The {{< regref "STATUS" >}} register is set to `LOCKED`.
+4. A [fatal alert]({{< relref "#alerts" >}}) is raised.
 
 Note that OTBN can detect some errors even when it isn't running.
-One example of this is an error caused by an ECC failure when reading or programming OTBN's memories over the bus.
+One example of this is an error caused by an integrity error when reading or writing OTBN's memories over the bus.
 In this case, the {{< regref "ERR_BITS" >}} register will not change.
 This avoids race conditions with the host processor's error handling software.
-However, every error that OTBN detects when it isn't running causes a fatal alert.
+However, every error that OTBN detects when it isn't running is fatal.
 This means that the cause will be reflected in {{< regref "FATAL_ALERT_CAUSE" >}}, as described below in [Alerts]({{< relref "#alerts" >}}).
 This way, no alert is generated without setting an error code somewhere.
 
-<div class="bd-callout bd-callout-warning">
-  <h5>TODO</h5>
+### List of Errors {#design-details-list-of-errors}
 
-  When the implementation is finished, document more precisely how OTBN stops on error.
-  Can we claim to cancel all register and memory writes in that cycle?
-  Is there a way for that to make sense for errors that aren't related to a particular instruction (e.g. shadow register mis-matches; FSM glitches)?
-
-  Also, once it is decided, document behaviour on a bus access when OTBN is running.
-</div>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Class</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>BAD_DATA_ADDR<code></td>
+      <td>software</td>
+      <td>A data memory access occurred with an out of bounds or unaligned access.</td>
+    </tr>
+    <tr>
+      <td><code>BAD_INSN_ADDR<code></td>
+      <td>software</td>
+      <td>An instruction memory access occurred with an out of bounds or unaligned access.</td>
+    </tr>
+    <tr>
+      <td><code>CALL_STACK<code></td>
+      <td>software</td>
+      <td>An instruction tried to pop from an empty call stack or push to a full call stack.</td>
+    </tr>
+    <tr>
+      <td><code>ILLEGAL_INSN<code></td>
+      <td>software</td>
+      <td>
+        An illegal instruction was about to be executed.
+      </td>
+    <tr>
+      <td><code>LOOP<code></td>
+      <td>software</td>
+      <td>
+        A loop stack-related error was detected.
+      </td>
+    </tr>
+    <tr>
+      <td><code>IMEM_INTG_VIOLATION<code></td>
+      <td>fatal</td>
+      <td>Data read from the instruction memory failed the integrity checks.</td>
+    </tr>
+    <tr>
+      <td><code>DMEM_INTG_VIOLATION<code></td>
+      <td>fatal</td>
+      <td>Data read from the data memory failed the integrity checks.</td>
+    </tr>
+    <tr>
+      <td><code>REG_INTG_VIOLATION<code></td>
+      <td>fatal</td>
+      <td>Data read from a GPR or WDR failed the integrity checks.</td>
+    </tr>
+    <tr>
+      <td><code>BUS_INTG_VIOLATION<code></td>
+      <td>fatal</td>
+      <td>An incoming bus transaction failed the integrity checks.</td>
+    </tr>
+    <tr>
+      <td><code>ILLEGAL_BUS_ACCESS<code></td>
+      <td>fatal</td>
+      <td>A bus-accessible register or memory was accessed when not allowed.</td>
+    </tr>
+    <tr>
+      <td><code>LIFECYCLE_ESCALATION<code></td>
+      <td>fatal</td>
+      <td>A life cycle escalation request was received.</td>
+    </tr>
+    <tr>
+      <td><code>FATAL_SOFTWARE<code></td>
+      <td>fatal</td>
+      <td>A software error was seen and {{< regref "CTRL.software_errs_fatal" >}} was set.</td>
+    </tr>
+  </tbody>
+</table>
 
 ### Alerts
 
+An alert is a reaction to an error that OTBN detected.
 OTBN has two alerts, one recoverable and one fatal.
-The {{< regref "ERR_BITS" >}} register documentation has a detailed list of error conditions, those with 'fatal' in the name raise a **fatal alert**, otherwise they raise a **recoverable alert**.
 
-A **recoverable alert** is a one-time triggered alert for recoverable error conditions.
-Recoverable alerts are only triggered when OTBN is running, so will always imply a write to {{< regref "ERR_BITS" >}}.
+A **recoverable alert** is a one-time triggered alert caused by [recoverable errors](#design-details-recoverable-errors).
 The error that caused the alert can be determined by reading the {{< regref "ERR_BITS" >}} register.
 
-A **fatal alert** is a continuously triggered alert after unrecoverable error conditions.
+A **fatal alert** is a continuously triggered alert caused by [fatal errors](#design-details-fatal-errors).
 The error that caused the alert can be determined by reading the {{< regref "FATAL_ALERT_CAUSE" >}} register.
 If OTBN was running, this value will also be reflected in the {{< regref "ERR_BITS" >}} register.
 A fatal alert can only be cleared by resetting OTBN through the `rst_ni` line.
 
+### Reaction to Life Cycle Escalation Requests {#design-details-lifecycle-escalation}
+
+OTBN receives and reacts to escalation signals from the [life cycle controller]({{< relref "/hw/ip/lc_ctrl/doc#security-escalation" >}}).
+An incoming life cycle escalation is a fatal error of type `lifecycle_escalation` and treated as described in the section [Fatal Errors](#design-details-fatal-errors).
+
 ### Idle
 
 OTBN exposes a single-bit `idle_o` signal, intended to be used by the clock manager to clock-gate the block when it is not in use.
-This signal is high when OTBN is not running.
-The cycle after a write to {{< regref "CMD.start" >}}, the signal goes low.
-This remains low until the end of the operation (either from an [`ECALL`]({{< relref "isa#ecall" >}}) or an error, at which point it goes high again.
+This signal is in the same clock domain as `clk_i`.
+The `idle_o` signal is high when OTBN [is idle](#design-details-operational-states), and low otherwise.
+
+OTBN also exposes another version of the idle signal as `idle_otp_o`.
+This works analogously, but is in the same clock domain as `clk_otp_i`.
+
+TODO: Specify interactions between `idle_o`, `idle_otp_o` and the clock manager fully.
+
+### Data Integrity Protection {#design-details-data-integrity-protection}
+
+OTBN stores and operates on data (state) in its dedicated memories, register files, and internal registers.
+OTBN's data integrity protection is designed to protect all data stored and transmitted within OTBN from modifications through physical attacks.
+
+During transmission, the integrity of data is protected with an integrity protection code.
+Data at rest in the instruction and data memories is additionally scrambled.
+
+In the following, the Integrity Protection Code and the scrambling algorithm are discussed, followed by their application to individual storage elements.
+
+#### Integrity Protection Code {#design-details-integrity-protection-code}
+
+OTBN uses the same integrity protection code everywhere to provide overarching data protection without regular re-encoding.
+The code is applied to 32b data words, and produces 39b of encoded data.
+
+The code used is an (39,32) Hsiao "single error correction, double error detection" (SECDED) error correction code (ECC) [[CHEN08]({{< relref "#ref-chen08">}})].
+It has a minimum Hamming distance of four, resulting in the ability to detect at least three errors in a 32 bit word.
+The code is used for error detection only; no error correction is performed.
+
+#### Memory Scrambling {#design-details-memory-scrambling}
+
+Contents of OTBN's instruction and data memories are scrambled while at rest.
+The data is bound to the address and scrambled before being stored in memory.
+The addresses are randomly remapped.
+
+Note that data stored in other temporary memories within OTBN, including the register files, is not scrambled.
+
+Scrambling is used to obfuscate the memory contents and to diffuse the data.
+Obfuscation makes passive probing more difficult, while diffusion makes active fault injection attacks more difficult.
+
+The scrambling mechanism is described in detail in the [section "Scrambling Primitive" of the SRAM Controller Technical Specification](/hw/ip/sram_ctrl/doc/#scrambling-primitive).
+
+The scrambling keys are rotated regularly, refer to the sections below for more details.
+
+#### Actions on Integrity Errors
+
+A fatal error is raised whenever a data integrity violation is detected, which results in an immediate stop of all processing and the issuing of a fatal alert.
+The section [Error Handling and Reporting]({{< relref "#design-details-error-handling-and-reporting" >}}) describes the error handling in more detail.
+
+#### Register File Integrity Protection
+
+OTBN contains two register files: the 32b GPRs and the 256b WDRs.
+The data stored in both register files is protected with the [Integrity Protection Code]({{< relref "#design-details-integrity-protection-code">}}).
+Neither the register file contents nor register addresses are scrambled.
+
+The GPRs `x2` to `x31` store a 32b data word together with the Integrity Protection Code, resulting in 39b of stored data.
+(`x0`, the zero register, and `x1`, the call stack, require special treatment.)
+
+Each 256b Wide Data Register (WDR) stores a 256b data word together with the Integrity Protection Code, resulting in 312b of stored data.
+The integrity protection is done separately for each of the eight 32b sub-words within a 256b word.
+
+The register files can consume data protected with the Integrity Protection Code, or add it on demand.
+Whenever possible the Integrity Protection Code is preserved from its source and written directly to the register files without recalculation, in particular in the following cases:
+
+* Data coming from the data memory (DMEM) through the load-store unit to a GPR or WDR.
+* Data copied between WDRs using the {{< otbnInsnRef "BN.MOV" >}} or {{< otbnInsnRef "BN.MOVR" >}} instructions.
+* Data conditionally copied between WDRs using the {{< otbnInsnRef "BN.SEL" >}} instruction.
+* Data copied between the `ACC` and `MOD` WSRs and a WDR.
+  (TODO: Not yet implemented.)
+* Data copied between any of the `MOD0` to `MOD7` CSRs and a GPR.
+  (TODO: Not yet implemented.)
+
+In all other cases the register files add the Integrity Protection Code to the incoming data before storing the data word.
+
+The integrity protection bits are checked on every read from the register files, even if the integrity protection is not removed from the data.
+
+Detected integrity violations in a register file raise a fatal `reg_error`.
+
+#### Data Memory (DMEM) Integrity Protection
+
+OTBN's data memory is 256b wide, but allows for 32b word accesses.
+To facilitate such accesses, all integrity protection in the data memory is done on a 32b word granularity.
+
+All data entering or leaving the data memory block is protected with the [Integrity Protection Code]({{< relref "#design-details-integrity-protection-code">}});
+this code is not re-computed within the memory block.
+
+Before being stored in SRAM, the data word with the attached Integrity Protection Code, as well as the address are scrambled according to the [memory scrambling algorithm]({{< relref "#design-details-memory-scrambling">}}).
+The scrambling is reversed on a read.
+
+The ephemeral memory scrambling key and the nonce are provided by the [OTP block]({{<relref "/hw/ip/otp_ctrl/doc" >}}).
+They are set once when OTBN block is reset, and changed whenever a [secure wipe]({{<relref "#design-details-secure-wipe-dmem">}}) of the data memory is performed.
+
+
+The Integrity Protection Code is checked on every memory read, even though the code remains attached to the data.
+A further check must be performed when the data is consumed.
+Detected integrity violations in the data memory raise a fatal `dmem_error`.
+
+#### Instruction Memory (IMEM) Integrity Protection
+
+All data entering or leaving the instruction memory block is protected with the [Integrity Protection Code]({{< relref "#design-details-integrity-protection-code">}});
+this code is not re-computed within the memory block.
+
+Before being stored in SRAM, the instruction word with the attached Integrity Protection Code, as well as the address are scrambled according to the [memory scrambling algorithm]({{< relref "#design-details-memory-scrambling">}}).
+The scrambling is reversed on a read.
+
+The ephemeral memory scrambling key and the nonce are provided by the [OTP block]({{<relref "/hw/ip/otp_ctrl/doc" >}}).
+They are set once when OTBN block is reset, and changed whenever a [secure wipe]({{<relref "#design-details-secure-wipe-imem">}}) of the instruction memory is performed.
+
+The Integrity Protection Code is checked on every memory read, even though the code remains attached to the data.
+A further check must be performed when the data is consumed.
+Detected integrity violations in the data memory raise a fatal `imem_error`.
+
+### Secure Wipe {#design-details-secure-wipe}
+
+Applications running on OTBN may store sensitive data in the internal registers or the memory.
+In order to prevent an untrusted application from reading any leftover data, OTBN provides the secure wipe operation.
+This operation can be applied to:
+- [Data memory]({{<relref "#design-details-secure-wipe-dmem">}})
+- [Instruction memory]({{<relref "#design-details-secure-wipe-imem">}})
+- [Internal state]({{<relref "#design-details-secure-wipe-internal">}})
+
+The three forms of secure wipe can be triggered in different ways.
+
+A secure wipe of either the instruction or the data memory can be triggered from from host software by issuing a `SEC_WIPE_DMEM` or `SEC_WIPE_IMEM` [command](#design-details-command).
+
+A secure wipe of instruction memory, data memory, and all internal state is performed automatically when handling a [fatal error](#design-details-fatal-errors).
+
+A secure wipe of the internal state only is triggered automatically when OTBN [ends the software execution](#design-details-software-execution), either successfully, or unsuccessfully due to a [recoverable error](#design-details-recoverable-errors).
+
+#### Data Memory (DMEM) Secure Wipe {#design-details-secure-wipe-dmem}
+
+The wiping is performed by securely replacing the memory scrambling key, making all data stored in the memory unusable.
+The key replacement is a two-step process:
+
+* Overwrite the 128b key of the memory scrambling primitive with randomness from URND.
+  This action takes a single cycle.
+* Request new scrambling parameters from OTP.
+  The request takes multiple cycles to complete.
+
+Host software can initiate a data memory secure wipe by [issuing the `SEC_WIPE_DMEM` command](#design-details-commands).
+
+#### Instruction Memory (IMEM) Secure Wipe {#design-details-secure-wipe-imem}
+
+The wiping is performed by securely replacing the memory scrambling key, making all instructions stored in the memory unusable.
+The key replacement is a two-step process:
+
+* Overwrite the 128b key of the memory scrambling primitive with randomness from URND.
+  This action takes a single cycle.
+* Request new scrambling parameters from OTP.
+  The request takes multiple cycles to complete.
+
+Host software can initiate a data memory secure wipe by [issuing the `SEC_WIPE_IMEM` command](#design-details-commands).
+
+#### Internal State Secure Wipe {#design-details-secure-wipe-internal}
+
+OTBN provides a mechanism to securely wipe all internal state, excluding the instruction and data memories.
+
+The following state is wiped:
+* Register files: GPRs and WDRs
+* The accumulator register (also accessible through the ACC WSR)
+* Flags (accessible through the FG0, FG1, and FLAGS CSRs)
+* The modulus (accessible through the MOD0 to MOD7 CSRs and the MOD WSR)
+
+The wiping procedure is a two-step process:
+* Overwrite the state with randomness from URND.
+* Overwrite the state with zeros.
+
+Loop and call stack pointers are reset.
+
+Host software cannot explicitly trigger an internal secure wipe; it is performed automatically at the end of an `EXECUTE` operation.
 
 # Running applications on OTBN
 
@@ -509,7 +913,7 @@ The high-level sequence by which the host processor should use OTBN is as follow
 
 1. Write the OTBN application binary to {{< regref "IMEM" >}}, starting at address 0.
 2. Optional: Write constants and input arguments, as mandated by the calling convention of the loaded application, to {{< regref "DMEM" >}}.
-3. Start the operation on OTBN by writing `1` to {{< regref "CMD.start" >}}.
+3. Start the operation on OTBN by [issuing the `EXECUTE` command](#design-details-commands).
    Now neither data nor instruction memory may be accessed from the host CPU.
    After it has been started the OTBN application runs to completion without further interaction with the host.
 4. Wait for the operation to complete (see below).
@@ -518,11 +922,11 @@ The high-level sequence by which the host processor should use OTBN is as follow
 6. Optional: Retrieve results by reading {{< regref "DMEM" >}}, as mandated by the calling convention of the loaded application.
 
 OTBN applications are run to completion.
-The host CPU can determine if an application has completed by either polling {{< regref "STATUS.busy">}} or listening for an interrupt.
+The host CPU can determine if an application has completed by either polling {{< regref "STATUS">}} or listening for an interrupt.
 
-* To poll for a completed operation, software should repeatedly read the {{< regref "STATUS.busy" >}} register.
-  While the operation is in progress, {{< regref "STATUS.busy" >}} reads as `1`.
-  The operation is completed if {{< regref "STATUS.busy" >}} is `0`.
+* To poll for a completed operation, software should repeatedly read the {{< regref "STATUS" >}} register.
+  The operation is complete if {{< regref "STATUS" >}} is `IDLE` or `LOCKED`, otherwise the operation is in progress.
+  When {{< regref "STATUS" >}} has become `LOCKED` a fatal error has occurred and OTBN must be reset to perform further operations.
 * Alternatively, software can listen for the `done` interrupt to determine if the operation has completed.
   The standard sequence of working with interrupts has to be followed, i.e. the interrupt has to be enabled, an interrupt service routine has to be registered, etc.
   The [DIF]({{<relref "#dif" >}}) contains helpers to do so conveniently.
@@ -536,7 +940,9 @@ Depending on the application additional steps might be necessary, such as deleti
 
 ## Driver {#driver}
 
-A higher-level driver for the OTBN block is available at `sw/device/lib/runtime/otbn.h` ([API documentation](/sw/apis/otbn_8h.html)).
+A higher-level driver for the OTBN block is available at `sw/device/lib/runtime/otbn.h` ([API documentation](/sw/apis/lib_2runtime_2otbn_8h.html)).
+
+Another driver for OTBN is part of the silicon creator code at `sw/device/silicon_creator/lib/drivers/otbn.h`.
 
 ## Register Table
 
@@ -565,23 +971,25 @@ Other tools from the RV32 toolchain can be used directly, such as objcopy.
 
 Passing data between the host CPU and OTBN is done through the data memory (DMEM).
 No standard or required calling convention exists, every application is free to pass data in and out of OTBN in whatever format it finds convenient.
-All data passing must be done when OTBN is not running, as indicated by the {{< regref "STATUS.busy" >}} bit; during the OTBN operation both the instruction and the data memory are inaccessible from the host CPU.
+All data passing must be done when OTBN [is idle](#design-details-operational-states); otherwise both the instruction and the data memory are inaccessible from the host CPU.
 
-## Returning from an application
+## Returning from an application {#writing-otbn-applications-ecall}
 
-The software running on OTBN signals completion by executing the [`ECALL`]({{< relref "isa#ecall" >}}) instruction.
+The software running on OTBN signals completion by executing the {{< otbnInsnRef "ECALL" >}} instruction.
 
-When it executes this instruction, OTBN:
-- Stops fetching and executing instructions.
-- Sets {{< regref "INTR_STATE.done" >}} and clears {{< regref "STATUS.busy" >}}, marking the operation as completed.
-- Writes zero to {{< regref "ERR_BITS" >}}.
+Once OTBN has executed the {{< otbnInsnRef "ECALL" >}} instruction, the following things happen:
+
+- No more instructions are fetched or executed.
+- A [secure wipe of internal state](#design-details-secure-wipe-internal) is performed.
+- The {{< regref "ERR_BITS" >}} register is set to 0, indicating a successful operation.
+- The current operation is marked as complete by setting {{< regref "INTR_STATE.done" >}} and clearing {{< regref "STATUS" >}}.
 
 The DMEM can be used to pass data back to the host processor, e.g. a "return value" or an "exit code".
 Refer to the section [Passing of data between the host CPU and OTBN]({{<relref "#writing-otbn-applications-datapassing" >}}) for more information.
 
 ## Using hardware loops
 
-OTBN provides two hardware loop instructions: `LOOP` and `LOOPI`.
+OTBN provides two hardware loop instructions: {{< otbnInsnRef "LOOP" >}} and {{< otbnInsnRef "LOOPI" >}}.
 
 ### Loop nesting
 
@@ -594,7 +1002,7 @@ To avoid polluting the loop stack and avoid surprising behaviour, the programmer
 * Nested loops have distinct end addresses.
 * The end instruction of an outer loop is not executed before an inner loop finishes.
 
-OTBN does not detect these conditions being violated, so no error will be signalled should they occur.
+OTBN does not detect these conditions being violated, so no error will be signaled should they occur.
 
 (Note indentation in the code examples is for clarity and has no functional impact.)
 
@@ -652,8 +1060,8 @@ outer_body:
 ## Algorithic Examples: Multiplication with BN.MULQACC
 
 The big number instruction subset of OTBN generally operates on WLEN bit numbers.
-`BN.MULQACC` operates with WLEN/4 bit operands (with a full WLEN accumulator).
-This section outlines two techniques to perform larger multiplies by composing multiple `BN.MULQACC` instructions.
+{{< otbnInsnRef "BN.MULQACC" >}} operates with WLEN/4 bit operands (with a full WLEN accumulator).
+This section outlines two techniques to perform larger multiplies by composing multiple {{< otbnInsnRef "BN.MULQACC" >}} instructions.
 
 ### Multiplying two WLEN/2 numbers with BN.MULQACC
 
@@ -857,3 +1265,7 @@ The outlined technique can be extended to arbitrary bit widths but requires unro
 </table>
 
 Code snippets giving examples of 256x256 and 384x384 multiplies can be found in `sw/otbn/code-snippets/mul256.s` and `sw/otbn/code-snippets/mul384.s`.
+
+# References
+
+<a name="ref-chen08">[CHEN08]</a> L. Chen, "Hsiao-Code Check Matrices and Recursively Balanced Matrices," arXiv:0803.1217 [cs], Mar. 2008 [Online]. Available: http://arxiv.org/abs/0803.1217

@@ -9,26 +9,36 @@
   other_reset_list: [ "rst_fixed_ni" ] // Secondary clocks used by specific nodes
 
   nodes: [
-    { name:  "corei",
+    { name:  "rv_core_ibex.corei",
       type:  "host",
       clock: "clk_main_i",
       reset: "rst_main_ni",
       pipeline: "false"
 
     },
-    { name:  "cored",
+    { name:  "rv_core_ibex.cored",
       type:  "host",
       clock: "clk_main_i",
       reset: "rst_main_ni",
       pipeline: "false"
-
     },
-    { name:  "dm_sba", // DM
-      type:  "host",
-      clock: "clk_main_i",
-      reset: "rst_main_ni",
+    { name:      "rv_dm.sba",
+      type:      "host",
+      clock:     "clk_main_i",
+      reset:     "rst_main_ni",
       pipeline_byp: "false"
-
+    },
+    { name:      "rv_dm.regs",
+      type:      "device",
+      clock:     "clk_main_i",
+      reset:     "rst_main_ni",
+      pipeline_byp: "false"
+    },
+    { name:      "rv_dm.rom",
+      type:      "device",
+      clock:     "clk_main_i",
+      reset:     "rst_main_ni",
+      pipeline_byp: "false"
     },
     { name:      "rom_ctrl.rom",
       type:      "device",
@@ -37,24 +47,6 @@
       pipeline:  "false",
     },
     { name:      "rom_ctrl.regs",
-      type:      "device",
-      clock:     "clk_main_i",
-      reset:     "rst_main_ni",
-      pipeline:  "false",
-    },
-    { name:      "debug_mem",
-      type:      "device",
-      clock:     "clk_main_i",
-      reset:     "rst_main_ni",
-      pipeline_byp: "false"
-    },
-    { name:      "ram_main",
-      type:      "device",
-      clock:     "clk_main_i",
-      reset:     "rst_main_ni",
-      pipeline:  "false",
-    },
-    { name:      "eflash",
       type:      "device",
       clock:     "clk_main_i",
       reset:     "rst_main_ni",
@@ -73,6 +65,12 @@
       pipeline_byp: "false"
     },
     { name:      "flash_ctrl.prim",
+      type:      "device",
+      clock:     "clk_main_i",
+      reset:     "rst_main_ni",
+      pipeline_byp: "false"
+    },
+    { name:      "flash_ctrl.mem",
       type:      "device",
       clock:     "clk_main_i",
       reset:     "rst_main_ni",
@@ -125,10 +123,6 @@
       clock:     "clk_main_i",
       reset:     "rst_main_ni",
       inst_type: "rv_plic",
-      addr_range: [{
-        base_addr: "0x40090000",
-        size_byte: "0x1000",
-        }],
       pipeline_byp: "false"
     },
     { name:      "otbn",
@@ -143,7 +137,19 @@
       reset:     "rst_main_ni"
       pipeline_byp: "false"
     },
-    { name:      "sram_ctrl_main",
+    { name:      "rv_core_ibex.cfg",
+      type:      "device",
+      clock:     "clk_main_i"
+      reset:     "rst_main_ni"
+      pipeline_byp: "false"
+    },
+    { name:      "sram_ctrl_main.regs",
+      type:      "device",
+      clock:     "clk_main_i",
+      reset:     "rst_main_ni",
+      pipeline: "false"
+    },
+    { name:      "sram_ctrl_main.ram",
       type:      "device",
       clock:     "clk_main_i",
       reset:     "rst_main_ni",
@@ -151,18 +157,19 @@
     },
   ],
   connections: {
-    corei:  ["rom_ctrl.rom", "debug_mem", "ram_main", "eflash"],
-    cored:  [
-      "rom_ctrl.rom", "rom_ctrl.regs", "debug_mem", "ram_main",
-      "eflash", "peri", "flash_ctrl.core", "flash_ctrl.prim",
+    rv_core_ibex.corei:  ["rom_ctrl.rom", "rv_dm.rom", "sram_ctrl_main.ram", "flash_ctrl.mem"],
+    rv_core_ibex.cored:  [
+      "rom_ctrl.rom", "rom_ctrl.regs", "rv_dm.rom", "rv_dm.regs",
+      "sram_ctrl_main.ram", "peri", "flash_ctrl.core", "flash_ctrl.prim", "flash_ctrl.mem",
       "aes", "entropy_src", "csrng", "edn0", "edn1", "hmac",
-      "rv_plic", "otbn", "keymgr", "kmac", "sram_ctrl_main"
+      "rv_plic", "otbn", "keymgr", "kmac", "sram_ctrl_main.regs",
+      "rv_core_ibex.cfg"
     ],
-    dm_sba: [
-      "rom_ctrl.rom", "rom_ctrl.regs", "ram_main", "eflash", "peri",
-      "flash_ctrl.core", "flash_ctrl.prim", "aes", "entropy_src",
-      "csrng", "edn0", "edn1", "hmac", "rv_plic", "otbn", "keymgr",
-      "kmac", "sram_ctrl_main"
+    rv_dm.sba: [
+      "rom_ctrl.rom", "rom_ctrl.regs", "rv_dm.regs", "sram_ctrl_main.ram",
+      "peri", "flash_ctrl.core", "flash_ctrl.prim", "flash_ctrl.mem", "aes",
+      "entropy_src", "csrng", "edn0", "edn1", "hmac", "rv_plic",
+      "otbn", "keymgr", "kmac", "sram_ctrl_main.regs", "rv_core_ibex.cfg"
     ],
   },
 }

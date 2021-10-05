@@ -19,6 +19,7 @@ filesets:
       - rtl/otbn_decoder.sv
       - rtl/otbn_instruction_fetch.sv
       - rtl/otbn_rf_base.sv
+      - rtl/otbn_rf_bignum.sv
       - rtl/otbn_rf_base_ff.sv
       - rtl/otbn_rf_bignum_ff.sv
       - rtl/otbn_rf_base_fpga.sv
@@ -40,14 +41,17 @@ filesets:
       - lowrisc:prim:all
       - lowrisc:prim:assert
       - lowrisc:prim:util
-      - lowrisc:prim:ram_1p_adv
+      - lowrisc:prim:ram_1p_scr
+      - lowrisc:prim:lc_sync
       - lowrisc:ip:edn_pkg
       - lowrisc:prim:edn_req
       - lowrisc:ip:otbn_pkg
+      - lowrisc:ip:otp_ctrl_pkg
       - lowrisc:dv:otbn_model
     files:
       - rtl/otbn_reg_pkg.sv
       - rtl/otbn_reg_top.sv
+      - rtl/otbn_scramble_ctrl.sv
       - rtl/otbn.sv
     file_type: systemVerilogSource
 

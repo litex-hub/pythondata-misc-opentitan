@@ -83,19 +83,19 @@ _start:
 
   // Enable entropy complex - this is not the full enable
   li   a0, TOP_EARLGREY_ENTROPY_SRC_BASE_ADDR
-  li   t0, 0x2
+  li   t0, 0xa0a
   sw   t0, ENTROPY_SRC_CONF_REG_OFFSET(a0)
 
   li   a0, TOP_EARLGREY_CSRNG_BASE_ADDR
-  li   t0, 0x1
+  li   t0, 0xaaa
   sw   t0, CSRNG_CTRL_REG_OFFSET(a0)
 
   li   a0, TOP_EARLGREY_EDN0_BASE_ADDR
-  li   t0, 0x9
+  li   t0, 0x55aa
   sw   t0, EDN_CTRL_REG_OFFSET(a0)
 
   // Request memory scrambling and init
-  li a0, TOP_EARLGREY_SRAM_CTRL_MAIN_BASE_ADDR
+  li a0, TOP_EARLGREY_SRAM_CTRL_MAIN_REGS_BASE_ADDR
   li a1, (1<<SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT)|(1<<SRAM_CTRL_CTRL_INIT_BIT)
   sw a1, SRAM_CTRL_CTRL_REG_OFFSET(a0)
 

@@ -10,6 +10,7 @@ filesets:
     depend:
       - lowrisc:ip:lc_ctrl_pkg
       - lowrisc:systems:clkmgr_pkg
+      - lowrisc:prim:measure
     files:
       - rtl/clkmgr_byp.sv
     file_type: systemVerilogSource

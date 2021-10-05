@@ -9,6 +9,7 @@
 // ctr_drbg cmd module.
 
 module csrng_ctr_drbg_gen import csrng_pkg::*; #(
+  parameter int NApps = 4,
   parameter int Cmd = 3,
   parameter int StateId = 4,
   parameter int BlkLen = 128,
@@ -25,6 +26,7 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   output logic               ctr_drbg_gen_rdy_o, // ready to process the req above
   input logic [Cmd-1:0]      ctr_drbg_gen_ccmd_i,    // current command
   input logic [StateId-1:0]  ctr_drbg_gen_inst_id_i, // instantance id
+  input logic                ctr_drbg_gen_glast_i,   // gen cmd last beat
   input logic                ctr_drbg_gen_fips_i,    // fips
   input logic [SeedLen-1:0]  ctr_drbg_gen_adata_i,   // additional data
   input logic [KeyLen-1:0]   ctr_drbg_gen_key_i,
@@ -83,19 +85,20 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
 );
 
   localparam int GenreqFifoDepth = 1;
-  localparam int GenreqFifoWidth = KeyLen+BlkLen+CtrLen+1+SeedLen+StateId+Cmd;
+  localparam int GenreqFifoWidth = KeyLen+BlkLen+CtrLen+1+SeedLen+1+StateId+Cmd;
   localparam int BlkEncAckFifoDepth = 1;
   localparam int BlkEncAckFifoWidth = BlkLen+StateId+Cmd;
   localparam int AdstageFifoDepth = 1;
-  localparam int AdstageFifoWidth = KeyLen+BlkLen+CtrLen+1+SeedLen;
+  localparam int AdstageFifoWidth = KeyLen+BlkLen+CtrLen+1+1;
   localparam int RCStageFifoDepth = 1;
-  localparam int RCStageFifoWidth = BlkLen+CtrLen+1;
+  localparam int RCStageFifoWidth = KeyLen+BlkLen+BlkLen+CtrLen+1+1+StateId+Cmd;
   localparam int GenbitsFifoDepth = 1;
   localparam int GenbitsFifoWidth = 1+BlkLen+KeyLen+BlkLen+CtrLen+StateId+Cmd;
 
   // signals
   logic [Cmd-1:0]     genreq_ccmd;
   logic [StateId-1:0] genreq_id;
+  logic               genreq_glast;
   logic [SeedLen-1:0] genreq_adata;
   logic               genreq_fips;
   logic [KeyLen-1:0]  genreq_key;
@@ -106,12 +109,18 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   logic [BlkLen-1:0]  adstage_v;
   logic [CtrLen-1:0]  adstage_rc;
   logic               adstage_fips;
+  logic               adstage_glast;
   logic [SeedLen-1:0] adstage_adata;
 
+  logic [KeyLen-1:0]  rcstage_key;
+  logic [BlkLen-1:0]  rcstage_v;
   logic [BlkLen-1:0]  rcstage_bits;
   logic [CtrLen-1:0]  rcstage_rc;
+  logic               rcstage_glast;
   logic               rcstage_fips;
   logic [CtrLen-1:0]  rcstage_rc_plus1;
+  logic [Cmd-1:0]     rcstage_ccmd;
+  logic [StateId-1:0] rcstage_inst_id;
 
   logic [Cmd-1:0]     genreq_ccmd_modified;
   logic [Cmd-1:0]     bencack_ccmd_modified;
@@ -167,10 +176,14 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   logic                        v_ctr_inc;
   logic                        interate_ctr_done;
   logic                        interate_ctr_inc;
+  logic [NApps-1:0]            capt_adata;
+  logic [SeedLen-1:0]          update_adata[NApps];
 
   // flops
   logic [CtrLen-1:0]           v_ctr_q, v_ctr_d;
   logic [1:0]                  interate_ctr_q, interate_ctr_d;
+  logic [SeedLen-1:0]          update_adata_q[NApps], update_adata_d[NApps];
+  logic [NApps-1:0]            update_adata_vld_q, update_adata_vld_d;
 
 // Encoding generated with:
 // $ ./util/design/sparse-fsm-encode.py -d 3 -m 4 -n 5 \
@@ -221,10 +234,14 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
     if (!rst_ni) begin
       v_ctr_q            <= '0;
       interate_ctr_q     <= '0;
+      update_adata_q     <= '{default:0};
+      update_adata_vld_q <= '{default:0};
     end else begin
       v_ctr_q            <= v_ctr_d;
       interate_ctr_q     <= interate_ctr_d;
-    end // else: !if(!rst_ni)
+      update_adata_q     <= update_adata_d;
+      update_adata_vld_q <= update_adata_vld_d;
+    end
 
 
 
@@ -254,13 +271,13 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   assign genreq_ccmd_modified = (ctr_drbg_gen_ccmd_i == GEN) ? GENB : INV;
 
   assign sfifo_genreq_wdata = {ctr_drbg_gen_key_i,ctr_drbg_gen_v_i,ctr_drbg_gen_rc_i,
-                               ctr_drbg_gen_fips_i,ctr_drbg_gen_adata_i,
+                               ctr_drbg_gen_fips_i,ctr_drbg_gen_adata_i,ctr_drbg_gen_glast_i,
                                ctr_drbg_gen_inst_id_i,genreq_ccmd_modified};
 
   assign sfifo_genreq_push = ctr_drbg_gen_enable_i && ctr_drbg_gen_req_i;
 
   assign {genreq_key,genreq_v,genreq_rc,
-          genreq_fips,genreq_adata,
+          genreq_fips,genreq_adata,genreq_glast,
           genreq_id,genreq_ccmd} = sfifo_genreq_rdata;
 
   assign ctr_drbg_gen_rdy_o = !sfifo_genreq_full;
@@ -284,14 +301,17 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
     assign v_first = genreq_v + 1;
   end
 
-  assign v_ctr_d = v_ctr_load ? v_first[CtrLen-1:0] :
-                   v_ctr_inc  ? (v_ctr_q + 1) :
-                   v_ctr_q;
+  assign v_ctr_d =
+                  (!ctr_drbg_gen_enable_i) ? '0 :
+                  v_ctr_load ? v_first[CtrLen-1:0] :
+                  v_ctr_inc  ? (v_ctr_q + 1) :
+                  v_ctr_q;
 
   assign v_sized = {v_first[BlkLen-1:CtrLen],v_ctr_q};
 
   // interation counter
   assign interate_ctr_d =
+         (!ctr_drbg_gen_enable_i) ? '0 :
          interate_ctr_done ? '0 :
          interate_ctr_inc ? (interate_ctr_q + 1) :
          interate_ctr_q;
@@ -325,13 +345,13 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
           state_d = ESHalt;
         end else if (sfifo_genreq_not_empty && !sfifo_adstage_full) begin
           v_ctr_load = 1'b1;
-          sfifo_adstage_push = 1'b1;
           state_d = ReqSend;
         end
       end
       ReqSend: begin
         if (!interate_ctr_done) begin
           block_encrypt_req_o = 1'b1;
+          sfifo_adstage_push = 1'b1;
           if (block_encrypt_rdy_i) begin
             v_ctr_inc  = 1'b1;
             interate_ctr_inc  = 1'b1;
@@ -378,15 +398,38 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
     .depth_o        ()
   );
 
-  assign sfifo_adstage_wdata = {genreq_key,genreq_v,genreq_rc,genreq_fips,genreq_adata};
+  assign sfifo_adstage_wdata = {genreq_key,v_sized,genreq_rc,genreq_fips,genreq_glast};
   assign sfifo_adstage_pop = sfifo_adstage_not_empty && sfifo_bencack_pop;
-  assign {adstage_key,adstage_v,adstage_rc,adstage_fips,adstage_adata} = sfifo_adstage_rdata;
+  assign {adstage_key,adstage_v,adstage_rc,adstage_fips,adstage_glast} = sfifo_adstage_rdata;
 
   assign ctr_drbg_gen_sfifo_gadstage_err_o =
          {(sfifo_adstage_push && sfifo_adstage_full),
           (sfifo_adstage_pop && !sfifo_adstage_not_empty),
           (sfifo_adstage_full && !sfifo_adstage_not_empty)};
 
+
+  // array to hold each channel's adata
+  for (genvar i = 0; i < NApps; i = i+1) begin : gen_adata
+    assign capt_adata[i] = (sfifo_adstage_push && (genreq_id == i));
+
+    assign update_adata_vld_d[i] = capt_adata[i] && !update_adata_vld_q[i] ? 1'b1 :
+           (gen_upd_req_o && upd_gen_rdy_i && (sfifo_bencack_inst_id == i)) ? 1'b0 :
+           update_adata_vld_q[i];
+
+    assign update_adata_d[i] = (capt_adata[i] && !update_adata_vld_q[i]) ? genreq_adata :
+           update_adata_q[i];
+    assign update_adata[i] = update_adata_q[i] & {SeedLen{update_adata_vld_q[i] &&
+                                                          (genreq_id == i)}};
+  end
+
+  always_comb begin
+    adstage_adata = '0;
+    for (int i = 0; i < NApps; i = i+1) begin
+      // since only one bus is active at a time based on the instant id,
+      // an "or" of all the buses can be done below
+      adstage_adata |= update_adata[i];
+    end
+  end
 
 
   //--------------------------------------------
@@ -418,7 +461,8 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   assign sfifo_bencack_wdata = {block_encrypt_v_i,block_encrypt_inst_id_i,bencack_ccmd_modified};
   assign block_encrypt_rdy_o = !sfifo_bencack_full;
 
-  assign sfifo_bencack_pop = !sfifo_rcstage_full && sfifo_bencack_not_empty && upd_gen_rdy_i;
+  assign sfifo_bencack_pop = !sfifo_rcstage_full && sfifo_bencack_not_empty &&
+                             (upd_gen_rdy_i || !adstage_glast);
 
   assign {sfifo_bencack_bits,sfifo_bencack_inst_id,sfifo_bencack_ccmd} = sfifo_bencack_rdata;
 
@@ -433,7 +477,7 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   //--------------------------------------------
 
   // send to the update block
-  assign gen_upd_req_o = sfifo_bencack_not_empty;
+  assign gen_upd_req_o = sfifo_bencack_not_empty && adstage_glast;
   assign gen_upd_ccmd_o = sfifo_bencack_ccmd;
   assign gen_upd_inst_id_o = sfifo_bencack_inst_id;
   assign gen_upd_pdata_o = adstage_adata;
@@ -466,9 +510,14 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
   );
 
   assign sfifo_rcstage_push = sfifo_adstage_pop;
-  assign sfifo_rcstage_wdata = {sfifo_bencack_bits,adstage_rc,adstage_fips};
-  assign sfifo_rcstage_pop = sfifo_rcstage_not_empty && upd_gen_ack_i;
-  assign {rcstage_bits,rcstage_rc,rcstage_fips} = sfifo_rcstage_rdata;
+  assign sfifo_rcstage_wdata = {adstage_key,adstage_v,sfifo_bencack_bits,
+                                adstage_rc,adstage_fips,adstage_glast,
+                                sfifo_bencack_inst_id,sfifo_bencack_ccmd};
+
+  assign sfifo_rcstage_pop = sfifo_rcstage_not_empty && (upd_gen_ack_i || !rcstage_glast);
+
+  assign {rcstage_key,rcstage_v,rcstage_bits,rcstage_rc,rcstage_fips,rcstage_glast,
+          rcstage_inst_id,rcstage_ccmd} = sfifo_rcstage_rdata;
 
 
   assign ctr_drbg_gen_sfifo_grcstage_err_o =
@@ -506,9 +555,11 @@ module csrng_ctr_drbg_gen import csrng_pkg::*; #(
 
   assign rcstage_rc_plus1 = (rcstage_rc+1);
 
-  assign sfifo_genbits_wdata =
-         {rcstage_fips,rcstage_bits,upd_gen_key_i,upd_gen_v_i,
-          rcstage_rc_plus1,upd_gen_inst_id_i,upd_gen_ccmd_i};
+  assign sfifo_genbits_wdata = rcstage_glast ?
+                               {rcstage_fips,rcstage_bits,upd_gen_key_i,upd_gen_v_i,
+                                rcstage_rc_plus1,upd_gen_inst_id_i,upd_gen_ccmd_i} :
+                               {rcstage_fips,rcstage_bits,rcstage_key,rcstage_v,
+                                rcstage_rc,rcstage_inst_id,rcstage_ccmd};
 
   assign sfifo_genbits_pop = ctr_drbg_gen_rdy_i && sfifo_genbits_not_empty;
   assign {ctr_drbg_gen_fips_o,ctr_drbg_gen_bits_o,

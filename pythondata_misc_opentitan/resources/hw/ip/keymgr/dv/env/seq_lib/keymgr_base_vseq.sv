@@ -19,6 +19,7 @@ class keymgr_base_vseq extends cip_base_vseq #(
   // do operations at StReset
   rand bit do_op_before_init;
   rand keymgr_pkg::keymgr_ops_e gen_operation;
+  rand keymgr_pkg::keymgr_key_dest_e key_dest;
 
   // save DUT returned current state here, rather than using it from RAL, it's needed info to
   // predict operation result in seq
@@ -30,15 +31,26 @@ class keymgr_base_vseq extends cip_base_vseq #(
     is_key_version_err == 0;
   }
 
+  constraint gen_operation_c {
+    gen_operation inside {keymgr_pkg::OpGenId, keymgr_pkg::OpGenSwOut, keymgr_pkg::OpGenHwOut};
+  }
+
   `uvm_object_new
 
   virtual task dut_init(string reset_kind = "HARD");
     super.dut_init();
+
+    op_before_enable_keymgr();
+
     cfg.keymgr_vif.init();
 
     delay_after_reset_before_access_csr();
 
     if (do_keymgr_init) keymgr_init();
+  endtask
+
+  // callback task before LC enables keymgr
+  virtual task op_before_enable_keymgr();
   endtask
 
   virtual task delay_after_reset_before_access_csr();
@@ -65,11 +77,11 @@ class keymgr_base_vseq extends cip_base_vseq #(
 
     `DV_CHECK_RANDOMIZE_FATAL(ral.intr_enable)
     csr_update(.csr(ral.intr_enable));
-    `DV_CHECK_RANDOMIZE_WITH_FATAL(ral.reseed_interval.val,
+    `DV_CHECK_RANDOMIZE_WITH_FATAL(ral.reseed_interval_shadowed.val,
                                    value dist {[50:100]   :/ 1,
                                                [101:1000] :/ 1,
                                                [1001:$]   :/ 1};)
-    csr_update(.csr(ral.reseed_interval));
+    csr_update(.csr(ral.reseed_interval_shadowed));
   endtask : keymgr_init
 
   // advance to next state and generate output, clear output
@@ -86,7 +98,8 @@ class keymgr_base_vseq extends cip_base_vseq #(
       update_key_version();
 
       `DV_CHECK_MEMBER_RANDOMIZE_FATAL(gen_operation)
-      keymgr_generate(.operation(gen_operation), .wait_done(wait_done));
+      `DV_CHECK_MEMBER_RANDOMIZE_FATAL(key_dest)
+      keymgr_generate(.operation(gen_operation), .key_dest(key_dest), .wait_done(wait_done));
       if (clr_output) keymgr_rd_clr();
     end
   endtask : keymgr_operations
@@ -99,10 +112,10 @@ class keymgr_base_vseq extends cip_base_vseq #(
     bit [TL_DW-1:0] max_owner_key_ver_val;
     bit [TL_DW-1:0] max_key_ver_val;
 
-    key_version_val           = `gmv(ral.key_version);
-    max_creator_key_ver_val   = `gmv(ral.max_creator_key_ver);
-    max_owner_int_key_ver_val = `gmv(ral.max_owner_int_key_ver);
-    max_owner_key_ver_val     = `gmv(ral.max_owner_key_ver);
+    key_version_val           = `gmv(ral.key_version[0]);
+    max_creator_key_ver_val   = `gmv(ral.max_creator_key_ver_shadowed);
+    max_owner_int_key_ver_val = `gmv(ral.max_owner_int_key_ver_shadowed);
+    max_owner_key_ver_val     = `gmv(ral.max_owner_key_ver_shadowed);
     max_key_ver_val = (current_state == keymgr_pkg::StCreatorRootKey)
         ? max_creator_key_ver_val : (current_state == keymgr_pkg::StOwnerIntKey)
         ? max_owner_int_key_ver_val : (current_state == keymgr_pkg::StOwnerKey)
@@ -119,15 +132,16 @@ class keymgr_base_vseq extends cip_base_vseq #(
                                          max_key_ver_val != '1 -> key_version_val > max_key_ver_val;
                                        } else {
                                          key_version_val <= max_key_ver_val;
+                                         key_version_val == max_key_ver_val dist {0 :/ 3, 1 :/ 1};
                                        })
-    ral.key_version.set(key_version_val);
-    csr_update(ral.key_version);
+    ral.key_version[0].set(key_version_val);
+    csr_update(ral.key_version[0]);
   endtask
 
   virtual task wait_op_done();
     keymgr_pkg::keymgr_op_status_e exp_status;
     bit is_good_op = 1;
-    int key_verion = `gmv(ral.key_version);
+    int key_verion = `gmv(ral.key_version[0]);
     keymgr_pkg::keymgr_ops_e operation = `gmv(ral.control.operation);
     bit[TL_DW-1:0] rd_val;
 
@@ -135,13 +149,13 @@ class keymgr_base_vseq extends cip_base_vseq #(
       // only when it's in 3 working state and key_verion less than max version
       case (current_state)
         keymgr_pkg::StCreatorRootKey: begin
-          is_good_op = key_verion <= ral.max_creator_key_ver.get_mirrored_value();
+          is_good_op = key_verion <= ral.max_creator_key_ver_shadowed.get_mirrored_value();
         end
         keymgr_pkg::StOwnerIntKey: begin
-          is_good_op = key_verion <= ral.max_owner_int_key_ver.get_mirrored_value();
+          is_good_op = key_verion <= ral.max_owner_int_key_ver_shadowed.get_mirrored_value();
         end
         keymgr_pkg::StOwnerKey: begin
-          is_good_op = key_verion <= ral.max_owner_key_ver.get_mirrored_value();
+          is_good_op = key_verion <= ral.max_owner_key_ver_shadowed.get_mirrored_value();
         end
         default: is_good_op = 0;
       endcase
@@ -172,10 +186,21 @@ class keymgr_base_vseq extends cip_base_vseq #(
 
     read_current_state();
 
-    // check for chech in scb and clear err_code
+    // check err_code in scb and clear err_code
     csr_rd(.ptr(ral.err_code), .value(rd_val));
     if (rd_val != 0) begin
       csr_wr(.ptr(ral.err_code), .value(rd_val));
+    end
+    // check fault_status
+    csr_rd(.ptr(ral.fault_status), .value(rd_val));
+    // Do a dummy write to RO register
+    if (rd_val != 0 && $urandom_range(0, 1)) begin
+      csr_wr(.ptr(ral.fault_status), .value($urandom));
+    end
+    // read and clear interrupt
+    csr_rd(.ptr(ral.intr_state), .value(rd_val));
+    if (rd_val != 0) begin
+      csr_wr(.ptr(ral.intr_state), .value(rd_val));
     end
   endtask : wait_op_done
 
@@ -203,14 +228,15 @@ class keymgr_base_vseq extends cip_base_vseq #(
   endtask : keymgr_advance
 
   // by default generate for software
-  virtual task keymgr_generate(keymgr_pkg::keymgr_ops_e operation, bit wait_done = 1);
+  virtual task keymgr_generate(keymgr_pkg::keymgr_ops_e operation,
+                               keymgr_pkg::keymgr_key_dest_e key_dest,
+                               bit wait_done = 1);
     `uvm_info(`gfn, "Generate key manager output", UVM_MEDIUM)
 
     ral.control.start.set(1'b1);
     ral.control.operation.set(int'(operation));
-    // TODO, test KMAC interface only since the other interface may be removed later
-    `DV_CHECK_RANDOMIZE_WITH_FATAL(ral.control.dest_sel,
-                                   value inside {keymgr_pkg::None, keymgr_pkg::Kmac};);
+    `DV_CHECK_RANDOMIZE_FATAL(ral.control.cdi_sel)
+    ral.control.dest_sel.set(int'(key_dest));
     csr_update(.csr(ral.control));
     ral.control.start.set(1'b0);
 
@@ -246,19 +272,25 @@ class keymgr_base_vseq extends cip_base_vseq #(
 
   // issue any invalid operation at reset state to trigger op error
   virtual task keymgr_invalid_op_at_reset_state();
-    `DV_CHECK_RANDOMIZE_WITH_FATAL(ral.control,
-                                   operation.value != keymgr_pkg::OpAdvance;)
-
-    `uvm_info(`gfn, $sformatf("Issuing OP: %0d at state %0s",
-                              ral.control.operation.get(), current_state), UVM_MEDIUM)
-    csr_update(.csr(ral.control));
-    if (ral.control.start.get()) wait_op_done();
+    keymgr_operations(.advance_state(0));
   endtask
 
   // when reset occurs or keymgr_en = Off, disable checks in seq and check in scb only
   virtual function bit get_check_en();
-    return cfg.keymgr_vif.keymgr_en == lc_ctrl_pkg::On && !cfg.under_reset;
+    return cfg.keymgr_vif.get_keymgr_en() && !cfg.under_reset;
   endfunction
+
+  task wait_and_check_fatal_alert(bit check_invalid_state_enterred = 1);
+    // could not accurately predict when first fatal alert happen, so wait for the first fatal
+    // alert to trigger
+    wait(cfg.m_alert_agent_cfg["fatal_fault_err"].vif.alert_tx_final.alert_p);
+    check_fatal_alert_nonblocking("fatal_fault_err");
+    cfg.clk_rst_vif.wait_clks($urandom_range(1, 500));
+
+    if (check_invalid_state_enterred) begin
+      csr_rd_check(.ptr(ral.working_state), .compare_value(keymgr_pkg::StInvalid));
+    end
+  endtask
 
   task post_start();
     super.post_start();

@@ -9,7 +9,9 @@ filesets:
   files_rtl:
     depend:
       - lowrisc:ip:tlul
+      - lowrisc:prim:esc
       - lowrisc:prim:clock_mux2
+      - lowrisc:prim:lc_sender
       - lowrisc:prim:lc_sync
       - "fileset_ip     ? (lowrisc:ip:rstmgr_pkg)"
       - "fileset_top    ? (lowrisc:systems:rstmgr_pkg)"
@@ -18,7 +20,9 @@ filesets:
     files:
       - rtl/rstmgr_ctrl.sv
       - rtl/rstmgr_por.sv
+      - rtl/rstmgr_cnsty_chk.sv
       - rtl/rstmgr_crash_info.sv
+      - rtl/rstmgr_leaf_rst.sv
       - "fileset_ip ? (rtl/rstmgr.sv)"
     file_type: systemVerilogSource
 

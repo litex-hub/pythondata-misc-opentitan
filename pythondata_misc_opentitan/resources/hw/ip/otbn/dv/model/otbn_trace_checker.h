@@ -39,6 +39,7 @@
 #include <string>
 #include <vector>
 
+#include "otbn_trace_entry.h"
 #include "otbn_trace_listener.h"
 
 class OtbnTraceChecker : public OtbnTraceListener {
@@ -59,12 +60,20 @@ class OtbnTraceChecker : public OtbnTraceListener {
   // Prints an error message to stderr and returns false on mismatch.
   bool OnIssTrace(const std::vector<std::string> &lines);
 
+  // Flush any pending entries. We need to do this on reset, to handle
+  // the case where we reset the processor in the middle of a stall.
+  void Flush();
+
   // Call this when the ISS simulation completes an operation (on ECALL or
   // error).
   //
   // Prints an error message to stderr and returns false if it detects a
   // mismatch.
   bool Finish();
+
+  // Return and clear the ISS data for the last pair of trace entries that went
+  // through MatchPair if there is any.
+  const OtbnIssTraceEntry::IssData *PopIssData();
 
  private:
   // If rtl_pending_ and iss_pending_ are not both true, return true
@@ -73,30 +82,21 @@ class OtbnTraceChecker : public OtbnTraceListener {
   // message to stderr and return false.
   bool MatchPair();
 
-  class TraceEntry {
-   public:
-    static TraceEntry from_rtl_trace(const std::string &trace);
-    static TraceEntry from_iss_trace(const std::vector<std::string> &lines);
-
-    bool operator==(const TraceEntry &other) const;
-    void print(const std::string &indent, std::ostream &os) const;
-
-    void take_writes(const TraceEntry &other);
-
-    std::string hdr_;
-    std::vector<std::string> writes_;
-  };
-
   bool rtl_pending_;
   bool rtl_stall_;
-  TraceEntry rtl_entry_;
-  TraceEntry rtl_stalled_entry_;
+  OtbnTraceEntry rtl_entry_;
+  OtbnTraceEntry rtl_stalled_entry_;
 
   bool iss_pending_;
-  TraceEntry iss_entry_;
+  OtbnIssTraceEntry iss_entry_;
 
   bool done_;
   bool seen_err_;
+
+  // The ISS entry for the last pair of trace entries that went through
+  // MatchPair.
+  bool last_data_vld_;
+  OtbnIssTraceEntry::IssData last_data_;
 };
 
 #endif  // OPENTITAN_HW_IP_OTBN_DV_MODEL_OTBN_TRACE_CHECKER_H_

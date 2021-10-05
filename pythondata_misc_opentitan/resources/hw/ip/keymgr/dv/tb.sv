@@ -23,7 +23,7 @@ module tb;
   pins_if #(1) devmode_if(devmode);
   tl_if tl_if(.clk(clk), .rst_n(rst_n));
   keymgr_if keymgr_if(.clk(clk), .rst_n(rst_n));
-  keymgr_kmac_intf keymgr_kmac_intf(.clk(clk), .rst_n(rst_n));
+  kmac_app_intf keymgr_kmac_intf(.clk(clk), .rst_n(rst_n));
 
   // connect KDF interface for assertion check
   assign keymgr_if.kmac_data_req = keymgr_kmac_intf.kmac_data_req;
@@ -43,17 +43,20 @@ module tb;
   keymgr dut (
     .clk_i                (clk        ),
     .rst_ni               (rst_n      ),
+    .rst_shadowed_ni      (rst_n      ),
     .clk_edn_i            (edn_clk    ),
     .rst_edn_ni           (edn_rst_n  ),
     .aes_key_o            (keymgr_if.aes_key),
-    .hmac_key_o           (keymgr_if.hmac_key),
+    .otbn_key_o           (keymgr_if.otbn_key),
     .kmac_key_o           (keymgr_if.kmac_key),
     .kmac_data_o          (keymgr_kmac_intf.kmac_data_req),
     .kmac_data_i          (keymgr_kmac_intf.kmac_data_rsp),
+    .kmac_en_masking_i    (1'b1),
     .lc_keymgr_en_i       (keymgr_if.keymgr_en),
     .lc_keymgr_div_i      (keymgr_if.keymgr_div),
     .otp_key_i            (keymgr_if.otp_key),
-    .otp_hw_cfg_i         (keymgr_if.otp_hw_cfg),
+    .otp_device_id_i      (keymgr_if.otp_device_id),
+    .rom_digest_i         (keymgr_if.rom_digest),
     .edn_o                (edn_if.req),
     .edn_i                ({edn_if.ack, edn_if.d_data}),
     .flash_i              (keymgr_if.flash),
@@ -67,9 +70,9 @@ module tb;
   initial begin
     // these SVA checks the keymgr_en is either Off or On, we will use more than these 2 values.
     // If it's not On, it should be off
-    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.CheckTransients_A);
-    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.CheckTransients0_A);
-    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.CheckTransients1_A);
+    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.PrimLcSyncCheckTransients_A);
+    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.PrimLcSyncCheckTransients0_A);
+    $assertoff(0, tb.dut.u_lc_keymgr_en_sync.PrimLcSyncCheckTransients1_A);
 
     // drive clk and rst_n from clk_if
     clk_rst_if.set_active();
@@ -78,7 +81,7 @@ module tb;
     uvm_config_db#(devmode_vif)::set(null, "*.env", "devmode_vif", devmode_if);
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent*", "vif", tl_if);
     uvm_config_db#(virtual keymgr_if)::set(null, "*.env", "keymgr_vif", keymgr_if);
-    uvm_config_db#(virtual keymgr_kmac_intf)::set(null,
+    uvm_config_db#(virtual kmac_app_intf)::set(null,
                    "*env.m_keymgr_kmac_agent*", "vif", keymgr_kmac_intf);
     $timeformat(-12, 0, " ps", 12);
     run_test();

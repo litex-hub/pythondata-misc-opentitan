@@ -17,20 +17,27 @@ from .program import Program
 from .model import Model
 from .snippet import Snippet
 
-# The return type of a single generator. This is a tuple (snippet, model).
-# snippet is a generated snippet. If the program is done (i.e. every execution
-# ends with ecall) then model is None. Otherwise it is a Model object
+# The return type of a single generator. This is a tuple (snippet, done,
+# model). snippet is a generated snippet. done is true if the processor has
+# just executed an instruction that causes it to stop. model is a Model object
 # representing the state of the processor after executing the code in the
-# snippet(s).
-GenRet = Tuple[Snippet, Optional[Model]]
+# snippet(s). The PC of the model will be the next instruction to be executed
+# unless done is true, in which case it still points at the final instruction.
+GenRet = Tuple[Snippet, bool, Model]
+
+# An "internal" return type for generators that never cause termination.
+# (Essentially the same as GenRet, but with done = False)
+SimpleGenRet = Tuple[Snippet, Model]
 
 # The return type of repeated generator calls. If the snippet is None, no
 # generators managed to generate anything.
 GensRet = Tuple[Optional[Snippet], Model]
 
 # A continuation type that allows a generator to recursively generate some more
-# stuff.
-GenCont = Callable[[Model, Program], GensRet]
+# stuff. If the boolean argument is true, the continuation will try to generate
+# a snippet that causes OTBN to stop. In this case, the Snippet term in the
+# GensRet will not be None.
+GenCont = Callable[[Model, Program, bool], GensRet]
 
 
 class SnippetGen:
@@ -40,6 +47,10 @@ class SnippetGen:
     binary.
 
     '''
+    # A class-level variable that is set for generators that will end the
+    # program (with an ECALL or an error)
+    ends_program: bool = False
+
     def __init__(self) -> None:
         self.disabled = False
 
@@ -105,3 +116,11 @@ class SnippetGen:
             raise RuntimeError('No {} instruction in instructions file.'
                                .format(mnemonic.upper()))
         return insn
+
+    @staticmethod
+    def _unsimple_genret(ret: Optional[SimpleGenRet]) -> Optional[GenRet]:
+        '''Re-pack a SimpleGenRet as a GenRet'''
+        if ret is None:
+            return None
+        snippet, model = ret
+        return (snippet, False, model)

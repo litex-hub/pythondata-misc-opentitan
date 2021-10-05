@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class sram_ctrl_env_cfg extends cip_base_env_cfg #(.RAL_T(sram_ctrl_reg_block));
+class sram_ctrl_env_cfg extends cip_base_env_cfg #(.RAL_T(sram_ctrl_regs_reg_block));
 
   `uvm_object_utils_begin(sram_ctrl_env_cfg)
   `uvm_object_utils_end
@@ -16,18 +16,19 @@ class sram_ctrl_env_cfg extends cip_base_env_cfg #(.RAL_T(sram_ctrl_reg_block));
   // ext interfaces
   virtual clk_rst_if otp_clk_rst_vif;
   virtual sram_ctrl_lc_if lc_vif;
-  mem_bkdr_vif mem_bkdr_vif;
+  virtual sram_ctrl_exec_if exec_vif;
+  mem_bkdr_util mem_bkdr_util_h;
 
   // otp clk freq
-  rand dv_utils_pkg::clk_freq_mhz_e otp_freq_mhz;
+  rand uint otp_freq_mhz;
 
+  constraint otp_freq_mhz_c {
+    `DV_COMMON_CLK_CONSTRAINT(otp_freq_mhz)
+  }
   virtual function void initialize(bit [31:0] csr_base_addr = '1);
     list_of_alerts = sram_ctrl_env_pkg::LIST_OF_ALERTS;
+    tl_intg_alert_name = "fatal_error";
     super.initialize(csr_base_addr);
-
-    ral.set_hdl_path_root("tb.dut.u_sram_ctrl", "BkdrRegPathRtl");
-    ral.set_hdl_path_root("tb.dut.u_sram_ctrl", "BkdrRegPathRtlCommitted");
-    ral.set_hdl_path_root("tb.dut.u_sram_ctrl", "BkdrRegPathRtlShadow");
 
     // Build KDI cfg object and configure
     m_kdi_cfg = push_pull_agent_cfg#(.DeviceDataWidth(KDI_DATA_SIZE))::type_id::create("m_kdi_cfg");
@@ -51,18 +52,21 @@ class sram_ctrl_env_cfg extends cip_base_env_cfg #(.RAL_T(sram_ctrl_reg_block));
 
   // utility function to zero protocol delays for the TLUL agent
   // that is bound to the SRAM memory interface
-  virtual function void set_sram_zero_delays();
-    m_sram_cfg.a_valid_delay_min = 0;
-    m_sram_cfg.a_valid_delay_max = 0;
+  virtual function void cfg_sram_zero_delays(bit enable);
+    int min = enable ? 0 : 1;
+    int max = enable ? 0 : 10;
 
-    m_sram_cfg.a_ready_delay_min = 0;
-    m_sram_cfg.a_ready_delay_max = 0;
+    m_sram_cfg.a_valid_delay_min = min;
+    m_sram_cfg.a_valid_delay_max = max;
 
-    m_sram_cfg.d_valid_delay_min = 0;
-    m_sram_cfg.d_valid_delay_max = 0;
+    m_sram_cfg.a_ready_delay_min = min;
+    m_sram_cfg.a_ready_delay_max = max;
 
-    m_sram_cfg.d_ready_delay_min = 0;
-    m_sram_cfg.d_ready_delay_max = 0;
+    m_sram_cfg.d_valid_delay_min = min;
+    m_sram_cfg.d_valid_delay_max = max;
+
+    m_sram_cfg.d_ready_delay_min = min;
+    m_sram_cfg.d_ready_delay_max = max;
   endfunction
 
 endclass

@@ -5,7 +5,7 @@ title: "FLASH_CTRL DV document"
 ## Goals
 * **DV**
   * Verify all `flash_ctrl` IP features by running dynamic simulations with a SV/UVM based testbench
-  * Develop and run all tests based on the [DV plan](#dv-plan) below towards closing code and functional coverage on the IP and all of its sub-modules
+  * Develop and run all tests based on the [testplan](#testplan) below towards closing code and functional coverage on the IP and all of its sub-modules
 * **FPV**
   * Verify TileLink device protocol compliance with an SVA based testbench
 
@@ -35,7 +35,7 @@ In addition, the testbench instantiates the following interfaces, connects them 
 * [TileLink host interface for the flash controller]({{< relref "hw/dv/sv/tl_agent/README.md" >}})
 * [TileLink host interface for the eflash]({{< relref "hw/dv/sv/tl_agent/README.md" >}})
 * Interrupts ([`pins_if`]({{< relref "hw/dv/sv/common_ifs" >}})
-* [Memory backdoor interfaces]({{< relref "hw/dv/sv/mem_bkdr_if/README.md" >}})
+* [Memory backdoor utility]({{< relref "hw/dv/sv/mem_bkdr_util/README.md" >}})
 
 In future, as the design (and DV) matures, the following interfaces will be
 instantiated and hooked up to the DUT:
@@ -127,5 +127,5 @@ $ cd $REPO_TOP
 $ ./util/dvsim/dvsim.py hw/ip/flash_ctrl/dv/flash_ctrl_sim_cfg.hjson -i flash_ctrl_smoke
 ```
 
-## DV plan
+## Testplan
 {{< incGenFromIpDesc "../../data/flash_ctrl_testplan.hjson" "testplan" >}}

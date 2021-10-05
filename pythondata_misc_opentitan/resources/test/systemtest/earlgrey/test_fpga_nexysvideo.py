@@ -7,13 +7,14 @@ import re
 
 import pytest
 
-from .. import config, utils
+from . import config
+from .. import utils
 
 log = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="module")
-def localconf_nexysvideo(localconf):
+def localconf_board(localconf):
     assert 'boards' in localconf
     assert 'nexysvideo' in localconf['boards']
     boardconf = localconf['boards']['nexysvideo']
@@ -24,51 +25,7 @@ def localconf_nexysvideo(localconf):
 
 
 @pytest.fixture(scope="module")
-def uart_persistent(localconf_nexysvideo, tmp_path_factory):
-    """
-    A UART device connected to the FPGA board, which is kept active for
-    for multiple tests.
-
-    Use the `uart` fixture for per-test access to the UART device.
-    """
-    uart_device = localconf_nexysvideo['uart_device']
-    uart_speed = localconf_nexysvideo['uart_speed']
-    log_dir_path = tmp_path_factory.mktemp('uart')
-    log.debug("Opening UART on device {} ({} baud)".format(
-        uart_device, uart_speed))
-    with utils.LoggingSerial(uart_device,
-                             uart_speed,
-                             timeout=1,
-                             log_dir_path=log_dir_path,
-                             default_filter_func=utils.
-                             filter_remove_device_sw_log_prefix) as uart:
-
-        yield uart
-
-
-@pytest.fixture
-def uart(uart_persistent, request):
-    """ A UART device connected to the FPGA board.
-
-    The UART is drained between test runs to give better isolation between the
-    tests.
-    """
-
-    uart_persistent.log_add_marker("===== TEST {} START =====\n".format(
-        request.node.name))
-
-    yield uart_persistent
-
-    # Read all remaining data from UART to have it available in the log file.
-    uart_persistent.drain_in()
-
-    uart_persistent.log_add_marker("===== TEST {} DONE =====\n\n".format(
-        request.node.name))
-
-
-@pytest.fixture(scope="module")
-def nexysvideo_earlgrey(tmp_path_factory, topsrcdir, bin_dir,
-                        localconf_nexysvideo):
+def board_earlgrey(tmp_path_factory, topsrcdir, bin_dir, localconf_board):
     """ A Nexys Video board flashed with an Earl Grey bitstream """
 
     bitstream = bin_dir / "hw/top_earlgrey/lowrisc_systems_chip_earlgrey_nexysvideo_0.1.bit"
@@ -81,10 +38,10 @@ def nexysvideo_earlgrey(tmp_path_factory, topsrcdir, bin_dir,
     ]
 
     # Explicitly use a certain hardware server (if set)
-    if 'hw_server_url' in localconf_nexysvideo:
+    if 'hw_server_url' in localconf_board:
         cmd_pgm += [
             '--hw-server-url',
-            localconf_nexysvideo['hw_server_url'],
+            localconf_board['hw_server_url'],
         ]
 
     log.debug("Flashing Nexys Video board with bitstream {}".format(
@@ -106,32 +63,35 @@ def app_selfchecking_bin(request, bin_dir):
 
     if 'targets' in app_config and 'fpga_nexysvideo' not in app_config[
             'targets']:
-        pytest.skip("Test %s skipped on NexysVideo FPGA." % app_config['name'])
+        pytest.skip("Test %s skipped on Nexys Video board." % app_config['name'])
 
     if 'binary_name' in app_config:
         binary_name = app_config['binary_name']
     else:
         binary_name = app_config['name']
 
+    # Allow tests to optionally specify their subdir within the project.
+    test_dir = app_config.get('test_dir', 'sw/device/tests')
+
     test_filename = binary_name + '_fpga_nexysvideo.bin'
-    bin_path = bin_dir / 'sw/device/tests' / test_filename
+    bin_path = bin_dir / test_dir / test_filename
     assert bin_path.is_file()
     return bin_path
 
 
-def test_apps_selfchecking(tmp_path, localconf_nexysvideo, nexysvideo_earlgrey,
+def test_apps_selfchecking(tmp_path, localconf_board, board_earlgrey,
                            app_selfchecking_bin, bin_dir, uart):
     """ Load a simple application, and check its output. """
 
-    spiflash = bin_dir / 'sw/host/spiflash/spiflash'
+    loader_path = bin_dir / 'sw/host/spiflash/spiflash'
     utils.load_sw_over_spi(tmp_path,
-                           spiflash,
+                           loader_path,
                            app_selfchecking_bin,
                            timeout=30)
 
     # We need to wait for this message to ensure we are asserting on the output
     # of the newly flashed software, not the software which might be already on
-    # the chip (which might get re-executed when running spiflash).
+    # the chip (which might get re-executed when running the loading tool).
     bootstrap_done_exp = b'Bootstrap: DONE!'
     assert uart.find_in_output(bootstrap_done_exp, timeout=60)
 

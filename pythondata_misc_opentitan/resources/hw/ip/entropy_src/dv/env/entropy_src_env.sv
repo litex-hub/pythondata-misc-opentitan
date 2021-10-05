@@ -24,6 +24,8 @@ class entropy_src_env extends cip_base_env #(
                   (this, "m_rng_agent*", "cfg", cfg.m_rng_agent_cfg);
     cfg.m_rng_agent_cfg.agent_type = push_pull_agent_pkg::PushAgent;
     cfg.m_rng_agent_cfg.if_mode    = dv_utils_pkg::Host;
+    cfg.m_rng_agent_cfg.host_delay_min = 6;
+    cfg.m_rng_agent_cfg.host_delay_max = 12;
 
     m_csrng_agent = push_pull_agent#(.HostDataWidth(entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH))::type_id::
                     create("m_csrng_agent", this);
@@ -32,9 +34,13 @@ class entropy_src_env extends cip_base_env #(
     cfg.m_csrng_agent_cfg.agent_type = push_pull_agent_pkg::PullAgent;
     cfg.m_csrng_agent_cfg.if_mode    = dv_utils_pkg::Host;
 
-    if (!uvm_config_db#(virtual pins_if)::get(this, "", "efuse_es_sw_reg_en_vif",
-                                              cfg.efuse_es_sw_reg_en_vif)) begin
-      `uvm_fatal(get_full_name(), "failed to get efuse_es_sw_reg_en_vif from uvm_config_db")
+    if (!uvm_config_db#(virtual pins_if#(8))::get(this, "", "otp_en_es_fw_read_vif",
+        cfg.otp_en_es_fw_read_vif)) begin
+      `uvm_fatal(get_full_name(), "failed to get otp_en_es_fw_read_vif from uvm_config_db")
+    end
+    if (!uvm_config_db#(virtual pins_if#(8))::get(this, "", "otp_en_es_fw_over_vif",
+        cfg.otp_en_es_fw_over_vif)) begin
+      `uvm_fatal(get_full_name(), "failed to get otp_en_es_fw_over_vif from uvm_config_db")
     end
   endfunction
 
@@ -42,6 +48,7 @@ class entropy_src_env extends cip_base_env #(
     super.connect_phase(phase);
 
     m_rng_agent.monitor.analysis_port.connect(scoreboard.rng_fifo.analysis_export);
+    m_csrng_agent.monitor.analysis_port.connect(scoreboard.csrng_fifo.analysis_export);
 
     virtual_sequencer.csrng_sequencer_h = m_csrng_agent.sequencer;
     virtual_sequencer.rng_sequencer_h   = m_rng_agent.sequencer;

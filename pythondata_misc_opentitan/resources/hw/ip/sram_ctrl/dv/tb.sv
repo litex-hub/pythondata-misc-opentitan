@@ -9,6 +9,7 @@ module tb;
   import sram_ctrl_pkg::*;
   import sram_ctrl_env_pkg::*;
   import sram_ctrl_test_pkg::*;
+  import mem_bkdr_util_pkg::mem_bkdr_util;
 
   // macro includes
   `include "uvm_macros.svh"
@@ -30,8 +31,6 @@ module tb;
 
   wire seed_valid;
 
-  lc_ctrl_pkg::lc_tx_t lc_esc_en;
-
   // interfaces
   clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
   pins_if #(NUM_MAX_INTERRUPTS) intr_if(interrupts);
@@ -50,6 +49,9 @@ module tb;
   // Interface for lifecycle escalation
   sram_ctrl_lc_if lc_if();
 
+  // Interface for SRAM execution
+  sram_ctrl_exec_if exec_if();
+
   `DV_ALERT_IF_CONNECT
 
   // DUT
@@ -60,37 +62,34 @@ module tb;
   `define SRAM_ADDR_WIDTH 32
 `endif
 
-  // Width of the SRAM data.
-  // Will be 32-bit wide for both main and retention SRAM,
-  // potentially wider for the OTBN SRAM.
-`ifndef SRAM_DATA_WIDTH
-  `define SRAM_DATA_WIDTH 32
-`endif
-
-  sram_ctrl_wrapper #(
-    .AddrWidth(`SRAM_ADDR_WIDTH),
-    .DataWidth(`SRAM_DATA_WIDTH)
+  sram_ctrl #(
+    // memory size in bytes
+    .MemSizeRam(4 * 2 ** `SRAM_ADDR_WIDTH)
   ) dut (
     // main clock
-    .clk_i(clk),
-    .rst_ni(rst_n),
+    .clk_i               (clk                       ),
+    .rst_ni              (rst_n                     ),
     // OTP clock
-    .clk_otp_i(clk_otp),
-    .rst_otp_ni(rst_otp_n),
+    .clk_otp_i           (clk_otp                   ),
+    .rst_otp_ni          (rst_otp_n                 ),
     // TLUL interface for CSR regfile
-    .csr_tl_i(tl_if.h2d),
-    .csr_tl_o(tl_if.d2h),
-    // TLUL interface for SRAM memory
-    .sram_tl_i(sram_tl_if.h2d),
-    .sram_tl_o(sram_tl_if.d2h),
+    .ram_tl_i            (sram_tl_if.h2d            ),
+    .ram_tl_o            (sram_tl_if.d2h            ),
+    // TLUL interface for CSR regfile
+    .regs_tl_i           (tl_if.h2d                 ),
+    .regs_tl_o           (tl_if.d2h                 ),
     // Alert I/O
-    .alert_rx_i(alert_rx),
-    .alert_tx_o(alert_tx),
+    .alert_rx_i          (alert_rx                  ),
+    .alert_tx_o          (alert_tx                  ),
     // Life cycle escalation
-    .lc_escalate_en_i(lc_if.lc_esc_en),
+    .lc_escalate_en_i    (lc_if.lc_esc_en           ),
     // OTP key derivation interface
-    .sram_otp_key_o(key_req),
-    .sram_otp_key_i(key_rsp)
+    .sram_otp_key_o      (key_req                   ),
+    .sram_otp_key_i      (key_rsp                   ),
+    // SRAM ifetch interface
+    .lc_hw_debug_en_i    (exec_if.lc_hw_debug_en    ),
+    .otp_en_sram_ifetch_i(exec_if.otp_en_sram_ifetch),
+    .cfg_i               ('0                        )
   );
 
   // KDI interface assignments
@@ -102,13 +101,20 @@ module tb;
   // key, nonce, seed_valid all driven by push_pull Device interface
   assign {key, nonce, seed_valid} = kdi_if.d_data;
 
-  // bind mem_bkdr_if
+  // Instantitate the memory backdoor util instance.
   `define SRAM_CTRL_MEM_HIER \
-    dut.u_ram1p_sram.u_prim_ram_1p_adv.u_mem
-
-  bind `SRAM_CTRL_MEM_HIER mem_bkdr_if #(.MEM_PARITY(1)) mem_bkdr_if ();
+      tb.dut.u_prim_ram_1p_scr.u_prim_ram_1p_adv.u_mem.gen_generic.u_impl_generic.mem
 
   initial begin
+    mem_bkdr_util m_mem_bkdr_util;
+    m_mem_bkdr_util = new(.name  ("mem_bkdr_util"),
+                          .path  (`DV_STRINGIFY(`SRAM_CTRL_MEM_HIER)),
+                          .depth ($size(`SRAM_CTRL_MEM_HIER)),
+                          .n_bits($bits(`SRAM_CTRL_MEM_HIER)),
+                          // Due to the end-to-end bus integrity scheme, the memory primitive itself
+                          // does not encode and decode the redundancy information.
+                          .err_detection_scheme(mem_bkdr_util_pkg::ErrDetectionNone));
+
     // drive clk and rst_n from clk_if
     clk_rst_if.set_active();
     otp_clk_rst_if.set_active(.drive_rst_n_val(1'b0));
@@ -121,13 +127,15 @@ module tb;
     uvm_config_db#(virtual push_pull_if#(.DeviceDataWidth(KDI_DATA_SIZE)))::set(null,
       "*.env.m_kdi_agent*", "vif", kdi_if);
     uvm_config_db#(virtual sram_ctrl_lc_if)::set(null, "*.env", "lc_vif", lc_if);
+    uvm_config_db#(virtual sram_ctrl_exec_if)::set(null, "*.env", "exec_vif", exec_if);
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent*", "vif", tl_if);
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_sram_tl_agent*", "vif", sram_tl_if);
-    uvm_config_db#(mem_bkdr_vif)::set(null, "*.env", "mem_bkdr_vif",
-      `SRAM_CTRL_MEM_HIER.mem_bkdr_if);
+    uvm_config_db#(mem_bkdr_util)::set(null, "*.env", "mem_bkdr_util", m_mem_bkdr_util);
 
     $timeformat(-12, 0, " ps", 12);
     run_test();
   end
+
+  `undef SRAM_CTRL_MEM_HIER
 
 endmodule

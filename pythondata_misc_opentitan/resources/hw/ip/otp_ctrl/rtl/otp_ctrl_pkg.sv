@@ -12,6 +12,12 @@ package otp_ctrl_pkg;
   // General Parameters //
   ////////////////////////
 
+  // Number of vendor-specific test CSR bits coming from and going to
+  // the life cycle TAP registers.
+  parameter int OtpTestCtrlWidth   = 32;
+  parameter int OtpTestStatusWidth = 32;
+  parameter int OtpTestVectWidth   = 8;
+
   // Width of entropy input
   parameter int EdnDataWidth = 64;
 
@@ -19,18 +25,18 @@ package otp_ctrl_pkg;
 
   parameter int SwWindowAddrWidth = vbits(NumSwCfgWindowWords);
 
+  // Background check timer LFSR width.
+  parameter int LfsrWidth = 40;
+  // The LFSR will be reseeded once LfsrUsageThreshold
+  // values have been drawn from it.
+  parameter int LfsrUsageThreshold = 16;
+
   // Redundantly encoded and complementary values are used to for signalling to the partition
   // controller FSMs and the DAI whether a partition is locked or not. Any other value than
-  // "Unlocked" is interpreted as "Locked" in those FSMs.
-  typedef enum logic [7:0] {
-    Unlocked = 8'h5A,
-    Locked   = 8'hA5
-  } access_e;
-
-  // Partition access type
+  // "Mubi8Lo" is interpreted as "Locked" in those FSMs.
   typedef struct packed {
-    access_e read_lock;
-    access_e write_lock;
+    prim_mubi_pkg::mubi8_t read_lock;
+    prim_mubi_pkg::mubi8_t write_lock;
   } part_access_t;
 
   parameter int DaiCmdWidth = 3;
@@ -39,6 +45,21 @@ package otp_ctrl_pkg;
     DaiWrite  = 3'b010,
     DaiDigest = 3'b100
   } dai_cmd_e;
+
+  // Width of HW CFG Enable Fields
+  parameter int OtpEnWidth = 8;
+  typedef logic [OtpEnWidth-1:0] otp_en_t;
+
+  typedef enum logic [7:0] {
+    Disabled = 8'h5A,
+    Enabled = 8'hA5
+  } enable_e;
+
+  parameter int DeviceIdWidth = 256;
+  typedef logic [DeviceIdWidth-1:0] otp_device_id_t;
+
+  parameter int ManufStateWidth = 256;
+  typedef logic [ManufStateWidth-1:0] otp_manuf_state_t;
 
   //////////////////////////////////////
   // Typedefs for OTP Macro Interface //
@@ -89,16 +110,25 @@ package otp_ctrl_pkg;
   // Typedefs for LC Interface //
   ///////////////////////////////
 
+  // The tokens below are all hash post-images
   typedef struct packed {
     logic                            valid;
     logic                            error;
     lc_ctrl_state_pkg::lc_state_e    state;
     lc_ctrl_state_pkg::lc_cnt_e      count;
-    // These are all hash post-images
+    // This is set to "On" if the partition containing the
+    // root secrets have been locked. In that case, the device
+    // is considered "personalized".
+    lc_ctrl_pkg::lc_tx_t             secrets_valid;
+    // This is set to "On" if the partition containing the
+    // test tokens has been locked.
+    lc_ctrl_pkg::lc_tx_t             test_tokens_valid;
     lc_ctrl_state_pkg::lc_token_t    test_unlock_token;
     lc_ctrl_state_pkg::lc_token_t    test_exit_token;
+    // This is set to "On" if the partition containing the
+    // rma token has been locked.
+    lc_ctrl_pkg::lc_tx_t             rma_token_valid;
     lc_ctrl_state_pkg::lc_token_t    rma_token;
-    lc_ctrl_state_pkg::lc_id_state_e id_state;
   } otp_lc_data_t;
 
   // Default for dangling connection.
@@ -110,10 +140,12 @@ package otp_ctrl_pkg;
     error: 1'b0,
     state: lc_ctrl_state_pkg::LcStTestUnlocked0,
     count: lc_ctrl_state_pkg::LcCnt1,
+    secrets_valid: lc_ctrl_pkg::Off,
+    test_tokens_valid: lc_ctrl_pkg::Off,
     test_unlock_token: '0,
     test_exit_token: '0,
-    rma_token: '0,
-    id_state: lc_ctrl_state_pkg::LcIdBlank
+    rma_token_valid: lc_ctrl_pkg::Off,
+    rma_token: '0
   };
 
   typedef struct packed {
@@ -138,18 +170,26 @@ package otp_ctrl_pkg;
     lc_ctrl_state_pkg::lc_token_t hashed_token;
   } lc_otp_token_rsp_t;
 
+  typedef struct packed {
+    logic [OtpTestCtrlWidth-1:0] ctrl;
+  } lc_otp_vendor_test_req_t;
+
+  typedef struct packed {
+    logic [OtpTestStatusWidth-1:0] status;
+  } lc_otp_vendor_test_rsp_t;
+
   ////////////////////////////////
   // Typedefs for Key Broadcast //
   ////////////////////////////////
 
   parameter int FlashKeySeedWidth = 256;
   parameter int SramKeySeedWidth  = 128;
-  parameter int KeyMgrKeyWidth   = 256;
-  parameter int FlashKeyWidth    = 128;
-  parameter int SramKeyWidth     = 128;
-  parameter int SramNonceWidth   = 128;
-  parameter int OtbnKeyWidth     = 128;
-  parameter int OtbnNonceWidth   = 256;
+  parameter int KeyMgrKeyWidth    = 256;
+  parameter int FlashKeyWidth     = 128;
+  parameter int SramKeyWidth      = 128;
+  parameter int SramNonceWidth    = 128;
+  parameter int OtbnKeyWidth      = 128;
+  parameter int OtbnNonceWidth    = 64;
 
   typedef logic [SramKeyWidth-1:0]   sram_key_t;
   typedef logic [SramNonceWidth-1:0] sram_nonce_t;
@@ -200,11 +240,19 @@ package otp_ctrl_pkg;
   };
 
   typedef struct packed {
-    logic        ack;         // Ack for key.
+    logic        ack;        // Ack for key.
     sram_key_t   key;        // 128bit ephemeral scrambling key.
     sram_nonce_t nonce;      // 64bit nonce.
     logic        seed_valid; // Set to 1 if the key seed has been provisioned and is valid.
   } sram_otp_key_rsp_t;
+
+  // Default for dangling connection
+  parameter sram_otp_key_rsp_t SRAM_OTP_KEY_RSP_DEFAULT = '{
+    ack: 1'b1,
+    key: '0,
+    nonce: '0,
+    seed_valid: 1'b1
+  };
 
   typedef struct packed {
     logic        ack;        // Ack for key.
@@ -248,7 +296,6 @@ package otp_ctrl_pkg;
 
   // These LFSR parameters have been generated with
   // $ util/design/gen-lfsr-seed.py --width 40 --seed 4247488366
-  localparam int LfsrWidth = 40;
   typedef logic [LfsrWidth-1:0]                        lfsr_seed_t;
   typedef logic [LfsrWidth-1:0][$clog2(LfsrWidth)-1:0] lfsr_perm_t;
   localparam lfsr_seed_t RndCnstLfsrSeedDefault = 40'h453d28ea98;

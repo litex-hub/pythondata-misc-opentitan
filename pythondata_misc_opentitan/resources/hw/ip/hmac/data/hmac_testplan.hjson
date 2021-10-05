@@ -4,10 +4,11 @@
 {
   name: "hmac"
   import_testplans: ["hw/dv/tools/dvsim/testplans/csr_testplan.hjson",
+                     "hw/dv/tools/dvsim/testplans/alert_test_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/intr_test_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/stress_all_with_reset_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/tl_device_access_types_testplan.hjson"]
-  entries: [
+  testpoints: [
     {
       name: smoke
       desc: '''HMAC smoke test performs a few round of HMAC or SHA256-ONLY transactions with the

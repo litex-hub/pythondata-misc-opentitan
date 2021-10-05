@@ -16,13 +16,20 @@
   reset: rst_peri_ni
   reset_connections:
   {
-    rst_peri_ni: rstmgr_aon_resets.rst_sys_io_div4_n[rstmgr_pkg::Domain0Sel]
+    rst_peri_ni:
+    {
+      name: sys_io_div4
+      domain: "0"
+    }
   }
   clock_connections:
   {
     clk_peri_i: clkmgr_aon_clocks.clk_io_div4_infra
   }
-  domain: "0"
+  domain:
+  [
+    "0"
+  ]
   connections:
   {
     main:
@@ -45,13 +52,14 @@
       rstmgr_aon
       clkmgr_aon
       pinmux_aon
-      ram_ret_aon
-      otp_ctrl
+      otp_ctrl.core
+      otp_ctrl.prim
       lc_ctrl
-      sensor_ctrl_aon
+      sensor_ctrl
       alert_handler
       ast
-      sram_ctrl_ret_aon
+      sram_ctrl_ret_aon.ram
+      sram_ctrl_ret_aon.regs
       aon_timer_aon
       adc_ctrl_aon
       sysrst_ctrl_aon
@@ -414,25 +422,7 @@
       pipeline_byp: "true"
     }
     {
-      name: ram_ret_aon
-      type: device
-      clock: clk_peri_i
-      reset: rst_peri_ni
-      pipeline: "false"
-      inst_type: ram_1p_scr
-      addr_range:
-      [
-        {
-          base_addr: 0x40600000
-          size_byte: 0x1000
-        }
-      ]
-      xbar: false
-      stub: false
-      pipeline_byp: "true"
-    }
-    {
-      name: otp_ctrl
+      name: otp_ctrl.core
       type: device
       clock: clk_peri_i
       reset: rst_peri_ni
@@ -442,7 +432,25 @@
       [
         {
           base_addr: 0x40130000
-          size_byte: 0x4000
+          size_byte: 0x2000
+        }
+      ]
+      xbar: false
+      stub: false
+      pipeline_byp: "true"
+    }
+    {
+      name: otp_ctrl.prim
+      type: device
+      clock: clk_peri_i
+      reset: rst_peri_ni
+      pipeline: "false"
+      inst_type: otp_ctrl
+      addr_range:
+      [
+        {
+          base_addr: 0x40132000
+          size_byte: 0x1000
         }
       ]
       xbar: false
@@ -468,7 +476,7 @@
       pipeline_byp: "true"
     }
     {
-      name: sensor_ctrl_aon
+      name: sensor_ctrl
       type: device
       clock: clk_peri_i
       reset: rst_peri_ni
@@ -504,7 +512,7 @@
       pipeline_byp: "true"
     }
     {
-      name: sram_ctrl_ret_aon
+      name: sram_ctrl_ret_aon.regs
       type: device
       clock: clk_peri_i
       reset: rst_peri_ni
@@ -514,6 +522,24 @@
       [
         {
           base_addr: 0x40500000
+          size_byte: 0x1000
+        }
+      ]
+      xbar: false
+      stub: false
+      pipeline_byp: "true"
+    }
+    {
+      name: sram_ctrl_ret_aon.ram
+      type: device
+      clock: clk_peri_i
+      reset: rst_peri_ni
+      pipeline: "false"
+      inst_type: sram_ctrl
+      addr_range:
+      [
+        {
+          base_addr: 0x40600000
           size_byte: 0x1000
         }
       ]

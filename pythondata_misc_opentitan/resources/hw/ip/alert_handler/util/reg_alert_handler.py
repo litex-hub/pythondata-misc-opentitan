@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--n_alerts',
                         type=int,
                         default=4,
-                        help='Number of Alert Sources')
+                        help='Number of alert sources')
     parser.add_argument('--esc_cnt_dw',
                         type=int,
                         default=32,
@@ -31,11 +31,11 @@ def main():
                         type=int,
                         default=16,
                         help='Width of accumulator')
-    parser.add_argument('--async_on',
-                        type=str,
-                        default="'0",
-                        help="""Enables asynchronous sygnalling between specific
-                        alert RX/TX pairs""")
+
+    # can currently not be overridden with this script
+    n_lpg = 1
+    lpg_map = ["1'b0"]
+    async_on = ["'0"]
 
     args = parser.parse_args()
 
@@ -47,8 +47,10 @@ def main():
         reg_tpl.render(n_alerts=args.n_alerts,
                        esc_cnt_dw=args.esc_cnt_dw,
                        accu_cnt_dw=args.accu_cnt_dw,
-                       async_on=args.async_on,
-                       n_classes=4)) # leave this constant for now
+                       async_on=async_on,
+                       n_lpg=n_lpg,
+                       lpg_map=lpg_map,
+                       n_classes=4))  # leave this constant for now
 
     print(out.getvalue())
 

@@ -21,17 +21,21 @@ module lc_ctrl_fsm
   output logic                  init_done_o,
   output logic                  idle_o,
   // Escalatio input
-  input                         esc_scrap_state_i,
-  input                         esc_wipe_secrets_i,
+  input                         esc_scrap_state0_i,
+  input                         esc_scrap_state1_i,
   // Life cycle state vector from OTP.
   input                         lc_state_valid_i,
   input  lc_state_e             lc_state_i,
-  input  lc_id_state_e          lc_id_state_i,
   input  lc_cnt_e               lc_cnt_i,
+  input  lc_tx_t                secrets_valid_i,
+  // Defines whether we switch to an external clock when initiating a transition.
+  input                         use_ext_clock_i,
   // Token input from OTP (these are all hash post-images).
   input  lc_token_t             test_unlock_token_i,
   input  lc_token_t             test_exit_token_i,
+  input  lc_tx_t                test_tokens_valid_i,
   input  lc_token_t             rma_token_i,
+  input  lc_tx_t                rma_token_valid_i,
   // Transition trigger interface.
   input                         trans_cmd_i,
   input  dec_lc_state_e         trans_target_i,
@@ -41,7 +45,9 @@ module lc_ctrl_fsm
   output dec_lc_id_state_e      dec_lc_id_state_o,
   // Token hashing interface
   output logic                  token_hash_req_o,
+  output logic                  token_hash_req_chk_o,
   input                         token_hash_ack_i,
+  input                         token_hash_err_i,
   input  lc_token_t             hashed_token_i,
   // OTP programming interface
   output logic                  otp_prog_req_o,
@@ -57,6 +63,8 @@ module lc_ctrl_fsm
   output logic                  flash_rma_error_o,
   output logic                  otp_prog_error_o,
   output logic                  state_invalid_error_o,
+  // Local life cycle signal
+  output lc_tx_t                lc_raw_test_rma_o,
   // Life cycle broadcast outputs.
   output lc_tx_t                lc_dft_en_o,
   output lc_tx_t                lc_nvm_debug_en_o,
@@ -112,17 +120,13 @@ module lc_ctrl_fsm
   ///////////////
   fsm_state_e fsm_state_d, fsm_state_q;
 
-  // Continously feed in valid signal for LC state.
+  // Continuously feed in valid signal for LC state.
   logic lc_state_valid_d, lc_state_valid_q;
   assign lc_state_valid_d = lc_state_valid_i;
 
   // Encoded state vector.
   lc_state_e    lc_state_d, lc_state_q, next_lc_state;
   lc_cnt_e      lc_cnt_d, lc_cnt_q, next_lc_cnt;
-  lc_id_state_e lc_id_state_d, lc_id_state_q;
-
-  // Working register for hashed token.
-  lc_token_t hashed_token_d, hashed_token_q;
 
   // Feed the next lc state reg back to the programming interface of OTP.
   assign otp_prog_lc_state_o = next_lc_state;
@@ -133,22 +137,24 @@ module lc_ctrl_fsm
 
   `ASSERT_KNOWN(LcStateKnown_A,   lc_state_q   )
   `ASSERT_KNOWN(LcCntKnown_A,     lc_cnt_q     )
-  `ASSERT_KNOWN(LcIdStateKnown_A, lc_id_state_q)
   `ASSERT_KNOWN(FsmStateKnown_A,  fsm_state_q  )
 
   // Hashed token to compare against.
+  logic hashed_token_valid_mux;
   lc_token_t hashed_token_mux;
+
+  // Multibit state error from state decoder
+  logic [5:0] state_invalid_error;
 
   always_comb begin : p_fsm
     // FSM default state assignments.
     fsm_state_d   = fsm_state_q;
     lc_state_d    = lc_state_q;
     lc_cnt_d      = lc_cnt_q;
-    lc_id_state_d = lc_id_state_q;
 
     // Token hashing.
-    token_hash_req_o = 1'b0;
-    hashed_token_d   = hashed_token_q;
+    token_hash_req_o     = 1'b0;
+    token_hash_req_chk_o = 1'b1;
 
     // OTP Interface
     otp_prog_req_o = 1'b0;
@@ -182,9 +188,8 @@ module lc_ctrl_fsm
         if (init_req_i && lc_state_valid_q) begin
           fsm_state_d = IdleSt;
           // Fetch LC state vector from OTP.
-          lc_state_d    = lc_state_i;
-          lc_cnt_d      = lc_cnt_i;
-          lc_id_state_d = lc_id_state_i;
+          lc_state_d  = lc_state_i;
+          lc_cnt_d    = lc_cnt_i;
         end
       end
       ///////////////////////////////////////////////////////////////////
@@ -197,17 +202,20 @@ module lc_ctrl_fsm
         // The state is locked in once a transition is started.
         lc_state_d    = lc_state_i;
         lc_cnt_d      = lc_cnt_i;
-        lc_id_state_d = lc_id_state_i;
-
+        // If the life cycle state is SCRAP, we move the FSM into a terminal
+        // SCRAP state that does not allow any transitions to be initiated anymore.
+        if (lc_state_q == LcStScrap) begin
+          fsm_state_d = ScrapSt;
         // Initiate a transition. This will first increment the
         // life cycle counter before hashing and checking the token.
-        if (trans_cmd_i) begin
+        end else if (trans_cmd_i) begin
           fsm_state_d = ClkMuxSt;
         end
       end
       ///////////////////////////////////////////////////////////////////
-      // Clock mux state. If in RAW or TEST_LOCKED the bypass request is
-      // asserted and we have to wait until the clock mux and clock manager
+      // Clock mux state. If we are in RAW, TEST* or RMA, it is permissible
+      // to switch to an external clock source. If the bypass request is
+      // asserted, we have to wait until the clock mux and clock manager
       // have switched the mux and the clock divider. Also, we disable the
       // life cycle partition checks at this point since we are going to
       // alter the contents in the OTP memory array, which could lead to
@@ -217,9 +225,26 @@ module lc_ctrl_fsm
         if (lc_state_q inside {LcStRaw,
                                LcStTestLocked0,
                                LcStTestLocked1,
-                               LcStTestLocked2}) begin
-          lc_clk_byp_req = On;
-          if (lc_clk_byp_ack[0] == On) begin
+                               LcStTestLocked2,
+                               LcStTestLocked3,
+                               LcStTestLocked4,
+                               LcStTestLocked5,
+                               LcStTestLocked6,
+                               LcStTestUnlocked0,
+                               LcStTestUnlocked1,
+                               LcStTestUnlocked2,
+                               LcStTestUnlocked3,
+                               LcStTestUnlocked4,
+                               LcStTestUnlocked5,
+                               LcStTestUnlocked6,
+                               LcStTestUnlocked7,
+                               LcStRma}) begin
+          if (use_ext_clock_i) begin
+            lc_clk_byp_req = On;
+            if (lc_clk_byp_ack[0] == On) begin
+              fsm_state_d = CntIncrSt;
+            end
+          end else begin
             fsm_state_d = CntIncrSt;
           end
         end else begin
@@ -279,10 +304,13 @@ module lc_ctrl_fsm
         token_hash_req_o = 1'b1;
         if (token_hash_ack_i) begin
           // This is the first comparison.
-          // The token is registered and then
-          // compared two more times further below.
-          hashed_token_d = hashed_token_i;
-          if (hashed_token_i == hashed_token_mux) begin
+          // The token is compared two more times further below.
+          // Also note that conditional transitions won't be possible if the
+          // corresponding token is not valid. This only applies to tokens stored in
+          // OTP. I.e., these tokens first have to be provisioned, before they can be used.
+          if (hashed_token_i == hashed_token_mux &&
+              !token_hash_err_i &&
+              hashed_token_valid_mux) begin
             fsm_state_d = FlashRmaSt;
           end else begin
             fsm_state_d = PostTransSt;
@@ -320,7 +348,9 @@ module lc_ctrl_fsm
               (trans_target_i == DecLcStRma &&
                lc_flash_rma_req_o == On     &&
                lc_flash_rma_ack[1] == On)) begin
-            if (hashed_token_i == hashed_token_mux) begin
+            if (hashed_token_i == hashed_token_mux &&
+                !token_hash_err_i &&
+                hashed_token_valid_mux) begin
               if (fsm_state_q == TokenCheck1St) begin
                 // This is the only way we can get into the
                 // programming state.
@@ -361,10 +391,15 @@ module lc_ctrl_fsm
         end
       end
       ///////////////////////////////////////////////////////////////////
-      // Terminal error states.
-      PostTransSt,
+      // Terminal states.
+      ScrapSt,
+      PostTransSt: ;
+
       EscalateSt,
-      InvalidSt: ;
+      InvalidSt: begin
+        // During an escalation it is okay to de-assert token_hash_req without receivng ACK.
+        token_hash_req_chk_o = 1'b0;
+      end
       ///////////////////////////////////////////////////////////////////
       // Go to terminal error state if we get here.
       default: fsm_state_d = InvalidSt;
@@ -373,9 +408,11 @@ module lc_ctrl_fsm
 
     // If at any time the life cycle state encoding is not valid,
     // we jump into the terminal error state right away.
-    if (state_invalid_error_o) begin
+    // Note that state_invalid_error is a multibit error signal
+    // with different error sources - need to reduce this to one bit here.
+    if (|state_invalid_error) begin
       fsm_state_d = InvalidSt;
-    end else if (esc_scrap_state_i) begin
+    end else if (esc_scrap_state0_i || esc_scrap_state1_i) begin
       fsm_state_d = EscalateSt;
     end
   end
@@ -391,26 +428,42 @@ module lc_ctrl_fsm
   prim_flop #(
     .Width(FsmStateWidth),
     .ResetValue(FsmStateWidth'(ResetSt))
+  ) u_fsm_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( fsm_state_d     ),
+    .q_o ( fsm_state_raw_q )
+  );
+
+  logic [LcStateWidth-1:0] lc_state_raw_q;
+  assign lc_state_q = lc_state_e'(lc_state_raw_q);
+  prim_flop #(
+    .Width(LcStateWidth),
+    .ResetValue(LcStateWidth'(LcStScrap))
   ) u_state_regs (
     .clk_i,
     .rst_ni,
-    .d_i ( fsm_state_d ),
-    .q_o ( fsm_state_raw_q )
+    .d_i ( lc_state_d     ),
+    .q_o ( lc_state_raw_q )
+  );
+
+  logic [LcCountWidth-1:0] lc_cnt_raw_q;
+  assign lc_cnt_q = lc_cnt_e'(lc_cnt_raw_q);
+  prim_flop #(
+    .Width(LcCountWidth),
+    .ResetValue(LcCountWidth'(LcCnt24))
+  ) u_cnt_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( lc_cnt_d     ),
+    .q_o ( lc_cnt_raw_q )
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      lc_state_q           <= LcStScrap;
-      lc_cnt_q             <= LcCnt16;
-      lc_id_state_q        <= LcIdPersonalized;
       lc_state_valid_q     <= 1'b0;
-      hashed_token_q       <= {LcTokenWidth{1'b1}};
     end else begin
-      lc_state_q           <= lc_state_d;
-      lc_cnt_q             <= lc_cnt_d;
-      lc_id_state_q        <= lc_id_state_d;
       lc_state_valid_q     <= lc_state_valid_d;
-      hashed_token_q       <= hashed_token_d;
     end
   end
 
@@ -423,6 +476,7 @@ module lc_ctrl_fsm
   // unconditional transitions. In the case of unconditional tokens
   // we just pass an all-zero constant through the hashing function.
   lc_token_t [2**TokenIdxWidth-1:0] hashed_tokens;
+  logic [2**TokenIdxWidth-1:0] hashed_tokens_valid;
   logic [TokenIdxWidth-1:0] token_idx;
   always_comb begin : p_token_assign
     hashed_tokens = '0;
@@ -432,10 +486,19 @@ module lc_ctrl_fsm
     hashed_tokens[TestExitTokenIdx]   = test_exit_token_i;
     hashed_tokens[RmaTokenIdx]        = rma_token_i;
     hashed_tokens[InvalidTokenIdx]    = '0;
+    // Valid signals
+    hashed_tokens_valid                     = '0;
+    hashed_tokens_valid[ZeroTokenIdx]       = 1'b1; // always valid
+    hashed_tokens_valid[RawUnlockTokenIdx]  = 1'b1; // always valid
+    hashed_tokens_valid[TestUnlockTokenIdx] = (test_tokens_valid_i == On);
+    hashed_tokens_valid[TestExitTokenIdx]   = (test_tokens_valid_i == On);
+    hashed_tokens_valid[RmaTokenIdx]        = (rma_token_valid_i == On);
+    hashed_tokens_valid[InvalidTokenIdx]    = 1'b0; // always invalid
   end
 
   assign token_idx = TransTokenIdxMatrix[dec_lc_state_o][trans_target_i];
   assign hashed_token_mux = hashed_tokens[token_idx];
+  assign hashed_token_valid_mux = hashed_tokens_valid[token_idx];
 
   ////////////////////////////////////////////////////////////////////
   // Decoding and transition logic for redundantly encoded LC state //
@@ -445,16 +508,19 @@ module lc_ctrl_fsm
   // and flags any errors in the state encoding. Errors will move the
   // main FSM into INVALID right away.
   lc_ctrl_state_decode u_lc_ctrl_state_decode (
-    .lc_state_valid_i  ( lc_state_valid_q ),
-    .lc_state_i        ( lc_state_q       ),
-    .lc_id_state_i     ( lc_id_state_q    ),
-    .lc_cnt_i          ( lc_cnt_q         ),
-    .fsm_state_i       ( fsm_state_q      ),
+    .lc_state_valid_i      ( lc_state_valid_q  ),
+    .lc_state_i            ( lc_state_q        ),
+    .lc_cnt_i              ( lc_cnt_q          ),
+    .secrets_valid_i,
+    .fsm_state_i           ( fsm_state_q       ),
     .dec_lc_state_o,
     .dec_lc_id_state_o,
     .dec_lc_cnt_o,
-    .state_invalid_error_o
+    .state_invalid_error_o (state_invalid_error)
   );
+
+  // Output logically reduced version.
+  assign state_invalid_error_o = |state_invalid_error;
 
   // LC transition checker logic and next state generation.
   lc_ctrl_state_transition u_lc_ctrl_state_transition (
@@ -479,9 +545,9 @@ module lc_ctrl_fsm
     .rst_ni,
     .lc_state_valid_i   ( lc_state_valid_q ),
     .lc_state_i         ( lc_state_q       ),
-    .lc_id_state_i      ( lc_id_state_q    ),
+    .secrets_valid_i,
     .fsm_state_i        ( fsm_state_q      ),
-    .esc_wipe_secrets_i,
+    .lc_raw_test_rma_o,
     .lc_dft_en_o,
     .lc_nvm_debug_en_o,
     .lc_hw_debug_en_o,
@@ -521,14 +587,24 @@ module lc_ctrl_fsm
   // Assertions //
   ////////////////
 
-  `ASSERT(ClkBypStaysOnOnceAsserted_A,
+  `ASSERT(EscStaysOnOnceAsserted_A,
       lc_escalate_en_o == On
       |=>
       lc_escalate_en_o == On)
+
+  `ASSERT(ClkBypStaysOnOnceAsserted_A,
+      lc_clk_byp_req_o == On
+      |=>
+      lc_clk_byp_req_o == On)
 
   `ASSERT(FlashRmaStaysOnOnceAsserted_A,
       lc_flash_rma_req_o == On
       |=>
       lc_flash_rma_req_o == On)
+
+  `ASSERT(NoClkBypInProdStates_A,
+      lc_state_q inside {LcStProd, LcStProdEnd, LcStDev}
+      |=>
+      lc_clk_byp_req_o == Off)
 
 endmodule : lc_ctrl_fsm

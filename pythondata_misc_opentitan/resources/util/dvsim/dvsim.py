@@ -31,9 +31,9 @@ from pathlib import Path
 
 import Launcher
 import LauncherFactory
+import LocalLauncher
 from CfgFactory import make_cfg
 from Deploy import RunTest
-from Scheduler import Scheduler
 from Timer import Timer
 from utils import (TS_FORMAT, TS_FORMAT_LONG, VERBOSE, rm_path,
                    run_cmd_with_timeout)
@@ -157,7 +157,7 @@ def get_proj_root():
             "But this command has failed:\n"
             "{}".format(' '.join(cmd), result.stderr.decode("utf-8")))
         sys.exit(1)
-    return (proj_root)
+    return proj_root
 
 
 def resolve_proj_root(args):
@@ -251,6 +251,19 @@ def wrapped_docstring():
     return '\n\n'.join(textwrap.fill(p) for p in paras)
 
 
+def parse_reseed_multiplier(as_str: str) -> float:
+    '''Parse the argument for --reseed-multiplier'''
+    try:
+        ret = float(as_str)
+    except ValueError:
+        raise argparse.ArgumentTypeError('Invalid reseed multiplier: {!r}. '
+                                         'Must be a float.'
+                                         .format(as_str))
+    if ret <= 0:
+        raise argparse.ArgumentTypeError('Reseed multiplier must be positive.')
+    return ret
+
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description=wrapped_docstring(),
@@ -327,7 +340,8 @@ def parse_args():
                       help=('Run only up to N builds/tests at a time. '
                             'Default value 16, unless the DVSIM_MAX_PARALLEL '
                             'environment variable is set, in which case that '
-                            'is used.'))
+                            'is used. Only applicable when launching jobs '
+                            'locally.'))
 
     pathg = parser.add_argument_group('File management')
 
@@ -483,7 +497,7 @@ def parse_args():
 
     seedg.add_argument("--reseed-multiplier",
                        "-rx",
-                       type=int,
+                       type=parse_reseed_multiplier,
                        default=1,
                        metavar="N",
                        help=('Scale each reseed value in the test '
@@ -645,7 +659,7 @@ def main():
 
     # Register the common deploy settings.
     Timer.print_interval = args.print_interval
-    Scheduler.max_parallel = args.max_parallel
+    LocalLauncher.LocalLauncher.max_parallel = args.max_parallel
     Launcher.Launcher.max_odirs = args.max_odirs
     LauncherFactory.set_launcher_type(args.local)
 

@@ -19,6 +19,9 @@ class FormalCfg(OneShotCfg):
     flow = 'formal'
 
     def __init__(self, flow_cfg_file, hjson_data, args, mk_config):
+        # Options set from command line
+        self.batch_mode_prefix = "" if args.gui else "-batch"
+
         super().__init__(flow_cfg_file, hjson_data, args, mk_config)
         self.header = ["name", "errors", "warnings", "proven", "cex", "undetermined",
                        "covered", "unreachable", "pass_rate", "cov_rate"]
@@ -266,22 +269,17 @@ class FormalCfg(OneShotCfg):
 
         if results[mode] != "P":
             results_str += "\n## List of Failures\n" + ''.join(
-                mode.launcher.fail_msg)
+                mode.launcher.fail_msg.message)
 
         messages = self.result.get("messages")
         if messages is not None:
             results_str += self.parse_dict_to_str(messages)
 
-        # Write results to the scratch area
         self.results_md = results_str
-        results_file = self.scratch_path + "/results_" + self.timestamp + ".md"
-        with open(results_file, 'w') as f:
-            f.write(self.results_md)
 
         # Generate result summary
         self.result_summary[self.name] = summary
 
-        log.log(VERBOSE, "[results page]: [%s] [%s]", self.name, results_file)
         return self.results_md
 
     def _publish_results(self):

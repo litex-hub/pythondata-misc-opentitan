@@ -26,19 +26,19 @@ module spi_fwmode
 
   // Configurations
   // No sync logic. Configuration should be static when SPI operating
-  input  spi_mode_e mode_i, // Only works at mode_i == FwMode
 
   output logic      rxf_overflow_o,
   output logic      txf_underflow_o,
 
   // SRAM interface
-  output logic              fwm_req_o,
-  output logic              fwm_write_o,
-  output logic [SramAw-1:0] fwm_addr_o,
-  output logic [SramDw-1:0] fwm_wdata_o,
-  input                     fwm_rvalid_i,
-  input        [SramDw-1:0] fwm_rdata_i,
-  input        [1:0]        fwm_rerror_i,
+  output logic       fwm_req_o,
+  output logic       fwm_write_o,
+  output sram_addr_t fwm_addr_o,
+  output sram_data_t fwm_wdata_o,
+  output sram_strb_t fwm_wstrb_o,
+  input              fwm_rvalid_i,
+  input  sram_data_t fwm_rdata_i,
+  input  sram_err_t  fwm_rerror_i,
 
   // Serial to Parallel
   input             rx_data_valid_i,
@@ -108,8 +108,9 @@ module spi_fwmode
 
   logic        [1:0] fwm_sram_req;
   logic [SramAw-1:0] fwm_sram_addr  [2];
-  logic              fwm_sram_write [2];
+  logic        [1:0] fwm_sram_write;
   logic [SramDw-1:0] fwm_sram_wdata [2];
+  logic [SramDw-1:0] fwm_sram_wmask [2];
   logic        [1:0] fwm_sram_gnt;
   logic        [1:0] fwm_sram_rvalid;    // RXF doesn't use
   logic [SramDw-1:0] fwm_sram_rdata [2]; // RXF doesn't use
@@ -221,6 +222,7 @@ module spi_fwmode
     .sram_rdata  (fwm_sram_rdata [FwModeRxFifo]),
     .sram_error  (fwm_sram_error [FwModeRxFifo])
   );
+  assign fwm_sram_wmask [FwModeRxFifo] = '1;
 
   // TX Fifo control (SRAM read request --> FIFO write)
   spi_fwm_txf_ctrl #(
@@ -252,8 +254,15 @@ module spi_fwmode
     .sram_rdata  (fwm_sram_rdata [FwModeTxFifo]),
     .sram_error  (fwm_sram_error [FwModeTxFifo])
   );
+  assign fwm_sram_wmask [FwModeTxFifo] = '1;
 
   // Arbiter for FIFOs : Connecting between SRAM Ctrls and SRAM interface
+  logic [SramDw-1:0] fwm_wmask;
+
+  assign fwm_wstrb_o = sram_mask2strb(fwm_wmask);
+
+  // TODO: Assume other 7bits in a byte are same to the first bit
+
   prim_sram_arbiter #(
     .N            (2),  // RXF, TXF
     .SramDw       (SramDw),
@@ -266,6 +275,7 @@ module spi_fwmode
     .req_addr_i   (fwm_sram_addr),
     .req_write_i  (fwm_sram_write),
     .req_wdata_i  (fwm_sram_wdata),
+    .req_wmask_i  (fwm_sram_wmask),
     .gnt_o        (fwm_sram_gnt),
 
     .rsp_rvalid_o (fwm_sram_rvalid),
@@ -276,6 +286,7 @@ module spi_fwmode
     .sram_addr_o  (fwm_addr_o),
     .sram_write_o (fwm_write_o),
     .sram_wdata_o (fwm_wdata_o),
+    .sram_wmask_o (fwm_wmask),
 
     .sram_rvalid_i(fwm_rvalid_i),
     .sram_rdata_i (fwm_rdata_i),

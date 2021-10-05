@@ -107,31 +107,43 @@ $(otbn-code-snippets-bin-dir)/rsa_verify_test_exp3.elf: \
 $(otbn-code-snippets-bin-dir)/rsa_verify_test_exp3.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/rsa_verify.o
 
-# p256 curve point test depends on p256init, p256isoncurve, defined in p256.s
-$(otbn-code-snippets-bin-dir)/p256_curve_point_test.elf: \
+# rsa_verify_3072_test depends on code defined in rsa_verify_3072.s
+$(otbn-code-snippets-bin-dir)/rsa_verify_3072_test.elf: \
+  $(otbn-code-snippets-obj-dir)/rsa_verify_3072.o
+$(otbn-code-snippets-bin-dir)/rsa_verify_3072_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/rsa_verify_3072.o
+
+# p256 curve point test depends on p256isoncurve defined in p256.s
+$(otbn-code-snippets-bin-dir)/p256_isoncurve_test.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
-$(otbn-code-snippets-bin-dir)/p256_curve_point_test.elf: \
+$(otbn-code-snippets-bin-dir)/p256_isoncurve_test.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/p256.o
 
-# p256 scalar mult test depends on p256init, p256scalarmult, defined in p256.s
+# p256 scalar mult test depends on p256_scalar_mult defined in p256.s
 $(otbn-code-snippets-bin-dir)/p256_scalar_mult_test.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
 $(otbn-code-snippets-bin-dir)/p256_scalar_mult_test.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/p256.o
 
-# p256 ECDSA sign test depends on p256init, p256sign, defined in p256.s
+# p256 base mult test depends on p256_base_mult defined in p256.s
+$(otbn-code-snippets-bin-dir)/p256_base_mult_test.elf: \
+  $(otbn-code-snippets-obj-dir)/p256.o
+$(otbn-code-snippets-bin-dir)/p256_base_mult_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p256.o
+
+# p256 ECDSA sign test depends on p256_sign defined in p256.s
 $(otbn-code-snippets-bin-dir)/p256_ecdsa_sign_test.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
 $(otbn-code-snippets-bin-dir)/p256_ecdsa_sign_test.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/p256.o
 
-# p256 ECDSA verify test depends on p256init, p256verify, defined in p256.s
+# p256 ECDSA verify test depends on p256_verify defined in p256.s
 $(otbn-code-snippets-bin-dir)/p256_ecdsa_verify_test.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
 $(otbn-code-snippets-bin-dir)/p256_ecdsa_verify_test.elf: \
   otbn-libs += $(otbn-code-snippets-obj-dir)/p256.o
 
-# p256_ecdsa depends on p256init, p256verify, p256sign, defined in p256.s
+# p256_ecdsa depends on p256_verify, p256_sign, defined in p256.s
 $(otbn-code-snippets-bin-dir)/p256_ecdsa.elf: \
   $(otbn-code-snippets-obj-dir)/p256.o
 $(otbn-code-snippets-bin-dir)/p256_ecdsa.elf: \
@@ -151,12 +163,58 @@ $(otbn-code-snippets-bin-dir)/rsa.elf: \
 
 # p384_proj_add_test depends on p384_proj_add defined in p384.s
 $(otbn-code-snippets-bin-dir)/p384_proj_add_test.elf: \
-  $(otbn-code-snippets-obj-dir)/p384.o
+  $(otbn-code-snippets-obj-dir)/p384_base.o
 $(otbn-code-snippets-bin-dir)/p384_proj_add_test.elf: \
-  otbn-libs += $(otbn-code-snippets-obj-dir)/p384.o
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_base.o
 
-# p384_scalar_mult_test depends on p384_scalar_mult_int defined in p384.s
+# code in p384_sign.s depends on code defined in p384_base.s
+$(otbn-code-snippets-bin-dir)/p384_sign.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_sign.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# p384_scalar_mult_test depends on scalar_mult_p384 defined in p384_sign.s
 $(otbn-code-snippets-bin-dir)/p384_scalar_mult_test.elf: \
-  $(otbn-code-snippets-obj-dir)/p384.o
+  $(otbn-code-snippets-obj-dir)/p384_sign.o \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
 $(otbn-code-snippets-bin-dir)/p384_scalar_mult_test.elf: \
-  otbn-libs += $(otbn-code-snippets-obj-dir)/p384.o
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_sign.o \
+               $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# p384_base_mult_test depends on p384_base_mult defined in p384_sign.s
+$(otbn-code-snippets-bin-dir)/p384_base_mult_test.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_sign.o \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_base_mult_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_sign.o \
+               $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# p384_ecdsa_sign_test depends on p384_sign defined in p384_sign.s
+$(otbn-code-snippets-bin-dir)/p384_ecdsa_sign_test.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_sign.o \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_ecdsa_sign_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_sign.o \
+               $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# code in p384_verify.s depends on code defined in p384_base.s
+$(otbn-code-snippets-bin-dir)/p384_verify.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_verify.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# p384_ecdsa_verifiy_test depends on p384_verify defined in p384_verify.s
+$(otbn-code-snippets-bin-dir)/p384_ecdsa_verify_test.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_verify.o \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_ecdsa_verify_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_verify.o \
+               $(otbn-code-snippets-obj-dir)/p384_base.o
+
+# p384_isoncurve_test depends on p384_isoncurve defined in p384_verify.s
+$(otbn-code-snippets-bin-dir)/p384_isoncurve_test.elf: \
+  $(otbn-code-snippets-obj-dir)/p384_verify.o \
+  $(otbn-code-snippets-obj-dir)/p384_base.o
+$(otbn-code-snippets-bin-dir)/p384_isoncurve_test.elf: \
+  otbn-libs += $(otbn-code-snippets-obj-dir)/p384_verify.o \
+               $(otbn-code-snippets-obj-dir)/p384_base.o

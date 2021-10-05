@@ -16,7 +16,7 @@ package kmac_env_pkg;
   import cip_base_pkg::*;
   import csr_utils_pkg::*;
   import push_pull_agent_pkg::*;
-  import keymgr_kmac_agent_pkg::*;
+  import kmac_app_agent_pkg::*;
   import kmac_ral_pkg::*;
   import kmac_pkg::*;
   import keymgr_pkg::*;
@@ -62,6 +62,10 @@ package kmac_env_pkg;
   // `right_encode()` or `left_encode()`.
   parameter int MAX_ENCODE_WIDTH = 2040;
 
+  // alerts
+  parameter uint NUM_ALERTS = 1;
+  parameter string LIST_OF_ALERTS[] = {"fatal_fault"};
+
   /////////////////////////////
   // Timing Model Parameters //
   /////////////////////////////
@@ -90,10 +94,11 @@ package kmac_env_pkg;
   // ENTROPY_LFSR_WIDTH bits per cycles
   parameter int CYCLES_TO_FILL_ENTROPY = ENTROPY_STORAGE_WIDTH / ENTROPY_LFSR_WIDTH;
 
-  // TODO - this assumes entropy_fast_process is disabled, need to support this
-  //
   // 7 cycles total:                                     5 cycles        + 2 cycles (latch/consume entropy)
-  parameter int SW_ENTROPY_ROUND_CYCLES_NO_FAST = CYCLES_TO_FILL_ENTROPY + 2;
+  parameter int ENTROPY_FULL_EXPANSION_CYCLES = CYCLES_TO_FILL_ENTROPY + 2;
+
+  // 3 cycles total:                         1 cycle, entropy is reused + 2 cycles (latch/consume)
+  parameter int ENTROPY_FAST_PROCESSING_CYCLES = 3;
 
   // interrupt types
   typedef enum int {
@@ -129,6 +134,34 @@ package kmac_env_pkg;
     KmacStatusFifoEmpty = 14,
     KmacStatusFifoFull = 15
   } kmac_status_e;
+
+  typedef enum int {
+    AppKeymgr,
+    AppLc,
+    AppRom
+  } kmac_app_e;
+
+  // state values of the App FSM
+  typedef enum bit [9:0] {
+    StIdle                  = 10'b1011011010,
+    StAppCfg                = 10'b0001010000,
+    StAppMsg                = 10'b0001011111,
+    StAppOutLen             = 10'b1011001111,
+    StAppProcess            = 10'b1000100110,
+    StAppWait               = 10'b0010010110,
+    StSw                    = 10'b0111111111,
+    StKeyMgrErrKeyNotValid  = 10'b1001110100,
+    StError                 = 10'b1101011101
+  } kmac_app_st_e;
+
+  // states of the error FSM
+  typedef enum bit [2:0] {
+    ErrStIdle,
+    ErrStMsgFeed,
+    ErrStProcessing,
+    ErrStAbsorbed,
+    ErrStSqueezing
+  } kmac_err_st_e;
 
   typedef virtual pins_if#(1)       idle_vif;
   typedef virtual kmac_sideload_if  sideload_vif;

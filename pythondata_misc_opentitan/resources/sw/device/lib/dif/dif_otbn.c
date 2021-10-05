@@ -4,55 +4,53 @@
 
 #include "sw/device/lib/dif/dif_otbn.h"
 
+#include <assert.h>
+
 #include "sw/device/lib/base/bitfield.h"
+#include "sw/device/lib/base/mmio.h"
+#include "sw/device/lib/dif/dif_base.h"
 
 #include "otbn_regs.h"  // Generated.
 
-_Static_assert(kDifOtbnErrBitsBadDataAddr ==
-                   (1 << OTBN_ERR_BITS_BAD_DATA_ADDR_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsBadInsnAddr ==
-                   (1 << OTBN_ERR_BITS_BAD_INSN_ADDR_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsCallStack == (1 << OTBN_ERR_BITS_CALL_STACK_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsIllegalInsn ==
-                   (1 << OTBN_ERR_BITS_ILLEGAL_INSN_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsLoop == (1 << OTBN_ERR_BITS_LOOP_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsFatalImem == (1 << OTBN_ERR_BITS_FATAL_IMEM_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsFatalDmem == (1 << OTBN_ERR_BITS_FATAL_DMEM_BIT),
-               "Layout of error bits changed.");
-_Static_assert(kDifOtbnErrBitsFatalReg == (1 << OTBN_ERR_BITS_FATAL_REG_BIT),
-               "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsBadDataAddr ==
+                  (1 << OTBN_ERR_BITS_BAD_DATA_ADDR_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsBadInsnAddr ==
+                  (1 << OTBN_ERR_BITS_BAD_INSN_ADDR_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsCallStack == (1 << OTBN_ERR_BITS_CALL_STACK_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsIllegalInsn ==
+                  (1 << OTBN_ERR_BITS_ILLEGAL_INSN_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsLoop == (1 << OTBN_ERR_BITS_LOOP_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsImemIntgViolation ==
+                  (1 << OTBN_ERR_BITS_IMEM_INTG_VIOLATION_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsDmemIntgViolation ==
+                  (1 << OTBN_ERR_BITS_DMEM_INTG_VIOLATION_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsRegIntgViolation ==
+                  (1 << OTBN_ERR_BITS_REG_INTG_VIOLATION_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsBusIntgViolation ==
+                  (1 << OTBN_ERR_BITS_BUS_INTG_VIOLATION_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsIllegalBusAccess ==
+                  (1 << OTBN_ERR_BITS_ILLEGAL_BUS_ACCESS_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsLifecycleEscalation ==
+                  (1 << OTBN_ERR_BITS_LIFECYCLE_ESCALATION_BIT),
+              "Layout of error bits changed.");
+static_assert(kDifOtbnErrBitsFatalSoftware ==
+                  (1 << OTBN_ERR_BITS_FATAL_SOFTWARE_BIT),
+              "Layout of error bits changed.");
 
 /**
  * Data width of big number subset, in bytes.
  */
 const int kDifOtbnWlenBytes = 256 / 8;
-
-/**
- * Convert from a `dif_otbn_interrupt_t` to the appropriate bit index.
- *
- * INTR_STATE, INTR_ENABLE, and INTR_TEST registers have the same bit offset.
- */
-static bool irq_bit_index_get(dif_otbn_interrupt_t irq_type,
-                              uint8_t *offset_out) {
-  ptrdiff_t offset;
-  switch (irq_type) {
-    case kDifOtbnInterruptDone:
-      offset = OTBN_INTR_COMMON_DONE_BIT;
-      break;
-    default:
-      return false;
-  }
-
-  *offset_out = offset;
-
-  return true;
-}
 
 /**
  * Ensures that `offset` and `size` are valid for a given `mem_size`.
@@ -69,21 +67,20 @@ static bool check_offset_len(uint32_t offset_bytes, size_t len_bytes,
           offset_bytes + len_bytes <= mem_size);
 }
 
-dif_otbn_result_t dif_otbn_init(const dif_otbn_config_t *config,
-                                dif_otbn_t *otbn) {
-  if (config == NULL || otbn == NULL) {
-    return kDifOtbnBadArg;
+dif_result_t dif_otbn_init(mmio_region_t base_addr, dif_otbn_t *otbn) {
+  if (otbn == NULL) {
+    return kDifBadArg;
   }
 
-  otbn->base_addr = config->base_addr;
+  otbn->base_addr = base_addr;
   dif_otbn_reset(otbn);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_reset(const dif_otbn_t *otbn) {
+dif_result_t dif_otbn_reset(const dif_otbn_t *otbn) {
   if (otbn == NULL) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   mmio_region_write32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET, 0);
@@ -91,215 +88,102 @@ dif_otbn_result_t dif_otbn_reset(const dif_otbn_t *otbn) {
   // Clear all pending interrupts.
   mmio_region_write32(otbn->base_addr, OTBN_INTR_STATE_REG_OFFSET, 0xFFFFFFFF);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_irq_state_get(const dif_otbn_t *otbn,
-                                         dif_otbn_interrupt_t irq_type,
-                                         dif_otbn_enable_t *state) {
-  if (otbn == NULL || state == NULL) {
-    return kDifOtbnBadArg;
-  }
-
-  uint8_t bit_index;
-  if (!irq_bit_index_get(irq_type, &bit_index)) {
-    return kDifOtbnError;
-  }
-
-  bool enabled = bitfield_bit32_read(
-      mmio_region_read32(otbn->base_addr, OTBN_INTR_STATE_REG_OFFSET),
-      bit_index);
-  *state = (enabled ? kDifOtbnEnable : kDifOtbnDisable);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_irq_state_clear(const dif_otbn_t *otbn,
-                                           dif_otbn_interrupt_t irq_type) {
+dif_result_t dif_otbn_write_cmd(const dif_otbn_t *otbn, dif_otbn_cmd_t cmd) {
   if (otbn == NULL) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
-  uint8_t bit_index;
-  if (!irq_bit_index_get(irq_type, &bit_index)) {
-    return kDifOtbnError;
-  }
+  mmio_region_write32(otbn->base_addr, OTBN_CMD_REG_OFFSET, cmd);
 
-  uint32_t register_value = 0x0u;
-  register_value = bitfield_bit32_write(register_value, bit_index, true);
-  mmio_region_write32(otbn->base_addr, OTBN_INTR_STATE_REG_OFFSET,
-                      register_value);
-
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_irqs_disable(const dif_otbn_t *otbn,
-                                        uint32_t *state) {
-  if (otbn == NULL) {
-    return kDifOtbnBadArg;
+dif_result_t dif_otbn_get_status(const dif_otbn_t *otbn,
+                                 dif_otbn_status_t *status) {
+  if (otbn == NULL || status == NULL) {
+    return kDifBadArg;
   }
 
-  // Pass the interrupt state back to the caller.
-  if (state != NULL) {
-    *state = mmio_region_read32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET);
-  }
+  *status = mmio_region_read32(otbn->base_addr, OTBN_STATUS_REG_OFFSET);
 
-  // Disable all interrupts.
-  mmio_region_write32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET, 0u);
-
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_irqs_restore(const dif_otbn_t *otbn,
-                                        uint32_t state) {
-  if (otbn == NULL) {
-    return kDifOtbnBadArg;
-  }
-
-  // Restore interrupt state.
-  mmio_region_write32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET, state);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_irq_control(const dif_otbn_t *otbn,
-                                       dif_otbn_interrupt_t irq_type,
-                                       dif_otbn_enable_t enable) {
-  if (otbn == NULL) {
-    return kDifOtbnBadArg;
-  }
-
-  uint8_t bit_index;
-  if (!irq_bit_index_get(irq_type, &bit_index)) {
-    return kDifOtbnError;
-  }
-
-  // Enable/Disable interrupt.
-  uint32_t register_value =
-      mmio_region_read32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET);
-  register_value = bitfield_bit32_write(register_value, bit_index,
-                                        (enable == kDifOtbnEnable));
-  mmio_region_write32(otbn->base_addr, OTBN_INTR_ENABLE_REG_OFFSET,
-                      register_value);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_irq_force(const dif_otbn_t *otbn,
-                                     dif_otbn_interrupt_t irq_type) {
-  if (otbn == NULL) {
-    return kDifOtbnBadArg;
-  }
-
-  uint8_t bit_index;
-  if (!irq_bit_index_get(irq_type, &bit_index)) {
-    return kDifOtbnError;
-  }
-
-  // Force the requested interrupt.
-  uint32_t register_value =
-      mmio_region_read32(otbn->base_addr, OTBN_INTR_TEST_REG_OFFSET);
-  register_value = bitfield_bit32_write(register_value, bit_index, true);
-  mmio_region_write32(otbn->base_addr, OTBN_INTR_TEST_REG_OFFSET,
-                      register_value);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_start(const dif_otbn_t *otbn,
-                                 unsigned int start_addr) {
-  if (otbn == NULL || start_addr % sizeof(uint32_t) != 0 ||
-      start_addr >= OTBN_IMEM_SIZE_BYTES) {
-    return kDifOtbnBadArg;
-  }
-
-  mmio_region_write32(otbn->base_addr, OTBN_START_ADDR_REG_OFFSET, start_addr);
-
-  uint32_t cmd_reg_val = 0x0u;
-  cmd_reg_val = bitfield_bit32_write(cmd_reg_val, OTBN_CMD_START_BIT, true);
-  mmio_region_write32(otbn->base_addr, OTBN_CMD_REG_OFFSET, cmd_reg_val);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_is_busy(const dif_otbn_t *otbn, bool *busy) {
-  if (otbn == NULL || busy == NULL) {
-    return kDifOtbnBadArg;
-  }
-
-  uint32_t status = mmio_region_read32(otbn->base_addr, OTBN_STATUS_REG_OFFSET);
-  *busy = bitfield_bit32_read(status, OTBN_STATUS_BUSY_BIT);
-
-  return kDifOtbnOk;
-}
-
-dif_otbn_result_t dif_otbn_get_err_bits(const dif_otbn_t *otbn,
-                                        dif_otbn_err_bits_t *err_bits) {
+dif_result_t dif_otbn_get_err_bits(const dif_otbn_t *otbn,
+                                   dif_otbn_err_bits_t *err_bits) {
   if (otbn == NULL || err_bits == NULL) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   uint32_t err_bits_raw =
       mmio_region_read32(otbn->base_addr, OTBN_ERR_BITS_REG_OFFSET);
 
   *err_bits = err_bits_raw;
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_imem_write(const dif_otbn_t *otbn,
-                                      uint32_t offset_bytes, const void *src,
-                                      size_t len_bytes) {
+dif_result_t dif_otbn_get_insn_cnt(const dif_otbn_t *otbn, uint32_t *insn_cnt) {
+  if (otbn == NULL || insn_cnt == NULL) {
+    return kDifBadArg;
+  }
+
+  *insn_cnt = mmio_region_read32(otbn->base_addr, OTBN_INSN_CNT_REG_OFFSET);
+  return kDifOk;
+}
+
+dif_result_t dif_otbn_imem_write(const dif_otbn_t *otbn, uint32_t offset_bytes,
+                                 const void *src, size_t len_bytes) {
   if (otbn == NULL || src == NULL ||
       !check_offset_len(offset_bytes, len_bytes, OTBN_IMEM_SIZE_BYTES)) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   mmio_region_memcpy_to_mmio32(
       otbn->base_addr, OTBN_IMEM_REG_OFFSET + offset_bytes, src, len_bytes);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_imem_read(const dif_otbn_t *otbn,
-                                     uint32_t offset_bytes, void *dest,
-                                     size_t len_bytes) {
+dif_result_t dif_otbn_imem_read(const dif_otbn_t *otbn, uint32_t offset_bytes,
+                                void *dest, size_t len_bytes) {
   if (otbn == NULL || dest == NULL ||
       !check_offset_len(offset_bytes, len_bytes, OTBN_IMEM_SIZE_BYTES)) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   mmio_region_memcpy_from_mmio32(
       otbn->base_addr, OTBN_IMEM_REG_OFFSET + offset_bytes, dest, len_bytes);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_dmem_write(const dif_otbn_t *otbn,
-                                      uint32_t offset_bytes, const void *src,
-                                      size_t len_bytes) {
+dif_result_t dif_otbn_dmem_write(const dif_otbn_t *otbn, uint32_t offset_bytes,
+                                 const void *src, size_t len_bytes) {
   if (otbn == NULL || src == NULL ||
       !check_offset_len(offset_bytes, len_bytes, OTBN_DMEM_SIZE_BYTES)) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   mmio_region_memcpy_to_mmio32(
       otbn->base_addr, OTBN_DMEM_REG_OFFSET + offset_bytes, src, len_bytes);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
-dif_otbn_result_t dif_otbn_dmem_read(const dif_otbn_t *otbn,
-                                     uint32_t offset_bytes, void *dest,
-                                     size_t len_bytes) {
+dif_result_t dif_otbn_dmem_read(const dif_otbn_t *otbn, uint32_t offset_bytes,
+                                void *dest, size_t len_bytes) {
   if (otbn == NULL || dest == NULL ||
       !check_offset_len(offset_bytes, len_bytes, OTBN_IMEM_SIZE_BYTES)) {
-    return kDifOtbnBadArg;
+    return kDifBadArg;
   }
 
   mmio_region_memcpy_from_mmio32(
       otbn->base_addr, OTBN_DMEM_REG_OFFSET + offset_bytes, dest, len_bytes);
 
-  return kDifOtbnOk;
+  return kDifOk;
 }
 
 size_t dif_otbn_get_dmem_size_bytes(const dif_otbn_t *otbn) {

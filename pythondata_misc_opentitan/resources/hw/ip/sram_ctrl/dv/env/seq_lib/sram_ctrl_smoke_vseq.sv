@@ -10,6 +10,8 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
 
   bit access_during_key_req = 0;
 
+  bit en_ifetch = 0;
+
   // Indicates the number of memory accesses to be performed
   // before requesting a new scrambling key
   rand int num_ops;
@@ -25,15 +27,17 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
     num_trans == 1;
   }
 
-  // TODO: 10_000 iterations takes roughly 150s CPU time during simulation.
-  //       If this is too much, modify the constraint.
   constraint num_ops_c {
-    num_ops dist {
-      [1    : 999 ] :/ 1,
-      [1000 : 4999] :/ 3,
-      [5000 : 9999] :/ 5,
-      10_000        :/ 1
-    };
+    if (cfg.smoke_test) {
+      num_ops == 100;
+    } else {
+      num_ops dist {
+        [1    : 999 ] :/ 1,
+        [1000 : 4999] :/ 3,
+        [5000 : 9999] :/ 5,
+        10_000        :/ 1
+      };
+    }
   }
 
   // This can be much smaller than `num_ops`, as we only perform some memory accesses
@@ -48,7 +52,8 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
     `uvm_info(`gfn,
               $sformatf("Performing %0d random memory accesses after reset!", num_ops_after_reset),
               UVM_LOW)
-    do_rand_ops(num_ops_after_reset);
+    do_rand_ops(.num_ops(num_ops_after_reset),
+                .en_ifetch(en_ifetch));
 
     `uvm_info(`gfn, $sformatf("Starting %0d SRAM transactions", num_trans), UVM_LOW)
     for (int i = 0; i < num_trans; i++) begin
@@ -69,7 +74,9 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
         begin
           if (access_during_key_req) begin
             `uvm_info(`gfn, "accessing during key req", UVM_HIGH)
-            do_rand_ops(.num_ops($urandom_range(100, 500)), .abort(1));
+            do_rand_ops(.num_ops($urandom_range(100, 500)),
+                        .abort(1),
+                        .en_ifetch(en_ifetch));
             csr_utils_pkg::wait_no_outstanding_access();
           end
         end
@@ -84,9 +91,11 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
           do_stress_ops($urandom(), $urandom_range(5, 20));
         end
       end else begin
-        do_rand_ops(num_ops);
+        do_rand_ops(.num_ops(num_ops),
+                    .en_ifetch(en_ifetch));
       end
     end
+    csr_utils_pkg::wait_no_outstanding_access();
   endtask : body
 
 endclass : sram_ctrl_smoke_vseq

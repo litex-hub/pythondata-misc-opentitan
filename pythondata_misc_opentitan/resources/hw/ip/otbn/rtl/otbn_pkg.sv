@@ -11,8 +11,11 @@ package otbn_pkg;
   // Data path width for BN (wide) instructions, in bits.
   parameter int WLEN = 256;
 
-  // "Extended" WLEN: the size of the datapath with added parity bits
+  // "Extended" WLEN: the size of the datapath with added integrity bits
   parameter int ExtWLEN = WLEN * 39 / 32;
+
+  // Width of base (32b) data path with added integrity bits
+  parameter int BaseIntgWidth = 39;
 
   // Number of 32-bit words per WLEN
   parameter int BaseWordsPerWLEN = WLEN / 32;
@@ -47,14 +50,33 @@ package otbn_pkg;
     RegFileFPGA  = 1  // FPGA implmentation, does infer RAM primitives.
   } regfile_e;
 
+  // Command to execute. See the CMD register description in otbn.hjson for details.
+  typedef enum logic [7:0] {
+    CmdExecute     = 8'h01,
+    CmdSecWipeDmem = 8'h02,
+    CmdSecWipeImem = 8'h03
+  } cmd_e;
+
+  // Status register values. See the STATUS register description in otbn.hjson for details.
+  typedef enum logic [7:0] {
+    StatusIdle            = 8'h00,
+    StatusBusyExecute     = 8'h01,
+    StatusBusySecWipeDmem = 8'h02,
+    StatusBusySecWipeImem = 8'h03,
+    StatusLocked          = 8'hFF
+  } status_e;
+
   // Error bits
   //
-  // Note: These errors are duplicated in the register HJSON (../data/otbn.hjson), the ISS
-  // (../dv/otbnsim/sim/alert.py), and the DIF. If updating them here, update those too.
+  // Note: These errors are duplicated in other places. If updating them here, update those too.
   typedef struct packed {
-    logic fatal_reg;
-    logic fatal_dmem;
-    logic fatal_imem;
+    logic fatal_software;
+    logic lifecycle_escalation;
+    logic illegal_bus_access;
+    logic bus_intg_violation;
+    logic reg_intg_violation;
+    logic dmem_intg_violation;
+    logic imem_intg_violation;
     logic loop;
     logic illegal_insn;
     logic call_stack;
@@ -118,10 +140,7 @@ package otbn_pkg;
     AluOpBignumXor,
     AluOpBignumOr,
     AluOpBignumAnd,
-    AluOpBignumNot,
-
-    AluOpBignumSel,
-    AluOpBignumMov
+    AluOpBignumNot
   } alu_op_bignum_e;
 
   typedef enum logic {
@@ -167,12 +186,15 @@ package otbn_pkg;
     RfWdSelLsu,
     RfWdSelIspr,
     RfWdSelIncr,
-    RfWdSelMac
+    RfWdSelMac,
+    RfWdSelMovSel
   } rf_wd_sel_e;
 
   // Control and Status Registers (CSRs)
   parameter int CsrNumWidth = 12;
   typedef enum logic [CsrNumWidth-1:0] {
+    // Address ranges follow the RISC-V Privileged Specification v1.11
+    // 0x7C0-0x7FF Custom read/write
     CsrFg0         = 12'h7C0,
     CsrFg1         = 12'h7C1,
     CsrFlags       = 12'h7C8,
@@ -184,9 +206,11 @@ package otbn_pkg;
     CsrMod5        = 12'h7D5,
     CsrMod6        = 12'h7D6,
     CsrMod7        = 12'h7D7,
+    CsrRndPrefetch = 12'h7D8,
+
+    // 0xFC0-0xFFF Custom read-only
     CsrRnd         = 12'hFC0,
-    CsrRndPrefetch = 12'hFC1,
-    CsrUrnd        = 12'hFC2
+    CsrUrnd        = 12'hFC1
   } csr_e;
 
   // Wide Special Purpose Registers (WSRs)
@@ -195,8 +219,8 @@ package otbn_pkg;
   typedef enum logic [WsrNumWidth-1:0] {
     WsrMod   = 'd0,
     WsrRnd   = 'd1,
-    WsrAcc   = 'd2,
-    WsrUrnd  = 'd3
+    WsrUrnd  = 'd2,
+    WsrAcc   = 'd3
   } wsr_e;
 
   // Internal Special Purpose Registers (ISPRs)
@@ -316,6 +340,8 @@ package otbn_pkg;
     rf_wd_sel_e              rf_wdata_sel;
     logic                    rf_ren_a;
     logic                    rf_ren_b;
+
+    logic                    sel_insn;
   } insn_dec_bignum_t;
 
   typedef struct packed {
@@ -354,11 +380,12 @@ package otbn_pkg;
   } mac_bignum_operation_t;
 
   // States for controller state machine
-  typedef enum logic [1:0] {
+  typedef enum logic [2:0] {
     OtbnStateHalt,
     OtbnStateUrndRefresh,
     OtbnStateRun,
-    OtbnStateStall
+    OtbnStateStall,
+    OtbnStateLocked
   } otbn_state_e;
 
   typedef enum logic [1:0] {
@@ -368,13 +395,14 @@ package otbn_pkg;
   } otbn_start_stop_state_e;
 
   // URNG PRNG default LFSR seed and permutation
-  // A single default seed is split into 64 bit chunks, a seperate LFSR is used for each chunk. All
+  // A single default seed is split into 64 bit chunks, a separate LFSR is used for each chunk. All
   // LFSR chunks use the same permutation.
   // These LFSR parameters have been generated with
   // $ ./util/design/gen-lfsr-seed.py --width 256 --seed 2840984437 --prefix "Urnd"
   parameter int UrndLfsrWidth = 256;
   typedef logic [UrndLfsrWidth-1:0] urnd_lfsr_seed_t;
-  parameter urnd_lfsr_seed_t RndCnstUrndLfsrSeedDefault = 256'h84ddfadaf7e1134d70aa1c59de6197ff25a4fe335d095f1e2cba89acbe4a07e9;
+  parameter urnd_lfsr_seed_t RndCnstUrndLfsrSeedDefault =
+      256'h84ddfadaf7e1134d70aa1c59de6197ff25a4fe335d095f1e2cba89acbe4a07e9;
 
   // These LFSR parameters have been generated with
   // $ ./util/design/gen-lfsr-seed.py --width 64 --seed 2840984437 --prefix "UrndChunk"
@@ -385,4 +413,11 @@ package otbn_pkg;
     256'h86c701ecc39d9d483bdcacb5a15340b0988e2336e955ddd0dc01ab17e173726e
   };
 
+  parameter otp_ctrl_pkg::otbn_key_t RndCnstOtbnKeyDefault =
+      128'h14e8cecae3040d5e12286bb3cc113298;
+  parameter otp_ctrl_pkg::otbn_nonce_t RndCnstOtbnNonceDefault =
+      64'hf79780bc735f3843;
+
+  typedef logic [63:0] otbn_dmem_nonce_t;
+  typedef logic [63:0] otbn_imem_nonce_t;
 endpackage

@@ -6,7 +6,6 @@
 // a formal tool.
 
 module prim_esc_rxtx_fpv
-  import prim_alert_pkg::*;
   import prim_esc_pkg::*;
 (
   input        clk_i,
@@ -21,7 +20,7 @@ module prim_esc_rxtx_fpv
   input        ping_req_i,
   output logic ping_ok_o,
   output logic integ_fail_o,
-  output logic esc_en_o
+  output logic esc_req_o
 );
 
   esc_rx_t esc_rx_in, esc_rx_out;
@@ -32,7 +31,7 @@ module prim_esc_rxtx_fpv
   assign esc_tx_in.esc_p  = esc_tx_out.esc_p  ^ esc_err_pi;
   assign esc_tx_in.esc_n  = esc_tx_out.esc_n  ^ esc_err_ni;
 
-  prim_esc_sender i_prim_esc_sender (
+  prim_esc_sender u_prim_esc_sender (
     .clk_i        ,
     .rst_ni       ,
     .ping_req_i   ,
@@ -43,10 +42,14 @@ module prim_esc_rxtx_fpv
     .esc_tx_o     ( esc_tx_out )
   );
 
-  prim_esc_receiver i_prim_esc_receiver (
+  prim_esc_receiver #(
+    // This reduces the state space for this counter
+    // from 2**24 to 2**6 to speed up convergence.
+    .TimeoutCntDw(6)
+  ) u_prim_esc_receiver (
     .clk_i    ,
     .rst_ni   ,
-    .esc_en_o ,
+    .esc_req_o ,
     .esc_rx_o     ( esc_rx_out ),
     .esc_tx_i     ( esc_tx_in  )
   );

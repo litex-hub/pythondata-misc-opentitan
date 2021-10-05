@@ -4,7 +4,7 @@
 
 class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     .CFG_T(sram_ctrl_env_cfg),
-    .RAL_T(sram_ctrl_reg_block),
+    .RAL_T(sram_ctrl_regs_reg_block),
     .COV_T(sram_ctrl_env_cov)
   );
   `uvm_component_utils(sram_ctrl_scoreboard)
@@ -28,6 +28,23 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
   // LC_ESCALATION_PROPAGATION_DELAY cycles, to signal that
   // the LC escalation has finished propagating through the design
   bit status_lc_esc;
+
+  // internal state for executable-mode information
+  bit       allow_ifetch;
+
+  // The values detected from interface and EXEC csr writes - are not immediately valid
+  // as they need to be "latched" by the internal scb logic whenever an addr_phase_write
+  // is detected on the sram_tl_a_chan_fifo.
+  bit [2:0] detected_csr_exec = '0;
+  bit [3:0] detected_hw_debug_en = '0;
+  bit [7:0] detected_en_sram_ifetch = '0;
+
+  // The values that are "latched" by sram_tl_a_chan_fifo and are assumed to be valid
+  bit [2:0] valid_csr_exec;
+  bit [3:0] valid_hw_debug_en;
+  bit [7:0] valid_en_sram_ifetch;
+
+  bit in_executable_mode;
 
   typedef struct {
     // 1 for writes, 0 for reads
@@ -97,7 +114,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     addr1 = word_align_addr(addr1);
     addr2 = word_align_addr(addr2);
 
-    for (int i = 0; i < cfg.mem_bkdr_vif.mem_addr_width + 2; i++) begin
+    for (int i = 0; i < cfg.mem_bkdr_util_h.get_addr_width() + 2; i++) begin
       addr_mask[i] = 1;
     end
 
@@ -183,10 +200,18 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
                         item.get_error_size_over_max()),
               UVM_HIGH)
 
+    if (item.a_user[15:14] == tlul_pkg::InstrType) begin
+      // 2 error cases if an InstrType transaction is seen:
+      // - if it is a write transaction
+      // - if the SRAM is not configured in executable mode
+      is_tl_err = (allow_ifetch) ? (item.a_opcode != tlul_pkg::Get) : 1'b1;
+    end
+
     if (channel == DataChannel) begin
       `DV_CHECK_EQ(item.d_error, is_tl_err,
           $sformatf("item_err: %0d", is_tl_err))
     end
+
 
     return is_tl_err;
   endfunction
@@ -209,13 +234,44 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
     fork
+      sample_key_req_access_cg();
       process_sram_init();
       process_lc_escalation();
+      process_sram_executable();
       process_sram_tl_a_chan_fifo();
       process_sram_tl_d_chan_fifo();
       process_kdi_fifo();
       process_completed_trans();
     join_none
+  endtask
+
+  // This task spins forever and samples the appropriate covergroup whenever
+  // in_key_req is high and a new valid addr_phase transaction is seen on the memory bus.
+  virtual task sample_key_req_access_cg();
+    forever begin
+      @(negedge cfg.under_reset);
+      `DV_SPINWAIT_EXIT(
+          forever begin
+            @(posedge in_key_req);
+            `DV_SPINWAIT_EXIT(
+                forever begin
+                  // sample the covergroup every time a new TL request is seen
+                  // while a key request is outstanding.
+                  @(posedge cfg.m_sram_cfg.vif.h2d.a_valid);
+                  // zero delay to allow bus values to settle
+                  #0;
+                  if (cfg.en_cov) begin
+                    cov.access_during_key_req_cg.sample(cfg.m_sram_cfg.vif.h2d.a_opcode);
+                  end
+                end
+                ,
+                @(negedge in_key_req);
+            )
+          end
+          ,
+          wait(cfg.under_reset == 1);
+      )
+    end
   endtask
 
   virtual task process_sram_init();
@@ -226,15 +282,21 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     forever begin
       wait(!cfg.under_reset);
       @(posedge in_init);
+      // clear the init done signal
+      exp_status[SramCtrlInitDone] = 0;
       // initialization process only starts once the corresponding key request finishes
       @(negedge in_key_req);
-      // wait 1 cycle for initialization to start
-      cfg.clk_rst_vif.wait_clks(1);
       // initialization process will randomize each line in the SRAM, one cycle each
       //
       // thus we just need to wait for a number of cycles equal to the total size
       // of the sram address space
-      cfg.clk_rst_vif.wait_clks(cfg.mem_bkdr_vif.mem_depth);
+      `uvm_info(`gfn, "starting to wait for init", UVM_HIGH)
+      cfg.clk_rst_vif.wait_clks(cfg.mem_bkdr_util_h.get_depth());
+      // Wait a small delay to latch the updated CSR status
+      #1;
+      // if we are in escalated state, scr_key_seed_valid will always stay low. otherwise
+      // we can set the init done flag here.
+      exp_status[SramCtrlInitDone] = status_lc_esc ? 0 : 1;
       in_init = 0;
       `uvm_info(`gfn, "dropped in_init", UVM_HIGH)
     end
@@ -265,6 +327,8 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
 
       exp_status[SramCtrlEscalated]       = 1;
       exp_status[SramCtrlScrKeySeedValid] = 0;
+      exp_status[SramCtrlScrKeyValid]     = 0;
+      exp_status[SramCtrlInitDone]        = 0;
 
       // escalation resets the key and nonce back to defaults
       key   = sram_ctrl_pkg::RndCnstSramKeyDefault;
@@ -296,6 +360,34 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
 
       // lc escalation status will be dropped after reset, no further action needed
       wait(cfg.lc_vif.lc_esc_en == lc_ctrl_pkg::Off);
+
+      // sample coverage
+      if (cfg.en_cov) begin
+        cov.lc_escalation_rst_cg.sample(cfg.clk_rst_vif.rst_n);
+      end
+    end
+  endtask
+
+  virtual task process_sram_executable();
+    forever begin
+      @(cfg.exec_vif.lc_hw_debug_en, cfg.exec_vif.otp_en_sram_ifetch, detected_csr_exec);
+
+      // "latch" these values with a slight delay to ensure everything has settled
+      #1;
+
+      detected_hw_debug_en = cfg.exec_vif.lc_hw_debug_en;
+      detected_en_sram_ifetch = cfg.exec_vif.otp_en_sram_ifetch;
+
+      // sample executability-related coverage
+      if (cfg.en_cov) begin
+        cov.executable_cg.sample(detected_hw_debug_en,
+                                 detected_en_sram_ifetch,
+                                 detected_csr_exec);
+      end
+
+      `uvm_info(`gfn, $sformatf("detected_hw_debug_en: %0b", detected_hw_debug_en), UVM_HIGH)
+      `uvm_info(`gfn, $sformatf("detected_en_sram_ifetch: %0b", detected_en_sram_ifetch), UVM_HIGH)
+
     end
   endtask
 
@@ -306,9 +398,20 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
       if (sram_tl_a_chan_fifo.try_get(item) > 0) begin // received a tl_seq_item
         `uvm_info(`gfn, $sformatf("Received sram_tl_a_chan item:\n%0s", item.sprint()), UVM_HIGH)
 
+        // update internal state related to instruction type and SRAM execution
+        valid_csr_exec = detected_csr_exec;
+        valid_hw_debug_en = detected_hw_debug_en;
+        valid_en_sram_ifetch = detected_en_sram_ifetch;
+
+        allow_ifetch = (valid_en_sram_ifetch == otp_ctrl_pkg::Enabled) ?
+                       (valid_csr_exec == tlul_pkg::InstrEn)           :
+                       (valid_hw_debug_en == lc_ctrl_pkg::On);
+
         if (!cfg.en_scb) continue;
 
-        if (in_key_req) continue;
+        if (in_key_req) begin
+          `uvm_error(`gfn, "Received SRAM_TLUL transaction while requesting a new key")
+        end
 
         // If the escalation propagation has finished,
         // do not process anymore addr_phase transactions
@@ -456,6 +559,11 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
           //
           // as a result we need to check for an address collision then act accordingly.
 
+          // sample b2b-related coovergroup
+          if (cfg.en_cov) begin
+            cov.b2b_access_types_cg.sample(data_trans.we, addr_trans.we);
+          end
+
           // if we have an address collision (read address is the same as the pending write address)
           // return data based on the `held_data`
           if (eq_sram_addr(data_trans.addr, held_trans.addr)) begin
@@ -491,6 +599,11 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
 
           `uvm_info(`gfn, $sformatf("addr_trans: %0p", addr_trans), UVM_HIGH)
 
+          // sample b2b-related covergroup
+          if (cfg.en_cov) begin
+            cov.b2b_access_types_cg.sample(data_trans.we, addr_trans.we);
+          end
+
           if (addr_trans.we == 0) begin
             // if we see a read directly after a write and we are not currently in a RAW hazard
             // handling state, we need to do the following:
@@ -506,7 +619,13 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
             in_raw_hazard = 1;
             held_trans = data_trans;
             waddr = {data_trans.addr[TL_AW-1:2], 2'b00};
-            held_data = cfg.mem_bkdr_vif.sram_encrypt_read32(waddr, data_trans.key, data_trans.nonce);
+            held_data = cfg.mem_bkdr_util_h.sram_encrypt_read32_integ(waddr, data_trans.key,
+                                                                      data_trans.nonce);
+
+            // sample covergroup
+            if (cfg.en_cov) begin
+              cov.raw_hazard_cg.sample(waddr == word_align_addr(addr_trans.addr));
+            end
 
             for (int i = 0; i < TL_DBW; i++) begin
               if (data_trans.mask[i]) begin
@@ -536,21 +655,30 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
       kdi_fifo.get(item);
       `uvm_info(`gfn, $sformatf("Received transaction from kdi_fifo:\n%0s", item.convert2string()), UVM_HIGH)
 
-      // after a KDI transaction is completed, it takes 4 clock cycles in the SRAM domain
+      // after a KDI transaction is completed, it takes 3 clock cycles in the SRAM domain
       // to properly synchronize and propagate the data through the DUT
-      cfg.clk_rst_vif.wait_clks(KDI_PROPAGATION_CYCLES);
+      cfg.clk_rst_vif.wait_clks(KDI_PROPAGATION_CYCLES + 1);
+
+      // Wait a small delay before updating CSR status
+      #1;
 
       in_key_req = 0;
+      `uvm_info(`gfn, "dropped in_key_req", UVM_HIGH)
 
       // When KDI item is seen, update key, nonce
       {key, nonce, seed_valid} = item.d_data;
+
+      // sample coverage on seed_valid
+      if (cfg.en_cov) begin
+        cov.key_seed_valid_cg.sample(status_lc_esc, seed_valid);
+      end
 
       // scr_key_valid simply denotes that a successful handshake with OTP has completed,
       // so this will be 1 whenever we get a copmleted transaction item
       exp_status[SramCtrlScrKeyValid]     = 1;
 
       // if we are in escalated state, scr_key_seed_valid will always stay low
-      exp_status[SramCtrlScrKeySeedValid] = status_lc_esc ? 0 :seed_valid;
+      exp_status[SramCtrlScrKeySeedValid] = status_lc_esc ? 0 : seed_valid;
 
       `uvm_info(`gfn, $sformatf("Updated key: 0x%0x", key), UVM_HIGH)
       `uvm_info(`gfn, $sformatf("Updated nonce: 0x%0x", nonce), UVM_HIGH)
@@ -558,7 +686,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
   endtask
 
   // This task continuously pulls items from the completed_trans_mbox
-  // and checks them for correctness by using the mem_bkdr_if.
+  // and checks them for correctness by using the mem_bkdr_util.
   //
   // TLUL allows partial reads and writes, so we first need to construct a bit-mask
   // based off of the TLUL mask field.
@@ -570,6 +698,11 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     forever begin
       completed_trans_mbox.get(trans);
 
+      // sample access granularity for each completed transaction
+      if (cfg.en_cov) begin
+        cov.subword_access_cg.sample(trans.we, trans.mask);
+      end
+
       `uvm_info({`gfn, "::process_completed_trans()"},
                 $sformatf("Checking SRAM memory transaction: %0p", trans),
                 UVM_HIGH)
@@ -580,7 +713,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
 
   // Given a complete memory transaction item as input,
   // this function compares against the SRAM for correctness
-  // using the mem_bkdr_if.
+  // using the mem_bkdr_util.
   //
   // TLUL allows partial reads and writes, so we first need to construct a bit-mask
   // based off of the TLUL mask field.
@@ -603,7 +736,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     bit_mask = expand_bit_mask(t.mask);
 
     // backdoor read the mem
-    exp_data = cfg.mem_bkdr_vif.sram_encrypt_read32(word_addr, t.key, t.nonce);
+    exp_data = cfg.mem_bkdr_util_h.sram_encrypt_read32_integ(word_addr, t.key, t.nonce);
     `uvm_info(`gfn, $sformatf("exp_data: 0x%0x", exp_data), UVM_HIGH)
 
     exp_masked_data = exp_data & bit_mask;
@@ -628,7 +761,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     bit data_phase_write  = (write && channel == DataChannel);
 
     // if access was to a valid csr, get the csr handle
-    if (csr_addr inside {cfg.csr_addrs[ral_name]}) begin
+    if (csr_addr inside {cfg.ral_models[ral_name].csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
     end
@@ -646,20 +779,17 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     // for read, update predication at address phase and compare at data phase
     case (csr.get_name())
       // add individual case item for each csr
-      "intr_state": begin
-        // FIXME
-        do_read_check = 1'b0;
-      end
-      "intr_enable": begin
-        // FIXME
-      end
-      "intr_test": begin
-        // FIXME
+      "alert_test": begin
+        // do nothing
       end
       "exec_regwen": begin
         // do nothing
       end
       "exec": begin
+        if (addr_phase_write) begin
+          #1;
+          detected_csr_exec = item.a_data;
+        end
       end
       "status": begin
         if (addr_phase_read) begin
@@ -675,6 +805,7 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
           if (item.a_data[SramCtrlRenewScrKey]) begin
             in_key_req = 1;
             exp_status[SramCtrlScrKeyValid] = 0;
+            `uvm_info(`gfn, "raised in_key_req", UVM_HIGH)
           end
           if (item.a_data[SramCtrlInit]) begin
             in_init = 1;
@@ -715,6 +846,9 @@ class sram_ctrl_scoreboard extends cip_base_scoreboard #(
     exp_status = '0;
     handling_lc_esc = 0;
     status_lc_esc = 0;
+    detected_csr_exec = '0;
+    detected_hw_debug_en = '0;
+    detected_en_sram_ifetch = '0;
   endfunction
 
   function void check_phase(uvm_phase phase);

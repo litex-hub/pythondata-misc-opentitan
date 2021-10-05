@@ -2,23 +2,23 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "sw/device/lib/dif/dif_gpio.h"
-
 #include "sw/device/lib/arch/device.h"
 #include "sw/device/lib/base/mmio.h"
-#include "sw/device/lib/dif/dif_plic.h"
+#include "sw/device/lib/dif/dif_gpio.h"
+#include "sw/device/lib/dif/dif_rv_plic.h"
 #include "sw/device/lib/handler.h"
 #include "sw/device/lib/irq.h"
 #include "sw/device/lib/pinmux.h"
 #include "sw/device/lib/runtime/hart.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/check.h"
-#include "sw/device/lib/testing/test_main.h"
-#include "sw/device/lib/testing/test_status.h"
+#include "sw/device/lib/testing/test_framework/test_main.h"
+#include "sw/device/lib/testing/test_framework/test_status.h"
+
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
 static dif_gpio_t gpio;
-static dif_plic_t plic;
+static dif_rv_plic_t plic;
 
 // These constants reflect the GPIOs exposed by the GPIO IP.
 static const uint32_t kNumGpios = 32;
@@ -65,36 +65,31 @@ static volatile bool expected_irq_edge;
 /**
  * Initializes PLIC and enables all GPIO interrupts.
  */
-static void plic_init_with_irqs(mmio_region_t base_addr, dif_plic_t *plic) {
+static void plic_init_with_irqs(mmio_region_t base_addr, dif_rv_plic_t *plic) {
   LOG_INFO("Initializing the PLIC.");
 
-  CHECK(dif_plic_init((dif_plic_params_t){.base_addr = base_addr}, plic) ==
-            kDifPlicOk,
-        "dif_plic_init failed");
+  CHECK(dif_rv_plic_init((dif_rv_plic_params_t){.base_addr = base_addr},
+                         plic) == kDifRvPlicOk,
+        "dif_rv_plic_init failed");
 
   for (uint32_t i = 0; i < kNumGpios; ++i) {
-    dif_plic_irq_id_t plic_irq_id = i + kTopEarlgreyPlicIrqIdGpioGpio0;
-
-    // Enable GPIO interrupts at PLIC as edge triggered.
-    CHECK(dif_plic_irq_set_trigger(plic, plic_irq_id, kDifPlicIrqTriggerEdge) ==
-              kDifPlicOk,
-          "dif_plic_irq_set_trigger failed");
+    dif_rv_plic_irq_id_t plic_irq_id = i + kTopEarlgreyPlicIrqIdGpioGpio0;
 
     // Set the priority of GPIO interrupts at PLIC to be >=1
-    CHECK(dif_plic_irq_set_priority(plic, plic_irq_id, 0x1) == kDifPlicOk,
-          "dif_plic_irq_set_priority failed");
+    CHECK(dif_rv_plic_irq_set_priority(plic, plic_irq_id, 0x1) == kDifRvPlicOk,
+          "dif_rv_plic_irq_set_priority failed");
 
     // Enable all GPIO interrupts at the PLIC.
-    CHECK(
-        dif_plic_irq_set_enabled(plic, plic_irq_id, kTopEarlgreyPlicTargetIbex0,
-                                 kDifPlicToggleEnabled) == kDifPlicOk,
-        "dif_plic_irq_set_enabled failed");
+    CHECK(dif_rv_plic_irq_set_enabled(plic, plic_irq_id,
+                                      kTopEarlgreyPlicTargetIbex0,
+                                      kDifRvPlicToggleEnabled) == kDifRvPlicOk,
+          "dif_rv_plic_irq_set_enabled failed");
   }
 
   // Set the threshold for the Ibex to 0.
-  CHECK(dif_plic_target_set_threshold(plic, kTopEarlgreyPlicTargetIbex0, 0x0) ==
-            kDifPlicOk,
-        "dif_plic_target_set_threshold failed");
+  CHECK(dif_rv_plic_target_set_threshold(plic, kTopEarlgreyPlicTargetIbex0,
+                                         0x0) == kDifRvPlicOk,
+        "dif_rv_plic_target_set_threshold failed");
 }
 
 /**
@@ -107,19 +102,16 @@ static void gpio_output_test(const dif_gpio_t *gpio) {
   LOG_INFO("Starting GPIO output test");
 
   // Set the GPIOs to be in output mode.
-  CHECK(dif_gpio_output_set_enabled_all(gpio, kGpiosAllowedMask) == kDifGpioOk,
-        "dif_gpio_output_set_enabled_all failed");
+  CHECK_DIF_OK(dif_gpio_output_set_enabled_all(gpio, kGpiosAllowedMask));
 
   // Walk 1s - 0001, 0010, 0100, 1000, etc.
   for (uint32_t i = 0; i < kNumGpios; ++i) {
     uint32_t gpio_val = 1 << i;
-    CHECK(dif_gpio_write_all(gpio, gpio_val) == kDifGpioOk,
-          "dif_gpio_write_all failed");
+    CHECK_DIF_OK(dif_gpio_write_all(gpio, gpio_val));
 
     // Read GPIO_IN to confirm what we wrote.
     uint32_t read_val;
-    CHECK(dif_gpio_read_all(gpio, &read_val) == kDifGpioOk,
-          "dif_gpio_read_all failed");
+    CHECK_DIF_OK(dif_gpio_read_all(gpio, &read_val));
 
     // Check written and read val for correctness.
     // Though we try to set all available GPIOs, only the ones that are exposed
@@ -132,23 +124,19 @@ static void gpio_output_test(const dif_gpio_t *gpio) {
   }
 
   // Write all 0s to the GPIOs.
-  CHECK(dif_gpio_write_all(gpio, ~kGpiosMask) == kDifGpioOk,
-        "dif_gpio_write_all failed");
+  CHECK_DIF_OK(dif_gpio_write_all(gpio, ~kGpiosMask));
 
   // Write all 1s to the GPIOs.
-  CHECK(dif_gpio_write_all(gpio, kGpiosMask) == kDifGpioOk,
-        "dif_gpio_write_all failed");
+  CHECK_DIF_OK(dif_gpio_write_all(gpio, kGpiosMask));
 
   // Now walk 0s - 1110, 1101, 1011, 0111, etc.
   for (uint32_t i = 0; i < kNumGpios; ++i) {
     uint32_t gpio_val = ~(1 << i);
-    CHECK(dif_gpio_write_all(gpio, gpio_val) == kDifGpioOk,
-          "dif_gpio_write_all failed");
+    CHECK_DIF_OK(dif_gpio_write_all(gpio, gpio_val));
 
     // Read GPIO_IN to confirm what we wrote.
     uint32_t read_val;
-    CHECK(dif_gpio_read_all(gpio, &read_val) == kDifGpioOk,
-          "dif_gpio_read_all failed");
+    CHECK_DIF_OK(dif_gpio_read_all(gpio, &read_val));
 
     // Check written and read val for correctness.
     // Though we try to set all available GPIOs, only the ones that are exposed
@@ -161,12 +149,10 @@ static void gpio_output_test(const dif_gpio_t *gpio) {
   }
 
   // Write all 1s to the GPIOs.
-  CHECK(dif_gpio_write_all(gpio, kGpiosMask) == kDifGpioOk,
-        "dif_gpio_write_all failed");
+  CHECK_DIF_OK(dif_gpio_write_all(gpio, kGpiosMask));
 
   // Write all 0s to the GPIOs.
-  CHECK(dif_gpio_write_all(gpio, ~kGpiosMask) == kDifGpioOk,
-        "dif_gpio_write_all failed");
+  CHECK_DIF_OK(dif_gpio_write_all(gpio, ~kGpiosMask));
 }
 
 /**
@@ -183,24 +169,18 @@ static void gpio_input_test(const dif_gpio_t *gpio) {
   LOG_INFO("Starting GPIO input test");
 
   // Enable the noise filter on all GPIOs.
-  CHECK(dif_gpio_input_noise_filter_set_enabled(
-            gpio, kGpiosAllowedMask, kDifGpioToggleEnabled) == kDifGpioOk,
-        "dif_gpio_input_noise_filter_set_enabled failed");
+  CHECK_DIF_OK(dif_gpio_input_noise_filter_set_enabled(gpio, kGpiosAllowedMask,
+                                                       kDifToggleEnabled));
 
   // Configure all GPIOs to be rising and falling edge interrupts.
-  CHECK(dif_gpio_irq_set_trigger(gpio, kGpiosAllowedMask,
-                                 kDifGpioIrqTriggerEdgeRisingFalling) ==
-            kDifGpioOk,
-        "dif_gpio_irq_set_trigger failed");
+  CHECK_DIF_OK(dif_gpio_irq_set_trigger(gpio, kGpiosAllowedMask,
+                                        kDifGpioIrqTriggerEdgeRisingFalling));
 
   // Enable interrupts on all GPIOs.
-  CHECK(dif_gpio_irq_set_enabled_masked(gpio, kGpiosAllowedMask,
-                                        kDifGpioToggleEnabled) == kDifGpioOk,
-        "dif_gpio_irq_set_enabled_masked failed");
+  CHECK_DIF_OK(dif_gpio_irq_restore_all(gpio, &kGpiosAllowedMask));
 
   // Set the GPIOs to be in input mode.
-  CHECK(dif_gpio_output_set_enabled_all(gpio, 0u) == kDifGpioOk,
-        "dif_gpio_output_set_enabled_all failed");
+  CHECK_DIF_OK(dif_gpio_output_set_enabled_all(gpio, 0u));
 
   // Wait for rising edge interrupt on each pin.
   expected_irq_edge = true;
@@ -225,10 +205,10 @@ static void gpio_input_test(const dif_gpio_t *gpio) {
  */
 void handler_irq_external(void) {
   // Find which interrupt fired at PLIC by claiming it.
-  dif_plic_irq_id_t plic_irq_id;
-  CHECK(dif_plic_irq_claim(&plic, kTopEarlgreyPlicTargetIbex0, &plic_irq_id) ==
-            kDifPlicOk,
-        "dif_plic_irq_claim failed");
+  dif_rv_plic_irq_id_t plic_irq_id;
+  CHECK(dif_rv_plic_irq_claim(&plic, kTopEarlgreyPlicTargetIbex0,
+                              &plic_irq_id) == kDifRvPlicOk,
+        "dif_rv_plic_irq_claim failed");
 
   // Check if it is the right peripheral.
   top_earlgrey_plic_peripheral_t peripheral = (top_earlgrey_plic_peripheral_t)
@@ -247,29 +227,26 @@ void handler_irq_external(void) {
 
   // Check if the same interrupt fired at GPIO as well.
   uint32_t gpio_irqs_status;
-  CHECK(dif_gpio_irq_is_pending_all(&gpio, &gpio_irqs_status) == kDifGpioOk,
-        "dif_gpio_irq_is_pending_all failed");
+  CHECK_DIF_OK(dif_gpio_irq_get_state(&gpio, &gpio_irqs_status));
   CHECK(gpio_irqs_status == (1 << expected_gpio_pin_irq),
         "Incorrect GPIO irqs status {exp: %x, obs: %x}",
         (1 << expected_gpio_pin_irq), gpio_irqs_status);
 
   // Read the gpio pin value to ensure the right value is being reflected.
   bool pin_val;
-  CHECK(dif_gpio_read(&gpio, expected_gpio_pin_irq, &pin_val) == kDifGpioOk,
-        "dif_gpio_read failed");
+  CHECK_DIF_OK(dif_gpio_read(&gpio, expected_gpio_pin_irq, &pin_val));
 
   // Check if the pin value is set correctly.
   CHECK(pin_val == expected_irq_edge, "Incorrect GPIO %d pin value (exp: %b)",
         expected_gpio_pin_irq, expected_irq_edge);
 
   // Clear the interrupt at GPIO.
-  CHECK(dif_gpio_irq_acknowledge(&gpio, gpio_pin_irq_fired) == kDifGpioOk,
-        "dif_gpio_irq_acknowledge failed");
+  CHECK_DIF_OK(dif_gpio_irq_acknowledge(&gpio, gpio_pin_irq_fired));
 
   // Complete the IRQ at PLIC.
-  CHECK(dif_plic_irq_complete(&plic, kTopEarlgreyPlicTargetIbex0,
-                              &plic_irq_id) == kDifPlicOk,
-        "dif_plic_irq_complete failed");
+  CHECK(dif_rv_plic_irq_complete(&plic, kTopEarlgreyPlicTargetIbex0,
+                                 plic_irq_id) == kDifRvPlicOk,
+        "dif_rv_plic_irq_complete failed");
 }
 
 const test_config_t kTestConfig;
@@ -279,10 +256,8 @@ bool test_main(void) {
   pinmux_init();
 
   // Initialize the GPIO.
-  dif_gpio_params_t gpio_params = {
-      .base_addr = mmio_region_from_addr(TOP_EARLGREY_GPIO_BASE_ADDR)};
-  CHECK(dif_gpio_init(gpio_params, &gpio) == kDifGpioOk,
-        "dif_gpio_init failed");
+  CHECK_DIF_OK(
+      dif_gpio_init(mmio_region_from_addr(TOP_EARLGREY_GPIO_BASE_ADDR), &gpio));
 
   // Initialize the PLIC.
   mmio_region_t plic_base_addr =

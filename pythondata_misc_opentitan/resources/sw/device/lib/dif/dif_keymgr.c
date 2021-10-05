@@ -4,133 +4,132 @@
 
 #include "sw/device/lib/dif/dif_keymgr.h"
 
+#include <assert.h>
+
+#include "sw/device/lib/dif/dif_base.h"
+
 #include "keymgr_regs.h"  // Generated.
+#include "sw/device/lib/dif/autogen/dif_keymgr_autogen.h"
 
 /**
- * Address spaces of SW_BINDING_N, SALT_N, SW_SHARE0_OUTPUT_N, and
+ * Address spaces of SEALING_SW_BINDING_N, SALT_N, SW_SHARE0_OUTPUT_N, and
  * SW_SHARE1_OUTPUT_N registers must be contiguous to be able to use
  * `mmio_region_memcpy_to/from_mmio32()`.
  */
-_Static_assert(KEYMGR_SW_BINDING_1_REG_OFFSET ==
-                   KEYMGR_SW_BINDING_0_REG_OFFSET + 4,
-               "SW_BINDING_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_BINDING_2_REG_OFFSET ==
-                   KEYMGR_SW_BINDING_0_REG_OFFSET + 8,
-               "SW_BINDING_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_BINDING_3_REG_OFFSET ==
-                   KEYMGR_SW_BINDING_0_REG_OFFSET + 12,
-               "SW_BINDING_N registers must be contiguous.");
+static_assert(KEYMGR_SEALING_SW_BINDING_1_REG_OFFSET ==
+                  KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 4,
+              "SEALING_SW_BINDING_N registers must be contiguous.");
+static_assert(KEYMGR_SEALING_SW_BINDING_2_REG_OFFSET ==
+                  KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 8,
+              "SEALING_SW_BINDING_N registers must be contiguous.");
+static_assert(KEYMGR_SEALING_SW_BINDING_3_REG_OFFSET ==
+                  KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 12,
+              "SEALING_SW_BINDING_N registers must be contiguous.");
 // TODO: Uncomment when lowRISC/opentitan#5194 is completed.
 // TODO: Consider defining a macro once all assertions are enabled.
-//_Static_assert(KEYMGR_SW_BINDING_4_REG_OFFSET ==
-//                   KEYMGR_SW_BINDING_0_REG_OFFSET + 16,
-//               "SW_BINDING_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SW_BINDING_5_REG_OFFSET ==
-//                   KEYMGR_SW_BINDING_0_REG_OFFSET + 20,
-//               "SW_BINDING_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SW_BINDING_6_REG_OFFSET ==
-//                   KEYMGR_SW_BINDING_0_REG_OFFSET + 24,
-//               "SW_BINDING_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SW_BINDING_7_REG_OFFSET ==
-//                   KEYMGR_SW_BINDING_0_REG_OFFSET + 28,
-//               "SW_BINDING_N registers must be contiguous.");
+// static_assert(KEYMGR_SEALING_SW_BINDING_4_REG_OFFSET ==
+//                   KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 16,
+//               "SEALING_SW_BINDING_N registers must be contiguous.");
+// static_assert(KEYMGR_SEALING_SW_BINDING_5_REG_OFFSET ==
+//                   KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 20,
+//               "SEALING_SW_BINDING_N registers must be contiguous.");
+// static_assert(KEYMGR_SEALING_SW_BINDING_6_REG_OFFSET ==
+//                   KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 24,
+//               "SEALING_SW_BINDING_N registers must be contiguous.");
+// static_assert(KEYMGR_SEALING_SW_BINDING_7_REG_OFFSET ==
+//                   KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET + 28,
+//               "SEALING_SW_BINDING_N registers must be contiguous.");
 
-_Static_assert(KEYMGR_SALT_1_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 4,
-               "SALT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SALT_2_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 8,
-               "SALT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SALT_3_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 12,
-               "SALT_N registers must be contiguous.");
+static_assert(KEYMGR_SALT_1_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 4,
+              "SALT_N registers must be contiguous.");
+static_assert(KEYMGR_SALT_2_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 8,
+              "SALT_N registers must be contiguous.");
+static_assert(KEYMGR_SALT_3_REG_OFFSET == KEYMGR_SALT_0_REG_OFFSET + 12,
+              "SALT_N registers must be contiguous.");
 // TODO: Uncomment when lowRISC/opentitan#5194 is completed.
-//_Static_assert(KEYMGR_SALT_4_REG_OFFSET ==
+// static_assert(KEYMGR_SALT_4_REG_OFFSET ==
 //                   KEYMGR_SALT_0_REG_OFFSET + 16,
 //               "SALT_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SALT_5_REG_OFFSET ==
+// static_assert(KEYMGR_SALT_5_REG_OFFSET ==
 //                   KEYMGR_SALT_0_REG_OFFSET + 20,
 //               "SALT_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SALT_6_REG_OFFSET ==
+// static_assert(KEYMGR_SALT_6_REG_OFFSET ==
 //                   KEYMGR_SALT_0_REG_OFFSET + 24,
 //               "SALT_N registers must be contiguous.");
-//_Static_assert(KEYMGR_SALT_7_REG_OFFSET ==
+// static_assert(KEYMGR_SALT_7_REG_OFFSET ==
 //                   KEYMGR_SALT_0_REG_OFFSET + 28,
 //               "SALT_N registers must be contiguous.");
 
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_1_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 4,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_2_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 8,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_3_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 12,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_4_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 16,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_5_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 20,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_6_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 24,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE0_OUTPUT_7_REG_OFFSET ==
-                   KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 28,
-               "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_1_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 4,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_2_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 8,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_3_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 12,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_4_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 16,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_5_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 20,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_6_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 24,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE0_OUTPUT_7_REG_OFFSET ==
+                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET + 28,
+              "SW_SHARE0_OUTPUT_N registers must be contiguous.");
 
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_1_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 4,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_2_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 8,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_3_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 12,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_4_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 16,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_5_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 20,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_6_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 24,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
-_Static_assert(KEYMGR_SW_SHARE1_OUTPUT_7_REG_OFFSET ==
-                   KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 28,
-               "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_1_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 4,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_2_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 8,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_3_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 12,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_4_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 16,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_5_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 20,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_6_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 24,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
+static_assert(KEYMGR_SW_SHARE1_OUTPUT_7_REG_OFFSET ==
+                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET + 28,
+              "SW_SHARE1_OUTPUT_N registers must be contiguous.");
 
 /**
  * Error code constants of `dif_keymgr_status_code_t` are masks for the bits of
  * ERR_CODE register shifted left by 1.
  */
-_Static_assert(kDifKeymgrStatusCodeInvalidOperation >> 1 ==
-                   1 << KEYMGR_ERR_CODE_INVALID_OP_BIT,
-               "Layout of ERR_CODE register changed.");
-_Static_assert(kDifKeymgrStatusCodeInvalidKmacCommand >> 1 ==
-                   1 << KEYMGR_ERR_CODE_INVALID_CMD_BIT,
-               "Layout of ERR_CODE register changed.");
-_Static_assert(kDifKeymgrStatusCodeInvalidKmacInput >> 1 ==
-                   1 << KEYMGR_ERR_CODE_INVALID_KMAC_INPUT_BIT,
-               "Layout of ERR_CODE register changed.");
-_Static_assert(kDifKeymgrStatusCodeInvalidKmacOutput >> 1 ==
-                   1 << KEYMGR_ERR_CODE_INVALID_KMAC_DATA_BIT,
-               "Layout of ERR_CODE register changed.");
+static_assert(kDifKeymgrStatusCodeInvalidOperation >> 1 ==
+                  1 << KEYMGR_ERR_CODE_INVALID_OP_BIT,
+              "Layout of ERR_CODE register changed.");
+static_assert(kDifKeymgrStatusCodeInvalidKmacInput >> 1 ==
+                  1 << KEYMGR_ERR_CODE_INVALID_KMAC_INPUT_BIT,
+              "Layout of ERR_CODE register changed.");
 
 /**
  * Checks if the key manager is ready for a new operation, i.e. it is idle and
  * the CONFIG register is unlocked.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 static bool is_ready(const dif_keymgr_t *keymgr) {
   // Keymgr must be idle and the CONTROL register must be writable.
   uint32_t reg_op_status =
-      mmio_region_read32(keymgr->params.base_addr, KEYMGR_OP_STATUS_REG_OFFSET);
+      mmio_region_read32(keymgr->base_addr, KEYMGR_OP_STATUS_REG_OFFSET);
   if (bitfield_field32_read(reg_op_status, KEYMGR_OP_STATUS_STATUS_FIELD) !=
       KEYMGR_OP_STATUS_STATUS_VALUE_IDLE) {
     return false;
   }
-  uint32_t reg_cfg_regwen = mmio_region_read32(keymgr->params.base_addr,
-                                               KEYMGR_CFG_REGWEN_REG_OFFSET);
+  uint32_t reg_cfg_regwen =
+      mmio_region_read32(keymgr->base_addr, KEYMGR_CFG_REGWEN_REG_OFFSET);
   return bitfield_bit32_read(reg_cfg_regwen, KEYMGR_CFG_REGWEN_EN_BIT);
 }
 
@@ -159,14 +158,14 @@ typedef struct max_key_version_reg_info {
 /**
  * Returns max key version register information for transitioning from a state.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 static bool get_max_key_version_reg_info_for_next_state(
     uint32_t cur_state, max_key_version_reg_info_t *reg_info) {
   switch (cur_state) {
     case KEYMGR_WORKING_STATE_STATE_VALUE_INIT:
       *reg_info = (max_key_version_reg_info_t){
           .is_required = true,
-          .reg_offset = KEYMGR_MAX_CREATOR_KEY_VER_REG_OFFSET,
+          .reg_offset = KEYMGR_MAX_CREATOR_KEY_VER_SHADOWED_REG_OFFSET,
           .wen_reg_offset = KEYMGR_MAX_CREATOR_KEY_VER_REGWEN_REG_OFFSET,
           .wen_bit_index = KEYMGR_MAX_CREATOR_KEY_VER_REGWEN_EN_BIT,
       };
@@ -174,7 +173,7 @@ static bool get_max_key_version_reg_info_for_next_state(
     case KEYMGR_WORKING_STATE_STATE_VALUE_CREATOR_ROOT_KEY:
       *reg_info = (max_key_version_reg_info_t){
           .is_required = true,
-          .reg_offset = KEYMGR_MAX_OWNER_INT_KEY_VER_REG_OFFSET,
+          .reg_offset = KEYMGR_MAX_OWNER_INT_KEY_VER_SHADOWED_REG_OFFSET,
           .wen_reg_offset = KEYMGR_MAX_OWNER_INT_KEY_VER_REGWEN_REG_OFFSET,
           .wen_bit_index = KEYMGR_MAX_OWNER_INT_KEY_VER_REGWEN_EN_BIT,
       };
@@ -182,7 +181,7 @@ static bool get_max_key_version_reg_info_for_next_state(
     case KEYMGR_WORKING_STATE_STATE_VALUE_OWNER_INTERMEDIATE_KEY:
       *reg_info = (max_key_version_reg_info_t){
           .is_required = true,
-          .reg_offset = KEYMGR_MAX_OWNER_KEY_VER_REG_OFFSET,
+          .reg_offset = KEYMGR_MAX_OWNER_KEY_VER_SHADOWED_REG_OFFSET,
           .wen_reg_offset = KEYMGR_MAX_OWNER_KEY_VER_REGWEN_REG_OFFSET,
           .wen_bit_index = KEYMGR_MAX_OWNER_KEY_VER_REGWEN_EN_BIT,
       };
@@ -228,35 +227,20 @@ static void start_operation(const dif_keymgr_t *keymgr,
       reg_control, KEYMGR_CONTROL_OPERATION_FIELD, params.op);
   reg_control =
       bitfield_bit32_write(reg_control, KEYMGR_CONTROL_START_BIT, true);
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_CONTROL_REG_OFFSET,
+  mmio_region_write32(keymgr->base_addr, KEYMGR_CONTROL_REG_OFFSET,
                       reg_control);
 }
 
 /**
- * Returns the bit index for a given IRQ.
+ * Checks if a value is a valid `dif_toggle_t` and converts it to `bool`.
  */
-DIF_WARN_UNUSED_RESULT
-static bool get_irq_bit_index(dif_keymgr_irq_t irq,
-                              bitfield_bit32_index_t *bit_index) {
-  switch (irq) {
-    case kDifKeymgrIrqDone:
-      *bit_index = KEYMGR_INTR_COMMON_OP_DONE_BIT;
-      return true;
-    default:
-      return false;
-  }
-}
-
-/**
- * Checks if a value is a valid `dif_keymgr_toggle_t` and converts it to `bool`.
- */
-DIF_WARN_UNUSED_RESULT
-static bool toggle_to_bool(dif_keymgr_toggle_t val, bool *val_bool) {
+OT_WARN_UNUSED_RESULT
+static bool toggle_to_bool(dif_toggle_t val, bool *val_bool) {
   switch (val) {
-    case kDifKeymgrToggleEnabled:
+    case kDifToggleEnabled:
       *val_bool = true;
       break;
-    case kDifKeymgrToggleDisabled:
+    case kDifToggleDisabled:
       *val_bool = false;
       break;
     default:
@@ -266,98 +250,98 @@ static bool toggle_to_bool(dif_keymgr_toggle_t val, bool *val_bool) {
 }
 
 /**
- * Converts a `bool` to `dif_keymgr_toggle_t`.
+ * Converts a `bool` to `dif_toggle_t`.
  */
-static dif_keymgr_toggle_t bool_to_toggle(bool val) {
-  return val ? kDifKeymgrToggleEnabled : kDifKeymgrToggleDisabled;
+static dif_toggle_t bool_to_toggle(bool val) {
+  return val ? kDifToggleEnabled : kDifToggleDisabled;
 }
 
-dif_keymgr_result_t dif_keymgr_init(dif_keymgr_params_t params,
-                                    dif_keymgr_t *keymgr) {
+dif_result_t dif_keymgr_init(mmio_region_t base_addr, dif_keymgr_t *keymgr) {
   if (keymgr == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  *keymgr = (dif_keymgr_t){.params = params};
+  keymgr->base_addr = base_addr;
 
-  return kDifKeymgrOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_configure(const dif_keymgr_t *keymgr,
-                                         dif_keymgr_config_t config) {
+dif_result_t dif_keymgr_configure(const dif_keymgr_t *keymgr,
+                                  dif_keymgr_config_t config) {
   if (keymgr == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  uint32_t reg_val = bitfield_field32_write(0, KEYMGR_RESEED_INTERVAL_VAL_FIELD,
-                                            config.entropy_reseed_interval);
-  mmio_region_write32(keymgr->params.base_addr,
-                      KEYMGR_RESEED_INTERVAL_REG_OFFSET, reg_val);
+  uint32_t reg_val =
+      bitfield_field32_write(0, KEYMGR_RESEED_INTERVAL_SHADOWED_VAL_FIELD,
+                             config.entropy_reseed_interval);
+  mmio_region_write32_shadowed(
+      keymgr->base_addr, KEYMGR_RESEED_INTERVAL_SHADOWED_REG_OFFSET, reg_val);
 
-  return kDifKeymgrOk;
+  return kDifOk;
 }
 
-dif_keymgr_lockable_result_t dif_keymgr_advance_state(
-    const dif_keymgr_t *keymgr, const dif_keymgr_state_params_t *params) {
+dif_result_t dif_keymgr_advance_state(const dif_keymgr_t *keymgr,
+                                      const dif_keymgr_state_params_t *params) {
   if (keymgr == NULL) {
-    return kDifKeymgrLockableBadArg;
+    return kDifBadArg;
   }
 
   if (!is_ready(keymgr)) {
-    return kDifKeymgrLockableLocked;
+    return kDifLocked;
   }
 
   // Get current state and determine if we need to set the max key version and
   // sw binding value.
   max_key_version_reg_info_t max_key_ver_reg_info;
-  uint32_t reg_working_state = mmio_region_read32(
-      keymgr->params.base_addr, KEYMGR_WORKING_STATE_REG_OFFSET);
+  uint32_t reg_working_state =
+      mmio_region_read32(keymgr->base_addr, KEYMGR_WORKING_STATE_REG_OFFSET);
   if (!get_max_key_version_reg_info_for_next_state(
           (bitfield_field32_read(reg_working_state,
                                  KEYMGR_WORKING_STATE_STATE_FIELD)),
           &max_key_ver_reg_info)) {
-    return kDifKeymgrLockableError;
+    return kDifError;
   }
 
   // Set the binding value and max key version if keymgr is going to
   // transition to an operational state.
   if (max_key_ver_reg_info.is_required) {
     if (params == NULL) {
-      return kDifKeymgrLockableBadArg;
+      return kDifBadArg;
     }
 
-    // Check if SW_BINDING_N registers are locked
+    // Check if SEALING_SW_BINDING_N registers are locked
     uint32_t reg_sw_binding_wen = mmio_region_read32(
-        keymgr->params.base_addr, KEYMGR_SW_BINDING_REGWEN_REG_OFFSET);
+        keymgr->base_addr, KEYMGR_SW_BINDING_REGWEN_REG_OFFSET);
     if (!bitfield_bit32_read(reg_sw_binding_wen,
                              KEYMGR_SW_BINDING_REGWEN_EN_BIT)) {
-      return kDifKeymgrLockableLocked;
+      return kDifLocked;
     }
 
     // Check if MAX_*_KEY_VER register is locked.
     uint32_t reg_max_key_ver_wen = mmio_region_read32(
-        keymgr->params.base_addr, max_key_ver_reg_info.wen_reg_offset);
+        keymgr->base_addr, max_key_ver_reg_info.wen_reg_offset);
     if (!bitfield_bit32_read(reg_max_key_ver_wen,
                              max_key_ver_reg_info.wen_bit_index)) {
-      return kDifKeymgrLockableLocked;
+      return kDifLocked;
     }
 
     // Write and lock (rw0c) the software binding value. This register is
     // unlocked by hardware upon a successful state transition.
     mmio_region_memcpy_to_mmio32(
-        keymgr->params.base_addr, KEYMGR_SW_BINDING_0_REG_OFFSET,
+        keymgr->base_addr, KEYMGR_SEALING_SW_BINDING_0_REG_OFFSET,
         params->binding_value, sizeof(params->binding_value));
-    mmio_region_write32(keymgr->params.base_addr,
-                        KEYMGR_SW_BINDING_REGWEN_REG_OFFSET, 0);
+    mmio_region_write32(keymgr->base_addr, KEYMGR_SW_BINDING_REGWEN_REG_OFFSET,
+                        0);
 
     // Write and lock (rw0c) the max key version.
-    mmio_region_write32(keymgr->params.base_addr,
-                        max_key_ver_reg_info.reg_offset,
-                        params->max_key_version);
-    mmio_region_write32(keymgr->params.base_addr,
-                        max_key_ver_reg_info.wen_reg_offset, 0);
+    mmio_region_write32_shadowed(keymgr->base_addr,
+                                 max_key_ver_reg_info.reg_offset,
+                                 params->max_key_version);
+    mmio_region_write32(keymgr->base_addr, max_key_ver_reg_info.wen_reg_offset,
+                        0);
   } else if (params != NULL) {
-    return kDifKeymgrLockableBadArg;
+    return kDifBadArg;
   }
 
   // Advance state.
@@ -366,16 +350,16 @@ dif_keymgr_lockable_result_t dif_keymgr_advance_state(
                               .op = KEYMGR_CONTROL_OPERATION_VALUE_ADVANCE,
                           });
 
-  return kDifKeymgrLockableOk;
+  return kDifOk;
 }
 
-dif_keymgr_lockable_result_t dif_keymgr_disable(const dif_keymgr_t *keymgr) {
+dif_result_t dif_keymgr_disable(const dif_keymgr_t *keymgr) {
   if (keymgr == NULL) {
-    return kDifKeymgrLockableBadArg;
+    return kDifBadArg;
   }
 
   if (!is_ready(keymgr)) {
-    return kDifKeymgrLockableLocked;
+    return kDifLocked;
   }
 
   // Disable key manager.
@@ -384,19 +368,19 @@ dif_keymgr_lockable_result_t dif_keymgr_disable(const dif_keymgr_t *keymgr) {
                               .op = KEYMGR_CONTROL_OPERATION_VALUE_DISABLE,
                           });
 
-  return kDifKeymgrLockableOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_get_status_codes(
+dif_result_t dif_keymgr_get_status_codes(
     const dif_keymgr_t *keymgr, dif_keymgr_status_codes_t *status_codes) {
   if (keymgr == NULL || status_codes == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
   // Read and clear OP_STATUS register (rw1c).
   uint32_t reg_op_status =
-      mmio_region_read32(keymgr->params.base_addr, KEYMGR_OP_STATUS_REG_OFFSET);
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_OP_STATUS_REG_OFFSET,
+      mmio_region_read32(keymgr->base_addr, KEYMGR_OP_STATUS_REG_OFFSET);
+  mmio_region_write32(keymgr->base_addr, KEYMGR_OP_STATUS_REG_OFFSET,
                       reg_op_status);
 
   bool is_idle = false;
@@ -415,7 +399,7 @@ dif_keymgr_result_t dif_keymgr_get_status_codes(
     case KEYMGR_OP_STATUS_STATUS_VALUE_WIP:
       break;
     default:
-      return kDifKeymgrError;
+      return kDifError;
   }
 
   // Bit 0 of `dif_keymgr_status_codes_t` indicates whether the key manager is
@@ -424,9 +408,9 @@ dif_keymgr_result_t dif_keymgr_get_status_codes(
 
   if (has_error) {
     // Read and clear ERR_CODE register (rw1c).
-    uint32_t reg_err_code = mmio_region_read32(keymgr->params.base_addr,
-                                               KEYMGR_ERR_CODE_REG_OFFSET);
-    mmio_region_write32(keymgr->params.base_addr, KEYMGR_ERR_CODE_REG_OFFSET,
+    uint32_t reg_err_code =
+        mmio_region_read32(keymgr->base_addr, KEYMGR_ERR_CODE_REG_OFFSET);
+    mmio_region_write32(keymgr->base_addr, KEYMGR_ERR_CODE_REG_OFFSET,
                         reg_err_code);
     // Error bits start from bit 1 in `dif_keymgr_status_codes_t`.
     // Note: The mask is hardcoded since it is not auto generated yet.
@@ -435,59 +419,58 @@ dif_keymgr_result_t dif_keymgr_get_status_codes(
         .index = 1,
     };
     if (reg_err_code > kErrorBitfield.mask || reg_err_code == 0) {
-      return kDifKeymgrError;
+      return kDifError;
     }
     *status_codes =
         bitfield_field32_write(*status_codes, kErrorBitfield, reg_err_code);
   }
 
-  return kDifKeymgrOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_get_state(const dif_keymgr_t *keymgr,
-                                         dif_keymgr_state_t *state) {
+dif_result_t dif_keymgr_get_state(const dif_keymgr_t *keymgr,
+                                  dif_keymgr_state_t *state) {
   if (keymgr == NULL || state == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  uint32_t reg_state = mmio_region_read32(keymgr->params.base_addr,
-                                          KEYMGR_WORKING_STATE_REG_OFFSET);
+  uint32_t reg_state =
+      mmio_region_read32(keymgr->base_addr, KEYMGR_WORKING_STATE_REG_OFFSET);
 
   switch (bitfield_field32_read(reg_state, KEYMGR_WORKING_STATE_STATE_FIELD)) {
     case KEYMGR_WORKING_STATE_STATE_VALUE_RESET:
       *state = kDifKeymgrStateReset;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_INIT:
       *state = kDifKeymgrStateInitialized;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_CREATOR_ROOT_KEY:
       *state = kDifKeymgrStateCreatorRootKey;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_OWNER_INTERMEDIATE_KEY:
       *state = kDifKeymgrStateOwnerIntermediateKey;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_OWNER_KEY:
       *state = kDifKeymgrStateOwnerRootKey;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_DISABLED:
       *state = kDifKeymgrStateDisabled;
-      return kDifKeymgrOk;
+      return kDifOk;
     case KEYMGR_WORKING_STATE_STATE_VALUE_INVALID:
       *state = kDifKeymgrStateInvalid;
-      return kDifKeymgrOk;
+      return kDifOk;
     default:
-      return kDifKeymgrError;
+      return kDifError;
   }
 }
 
-dif_keymgr_lockable_result_t dif_keymgr_generate_identity_seed(
-    const dif_keymgr_t *keymgr) {
+dif_result_t dif_keymgr_generate_identity_seed(const dif_keymgr_t *keymgr) {
   if (keymgr == NULL) {
-    return kDifKeymgrLockableBadArg;
+    return kDifBadArg;
   }
 
   if (!is_ready(keymgr)) {
-    return kDifKeymgrLockableLocked;
+    return kDifLocked;
   }
 
   start_operation(keymgr, (start_operation_params_t){
@@ -495,13 +478,13 @@ dif_keymgr_lockable_result_t dif_keymgr_generate_identity_seed(
                               .op = KEYMGR_CONTROL_OPERATION_VALUE_GENERATE_ID,
                           });
 
-  return kDifKeymgrLockableOk;
+  return kDifOk;
 }
 
-dif_keymgr_lockable_result_t dif_keymgr_generate_versioned_key(
+dif_result_t dif_keymgr_generate_versioned_key(
     const dif_keymgr_t *keymgr, dif_keymgr_versioned_key_params_t params) {
   if (keymgr == NULL) {
-    return kDifKeymgrLockableBadArg;
+    return kDifBadArg;
   }
 
   start_operation_params_t hw_op_params;
@@ -518,12 +501,6 @@ dif_keymgr_lockable_result_t dif_keymgr_generate_versioned_key(
           .op = KEYMGR_CONTROL_OPERATION_VALUE_GENERATE_HW_OUTPUT,
       };
       break;
-    case kDifKeymgrVersionedKeyDestHmac:
-      hw_op_params = (start_operation_params_t){
-          .dest = KEYMGR_CONTROL_DEST_SEL_VALUE_HMAC,
-          .op = KEYMGR_CONTROL_OPERATION_VALUE_GENERATE_HW_OUTPUT,
-      };
-      break;
     case kDifKeymgrVersionedKeyDestKmac:
       hw_op_params = (start_operation_params_t){
           .dest = KEYMGR_CONTROL_DEST_SEL_VALUE_KMAC,
@@ -531,73 +508,73 @@ dif_keymgr_lockable_result_t dif_keymgr_generate_versioned_key(
       };
       break;
     default:
-      return kDifKeymgrLockableBadArg;
+      return kDifBadArg;
   }
 
   if (!is_ready(keymgr)) {
-    return kDifKeymgrLockableLocked;
+    return kDifLocked;
   }
 
   // Set salt and version
-  mmio_region_memcpy_to_mmio32(keymgr->params.base_addr,
-                               KEYMGR_SALT_0_REG_OFFSET, params.salt,
-                               sizeof(params.salt));
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_KEY_VERSION_REG_OFFSET,
+  mmio_region_memcpy_to_mmio32(keymgr->base_addr, KEYMGR_SALT_0_REG_OFFSET,
+                               params.salt, sizeof(params.salt));
+  mmio_region_write32(keymgr->base_addr, KEYMGR_KEY_VERSION_REG_OFFSET,
                       params.version);
 
   start_operation(keymgr, hw_op_params);
 
-  return kDifKeymgrLockableOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_sideload_clear_set_enabled(
-    const dif_keymgr_t *keymgr, dif_keymgr_toggle_t state) {
+dif_result_t dif_keymgr_sideload_clear_set_enabled(const dif_keymgr_t *keymgr,
+                                                   dif_toggle_t state) {
   bool enable = false;
   if (keymgr == NULL || !toggle_to_bool(state, &enable)) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  mmio_region_write32(
-      keymgr->params.base_addr, KEYMGR_SIDELOAD_CLEAR_REG_OFFSET,
-      bitfield_bit32_write(0, KEYMGR_SIDELOAD_CLEAR_VAL_BIT, enable));
+  dif_keymgr_sideload_clr_t val = state == kDifToggleEnabled
+                                      ? kDifKeyMgrSideLoadClearAll
+                                      : kDifKeyMgrSideLoadClearNone;
 
-  return kDifKeymgrOk;
+  mmio_region_write32(keymgr->base_addr, KEYMGR_SIDELOAD_CLEAR_REG_OFFSET, val);
+
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_sideload_clear_get_enabled(
-    const dif_keymgr_t *keymgr, dif_keymgr_toggle_t *state) {
+dif_result_t dif_keymgr_sideload_clear_get_enabled(const dif_keymgr_t *keymgr,
+                                                   dif_toggle_t *state) {
   if (keymgr == NULL || state == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  uint32_t reg_val = mmio_region_read32(keymgr->params.base_addr,
-                                        KEYMGR_SIDELOAD_CLEAR_REG_OFFSET);
-  *state = bool_to_toggle(
-      bitfield_bit32_read(reg_val, KEYMGR_SIDELOAD_CLEAR_VAL_BIT));
+  uint32_t reg_val =
+      mmio_region_read32(keymgr->base_addr, KEYMGR_SIDELOAD_CLEAR_REG_OFFSET);
+  *state = bool_to_toggle(reg_val == kDifKeyMgrSideLoadClearAll);
 
-  return kDifKeymgrOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_read_output(const dif_keymgr_t *keymgr,
-                                           dif_keymgr_output_t *output) {
+dif_result_t dif_keymgr_read_output(const dif_keymgr_t *keymgr,
+                                    dif_keymgr_output_t *output) {
   if (keymgr == NULL || output == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
-  mmio_region_memcpy_from_mmio32(keymgr->params.base_addr,
+  mmio_region_memcpy_from_mmio32(keymgr->base_addr,
                                  KEYMGR_SW_SHARE0_OUTPUT_0_REG_OFFSET,
                                  output->value[0], sizeof(output->value[0]));
-  mmio_region_memcpy_from_mmio32(keymgr->params.base_addr,
+  mmio_region_memcpy_from_mmio32(keymgr->base_addr,
                                  KEYMGR_SW_SHARE1_OUTPUT_0_REG_OFFSET,
                                  output->value[1], sizeof(output->value[1]));
 
-  return kDifKeymgrOk;
+  return kDifOk;
 }
 
-dif_keymgr_result_t dif_keymgr_alert_force(const dif_keymgr_t *keymgr,
-                                           dif_keymgr_alert_t alert) {
+dif_result_t dif_keymgr_alert_force(const dif_keymgr_t *keymgr,
+                                    dif_keymgr_alert_t alert) {
   if (keymgr == NULL) {
-    return kDifKeymgrBadArg;
+    return kDifBadArg;
   }
 
   bitfield_bit32_index_t bit_index;
@@ -609,117 +586,11 @@ dif_keymgr_result_t dif_keymgr_alert_force(const dif_keymgr_t *keymgr,
       bit_index = KEYMGR_ALERT_TEST_RECOV_OPERATION_ERR_BIT;
       break;
     default:
-      return kDifKeymgrBadArg;
+      return kDifBadArg;
   }
 
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_ALERT_TEST_REG_OFFSET,
+  mmio_region_write32(keymgr->base_addr, KEYMGR_ALERT_TEST_REG_OFFSET,
                       bitfield_bit32_write(0, bit_index, true));
 
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_is_pending(const dif_keymgr_t *keymgr,
-                                              dif_keymgr_irq_t irq,
-                                              bool *is_pending) {
-  bitfield_bit32_index_t bit_index;
-  if (keymgr == NULL || !get_irq_bit_index(irq, &bit_index) ||
-      is_pending == NULL) {
-    return kDifKeymgrBadArg;
-  }
-
-  uint32_t reg_val = mmio_region_read32(keymgr->params.base_addr,
-                                        KEYMGR_INTR_STATE_REG_OFFSET);
-  *is_pending = bitfield_bit32_read(reg_val, bit_index);
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_acknowledge(const dif_keymgr_t *keymgr,
-                                               dif_keymgr_irq_t irq) {
-  bitfield_bit32_index_t bit_index;
-  if (keymgr == NULL || !get_irq_bit_index(irq, &bit_index)) {
-    return kDifKeymgrBadArg;
-  }
-
-  uint32_t reg_val = bitfield_bit32_write(0, bit_index, true);
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_INTR_STATE_REG_OFFSET,
-                      reg_val);
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_get_enabled(const dif_keymgr_t *keymgr,
-                                               dif_keymgr_irq_t irq,
-                                               dif_keymgr_toggle_t *state) {
-  bitfield_bit32_index_t bit_index;
-  if (keymgr == NULL || !get_irq_bit_index(irq, &bit_index) || state == NULL) {
-    return kDifKeymgrBadArg;
-  }
-
-  uint32_t reg_val = mmio_region_read32(keymgr->params.base_addr,
-                                        KEYMGR_INTR_ENABLE_REG_OFFSET);
-  *state = bool_to_toggle(bitfield_bit32_read(reg_val, bit_index));
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_set_enabled(const dif_keymgr_t *keymgr,
-                                               dif_keymgr_irq_t irq,
-                                               dif_keymgr_toggle_t state) {
-  bitfield_bit32_index_t bit_index;
-  bool enable = false;
-  if (keymgr == NULL || !get_irq_bit_index(irq, &bit_index) ||
-      !toggle_to_bool(state, &enable)) {
-    return kDifKeymgrBadArg;
-  }
-
-  uint32_t reg_val = mmio_region_read32(keymgr->params.base_addr,
-                                        KEYMGR_INTR_ENABLE_REG_OFFSET);
-  reg_val = bitfield_bit32_write(reg_val, bit_index, enable);
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_INTR_ENABLE_REG_OFFSET,
-                      reg_val);
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_force(const dif_keymgr_t *keymgr,
-                                         dif_keymgr_irq_t irq) {
-  bitfield_bit32_index_t bit_index;
-  if (keymgr == NULL || !get_irq_bit_index(irq, &bit_index)) {
-    return kDifKeymgrBadArg;
-  }
-
-  uint32_t reg_val = bitfield_bit32_write(0, bit_index, true);
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_INTR_TEST_REG_OFFSET,
-                      reg_val);
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_disable_all(
-    const dif_keymgr_t *keymgr, dif_keymgr_irq_snapshot_t *snapshot) {
-  if (keymgr == NULL) {
-    return kDifKeymgrBadArg;
-  }
-
-  if (snapshot != NULL) {
-    *snapshot = mmio_region_read32(keymgr->params.base_addr,
-                                   KEYMGR_INTR_ENABLE_REG_OFFSET);
-  }
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_INTR_ENABLE_REG_OFFSET,
-                      0);
-
-  return kDifKeymgrOk;
-}
-
-dif_keymgr_result_t dif_keymgr_irq_restore_all(
-    const dif_keymgr_t *keymgr, const dif_keymgr_irq_snapshot_t *snapshot) {
-  if (keymgr == NULL || snapshot == NULL) {
-    return kDifKeymgrBadArg;
-  }
-
-  mmio_region_write32(keymgr->params.base_addr, KEYMGR_INTR_ENABLE_REG_OFFSET,
-                      *snapshot);
-
-  return kDifKeymgrOk;
+  return kDifOk;
 }

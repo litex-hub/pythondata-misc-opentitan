@@ -23,6 +23,13 @@
 //   MAX_PRIO: Maximum value of interrupt priority
 
 module rv_plic import rv_plic_reg_pkg::*; #(
+  parameter logic [NumAlerts-1:0] AlertAsyncOn  = {NumAlerts{1'b1}},
+  // OpenTitan IP standardizes on level triggered interrupts,
+  // hence LevelEdgeTrig is set to all-zeroes by default.
+  // Note that in case of edge-triggered interrupts, CDC handling is not
+  // fully implemented yet (this would require instantiating pulse syncs
+  // and routing the source clocks / resets to the PLIC).
+  parameter logic [NumSrc-1:0]    LevelEdgeTrig = '0, // 0: level, 1: edge
   // derived parameter
   localparam int SRCW    = $clog2(NumSrc)
 ) (
@@ -35,6 +42,10 @@ module rv_plic import rv_plic_reg_pkg::*; #(
 
   // Interrupt Sources
   input  [NumSrc-1:0] intr_src_i,
+
+  // Alerts
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
 
   // Interrupt notification to targets
   output [NumTarget-1:0] irq_o,
@@ -49,7 +60,6 @@ module rv_plic import rv_plic_reg_pkg::*; #(
   localparam int MAX_PRIO    = 3;
   localparam int PRIOW = $clog2(MAX_PRIO+1);
 
-  logic [NumSrc-1:0] le; // 0:level 1:edge
   logic [NumSrc-1:0] ip;
 
   logic [NumSrc-1:0] ie [NumTarget];
@@ -273,11 +283,13 @@ module rv_plic import rv_plic_reg_pkg::*; #(
   assign prio[176] = reg2hw.prio176.q;
   assign prio[177] = reg2hw.prio177.q;
   assign prio[178] = reg2hw.prio178.q;
+  assign prio[179] = reg2hw.prio179.q;
+  assign prio[180] = reg2hw.prio180.q;
 
   //////////////////////
   // Interrupt Enable //
   //////////////////////
-  for (genvar s = 0; s < 179; s++) begin : gen_ie0
+  for (genvar s = 0; s < 181; s++) begin : gen_ie0
     assign ie[0][s] = reg2hw.ie0[s].q;
   end
 
@@ -303,29 +315,34 @@ module rv_plic import rv_plic_reg_pkg::*; #(
   ////////
   // IP //
   ////////
-  for (genvar s = 0; s < 179; s++) begin : gen_ip
+  for (genvar s = 0; s < 181; s++) begin : gen_ip
     assign hw2reg.ip[s].de = 1'b1; // Always write
     assign hw2reg.ip[s].d  = ip[s];
-  end
-
-  ///////////////////////////////////
-  // Detection:: 0: Level, 1: Edge //
-  ///////////////////////////////////
-  for (genvar s = 0; s < 179; s++) begin : gen_le
-    assign le[s] = reg2hw.le[s].q;
   end
 
   //////////////
   // Gateways //
   //////////////
+
+  // Synchronize all incoming interrupt requests.
+  logic [NumSrc-1:0] intr_src_synced;
+  prim_flop_2sync #(
+    .Width(NumSrc)
+  ) u_prim_flop_2sync (
+    .clk_i,
+    .rst_ni,
+    .d_i(intr_src_i),
+    .q_o(intr_src_synced)
+  );
+
   rv_plic_gateway #(
     .N_SOURCE   (NumSrc)
   ) u_gateway (
     .clk_i,
     .rst_ni,
 
-    .src_i      (intr_src_i),
-    .le_i       (le),
+    .src_i      (intr_src_synced),
+    .le_i       (LevelEdgeTrig),
 
     .claim_i    (claim),
     .complete_i (complete),
@@ -356,6 +373,33 @@ module rv_plic import rv_plic_reg_pkg::*; #(
     );
   end
 
+  ////////////
+  // Alerts //
+  ////////////
+
+  logic [NumAlerts-1:0] alert_test, alerts;
+
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
+
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(1'b1)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
+
   ////////////////////////
   // Register interface //
   ////////////////////////
@@ -371,7 +415,8 @@ module rv_plic import rv_plic_reg_pkg::*; #(
     .reg2hw,
     .hw2reg,
 
-    .intg_err_o (),
+    .intg_err_o(alerts[0]),
+
     .devmode_i  (1'b1)
   );
 

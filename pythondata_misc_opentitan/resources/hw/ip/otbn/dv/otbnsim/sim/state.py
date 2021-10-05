@@ -2,13 +2,13 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from shared.mem_layout import get_memory_layout
 
 from .csr import CSRFile
 from .dmem import Dmem
-from .err_bits import BAD_INSN_ADDR
+from .constants import ErrBits, Status
 from .ext_regs import OTBNExtRegs
 from .flags import FlagReg
 from .gpr import GPRs
@@ -27,7 +27,7 @@ class OTBNState:
         self.csrs = CSRFile()
 
         self.pc = 0
-        self.pc_next = None  # type: Optional[int]
+        self._pc_next_override = None  # type: Optional[int]
 
         _, imem_size = get_memory_layout()['IMEM']
         self.imem_size = imem_size
@@ -35,8 +35,8 @@ class OTBNState:
         self.dmem = Dmem()
 
         # Stalling support: Instructions can indicate they should stall by
-        # returning false from OTBNInsn.pre_execute. For non instruction related
-        # stalls setting self.non_insn_stall will produce a stall.
+        # yielding in OTBNInsn.execute. For non instruction related stalls,
+        # setting self.non_insn_stall will produce a stall.
         #
         # As a special case, we stall until the URND reseed is completed then
         # stall for one more cycle before fetching the first instruction (to
@@ -53,29 +53,89 @@ class OTBNState:
         self._err_bits = 0
         self.pending_halt = False
 
-        self._new_rnd_data = None # type: Optional[int]
         self._urnd_reseed_complete = False
 
-    def set_rnd_data(self, rnd_data: int) -> None:
-        self._new_rnd_data = rnd_data
+        self.rnd_256b_counter = 0
+        self.rnd_cdc_pending = False
+        self.rnd_cdc_counter = 0
+        self.rnd_256b = 0
+        self.rnd_cached_tmp = None  # type: Optional[int]
+        self.counter = 0
+
+    def get_next_pc(self) -> int:
+        if self._pc_next_override is not None:
+            return self._pc_next_override
+        return self.pc + 4
+
+    def set_next_pc(self, next_pc: int) -> None:
+        '''Overwrite the next program counter, e.g. as result of a jump.'''
+        assert(self.is_pc_valid(next_pc))
+        self._pc_next_override = next_pc
+
+    def step_edn(self, rnd_data: int) -> None:
+        # Take the new data
+        assert 0 <= rnd_data < (1 << 32)
+
+        # There should not be a pending RND result before an EDN step. 
+        assert not self.rnd_cdc_pending
+
+        # Collect 32b packages in a 256b variable
+        self.rnd_256b = ((self.rnd_256b << 32) | rnd_data) & ((1 << 256) - 1)
+
+        if self.rnd_256b_counter == 7:
+            # Reset the 32b package counter and wait until receiving done
+            # signal from RTL
+            self.rnd_256b_counter = 0
+            self.rnd_cdc_pending = True
+        else:
+            # Count until 8 valid packages are received
+            self.rnd_256b_counter += 1
+            return
+
+        # Reset the 32b package counter and wait until receiving done
+        # signal from RTL
+        self.rnd_256b_counter = 0
+        self.rnd_cdc_pending = True
+
+    def rnd_completed(self) -> None:
+        # This will be called when all the packages are received and processed
+        # by RTL. Model will set RND register, pending flag and internal
+        # variables will be cleared.
+
+        # These must be true since model calculates RND data faster than RTL.
+        # But the synchronisation of the data should not take more than
+        # 5 cycles ideally.
+        assert self.rnd_cdc_pending
+        assert self.rnd_cdc_counter < 6
+
+        self.wsrs.RND.set_unsigned(self.rnd_256b)
+        self.rnd_256b = 0
+        self.rnd_cdc_pending = False
+        self.rnd_cdc_counter = 0
 
     def set_urnd_reseed_complete(self) -> None:
         self._urnd_reseed_complete = True
 
     def loop_start(self, iterations: int, bodysize: int) -> None:
-        next_pc = int(self.pc) + 4
-        self.loop_stack.start_loop(next_pc, iterations, bodysize)
+        self.loop_stack.start_loop(self.pc + 4, iterations, bodysize)
 
-    def loop_step(self) -> None:
-        back_pc = self.loop_stack.step(self.pc + 4)
+    def loop_step(self, loop_warps: Dict[int, int]) -> None:
+        back_pc = self.loop_stack.step(self.pc, loop_warps)
         if back_pc is not None:
-            self.pc_next = back_pc
+            self.set_next_pc(back_pc)
+
+    def in_loop(self) -> bool:
+        '''The processor is currently executing a loop.'''
+
+        # A loop is executed if the loop stack is not empty.
+        return bool(self.loop_stack.stack)
 
     def changes(self) -> List[Trace]:
         c = []  # type: List[Trace]
         c += self.gprs.changes()
-        if self.pc_next is not None:
-            c.append(TracePC(self.pc_next))
+        if self._pc_next_override is not None:
+            # Only append the next program counter to the trace if it is special
+            c.append(TracePC(self.get_next_pc()))
         c += self.dmem.changes()
         c += self.loop_stack.changes()
         c += self.ext_regs.changes()
@@ -85,19 +145,23 @@ class OTBNState:
         return c
 
     def commit(self, sim_stalled: bool) -> None:
-        # If the pending_halt flag is set or there are error bits (which should
-        # imply pending_halt is set), we shouldn't get as far as commit.
-        assert not self.pending_halt
+        # In case of a pending halt only commit the external registers, which
+        # contain e.g. the ERR_BITS field, but nothing else.
+        if self.pending_halt:
+            self.ext_regs.commit()
+            return
+
+        # If error bits are set, pending_halt should have been set as well.
         assert self._err_bits == 0
 
-        if self._new_rnd_data:
-            self.wsrs.RND.set_unsigned(self._new_rnd_data)
-            self._new_rnd_data = None
+        # If model is waiting for a RTL done signal regarding RND while also executing instructions,
+        # increase the counter
+        if self.rnd_cdc_pending:
+            self.rnd_cdc_counter += 1
 
         if self._urnd_stall:
             if self._urnd_reseed_complete:
                 self._urnd_stall = False
-
             return
 
         # If self._start_stall, this is the end of the stall cycle at the start
@@ -108,16 +172,15 @@ class OTBNState:
             self.non_insn_stall = False
             self.ext_regs.commit()
 
-        self.dmem.commit(sim_stalled)
-
-        # If we're stalled, there's nothing more to do: we only commit when we
-        # finish our stall cycles.
+        # If we're stalled, there's nothing more to do: we only commit the rest
+        # of the architectural state when we finish our stall cycles.
         if sim_stalled:
             return
 
+        self.dmem.commit()
         self.gprs.commit()
-        self.pc = self.pc_next if self.pc_next is not None else self.pc + 4
-        self.pc_next = None
+        self.pc = self.get_next_pc()
+        self._pc_next_override = None
         self.loop_stack.commit()
         self.ext_regs.commit()
         self.wsrs.commit()
@@ -127,7 +190,7 @@ class OTBNState:
     def _abort(self) -> None:
         '''Abort any pending state changes'''
         self.gprs.abort()
-        self.pc_next = None
+        self._pc_next_override = None
         self.dmem.abort()
         self.loop_stack.abort()
         self.ext_regs.abort()
@@ -135,9 +198,10 @@ class OTBNState:
         self.csrs.flags.abort()
         self.wdrs.abort()
 
-    def start(self, addr: int) -> None:
+    def start(self) -> None:
         '''Set the running flag and the ext_reg busy flag; perform state init'''
-        self.ext_regs.set_bits('STATUS', 1 << 0)
+        self.ext_regs.write('STATUS', Status.BUSY_EXECUTE, True)
+        self.ext_regs.write('INSN_CNT', 0, True)
         self.running = True
         self._start_stall = True
         self._urnd_stall = True
@@ -146,24 +210,55 @@ class OTBNState:
         self._err_bits = 0
         self._urnd_reseed_complete = False
 
-        self.pc = addr
+        self.pc = 0
 
-        # Reset CSRs, WSRs and loop stack
+        # Reset CSRs, WSRs, loop stack and call stack
         self.csrs = CSRFile()
+
+        # Save the RND value when starting another run because when a SW
+        # run finishes we still keep RND data.
+        old_rnd = self.wsrs.RND._random_value
+
         self.wsrs = WSRFile()
+        if old_rnd is not None:
+            self.wsrs.RND.set_unsigned(old_rnd)
+
         self.loop_stack = LoopStack()
+        self.gprs.start()
 
     def stop(self) -> None:
-        '''Set flags to stop the processor and abort the instruction'''
-        self._abort()
+        '''Set flags to stop the processor and maybe abort the instruction.
+
+        If the current instruction has caused an error (so self._err_bits is
+        nonzero), abort all its pending changes, including changes to external
+        registers.
+
+        If not, we've just executed an ECALL. The only pending change will be
+        the increment of INSN_CNT that we want to keep.
+
+        Either way, set the appropriate bits in the external ERR_CODE register,
+        clear the busy flag and write STOP_PC.
+
+        '''
+
+        if self._err_bits:
+            # Abort all pending changes, including changes to external registers.
+            self._abort()
 
         # INTR_STATE is the interrupt state register. Bit 0 (which is being
         # set) is the 'done' flag.
         self.ext_regs.set_bits('INTR_STATE', 1 << 0)
-        # STATUS is a status register. Bit 0 (being cleared) is the 'busy' flag
-        self.ext_regs.clear_bits('STATUS', 1 << 0)
+        # STATUS is a status register. Return to idle.
+        self.ext_regs.write('STATUS', Status.IDLE, True)
 
+        # Make any error bits visible
         self.ext_regs.write('ERR_BITS', self._err_bits, True)
+
+        # Make the final PC visible. This isn't currently in the RTL, but is
+        # useful in simulations that want to track whether we stopped where we
+        # expected to stop.
+        self.ext_regs.write('STOP_PC', self.pc, True)
+
         self.running = False
 
     def set_flags(self, fg: int, flags: FlagReg) -> None:
@@ -179,37 +274,44 @@ class OTBNState:
         '''Run before running an instruction'''
         self.loop_stack.check_insn(self.pc, insn_affects_control)
 
-    def check_jump_dest(self) -> None:
-        '''Check whether self.pc_next is a valid jump/branch target
-
-        If not, generates a BadAddrError.
-
-        '''
-        if self.pc_next is None:
-            return
-
-        # The PC should always be non-negative (it's an error in the simulator
-        # if that's come unstuck)
-        assert 0 <= self.pc_next
+    def is_pc_valid(self, pc: int) -> bool:
+        '''Return whether pc is a valid program counter.'''
+        # The PC should always be non-negative since it's represented as an
+        # unsigned value. (It's an error in the simulator if that's come
+        # unstuck)
+        assert 0 <= pc
 
         # Check the new PC is word-aligned
-        if self.pc_next & 3:
-            self._err_bits |= BAD_INSN_ADDR
+        if pc & 3:
+            return False
 
         # Check the new PC lies in instruction memory
-        if self.pc_next >= self.imem_size:
-            self._err_bits |= BAD_INSN_ADDR
+        if pc >= self.imem_size:
+            return False
 
-    def post_insn(self) -> None:
+        return True
+
+    def post_insn(self, loop_warps: Dict[int, int]) -> None:
         '''Update state after running an instruction but before commit'''
-        self.check_jump_dest()
-        self.loop_step()
+        self.ext_regs.increment_insn_cnt()
+        self.loop_step(loop_warps)
         self.gprs.post_insn()
 
-        self._err_bits |= (self.gprs.err_bits() |
-                           self.dmem.err_bits() |
-                           self.loop_stack.err_bits())
+        self._err_bits |= self.gprs.err_bits() | self.loop_stack.err_bits()
         if self._err_bits:
+            self.pending_halt = True
+
+        # Check that the next PC is valid, but only if we're not stopping
+        # anyway. This handles the case where we have a straight-line
+        # instruction at the top of memory. Jumps and branches to invalid
+        # addresses are handled in the instruction definition.
+        #
+        # This check is squashed if we're already halting, which avoids a
+        # problem when you have an ECALL instruction at the top of memory (the
+        # next address is bogus, but we don't care because we're stopping
+        # anyway).
+        if not self.is_pc_valid(self.get_next_pc()) and not self.pending_halt:
+            self._err_bits |= ErrBits.BAD_INSN_ADDR
             self.pending_halt = True
 
     def read_csr(self, idx: int) -> int:

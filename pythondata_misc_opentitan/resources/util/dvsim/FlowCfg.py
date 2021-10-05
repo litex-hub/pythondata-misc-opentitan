@@ -12,9 +12,10 @@ from shutil import which
 
 import hjson
 from CfgJson import set_target_attribute
+from LauncherFactory import get_launcher_cls
 from Scheduler import Scheduler
-from utils import (VERBOSE, find_and_substitute_wildcards, md_results_to_html,
-                   rm_path, subst_wildcards)
+from utils import (VERBOSE, clean_odirs, find_and_substitute_wildcards, md_results_to_html,
+                   mk_path, mk_symlink, rm_path, subst_wildcards)
 
 
 # Interface class for extensions.
@@ -52,6 +53,7 @@ class FlowCfg():
         # Options set from hjson cfg.
         self.project = ""
         self.scratch_path = ""
+        self.scratch_base_path = ""
 
         # Add exports using 'exports' keyword - these are exported to the child
         # process' environment.
@@ -87,6 +89,9 @@ class FlowCfg():
         self.results_server_cmd = ""
         self.css_file = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "style.css")
+        # `self.results_path` will be updated after `self.rel_path` and
+        # `self.scratch_base_root` variables are updated.
+        self.results_path = ""
         self.results_server_path = ""
         self.results_server_dir = ""
         self.results_server_html = ""
@@ -126,6 +131,11 @@ class FlowCfg():
         if self.rel_path == "":
             self.rel_path = os.path.dirname(self.flow_cfg_file).replace(
                 self.proj_root + '/', '')
+
+        self.results_path = os.path.join(self.scratch_base_path, "reports", self.rel_path,
+                                         self.timestamp)
+        self.symlink_path = os.path.join(self.scratch_base_path, "reports", self.rel_path,
+                                         "latest")
 
         # Process overrides before substituting wildcards
         self._process_overrides()
@@ -371,7 +381,7 @@ class FlowCfg():
             log.fatal("Nothing to run!")
             sys.exit(1)
 
-        return Scheduler(deploy).run()
+        return Scheduler(deploy, get_launcher_cls()).run()
 
     def _gen_results(self, results):
         '''
@@ -393,18 +403,45 @@ class FlowCfg():
         '''
         for item in self.cfgs:
             result = item._gen_results(results)
+            item.write_results_html("results.html", item.results_md)
             log.info("[results]: [%s]:\n%s\n", item.name, result)
             log.info("[scratch_path]: [%s] [%s]", item.name, item.scratch_path)
+            log.log(VERBOSE, "[results_path]: [%s] [%s]", item.name, item.results_path)
             self.errors_seen |= item.errors_seen
 
         if self.is_primary_cfg:
             self.gen_results_summary()
+            self.write_results_html("summary.html", self.results_summary_md)
         self.gen_email_html_summary()
 
     def gen_results_summary(self):
         '''Public facing API to generate summary results for each IP/cfg file
         '''
         return
+
+    def write_results_html(self, filename, text_md):
+        '''Convert given text_md to html format and write it to file with given filename.
+        '''
+        # Prepare workspace to generate reports.
+        # Keep up to 2 weeks results.
+        # If path exists, skip clean_odirs and directly update the files in the existing path.
+        if not (os.path.exists(self.results_path)):
+            clean_odirs(odir=self.results_path, max_odirs=14)
+        mk_path(self.results_path)
+        mk_path(self.symlink_path)
+
+        # Prepare results and paths.
+        text_html = md_results_to_html(self.results_title, self.css_file, text_md)
+        result_path = os.path.join(self.results_path, filename)
+        symlink_path = os.path.join(self.symlink_path, filename)
+
+        # Write results to the report area.
+        with open(result_path, "w") as results_file:
+            results_file.write(text_html)
+        log.log(VERBOSE, "[results page]: [%s][%s], self.name, results_path")
+
+        # Link the `/latest` folder with the latest reports.
+        mk_symlink(result_path, symlink_path)
 
     def _get_results_page_link(self, link_text):
         if not self.args.publish:
@@ -548,14 +585,9 @@ class FlowCfg():
         publish_results_md = publish_results_md + history_txt
 
         # Publish the results page.
-        # First, write the results html file temporarily to the scratch area.
-        results_html_file = self.scratch_path + "/results_" + self.timestamp + \
-            ".html"
-        f = open(results_html_file, 'w')
-        f.write(
-            md_results_to_html(self.results_title, self.css_file,
-                               publish_results_md))
-        f.close()
+        # First, write the results html file to the scratch area.
+        self.write_results_html("publish.html", publish_results_md)
+        results_html_file = os.path.join(self.results_path, "publish.html")
 
         log.info("Publishing results to %s", results_page_url)
         cmd = (self.results_server_cmd + " cp " + results_html_file + " " +
@@ -569,7 +601,6 @@ class FlowCfg():
             log.log(VERBOSE, cmd_output.stdout.decode("utf-8"))
         except Exception as e:
             log.error("%s: Failed to publish results:\n\"%s\"", e, str(cmd))
-        rm_path(results_html_file)
 
     def publish_results(self):
         '''Public facing API for publishing results to the opentitan web
@@ -585,20 +616,13 @@ class FlowCfg():
         '''Public facing API for publishing md format results to the opentitan
         web server.
         '''
-        results_html_file = "summary_" + self.timestamp + ".html"
         results_page_url = self.results_summary_server_page.replace(
             self.results_server_prefix, self.results_server_url_prefix)
 
         # Publish the results page.
-        # First, write the results html file temporarily to the scratch area.
-        f = open(results_html_file, 'w')
-        f.write(
-            md_results_to_html(self.results_title, self.css_file,
-                               self.results_summary_md))
-        f.close()
-
         log.info("Publishing results summary to %s", results_page_url)
-        cmd = (self.results_server_cmd + " cp " + results_html_file + " " +
+        result_summary_path = os.path.join(self.results_path, "summary.html")
+        cmd = (self.results_server_cmd + " cp " + result_summary_path + " " +
                self.results_summary_server_page)
         log.log(VERBOSE, cmd)
         try:
@@ -609,7 +633,6 @@ class FlowCfg():
             log.log(VERBOSE, cmd_output.stdout.decode("utf-8"))
         except Exception as e:
             log.error("%s: Failed to publish results:\n\"%s\"", e, str(cmd))
-        rm_path(results_html_file)
 
     def has_errors(self):
         return self.errors_seen

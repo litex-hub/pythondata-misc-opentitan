@@ -30,9 +30,6 @@ module otp_ctrl_kdi
   output logic                                       edn_req_o,
   input                                              edn_ack_i,
   input  [EdnDataWidth-1:0]                          edn_data_i,
-  // Lifecycle hashing request
-  input  lc_otp_token_req_t                          lc_otp_token_i,
-  output lc_otp_token_rsp_t                          lc_otp_token_o,
   // Scrambling key requests
   input  flash_otp_key_req_t                         flash_otp_key_i,
   output flash_otp_key_rsp_t                         flash_otp_key_o,
@@ -60,8 +57,8 @@ module otp_ctrl_kdi
   // Integration Checks //
   ////////////////////////
 
-  // LC, 2xFlash, OTBN + SRAM slots
-  localparam int NumReq = 4 + NumSramKeyReqSlots;
+  // 2xFlash, OTBN + SRAM slots
+  localparam int NumReq = 3 + NumSramKeyReqSlots;
   // Make sure key sizes in the system are multiples of 64bit and not larger than 256bit.
   `ASSERT_INIT(KeyNonceSize0_A, (FlashKeySeedWidth <= 256) && ((FlashKeySeedWidth % 64) == 0))
   `ASSERT_INIT(KeyNonceSize1_A, (SramKeySeedWidth  <= 256) && ((SramKeySeedWidth  % 64) == 0))
@@ -73,6 +70,16 @@ module otp_ctrl_kdi
 
   // Make sure EDN interface has compatible width.
   `ASSERT_INIT(EntropyWidthDividesDigestBlockWidth_A, (ScrmblKeyWidth % EdnDataWidth) == 0)
+
+  localparam int OtbnNonceSel  = OtbnNonceWidth / ScrmblBlockWidth;
+  localparam int FlashNonceSel = FlashKeyWidth / ScrmblBlockWidth;
+  localparam int SramNonceSel  = SramNonceWidth / ScrmblBlockWidth;
+
+  // Get maximum nonce width
+  localparam int NumNonceChunks =
+    (OtbnNonceWidth > FlashKeyWidth) ?
+    ((OtbnNonceWidth > SramNonceSel) ? OtbnNonceWidth : SramNonceSel) :
+    ((FlashKeyWidth > SramNonceSel)  ? FlashKeyWidth  : SramNonceSel);
 
   ///////////////////////////////////
   // Input Mapping and Arbitration //
@@ -108,27 +115,16 @@ module otp_ctrl_kdi
   logic [NumReq-1:0] req, gnt;
   req_bundle_t req_bundles [NumReq];
 
-  assign req[0] = lc_otp_token_i.req;
-  assign req[1] = flash_otp_key_i.data_req;
-  assign req[2] = flash_otp_key_i.addr_req;
-  assign req[3] = otbn_otp_key_i.req;
+  assign req[0] = flash_otp_key_i.data_req;
+  assign req[1] = flash_otp_key_i.addr_req;
+  assign req[2] = otbn_otp_key_i.req;
 
-  assign lc_otp_token_o.ack       = gnt[0];
-  assign flash_otp_key_o.data_ack = gnt[1];
-  assign flash_otp_key_o.addr_ack = gnt[2];
-  assign otbn_otp_key_o.ack       = gnt[3];
+  assign flash_otp_key_o.data_ack = gnt[0];
+  assign flash_otp_key_o.addr_ack = gnt[1];
+  assign otbn_otp_key_o.ack       = gnt[2];
 
-  // Life cycle unlock token.
-  assign req_bundles[0] = '{ingest_entropy: 1'b0, // no random entropy added
-                            chained_digest: 1'b1, // do not revert to netlist IV between blocks
-                            digest_sel:     LcRawDigest,
-                            fetch_nonce:    1'b0, // no nonce needed
-                            nonce_size:     '0,
-                            seed_valid:     1'b1, // valid if request is valid
-                            seed:           {lc_otp_token_i.token_input,  // reuse same seed
-                                             lc_otp_token_i.token_input}};
   // Flash data key
-  assign req_bundles[1] = '{ingest_entropy: 1'b0, // no random entropy added
+  assign req_bundles[0] = '{ingest_entropy: 1'b0, // no random entropy added
                             chained_digest: 1'b0, // revert to netlist IV between blocks
                             digest_sel:     FlashDataKey,
                             fetch_nonce:    1'b1,
@@ -136,7 +132,7 @@ module otp_ctrl_kdi
                             seed_valid:     scrmbl_key_seed_valid_i,
                             seed:           flash_data_key_seed_i}; // 2x128bit
   // Flash addr key
-  assign req_bundles[2] = '{ingest_entropy: 1'b0, // no random entropy added
+  assign req_bundles[1] = '{ingest_entropy: 1'b0, // no random entropy added
                             chained_digest: 1'b0, // revert to netlist IV between blocks
                             digest_sel:     FlashAddrKey,
                             fetch_nonce:    1'b1,
@@ -144,7 +140,7 @@ module otp_ctrl_kdi
                             seed_valid:     scrmbl_key_seed_valid_i,
                             seed:           flash_addr_key_seed_i}; // 2x128bit
   // OTBN key
-  assign req_bundles[3] = '{ingest_entropy: 1'b1, // ingest random data
+  assign req_bundles[2] = '{ingest_entropy: 1'b1, // ingest random data
                             chained_digest: 1'b0, // revert to netlist IV between blocks
                             digest_sel:     SramDataKey,
                             fetch_nonce:    1'b1, // fetch nonce
@@ -154,9 +150,9 @@ module otp_ctrl_kdi
                                              sram_data_key_seed_i}};
 
   // SRAM keys
-  for (genvar k = 4; k < NumReq; k++) begin : gen_req_assign
-    assign req[k]                      = sram_otp_key_i[k-4].req;
-    assign sram_otp_key_o[k-4].ack = gnt[k];
+  for (genvar k = 3; k < NumReq; k++) begin : gen_req_assign
+    assign req[k]                      = sram_otp_key_i[k-3].req;
+    assign sram_otp_key_o[k-3].ack = gnt[k];
     assign req_bundles[k] = '{ingest_entropy: 1'b1, // ingest random data
                               chained_digest: 1'b0, // revert to netlist IV between blocks
                               digest_sel:     SramDataKey,
@@ -178,13 +174,14 @@ module otp_ctrl_kdi
   u_req_arb (
     .clk_i,
     .rst_ni,
-    .req_i   ( req         ),
-    .data_i  ( req_bundles ),
-    .gnt_o   ( gnt         ),
-    .idx_o   (             ),
-    .valid_o ( req_valid   ),
-    .data_o  ( req_bundle  ),
-    .ready_i ( req_ready   )
+    .req_chk_i ( 1'b1        ),
+    .req_i     ( req         ),
+    .data_i    ( req_bundles ),
+    .gnt_o     ( gnt         ),
+    .idx_o     (             ),
+    .valid_o   ( req_valid   ),
+    .data_o    ( req_bundle  ),
+    .ready_i   ( req_ready   )
   );
 
   //////////////////////////////
@@ -203,7 +200,7 @@ module otp_ctrl_kdi
   logic key_reg_en, nonce_reg_en;
   logic seed_valid_d, seed_valid_q;
   logic [ScrmblKeyWidth/ScrmblBlockWidth-1:0][ScrmblBlockWidth-1:0] key_out_d, key_out_q;
-  logic [3:0][ScrmblBlockWidth-1:0] nonce_out_d, nonce_out_q;
+  logic [NumNonceChunks-1:0][ScrmblBlockWidth-1:0] nonce_out_d, nonce_out_q;
 
   always_comb begin : p_outregs
     key_out_d    = key_out_q;
@@ -221,20 +218,17 @@ module otp_ctrl_kdi
   end
 
   // Connect keys/nonce outputs to output regs.
-  assign lc_otp_token_o.hashed_token = key_out_q;
   assign otbn_otp_key_o.key          = key_out_q;
-  assign otbn_otp_key_o.nonce        = nonce_out_q;
+  assign otbn_otp_key_o.nonce        = nonce_out_q[OtbnNonceSel-1:0];
   assign otbn_otp_key_o.seed_valid   = seed_valid_q;
 
-  localparam int FlashNonceSel = FlashKeyWidth / ScrmblBlockWidth;
   assign flash_otp_key_o.key         = key_out_q;
   assign flash_otp_key_o.rand_key    = nonce_out_q[FlashNonceSel-1:0];
   assign flash_otp_key_o.seed_valid  = seed_valid_q;
 
-  localparam int NonceIdx = SramNonceWidth / ScrmblBlockWidth;
   for (genvar k = 0; k < NumSramKeyReqSlots; k++) begin : gen_out_assign
     assign sram_otp_key_o[k].key        = key_out_q;
-    assign sram_otp_key_o[k].nonce      = nonce_out_q[NonceIdx-1:0];
+    assign sram_otp_key_o[k].nonce      = nonce_out_q[SramNonceSel-1:0];
     assign sram_otp_key_o[k].seed_valid = seed_valid_q;
   end
 
@@ -291,6 +285,9 @@ module otp_ctrl_kdi
 
   state_e state_d, state_q;
 
+  logic edn_req_d, edn_req_q;
+  assign edn_req_o = edn_req_q;
+
   always_comb begin : p_fsm
     state_d = state_q;
 
@@ -303,8 +300,12 @@ module otp_ctrl_kdi
     entropy_cnt_en  = 1'b0;
     entropy_cnt_clr = 1'b0;
 
-    // EDN 128bit block fetch request
-    edn_req_o = 1'b0;
+    // EDN 128bit block fetch request.
+    // This keeps the request alive until it has
+    // been acked to adhere to the req/ack protocol
+    // even in cases where the FSM jumps into
+    // an error state while waiting for a request.
+    edn_req_d = edn_req_q & ~edn_ack_i;
 
     // Data selection and temp registers
     data_sel          = SeedData;
@@ -377,7 +378,7 @@ module otp_ctrl_kdi
       // Fetch random data to ingest for key derivation.
       FetchEntropySt: begin
         scrmbl_mtx_req_o = 1'b1;
-        edn_req_o = 1'b1;
+        edn_req_d = 1'b1;
         if (edn_ack_i) begin
           nonce_reg_en = 1'b1;
           // Finished, go and acknowledge this request.
@@ -457,7 +458,7 @@ module otp_ctrl_kdi
       // Fetch additional nonce data. Note that the mutex is released in
       // this state.
       FetchNonceSt: begin
-        edn_req_o = 1'b1;
+        edn_req_d = 1'b1;
         if (edn_ack_i) begin
           nonce_reg_en = 1'b1;
           // Finished, go and acknowledge this request.
@@ -521,12 +522,14 @@ module otp_ctrl_kdi
       key_out_q     <= '0;
       nonce_out_q   <= '0;
       seed_valid_q  <= 1'b0;
+      edn_req_q     <= 1'b0;
     end else begin
       seed_cnt_q    <= seed_cnt_d;
       entropy_cnt_q <= entropy_cnt_d;
       key_out_q     <= key_out_d;
       nonce_out_q   <= nonce_out_d;
       seed_valid_q  <= seed_valid_d;
+      edn_req_q     <= edn_req_d;
     end
   end
 
@@ -536,7 +539,6 @@ module otp_ctrl_kdi
 
   `ASSERT_KNOWN(FsmErrKnown_A,             fsm_err_o)
   `ASSERT_KNOWN(EdnReqKnown_A,             edn_req_o)
-  `ASSERT_KNOWN(LcOtpTokenRspKnown_A,      lc_otp_token_o)
   `ASSERT_KNOWN(FlashOtpKeyRspKnown_A,     flash_otp_key_o)
   `ASSERT_KNOWN(SramOtpKeyRspKnown_A,      sram_otp_key_o)
   `ASSERT_KNOWN(OtbnOtpKeyRspKnown_A,      otbn_otp_key_o)

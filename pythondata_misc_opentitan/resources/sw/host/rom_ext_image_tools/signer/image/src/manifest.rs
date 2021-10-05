@@ -1,173 +1,128 @@
 // Copyright lowRISC contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
-//
-// ---------- W A R N I N G: A U T O - G E N E R A T E D   C O D E !! ----------
-// PLEASE DO NOT HAND-EDIT THIS FILE. IT HAS BEEN AUTO-GENERATED WITH THE
-// FOLLOWING COMMAND:
-// util/rom-ext-manifest-generator.py
-//     --input-dir=sw/device/silicon_creator/rom_exts
-//     --output-dir=<destination dir>
-//     --output-files=rust
 
-/// Manifest field manifest_identifier offset from the base.
-pub const ROM_EXT_MANIFEST_IDENTIFIER_OFFSET: u32 = 0;
+//! Structs for reading and writing manifests of flash boot stage images.
+//!
+//! Note: The structs below must match the definitions in
+//! sw/device/silicon_creator/lib/manifest.h.
 
-/// Manifest field manifest_identifier size in bytes.
-pub const ROM_EXT_MANIFEST_IDENTIFIER_SIZE_BYTES: u32 = 4;
+#![deny(warnings)]
+#![deny(unused)]
+#![deny(unsafe_code)]
 
-/// Manifest field manifest_identifier size in words.
-pub const ROM_EXT_MANIFEST_IDENTIFIER_SIZE_WORDS: u32 = 1;
+use std::mem::size_of;
 
-/// Manifest field image_signature offset from the base.
-pub const ROM_EXT_IMAGE_SIGNATURE_OFFSET: u32 = 8;
+use memoffset::offset_of;
+use zerocopy::AsBytes;
+use zerocopy::FromBytes;
 
-/// Manifest field image_signature size in bytes.
-pub const ROM_EXT_IMAGE_SIGNATURE_SIZE_BYTES: u32 = 384;
+// Currently, these definitions must be updated manually but they can be
+// generated using the following commands (requires bindgen):
+//   cargo install bindgen
+//   cd "${REPO_TOP}"
+//   bindgen --allowlist-type manifest_t --allowlist-var "MANIFEST_.*" \
+//      --no-doc-comments --no-layout-tests \
+//      sw/device/silicon_creator/lib/manifest.h \
+//      -- -I./ -Isw/device/lib/base/freestanding
 
-/// Manifest field image_signature size in words.
-pub const ROM_EXT_IMAGE_SIGNATURE_SIZE_WORDS: u32 = 96;
+pub const MANIFEST_SIZE: u32 = 896;
+pub const MANIFEST_USAGE_CONSTRAINT_UNSELECTED_WORD_VAL: u32 = 0xA5A5A5A5;
+pub const MANIFEST_LENGTH_FIELD_MIN: u32 = 896;
+pub const MANIFEST_LENGTH_FIELD_MAX: u32 = 65536;
 
-/// Manifest field image_length offset from the base.
-pub const ROM_EXT_IMAGE_LENGTH_OFFSET: u32 = 392;
+/// Manifest for boot stage images stored in flash.
+#[repr(C)]
+#[derive(FromBytes, AsBytes, Debug, Default)]
+pub struct Manifest {
+    pub signature: SigverifyRsaBuffer,
+    pub usage_constraints: ManifestUsageConstraints,
+    pub modulus: SigverifyRsaBuffer,
+    pub exponent: u32,
+    pub identifier: u32,
+    pub length: u32,
+    pub version_major: u32,
+    pub version_minor: u32,
+    pub security_version: u32,
+    pub timestamp: u64,
+    pub binding_value: KeymgrBindingValue,
+    pub max_key_version: u32,
+    pub code_start: u32,
+    pub code_end: u32,
+    pub entry_point: u32,
+}
 
-/// Manifest field image_length size in bytes.
-pub const ROM_EXT_IMAGE_LENGTH_SIZE_BYTES: u32 = 4;
+/// A type that holds 96 32-bit words for RSA-3072.
+#[repr(C)]
+#[derive(FromBytes, AsBytes, Debug)]
+pub struct SigverifyRsaBuffer {
+    pub data: [u32; 96usize],
+}
 
-/// Manifest field image_length size in words.
-pub const ROM_EXT_IMAGE_LENGTH_SIZE_WORDS: u32 = 1;
+impl Default for SigverifyRsaBuffer {
+    fn default() -> Self {
+        Self { data: [0; 96usize] }
+    }
+}
 
-/// Manifest field image_version offset from the base.
-pub const ROM_EXT_IMAGE_VERSION_OFFSET: u32 = 396;
+/// A type that holds the 256-bit device identifier.
+#[repr(C)]
+#[derive(FromBytes, AsBytes, Debug, Default)]
+pub struct LifecycleDeviceId {
+    pub device_id: [u32; 8usize],
+}
 
-/// Manifest field image_version size in bytes.
-pub const ROM_EXT_IMAGE_VERSION_SIZE_BYTES: u32 = 4;
+/// Manifest usage constraints.
+#[repr(C)]
+#[derive(FromBytes, AsBytes, Debug)]
+pub struct ManifestUsageConstraints {
+    pub selector_bits: u32,
+    pub device_id: LifecycleDeviceId,
+    pub manuf_state_creator: u32,
+    pub manuf_state_owner: u32,
+    pub life_cycle_state: u32,
+}
 
-/// Manifest field image_version size in words.
-pub const ROM_EXT_IMAGE_VERSION_SIZE_WORDS: u32 = 1;
+impl Default for ManifestUsageConstraints {
+    fn default() -> Self {
+        Self {
+            selector_bits: 0,
+            device_id: LifecycleDeviceId {
+                device_id: [MANIFEST_USAGE_CONSTRAINT_UNSELECTED_WORD_VAL; 8usize],
+            },
+            manuf_state_creator: MANIFEST_USAGE_CONSTRAINT_UNSELECTED_WORD_VAL,
+            manuf_state_owner: MANIFEST_USAGE_CONSTRAINT_UNSELECTED_WORD_VAL,
+            life_cycle_state: MANIFEST_USAGE_CONSTRAINT_UNSELECTED_WORD_VAL,
+        }
+    }
+}
 
-/// Manifest field image_timestamp offset from the base.
-pub const ROM_EXT_IMAGE_TIMESTAMP_OFFSET: u32 = 400;
+#[repr(C)]
+#[derive(FromBytes, AsBytes, Debug, Default)]
+pub struct KeymgrBindingValue {
+    pub data: [u32; 8usize],
+}
 
-/// Manifest field image_timestamp size in bytes.
-pub const ROM_EXT_IMAGE_TIMESTAMP_SIZE_BYTES: u32 = 8;
-
-/// Manifest field image_timestamp size in words.
-pub const ROM_EXT_IMAGE_TIMESTAMP_SIZE_WORDS: u32 = 2;
-
-/// Manifest field signature_key_public_exponent offset from the base.
-pub const ROM_EXT_SIGNATURE_KEY_PUBLIC_EXPONENT_OFFSET: u32 = 408;
-
-/// Manifest field signature_key_public_exponent size in bytes.
-pub const ROM_EXT_SIGNATURE_KEY_PUBLIC_EXPONENT_SIZE_BYTES: u32 = 4;
-
-/// Manifest field signature_key_public_exponent size in words.
-pub const ROM_EXT_SIGNATURE_KEY_PUBLIC_EXPONENT_SIZE_WORDS: u32 = 1;
-
-/// Manifest field usage_constraints offset from the base.
-pub const ROM_EXT_USAGE_CONSTRAINTS_OFFSET: u32 = 416;
-
-/// Manifest field usage_constraints size in bytes.
-pub const ROM_EXT_USAGE_CONSTRAINTS_SIZE_BYTES: u32 = 32;
-
-/// Manifest field usage_constraints size in words.
-pub const ROM_EXT_USAGE_CONSTRAINTS_SIZE_WORDS: u32 = 8;
-
-/// Manifest field peripheral_lockdown_info offset from the base.
-pub const ROM_EXT_PERIPHERAL_LOCKDOWN_INFO_OFFSET: u32 = 448;
-
-/// Manifest field peripheral_lockdown_info size in bytes.
-pub const ROM_EXT_PERIPHERAL_LOCKDOWN_INFO_SIZE_BYTES: u32 = 16;
-
-/// Manifest field peripheral_lockdown_info size in words.
-pub const ROM_EXT_PERIPHERAL_LOCKDOWN_INFO_SIZE_WORDS: u32 = 4;
-
-/// Manifest field signature_key_modulus offset from the base.
-pub const ROM_EXT_SIGNATURE_KEY_MODULUS_OFFSET: u32 = 464;
-
-/// Manifest field signature_key_modulus size in bytes.
-pub const ROM_EXT_SIGNATURE_KEY_MODULUS_SIZE_BYTES: u32 = 384;
-
-/// Manifest field signature_key_modulus size in words.
-pub const ROM_EXT_SIGNATURE_KEY_MODULUS_SIZE_WORDS: u32 = 96;
-
-/// Manifest field extension0_offset offset from the base.
-pub const ROM_EXT_EXTENSION0_OFFSET_OFFSET: u32 = 848;
-
-/// Manifest field extension0_offset size in bytes.
-pub const ROM_EXT_EXTENSION0_OFFSET_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension0_offset size in words.
-pub const ROM_EXT_EXTENSION0_OFFSET_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension0_checksum offset from the base.
-pub const ROM_EXT_EXTENSION0_CHECKSUM_OFFSET: u32 = 852;
-
-/// Manifest field extension0_checksum size in bytes.
-pub const ROM_EXT_EXTENSION0_CHECKSUM_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension0_checksum size in words.
-pub const ROM_EXT_EXTENSION0_CHECKSUM_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension1_offset offset from the base.
-pub const ROM_EXT_EXTENSION1_OFFSET_OFFSET: u32 = 856;
-
-/// Manifest field extension1_offset size in bytes.
-pub const ROM_EXT_EXTENSION1_OFFSET_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension1_offset size in words.
-pub const ROM_EXT_EXTENSION1_OFFSET_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension1_checksum offset from the base.
-pub const ROM_EXT_EXTENSION1_CHECKSUM_OFFSET: u32 = 860;
-
-/// Manifest field extension1_checksum size in bytes.
-pub const ROM_EXT_EXTENSION1_CHECKSUM_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension1_checksum size in words.
-pub const ROM_EXT_EXTENSION1_CHECKSUM_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension2_offset offset from the base.
-pub const ROM_EXT_EXTENSION2_OFFSET_OFFSET: u32 = 864;
-
-/// Manifest field extension2_offset size in bytes.
-pub const ROM_EXT_EXTENSION2_OFFSET_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension2_offset size in words.
-pub const ROM_EXT_EXTENSION2_OFFSET_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension2_checksum offset from the base.
-pub const ROM_EXT_EXTENSION2_CHECKSUM_OFFSET: u32 = 868;
-
-/// Manifest field extension2_checksum size in bytes.
-pub const ROM_EXT_EXTENSION2_CHECKSUM_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension2_checksum size in words.
-pub const ROM_EXT_EXTENSION2_CHECKSUM_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension3_offset offset from the base.
-pub const ROM_EXT_EXTENSION3_OFFSET_OFFSET: u32 = 872;
-
-/// Manifest field extension3_offset size in bytes.
-pub const ROM_EXT_EXTENSION3_OFFSET_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension3_offset size in words.
-pub const ROM_EXT_EXTENSION3_OFFSET_SIZE_WORDS: u32 = 1;
-
-/// Manifest field extension3_checksum offset from the base.
-pub const ROM_EXT_EXTENSION3_CHECKSUM_OFFSET: u32 = 876;
-
-/// Manifest field extension3_checksum size in bytes.
-pub const ROM_EXT_EXTENSION3_CHECKSUM_SIZE_BYTES: u32 = 4;
-
-/// Manifest field extension3_checksum size in words.
-pub const ROM_EXT_EXTENSION3_CHECKSUM_SIZE_WORDS: u32 = 1;
-
-/// Manifest offset signed_area_start from the base.
-pub const ROM_EXT_SIGNED_AREA_START_OFFSET: u32 = 392;
-
-/// Manifest offset interrupt_vector from the base.
-pub const ROM_EXT_INTERRUPT_VECTOR_OFFSET: u32 = 1024;
-
-/// Manifest offset entry_point from the base.
-pub const ROM_EXT_ENTRY_POINT_OFFSET: u32 = 1152;
+/// Checks the layout of the manifest struct.
+///
+/// Implemented as a function because using `offset_of!` at compile-time
+/// requires a nightly compiler.
+/// TODO(#6915): Convert this to a unit test after we start running rust tests during our builds.
+pub fn check_manifest_layout() {
+    assert_eq!(offset_of!(Manifest, signature), 0);
+    assert_eq!(offset_of!(Manifest, usage_constraints), 384);
+    assert_eq!(offset_of!(Manifest, modulus), 432);
+    assert_eq!(offset_of!(Manifest, exponent), 816);
+    assert_eq!(offset_of!(Manifest, identifier), 820);
+    assert_eq!(offset_of!(Manifest, length), 824);
+    assert_eq!(offset_of!(Manifest, version_major), 828);
+    assert_eq!(offset_of!(Manifest, version_minor), 832);
+    assert_eq!(offset_of!(Manifest, security_version), 836);
+    assert_eq!(offset_of!(Manifest, timestamp), 840);
+    assert_eq!(offset_of!(Manifest, binding_value), 848);
+    assert_eq!(offset_of!(Manifest, max_key_version), 880);
+    assert_eq!(offset_of!(Manifest, code_start), 884);
+    assert_eq!(offset_of!(Manifest, code_end), 888);
+    assert_eq!(offset_of!(Manifest, entry_point), 892);
+    assert_eq!(size_of::<Manifest>(), MANIFEST_SIZE as usize);
+}

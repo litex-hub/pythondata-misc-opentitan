@@ -27,7 +27,11 @@ class entropy_src_base_test extends cip_base_test #(
   // Overrides should happen in the specific testcase.
 
   virtual function void configure_env();
-    cfg.efuse_es_sw_reg_en_pct = 100;
+    cfg.otp_en_es_fw_read_pct  = 100;
+    cfg.otp_en_es_fw_over_pct  = 100;
+    cfg.regwen_pct             = 100;
+    cfg.enable_pct             = 100;
+    cfg.type_bypass_pct        = 100;
   endfunction
 
 endclass : entropy_src_base_test

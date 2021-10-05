@@ -28,6 +28,7 @@ module aes_core
 ) (
   input  logic                        clk_i,
   input  logic                        rst_ni,
+  input  logic                        rst_shadowed_ni,
 
   // Entropy request interfaces for clearing and masking PRNGs
   output logic                        entropy_clearing_req_o,
@@ -37,10 +38,14 @@ module aes_core
   input  logic                        entropy_masking_ack_i,
   input  logic     [EntropyWidth-1:0] entropy_masking_i,
 
+  // Key manager (keymgr) key sideload interface
+  input  keymgr_pkg::hw_key_req_t     keymgr_key_i,
+
   // Life cycle
   input  lc_ctrl_pkg::lc_tx_t         lc_escalate_en_i,
 
   // Alerts
+  input  logic                        intg_err_alert_i,
   output logic                        alert_recov_o,
   output logic                        alert_fatal_o,
 
@@ -50,18 +55,15 @@ module aes_core
 );
 
   // Signals
-  logic                                       ctrl_re;
   logic                                       ctrl_qe;
   logic                                       ctrl_we;
   aes_op_e                                    aes_op_q;
-  aes_mode_e                                  mode;
   aes_mode_e                                  aes_mode_q;
   ciph_op_e                                   cipher_op;
-  key_len_e                                   key_len;
   key_len_e                                   key_len_q;
+  logic                                       sideload_q;
   logic                                       manual_operation_q;
   logic                                       force_zero_masks_q;
-  ctrl_reg_t                                  ctrl_d, ctrl_q;
   logic                                       ctrl_err_update;
   logic                                       ctrl_err_storage;
   logic                                       ctrl_err_storage_d;
@@ -97,6 +99,7 @@ module aes_core
   key_init_sel_e                              key_init_sel_ctrl;
   key_init_sel_e                              key_init_sel;
   logic                                       key_init_sel_err;
+  logic                [NumRegsKey-1:0][31:0] key_sideload [NumSharesKey];
 
   logic                 [NumRegsIv-1:0][31:0] iv;
   logic                 [NumRegsIv-1:0]       iv_qe;
@@ -166,7 +169,6 @@ module aes_core
 
   // Unused signals
   logic               [NumRegsData-1:0][31:0] unused_data_out_q;
-  logic                                       unused_force_zero_masks;
 
   // The clearing PRNG provides pseudo-random data for register clearing purposes.
   aes_prng_clearing #(
@@ -216,6 +218,14 @@ module aes_core
     end
   end
 
+  always_comb begin : key_sideload_get
+    for (int s = 0; s < NumSharesKey; s++) begin
+      for (int i = 0; i < NumRegsKey; i++) begin
+        key_sideload[s][i] = keymgr_key_i.key[s][i * 32 +: 32];
+      end
+    end
+  end
+
   always_comb begin : iv_get
     for (int i = 0; i < NumRegsIv; i++) begin
       iv[i]    = reg2hw.iv[i].q;
@@ -245,9 +255,10 @@ module aes_core
   // Initial Key registers
   always_comb begin : key_init_mux
     unique case (key_init_sel)
-      KEY_INIT_INPUT: key_init_d = key_init;
-      KEY_INIT_CLEAR: key_init_d = prd_clearing_256;
-      default:        key_init_d = prd_clearing_256;
+      KEY_INIT_INPUT:  key_init_d = key_init;
+      KEY_INIT_KEYMGR: key_init_d = key_sideload;
+      KEY_INIT_CLEAR:  key_init_d = prd_clearing_256;
+      default:         key_init_d = prd_clearing_256;
     endcase
   end
 
@@ -429,9 +440,25 @@ module aes_core
   if (!Masking) begin : gen_state_out_unmasked
     assign state_out = state_done[0];
   end else begin : gen_state_out_masked
-    // Unmask the cipher core output. This causes SCA leakage and should thus be avoided. This will
-    // be reworked in the future when masking the counter and feedback path through the IV regs.
-    assign state_out = state_done[0] ^ state_done[1];
+    // Unmask the cipher core output. This might get reworked in the future when masking the
+    // counter and feedback path through the IV regs.
+
+    // Only unmask the final cipher core output. Unmasking intermediate output data causes
+    // additional SCA leakage and thus has to be avoided.
+    logic [3:0][3:0][7:0] state_done_muxed [NumShares];
+    assign state_done_muxed = (cipher_out_valid == SP2V_HIGH) ? state_done : '{default: '0};
+
+    // Avoid aggressive synthesis optimizations.
+    logic [3:0][3:0][7:0] state_done_buf [NumShares];
+    prim_buf #(
+      .Width ( 128 * NumShares )
+    ) u_prim_state_done_muxed (
+      .in_i  ( {state_done_muxed[1], state_done_muxed[0]} ),
+      .out_o ( {state_done_buf[1],   state_done_buf[0]}   )
+    );
+
+    // Unmask the cipher core output.
+    assign state_out = state_done_buf[0] ^ state_done_buf[1];
   end
 
   // Mux for addition to state output
@@ -451,74 +478,27 @@ module aes_core
   // Control Register //
   //////////////////////
 
-  // Get and resolve values from register interface.
-  assign ctrl_d.operation = aes_op_e'(reg2hw.ctrl_shadowed.operation.q);
-
-  assign mode = aes_mode_e'(reg2hw.ctrl_shadowed.mode.q);
-  always_comb begin : mode_get
-    unique case (mode)
-      AES_ECB: ctrl_d.mode = AES_ECB;
-      AES_CBC: ctrl_d.mode = AES_CBC;
-      AES_CFB: ctrl_d.mode = AES_CFB;
-      AES_OFB: ctrl_d.mode = AES_OFB;
-      AES_CTR: ctrl_d.mode = AES_CTR;
-      default: ctrl_d.mode = AES_NONE; // unsupported values are mapped to AES_NONE
-    endcase
-  end
-
-  assign key_len = key_len_e'(reg2hw.ctrl_shadowed.key_len.q);
-  always_comb begin : key_len_get
-    unique case (key_len)
-      AES_128: ctrl_d.key_len = AES_128;
-      AES_256: ctrl_d.key_len = AES_256;
-      AES_192: ctrl_d.key_len = AES192Enable ? AES_192 : AES_256;
-      default: ctrl_d.key_len = AES_256; // unsupported values are mapped to AES_256
-    endcase
-  end
-
-  assign ctrl_d.manual_operation = reg2hw.ctrl_shadowed.manual_operation.q;
-
-  // SecAllowForcingMasks forbids forcing the masks. Forcing the masks to zero is only
-  // useful for SCA.
-  assign ctrl_d.force_zero_masks = SecAllowForcingMasks ?
-      reg2hw.ctrl_shadowed.force_zero_masks.q : 1'b0;
-  assign unused_force_zero_masks = SecAllowForcingMasks ?
-      1'b0 : reg2hw.ctrl_shadowed.force_zero_masks.q;
-
-  // Get and forward write enable. Writes are only allowed if the module is idle.
-  assign ctrl_re = reg2hw.ctrl_shadowed.operation.re & reg2hw.ctrl_shadowed.mode.re &
-      reg2hw.ctrl_shadowed.key_len.re & reg2hw.ctrl_shadowed.manual_operation.re &
-      reg2hw.ctrl_shadowed.force_zero_masks.re;
-  assign ctrl_qe = reg2hw.ctrl_shadowed.operation.qe & reg2hw.ctrl_shadowed.mode.qe &
-      reg2hw.ctrl_shadowed.key_len.qe & reg2hw.ctrl_shadowed.manual_operation.qe &
-      reg2hw.ctrl_shadowed.force_zero_masks.qe;
-
   // Shadowed register primitve
-  prim_subreg_shadow #(
-    .DW       ( $bits(ctrl_reg_t) ),
-    .SWACCESS ( "WO"              ),
-    .RESVAL   ( CTRL_RESET        )
+  aes_ctrl_reg_shadowed #(
+    .AES192Enable         ( AES192Enable         ),
+    .SecAllowForcingMasks ( SecAllowForcingMasks )
   ) u_ctrl_reg_shadowed (
-    .clk_i       ( clk_i              ),
-    .rst_ni      ( rst_ni             ),
-    .re          ( ctrl_re            ),
-    .we          ( ctrl_we            ),
-    .wd          ( ctrl_d             ),
-    .de          ( 1'b0               ),
-    .d           ( '0                 ),
-    .qe          (                    ),
-    .q           ( ctrl_q             ),
-    .qs          (                    ),
-    .err_update  ( ctrl_err_update    ),
-    .err_storage ( ctrl_err_storage_d )
+    .clk_i              ( clk_i                ),
+    .rst_ni             ( rst_ni               ),
+    .rst_shadowed_ni    ( rst_shadowed_ni      ),
+    .qe_o               ( ctrl_qe              ),
+    .we_i               ( ctrl_we              ),
+    .operation_o        ( aes_op_q             ),
+    .mode_o             ( aes_mode_q           ),
+    .key_len_o          ( key_len_q            ),
+    .sideload_o         ( sideload_q           ),
+    .manual_operation_o ( manual_operation_q   ),
+    .force_zero_masks_o ( force_zero_masks_q   ),
+    .err_update_o       ( ctrl_err_update      ),
+    .err_storage_o      ( ctrl_err_storage_d   ),
+    .reg2hw_ctrl_i      ( reg2hw.ctrl_shadowed ),
+    .hw2reg_ctrl_o      ( hw2reg.ctrl_shadowed )
   );
-
-  // Get shorter references.
-  assign aes_op_q           = ctrl_q.operation;
-  assign aes_mode_q         = ctrl_q.mode;
-  assign key_len_q          = ctrl_q.key_len;
-  assign manual_operation_q = ctrl_q.manual_operation;
-  assign force_zero_masks_q = ctrl_q.force_zero_masks;
 
   /////////////
   // Control //
@@ -537,6 +517,7 @@ module aes_core
     .op_i                      ( aes_op_q                               ),
     .mode_i                    ( aes_mode_q                             ),
     .cipher_op_i               ( cipher_op                              ),
+    .sideload_i                ( sideload_q                             ),
     .manual_operation_i        ( manual_operation_q                     ),
     .start_i                   ( reg2hw.trigger.start.q                 ),
     .key_iv_data_in_clear_i    ( reg2hw.trigger.key_iv_data_in_clear.q  ),
@@ -548,6 +529,7 @@ module aes_core
     .alert_fatal_i             ( alert_fatal_o                          ),
     .alert_o                   ( ctrl_alert                             ),
 
+    .key_sideload_valid_i      ( keymgr_key_i.valid                     ),
     .key_init_qe_i             ( key_init_qe                            ),
     .iv_qe_i                   ( iv_qe                                  ),
     .data_in_qe_i              ( data_in_qe                             ),
@@ -598,17 +580,17 @@ module aes_core
     .prng_reseed_o             ( hw2reg.trigger.prng_reseed.d           ),
     .prng_reseed_we_o          ( hw2reg.trigger.prng_reseed.de          ),
 
-    .output_valid_o            ( hw2reg.status.output_valid.d           ),
-    .output_valid_we_o         ( hw2reg.status.output_valid.de          ),
-    .input_ready_o             ( hw2reg.status.input_ready.d            ),
-    .input_ready_we_o          ( hw2reg.status.input_ready.de           ),
     .idle_o                    ( hw2reg.status.idle.d                   ),
     .idle_we_o                 ( hw2reg.status.idle.de                  ),
     .stall_o                   ( hw2reg.status.stall.d                  ),
     .stall_we_o                ( hw2reg.status.stall.de                 ),
     .output_lost_i             ( reg2hw.status.output_lost.q            ),
     .output_lost_o             ( hw2reg.status.output_lost.d            ),
-    .output_lost_we_o          ( hw2reg.status.output_lost.de           )
+    .output_lost_we_o          ( hw2reg.status.output_lost.de           ),
+    .output_valid_o            ( hw2reg.status.output_valid.d           ),
+    .output_valid_we_o         ( hw2reg.status.output_valid.de          ),
+    .input_ready_o             ( hw2reg.status.input_ready.d            ),
+    .input_ready_we_o          ( hw2reg.status.input_ready.de           )
   );
 
   // Input data register clear
@@ -818,14 +800,6 @@ module aes_core
     end
   end
 
-  assign hw2reg.ctrl_shadowed.mode.d    = {aes_mode_q};
-  assign hw2reg.ctrl_shadowed.key_len.d = {key_len_q};
-
-  // These fields are actually hro. But software must be able observe the current value (rw).
-  assign hw2reg.ctrl_shadowed.operation.d        = {aes_op_q};
-  assign hw2reg.ctrl_shadowed.manual_operation.d = manual_operation_q;
-  assign hw2reg.ctrl_shadowed.force_zero_masks.d = force_zero_masks_q;
-
   ////////////
   // Alerts //
   ////////////
@@ -834,9 +808,9 @@ module aes_core
   assign alert_recov_o = ctrl_err_update;
 
   // The recoverable alert is observable via status register until the AES operation is restarted
-  // by re-writing the Control Register.
-  assign hw2reg.status.alert_recov_ctrl_update_err.d  = ctrl_err_update;
-  assign hw2reg.status.alert_recov_ctrl_update_err.de = ctrl_err_update | ctrl_we;
+  // by re-writing the Control Register. Fatal alerts clear all other bits in the status register.
+  assign hw2reg.status.alert_recov_ctrl_update_err.d  = ctrl_err_update & ~alert_fatal_o;
+  assign hw2reg.status.alert_recov_ctrl_update_err.de = ctrl_err_update | ctrl_we | alert_fatal_o;
 
   // Fatal alert conditions need to remain asserted until reset.
   always_ff @(posedge clk_i or negedge rst_ni) begin : ctrl_err_storage_reg
@@ -849,7 +823,11 @@ module aes_core
   assign ctrl_err_storage = ctrl_err_storage_d | ctrl_err_storage_q;
 
   // Collect fatal alert signals.
-  assign alert_fatal_o = ctrl_err_storage | ctr_alert | cipher_alert | ctrl_alert;
+  assign alert_fatal_o = ctrl_err_storage |
+                         ctr_alert        |
+                         cipher_alert     |
+                         ctrl_alert       |
+                         intg_err_alert_i;
 
   // Make the fatal alert observable via status register.
   assign hw2reg.status.alert_fatal_fault.d  = alert_fatal_o;

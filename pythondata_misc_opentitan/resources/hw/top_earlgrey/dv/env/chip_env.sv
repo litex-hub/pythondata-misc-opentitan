@@ -10,8 +10,8 @@ class chip_env extends cip_base_env #(
   );
   `uvm_component_utils(chip_env)
 
-  uart_agent          m_uart_agent;
-  jtag_agent          m_jtag_agent;
+  uart_agent          m_uart_agents[NUM_UARTS];
+  jtag_riscv_agent    m_jtag_riscv_agent;
   spi_agent           m_spi_agent;
 
   `uvm_component_new
@@ -20,11 +20,6 @@ class chip_env extends cip_base_env #(
     super.build_phase(phase);
     // configure the cpu d tl agent
     // get the vifs from config db
-    if (!uvm_config_db#(virtual clk_rst_if)::get(this, "", "usb_clk_rst_vif",
-        cfg.usb_clk_rst_vif)) begin
-      `uvm_fatal(`gfn, "failed to get usb_clk_rst_vif from uvm_config_db")
-    end
-
     if (!uvm_config_db#(gpio_vif)::get(this, "", "gpio_vif", cfg.gpio_vif)) begin
       `uvm_fatal(`gfn, "failed to get gpio_vif from uvm_config_db")
     end
@@ -49,42 +44,11 @@ class chip_env extends cip_base_env #(
       `uvm_fatal(`gfn, "failed to get rst_n_mon_vif from uvm_config_db")
     end
 
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "rom_bkdr_vif", cfg.rom_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get rom_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(parity_mem_bkdr_vif)::get(this, "", "ram_main_bkdr_vif",
-        cfg.ram_main_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get ram_main_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(parity_mem_bkdr_vif)::get(this, "", "ram_ret_bkdr_vif",
-        cfg.ram_ret_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get ram_ret_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "flash_bank0_bkdr_vif",
-        cfg.flash_bank0_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get flash_bank0_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "flash_bank1_bkdr_vif",
-        cfg.flash_bank1_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get flash_bank1_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "flash_info0_bkdr_vif",
-        cfg.flash_info0_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get flash_info0_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "flash_info1_bkdr_vif",
-        cfg.flash_info1_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get flash_info1_bkdr_vif from uvm_config_db")
-    end
-
-    if (!uvm_config_db#(ecc_mem_bkdr_vif)::get(this, "", "otp_bkdr_vif", cfg.otp_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get otp_bkdr_vif from uvm_config_db")
+    for (chip_mem_e mem = mem.first(), int i = 0; i < mem.num(); mem = mem.next(), i++) begin
+      if (!uvm_config_db#(mem_bkdr_util)::get(
+          this, "", $sformatf("mem_bkdr_util[%0s]", mem.name()), cfg.mem_bkdr_util_h[mem])) begin
+        `uvm_fatal(`gfn, $sformatf("failed to get mem_bkdr_util[%0s] from uvm_config_db", mem))
+      end
     end
 
     // get the handle to the sw log monitor for available sw_images.
@@ -98,11 +62,15 @@ class chip_env extends cip_base_env #(
     end
 
     // create components
-    m_uart_agent = uart_agent::type_id::create("m_uart_agent", this);
-    uvm_config_db#(uart_agent_cfg)::set(this, "m_uart_agent*", "cfg", cfg.m_uart_agent_cfg);
+    foreach (m_uart_agents[i]) begin
+      m_uart_agents[i] = uart_agent::type_id::create($sformatf("m_uart_agent%0d", i), this);
+      uvm_config_db#(uart_agent_cfg)::set(this, $sformatf("m_uart_agent%0d*", i), "cfg",
+                                          cfg.m_uart_agent_cfgs[i]);
+    end
 
-    m_jtag_agent = jtag_agent::type_id::create("m_jtag_agent", this);
-    uvm_config_db#(jtag_agent_cfg)::set(this, "m_jtag_agent*", "cfg", cfg.m_jtag_agent_cfg);
+    m_jtag_riscv_agent = jtag_riscv_agent::type_id::create("m_jtag_riscv_agent", this);
+    uvm_config_db#(jtag_riscv_agent_cfg)::set(this, "m_jtag_riscv_agent*", "cfg",
+                   cfg.m_jtag_riscv_agent_cfg);
 
     m_spi_agent = spi_agent::type_id::create("m_spi_agent", this);
     uvm_config_db#(spi_agent_cfg)::set(this, "m_spi_agent*", "cfg", cfg.m_spi_agent_cfg);
@@ -116,22 +84,25 @@ class chip_env extends cip_base_env #(
   function void connect_phase(uvm_phase phase);
     super.connect_phase(phase);
     if (cfg.en_scb) begin
-      m_uart_agent.monitor.tx_analysis_port.connect(scoreboard.uart_tx_fifo.analysis_export);
-      m_uart_agent.monitor.rx_analysis_port.connect(scoreboard.uart_rx_fifo.analysis_export);
-      m_jtag_agent.monitor.analysis_port.connect(scoreboard.jtag_fifo.analysis_export);
+      m_jtag_riscv_agent.monitor.analysis_port.connect(scoreboard.jtag_fifo.analysis_export);
     end
-    if (cfg.is_active && cfg.m_uart_agent_cfg.is_active) begin
-      virtual_sequencer.uart_sequencer_h = m_uart_agent.sequencer;
+    foreach (m_uart_agents[i]) begin
+      if (cfg.is_active && cfg.m_uart_agent_cfgs[i].is_active) begin
+        virtual_sequencer.uart_sequencer_hs[i] = m_uart_agents[i].sequencer;
+      end
     end
-    if (cfg.is_active && cfg.m_jtag_agent_cfg.is_active) begin
-      virtual_sequencer.jtag_sequencer_h = m_jtag_agent.sequencer;
+    if (cfg.is_active && cfg.m_jtag_riscv_agent_cfg.is_active) begin
+      virtual_sequencer.jtag_sequencer_h = m_jtag_riscv_agent.sequencer;
     end
     if (cfg.is_active && cfg.m_spi_agent_cfg.is_active) begin
       virtual_sequencer.spi_sequencer_h = m_spi_agent.sequencer;
     end
 
     // Connect the DUT's UART TX TLM port to the sequencer.
-    m_uart_agent.monitor.tx_analysis_port.connect(virtual_sequencer.uart_tx_fifo.analysis_export);
+    foreach (m_uart_agents[i]) begin
+      m_uart_agents[i].monitor.tx_analysis_port.connect(
+          virtual_sequencer.uart_tx_fifos[i].analysis_export);
+    end
   endfunction
 
   virtual function void end_of_elaboration_phase(uvm_phase phase);

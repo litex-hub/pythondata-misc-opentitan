@@ -110,6 +110,7 @@ package otp_ctrl_part_pkg;
     logic hw_digest;  // Whether the partition has a hardware digest
     logic write_lock; // Whether the partition is write lockable (via digest)
     logic read_lock;  // Whether the partition is read lockable (via digest)
+    logic ecc_fatal;  // Whether the an ECC uncorrectable error leads to a fatal alert
   } part_info_t;
 
   parameter part_info_t PartInfoDefault = '{
@@ -120,7 +121,8 @@ package otp_ctrl_part_pkg;
       secret:     1'b0,
       hw_digest:  1'b0,
       write_lock: 1'b0,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b0
   };
 
   ////////////////////////
@@ -138,7 +140,8 @@ package otp_ctrl_part_pkg;
       secret:     1'b${"1" if part["secret"] else "0"},
       hw_digest:  1'b${"1" if part["hw_digest"] else "0"},
       write_lock: 1'b${"1" if part["write_lock"].lower() == "digest" else "0"},
-      read_lock:  1'b${"1" if part["read_lock"].lower() == "digest" else "0"}
+      read_lock:  1'b${"1" if part["read_lock"].lower() == "digest" else "0"},
+      ecc_fatal:  1'b${"1" if part["ecc_fatal"] else "0"}
     }${"" if loop.last else ","}
 % endfor
   };
@@ -193,9 +196,9 @@ package otp_ctrl_part_pkg;
   };
   % endif
 % endfor
-<% offset =  int(otp_mmap.config["otp"]["depth"]) * int(otp_mmap.config["otp"]["width"]) %>
+<% offset =  int(otp_mmap.config["partitions"][-1]["offset"]) + int(otp_mmap.config["partitions"][-1]["size"]) %>
   // OTP invalid partition default for buffered partitions.
-  parameter logic [${int(otp_mmap.config["otp"]["depth"])*int(otp_mmap.config["otp"]["width"])*8-1}:0] PartInvDefault = ${int(otp_mmap.config["otp"]["depth"])*int(otp_mmap.config["otp"]["width"])*8}'({
+  parameter logic [${offset * 8 - 1}:0] PartInvDefault = ${offset * 8}'({
   % for k, part in enumerate(otp_mmap.config["partitions"][::-1]):
     ${int(part["size"])*8}'({
     % for item in part["items"][::-1]:

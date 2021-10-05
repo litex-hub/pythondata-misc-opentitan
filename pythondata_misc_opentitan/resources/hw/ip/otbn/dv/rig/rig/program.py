@@ -5,7 +5,7 @@
 import random
 from typing import Dict, List, Optional, TextIO, Tuple
 
-from shared.insn_yaml import Insn, InsnsFile
+from shared.insn_yaml import DummyInsn, Insn, InsnsFile
 
 
 class ProgInsn:
@@ -62,9 +62,22 @@ class ProgInsn:
         error messages.
 
         '''
-        if not (isinstance(json, list) and len(json) == 3):
-            raise ValueError('{}, top-level data is not a triple.'
-                             .format(where))
+        if not isinstance(json, list):
+            raise ValueError(f'{where}, top-level data is not a list.')
+
+        if len(json) == 2:
+            # A 2-term entry is only valid if it's a dummy instruction.
+            mnemonic, raw_val = json
+            if mnemonic != 'dummy-insn':
+                raise ValueError('{}, top-level data is a pair but the '
+                                 'mnemonic is {!r}, not "dummy-insn".'
+                                 .format(where, mnemonic))
+
+            return DummyProgInsn.from_json(insns_file, where, raw_val)
+
+        if len(json) != 3:
+            raise ValueError(f'{where}, top-level data is neither a pair nor '
+                             f'a triple.')
 
         mnemonic, operands, json_lsu_info = json
 
@@ -139,6 +152,31 @@ class ProgInsn:
         return ProgInsn(insn, op_vals, lsu_info)
 
 
+class DummyProgInsn(ProgInsn):
+    def __init__(self, raw: int):
+        super().__init__(DummyInsn(), [], None)
+        self.raw = raw
+
+    def to_asm(self, cur_pc: int) -> str:
+        return '.word {:#08x}'.format(self.raw)
+
+    def to_json(self) -> object:
+        return ('dummy-insn', self.raw)
+
+    @staticmethod
+    def from_json(insns_file: InsnsFile,
+                  where: str,
+                  json: object) -> 'DummyProgInsn':
+        if not isinstance(json, int):
+            raise ValueError(f'{where}, the raw data for a dummy instruction '
+                             f'is not an integer')
+        if not (0 <= json < (1 << 32)):
+            raise ValueError(f'{where}, the raw data for a dummy instruction '
+                             f'is {json}, which is out of range for a 32-bit '
+                             f'unsigned integer.')
+        return DummyProgInsn(json)
+
+
 class Program:
     '''An object representing the random program that is being generated.
 
@@ -168,6 +206,10 @@ class Program:
         # branches, this is the space available in imem. When we're branching,
         # this might be less.
         self.space = self.imem_size // 4
+
+        # Loop warps, keyed by address and starting count. Value is destination
+        # count.
+        self.loop_warps = {}  # type: Dict[Tuple[int, int], int]
 
     def copy(self) -> 'Program':
         '''Return a a shallow copy of the program
@@ -254,6 +296,10 @@ class Program:
             # argument.
             self._sections[addr] = list(insns)
 
+    def add_loop_warp(self, addr: int, warp_lo: int, warp_hi: int) -> None:
+        assert 0 <= warp_lo <= warp_hi
+        self.loop_warps[(addr, warp_lo)] = warp_hi
+
     @staticmethod
     def _get_section_comment(idx: int,
                              addr: int,
@@ -283,12 +329,15 @@ class Program:
 
     def dump_linker_script(self,
                            out_file: TextIO,
-                           dsegs: Dict[int, List[int]]) -> None:
+                           dsegs: Dict[int, List[int]],
+                           end_addr: int) -> None:
         '''Write a linker script to link the program
 
         This lays out the sections generated in dump_asm().
 
         '''
+        assert end_addr >= 0
+
         seg_descs = []
         for idx, (addr, values) in enumerate(sorted(dsegs.items())):
             seg_descs.append(('dseg{:04}'.format(idx),
@@ -309,6 +358,12 @@ class Program:
         for seg, vma, lma, sec, comment in seg_descs:
             out_file.write('    {} PT_LOAD AT ( {:#x} );\n'.format(seg, lma))
         out_file.write('}\n\n')
+
+        out_file.write('_expected_end_addr = {:#x};\n'.format(end_addr))
+        for (lw_addr, lw_from), lw_to in self.loop_warps.items():
+            out_file.write('_loop_warp_{}_{}_at_{:#x} = {:#x};\n'
+                           .format(lw_from, lw_to, lw_addr, lw_addr))
+        out_file.write('\n')
 
         out_file.write('SECTIONS\n'
                        '{\n')
@@ -516,3 +571,24 @@ class Program:
                     return 0
 
         return max(0, space // 4)
+
+    def imem_gaps(self) -> List[Tuple[int, int]]:
+        '''Return the list of gaps between sections in ascending order
+
+        Each gap is represented as (addr0, addr1) where addr0 < addr1, meaning
+        that all addresses addr0, addr0+1, ..., addr1 - 1 are available.
+
+        '''
+        ret = []
+        gap_start = 0
+
+        for sec_start, sec_insns in sorted(self._sections.items()):
+            assert gap_start <= sec_start
+            if gap_start < sec_start:
+                ret.append((gap_start, sec_start))
+            gap_start = sec_start + 4 * len(sec_insns)
+
+        if gap_start < self.imem_size:
+            ret.append((gap_start, self.imem_size))
+
+        return ret

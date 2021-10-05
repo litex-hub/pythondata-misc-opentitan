@@ -31,9 +31,20 @@ rust_flags = ''
 # The cargo invocation script.
 cargo_invoke_cmd = meson.source_root() / 'util/invoke_cargo.sh'
 
-rom_ext_signer_raw = custom_target(
-  'rom_ext_signer_raw',
+# Get the command lines for the native C and C++ compilers to pass on to other
+# build systems.
+# The Mundane rust library uses CMake to build BoringSSL, which needs a native
+# C/C++ compiler. Ensure that this build step uses the same native compiler as
+# all other parts of the build.
+prog_c_native = ' '.join(meson.get_compiler('c', native: true).cmd_array())
+prog_cxx_native = ' '.join(meson.get_compiler('cpp', native: true).cmd_array())
+
+rom_ext_signer = custom_target(
+  'rom_ext_signer',
   command: [
+    prog_env,
+    'CC=@0@'.format(prog_c_native),
+    'CXX=@0@'.format(prog_cxx_native),
     cargo_invoke_cmd,
     cargo,
     cargo_flags,
@@ -49,15 +60,14 @@ rom_ext_signer_raw = custom_target(
   output: '.',
   console: true,
   build_always_stale: true,
-  build_by_default: false,
+  build_by_default: true,
 )
 
-rom_ext_signer_elf = custom_target(
-  'rom_ext_signer_elf',
+rom_ext_signer_export = custom_target(
+  'rom_ext_signer_export',
   command: ['cp', '@INPUT@' / build_type / 'rom_ext_signer', '@OUTPUT@'],
-  depends: rom_ext_signer_raw,
-  input: rom_ext_signer_raw,
-  output: 'rom_ext_signer.elf',
+  input: rom_ext_signer,
+  output: 'rom_ext_signer',
   build_always_stale: true,
-  build_by_default: false,
+  build_by_default: true,
 )

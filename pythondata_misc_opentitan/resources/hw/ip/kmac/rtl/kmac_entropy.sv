@@ -7,8 +7,9 @@
 `include "prim_assert.sv"
 
 module kmac_entropy
-  import kmac_pkg::*;
-(
+  import kmac_pkg::*; #(
+  parameter lfsr_perm_t RndCnstLfsrPerm = RndCnstLfsrPermDefault
+) (
   input clk_i,
   input rst_ni,
 
@@ -23,7 +24,6 @@ module kmac_entropy
   input                         rand_consumed_i,
 
   // Status
-  input in_progress_i,
   input in_keyblock_i,
 
   // Configurations
@@ -41,10 +41,20 @@ module kmac_entropy
   input        seed_update_i,
   input [63:0] seed_data_i,
 
+  //// SW may initiate manual EDN seed refresh
+  input entropy_refresh_req_i,
+
   //// Timer limit value
   //// If value is 0, timer is disabled
-  input [EntropyTimerW-1:0] entropy_timer_limit_i,
-  input [EdnWaitTimerW-1:0] wait_timer_limit_i,
+  input [TimerPrescalerW-1:0] wait_timer_prescaler_i,
+  input [EdnWaitTimerW-1:0]   wait_timer_limit_i,
+
+  // Status out
+  //// Hash Ops counter. Count how many hashing ops (KMAC) have run
+  //// after the clear request from SW
+  output logic [kmac_reg_pkg::HashCntW-1:0] hash_cnt_o,
+  input                                     hash_cnt_clr_i,
+  input        [kmac_reg_pkg::HashCntW-1:0] hash_threshold_i,
 
   // Error output
   output err_t err_o,
@@ -58,7 +68,6 @@ module kmac_entropy
   // Timer Widths are defined in kmac_pkg
 
   // storage width
-  localparam int unsigned EntropyLfsrW    = 64;
   localparam int unsigned EntropyStorageW = 320;
   localparam int unsigned EntropyMultiply = sha3_pkg::StateW / EntropyStorageW;
   `ASSERT_INIT(StorageNoRemainder_A, (sha3_pkg::StateW%EntropyStorageW) == 0)
@@ -67,16 +76,42 @@ module kmac_entropy
   localparam int unsigned StorageEntries = EntropyStorageW / EntropyLfsrW ;
   localparam int unsigned StorageIndexW = $clog2(StorageEntries);
 
+
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 8 -n 10 \
+  //      -s 507672272 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||| (14.29%)
+  //  4: |||||||||| (14.29%)
+  //  5: |||||||||||||||||||| (28.57%)
+  //  6: |||||||||||| (17.86%)
+  //  7: ||||||| (10.71%)
+  //  8: ||||||| (10.71%)
+  //  9: || (3.57%)
+  // 10: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 9
+  // Minimum Hamming weight: 2
+  // Maximum Hamming weight: 7
+  //
+  localparam int StateWidth = 10;
+
   // States
-  typedef enum logic [3:0] {
+  typedef enum logic [StateWidth-1:0] {
     // Reset: Reset state. The entropy is not ready. The state machine should
     // get new entropy from EDN or the seed should be feeded by the software.
-    StRandReset,
+    StRandReset = 10'b 1101110011,
 
     // The seed is fed into LFSR and the entropy is ready. It means the
     // rand_valid is asserted with valid data. It takes a few steps to reach
     // this state from StRandIdle.
-    StRandReady,
+    StRandReady = 10'b 1001111000,
 
     // EDN interface: Send request and receive
     // RandEdnReq state can be transit from StRandReset or from StRandReady
@@ -94,28 +129,28 @@ module kmac_entropy
     //        EdnReq to refresh seed
     //     3. If a KMAC operation is completed, the FSM also refreshes the LFSR
     //        seed to prepare next KMAC op or wipe out operation.
-    StRandEdn,
+    StRandEdn = 10'b 0110000100,
 
     // Sw Seed: If mode is set to manual mode, This entropy module needs initial
     // seed from the software. It waits the seed update signal to expand initial
     // entropy
-    StSwSeedWait,
+    StSwSeedWait = 10'b 1100100111,
 
     // Expand: The SW or EDN provides 64-bit entropy (seed). In this state, this
     // entropy generator expands the 64-bit entropy into 320-bit entropy using
     // LFSR. Then it expands 320-bit pseudo random entropy into 1600-bit by
     // replicating the PR entropy five times w/ compile-time shuffling scheme.
-    StRandExpand,
+    StRandExpand = 10'b 1011110110,
 
     // ErrWaitExpired: If Edn timer expires, FSM moves to this state and wait
     // the software response. Software should switch to manual mode then disable
     // the timer (to 0) and update the seed via register interface.
-    StRandErrWaitExpired,
+    StRandErrWaitExpired = 10'b 0000001100,
 
     // ErrNoValidMode: If SW sets entropy ready but the mode is not either
     // Manual Mode nor EdnMode, this logic reports to SW with
     // NoValidEntropyMode.
-    StRandErrIncorrectMode,
+    StRandErrIncorrectMode = 10'b 0001100011,
 
     // Err: After the error is reported, FSM sits in Err state ignoring all the
     // requests. It does not generate new entropy and drops the entropy valid
@@ -125,7 +160,7 @@ module kmac_entropy
     // clear the entropy ready signal before clear the error interrupt so that
     // the FSM sits in StRandReset state not moving forward with incorrect
     // configurations.
-    StRandErr
+    StRandErr = 10'b 1110010000
   } rand_st_e;
 
   /////////////
@@ -133,25 +168,17 @@ module kmac_entropy
   /////////////
 
   // Timers
-  // "Entropy Timer": While in operation, if this entropy timer is enabled, FSM
-  //   fetches new entropy from LFSR when the timer is expired.
-  //
   // "Wait Timer": This timer is in active when FSM sends entropy request to EDN
   //   If EDN does not return the entropy data until the timer expired, FSM
   //   moves to error state and report the error to the system.
 
-  typedef enum logic [1:0] {
-    NoTimer      = 2'h 0,
-    EntropyTimer = 2'h 1,
-    EdnWaitTimer = 2'h 2
-  } timer_sel_e;
-  timer_sel_e timer_sel;
-
-  localparam int unsigned TimerW = (EntropyTimerW > EdnWaitTimerW)
-                                 ? EntropyTimerW : EdnWaitTimerW;
-  logic timer_enable, timer_update, timer_expired;
+  localparam int unsigned TimerW = EdnWaitTimerW;
+  logic timer_enable, timer_update, timer_expired, timer_pulse;
   logic [TimerW-1:0] timer_limit;
   logic [TimerW-1:0] timer_value;
+
+  localparam int unsigned PrescalerW = TimerPrescalerW;
+  logic [PrescalerW-1:0] prescaler_cnt;
 
   // LFSR
   //// SW configures to use EDN or SEED register as a LFSR seed
@@ -165,18 +192,17 @@ module kmac_entropy
   logic storage_idx_clear;
   logic storage_filled;
 
-  // in_progress: check if in_progress de-asserted. It means hashing operation
-  // is completed. Entropy logic refreshes seed and prepare new entropy.
-  // de-asserting in_progress sets in_progress_deasserted, then when FSM moves
-  // to StRandEdn, it clears the de-assertion. This is to not miss the
-  // deassertion event.
-  logic in_progress_deasserted, in_progress_clear, in_progress_d;
-
   // Entropy valid signal
   // FSM set and clear the valid signal, rand_consume signal clear the valid
   // signal. Split the set, clear to make entropy valid while FSM is processing
   // other tasks.
   logic rand_valid_set, rand_valid_clear;
+
+  // FSM latches the mode and stores into mode_q when the FSM is out from
+  // StReset. The following states, or internal datapath uses mode_q after that.
+  // If the SW wants to change the mode, it requires resetting the IP.
+  logic mode_latch;
+  entropy_mode_e mode_q;
 
   //////////////
   // Datapath //
@@ -190,20 +216,12 @@ module kmac_entropy
       timer_value <= timer_limit;
     end else if (timer_expired) begin
       timer_value <= '0; // keep the value
-    end else if (timer_enable && |timer_value) begin // if non-zero timer v
+    end else if (timer_enable && timer_pulse && |timer_value) begin // if non-zero timer v
       timer_value <= timer_value - 1'b 1;
     end
   end
 
-  // select timer
-  always_comb begin
-    timer_limit = '0;
-    unique case (timer_sel)
-      EntropyTimer: timer_limit = TimerW'(entropy_timer_limit_i);
-      EdnWaitTimer: timer_limit = TimerW'(wait_timer_limit_i);
-      default: timer_limit = '0; // NoTimer
-    endcase
-  end
+  assign timer_limit = TimerW'(wait_timer_limit_i);
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -214,16 +232,64 @@ module kmac_entropy
       timer_expired <= 1'b 1;
     end
   end
+
+  // Prescaler
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      prescaler_cnt <= '0;
+    end else if (timer_update) begin
+      prescaler_cnt <= wait_timer_prescaler_i;
+    end else if (timer_enable && prescaler_cnt == '0) begin
+      prescaler_cnt <= wait_timer_prescaler_i;
+    end else if (timer_enable) begin
+      prescaler_cnt <= prescaler_cnt - 1'b 1;
+    end
+  end
+
+  assign timer_pulse = (timer_enable && prescaler_cnt == '0);
   // Timers -------------------------------------------------------------------
 
+  // Hash Counter
+  logic threshold_hit;
+  logic threshold_hit_q, threshold_hit_clr; // latched hit
+
+  logic hash_progress_d, hash_progress_q;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) hash_progress_q <= 1'b 0;
+    else         hash_progress_q <= hash_progress_d;
+  end
+
+  assign hash_progress_d = in_keyblock_i;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      hash_cnt_o <= '0;
+    end else if (hash_cnt_clr_i || threshold_hit || entropy_refresh_req_i) begin
+      hash_cnt_o <= '0;
+    end else if (hash_progress_q && !hash_progress_d) begin
+      hash_cnt_o <= hash_cnt_o + 1'b 1;
+    end
+  end
+
+  assign threshold_hit = |hash_threshold_i && (hash_threshold_i <= hash_cnt_o);
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)                threshold_hit_q <= 1'b 0;
+    else if (threshold_hit_clr) threshold_hit_q <= 1'b 0;
+    else if (threshold_hit)     threshold_hit_q <= 1'b 1;
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)         mode_q <= EntropyModeNone;
+    else if (mode_latch) mode_q <= mode_i;
+  end
 
   // LFSR =====================================================================
   //// FSM controls the seed enable signal `lfsr_seed_en`.
   //// Seed selection
   always_comb begin
-    unique case (mode_i)
+    unique case (mode_q)
       EntropyModeNone: lfsr_seed = '0;
-      // TODO: Check EDN Bus width
       EntropyModeEdn:  lfsr_seed = entropy_data_i;
       EntropyModeSw:   lfsr_seed = seed_data_i;
       default:         lfsr_seed = '0;
@@ -234,7 +300,10 @@ module kmac_entropy
   prim_lfsr #(
     .LfsrDw(EntropyLfsrW),
     .EntropyDw(EntropyLfsrW),
-    .StateOutDw(EntropyLfsrW)
+    .StateOutDw(EntropyLfsrW),
+    .StatePermEn(1'b1),
+    .StatePerm(RndCnstLfsrPerm),
+    .NonLinearOut(1'b1)
   ) u_lfsr (
     .clk_i,
     .rst_ni,
@@ -260,7 +329,6 @@ module kmac_entropy
         end
       end
     end
-    // TODO: Should the consumed entropy be discarded?
   end
 
   //// Index
@@ -299,40 +367,24 @@ module kmac_entropy
 
   // Storage expands to StateW ------------------------------------------------
 
-  // In Process Logic =========================================================
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      in_progress_d <= 1'b 0;
-    end else begin
-      in_progress_d <= in_progress_i;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      in_progress_deasserted <= 1'b 0;
-    end else if (in_progress_d && !in_progress_i && (mode_i == EntropyModeEdn)) begin
-      in_progress_deasserted <= 1'b 1;
-    end else if (in_progress_clear) begin
-      in_progress_deasserted <= 1'b 0;
-    end
-  end
-  // In Process Logic ---------------------------------------------------------
-
   ///////////////////
   // State Machine //
   ///////////////////
 
   rand_st_e st, st_d;
+  logic [StateWidth-1:0] st_raw_q;
+  assign st = rand_st_e'(st_raw_q);
 
   // State FF
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      st <= StRandReset;
-    end else begin
-      st <= st_d;
-    end
-  end
+  prim_flop #(
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StRandReset))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( st_d     ),
+    .q_o ( st_raw_q )
+  );
 
   // State: Next State and Output Logic
   always_comb begin
@@ -341,7 +393,8 @@ module kmac_entropy
     // Default Timer values
     timer_enable = 1'b 0;
     timer_update = 1'b 0;
-    timer_sel    = NoTimer;
+
+    threshold_hit_clr = 1'b 0;
 
     // EDN request
     entropy_req_o = 1'b 0;
@@ -355,10 +408,11 @@ module kmac_entropy
     rand_valid_set   = 1'b 0;
     rand_valid_clear = 1'b 0;
 
+    // mode_latch to store mode_i into mode_q
+    mode_latch = 1'b 0;
+
     // lfsr_en: Let LFSR run
     // To save power, this logic enables LFSR when it needs entropy expansion.
-    // TODO: Check if random LFSR run while staying in ready state to obsfucate
-    // LFSR value?
     lfsr_en = 1'b 0;
 
     // lfsr_seed_en: Signal to update LFSR seed
@@ -369,14 +423,17 @@ module kmac_entropy
     storage_idx_clear = 1'b 0;
     storage_update    = 1'b 0;
 
-    in_progress_clear = 1'b 0;
-
     // Error
     err_o = '{valid: 1'b 0, code: ErrNone, info: '0};
 
     unique case (st)
       StRandReset: begin
         if (entropy_ready_i) begin
+
+          // As SW ready, discard current dummy entropy and refresh.
+          rand_valid_clear = 1'b 1;
+
+          mode_latch = 1'b 1;
           // SW has configured KMAC
           unique case (mode_i)
             EntropyModeSw: begin
@@ -387,7 +444,6 @@ module kmac_entropy
               st_d = StRandEdn;
 
               // Timer reset
-              timer_sel = EdnWaitTimer;
               timer_update = 1'b 1;
             end
 
@@ -399,6 +455,11 @@ module kmac_entropy
           endcase
         end else begin
           st_d = StRandReset;
+
+          // Setting the dummy rand gate until SW prepares.
+          // This lets the Application Interface move forward out of reset
+          // without SW intervention.
+          rand_valid_set = 1'b 1;
         end
       end
 
@@ -417,25 +478,14 @@ module kmac_entropy
           storage_idx_clear = 1'b 1;
 
           rand_valid_clear = 1'b 1;
-        end else if (mode_i == EntropyModeEdn) begin
-          if (in_keyblock_i && timer_expired && |entropy_timer_limit_i) begin
-            // Timer count is non-zero and timer expired
-            st_d = StRandEdn;
+        end else if (entropy_refresh_req_i || threshold_hit_q) begin
+          st_d = StRandEdn;
 
-            timer_update = 1'b 1;
-            timer_sel    = EdnWaitTimer;
+          // Timer reset
+          timer_update = 1'b 1;
 
-          end else if (in_progress_deasserted) begin
-            // hashing operation is completed, refresh the entropy and stop
-            st_d = StRandEdn;
-
-            in_progress_clear = 1'b 1;
-
-            timer_update = 1'b 1;
-            timer_sel    = EdnWaitTimer;
-          end else begin
-            st_d = StRandReady;
-          end
+          // Clear the threshold as it refreshes the hash
+          threshold_hit_clr = 1'b 1;
         end else begin
           st_d = StRandReady;
         end
@@ -461,7 +511,15 @@ module kmac_entropy
           rand_valid_clear = 1'b 1;
 
           storage_idx_clear = 1'b 1;
-          // TODO: check fips?
+        end else if (rand_consumed_i) begin
+          // Somehow, while waiting the EDN entropy, the KMAC or SHA3 logic
+          // consumed the remained entropy. This can happen when the previous
+          // SHA3/ KMAC op completed and this Entropy FSM has moved to this
+          // state to refresh the entropy and the SW initiates another hash
+          // operation while waiting for the EDN response.
+          st_d = StRandEdn;
+
+          rand_valid_clear = 1'b 1;
         end else begin
           st_d = StRandEdn;
         end
@@ -491,11 +549,6 @@ module kmac_entropy
 
           rand_valid_set = 1'b 1;
 
-          // Based on the timer value, either reset the timer or just move
-          if (mode_i == EntropyModeEdn && |entropy_timer_limit_i) begin
-            timer_sel = EntropyTimer;
-            timer_update = 1'b 1;
-          end
         end else begin
           st_d = StRandExpand;
 
@@ -528,7 +581,6 @@ module kmac_entropy
         if (err_processed_i) begin
           st_d = StRandReset;
 
-          // TODO: Reset as much as
         end else begin
           st_d = StRandErr;
         end
@@ -552,4 +604,3 @@ module kmac_entropy
   `ASSERT(StorageIdxInBound_A, storage_filled |-> !storage_update)
 
 endmodule : kmac_entropy
-

@@ -31,7 +31,7 @@ interface push_pull_if #(parameter int HostDataWidth = 32,
   logic req_int;
   logic ack_int;
   logic [HostDataWidth-1:0]   h_data_int;
-  logic [DeviceDataWidth-1:0]   d_data_int;
+  logic [DeviceDataWidth-1:0] d_data_int;
 
   // Interface mode - Host or Device
   dv_utils_pkg::if_mode_e if_mode;
@@ -96,15 +96,6 @@ interface push_pull_if #(parameter int HostDataWidth = 32,
   // Data signal assignments
   assign h_data = (if_mode == dv_utils_pkg::Host) ? h_data_int : 'z;
   assign d_data = (if_mode == dv_utils_pkg::Device) ? d_data_int : 'z;
-
-  // utility tasks
-  task automatic wait_clks(input int num);
-    repeat (num) @(posedge clk);
-  endtask : wait_clks
-
-  task automatic wait_n_clks(input int num);
-    repeat (num) @(negedge clk);
-  endtask : wait_n_clks
 
   /////////////////////////////////////////
   // Assertions for ready/valid protocol //

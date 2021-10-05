@@ -38,6 +38,7 @@ module aes
 ) (
   input  logic                                      clk_i,
   input  logic                                      rst_ni,
+  input  logic                                      rst_shadowed_ni,
 
   // Idle indicator for clock manager
   output logic                                      idle_o,
@@ -50,6 +51,9 @@ module aes
   input  logic                                      rst_edn_ni,
   output edn_pkg::edn_req_t                         edn_o,
   input  edn_pkg::edn_rsp_t                         edn_i,
+
+  // Key manager (keymgr) key sideload interface
+  input  keymgr_pkg::hw_key_req_t                   keymgr_key_i,
 
   // Bus interface
   input  tlul_pkg::tl_h2d_t                         tl_i,
@@ -81,6 +85,7 @@ module aes
   ////////////
 
   // Register interface
+  logic intg_err_alert;
   aes_reg_top u_reg (
     .clk_i,
     .rst_ni,
@@ -88,7 +93,7 @@ module aes
     .tl_o,
     .reg2hw,
     .hw2reg,
-    .intg_err_o(),
+    .intg_err_o(intg_err_alert),
     .devmode_i(1'b1)
   );
 
@@ -108,16 +113,17 @@ module aes
     .DataSrc2Dst(1'b0),
     .DataReg(1'b0)
   ) u_prim_sync_reqack_data (
-    .clk_src_i  ( clk_i         ),
-    .rst_src_ni ( rst_ni        ),
-    .clk_dst_i  ( clk_edn_i     ),
-    .rst_dst_ni ( rst_edn_ni    ),
-    .src_req_i  ( edn_req       ),
-    .src_ack_o  ( edn_ack       ),
-    .dst_req_o  ( edn_o.edn_req ),
-    .dst_ack_i  ( edn_i.edn_ack ),
-    .data_i     ( edn_i.edn_bus ),
-    .data_o     ( edn_data      )
+    .clk_src_i  ( clk_i                              ),
+    .rst_src_ni ( rst_ni                             ),
+    .clk_dst_i  ( clk_edn_i                          ),
+    .rst_dst_ni ( rst_edn_ni                         ),
+    .req_chk_i  ( lc_escalate_en == lc_ctrl_pkg::Off ),
+    .src_req_i  ( edn_req                            ),
+    .src_ack_o  ( edn_ack                            ),
+    .dst_req_o  ( edn_o.edn_req                      ),
+    .dst_ack_i  ( edn_i.edn_ack                      ),
+    .data_i     ( edn_i.edn_bus                      ),
+    .data_o     ( edn_data                           )
   );
   // We don't track whether the entropy is pre-FIPS or not inside AES.
   assign unused_edn_fips = edn_i.edn_fips;
@@ -155,7 +161,7 @@ module aes
   ) u_aes_core (
     .clk_i                  ( clk_i                ),
     .rst_ni                 ( rst_ni               ),
-
+    .rst_shadowed_ni        ( rst_shadowed_ni      ),
     .entropy_clearing_req_o ( entropy_clearing_req ),
     .entropy_clearing_ack_i ( entropy_clearing_ack ),
     .entropy_clearing_i     ( edn_data             ),
@@ -163,8 +169,11 @@ module aes
     .entropy_masking_ack_i  ( entropy_masking_ack  ),
     .entropy_masking_i      ( edn_data             ),
 
+    .keymgr_key_i           ( keymgr_key_i         ),
+
     .lc_escalate_en_i       ( lc_escalate_en       ),
 
+    .intg_err_alert_i       ( intg_err_alert       ),
     .alert_recov_o          ( alert[0]             ),
     .alert_fatal_o          ( alert[1]             ),
 

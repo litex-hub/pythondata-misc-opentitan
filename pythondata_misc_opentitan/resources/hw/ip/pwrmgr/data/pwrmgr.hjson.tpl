@@ -2,15 +2,24 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 { name: "PWRMGR",
-  clock_primary: "clk_i",
-  other_clock_list: [ "clk_slow_i" ]
-  reset_primary: "rst_ni",
-  other_reset_list: [ "rst_slow_ni" ]
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {reset: "rst_main_ni"},
+    {clock: "clk_slow_i", reset: "rst_slow_ni"},
+    {clock: "clk_esc_i", reset: "rst_esc_ni"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
   interrupt_list: [
     { name: "wakeup", desc: "Wake from low power state. See wake info for more details" },
+  ],
+  alert_list: [
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
+    }
   ],
 
   // Define flash_ctrl <-> flash_phy struct package
@@ -51,9 +60,9 @@
     },
 
     { struct:  "pwr_flash",
-      type:    "req_rsp",
+      type:    "uni",
       name:    "pwr_flash",
-      act:     "req",
+      act:     "rcv",
       package: "pwrmgr_pkg",
     },
 
@@ -107,6 +116,20 @@
       act:     "req",
       package: "",
     },
+
+    { struct:  "pwrmgr_data",
+      type:    "uni",
+      name:    "rom_ctrl",
+      act:     "rcv",
+      package: "rom_ctrl_pkg",
+    },
+
+    { struct:  "lc_tx",
+      type:    "uni",
+      name:    "fetch_en",
+      act:     "req",
+      package: "lc_ctrl_pkg",
+    },
   ],
 
   param_list: [
@@ -118,8 +141,8 @@
     },
 
     % for wkup in Wkups:
-    { name: "${wkup['name'].upper()}_IDX",
-      desc: "Vector index for ${wkup['name']}, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
+    { name: "${wkup['module'].upper()}_${wkup['name'].upper()}_IDX",
+      desc: "Vector index for ${wkup['module']} ${wkup['name']}, applies for WAKEUP_EN, WAKE_STATUS and WAKE_INFO",
       type: "int",
       default: "${loop.index}",
       local: "true"
@@ -183,7 +206,7 @@
           desc: '''
             The low power hint to power manager.
             The hint is an indication for how the manager should treat the next WFI.
-            Once the power manager begins a low power transition, or if a valid reset request is registerd,
+            Once the power manager begins a low power transition, or if a valid reset request is registered,
             this bit is automatically cleared by HW.
             '''
           resval: "0"
@@ -294,14 +317,12 @@
               name: "Power down",
               desc: '''
                 Main power domain is powered down during low power state.
-                Note this signal is active low.
                 '''
             },
             { value: "1",
               name: "Power up",
               desc: '''
                 Main power domain is kept powered during low power state
-                Note this signal is active low.
                 '''
             },
           ]
@@ -331,7 +352,7 @@
             the sync completes, this bit then self clears.
 
             Software should write this bit to 1, wait for it to clear, before assuming the slow clock
-            domain has assumed the programmaed values.
+            domain has assumed the programmed values.
           ''',
           resval: "0",
         },
@@ -342,7 +363,7 @@
     },
 
     { name: "WAKEUP_EN_REGWEN",
-      desc: "Configuration enable for wakeup register",
+      desc: "Configuration enable for wakeup_en register",
       swaccess: "rw0c",
       hwaccess: "none",
       fields: [
@@ -350,8 +371,8 @@
           resval: "1"
           name: "EN",
           desc: '''
-            When 1, WAKEUP register can be configured.
-            When 0, WAKEUP register cannot be configured.
+            When 1, WAKEUP_EN register can be configured.
+            When 0, WAKEUP_EN register cannot be configured.
           ''',
         },
       ]
@@ -400,7 +421,7 @@
     },
 
     { name: "RESET_EN_REGWEN",
-      desc: "Configuration enable for reset register",
+      desc: "Configuration enable for reset_en register",
       swaccess: "rw0c",
       hwaccess: "none",
       fields: [
@@ -408,8 +429,8 @@
           resval: "1"
           name: "EN",
           desc: '''
-            When 1, RESET register can be configured.
-            When 0, RESET register cannot be configured.
+            When 1, RESET_EN register can be configured.
+            When 0, RESET_EN register cannot be configured.
           ''',
         },
       ]
@@ -433,6 +454,8 @@
             ''',
           },
         ]
+        tags: [// Self resets should never be triggered by automated tests
+        "excl:CsrAllTests:CsrExclWrite"]
       },
     },
 

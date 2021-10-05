@@ -41,13 +41,14 @@ package otbn_reg_pkg;
   } otbn_reg2hw_alert_test_reg_t;
 
   typedef struct packed {
-    logic        q;
+    logic [7:0]  q;
     logic        qe;
   } otbn_reg2hw_cmd_reg_t;
 
   typedef struct packed {
-    logic [31:0] q;
-  } otbn_reg2hw_start_addr_reg_t;
+    logic        q;
+    logic        qe;
+  } otbn_reg2hw_ctrl_reg_t;
 
   typedef struct packed {
     logic        d;
@@ -56,6 +57,10 @@ package otbn_reg_pkg;
 
   typedef struct packed {
     logic        d;
+  } otbn_hw2reg_ctrl_reg_t;
+
+  typedef struct packed {
+    logic [7:0]  d;
   } otbn_hw2reg_status_reg_t;
 
   typedef struct packed {
@@ -82,52 +87,86 @@ package otbn_reg_pkg;
     struct packed {
       logic        d;
       logic        de;
-    } fatal_imem;
+    } imem_intg_violation;
     struct packed {
       logic        d;
       logic        de;
-    } fatal_dmem;
+    } dmem_intg_violation;
     struct packed {
       logic        d;
       logic        de;
-    } fatal_reg;
+    } reg_intg_violation;
+    struct packed {
+      logic        d;
+      logic        de;
+    } bus_intg_violation;
+    struct packed {
+      logic        d;
+      logic        de;
+    } illegal_bus_access;
+    struct packed {
+      logic        d;
+      logic        de;
+    } lifecycle_escalation;
+    struct packed {
+      logic        d;
+      logic        de;
+    } fatal_software;
   } otbn_hw2reg_err_bits_reg_t;
 
   typedef struct packed {
     struct packed {
       logic        d;
       logic        de;
-    } bus_integrity_error;
+    } imem_intg_violation;
     struct packed {
       logic        d;
       logic        de;
-    } imem_error;
+    } dmem_intg_violation;
     struct packed {
       logic        d;
       logic        de;
-    } dmem_error;
+    } reg_intg_violation;
     struct packed {
       logic        d;
       logic        de;
-    } reg_error;
+    } bus_intg_violation;
+    struct packed {
+      logic        d;
+      logic        de;
+    } illegal_bus_access;
+    struct packed {
+      logic        d;
+      logic        de;
+    } lifecycle_escalation;
+    struct packed {
+      logic        d;
+      logic        de;
+    } fatal_software;
   } otbn_hw2reg_fatal_alert_cause_reg_t;
+
+  typedef struct packed {
+    logic [31:0] d;
+  } otbn_hw2reg_insn_cnt_reg_t;
 
   // Register -> HW type
   typedef struct packed {
-    otbn_reg2hw_intr_state_reg_t intr_state; // [41:41]
-    otbn_reg2hw_intr_enable_reg_t intr_enable; // [40:40]
-    otbn_reg2hw_intr_test_reg_t intr_test; // [39:38]
-    otbn_reg2hw_alert_test_reg_t alert_test; // [37:34]
-    otbn_reg2hw_cmd_reg_t cmd; // [33:32]
-    otbn_reg2hw_start_addr_reg_t start_addr; // [31:0]
+    otbn_reg2hw_intr_state_reg_t intr_state; // [18:18]
+    otbn_reg2hw_intr_enable_reg_t intr_enable; // [17:17]
+    otbn_reg2hw_intr_test_reg_t intr_test; // [16:15]
+    otbn_reg2hw_alert_test_reg_t alert_test; // [14:11]
+    otbn_reg2hw_cmd_reg_t cmd; // [10:2]
+    otbn_reg2hw_ctrl_reg_t ctrl; // [1:0]
   } otbn_reg2hw_t;
 
   // HW -> register type
   typedef struct packed {
-    otbn_hw2reg_intr_state_reg_t intr_state; // [26:25]
-    otbn_hw2reg_status_reg_t status; // [24:24]
-    otbn_hw2reg_err_bits_reg_t err_bits; // [23:8]
-    otbn_hw2reg_fatal_alert_cause_reg_t fatal_alert_cause; // [7:0]
+    otbn_hw2reg_intr_state_reg_t intr_state; // [80:79]
+    otbn_hw2reg_ctrl_reg_t ctrl; // [78:78]
+    otbn_hw2reg_status_reg_t status; // [77:70]
+    otbn_hw2reg_err_bits_reg_t err_bits; // [69:46]
+    otbn_hw2reg_fatal_alert_cause_reg_t fatal_alert_cause; // [45:32]
+    otbn_hw2reg_insn_cnt_reg_t insn_cnt; // [31:0]
   } otbn_hw2reg_t;
 
   // Register offsets
@@ -136,10 +175,11 @@ package otbn_reg_pkg;
   parameter logic [BlockAw-1:0] OTBN_INTR_TEST_OFFSET = 16'h 8;
   parameter logic [BlockAw-1:0] OTBN_ALERT_TEST_OFFSET = 16'h c;
   parameter logic [BlockAw-1:0] OTBN_CMD_OFFSET = 16'h 10;
-  parameter logic [BlockAw-1:0] OTBN_STATUS_OFFSET = 16'h 14;
-  parameter logic [BlockAw-1:0] OTBN_ERR_BITS_OFFSET = 16'h 18;
-  parameter logic [BlockAw-1:0] OTBN_START_ADDR_OFFSET = 16'h 1c;
+  parameter logic [BlockAw-1:0] OTBN_CTRL_OFFSET = 16'h 14;
+  parameter logic [BlockAw-1:0] OTBN_STATUS_OFFSET = 16'h 18;
+  parameter logic [BlockAw-1:0] OTBN_ERR_BITS_OFFSET = 16'h 1c;
   parameter logic [BlockAw-1:0] OTBN_FATAL_ALERT_CAUSE_OFFSET = 16'h 20;
+  parameter logic [BlockAw-1:0] OTBN_INSN_CNT_OFFSET = 16'h 24;
 
   // Reset values for hwext registers and their fields
   parameter logic [0:0] OTBN_INTR_TEST_RESVAL = 1'h 0;
@@ -147,8 +187,14 @@ package otbn_reg_pkg;
   parameter logic [1:0] OTBN_ALERT_TEST_RESVAL = 2'h 0;
   parameter logic [0:0] OTBN_ALERT_TEST_FATAL_RESVAL = 1'h 0;
   parameter logic [0:0] OTBN_ALERT_TEST_RECOV_RESVAL = 1'h 0;
-  parameter logic [0:0] OTBN_CMD_RESVAL = 1'h 0;
-  parameter logic [0:0] OTBN_STATUS_RESVAL = 1'h 0;
+  parameter logic [7:0] OTBN_CMD_RESVAL = 8'h 0;
+  parameter logic [7:0] OTBN_CMD_CMD_RESVAL = 8'h 0;
+  parameter logic [0:0] OTBN_CTRL_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_CTRL_SOFTWARE_ERRS_FATAL_RESVAL = 1'h 0;
+  parameter logic [7:0] OTBN_STATUS_RESVAL = 8'h 0;
+  parameter logic [7:0] OTBN_STATUS_STATUS_RESVAL = 8'h 0;
+  parameter logic [31:0] OTBN_INSN_CNT_RESVAL = 32'h 0;
+  parameter logic [31:0] OTBN_INSN_CNT_INSN_CNT_RESVAL = 32'h 0;
 
   // Window parameters
   parameter logic [BlockAw-1:0] OTBN_IMEM_OFFSET = 16'h 4000;
@@ -163,23 +209,25 @@ package otbn_reg_pkg;
     OTBN_INTR_TEST,
     OTBN_ALERT_TEST,
     OTBN_CMD,
+    OTBN_CTRL,
     OTBN_STATUS,
     OTBN_ERR_BITS,
-    OTBN_START_ADDR,
-    OTBN_FATAL_ALERT_CAUSE
+    OTBN_FATAL_ALERT_CAUSE,
+    OTBN_INSN_CNT
   } otbn_id_e;
 
   // Register width information to check illegal writes
-  parameter logic [3:0] OTBN_PERMIT [9] = '{
+  parameter logic [3:0] OTBN_PERMIT [10] = '{
     4'b 0001, // index[0] OTBN_INTR_STATE
     4'b 0001, // index[1] OTBN_INTR_ENABLE
     4'b 0001, // index[2] OTBN_INTR_TEST
     4'b 0001, // index[3] OTBN_ALERT_TEST
     4'b 0001, // index[4] OTBN_CMD
-    4'b 0001, // index[5] OTBN_STATUS
-    4'b 0001, // index[6] OTBN_ERR_BITS
-    4'b 1111, // index[7] OTBN_START_ADDR
-    4'b 0001  // index[8] OTBN_FATAL_ALERT_CAUSE
+    4'b 0001, // index[5] OTBN_CTRL
+    4'b 0001, // index[6] OTBN_STATUS
+    4'b 0111, // index[7] OTBN_ERR_BITS
+    4'b 0001, // index[8] OTBN_FATAL_ALERT_CAUSE
+    4'b 1111  // index[9] OTBN_INSN_CNT
   };
 
 endpackage

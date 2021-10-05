@@ -9,23 +9,46 @@
 class otp_ctrl_dai_errs_vseq extends otp_ctrl_dai_lock_vseq;
   `uvm_object_utils(otp_ctrl_dai_errs_vseq)
 
+  bit[31:0] exp_status;
   `uvm_object_new
 
+  // Only run one transition to avoid dut_init in the sequence. Because write-blank-error can cause
+  // otp_init failure.
   constraint num_trans_c {
-    num_trans  inside {[1:5]};
+    num_trans  == 1;
     num_dai_op inside {[100:500]};
   }
 
-  constraint dai_wr_legal_addr_c {
-    {dai_addr[TL_AW-1:2], 2'b0} inside {[CreatorSwCfgOffset : (LifeCycleOffset + LifeCycleSize)]};
+  constraint regwens_c {
+    check_trigger_regwen_val == 0;
+  }
+
+  constraint rd_check_after_wr_c {
+    rand_wr == rand_rd;
+    // TODO: enable this sw read
+    rd_sw_tlul_rd == 0;
   }
 
   function void pre_randomize();
-    this.partition_index_c.constraint_mode(0);
     this.dai_wr_blank_addr_c.constraint_mode(0);
     this.no_access_err_c.constraint_mode(0);
-    this.num_iterations_up_to_num_valid_addr_c.constraint_mode(0);
-    collect_used_addr = 0;
+    this.dai_wr_digests_c.constraint_mode(0);
+    write_unused_addr = 0;
   endfunction
 
+  task body();
+    do_apply_reset = 0;
+    if (do_lc_trans && !cfg.otp_ctrl_vif.alert_reqs) begin
+      req_lc_transition(do_lc_trans, lc_prog_blocking);
+    end
+    super.body();
+  endtask
+
+  virtual task post_start();
+    apply_reset();
+    // delay to avoid race condition when sending item and checking no item after reset occur
+    // at the same time
+    #1ps;
+    super.post_start();
+  endtask
 endclass

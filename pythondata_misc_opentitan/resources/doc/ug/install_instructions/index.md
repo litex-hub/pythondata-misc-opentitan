@@ -55,12 +55,17 @@ For packages listed below without a version number we have not determined a mini
 * libusb 1.0 (called libusbx in older distributions)
 * OpenOCD 0.11.0
 * [Verible](https://github.com/google/verible) {{< tool_version "verible" >}}
+* Cmake 3.3
+* Perl 5.6.1
+* [Go](https://golang.org/) 1.11
+* [Rust](https://www.rust-lang.org/) {{< tool_version "rust" >}} (x86_64-unknown-linux-gnu)
 
 To synthesize and simulate the hardware components of OpenTitan multiple EDA tools are supported.
 Depending on how you interact with the OpenTitan hardware code, one of more of the following tools need to be available.
 
 * [Verilator](https://verilator.org) {{< tool_version "verilator" >}}
-* Xilinx Vivado 2018.3
+* Xilinx Vivado {{< tool_version "vivado" >}}
+  (Do not use versions earlier than 2020.2 due to a [critical synthesis bug](https://forums.xilinx.com/t5/Synthesis/Simulation-Synthesis-Mismatch-with-Vivado-2018-3/m-p/1065923#M33849).)
 * Synopsys VCS
 * Cadence Xcelium
 * Cadence JasperGold
@@ -128,15 +133,23 @@ Then run the following command to install the required package dependencies on R
 {{< pkgmgr_cmd "yum" >}}
 
 Some tools in this repository are written in Python 3 and require Python dependencies to be installed through `pip`.
+We recommend installing the latest version of `pip` and `setuptools` (especially if on older systems such as Ubuntu 18.04) using:
+
+```console
+python3 -m pip install --user -U pip setuptools
+```
+
+The `pip` installation instructions use the `--user` flag to install without root permissions.
+Binaries are installed to `~/.local/bin`; check that this directory is listed in your `PATH` by running `which pip3`, which should show `~/.local/bin/pip3`.
+If it doesn't, add `~/.local/bin` to your `PATH`, e.g. by modifying your `~/.bashrc` file.
+
+Now install additional Python dependencies:
 
 ```console
 $ cd $REPO_TOP
 $ pip3 install --user -r python-requirements.txt
 ```
 
-The `pip` installation instructions use the `--user` flag to install without root permissions.
-Binaries are installed to `~/.local/bin`; check that this directory is listed in your `PATH` by running `fusesoc --version`.
-If the `fusesoc` binary is not found, add `~/.local/bin` to your `PATH`, e.g. by modifying your `~/.bashrc` file.
 
 ## Software development
 
@@ -296,7 +309,9 @@ Most lowRISC designs support at least one FPGA board which works with a free Web
 
 ### Install Xilinx Vivado
 
-_**Vivado Version:** Vivado 2019.1 and all its minor updates are not compatible with this project._
+_**Vivado Version:** The recommendation is to use Vivado {{< tool_version "vivado" >}}.
+The following instructions have been tested with Vivado 2020.1.
+Vivado 2019.1 and all its minor updates are not compatible with this project._
 
 Vivado can be installed in two ways: either through an "All OS installer Single-File Download", or via the "Linux Self Extracting Web Installer".
 Neither option is great:
@@ -346,33 +361,40 @@ To get started faster we use the web installer in the following.
 
    ![Vivado installation step 3](img/install_vivado/step3.png)
 
-7. Choose "Vivado HL WebPACK" if you do not have a commercial Vivado license, or "Vivado HL Design Edition" if you have a valid license.
-   In this walk through we'll install the WebPACK edition.
+7. Choose "Vivado", and click on "Next" to continue.
 
    ![Vivado installation step 4](img/install_vivado/step4.png)
 
-8. Choose the features to install.
-    You can restrict the features to the ones shown in the screenshot below.
-    Click "Next" to continue.
+8. Choose "Vivado HL Design Edition".
+   This is required to enable support for the Xilinx Kintex 7 XC7K410T FPGA device found on the ChipWhisperer CW310 board.
+   You'll need a commercial Vivado license for this FPGA device.
+   Without a valid license, you are still able to install the Vivado HL Design Edition but you'll only be able to work with devices supported by the free WebPACK license.
+   If you don't have a valid license and if you're only planning to work with devices supported by the free WebPACK license, you can also choose "Vivado HL WebPACK" instead.
 
    ![Vivado installation step 5](img/install_vivado/step5.png)
 
-9. Choose an installation location.
+9. Choose the features to install.
+   You can restrict the features to the ones shown in the screenshot below.
+   Click "Next" to continue.
+
+   ![Vivado installation step 6](img/install_vivado/step6.png)
+
+10. Choose an installation location.
     Any location which doesn't have a whitespace in its path and enough free space is fine.
     We use `/tools` in our example, but a path in `/opt` or within the home directory works equally well.
     Click "Next" to continue.
 
-   ![Vivado installation step 6](img/install_vivado/step6.png)
+    ![Vivado installation step 7](img/install_vivado/step7.png)
 
-10. Double-check the installation summary and click on "Install" to start the installation process.
+11. Double-check the installation summary and click on "Install" to start the installation process.
 
-   ![Vivado installation step 7](img/install_vivado/step7.png)
+    ![Vivado installation step 8](img/install_vivado/step8.png)
 
-11. Now Vivado is downloaded and installed, a process which can easily take multiple hours.
+12. Now Vivado is downloaded and installed, a process which can easily take multiple hours.
 
-   ![Vivado installation step 8](img/install_vivado/step8.png)
+    ![Vivado installation step 9](img/install_vivado/step9.png)
 
-12. As soon as the installation has completed close the installer and you're now ready to use Vivado!
+13. As soon as the installation has completed close the installer and you're now ready to use Vivado!
 
 ### Device permissions: udev rules
 
@@ -386,6 +408,9 @@ To do so, create a file named `/etc/udev/rules.d/90-lowrisc.rules` and add the f
 # Grant access to board peripherals connected over USB:
 # - The USB devices itself (used e.g. by Vivado to program the FPGA)
 # - Virtual UART at /dev/tty/XXX
+
+# NewAE Technology Inc. ChipWhisperer boards e.g. CW310, CW305, CW-Lite, CW-Husky
+ACTION=="add|change", SUBSYSTEM=="usb|tty", ATTRS{idVendor}=="2b3e", ATTRS{idProduct}=="ace[0-9]|c[3-6][0-9][0-9]", MODE="0666"
 
 # Future Technology Devices International, Ltd FT2232C/D/H Dual UART/FIFO IC
 # used on Digilent boards

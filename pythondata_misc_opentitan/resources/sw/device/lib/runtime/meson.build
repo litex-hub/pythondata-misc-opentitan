@@ -51,6 +51,20 @@ sw_lib_runtime_print = declare_dependency(
   )
 )
 
+test('runtime_print_unittest', executable(
+    'runtime_print_unittest',
+    sources: [
+      'print.c',
+      'print_unittest.cc',
+    ],
+    dependencies: [
+      sw_vendor_gtest,
+    ],
+    native: true,
+  ),
+  suite: 'runtime',
+)
+
 sw_lib_runtime_log = declare_dependency(
   link_with: static_library(
     'runtime_log_ot',
@@ -71,6 +85,7 @@ sw_lib_runtime_otbn = declare_dependency(
       sw_lib_dif_otbn,
       sw_lib_mmio,
       sw_lib_runtime_hart,
+      sw_lib_runtime_log,
     ]
   )
 )

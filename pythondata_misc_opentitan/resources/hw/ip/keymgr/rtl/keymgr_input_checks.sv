@@ -8,7 +8,10 @@
 `include "prim_assert.sv"
 
 // We should also check for input validity
-module keymgr_input_checks import keymgr_pkg::*;(
+module keymgr_input_checks import keymgr_pkg::*; #(
+  parameter bit KmacEnMasking = 1'b1
+) (
+  input rom_ctrl_pkg::keymgr_data_t rom_digest_i,
   input [2**StageWidth-1:0][31:0] max_key_versions_i,
   input keymgr_stage_e stage_sel_i,
   input hw_key_req_t key_i,
@@ -22,7 +25,8 @@ module keymgr_input_checks import keymgr_pkg::*;(
   output logic devid_vld_o,
   output logic health_state_vld_o,
   output logic key_version_vld_o,
-  output logic key_vld_o
+  output logic key_vld_o,
+  output logic rom_digest_vld_o
 );
 
   logic [31:0] cur_max_key_version;
@@ -75,26 +79,27 @@ module keymgr_input_checks import keymgr_pkg::*;(
   logic unused_key_vld;
   assign unused_key_vld = key_i.valid;
 
-  logic [MaxWidth-1:0] key_share0_padded;
-  logic [MaxWidth-1:0] key_share1_padded;
+  localparam int KeyShares = KmacEnMasking ? Shares : 1;
+  logic [KeyShares-1:0][MaxWidth-1:0] key_padded;
+  logic [KeyShares-1:0] key_chk;
 
-  prim_msb_extend #(
-    .InWidth(KeyWidth),
-    .OutWidth(MaxWidth)
-  ) u_key_share0 (
-    .in_i(key_i.key_share0),
-    .out_o(key_share0_padded)
-  );
+  for (genvar i = 0; i < KeyShares; i++) begin : gen_key_chk
+    prim_msb_extend #(
+      .InWidth(KeyWidth),
+      .OutWidth(MaxWidth)
+    ) u_key_pad (
+      .in_i(key_i.key[i]),
+      .out_o(key_padded[i])
+    );
 
-  prim_msb_extend #(
-    .InWidth(KeyWidth),
-    .OutWidth(MaxWidth)
-  ) u_key_share1 (
-    .in_i(key_i.key_share1),
-    .out_o(key_share1_padded)
-  );
+    assign key_chk[i] = valid_chk(key_padded[i]);
+  end
 
-  assign key_vld_o = valid_chk(key_share0_padded) & valid_chk(key_share1_padded);
+  assign key_vld_o = &key_chk;
+
+  // rom digest check
+  assign rom_digest_vld_o = rom_digest_i.valid &
+                            valid_chk(MaxWidth'(rom_digest_i.data));
 
   // checks for all 0's or all 1's of value
   function automatic logic valid_chk (logic [MaxWidth-1:0] value);

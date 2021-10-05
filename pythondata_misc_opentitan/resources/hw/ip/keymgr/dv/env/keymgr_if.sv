@@ -6,20 +6,29 @@
 interface keymgr_if(input clk, input rst_n);
 
   import uvm_pkg::*;
+  import keymgr_env_pkg::*;
 
+  // Represents the keymgr sideload state for each sideload interface.
+  //
+  // The initial status is SideLoadNotAvail. After the sideload key is generated, it becomes
+  // SideLoadAvail.
+  // Status can't be directly changed from SideLoadClear to SideLoadAvail.
+  // When status is SideLoadClear due to SIDELOAD_CLEAR programmed, need to write CSR to 0 to reset
+  // it so that status is changed to SideLoadNotAvail, then we may set it to SideLoadAvail again
   lc_ctrl_pkg::lc_tx_t            keymgr_en;
   lc_ctrl_pkg::lc_keymgr_div_t    keymgr_div;
-  otp_ctrl_part_pkg::otp_hw_cfg_t otp_hw_cfg;
+  otp_ctrl_pkg::otp_device_id_t   otp_device_id;
   otp_ctrl_pkg::otp_keymgr_key_t  otp_key;
   flash_ctrl_pkg::keymgr_flash_t  flash;
+  rom_ctrl_pkg::keymgr_data_t     rom_digest;
 
   keymgr_pkg::hw_key_req_t kmac_key;
-  keymgr_pkg::hw_key_req_t hmac_key;
   keymgr_pkg::hw_key_req_t aes_key;
+  keymgr_pkg::otbn_key_req_t otbn_key;
 
   keymgr_pkg::hw_key_req_t kmac_key_exp;
-  keymgr_pkg::hw_key_req_t hmac_key_exp;
   keymgr_pkg::hw_key_req_t aes_key_exp;
+  keymgr_pkg::otbn_key_req_t otbn_key_exp;
 
   // connect KDF interface for assertion check
   wire kmac_pkg::app_req_t kmac_data_req;
@@ -32,16 +41,25 @@ interface keymgr_if(input clk, input rst_n);
   lc_ctrl_pkg::lc_tx_t keymgr_en_sync1, keymgr_en_sync2;
 
   // indicate if check the key is same as expected or shouldn't match to any meaningful key
+  // when a good KDF is ongoing or kmac sideload key is available, this flag is set to 1
   bit is_kmac_key_good;
-  bit is_hmac_key_good;
-  bit is_aes_key_good;
 
-  // when kmac sideload key is generated, kmac may be used to do other OP, but once the OP is done,
-  // it should automatically switch back to sideload key
-  bit is_kmac_sideload_avail;
+  // sideload status
+  keymgr_sideload_status_e aes_sideload_status;
+  keymgr_sideload_status_e otbn_sideload_status;
+
+  // When kmac sideload key is generated, `kmac_key` becomes valid with the generated digest data.
+  // If SW requests keymgr to do another operation, kmac_key will be updated to the internal key
+  // to perform a KMAC KDF operation.
+  // Once the operation is done, `kmac_key` is expected to switch automatically to the previous KMAC
+  // sideload key.
+  keymgr_sideload_status_e kmac_sideload_status;
   keymgr_env_pkg::key_shares_t kmac_sideload_key_shares;
 
-  keymgr_env_pkg::key_shares_t keys_a_array[string][string];
+  // use `string` here is to combine both internal key and sideload keys, so it could be "internal"
+  // or any name at keymgr_key_dest_e
+  keymgr_env_pkg::key_shares_t keys_a_array[keymgr_pkg::keymgr_working_state_e][keymgr_cdi_type_e][
+                               string];
 
   // set this flag when design enters init state, edn req will start periodically
   bit start_edn_req;
@@ -55,50 +73,83 @@ interface keymgr_if(input clk, input rst_n);
   bit edn_req_ack_sync;
   bit edn_req_ack_sync_done;
 
-  // for scb to predict error and alert
+  localparam int CtrlCntCopies  = 2;
+  localparam int CtrlCntWitdh   = 3;
+  localparam int KmacIfCntWitdh = 5;
+  localparam int StateWidth = 10;
+  localparam bit [StateWidth-1:0] KmacIfValidStates = {10'b1110100010,
+                                                       10'b0010011011,
+                                                       10'b0101000000,
+                                                       10'b1000101001,
+                                                       10'b1111111101,
+                                                       10'b0011101110};
+  localparam bit [StateWidth-1:0] CtrlValidStates = {10'b1101100001,
+                                                     10'b1110010010,
+                                                     10'b0011110100,
+                                                     10'b0110101111,
+                                                     10'b0100000100,
+                                                     10'b1000011101,
+                                                     10'b0001001010,
+                                                     10'b1101111110,
+                                                     10'b1010101000,
+                                                     10'b0000110011,
+                                                     10'b1011000111};
+
+  // for scb/seq to predict error/alert and sample coverage
   bit is_cmd_err;
-  bit is_fsm_err;
-  bit [2:0] force_cmds;
+  bit is_kmac_if_fsm_err;
+  bit is_ctrl_fsm_err;
+  bit is_ctrl_cnt_err;
+  bit is_kmac_if_cnt_err;
+  // invalid values
+  bit [2:0] force_cmds, prev_cmds;
+  bit [StateWidth-1:0] invalid_state, prev_state;
+  bit [KmacIfCntWitdh-1:0] kmac_if_invalid_cnt;
+  bit [CtrlCntCopies-1:0][CtrlCntWitdh:0] cnt_copies;
+
+  // If we need to wait for internal signal to be certain value, we may not be able to get that
+  // when the sim is close to end. Define a cnt and MaxWaitCycle to avoid sim hang
+  int cnt_to_wait_for_internal_value;
+  localparam int MaxWaitCycle = 100_000;
+
+  // Disable the check when we force internal design as it's hard to predict design behavior when
+  // internal FSM is changed or internal error is triggered
+  bit en_chk = 1;
 
   string msg_id = "keymgr_if";
 
   task automatic init();
-    // This life cycle signal must be stable before
-    // the key manager comes out of reset.
-    // The power/reset manager ensures that
-    // this sequencing is correct.
-    keymgr_en = lc_ctrl_pkg::lc_tx_t'($urandom);
-
     // async delay as these signals are from different clock domain
     #($urandom_range(1000, 0) * 1ns);
     keymgr_en = lc_ctrl_pkg::On;
     keymgr_div = 64'h5CFBD765CE33F34E;
-    otp_hw_cfg.data.device_id = 'hF0F0;
+    otp_device_id = 'hF0F0;
     otp_key = otp_ctrl_pkg::OTP_KEYMGR_KEY_DEFAULT;
     flash   = flash_ctrl_pkg::KEYMGR_FLASH_DEFAULT;
+    rom_digest.data = 256'hA20A046CF42E6EAC560A3F82BFA76285B5C1D4AEA7C915E49A32D1C89BE0F507;
+    rom_digest.valid = '1;
   endtask
 
   // reset local exp variables when reset is issued
   function automatic void reset();
+    keymgr_en = lc_ctrl_pkg::lc_tx_t'($urandom);
     kmac_key_exp = '0;
-    hmac_key_exp = '0;
     aes_key_exp  = '0;
+    otbn_key_exp = '0;
     is_kmac_key_good = 0;
-    is_hmac_key_good = 0;
-    is_aes_key_good  = 0;
-    is_kmac_sideload_avail = 0;
+    kmac_sideload_status = SideLoadNotAvail;
+    aes_sideload_status = SideLoadNotAvail;
+    otbn_sideload_status = SideLoadNotAvail;
 
     // edn related
     edn_interval  = 'h100;
     start_edn_req = 0;
 
-    if (is_cmd_err) begin
-      if (force_cmds[0]) release tb.dut.u_ctrl.adv_en_o;
-      if (force_cmds[1]) release tb.dut.u_ctrl.id_en_o;
-      if (force_cmds[2]) release tb.dut.u_ctrl.gen_en_o;
-    end
     is_cmd_err = 0;
-    is_fsm_err = 0;
+    is_kmac_if_fsm_err = 0;
+    is_ctrl_fsm_err = 0;
+    is_ctrl_cnt_err = 0;
+    is_kmac_if_cnt_err = 0;
   endfunction
 
   // randomize otp, lc, flash input data
@@ -107,6 +158,7 @@ interface keymgr_if(input clk, input rst_n);
     bit [keymgr_pkg::DevIdWidth-1:0] local_otp_device_id;
     otp_ctrl_pkg::otp_keymgr_key_t   local_otp_key;
     flash_ctrl_pkg::keymgr_flash_t   local_flash;
+    rom_ctrl_pkg::keymgr_data_t      local_rom_digest;
 
     // async delay as these signals are from different clock domain
     #($urandom_range(1000, 0) * 1ns);
@@ -128,6 +180,10 @@ interface keymgr_if(input clk, input rst_n);
                                          !(local_flash.seeds[i] inside {0, '1});
                                        }, , msg_id)
 
+    `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_rom_digest,
+                                       local_rom_digest.valid == 1;
+                                       !(local_rom_digest.data inside {0, '1});, , msg_id)
+
     // make HW input to be all 0s or 1s
     repeat (num_invalid_input) begin
       randcase
@@ -140,8 +196,12 @@ interface keymgr_if(input clk, input rst_n);
                                              local_otp_device_id inside {0, '1};, , msg_id)
         end
         1: begin
+           `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_otp_key,
+                                              !local_otp_key.valid;, , msg_id)
+         end
+        1: begin
           `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_otp_key,
-                                             local_otp_key.valid == 1; // TODO this is tie to 1
+                                             local_otp_key.valid;
                                              local_otp_key.key_share0 inside {0, '1} ||
                                              local_otp_key.key_share1 inside {0, '1};, , msg_id)
         end
@@ -150,13 +210,23 @@ interface keymgr_if(input clk, input rst_n);
           `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_flash,
                                              local_flash.seeds[idx] inside {0, '1};, , msg_id)
         end
+        1: begin
+          `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_rom_digest,
+                                             !local_rom_digest.valid;, , msg_id)
+        end
+        1: begin
+          `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(local_rom_digest,
+                                             local_rom_digest.valid == 1;
+                                             local_rom_digest.data inside {0, '1};, , msg_id)
+        end
       endcase
     end
 
     keymgr_div = local_keymgr_div;
-    otp_hw_cfg.data.device_id = local_otp_device_id;
+    otp_device_id = local_otp_device_id;
     otp_key = local_otp_key;
     flash   = local_flash;
+    rom_digest = local_rom_digest;
   endtask
 
   // update kmac key for comparison during KDF
@@ -164,54 +234,119 @@ interface keymgr_if(input clk, input rst_n);
                                          keymgr_pkg::keymgr_working_state_e state,
                                          bit good_key = 1);
 
-    kmac_key_exp <= '{1'b1, key_shares[0], key_shares[1]};
-    is_kmac_key_good = good_key;
+    kmac_key_exp <= '{1'b1, key_shares};
+    is_kmac_key_good <= good_key;
   endfunction
 
   // store internal key once it's available and use to compare if future OP is invalid
   function automatic void store_internal_key(keymgr_env_pkg::key_shares_t key_shares,
-                                             keymgr_pkg::keymgr_working_state_e state);
+                                             keymgr_pkg::keymgr_working_state_e state,
+                                             keymgr_cdi_type_e cdi_type);
 
-    keys_a_array[state.name]["Internal"] = key_shares;
+    keys_a_array[state][cdi_type]["Internal"] = key_shares;
   endfunction
 
   // update sideload key for comparison
   // if it's good key, store it to compare for future invalid OP
-  function automatic void update_sideload_key(keymgr_env_pkg::key_shares_t key_shares,
+  function automatic void update_sideload_key(keymgr_env_pkg::kmac_digests_t key_shares,
                                               keymgr_pkg::keymgr_working_state_e state,
-                                              keymgr_pkg::keymgr_key_dest_e dest = keymgr_pkg::Kmac,
-                                              bit good_key = 1);
+                                              keymgr_cdi_type_e cdi_type,
+                                              keymgr_pkg::keymgr_key_dest_e dest = keymgr_pkg::Kmac
+                                              );
+    keymgr_env_pkg::key_shares_t trun_key_shares = {key_shares[1][keymgr_pkg::KeyWidth-1:0],
+                                                    key_shares[0][keymgr_pkg::KeyWidth-1:0]};
     case (dest)
       keymgr_pkg::Kmac: begin
-        kmac_key_exp             <= '{1'b1, key_shares[0], key_shares[1]};
-        is_kmac_key_good         <= good_key;
-        is_kmac_sideload_avail   <= 1;
-        kmac_sideload_key_shares <= key_shares;
-      end
-      keymgr_pkg::Hmac: begin
-        hmac_key_exp     <= '{1'b1, key_shares[0], key_shares[1]};
-        is_hmac_key_good <= good_key;
+        if (kmac_sideload_status != SideLoadClear) begin
+          kmac_sideload_status     <= SideLoadAvail;
+          kmac_key_exp             <= '{1'b1, trun_key_shares};
+          is_kmac_key_good         <= 1;
+          kmac_sideload_key_shares <= trun_key_shares;
+        end
       end
       keymgr_pkg::Aes: begin
-        aes_key_exp     <= '{1'b1, key_shares[0], key_shares[1]};
-        is_aes_key_good <= good_key;
+        if (aes_sideload_status != SideLoadClear) begin
+          aes_key_exp         <= '{1'b1, trun_key_shares};
+          aes_sideload_status <= SideLoadAvail;
+        end
+      end
+      keymgr_pkg::Otbn: begin
+        if (otbn_sideload_status != SideLoadClear) begin
+          // only otbn uses full 384 bits digest data
+          otbn_key_exp         <= '{1'b1, key_shares};
+          otbn_sideload_status <= SideLoadAvail;
+        end
       end
       default: `uvm_fatal("keymgr_if", $sformatf("Unexpect dest type %0s", dest.name))
     endcase
 
-    if (good_key) keys_a_array[state.name][dest.name]  = key_shares;
+    keys_a_array[state][cdi_type][dest.name] = trun_key_shares;
+  endfunction
+
+  function automatic void clear_sideload_key(bit[2:0] clear_dest);
+    // reset from Clear to NotAvail
+    if (kmac_sideload_status == SideLoadClear) kmac_sideload_status <= SideLoadNotAvail;
+    if (aes_sideload_status == SideLoadClear)  aes_sideload_status  <= SideLoadNotAvail;
+    if (otbn_sideload_status == SideLoadClear) otbn_sideload_status <= SideLoadNotAvail;
+    case (clear_dest)
+      keymgr_pkg::SideLoadClrIdle: ; // do nothing
+      keymgr_pkg::SideLoadClrAes, keymgr_pkg::SideLoadClrKmac, keymgr_pkg::SideLoadClrOtbn: begin
+        clear_one_sideload_key(clear_dest);
+      end
+      // clear all
+      default: begin
+        clear_one_sideload_key(keymgr_pkg::SideLoadClrAes);
+        clear_one_sideload_key(keymgr_pkg::SideLoadClrKmac);
+        clear_one_sideload_key(keymgr_pkg::SideLoadClrOtbn);
+      end
+    endcase
+  endfunction
+
+  function automatic void clear_one_sideload_key(keymgr_pkg::keymgr_sideload_clr_e clear_dest);
+    case (clear_dest)
+      keymgr_pkg::SideLoadClrAes: begin
+        aes_sideload_status <= SideLoadClear;
+        aes_key_exp.valid <= 0;
+      end
+      keymgr_pkg::SideLoadClrKmac: begin
+        is_kmac_key_good <= 0;
+        kmac_key_exp.valid <= 0;
+        kmac_sideload_status <= SideLoadClear;
+      end
+      keymgr_pkg::SideLoadClrOtbn: begin
+        otbn_sideload_status <= SideLoadClear;
+        otbn_key_exp.valid <= 0;
+      end
+      default: begin
+        `uvm_fatal(msg_id, $sformatf("Unexpected clear_dest %0d", clear_dest))
+      end
+    endcase
   endfunction
 
   function automatic bit get_keymgr_en();
     return keymgr_en_sync2 === lc_ctrl_pkg::On;
   endfunction
 
+  function automatic void wipe_sideload_keys();
+    is_kmac_key_good <= 0;
+
+    aes_key_exp.valid  <= 0;
+    kmac_key_exp.valid <= 0;
+    otbn_key_exp.valid <= 0;
+
+    aes_sideload_status  <= SideLoadClear;
+    kmac_sideload_status <= SideLoadClear;
+    otbn_sideload_status <= SideLoadClear;
+  endfunction
+
+  // TODO, create a more generic approach to verify sec_cm
   task automatic force_cmd_err();
     @(posedge clk);
     randcase
       // force more than one force_cmds are issued
-      // TODO disable this case due to design issue #5363
-      0: begin
+      1: begin
+        `uvm_info(msg_id, "Force cmd", UVM_LOW)
+        prev_cmds = {tb.dut.u_ctrl.gen_en_o, tb.dut.u_ctrl.id_en_o, tb.dut.u_ctrl.adv_en_o};
         `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(force_cmds, $countones(force_cmds) > 1;, , msg_id)
 
         // these signals are wires, need force and then release at reset
@@ -219,20 +354,99 @@ interface keymgr_if(input clk, input rst_n);
         if (force_cmds[1]) force tb.dut.u_ctrl.id_en_o  = 1;
         if (force_cmds[2]) force tb.dut.u_ctrl.gen_en_o = 1;
         @(posedge clk);
+
+        if ($urandom_range(0, 1)) begin
+          if (force_cmds[0]) force tb.dut.u_ctrl.adv_en_o = prev_cmds[0];
+          if (force_cmds[1]) force tb.dut.u_ctrl.id_en_o  = prev_cmds[1];
+          if (force_cmds[2]) force tb.dut.u_ctrl.gen_en_o = prev_cmds[2];
+          @(posedge clk);
+        end
+
         if (force_cmds[0]) release tb.dut.u_ctrl.adv_en_o;
         if (force_cmds[1]) release tb.dut.u_ctrl.id_en_o;
         if (force_cmds[2]) release tb.dut.u_ctrl.gen_en_o;
         is_cmd_err = 1;
       end
       1: begin
-        // Dynamic type in non-procedural context isn't allowed
-        static reg [2:0] invalid_state;
-        // 0-4 are illegal state
-        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(invalid_state, invalid_state > 4;, , msg_id)
+        `uvm_info(msg_id, "Force KMC_IF FSM", UVM_LOW)
+        prev_state = tb.dut.u_kmac_if.state_q;
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(invalid_state,
+            !(invalid_state inside {KmacIfValidStates});,
+            , msg_id)
+
         force tb.dut.u_kmac_if.state_q = invalid_state;
         @(posedge clk);
+
+        if ($urandom_range(0, 1)) begin
+          force tb.dut.u_kmac_if.state_q = prev_state;
+          @(posedge clk);
+        end
         release tb.dut.u_kmac_if.state_q;
-        is_fsm_err = 1;
+        is_kmac_if_fsm_err = 1;
+      end
+      1: begin
+        `uvm_info(msg_id, "Force KMC_IF cnt", UVM_LOW)
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(kmac_if_invalid_cnt,
+            kmac_if_invalid_cnt inside {[1 : 16]};,
+            , msg_id)
+        // wait for cnt to match a the picked value
+        cnt_to_wait_for_internal_value = 0;
+        while (1) begin
+          @(negedge clk);
+          if (tb.dut.u_kmac_if.u_cnt.up_cnt_q == kmac_if_invalid_cnt) begin
+            break;
+          end else if (cnt_to_wait_for_internal_value < MaxWaitCycle) begin
+            cnt_to_wait_for_internal_value++;
+          end else begin
+            return;
+          end
+        end
+
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(kmac_if_invalid_cnt,
+            kmac_if_invalid_cnt != tb.dut.u_kmac_if.u_cnt.up_cnt_q;,
+            , msg_id)
+        $deposit(tb.dut.u_kmac_if.u_cnt.up_cnt_q, kmac_if_invalid_cnt);
+        @(posedge clk);
+        if ($urandom_range(0, 1)) begin
+          @(negedge clk);
+          $deposit(tb.dut.u_kmac_if.u_cnt.up_cnt_q, kmac_if_invalid_cnt + 1);
+          @(posedge clk);
+        end
+        is_kmac_if_cnt_err = 1;
+      end
+      1: begin
+        `uvm_info(msg_id, "Force ctrl FSM", UVM_LOW)
+        prev_state = tb.dut.u_ctrl.state_q;
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(invalid_state,
+            !(invalid_state inside {CtrlValidStates});,
+            , msg_id)
+
+        force tb.dut.u_ctrl.state_q = invalid_state;
+        @(posedge clk);
+
+        if ($urandom_range(0, 1)) begin
+          force tb.dut.u_ctrl.state_q = prev_state;
+          @(posedge clk);
+        end
+        release tb.dut.u_ctrl.state_q;
+        is_ctrl_fsm_err = 1;
+      end
+      1: begin
+        `uvm_info(msg_id, "Force ctrl cnt", UVM_LOW)
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(cnt_copies,
+            cnt_copies[0] != cnt_copies[1];,
+            , msg_id)
+        $deposit(tb.dut.u_ctrl.u_cnt.up_cnt_q, cnt_copies);
+        @(posedge clk);
+        if ($urandom_range(0, 1)) begin
+          @(negedge clk);
+          `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(cnt_copies,
+              cnt_copies[0] == cnt_copies[1];,
+              , msg_id)
+          $deposit(tb.dut.u_ctrl.u_cnt.up_cnt_q, cnt_copies);
+          @(posedge clk);
+        end
+        is_ctrl_cnt_err = 1;
       end
     endcase
   endtask
@@ -254,11 +468,12 @@ interface keymgr_if(input clk, input rst_n);
     forever begin
       @(posedge clk);
       if (kmac_data_rsp.done) begin
-        if (is_kmac_sideload_avail) begin
-          kmac_key_exp <= '{1'b1, kmac_sideload_key_shares[0], kmac_sideload_key_shares[1]};
+        if (kmac_sideload_status == SideLoadAvail) begin
+          kmac_key_exp <= '{1'b1, kmac_sideload_key_shares};
           is_kmac_key_good <= 1;
         end else begin
           kmac_key_exp.valid <= 0;
+          is_kmac_key_good   <= 0;
         end
       end // kmac_data_rsp.done
     end // forever
@@ -268,43 +483,58 @@ interface keymgr_if(input clk, input rst_n);
   initial begin
     fork
       forever begin
-        @(posedge clk);
+        @(kmac_key or is_kmac_key_good);
+        // one cycle to sync with clock, one cycle to allow design to clear the key
+        repeat (2) @(posedge clk);
         if (!is_kmac_key_good) check_invalid_key(kmac_key, "KMAC");
       end
       forever begin
-        @(posedge clk);
-        if (!is_hmac_key_good) check_invalid_key(hmac_key, "HMAC");
+        @(aes_key or aes_sideload_status);
+        // one cycle to sync with clock, one cycle to allow design to clear the key
+        repeat (2) @(posedge clk);
+        if (aes_sideload_status != SideLoadAvail) check_invalid_key(aes_key, "AES");
       end
       forever begin
-        @(posedge clk);
-        if (!is_aes_key_good) check_invalid_key(aes_key, "AES");
+        @(otbn_key or otbn_sideload_status);
+        // one cycle to sync with clock, one cycle to allow design to clear the key
+        repeat (2) @(posedge clk);
+        if (otbn_sideload_status != SideLoadAvail) check_invalid_key(otbn_key, "OTBN");
       end
     join
   end
 
   function automatic void check_invalid_key(keymgr_pkg::hw_key_req_t act_key, string key_name);
-    if (rst_n && act_key.valid && !is_cmd_err && !is_fsm_err) begin
-      foreach (keys_a_array[i, j]) begin
-        `DV_CHECK_NE({act_key.key_share1, act_key.key_share0}, keys_a_array[i][j],
-            $sformatf("%s key at state %s from %s", key_name, i, j), , msg_id)
+    if (rst_n && act_key.valid && en_chk) begin
+      foreach (keys_a_array[state, cdi, dest]) begin
+        `DV_CHECK_CASE_NE({act_key.key[1], act_key.key[0]}, keys_a_array[state][cdi][dest],
+            $sformatf("%s key at state %s for %s %s", key_name, state.name, cdi.name, dest), ,
+            msg_id)
+        // once key is wiped, 2 shares will be wiped to different values
+        `DV_CHECK_CASE_NE(act_key.key[1], act_key.key[0],
+            $sformatf("%s key at state %s for %s %s", key_name, state.name, cdi.name, dest), ,
+            msg_id)
       end
     end
   endfunction
 
-  `define KM_ASSERT(NAME, SEQ) \
-    `ASSERT(NAME, SEQ, clk, !rst_n || keymgr_en_sync2 != lc_ctrl_pkg::On || is_cmd_err || \
-           is_fsm_err)
+  // Create a macro to skip checking key values when LC is off or fault error occurs
+  `define ASSERT_IFF_KEYMGR_LEGAL(NAME, SEQ) \
+    `ASSERT(NAME, SEQ, clk, !rst_n || keymgr_en_sync2 != lc_ctrl_pkg::On || !en_chk)
 
-  `KM_ASSERT(CheckKmacKey, is_kmac_key_good && kmac_key_exp.valid -> kmac_key == kmac_key_exp)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckKmacKey, is_kmac_key_good && kmac_key_exp.valid ->
+                           kmac_key == kmac_key_exp)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckKmacKeyValid, is_kmac_key_good ->
+                           kmac_key_exp.valid == kmac_key.valid)
 
-  `KM_ASSERT(CheckKmacKeyValid, kmac_key_exp.valid == kmac_key.valid)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckAesKey, aes_sideload_status == SideLoadAvail && aes_key_exp.valid ->
+                           aes_key == aes_key_exp)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckAesKeyValid, aes_sideload_status != SideLoadClear ->
+                           aes_key_exp.valid == aes_key.valid)
 
-  // TODO update hmac and aes checker later
-  //`KM_ASSERT(HmacKeyStable, $stable(hmac_key_exp) |=> $stable(hmac_key))
-  //`KM_ASSERT(HmacKeyUpdate, !$stable(hmac_key_exp) |=> hmac_key == hmac_key_exp)
-
-  //`KM_ASSERT(AesKeyStable, $stable(aes_key_exp) |=> $stable(aes_key))
-  //`KM_ASSERT(AesKeyUpdate, !$stable(aes_key_exp) |=> aes_key == aes_key_exp)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckOtbnKey, otbn_sideload_status == SideLoadAvail && otbn_key_exp.valid
+                           -> otbn_key == otbn_key_exp)
+  `ASSERT_IFF_KEYMGR_LEGAL(CheckOtbnKeyValid, otbn_sideload_status != SideLoadClear ->
+                           otbn_key_exp.valid == otbn_key.valid)
 
   // for EDN assertion
   // sync req/ack to core clk domain
@@ -360,10 +590,10 @@ interface keymgr_if(input clk, input rst_n);
   // consider async handshaking and a few cycles to start the req. allow no more than 20 tolerance
   // error on the cnt
   `ASSERT(CheckEdn1stReq, $rose(edn_req_sync) && edn_req_cnt == 0 && start_edn_req |->
-          edn_wait_cnt - edn_interval < 20, clk, !rst_n)
+          (edn_wait_cnt > edn_interval) && (edn_wait_cnt - edn_interval < 20), clk, !rst_n)
 
-  `ASSERT(CheckEdn2ndReq, $fell(edn_req_sync) && edn_req_cnt == 1 |-> edn_wait_cnt < 20,
+  `ASSERT(CheckEdn2ndReq, $rose(edn_req_sync) && edn_req_cnt == 1 |-> edn_wait_cnt < 20,
           clk, !rst_n)
 
-  `undef KM_ASSERT
+  `undef ASSERT_IFF_KEYMGR_LEGAL
 endinterface

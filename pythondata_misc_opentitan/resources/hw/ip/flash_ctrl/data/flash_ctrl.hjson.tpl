@@ -3,22 +3,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 <%
-  page_width = (cfg['pages_per_bank']-1).bit_length()
-  bank_width = (cfg['banks']-1).bit_length()
-  total_pages = cfg['banks']*cfg['pages_per_bank']
-  bytes_per_page = cfg['words_per_page']*cfg['data_width'] / 8
+  page_width = (cfg.pages_per_bank-1).bit_length()
+  bank_width = (cfg.banks-1).bit_length()
+  total_pages = cfg.banks * cfg.pages_per_bank
+  bytes_per_page = cfg.words_per_page * cfg.word_bytes
   total_byte_width = int(total_pages*bytes_per_page-1).bit_length()
-  info_type_width = (cfg['info_types']-1).bit_length()
+  info_type_width = (cfg.info_types-1).bit_length()
 %>
 
 { name: "FLASH_CTRL",
-  clock_primary: "clk_i",
-  other_clock_list: [ "clk_otp_i" ],
-  reset_primary: "rst_ni",
-  other_reset_list: [ "rst_otp_ni" ],
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {clock: "clk_otp_i", reset: "rst_otp_ni"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device", name: "core" }
     { protocol: "tlul", direction: "device", name: "prim" }
+    { protocol: "tlul", direction: "device", name: "mem" }
   ],
   available_input_list: [
     { name: "tck", desc: "jtag clock" },
@@ -34,38 +35,71 @@
     { name: "rd_full",    desc: "Read FIFO full" },
     { name: "rd_lvl",     desc: "Read FIFO filled to level" },
     { name: "op_done",    desc: "Operation complete" },
-    { name: "err",        desc: "Error encountered"},
+    { name: "corr_err",   desc: "Correctable error encountered"},
   ],
 
   alert_list: [
     { name: "recov_err",
-      desc: "flash alerts directly from prim_flash",
+      desc: "flash recoverable errors",
     },
-    { name: "recov_mp_err",
-      desc: "recoverable flash alert for permission error"
-    },
-    { name: "recov_ecc_err",
-      desc: "recoverable flash alert for ecc error"
-    },
-    { name: "fatal_intg_err",
-      desc: "Fatal integrity error"
+    { name: "fatal_err",
+      desc: "flash fatal errors"
     },
   ],
 
   // Define flash_ctrl <-> flash_phy struct package
   inter_signal_list: [
-    { struct:  "flash",          // flash_req_t, flash_rsp_t
-      type:    "req_rsp",
-      name:    "flash",          // flash_o (req), flash_i (rsp)
-      act:     "req",
-      package: "flash_ctrl_pkg", // Origin package (only needs for the requester)
-    },
-
     { struct: "flash_otp_key",
       type: "req_rsp",
       name: "otp",
       act:  "req",
       package: "otp_ctrl_pkg"
+    },
+
+    { struct: "lc_tx",
+      package: "lc_ctrl_pkg",
+      type: "uni"
+      act: "rcv"
+      name: "lc_nvm_debug_en"
+    },
+
+    { struct: "lc_tx"
+      package: "lc_ctrl_pkg"
+      type: "uni"
+      act: "rcv"
+      name: "flash_bist_enable"
+    },
+
+    { struct: "logic"
+      package: ""
+      type: "uni"
+      act: "rcv"
+      name: "flash_power_down_h"
+    },
+    { struct: "logic"
+      package: ""
+      type: "uni"
+      act: "rcv"
+      name: "flash_power_ready_h"
+    },
+    { struct: "",
+      package: "",
+      width: "2",
+      type: "io"
+      act: "none"
+      name: "flash_test_mode_a"
+    },
+    { struct: "",
+      package: "",
+      type: "io"
+      act: "none"
+      name: "flash_test_voltage_h"
+    },
+    { struct: "ast_dif",
+      package: "ast_pkg",
+      type: "uni"
+      act: "req"
+      name: "flash_alert"
     },
 
     { struct:  "lc_tx"
@@ -101,7 +135,14 @@
       name:    "lc_seed_hw_rd_en"
       act:     "rcv"
       package: "lc_ctrl_pkg"
-    }
+    },
+
+    { struct:  "lc_tx"
+      type:    "uni"
+      name:    "lc_escalate_en"
+      act:     "rcv"
+      package: "lc_ctrl_pkg"
+    },
 
     { struct:  "lc_tx"
       type:    "uni"
@@ -125,9 +166,9 @@
     },
 
     { struct: "pwr_flash",
-      type: "req_rsp",
+      type: "uni",
       name: "pwrmgr",
-      act:  "rsp",
+      act:  "req",
       package: "pwrmgr_pkg"
     },
 
@@ -140,6 +181,9 @@
 
   ],
 
+  scan: "true",       // Enable `scanmode_i` port
+  scan_en: "true",    // Enable `scan_en_i` port
+  scan_reset: "true", // Enable `scan_rst_ni` port
   param_list: [
     // The reg parameters can be modified directly through top_*.hjson.
     // The template will automatically propagate the appropriate values.
@@ -173,21 +217,21 @@
     { name: "RegNumBanks",
       desc: "Number of flash banks",
       type: "int",
-      default: "${cfg['banks']}",
+      default: "${cfg.banks}",
       local: "true"
     },
 
     { name: "RegPagesPerBank",
       desc: "Number of pages per bank",
       type: "int",
-      default: "${cfg['pages_per_bank']}",
+      default: "${cfg.pages_per_bank}",
       local: "true"
     },
 
     { name: "RegBusPgmResBytes",
       desc: "Number of pages per bank",
       type: "int",
-      default: "${cfg['pgm_resolution_bytes']}",
+      default: "${cfg.pgm_resolution_bytes}",
       local: "true"
     },
 
@@ -214,11 +258,11 @@
 
     // The following parameters are derived from topgen and should not be
     // direclty modified.
-    % for type in range(cfg['info_types']):
+    % for type in range(cfg.info_types):
     { name: "NumInfos${type}",
       desc: "Number of configurable flash info pages for info type ${type}",
       type: "int",
-      default: "${cfg['infos_per_bank'][type]}",
+      default: "${cfg.infos_per_bank[type]}",
       local: "true"
     },
     % endfor
@@ -226,39 +270,73 @@
     { name: "WordsPerPage",
       desc: "Number of words per page",
       type: "int",
-      default: "${cfg['words_per_page']}",
+      default: "${cfg.words_per_page}",
       local: "true"
     },
 
     { name: "BytesPerWord",
       desc: "Number of bytes per word",
       type: "int",
-      default: "${cfg['data_width'] // 8}",
+      default: "${cfg.word_bytes}",
       local: "true"
     },
 
     { name: "BytesPerPage",
       desc: "Number of bytes per page",
       type: "int",
-      default: "${cfg['data_width'] // 8 * cfg['words_per_page']}",
+      default: "${cfg.bytes_per_page}",
       local: "true"
     },
 
     { name: "BytesPerBank",
       desc: "Number of bytes per bank",
       type: "int",
-      default: "${int(cfg['size'],0) // cfg['banks']}",
+      default: "${cfg.bytes_per_bank}",
       local: "true"
     },
-
-
-
-
   ],
 
   regwidth: "32",
   registers: {
     core: [
+      { name: "FLASH_DISABLE",
+        desc: "Disable flash functionality",
+        swaccess: "rw1s",
+        hwaccess: "hro",
+        fields: [
+          { bits: "0",
+            name: "VAL",
+            desc: '''
+               Disables flash functionality completely.
+               This is a shortcut mechanism used by the software to completely
+               kill flash in case of emergency.
+              '''
+            resval: "0"
+            tags: [// Dont touch disable, it has several side effects on the system
+                   "excl:CsrAllTests:CsrExclWrite"],
+          },
+        ]
+      },
+
+      { name: "INIT",
+        desc: "Controller init register",
+        swaccess: "rw1s",
+        hwaccess: "hro",
+        fields: [
+          { bits: "0",
+            name: "VAL",
+            desc: '''
+              Initializes the flash controller.
+              During the initialization process, the flash controller reads out the root seeds
+              before allowing other usage of the flash controller.
+              '''
+            resval: "0"
+            tags: [// Dont init flash, it has several side effects on the status bits
+                   "excl:CsrAllTests:CsrExclWrite"],
+          },
+        ]
+      },
+
       { name: "CTRL_REGWEN",
         swaccess: "ro",
         hwaccess: "hwo",
@@ -514,13 +592,16 @@
 
       { multireg: {
           cname: "FLASH_CTRL",
-          name: "MP_REGION_CFG",
+          name: "MP_REGION_CFG_SHADOWED",
           desc: "Memory property configuration for data partition",
           count: "NumRegions",
           swaccess: "rw",
           hwaccess: "hro",
           regwen: "REGION_CFG_REGWEN",
           regwen_multi: true,
+          shadowed: "true",
+          update_err_alert: "recov_err",
+          storage_err_alert: "fatal_err",
           fields: [
               { bits: "0",
                 name: "EN",
@@ -590,10 +671,13 @@
       },
 
       // Default region properties for data partition
-      { name: "DEFAULT_REGION",
+      { name: "DEFAULT_REGION_SHADOWED",
         desc: "Default region properties",
         swaccess: "rw",
         hwaccess: "hro",
+        shadowed: "true",
+        update_err_alert: "recov_err",
+        storage_err_alert: "fatal_err",
         resval: "0",
         fields: [
           { bits: "0",
@@ -642,8 +726,8 @@
       },
 
       // Info partition memory properties setup
-      % for bank in range(cfg['banks']):
-      %   for idx in range(cfg['info_types']):
+      % for bank in range(cfg.banks):
+      %   for idx in range(cfg.info_types):
       { multireg: {
           cname: "FLASH_CTRL",
           name: "BANK${bank}_INFO${idx}_REGWEN"
@@ -678,7 +762,7 @@
 
       { multireg: {
           cname: "FLASH_CTRL",
-          name: "BANK${bank}_INFO${idx}_PAGE_CFG",
+          name: "BANK${bank}_INFO${idx}_PAGE_CFG_SHADOWED",
           desc: '''
                   Memory property configuration for info partition in bank${bank},
                   Unlike data partition, each page is individually configured.
@@ -688,6 +772,9 @@
           hwaccess: "hro",
           regwen: "BANK${bank}_INFO${idx}_REGWEN",
           regwen_multi: true,
+          shadowed: "true",
+          update_err_alert: "recov_err",
+          storage_err_alert: "fatal_err",
           fields: [
               { bits: "0",
                 name: "EN",
@@ -773,12 +860,15 @@
 
       { multireg: {
           cname: "FLASH_CTRL",
-          name: "MP_BANK_CFG",
+          name: "MP_BANK_CFG_SHADOWED",
           desc: "Memory properties bank configuration",
           count: "RegNumBanks",
           swaccess: "rw",
           hwaccess: "hro",
-          regwen: "BANK_CFG_REGWEN"
+          regwen: "BANK_CFG_REGWEN",
+          shadowed: "true",
+          update_err_alert: "recov_err",
+          storage_err_alert: "fatal_err",
           fields: [
               { bits: "0",
                 name: "ERASE_EN",
@@ -816,149 +906,191 @@
         ]
       },
 
-      { name: "ERR_CODE_INTR_EN",
-        desc: '''
-          Interrupt enable mask for error code.
-          Only enabled bits will generate interrupts.
-          Bits that are not enabled will still be reflected in the !!ERR_CODE register, but will not trigger
-          an interrupt
-        '''
-        swaccess: "rw",
-        hwaccess: "hro",
-        fields: [
-          { bits: "0",
-            name: "flash_err_en",
-            desc: "interrupt mask for flash error"
-          },
-          { bits: "1",
-            name: "flash_alert_en",
-            desc: "interrupt mask for flash alert"
-          },
-          { bits: "2",
-            name: "mp_err",
-            desc: "interrupt mask for memory properties error"
-          },
-          { bits: "3",
-            name: "ecc_single_err",
-            desc: "interrupt mask for single bit ecc error"
-          },
-          { bits: "4",
-            name: "ecc_multi_err",
-            desc: "interrupt mask for multiple bits ecc error"
-          },
-        ]
-      },
-
       { name: "ERR_CODE",
         desc: '''
           Flash error code register.
           This register tabulates detailed error status of the flash.
           This is separate from !!OP_STATUS, which is used to indicate the current state of the software initiated
           flash operation.
+
+          Note, all errors in this register are considered recoverable errors, ie, errors that could have been
+          generated by software.
         '''
         swaccess: "rw1c",
-        hwaccess: "hrw",
+        hwaccess: "hwo",
         fields: [
           { bits: "0",
-            name: "flash_err",
+            name: "oob_err",
             desc: '''
-              The flash memory itself has an error, please check the vendor specs for details of the error.
+              The supplied address !!ADDR is invalid and out of bounds.
+              This is a synchronous error.
             '''
           },
           { bits: "1",
-            name: "flash_alert",
-            desc: '''
-              The flash memory itself has triggered an alert, please check the vendor specs for details of the error.
-            '''
-          },
-          { bits: "2",
             name: "mp_err",
             desc: '''
               Flash access has encountered an access permission error.
               Please see !!ERR_ADDR for exact address.
+              This is a synchronous error.
+            '''
+          },
+          { bits: "2",
+            name: "rd_err",
+            desc: '''
+              Flash read has an uncorrectable data error.
+              Please see !!ERR_ADDR for exact address.
+              This is a synchronous error.
             '''
           },
           { bits: "3",
-            name: "ecc_single_err",
+            name: "prog_win_err",
             desc: '''
-              Flash access has encountered a single bit ECC error.
-              Please see !!ECC_SINGLE_ERR_ADDR for exact address.
+              Flash program has a window resolution error.  Ie, the start of program
+              and end of program are in different windows.  Please check !!ADDR.
+              This is a synchronous error.
             '''
           },
           { bits: "4",
-            name: "ecc_multi_err",
+            name: "prog_type_err",
             desc: '''
-              Flash access has encountered a multi bit ECC error.
-              Please see !!ECC_MULTI_ERR_ADDR for exact address.
+              Flash program selected unavailable type, see !!PROG_TYPE_EN.
+              This is a synchronous error.
+            '''
+          },
+          { bits: "5",
+            name: "flash_phy_err",
+            desc: '''
+              The flash access encountered a native flash error.
+              Please check the vendor specs for details of the error.
+              This is a synchronous error.
+            '''
+          },
+          { bits: "6",
+            name: "update_err",
+            desc: '''
+              A shadow register encountered an update error.
+            '''
+          },
+        ]
+      },
+
+      { name: "FAULT_STATUS",
+        desc: '''
+          Flash fault status register.
+          This register tabulates detailed fault status of the flash.
+
+          These are errors that are impossible to have been caused by software or unrecoverable
+          in nature.
+        '''
+        swaccess: "ro",
+        hwaccess: "hrw",
+        fields: [
+          { bits: "0",
+            name: "oob_err",
+            desc: '''
+              The flash hardware interface supplied an out of bound value.
+            '''
+          },
+          { bits: "1",
+            name: "mp_err",
+            desc: '''
+              The flash hardware interface encountered a memory permission error.
+            '''
+          },
+          { bits: "2",
+            name: "rd_err",
+            desc: '''
+              The flash hardware interface encountered a read data error.
+            '''
+          },
+          { bits: "3",
+            name: "prog_win_err",
+            desc: '''
+              The flash hardware interface encountered a program resolution error.
+            '''
+          },
+          { bits: "4",
+            name: "prog_type_err",
+            desc: '''
+              The flash hardware interface encountered a program type error.
+            '''
+          },
+          { bits: "5",
+            name: "flash_phy_err",
+            desc: '''
+              The flash hardware interface encountered a native flash error.
+            '''
+          },
+          { bits: "6",
+            name: "reg_intg_err",
+            desc: '''
+              The flash controller encountered a register integrity error.
+            '''
+          },
+          { bits: "7",
+            name: "phy_intg_err",
+            desc: '''
+              The flash memory encountered a register integrity error.
+            '''
+          },
+          { bits: "8",
+            name: "lcmgr_err",
+            desc: '''
+              The life cycle management interface has encountered a fatal error.
+              There is an error with the RMA state machine or counts.
+              '''
+          },
+          { bits: "9",
+            name: "storage_err",
+            desc: '''
+              A shadow register encountered a storage fault.
             '''
           },
         ]
       },
 
       { name: "ERR_ADDR",
-        desc: "Access permission error address",
+        desc: "Synchronous error address",
         swaccess: "ro",
         hwaccess: "hwo",
         fields: [
-          { bits: "${bank_width + page_width -1}:0",
-            resval: 0,
-          },
-        ]
-      },
-
-      { name: "ECC_SINGLE_ERR_CNT",
-        desc: "Total number of single bit ECC error count",
-        swaccess: "rw1c",
-        hwaccess: "hrw",
-        fields: [
-          { bits: "7:0",
-            desc: "This count will not wrap when saturated",
+          { bits: "31:0",
             resval: 0,
           },
         ]
       },
 
       { multireg: {
-          cname: "ECC_SINGLE_ERR"
+          cname: "ECC_SINGLE_ERR",
+          name: "ECC_SINGLE_ERR_CNT",
+          desc: "Total number of single bit ECC error count",
+          count: "RegNumBanks",
+          swaccess: "rw",
+          hwaccess: "hrw",
+          fields: [
+            { bits: "7:0",
+              desc: "This count will not wrap when saturated",
+              resval: 0,
+            },
+          ]
+        }
+      },
+
+      { multireg: {
+          cname: "ECC_SINGLE_ERR",
           name: "ECC_SINGLE_ERR_ADDR",
-          desc: "Latest single bit error address (correctable)",
+          desc: "Latest address of ECC single err",
           count: "RegNumBanks",
           swaccess: "ro",
           hwaccess: "hwo",
           fields: [
             { bits: "${total_byte_width-1}:0",
+              desc: "Latest single error address for this bank",
               resval: 0,
             },
           ]
         }
-      },
-
-      { name: "ECC_MULTI_ERR_CNT",
-        desc: "Total number of multi bit ECC error count",
-        swaccess: "rw1c",
-        hwaccess: "hrw",
-        fields: [
-          { bits: "7:0",
-            desc: "This count will not wrap when saturated",
-            resval: 0,
-          },
-        ]
-      },
-
-      { multireg: {
-          cname: "ECC_MULTI_ERR"
-          name: "ECC_MULTI_ERR_ADDR",
-          desc: "Latest multi bit error address (uncorrectable)",
-          count: "RegNumBanks",
-          swaccess: "ro",
-          hwaccess: "hwo",
-          fields: [
-            { bits: "${total_byte_width-1}:0",
-              resval: 0,
-            },
-          ]
-        }
-      },
+      }
 
       { name: "PHY_ERR_CFG_REGWEN",
         swaccess: "rw0c",
@@ -1131,21 +1263,7 @@
       },
     ],
 
-    prim: [
-//      { name: "DUMMY",
-//        desc: "Dummy unused register",
-//        swaccess: "rw",
-//        hwaccess: "hro",
-//        fields: [
-//          { bits: "0",
-//            name: "VAL",
-//            desc: '''
-//              Nothing to see here, move along
-//            '''
-//            resval: "0"
-//          },
-//        ]
-//      }
-    ]
+    prim: []
+    mem: []
   }
 }

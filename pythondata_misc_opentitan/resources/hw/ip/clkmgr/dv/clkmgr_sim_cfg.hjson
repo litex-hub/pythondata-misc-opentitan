@@ -29,9 +29,8 @@
                 "{proj_root}/hw/dv/tools/dvsim/common_sim_cfg.hjson",
                 // Common CIP test lists
                 "{proj_root}/hw/dv/tools/dvsim/tests/csr_tests.hjson",
-                // Disable alert and interrupt tests until RTL adds support.
-                // "{proj_root}/hw/dv/tools/dvsim/tests/intr_test.hjson",
-                // "{proj_root}/hw/dv/tools/dvsim/tests/alert_test.hjson",
+                "{proj_root}/hw/dv/tools/dvsim/tests/intr_test.hjson",
+                "{proj_root}/hw/dv/tools/dvsim/tests/alert_test.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/tl_access_tests.hjson",
                 // Disable stress until the tests are created.
                 // "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"
@@ -56,7 +55,26 @@
       name: clkmgr_smoke
       uvm_test_seq: clkmgr_smoke_vseq
     }
-
+    {
+      name: clkmgr_extclk
+      uvm_test_seq: clkmgr_extclk_vseq
+    }
+    {
+      name: clkmgr_frequency
+      uvm_test_seq: clkmgr_frequency_vseq
+    }
+    {
+      name: clkmgr_peri
+      uvm_test_seq: clkmgr_peri_vseq
+    }
+    {
+      name: clkmgr_trans
+      uvm_test_seq: clkmgr_trans_vseq
+    }
+    {
+      name: clkmgr_clk_status
+      uvm_test_seq: clkmgr_clk_status_vseq
+    }
     // TODO: add more tests here
   ]
 

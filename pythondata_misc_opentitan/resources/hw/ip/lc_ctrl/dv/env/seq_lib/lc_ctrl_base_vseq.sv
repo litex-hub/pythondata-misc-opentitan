@@ -13,12 +13,8 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
   // various knobs to enable certain routines
   bit do_lc_ctrl_init = 1'b1;
 
-  rand lc_ctrl_state_pkg::lc_state_e lc_state;
-  rand lc_ctrl_state_pkg::lc_cnt_e   lc_cnt;
-
-  constraint lc_cnt_c {
-    (lc_state != LcStRaw) -> (lc_cnt != LcCnt0);
-  }
+  lc_ctrl_state_pkg::lc_state_e lc_state;
+  lc_ctrl_state_pkg::lc_cnt_e   lc_cnt;
 
   `uvm_object_new
 
@@ -29,6 +25,11 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
   endtask
 
   virtual task dut_init(string reset_kind = "HARD");
+    // OTP inputs `lc_state` and `lc_cnt` need to be stable before lc_ctrl's reset is deasserted
+    if (do_lc_ctrl_init) begin
+      drive_otp_i();
+      cfg.pwr_lc_vif.drive_pin(LcPwrInitReq, 0);
+    end
     super.dut_init();
     if (do_lc_ctrl_init) lc_ctrl_init();
   endtask
@@ -38,23 +39,28 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
     // TODO
   endtask
 
-  // setup basic lc_ctrl features
-  virtual task lc_ctrl_init(bit rand_otp_i = 1);
-    cfg.pwr_lc_vif.drive_pin(LcPwrInitReq, 1);
+  // Drive OTP input `lc_state` and `lc_cnt`.
+  virtual task drive_otp_i(bit rand_otp_i = 1);
     if (rand_otp_i) begin
-      `DV_CHECK_RANDOMIZE_FATAL(this)
+      `DV_CHECK_STD_RANDOMIZE_FATAL(lc_state)
+      `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(lc_cnt, (lc_state != LcStRaw) -> (lc_cnt != LcCnt0);)
     end else begin
       lc_state = LcStRaw;
       lc_cnt = LcCnt0;
     end
     cfg.lc_ctrl_vif.init(lc_state, lc_cnt);
+  endtask
+
+  // Drive LC init pin.
+  virtual task lc_ctrl_init();
+    cfg.pwr_lc_vif.drive_pin(LcPwrInitReq, 1);
     wait(cfg.pwr_lc_vif.pins[LcPwrDoneRsp] == 1);
     cfg.pwr_lc_vif.drive_pin(LcPwrInitReq, 0);
   endtask
 
   // some registers won't set to default value until otp_init is done
   virtual task read_and_check_all_csrs_after_reset();
-    lc_ctrl_init(0);
+    lc_ctrl_init();
     super.read_and_check_all_csrs_after_reset();
   endtask
 
@@ -97,24 +103,32 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
   endtask
 
   virtual task sw_transition_req(bit [TL_DW-1:0] next_lc_state,
-                                 bit [TL_DW*4-1:0] token_val,
-                                 bit trans_success = 1);
+                                 bit [TL_DW*4-1:0] token_val);
+    bit trigger_alert;
+    bit [TL_DW-1:0] status_val;
     csr_wr(ral.claim_transition_if, CLAIM_TRANS_VAL);
     csr_wr(ral.transition_target, next_lc_state);
-    csr_wr(ral.transition_token_0, token_val[TL_DW-1:0]);
-    csr_wr(ral.transition_token_1, token_val[TL_DW*2-1-:TL_DW]);
-    csr_wr(ral.transition_token_2, token_val[TL_DW*3-1-:TL_DW]);
-    csr_wr(ral.transition_token_3, token_val[TL_DW*4-1-:TL_DW]);
-    csr_wr(ral.transition_cmd, 'h01);
-    if (trans_success) begin
-      csr_spinwait(ral.status.transition_successful, 1);
-    end else begin
-      // TODO: temp support only for otp_error
-      csr_spinwait(ral.status.otp_error, 1);
-      // always on alert, set time delay to make sure alert triggered for at least for one
-      // handshake cycle
-      cfg.clk_rst_vif.wait_clks($urandom_range(20, 50));
+    foreach (ral.transition_token[i]) begin
+      csr_wr(ral.transition_token[i], token_val[TL_DW-1:0]);
+      token_val = token_val >> TL_DW;
     end
+    csr_wr(ral.transition_cmd, 'h01);
+
+    // Wait for status done or terminal errors
+    `DV_SPINWAIT(
+        while (1) begin
+          csr_rd(ral.status, status_val);
+          if (get_field_val(ral.status.transition_successful, status_val)) break;
+          if (get_field_val(ral.status.token_error, status_val)) break;
+          if (get_field_val(ral.status.otp_error, status_val)) begin
+            trigger_alert = 1;
+            break;
+          end
+        end)
+
+    // always on alert, set time delay to make sure alert triggered for at least for one
+    // handshake cycle
+    if (trigger_alert) cfg.clk_rst_vif.wait_clks($urandom_range(20, 50));
   endtask
 
   // checking of these two CSRs are done in scb

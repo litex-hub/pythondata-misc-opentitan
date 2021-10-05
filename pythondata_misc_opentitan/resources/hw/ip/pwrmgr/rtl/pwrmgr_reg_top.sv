@@ -9,7 +9,6 @@
 module pwrmgr_reg_top (
   input clk_i,
   input rst_ni,
-
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
   // To HW
@@ -41,14 +40,16 @@ module pwrmgr_reg_top (
   logic          addrmiss, wr_err;
 
   logic [DW-1:0] reg_rdata_next;
+  logic reg_busy;
 
   tlul_pkg::tl_h2d_t tl_reg_h2d;
   tlul_pkg::tl_d2h_t tl_reg_d2h;
 
+
   // incoming payload check
   logic intg_err;
   tlul_cmd_intg_chk u_chk (
-    .tl_i,
+    .tl_i(tl_i),
     .err_o(intg_err)
   );
 
@@ -72,7 +73,7 @@ module pwrmgr_reg_top (
     .EnableDataIntgGen(1)
   ) u_rsp_intg_gen (
     .tl_i(tl_o_pre),
-    .tl_o
+    .tl_o(tl_o)
   );
 
   assign tl_reg_h2d = tl_i;
@@ -83,8 +84,8 @@ module pwrmgr_reg_top (
     .RegDw(DW),
     .EnableDataIntgGen(0)
   ) u_reg_if (
-    .clk_i,
-    .rst_ni,
+    .clk_i  (clk_i),
+    .rst_ni (rst_ni),
 
     .tl_i (tl_reg_h2d),
     .tl_o (tl_reg_d2h),
@@ -94,9 +95,12 @@ module pwrmgr_reg_top (
     .addr_o  (reg_addr),
     .wdata_o (reg_wdata),
     .be_o    (reg_be),
+    .busy_i  (reg_busy),
     .rdata_i (reg_rdata),
     .error_i (reg_error)
   );
+
+  // cdc oversampling signals
 
   assign reg_rdata = reg_rdata_next ;
   assign reg_error = (devmode_i & addrmiss) | wr_err | intg_err;
@@ -104,77 +108,67 @@ module pwrmgr_reg_top (
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
   //        or <reg>_{wd|we|qs} if field == 1 or 0
+  logic intr_state_we;
   logic intr_state_qs;
   logic intr_state_wd;
-  logic intr_state_we;
+  logic intr_enable_we;
   logic intr_enable_qs;
   logic intr_enable_wd;
-  logic intr_enable_we;
-  logic intr_test_wd;
   logic intr_test_we;
-  logic ctrl_cfg_regwen_qs;
+  logic intr_test_wd;
   logic ctrl_cfg_regwen_re;
+  logic ctrl_cfg_regwen_qs;
+  logic control_we;
   logic control_low_power_hint_qs;
   logic control_low_power_hint_wd;
-  logic control_low_power_hint_we;
   logic control_core_clk_en_qs;
   logic control_core_clk_en_wd;
-  logic control_core_clk_en_we;
   logic control_io_clk_en_qs;
   logic control_io_clk_en_wd;
-  logic control_io_clk_en_we;
   logic control_usb_clk_en_lp_qs;
   logic control_usb_clk_en_lp_wd;
-  logic control_usb_clk_en_lp_we;
   logic control_usb_clk_en_active_qs;
   logic control_usb_clk_en_active_wd;
-  logic control_usb_clk_en_active_we;
   logic control_main_pd_n_qs;
   logic control_main_pd_n_wd;
-  logic control_main_pd_n_we;
+  logic cfg_cdc_sync_we;
   logic cfg_cdc_sync_qs;
   logic cfg_cdc_sync_wd;
-  logic cfg_cdc_sync_we;
+  logic wakeup_en_regwen_we;
   logic wakeup_en_regwen_qs;
   logic wakeup_en_regwen_wd;
-  logic wakeup_en_regwen_we;
+  logic wakeup_en_we;
   logic wakeup_en_qs;
   logic wakeup_en_wd;
-  logic wakeup_en_we;
   logic wake_status_qs;
+  logic reset_en_regwen_we;
   logic reset_en_regwen_qs;
   logic reset_en_regwen_wd;
-  logic reset_en_regwen_we;
+  logic reset_en_we;
   logic reset_en_qs;
   logic reset_en_wd;
-  logic reset_en_we;
   logic reset_status_qs;
+  logic wake_info_capture_dis_we;
   logic wake_info_capture_dis_qs;
   logic wake_info_capture_dis_wd;
-  logic wake_info_capture_dis_we;
+  logic wake_info_re;
+  logic wake_info_we;
   logic wake_info_reasons_qs;
   logic wake_info_reasons_wd;
-  logic wake_info_reasons_we;
-  logic wake_info_reasons_re;
   logic wake_info_fall_through_qs;
   logic wake_info_fall_through_wd;
-  logic wake_info_fall_through_we;
-  logic wake_info_fall_through_re;
   logic wake_info_abort_qs;
   logic wake_info_abort_wd;
-  logic wake_info_abort_we;
-  logic wake_info_abort_re;
 
   // Register instances
   // R[intr_state]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
     .RESVAL  (1'h0)
   ) u_intr_state (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (intr_state_we),
@@ -182,11 +176,11 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (hw2reg.intr_state.de),
-    .d      (hw2reg.intr_state.d ),
+    .d      (hw2reg.intr_state.d),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.intr_state.q ),
+    .q      (reg2hw.intr_state.q),
 
     // to register interface (read)
     .qs     (intr_state_qs)
@@ -194,14 +188,13 @@ module pwrmgr_reg_top (
 
 
   // R[intr_enable]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_intr_enable (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (intr_enable_we),
@@ -209,11 +202,11 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.intr_enable.q ),
+    .q      (reg2hw.intr_enable.q),
 
     // to register interface (read)
     .qs     (intr_enable_qs)
@@ -221,7 +214,6 @@ module pwrmgr_reg_top (
 
 
   // R[intr_test]: V(True)
-
   prim_subreg_ext #(
     .DW    (1)
   ) u_intr_test (
@@ -231,13 +223,12 @@ module pwrmgr_reg_top (
     .d      ('0),
     .qre    (),
     .qe     (reg2hw.intr_test.qe),
-    .q      (reg2hw.intr_test.q ),
+    .q      (reg2hw.intr_test.q),
     .qs     ()
   );
 
 
   // R[ctrl_cfg_regwen]: V(True)
-
   prim_subreg_ext #(
     .DW    (1)
   ) u_ctrl_cfg_regwen (
@@ -253,157 +244,151 @@ module pwrmgr_reg_top (
 
 
   // R[control]: V(False)
-
   //   F[low_power_hint]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_control_low_power_hint (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_low_power_hint_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_low_power_hint_wd),
 
     // from internal hardware
     .de     (hw2reg.control.low_power_hint.de),
-    .d      (hw2reg.control.low_power_hint.d ),
+    .d      (hw2reg.control.low_power_hint.d),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.low_power_hint.q ),
+    .q      (reg2hw.control.low_power_hint.q),
 
     // to register interface (read)
     .qs     (control_low_power_hint_qs)
   );
 
-
   //   F[core_clk_en]: 4:4
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_control_core_clk_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_core_clk_en_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_core_clk_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.core_clk_en.q ),
+    .q      (reg2hw.control.core_clk_en.q),
 
     // to register interface (read)
     .qs     (control_core_clk_en_qs)
   );
 
-
   //   F[io_clk_en]: 5:5
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_control_io_clk_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_io_clk_en_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_io_clk_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.io_clk_en.q ),
+    .q      (reg2hw.control.io_clk_en.q),
 
     // to register interface (read)
     .qs     (control_io_clk_en_qs)
   );
 
-
   //   F[usb_clk_en_lp]: 6:6
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_control_usb_clk_en_lp (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_usb_clk_en_lp_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_usb_clk_en_lp_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.usb_clk_en_lp.q ),
+    .q      (reg2hw.control.usb_clk_en_lp.q),
 
     // to register interface (read)
     .qs     (control_usb_clk_en_lp_qs)
   );
 
-
   //   F[usb_clk_en_active]: 7:7
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_control_usb_clk_en_active (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_usb_clk_en_active_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_usb_clk_en_active_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.usb_clk_en_active.q ),
+    .q      (reg2hw.control.usb_clk_en_active.q),
 
     // to register interface (read)
     .qs     (control_usb_clk_en_active_qs)
   );
 
-
   //   F[main_pd_n]: 8:8
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_control_main_pd_n (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (control_main_pd_n_we & ctrl_cfg_regwen_qs),
+    // from register interface
+    .we     (control_we & ctrl_cfg_regwen_qs),
     .wd     (control_main_pd_n_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.control.main_pd_n.q ),
+    .q      (reg2hw.control.main_pd_n.q),
 
     // to register interface (read)
     .qs     (control_main_pd_n_qs)
@@ -411,14 +396,13 @@ module pwrmgr_reg_top (
 
 
   // R[cfg_cdc_sync]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_cfg_cdc_sync (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (cfg_cdc_sync_we),
@@ -426,11 +410,11 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (hw2reg.cfg_cdc_sync.de),
-    .d      (hw2reg.cfg_cdc_sync.d ),
+    .d      (hw2reg.cfg_cdc_sync.d),
 
     // to internal hardware
     .qe     (reg2hw.cfg_cdc_sync.qe),
-    .q      (reg2hw.cfg_cdc_sync.q ),
+    .q      (reg2hw.cfg_cdc_sync.q),
 
     // to register interface (read)
     .qs     (cfg_cdc_sync_qs)
@@ -438,14 +422,13 @@ module pwrmgr_reg_top (
 
 
   // R[wakeup_en_regwen]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W0C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW0C),
     .RESVAL  (1'h1)
   ) u_wakeup_en_regwen (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (wakeup_en_regwen_we),
@@ -453,7 +436,7 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
@@ -464,53 +447,50 @@ module pwrmgr_reg_top (
   );
 
 
-
   // Subregister 0 of Multireg wakeup_en
   // R[wakeup_en]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_wakeup_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
+    // from register interface
     .we     (wakeup_en_we & wakeup_en_regwen_qs),
     .wd     (wakeup_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.wakeup_en[0].q ),
+    .q      (reg2hw.wakeup_en[0].q),
 
     // to register interface (read)
     .qs     (wakeup_en_qs)
   );
 
 
-
   // Subregister 0 of Multireg wake_status
   // R[wake_status]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
   ) u_wake_status (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.wake_status[0].de),
-    .d      (hw2reg.wake_status[0].d ),
+    .d      (hw2reg.wake_status[0].d),
 
     // to internal hardware
     .qe     (),
@@ -522,14 +502,13 @@ module pwrmgr_reg_top (
 
 
   // R[reset_en_regwen]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W0C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW0C),
     .RESVAL  (1'h1)
   ) u_reset_en_regwen (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (reset_en_regwen_we),
@@ -537,7 +516,7 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
@@ -548,53 +527,50 @@ module pwrmgr_reg_top (
   );
 
 
-
   // Subregister 0 of Multireg reset_en
   // R[reset_en]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_reset_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
+    // from register interface
     .we     (reset_en_we & reset_en_regwen_qs),
     .wd     (reset_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.reset_en[0].q ),
+    .q      (reg2hw.reset_en[0].q),
 
     // to register interface (read)
     .qs     (reset_en_qs)
   );
 
 
-
   // Subregister 0 of Multireg reset_status
   // R[reset_status]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
   ) u_reset_status (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.reset_status[0].de),
-    .d      (hw2reg.reset_status[0].d ),
+    .d      (hw2reg.reset_status[0].d),
 
     // to internal hardware
     .qe     (),
@@ -606,14 +582,13 @@ module pwrmgr_reg_top (
 
 
   // R[wake_info_capture_dis]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_wake_info_capture_dis (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (wake_info_capture_dis_we),
@@ -621,11 +596,11 @@ module pwrmgr_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.wake_info_capture_dis.q ),
+    .q      (reg2hw.wake_info_capture_dis.q),
 
     // to register interface (read)
     .qs     (wake_info_capture_dis_qs)
@@ -633,51 +608,47 @@ module pwrmgr_reg_top (
 
 
   // R[wake_info]: V(True)
-
   //   F[reasons]: 0:0
   prim_subreg_ext #(
     .DW    (1)
   ) u_wake_info_reasons (
-    .re     (wake_info_reasons_re),
-    .we     (wake_info_reasons_we),
+    .re     (wake_info_re),
+    .we     (wake_info_we),
     .wd     (wake_info_reasons_wd),
     .d      (hw2reg.wake_info.reasons.d),
     .qre    (),
     .qe     (reg2hw.wake_info.reasons.qe),
-    .q      (reg2hw.wake_info.reasons.q ),
+    .q      (reg2hw.wake_info.reasons.q),
     .qs     (wake_info_reasons_qs)
   );
-
 
   //   F[fall_through]: 1:1
   prim_subreg_ext #(
     .DW    (1)
   ) u_wake_info_fall_through (
-    .re     (wake_info_fall_through_re),
-    .we     (wake_info_fall_through_we),
+    .re     (wake_info_re),
+    .we     (wake_info_we),
     .wd     (wake_info_fall_through_wd),
     .d      (hw2reg.wake_info.fall_through.d),
     .qre    (),
     .qe     (reg2hw.wake_info.fall_through.qe),
-    .q      (reg2hw.wake_info.fall_through.q ),
+    .q      (reg2hw.wake_info.fall_through.q),
     .qs     (wake_info_fall_through_qs)
   );
-
 
   //   F[abort]: 2:2
   prim_subreg_ext #(
     .DW    (1)
   ) u_wake_info_abort (
-    .re     (wake_info_abort_re),
-    .we     (wake_info_abort_we),
+    .re     (wake_info_re),
+    .we     (wake_info_we),
     .wd     (wake_info_abort_wd),
     .d      (hw2reg.wake_info.abort.d),
     .qre    (),
     .qe     (reg2hw.wake_info.abort.qe),
-    .q      (reg2hw.wake_info.abort.q ),
+    .q      (reg2hw.wake_info.abort.q),
     .qs     (wake_info_abort_qs)
   );
-
 
 
 
@@ -704,81 +675,71 @@ module pwrmgr_reg_top (
 
   // Check sub-word write is permitted
   always_comb begin
-    wr_err = 1'b0;
-    if (addr_hit[ 0] && reg_we && (PWRMGR_PERMIT[ 0] != (PWRMGR_PERMIT[ 0] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 1] && reg_we && (PWRMGR_PERMIT[ 1] != (PWRMGR_PERMIT[ 1] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 2] && reg_we && (PWRMGR_PERMIT[ 2] != (PWRMGR_PERMIT[ 2] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 3] && reg_we && (PWRMGR_PERMIT[ 3] != (PWRMGR_PERMIT[ 3] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 4] && reg_we && (PWRMGR_PERMIT[ 4] != (PWRMGR_PERMIT[ 4] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 5] && reg_we && (PWRMGR_PERMIT[ 5] != (PWRMGR_PERMIT[ 5] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 6] && reg_we && (PWRMGR_PERMIT[ 6] != (PWRMGR_PERMIT[ 6] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 7] && reg_we && (PWRMGR_PERMIT[ 7] != (PWRMGR_PERMIT[ 7] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 8] && reg_we && (PWRMGR_PERMIT[ 8] != (PWRMGR_PERMIT[ 8] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[ 9] && reg_we && (PWRMGR_PERMIT[ 9] != (PWRMGR_PERMIT[ 9] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[10] && reg_we && (PWRMGR_PERMIT[10] != (PWRMGR_PERMIT[10] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[11] && reg_we && (PWRMGR_PERMIT[11] != (PWRMGR_PERMIT[11] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[12] && reg_we && (PWRMGR_PERMIT[12] != (PWRMGR_PERMIT[12] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[13] && reg_we && (PWRMGR_PERMIT[13] != (PWRMGR_PERMIT[13] & reg_be))) wr_err = 1'b1 ;
+    wr_err = (reg_we &
+              ((addr_hit[ 0] & (|(PWRMGR_PERMIT[ 0] & ~reg_be))) |
+               (addr_hit[ 1] & (|(PWRMGR_PERMIT[ 1] & ~reg_be))) |
+               (addr_hit[ 2] & (|(PWRMGR_PERMIT[ 2] & ~reg_be))) |
+               (addr_hit[ 3] & (|(PWRMGR_PERMIT[ 3] & ~reg_be))) |
+               (addr_hit[ 4] & (|(PWRMGR_PERMIT[ 4] & ~reg_be))) |
+               (addr_hit[ 5] & (|(PWRMGR_PERMIT[ 5] & ~reg_be))) |
+               (addr_hit[ 6] & (|(PWRMGR_PERMIT[ 6] & ~reg_be))) |
+               (addr_hit[ 7] & (|(PWRMGR_PERMIT[ 7] & ~reg_be))) |
+               (addr_hit[ 8] & (|(PWRMGR_PERMIT[ 8] & ~reg_be))) |
+               (addr_hit[ 9] & (|(PWRMGR_PERMIT[ 9] & ~reg_be))) |
+               (addr_hit[10] & (|(PWRMGR_PERMIT[10] & ~reg_be))) |
+               (addr_hit[11] & (|(PWRMGR_PERMIT[11] & ~reg_be))) |
+               (addr_hit[12] & (|(PWRMGR_PERMIT[12] & ~reg_be))) |
+               (addr_hit[13] & (|(PWRMGR_PERMIT[13] & ~reg_be)))));
   end
-
   assign intr_state_we = addr_hit[0] & reg_we & !reg_error;
+
   assign intr_state_wd = reg_wdata[0];
-
   assign intr_enable_we = addr_hit[1] & reg_we & !reg_error;
+
   assign intr_enable_wd = reg_wdata[0];
-
   assign intr_test_we = addr_hit[2] & reg_we & !reg_error;
+
   assign intr_test_wd = reg_wdata[0];
-
   assign ctrl_cfg_regwen_re = addr_hit[3] & reg_re & !reg_error;
+  assign control_we = addr_hit[4] & reg_we & !reg_error;
 
-  assign control_low_power_hint_we = addr_hit[4] & reg_we & !reg_error;
   assign control_low_power_hint_wd = reg_wdata[0];
 
-  assign control_core_clk_en_we = addr_hit[4] & reg_we & !reg_error;
   assign control_core_clk_en_wd = reg_wdata[4];
 
-  assign control_io_clk_en_we = addr_hit[4] & reg_we & !reg_error;
   assign control_io_clk_en_wd = reg_wdata[5];
 
-  assign control_usb_clk_en_lp_we = addr_hit[4] & reg_we & !reg_error;
   assign control_usb_clk_en_lp_wd = reg_wdata[6];
 
-  assign control_usb_clk_en_active_we = addr_hit[4] & reg_we & !reg_error;
   assign control_usb_clk_en_active_wd = reg_wdata[7];
 
-  assign control_main_pd_n_we = addr_hit[4] & reg_we & !reg_error;
   assign control_main_pd_n_wd = reg_wdata[8];
-
   assign cfg_cdc_sync_we = addr_hit[5] & reg_we & !reg_error;
+
   assign cfg_cdc_sync_wd = reg_wdata[0];
-
   assign wakeup_en_regwen_we = addr_hit[6] & reg_we & !reg_error;
+
   assign wakeup_en_regwen_wd = reg_wdata[0];
-
   assign wakeup_en_we = addr_hit[7] & reg_we & !reg_error;
+
   assign wakeup_en_wd = reg_wdata[0];
-
   assign reset_en_regwen_we = addr_hit[9] & reg_we & !reg_error;
+
   assign reset_en_regwen_wd = reg_wdata[0];
-
   assign reset_en_we = addr_hit[10] & reg_we & !reg_error;
+
   assign reset_en_wd = reg_wdata[0];
-
   assign wake_info_capture_dis_we = addr_hit[12] & reg_we & !reg_error;
+
   assign wake_info_capture_dis_wd = reg_wdata[0];
+  assign wake_info_re = addr_hit[13] & reg_re & !reg_error;
+  assign wake_info_we = addr_hit[13] & reg_we & !reg_error;
 
-  assign wake_info_reasons_we = addr_hit[13] & reg_we & !reg_error;
   assign wake_info_reasons_wd = reg_wdata[0];
-  assign wake_info_reasons_re = addr_hit[13] & reg_re & !reg_error;
 
-  assign wake_info_fall_through_we = addr_hit[13] & reg_we & !reg_error;
   assign wake_info_fall_through_wd = reg_wdata[1];
-  assign wake_info_fall_through_re = addr_hit[13] & reg_re & !reg_error;
 
-  assign wake_info_abort_we = addr_hit[13] & reg_we & !reg_error;
   assign wake_info_abort_wd = reg_wdata[2];
-  assign wake_info_abort_re = addr_hit[13] & reg_re & !reg_error;
 
   // Read data return
   always_comb begin
@@ -853,6 +814,23 @@ module pwrmgr_reg_top (
     endcase
   end
 
+  // shadow busy
+  logic shadow_busy;
+  assign shadow_busy = 1'b0;
+
+  // register busy
+  logic reg_busy_sel;
+  assign reg_busy = reg_busy_sel | shadow_busy;
+  always_comb begin
+    reg_busy_sel = '0;
+    unique case (1'b1)
+      default: begin
+        reg_busy_sel  = '0;
+      end
+    endcase
+  end
+
+
   // Unused signal tieoff
 
   // wdata / byte enable are not always fully used
@@ -863,12 +841,12 @@ module pwrmgr_reg_top (
   assign unused_be = ^reg_be;
 
   // Assertions for Register Interface
-  `ASSERT_PULSE(wePulse, reg_we)
-  `ASSERT_PULSE(rePulse, reg_re)
+  `ASSERT_PULSE(wePulse, reg_we, clk_i, !rst_ni)
+  `ASSERT_PULSE(rePulse, reg_re, clk_i, !rst_ni)
 
-  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o.d_valid)
+  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o_pre.d_valid, clk_i, !rst_ni)
 
-  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit))
+  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit), clk_i, !rst_ni)
 
   // this is formulated as an assumption such that the FPV testbenches do disprove this
   // property by mistake

@@ -6,6 +6,7 @@
 `include "keymgr_smoke_vseq.sv"
 `include "keymgr_common_vseq.sv"
 `include "keymgr_sideload_vseq.sv"
+`include "keymgr_sideload_one_intf_vseq.sv"
 `include "keymgr_random_vseq.sv"
 `include "keymgr_cfg_regwen_vseq.sv"
 `include "keymgr_direct_to_disabled_vseq.sv"
@@ -14,4 +15,5 @@
 `include "keymgr_hwsw_invalid_input_vseq.sv"
 `include "keymgr_kmac_rsp_err_vseq.sv"
 `include "keymgr_cmd_invalid_vseq.sv"
+`include "keymgr_sync_async_fault_cross_vseq.sv"
 `include "keymgr_stress_all_vseq.sv"

@@ -38,6 +38,8 @@ module tb;
   pins_if #(1) devmode_if(devmode);
   spi_if  spi_if(.rst_n(rst_n));
 
+  `DV_ALERT_IF_CONNECT
+
   // dut
   spi_device dut (
     .clk_i          (clk       ),
@@ -46,11 +48,16 @@ module tb;
     .tl_i           (tl_if.h2d ),
     .tl_o           (tl_if.d2h ),
 
+    .alert_rx_i     (alert_rx  ),
+    .alert_tx_o     (alert_tx  ),
+
     .cio_sck_i      (sck       ),
     .cio_csb_i      (csb       ),
     .cio_sd_o       (sd_out    ),
     .cio_sd_en_o    (sd_out_en ),
     .cio_sd_i       (sd_in     ),
+
+    .cio_tpm_csb_i  (1'b 1     ), // TODO: Add TPM agent
 
     .intr_rxf_o     (intr_rxf  ),
     .intr_rxlvl_o   (intr_rxlvl),
@@ -58,6 +65,7 @@ module tb;
     .intr_rxerr_o   (intr_rxerr),
     .intr_rxoverflow_o (intr_rxoverflow),
     .intr_txunderflow_o(intr_txunderflow),
+    .mbist_en_i     (1'b0),
     .scanmode_i     (lc_ctrl_pkg::Off)
   );
 

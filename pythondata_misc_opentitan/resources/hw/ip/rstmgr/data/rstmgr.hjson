@@ -8,15 +8,15 @@
 #
 {
   name: "RSTMGR",
-  clock_primary: "clk_i",
-  other_clock_list: [
-    "clk_aon_i"
-    "clk_io_div4_i"
-    "clk_main_i"
-    "clk_io_i"
-    "clk_io_div2_i"
-    "clk_usb_i"
-  ],
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {clock: "clk_aon_i"}
+    {clock: "clk_io_div4_i"}
+    {clock: "clk_main_i"}
+    {clock: "clk_io_i"}
+    {clock: "clk_io_div2_i"}
+    {clock: "clk_usb_i"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
@@ -197,7 +197,7 @@
     { name: "ALERT_INFO",
       desc: '''
               Alert dump information prior to last reset.
-              Which value read is controlled by the ALERT_INFO_CTRL register.
+              Which value read is controlled by the !!ALERT_INFO_CTRL register.
             ''',
       swaccess: "ro",
       hwaccess: "hwo",
@@ -219,11 +219,11 @@
 
     { multireg: {
         cname: "RSTMGR_SW_RST",
-        name:  "SW_RST_REGEN",
+        name:  "SW_RST_REGWEN",
         desc:  '''
-          Register write enable for software controllabe resets.
-          When a particular bit value is 0, the corresponding value in !SW_RST_CTRL can no longer be changed.
-          When a particular bit value is 1, the corresponding value in !SW_RST_CTRL can be changed.
+          Register write enable for software controllable resets.
+          When a particular bit value is 0, the corresponding value in !!SW_RST_CTRL_N can no longer be changed.
+          When a particular bit value is 1, the corresponding value in !!SW_RST_CTRL_N can be changed.
         ''',
         count: "NumSwResets",
         swaccess: "rw0c",
@@ -236,8 +236,6 @@
             resval: "1",
           },
         ],
-        tags: [// Don't reset other IPs as it will affect CSR access on these IPs
-               "excl:CsrAllTests:CsrExclWrite"]
       }
     }
 
@@ -245,7 +243,7 @@
         cname: "RSTMGR_SW_RST",
         name:  "SW_RST_CTRL_N",
         desc:  '''
-          Software controllabe resets.
+          Software controllable resets.
           When a particular bit value is 0, the corresponding module is held in reset.
           When a particular bit value is 1, the corresponding module is not held in reset.
         ''',
@@ -267,6 +265,4 @@
       }
     }
   ]
-
-
 }

@@ -14,21 +14,69 @@ package clkmgr_env_pkg;
   import csr_utils_pkg::*;
   import clkmgr_ral_pkg::*;
 
+  import lc_ctrl_pkg::lc_tx_t;
+  import lc_ctrl_pkg::On;
+  import lc_ctrl_pkg::Off;
+
   // macro includes
   `include "uvm_macros.svh"
   `include "dv_macros.svh"
 
-  typedef virtual clkmgr_pwrmgr_if clkmgr_pwrmgr_vif;
-  typedef virtual clkmgr_idle_if clkmgr_idle_vif;
+  typedef virtual clkmgr_if clkmgr_vif;
   typedef virtual clk_rst_if clk_rst_vif;
 
   // parameters
-  localparam int  NUM_TRANS = 4;
+  localparam int NUM_PERI = 4;
+  localparam int NUM_TRANS = 5;
+
+  localparam int MainClkHz = 100_000_000;
+  localparam int IoClkHz = 96_000_000;
+  localparam int UsbClkHz = 48_000_000;
+  localparam int AonClkHz = 200_000;
+  localparam int FakeAonClkHz = 7_000_000;
+
+  // alerts
+  parameter uint NUM_ALERTS = 2;
+  parameter string LIST_OF_ALERTS[] = {"recov_fault", "fatal_fault"};
 
   // types
+
+  // These are ordered per the bits in the recov_err_code register.
+  typedef enum int {
+    ClkMesrIo,
+    ClkMesrIoDiv2,
+    ClkMesrIoDiv4,
+    ClkMesrMain,
+    ClkMesrUsb
+  } clk_mesr_e;
+
   // The enum values for these match the bit order in the CSRs.
-  typedef enum int {PeriDiv4, PeriDiv2, PeriUsb} peri_e;
-  typedef enum int {TransAes, TransHmac, TransKmac, TransOtbn} trans_e;
+  typedef enum int {
+    PeriDiv4,
+    PeriDiv2,
+    PeriIo,
+    PeriUsb
+  } peri_e;
+  typedef enum int {
+    TransAes,
+    TransHmac,
+    TransKmac,
+    TransOtbnIoDiv4,
+    TransOtbnMain
+  } trans_e;
+
+  // Forward class decl to enable cfg to hold a scoreboard handle.
+  typedef class clkmgr_scoreboard;
+
+  localparam int ClkInHz[ClkMesrUsb+1] = {IoClkHz, IoClkHz / 2, IoClkHz / 4, MainClkHz, UsbClkHz};
+
+  localparam int ExpectedClkMeasurement[ClkMesrUsb+1] = {
+    ClkInHz[ClkMesrIo] / AonClkHz,
+    ClkInHz[ClkMesrIoDiv2] / AonClkHz,
+    ClkInHz[ClkMesrIoDiv4] / AonClkHz,
+    ClkInHz[ClkMesrMain] / AonClkHz,
+    ClkInHz[ClkMesrUsb] / AonClkHz
+  };
 
   // functions
 

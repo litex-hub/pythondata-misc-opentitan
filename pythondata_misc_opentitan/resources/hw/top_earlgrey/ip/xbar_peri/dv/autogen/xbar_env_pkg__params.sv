@@ -64,23 +64,26 @@ tl_device_t xbar_devices[$] = '{
     '{"pinmux_aon", '{
         '{32'h40460000, 32'h40460fff}
     }},
-    '{"ram_ret_aon", '{
-        '{32'h40600000, 32'h40600fff}
+    '{"otp_ctrl__core", '{
+        '{32'h40130000, 32'h40131fff}
     }},
-    '{"otp_ctrl", '{
-        '{32'h40130000, 32'h40133fff}
+    '{"otp_ctrl__prim", '{
+        '{32'h40132000, 32'h40132fff}
     }},
     '{"lc_ctrl", '{
         '{32'h40140000, 32'h40140fff}
     }},
-    '{"sensor_ctrl_aon", '{
+    '{"sensor_ctrl", '{
         '{32'h40490000, 32'h40490fff}
     }},
     '{"alert_handler", '{
         '{32'h40150000, 32'h40150fff}
     }},
-    '{"sram_ctrl_ret_aon", '{
+    '{"sram_ctrl_ret_aon__regs", '{
         '{32'h40500000, 32'h40500fff}
+    }},
+    '{"sram_ctrl_ret_aon__ram", '{
+        '{32'h40600000, 32'h40600fff}
     }},
     '{"aon_timer_aon", '{
         '{32'h40470000, 32'h40470fff}
@@ -116,13 +119,14 @@ tl_host_t xbar_hosts[$] = '{
         "rstmgr_aon",
         "clkmgr_aon",
         "pinmux_aon",
-        "ram_ret_aon",
-        "otp_ctrl",
+        "otp_ctrl__core",
+        "otp_ctrl__prim",
         "lc_ctrl",
-        "sensor_ctrl_aon",
+        "sensor_ctrl",
         "alert_handler",
         "ast",
-        "sram_ctrl_ret_aon",
+        "sram_ctrl_ret_aon__ram",
+        "sram_ctrl_ret_aon__regs",
         "aon_timer_aon",
         "adc_ctrl_aon",
         "sysrst_ctrl_aon",

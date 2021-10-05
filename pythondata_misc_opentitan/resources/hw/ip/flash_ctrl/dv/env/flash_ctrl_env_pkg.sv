@@ -14,17 +14,33 @@ package flash_ctrl_env_pkg;
   import csr_utils_pkg::*;
   import flash_ctrl_pkg::*;
   import flash_ctrl_core_ral_pkg::*;
+  import mem_bkdr_util_pkg::*;
 
   // macro includes
   `include "uvm_macros.svh"
   `include "dv_macros.svh"
 
   // parameters
-  parameter string LIST_OF_ALERTS[] = {"recov_err", "recov_mp_err", "recov_ecc_err", "fatal_intg_err"};
+  parameter string LIST_OF_ALERTS[] = {
+    "recov_err", "fatal_err"
+  };
+
   parameter uint NUM_ALERTS = 4;
   parameter uint FlashNumPages            = flash_ctrl_pkg::NumBanks * flash_ctrl_pkg::PagesPerBank;
   parameter uint FlashSizeBytes           = FlashNumPages * flash_ctrl_pkg::WordsPerPage *
                                             flash_ctrl_pkg::DataWidth / 8;
+
+  // Number of bytes in each of the flash pages.
+  parameter uint BytesPerPage = FlashSizeBytes / FlashNumPages;
+
+  // Num of bytes in each of the flash banks for each of the flash partitions.
+  parameter uint BytesPerBank = FlashSizeBytes / flash_ctrl_pkg::NumBanks;
+
+  parameter uint InfoTypeBytes [flash_ctrl_pkg::InfoTypes] = '{
+    flash_ctrl_pkg::InfoTypeSize[0] * BytesPerPage,
+    flash_ctrl_pkg::InfoTypeSize[1] * BytesPerPage,
+    flash_ctrl_pkg::InfoTypeSize[2] * BytesPerPage
+  };
 
   parameter uint FlashNumBusWords         = FlashSizeBytes / top_pkg::TL_DBW;
   parameter uint FlashNumBusWordsPerBank  = FlashNumBusWords / flash_ctrl_pkg::NumBanks;
@@ -53,7 +69,8 @@ package flash_ctrl_env_pkg;
     FlashCtrlIntrRdFull     = 2,
     FlashCtrlIntrRdLvl      = 3,
     FlashCtrlIntrOpDone     = 4,
-    NumFlashCtrlIntr        = 5
+    FlashCtrlIntrErr        = 5,
+    NumFlashCtrlIntr        = 6
   } flash_ctrl_intr_e;
 
   typedef enum {
@@ -66,10 +83,10 @@ package flash_ctrl_env_pkg;
 
   // Partition select for DV
   typedef enum logic [flash_ctrl_pkg::InfoTypes:0] { // Data partition and all info partitions
-    FlashPartData  = 0,
-    FlashPartInfo  = 1,
-    FlashPartInfo1 = 2,
-    FlashPartRed   = 4
+    FlashPartData         = 0,
+    FlashPartInfo         = 1,
+    FlashPartInfo1        = 2,
+    FlashPartRedundancy   = 4
   } flash_dv_part_e;
 
   typedef struct packed {
@@ -77,10 +94,16 @@ package flash_ctrl_env_pkg;
     bit           read_en;    // enable reads
     bit           program_en; // enable write
     bit           erase_en;   // enable erase
-    flash_part_e  partition;  // info or data
     uint          num_pages;  // 0:NumPages % start_page
     uint          start_page; // 0:NumPages-1
   } flash_mp_region_cfg_t;
+
+  typedef struct packed {
+    bit           en;         // enable this page
+    bit           read_en;    // enable reads
+    bit           program_en; // enable write
+    bit           erase_en;   // enable erase
+  } flash_bank_mp_info_page_cfg_t;
 
   typedef struct packed {
     flash_dv_part_e partition;  // data or one of the info partitions
@@ -90,7 +113,8 @@ package flash_ctrl_env_pkg;
     bit [TL_AW-1:0] addr;       // starting addr for the op
   } flash_op_t;
 
-  typedef virtual mem_bkdr_if mem_bkdr_vif;
+  // Data queue for flash transactions
+  typedef logic [TL_DW-1:0] data_q_t[$];
 
   // functions
 

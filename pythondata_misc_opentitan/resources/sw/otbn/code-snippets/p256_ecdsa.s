@@ -8,78 +8,74 @@
  * Uses OTBN ECC P-256 lib to perform an ECDSA operations.
  */
 
-.text
+.section .text.start
+.globl start
+start:
+  /* Read mode, then tail-call either p256_ecdsa_sign or p256_ecdsa_verify */
+  la    x2, mode
+  lw    x2, 0(x2)
 
-.globl p256_ecdsa_sign
+  li    x3, 1
+  beq   x2, x3, p256_ecdsa_sign
+
+  li    x3, 2
+  beq   x2, x3, p256_ecdsa_verify
+
+  /* Mode is neither 1 (= sign) nor 2 (= verify). Fail. */
+  unimp
+
+.text
 p256_ecdsa_sign:
-  jal      x1, p256_init
+  jal      x1, p256_ecdsa_setup_rand
   jal      x1, p256_sign
   ecall
 
-.globl p256_ecdsa_verify
 p256_ecdsa_verify:
-  jal      x1, p256_init
   jal      x1, p256_verify
   ecall
 
+/**
+ * Populate the variables rnd and k with randomness, and setup data pointers.
+ */
+p256_ecdsa_setup_rand:
+  /* Obtain the blinding constant from URND, and write it to `rnd` in DMEM. */
+  bn.wsrr   w0, 0x2 /* URND */
+  la        x10, rnd
+  bn.sid    x0, 0(x10)
+
+  /* Point dptr_rnd to rnd. */
+  la        x11, dptr_rnd
+  sw        x10, 0(x11)
+
+  /* Obtain the nonce (k) from RND. */
+  bn.wsrr   w0, 0x1 /* RND */
+  la        x10, k
+  bn.sid    x0, 0(x10)
+
+  /* Point dptr_k to k. */
+  la        x11, dptr_k
+  sw        x10, 0(x11)
+
+  ret
 
 .data
 
-/*
-The structure of the 256b below are mandated by the calling convention of the
-P-256 ECDSA library.
-*/
-
-/* pointer to k */
-.globl dptr_k
-dptr_k:
-  .word k
-
-/* pointer to rnd */
-.globl dptr_rnd
-dptr_rnd:
-  .word rnd
-
-/* pointer to msg */
-.globl dptr_msg
-dptr_msg:
-  .word msg
-
-/* pointer to R */
-.globl dptr_r
-dptr_r:
-  .word r
-
-/* pointer to S */
-.globl dptr_s
-dptr_s:
-  .word s
-
-/* pointer to X */
-.globl dptr_x
-dptr_x:
-  .word x
-
-/* pointer to Y */
-.globl dptr_y
-dptr_y:
-  .word y
-
-/* pointer to D */
-.globl dptr_d
-dptr_d:
-  .word d
-
 /* Freely available DMEM space. */
+
+/* Operation mode (1 = sign; 2 = verify) */
+.globl mode
+.balign 4
+mode:
+  .zero 4
+
 /* All constants below must be 256b-aligned. */
 
 /* random scalar k */
-.globl k
 .balign 32
 k:
   .zero 32
 
-.globl rnd
+/* randomness for blinding */
 .balign 32
 rnd:
   .zero 32
@@ -118,4 +114,10 @@ y:
 .globl d
 .balign 32
 d:
+  .zero 32
+
+/* verification result x_r (aka x_1) */
+.globl x_r
+.balign 32
+x_r:
   .zero 32

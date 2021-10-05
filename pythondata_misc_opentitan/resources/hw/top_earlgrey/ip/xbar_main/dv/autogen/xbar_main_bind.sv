@@ -6,26 +6,38 @@
 module xbar_main_bind;
 
   // Host interfaces
-  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_corei (
+  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_rv_core_ibex__corei (
     .clk_i  (clk_main_i),
     .rst_ni (rst_main_ni),
-    .h2d    (tl_corei_i),
-    .d2h    (tl_corei_o)
+    .h2d    (tl_rv_core_ibex__corei_i),
+    .d2h    (tl_rv_core_ibex__corei_o)
   );
-  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_cored (
+  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_rv_core_ibex__cored (
     .clk_i  (clk_main_i),
     .rst_ni (rst_main_ni),
-    .h2d    (tl_cored_i),
-    .d2h    (tl_cored_o)
+    .h2d    (tl_rv_core_ibex__cored_i),
+    .d2h    (tl_rv_core_ibex__cored_o)
   );
-  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_dm_sba (
+  bind xbar_main tlul_assert #(.EndpointType("Device")) tlul_assert_host_rv_dm__sba (
     .clk_i  (clk_main_i),
     .rst_ni (rst_main_ni),
-    .h2d    (tl_dm_sba_i),
-    .d2h    (tl_dm_sba_o)
+    .h2d    (tl_rv_dm__sba_i),
+    .d2h    (tl_rv_dm__sba_o)
   );
 
   // Device interfaces
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_rv_dm__regs (
+    .clk_i  (clk_main_i),
+    .rst_ni (rst_main_ni),
+    .h2d    (tl_rv_dm__regs_o),
+    .d2h    (tl_rv_dm__regs_i)
+  );
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_rv_dm__rom (
+    .clk_i  (clk_main_i),
+    .rst_ni (rst_main_ni),
+    .h2d    (tl_rv_dm__rom_o),
+    .d2h    (tl_rv_dm__rom_i)
+  );
   bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_rom_ctrl__rom (
     .clk_i  (clk_main_i),
     .rst_ni (rst_main_ni),
@@ -37,24 +49,6 @@ module xbar_main_bind;
     .rst_ni (rst_main_ni),
     .h2d    (tl_rom_ctrl__regs_o),
     .d2h    (tl_rom_ctrl__regs_i)
-  );
-  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_debug_mem (
-    .clk_i  (clk_main_i),
-    .rst_ni (rst_main_ni),
-    .h2d    (tl_debug_mem_o),
-    .d2h    (tl_debug_mem_i)
-  );
-  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_ram_main (
-    .clk_i  (clk_main_i),
-    .rst_ni (rst_main_ni),
-    .h2d    (tl_ram_main_o),
-    .d2h    (tl_ram_main_i)
-  );
-  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_eflash (
-    .clk_i  (clk_main_i),
-    .rst_ni (rst_main_ni),
-    .h2d    (tl_eflash_o),
-    .d2h    (tl_eflash_i)
   );
   bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_peri (
     .clk_i  (clk_fixed_i),
@@ -73,6 +67,12 @@ module xbar_main_bind;
     .rst_ni (rst_main_ni),
     .h2d    (tl_flash_ctrl__prim_o),
     .d2h    (tl_flash_ctrl__prim_i)
+  );
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_flash_ctrl__mem (
+    .clk_i  (clk_main_i),
+    .rst_ni (rst_main_ni),
+    .h2d    (tl_flash_ctrl__mem_o),
+    .d2h    (tl_flash_ctrl__mem_i)
   );
   bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_hmac (
     .clk_i  (clk_main_i),
@@ -134,11 +134,23 @@ module xbar_main_bind;
     .h2d    (tl_keymgr_o),
     .d2h    (tl_keymgr_i)
   );
-  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_main (
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_rv_core_ibex__cfg (
     .clk_i  (clk_main_i),
     .rst_ni (rst_main_ni),
-    .h2d    (tl_sram_ctrl_main_o),
-    .d2h    (tl_sram_ctrl_main_i)
+    .h2d    (tl_rv_core_ibex__cfg_o),
+    .d2h    (tl_rv_core_ibex__cfg_i)
+  );
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_main__regs (
+    .clk_i  (clk_main_i),
+    .rst_ni (rst_main_ni),
+    .h2d    (tl_sram_ctrl_main__regs_o),
+    .d2h    (tl_sram_ctrl_main__regs_i)
+  );
+  bind xbar_main tlul_assert #(.EndpointType("Host")) tlul_assert_device_sram_ctrl_main__ram (
+    .clk_i  (clk_main_i),
+    .rst_ni (rst_main_ni),
+    .h2d    (tl_sram_ctrl_main__ram_o),
+    .d2h    (tl_sram_ctrl_main__ram_i)
   );
 
 endmodule

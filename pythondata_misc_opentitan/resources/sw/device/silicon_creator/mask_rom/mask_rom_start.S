@@ -3,11 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey_memory.h"
+#include "entropy_src_regs.h"
+#include "csrng_regs.h"
+#include "edn_regs.h"
+#include "sram_ctrl_regs.h"
 
 /**
- * Mask ROM Interrupt Vector
+ * Mask ROM interrupt vectors.
  */
-  .section .vectors, "ax"
+
+  // Push Mask ROM interrupt vector options.
   .option push
 
   // Disable RISC-V instruction compression: we need all instructions to
@@ -19,92 +24,80 @@
   .option norelax
 
 /**
- * `_mask_rom_interrupt_vector` is the boot-defined interrupt vector for Ibex,
- * for the Mask ROM.
+ * Initial RISC-V vectored exception/interrupt handlers.
  *
- * The Mask ROM does not use interrupts, so there are only entries for Ibex's
- * non-maskable interrupts, and for the hardware exception handler.
+ * After reset all interrupts are disabled. Only exceptions (interrupt 0) and
+ * non-maskable interrupts (interrupt 31) are possible. For simplicity however
+ * we just set all interrupt handlers to the same exception handler.
  *
- * Interrupt vectors in Ibex have 32 entries for 32 possible interrupts. The
- * vector must be 256-byte aligned, as Ibex's vectoring mechanism requires that.
- * Ibex uses the instruction directly after the boot interrupt vector when
- * starting execution from reset, which we choose to make look like an extra
- * entry.
+ * Since the C runtime is not initialized immediately after reset the initial
+ * interrupt vector must only call functions written in assembly. Once the C
+ * runtime is intialized the interrupt vector should be replaced.
  *
- * Thus this vector has exactly 33 4-byte entries.
+ * If the hardware is operating correctly the assembly interrupt handlers
+ * should never be called.
  *
- * Only the following will be used by Ibex:
- * - Exception Handler (Entry 0)
- * - Machine Software Interrupt Handler (Entry 3)
- * - Machine Timer Interrupt Handler (Entry 7)
- * - Machine External Interrupt Handler (Entry 11)
- * - Vendor Interrupt Handlers (Entries 16-31)
- * - Reset Handler (Entry 32)
+ * Note that the Ibex reset handler (entry point) immediately follows this
+ * interrupt vector and can be thought of as an extra entry.
  *
  * More information about Ibex's interrupts can be found here:
  *   https://ibex-core.readthedocs.io/en/latest/03_reference/exception_interrupts.html
+ *
+ * TODO(lowRISC/ibex#1419): if direct mode support is added to Ibex it probably
+ * makes sense to use it instead of vectored mode in the mask ROM.
  */
+  .section .vectors, "ax"
   .balign 256
-  .globl _mask_rom_interrupt_vector
-  .type _mask_rom_interrupt_vector, @function
-_mask_rom_interrupt_vector:
+  .globl _mask_rom_interrupt_vector_asm
+  .type _mask_rom_interrupt_vector_asm, @function
+_mask_rom_interrupt_vector_asm:
 
-  // RISC-V Standard (Vectored) Interrupt Handlers:
-
-  // Exception and User Software Interrupt Handler.
-  .extern mask_rom_exception_handler
-  j mask_rom_exception_handler
-  // Supervisor Software Interrupt Handler.
-  unimp
-  // Reserved.
-  unimp
-  // Machine Software Interrupt Handler.
-  unimp
-
-  // User Timer Interrupt Handler.
-  unimp
-  // Supervisor Timer Interrupt Handler.
-  unimp
-  // Reserved.
-  unimp
-  // Machine Timer Interrupt Handler.
-  unimp
-
-  // User External Interrupt Handler.
-  unimp
-  // Supervisor External Interrupt Handler.
-  unimp
-  // Reserved.
-  unimp
-  // Machine External Interrupt Handler.
-  unimp
-
-  // Reserved.
-  unimp
-  unimp
-  unimp
-  unimp
-
-  // Vendor Interrupt Handlers:
-
-  // On Ibex interrupt ids 30-16 are for "fast" interrupts.
-  .rept 15
-  unimp
+  // Each jump instruction must be exactly 4 bytes in order to ensure that the
+  // entries are properly located.
+  .extern _asm_exception_handler
+  .rept 32
+  j _asm_exception_handler
   .endr
-
-  // On Ibex interrupt id 31 is for non-maskable interrupts.
-  .extern mask_rom_nmi_handler
-  j mask_rom_nmi_handler
 
   // Ibex Reset Handler:
   j _mask_rom_start_boot
 
   // Set size so this vector can be disassembled.
-  .size _mask_rom_interrupt_vector, .-_mask_rom_interrupt_vector
+  .size _mask_rom_interrupt_vector_asm, .-_mask_rom_interrupt_vector_asm
 
+/**
+ * Post C runtime initialization RISC-V vectored exception/interrupt handlers.
+ *
+ * This vector is placed into the .crt section so that .vectors doesn't need to
+ * be padded to a 256 byte boundary.
+ */
+  .section .crt, "ax"
+  .balign 256
+  .globl _mask_rom_interrupt_vector_c
+  .type _mask_rom_interrupt_vector_c, @function
+_mask_rom_interrupt_vector_c:
+
+  // Entry 0: exception handler.
+  .extern mask_rom_exception_handler
+  j mask_rom_exception_handler
+
+  // Entries 1-30: interrupt handlers.
+  .extern mask_rom_interrupt_handler
+  .rept 30
+  j mask_rom_interrupt_handler
+  .endr
+
+  // Entry 31: non-maskable interrupt handler.
+  .extern mask_rom_nmi_handler
+  j mask_rom_nmi_handler
+
+  // Set size so this vector can be disassembled.
+  .size _mask_rom_interrupt_vector_c, .-_mask_rom_interrupt_vector_c
+
+  // Pop Mask ROM interrupt vector options.
+  //
   // Re-enable compressed instructions, linker relaxation.
   .option pop
-
 
 /**
  * Mask ROM runtime initialization code.
@@ -121,10 +114,7 @@ _mask_rom_interrupt_vector:
   .option norelax
 
 /**
- * Entry point after reset. This symbol is jumped to from the handler
- * for IRQ 32.
- *
- * then jumps to `mask_rom_boot
+ * Entry point after reset.
  */
   .globl _mask_rom_start_boot
   .type _mask_rom_start_boot, @function
@@ -141,38 +131,36 @@ _mask_rom_start_boot:
   li   t0, 0xFFFF0888
   csrc mie, t0
 
-  // Set up the stack pointer.
-  //
-  // In RISC-V, the stack grows downwards, so we load the address of the highest
-  // word in the stack into sp. We don't load in `_stack_end`, as that points
-  // beyond the end of RAM, and we always want it to be valid to dereference
-  // `sp`, and we need this to be 128-bit (16-byte) aligned to meet the psABI.
-  //
-  // If an exception fires, the handler is conventionaly only allowed to clobber
-  // memory at addresses below `sp`.
-  la   sp, (_stack_end - 16)
+  // The following sequence enables the minimum level of entropy required to
+  // initialize memory scrambling, as well as the entropy distribution network.
+  // FIXME: Enable entropy complex - this is not the full enable.
+  // TODO(#7221): Switch entropy source mode from LFSR to PTRNG.
+  li a0, TOP_EARLGREY_ENTROPY_SRC_BASE_ADDR
+  li t0, (0xa0a) // LFSR mode, Enable
+  sw t0, ENTROPY_SRC_CONF_REG_OFFSET(a0)
 
-  /**
-   * Set well-defined interrupt/exception handlers
-   *
-   * We actually booted with this value of `mtvec`, so we shouldn't need to do
-   * this.
-   *
-   * The lowest two bits should be `0b01` to ensure we use vectored interrupts.
-   */
-  la   t0, _mask_rom_interrupt_vector
-  andi t0, t0, -4
-  ori  t0, t0, 0b01
-  csrw mtvec, t0
+  li a0, TOP_EARLGREY_CSRNG_BASE_ADDR
+  li t0, (0xa << CSRNG_CTRL_ENABLE_OFFSET) | (0xa << CSRNG_CTRL_SW_APP_ENABLE_OFFSET) | (0xa << CSRNG_CTRL_READ_INT_STATE_OFFSET)
+  sw t0, CSRNG_CTRL_REG_OFFSET(a0)
+
+  li a0, TOP_EARLGREY_EDN0_BASE_ADDR
+  li t0, (0xa << EDN_CTRL_EDN_ENABLE_OFFSET) | (0xa << EDN_CTRL_BOOT_REQ_MODE_OFFSET) | (0x5 << EDN_CTRL_AUTO_REQ_MODE_OFFSET) | (0x5 << EDN_CTRL_CMD_FIFO_RST_OFFSET)
+  sw t0, EDN_CTRL_REG_OFFSET(a0)
+
+  // Scramble and initialize main memory (main SRAM).
+  // Memory accesses will stall until initialization is complete.
+  li a0, TOP_EARLGREY_SRAM_CTRL_MAIN_REGS_BASE_ADDR
+  li a1, (1 << SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT) | (1 << SRAM_CTRL_CTRL_INIT_BIT)
+  sw a1, SRAM_CTRL_CTRL_REG_OFFSET(a0)
 
   /**
    * Clean Device State Part 1 (Please refer to `boot.md` section "Cleaning Device
    * State").
    */
 
-  // Zero all writable registers except x2 (sp).
+  // Zero all writable registers.
   li x1,  0x0
-  // NOT x2 (sp) - We have already set it to the right value above.
+  li x2,  0x0
   li x3,  0x0
   li x4,  0x0
   li x5,  0x0
@@ -203,14 +191,9 @@ _mask_rom_start_boot:
   li x30, 0x0
   li x31, 0x0
 
-  .extern crt_section_clear
-  .extern crt_section_copy
-
-  // TODO: Setup SRAM Scrambling
-  // Temporarily: Zero out ram_main
-  li   a0, TOP_EARLGREY_RAM_MAIN_BASE_ADDR
-  li   a1, (TOP_EARLGREY_RAM_MAIN_BASE_ADDR + TOP_EARLGREY_RAM_MAIN_SIZE_BYTES)
-  call crt_section_clear
+  // Must be called prior to any Main RAM access.
+  .extern mask_rom_epmp_init
+  call mask_rom_epmp_init
 
   /**
    * Setup C Runtime
@@ -220,46 +203,47 @@ _mask_rom_start_boot:
   la   a0, _data_start
   la   a1, _data_end
   la   a2, _data_init_start
+  .extern crt_section_copy
   call crt_section_copy
 
   // Initialize the `.bss` section.
-  //
-  // We do this despite zeroing all of SRAM above, so that we still zero `.bss`
-  // once we've enabled SRAM scrambling.
   la   a0, _bss_start
   la   a1, _bss_end
+  .extern crt_section_clear
   call crt_section_clear
 
-  // Re-clobber all of the temporary registers (may have been used in calls).
-  li t0, 0x0
-  li t1, 0x0
-  li t2, 0x0
-  li t3, 0x0
-  li t4, 0x0
-  li t5, 0x0
-  li t6, 0x0
+  // Set up stack pointer.
+  //
+  // In RISC-V, the stack grows downwards, so we load the address of the highest
+  // word in the stack into sp. We don't load in `_stack_end`, as that points
+  // beyond the end of RAM, and we always want it to be valid to dereference
+  // `sp`, and we need this to be 128-bit (16-byte) aligned to meet the psABI.
+  //
+  // If an exception fires, the handler is conventionally only allowed to clobber
+  // memory at addresses below `sp`.
+  la sp, (_stack_end - 16)
 
-  // Re-clobber all of the argument registers (may have been used in calls).
-  li a0, 0x0
-  li a1, 0x0
-  li a2, 0x0
-  li a3, 0x0
-  li a4, 0x0
-  li a5, 0x0
-  li a6, 0x0
-  li a7, 0x0
-
-  // Setup global pointer.
+  // Set up global pointer.
   //
   // This requires that we disable linker relaxations, or it will be relaxed to
   // `mv gp, gp`, so we disabled relaxations for all of `_mask_rom_start_boot`.
   la gp, __global_pointer$
 
+  // Set exception/interrupt handlers.
+  //
+  // Now that the C runtime is initialized it is safe to use C functions as
+  // exception/interrupt handlers.
+  //
+  // Note: the increment just sets the low bits to 0b01 which is the vectored
+  // mode setting.
+  la   t0, (_mask_rom_interrupt_vector_c + 1)
+  csrw mtvec, t0
+
   /**
    * Jump to C Code
    */
-  .extern mask_rom_boot
-  tail mask_rom_boot
+  .extern mask_rom_main
+  tail mask_rom_main
 
   // Set size so this function can be disassembled.
   .size _mask_rom_start_boot, .-_mask_rom_start_boot

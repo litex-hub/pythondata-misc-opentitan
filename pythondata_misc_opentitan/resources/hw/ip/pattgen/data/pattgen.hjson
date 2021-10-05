@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 { name: "pattgen",
-  clock_primary: "clk_i",
+  clocking: [{clock: "clk_i", reset: "rst_ni"}],
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
@@ -22,6 +22,13 @@
     }
     { name: "done_ch1"
       desc: "raise if pattern generation on Channel 1 is complete"
+    }
+  ],
+  alert_list: [
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
     }
   ],
   param_list: [

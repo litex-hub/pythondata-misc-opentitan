@@ -9,13 +9,12 @@
 module rom_ctrl_rom_reg_top (
   input clk_i,
   input rst_ni,
-
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
 
   // Output port for window
-  output tlul_pkg::tl_h2d_t tl_win_o  [1],
-  input  tlul_pkg::tl_d2h_t tl_win_i  [1],
+  output tlul_pkg::tl_h2d_t tl_win_o,
+  input  tlul_pkg::tl_d2h_t tl_win_i,
 
   // To HW
 
@@ -29,10 +28,11 @@ module rom_ctrl_rom_reg_top (
   import rom_ctrl_reg_pkg::* ;
 
 
+
   // incoming payload check
   logic intg_err;
   tlul_cmd_intg_chk u_chk (
-    .tl_i,
+    .tl_i(tl_i),
     .err_o(intg_err)
   );
 
@@ -56,11 +56,11 @@ module rom_ctrl_rom_reg_top (
     .EnableDataIntgGen(1)
   ) u_rsp_intg_gen (
     .tl_i(tl_o_pre),
-    .tl_o
+    .tl_o(tl_o)
   );
 
-  assign tl_win_o[0] = tl_i;
-  assign tl_o_pre    = tl_win_i[0];
+  assign tl_win_o = tl_i;
+  assign tl_o_pre = tl_win_i;
 
   // Unused signal tieoff
   // devmode_i is not used if there are no registers

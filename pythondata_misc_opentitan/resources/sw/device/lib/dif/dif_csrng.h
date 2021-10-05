@@ -12,8 +12,11 @@
 
 #include <stdint.h>
 
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/mmio.h"
-#include "sw/device/lib/dif/dif_warn_unused_result.h"
+#include "sw/device/lib/dif/dif_base.h"
+
+#include "sw/device/lib/dif/autogen/dif_csrng_autogen.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +44,7 @@ extern "C" {
  * - `dif_csrng_init()`
  * - `dif_csrng_configure()`
  * - `dif_csrng_instantiate()`
- * - `dif_csrng_generate()`
+ * - `dif_csrng_generate_start()`
  * - `dif_csrng_uninstantiate()`
  *
  * The following functions can be used for reseed and update operations:
@@ -63,107 +66,6 @@ extern "C" {
  * - Add error status interface.
  * - Add internal state control and debug interface.
  */
-
-/**
- * A toggle state: enabled, or disabled.
- */
-typedef enum dif_csrng_toggle {
-  /**
-   * The "disabled" state.
-   */
-  kDifCsrngToggleDisabled,
-  /*
-   * The "enabled" state.
-   */
-  kDifCsrngToggleEnabled,
-} dif_csrng_toggle_t;
-
-/**
- * Hardware instantiation parameters for CSRNG.
- */
-typedef struct dif_csrng_params {
-  /**
-   * The base address for the CSRNG hardware registers.
-   */
-  mmio_region_t base_addr;
-} dif_csrng_params_t;
-
-/**
- * Runtime debug configuration for CSRNG.
- *
- * This struct describes runtime debug configuration parameters for one-time
- * configuration of the hardware.
- */
-// TODO: Add support to disable this functionality in production mode.
-typedef struct dif_csrng_debug_config {
-  /**
-   * Bypass the AES cipher core.
-   *
-   * Commands will bypass the AES cipher core, but still move through the
-   * logical flow of CSRNG. this mode is for debug purposes only.
-   */
-  // TODO(#5576): Consider making AES_CIPHER_DISABLE configurable by fuses
-  // or RTL parameters.
-  bool bypass_aes_cipher;
-} dif_csrng_debug_config_t;
-
-/**
- * Runtime configuration for CSRNG.
- *
- * This struct describes runtime information for one-time configuration of the
- * hardware.
- */
-typedef struct dif_csrng_config {
-  /**
-   * Debug configuration parameters.
-   */
-  dif_csrng_debug_config_t debug_config;
-} dif_csrng_config_t;
-
-/**
- * A handle to CSRNG.
- *
- * This type should be treated as opaque by users.
- */
-typedef struct dif_csrng {
-  dif_csrng_params_t params;
-} dif_csrng_t;
-
-/**
- * The result of a CSRNG operation.
- */
-typedef enum dif_csrng_result {
-  /**
-   * Indicates that the operation succeeded.
-   */
-  kDifCsrngOk = 0,
-  /**
-   * Indicates some unspecified failure.
-   */
-  kDifCsrngError = 1,
-  /**
-   * Indicates that some parameter passed into a function failed a
-   * precondition.
-   *
-   * When this value is returned, no hardware operations occurred.
-   */
-  kDifCsrngBadArg = 2,
-  /**
-   * Indicates that this operation has been locked out, and can never
-   * succeed until hardware reset.
-   */
-  kDifCsrngLocked = 3,
-  /**
-   * Indicates that this operation failed due the hardware being
-   * busy. It is safe to retry at a later time.
-   */
-  kDifCsrngBusyError = 4,
-  /**
-   * Indicates that this operation failed due to no output available
-   * in hardware. It is safe to retry at a later time.
-   */
-  kDifCsrngOutputReadyError = 5,
-} dif_csrng_result_t;
 
 /**
  * Enumeration of CSRNG command interface states.
@@ -228,7 +130,7 @@ typedef struct dif_csrng_seed_material {
 typedef struct dif_csrng_output_status {
   /**
    * Set to true when there is cryptographic entropy data available to
-   * read using `dif_csrng_read_output()`.
+   * read using `dif_csrng_generate_end()`.
    */
   bool valid_data;
   /**
@@ -239,61 +141,73 @@ typedef struct dif_csrng_output_status {
 } dif_csrng_output_status_t;
 
 /**
- * A CSRNG interrupt request type.
+ * CSRNG internal state selector ID.
  */
-typedef enum dif_csrng_irq {
+typedef enum dif_csrng_internal_state_id {
   /**
-   * Indicates command request completed.
+   * CSRNG instance assigned to Entropy Distribution Network (EDN) 0.
    */
-  kDifCsrngIrqCmdReqDone,
+  kCsrngInternalStateIdEdn0 = 0,
   /**
-   * Indicates that a request for entropy has been made to the entropy
-   * source.
+   * CSRNG instance assigned to Entropy Distribution Network (EDN) 1.
    */
-  kDifCsrngIrqEntropyReq,
+  kCsrngInternalStateIdEdn1 = 1,
   /**
-   * Indicates command exception.
+   * CSRNG instance assigned to software interface.
    */
-  kDifCsrngIrqCmdException,
-  /**
-   * Idicates that an internal FIFO or other fatal error occurred.
-   */
-  kDifCsrngIrqFatalError,
-} dif_csrng_irq_t;
+  kCsrngInternalStateIdSw = 2,
+} dif_csrng_internal_state_id_t;
 
 /**
- * A snapshot of the enablement state of the interrupts for CSRNG.
- *
- * This is an opaque type, to be used with the `dif_csrng_irq_disable_all()` and
- * `dif_csrng_irq_restore_all()` functions.
+ * CSRNG internal state.
  */
-typedef uint32_t dif_csrng_irq_snapshot_t;
+typedef struct dif_csrng_internal_state {
+  /**
+   * Indicates the number of requests for pseudorandom bits since instantiation
+   * or reseeding.
+   */
+  uint32_t reseed_counter;
+  /**
+   * Internal V working state with a 128bit block size.
+   */
+  uint32_t v[4];
+  /**
+   * Internal key used to configure the internal CSRNG cipher.
+   */
+  uint32_t key[8];
+  /**
+   * Set to true when the CSRNG instance has been instantiated.
+   */
+  bool instantiated;
+  /**
+   * Set to true when FIPS compliant entropy was provided directly by the
+   * entropy source to instantiate or reseed the CSRNG instance.
+   */
+  bool fips_compliance;
+} dif_csrng_internal_state_t;
 
 /**
  * Creates a new handle for CSRNG.
  *
  * This function does not actuate the hardware.
  *
- * @param params Hardware instantiation parameters.
+ * @param base_addr Hardware instantiation base address.
  * @param[out] csrng Out param for the initialized handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_init(dif_csrng_params_t params,
-                                  dif_csrng_t *csrng);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_init(mmio_region_t base_addr, dif_csrng_t *csrng);
 
 /**
- * Configures CSRNG with runtime information.
+ * Configures CSRNG.
  *
  * This function should need to be called once for the lifetime of `csrng`.
  *
  * @param csrng A CSRNG handle.
- * @param config Runtime configuration parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_configure(const dif_csrng_t *csrng,
-                                       dif_csrng_config_t config);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_configure(const dif_csrng_t *csrng);
 
 /**
  * Initializes CSRNG instance with a new seed value.
@@ -310,8 +224,8 @@ dif_csrng_result_t dif_csrng_configure(const dif_csrng_t *csrng,
  * @param seed_material Seed initialization parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_instantiate(
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_instantiate(
     const dif_csrng_t *csrng, dif_csrng_entropy_src_toggle_t entropy_src_enable,
     const dif_csrng_seed_material_t *seed_material);
 
@@ -326,9 +240,9 @@ dif_csrng_result_t dif_csrng_instantiate(
  * @param seed_material Reseed parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_reseed(
-    const dif_csrng_t *csrng, const dif_csrng_seed_material_t *seed_material);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_reseed(const dif_csrng_t *csrng,
+                              const dif_csrng_seed_material_t *seed_material);
 
 /**
  * Updates CSRNG state.
@@ -343,9 +257,9 @@ dif_csrng_result_t dif_csrng_reseed(
  * @param seed_material Update parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_update(
-    const dif_csrng_t *csrng, const dif_csrng_seed_material_t *seed_material);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_update(const dif_csrng_t *csrng,
+                              const dif_csrng_seed_material_t *seed_material);
 
 /**
  * Requests cryptographic entropy bits from the CSRNG.
@@ -363,8 +277,27 @@ dif_csrng_result_t dif_csrng_update(
  * @param len Number of uint32_t words to generate.
  *
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_generate(const dif_csrng_t *csrng, size_t len);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_generate_start(const dif_csrng_t *csrng, size_t len);
+
+/**
+ * Reads the output of the last CSRNG generate call.
+ *
+ * This function blocks until all data is read from the CSRNG. The caller is
+ * responsible for making sure that the `len` parameter matches the length set
+ * in the `dif_csrng_generate_start()` call.
+ *
+ * `dif_csrng_get_output_status()` can be called before this function to ensure
+ * there is data availble in the CSRNG output buffer.
+ *
+ * @param csrng A CSRNG handle.
+ * @param[out] buf A buffer to fill with words from the pipeline.
+ * @param len The number of words to read into `buf`.
+ * @return The result of the operation.
+ */
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_generate_end(const dif_csrng_t *csrng, uint32_t *buf,
+                                    size_t len);
 
 /**
  * Uninstantiates CSRNG
@@ -376,8 +309,8 @@ dif_csrng_result_t dif_csrng_generate(const dif_csrng_t *csrng, size_t len);
  * @param csrng An CSRNG handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_uninstantiate(const dif_csrng_t *csrng);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_uninstantiate(const dif_csrng_t *csrng);
 
 /**
  * Gets the current command interface status.
@@ -387,42 +320,44 @@ dif_csrng_result_t dif_csrng_uninstantiate(const dif_csrng_t *csrng);
  * - `dif_csrng_instantiate()`
  * - `dif_csrng_reseed()`
  * - `dif_csrng_update()`
- * - `dif_csrng_generate()`
+ * - `dif_csrng_generate_start()`
  * - `dif_csrng_uninstantiate()`
  *
  * @param csrng An CSRNG handle
  * @param[out] status Command interface status.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_get_cmd_interface_status(
-    const dif_csrng_t *csrng, dif_csrng_cmd_status_t *status);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_get_cmd_interface_status(const dif_csrng_t *csrng,
+                                                dif_csrng_cmd_status_t *status);
 
 /**
  * Gets the current cryptographic entropy output data status.
  *
- * This function can be used before calling `dif_csrng_read_output()` to
+ * This function can be used before calling `dif_csrng_generate_end()` to
  * check if there is data available to read.
  *
- * @param csrng A CSRNG handle
- * @param[out] status
+ * @param csrng A CSRNG handle.
+ * @param[out] status CSRNG output status.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_get_output_status(
-    const dif_csrng_t *csrng, dif_csrng_output_status_t *status);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_get_output_status(const dif_csrng_t *csrng,
+                                         dif_csrng_output_status_t *status);
 
 /**
- * Reads the output of the last CSRNG operation
+ * Gets the working state of a CSRNG instance.
  *
- * @param csrng A CSRNG handle.
- * @param[out] buf A buffer to fill with words from the pipeline.
- * @param len The number of words to read into `buf`.
+ * @param csrng A CSRNG handle
+ * @param instance_id CSRNG instance ID.
+ * @param[out] state The working state of a CSRNG instance.
  * @return The result of the operation.
+ *
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_read_output(const dif_csrng_t *csrng,
-                                         uint32_t *buf, size_t len);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_get_internal_state(
+    const dif_csrng_t *csrng, dif_csrng_internal_state_id_t instance_id,
+    dif_csrng_internal_state_t *state);
 
 /**
  * Locks out CSRNG functionality.
@@ -433,8 +368,8 @@ dif_csrng_result_t dif_csrng_read_output(const dif_csrng_t *csrng,
  * @param csrng A CSRNG handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_lock(const dif_csrng_t *csrng);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_lock(const dif_csrng_t *csrng);
 
 /**
  * Checks whether this CSRNG is locked.
@@ -443,98 +378,8 @@ dif_csrng_result_t dif_csrng_lock(const dif_csrng_t *csrng);
  * @param[out] is_locked Out-param for the locked state.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_is_locked(const dif_csrng_t *csrng,
-                                       bool *is_locked);
-
-/**
- * Returns whether a particular interrupt is currently pending.
- *
- * @param csrng A CSRNG handle.
- * @param irq An interrupt type.
- * @param[out] is_pending Out-param for whether the interrupt is pending.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_is_pending(const dif_csrng_t *csrng,
-                                            dif_csrng_irq_t irq,
-                                            bool *is_pending);
-
-/**
- * Acknowledges a particular interrupt, indicating to the hardware that it has
- * been successfully serviced.
- *
- * @param csrng A CSRNG handle.
- * @param irq An interrupt type.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_acknowledge(const dif_csrng_t *csrng,
-                                             dif_csrng_irq_t irq);
-
-/**
- * Checks whether a particular interrupt is currently enabled or disabled.
- *
- * @param csrng A CSRNG handle.
- * @param irq An interrupt type.
- * @param[out] state Out-param toggle state of the interrupt.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_get_enabled(const dif_csrng_t *csrng,
-                                             dif_csrng_irq_t irq,
-                                             dif_csrng_toggle_t *state);
-
-/**
- * Sets whether a particular interrupt is currently enabled or disabled.
- *
- * @param csrng A CSRNG handle.
- * @param irq An interrupt type.
- * @param state The new toggle state for the interrupt.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_set_enabled(const dif_csrng_t *csrng,
-                                             dif_csrng_irq_t irq,
-                                             dif_csrng_toggle_t state);
-
-/**
- * Forces a particular interrupt, causing it to be serviced as if hardware had
- * asserted it.
- *
- * @param csrng A CSRNG handle.
- * @param irq An interrupt type.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_force(const dif_csrng_t *csrng,
-                                       dif_csrng_irq_t irq);
-
-/**
- * Disables all interrupts, optionally snapshotting all toggle state for later
- * restoration.
- *
- * @param csrng A CSRNG handle.
- * @param[out] snapshot Out-param for the snapshot; may be `NULL`.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_disable_all(
-    const dif_csrng_t *csrng, dif_csrng_irq_snapshot_t *snapshot);
-
-/**
- * Restores interrupts from the given snapshot.
- *
- * This function can be used with `dif_csrng_irq_disable_all()` to temporary
- * interrupt save-and-restore.
- *
- * @param csrng A CSRNG handle.
- * @param snapshot A snapshot to restore from.
- * @return The result of the operation.
- */
-DIF_WARN_UNUSED_RESULT
-dif_csrng_result_t dif_csrng_irq_restore_all(
-    const dif_csrng_t *csrng, const dif_csrng_irq_snapshot_t *snapshot);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_csrng_is_locked(const dif_csrng_t *csrng, bool *is_locked);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -9,7 +9,6 @@
 module sensor_ctrl_reg_top (
   input clk_i,
   input rst_ni,
-
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
   // To HW
@@ -41,14 +40,16 @@ module sensor_ctrl_reg_top (
   logic          addrmiss, wr_err;
 
   logic [DW-1:0] reg_rdata_next;
+  logic reg_busy;
 
   tlul_pkg::tl_h2d_t tl_reg_h2d;
   tlul_pkg::tl_d2h_t tl_reg_d2h;
 
+
   // incoming payload check
   logic intg_err;
   tlul_cmd_intg_chk u_chk (
-    .tl_i,
+    .tl_i(tl_i),
     .err_o(intg_err)
   );
 
@@ -72,7 +73,7 @@ module sensor_ctrl_reg_top (
     .EnableDataIntgGen(1)
   ) u_rsp_intg_gen (
     .tl_i(tl_o_pre),
-    .tl_o
+    .tl_o(tl_o)
   );
 
   assign tl_reg_h2d = tl_i;
@@ -83,8 +84,8 @@ module sensor_ctrl_reg_top (
     .RegDw(DW),
     .EnableDataIntgGen(0)
   ) u_reg_if (
-    .clk_i,
-    .rst_ni,
+    .clk_i  (clk_i),
+    .rst_ni (rst_ni),
 
     .tl_i (tl_reg_h2d),
     .tl_o (tl_reg_d2h),
@@ -94,9 +95,12 @@ module sensor_ctrl_reg_top (
     .addr_o  (reg_addr),
     .wdata_o (reg_wdata),
     .be_o    (reg_be),
+    .busy_i  (reg_busy),
     .rdata_i (reg_rdata),
     .error_i (reg_error)
   );
+
+  // cdc oversampling signals
 
   assign reg_rdata = reg_rdata_next ;
   assign reg_error = (devmode_i & addrmiss) | wr_err | intg_err;
@@ -104,205 +108,149 @@ module sensor_ctrl_reg_top (
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
   //        or <reg>_{wd|we|qs} if field == 1 or 0
-  logic alert_test_recov_as_wd;
-  logic alert_test_recov_as_we;
-  logic alert_test_recov_cg_wd;
-  logic alert_test_recov_cg_we;
-  logic alert_test_recov_gd_wd;
-  logic alert_test_recov_gd_we;
-  logic alert_test_recov_ts_hi_wd;
-  logic alert_test_recov_ts_hi_we;
-  logic alert_test_recov_ts_lo_wd;
-  logic alert_test_recov_ts_lo_we;
-  logic alert_test_recov_ls_wd;
-  logic alert_test_recov_ls_we;
-  logic alert_test_recov_ot_wd;
-  logic alert_test_recov_ot_we;
+  logic alert_test_we;
+  logic alert_test_recov_alert_wd;
+  logic alert_test_fatal_alert_wd;
+  logic cfg_regwen_we;
   logic cfg_regwen_qs;
   logic cfg_regwen_wd;
-  logic cfg_regwen_we;
-  logic [1:0] ack_mode_val_0_qs;
-  logic [1:0] ack_mode_val_0_wd;
-  logic ack_mode_val_0_we;
-  logic [1:0] ack_mode_val_1_qs;
-  logic [1:0] ack_mode_val_1_wd;
-  logic ack_mode_val_1_we;
-  logic [1:0] ack_mode_val_2_qs;
-  logic [1:0] ack_mode_val_2_wd;
-  logic ack_mode_val_2_we;
-  logic [1:0] ack_mode_val_3_qs;
-  logic [1:0] ack_mode_val_3_wd;
-  logic ack_mode_val_3_we;
-  logic [1:0] ack_mode_val_4_qs;
-  logic [1:0] ack_mode_val_4_wd;
-  logic ack_mode_val_4_we;
-  logic [1:0] ack_mode_val_5_qs;
-  logic [1:0] ack_mode_val_5_wd;
-  logic ack_mode_val_5_we;
-  logic [1:0] ack_mode_val_6_qs;
-  logic [1:0] ack_mode_val_6_wd;
-  logic ack_mode_val_6_we;
+  logic alert_trig_we;
   logic alert_trig_val_0_qs;
   logic alert_trig_val_0_wd;
-  logic alert_trig_val_0_we;
   logic alert_trig_val_1_qs;
   logic alert_trig_val_1_wd;
-  logic alert_trig_val_1_we;
   logic alert_trig_val_2_qs;
   logic alert_trig_val_2_wd;
-  logic alert_trig_val_2_we;
   logic alert_trig_val_3_qs;
   logic alert_trig_val_3_wd;
-  logic alert_trig_val_3_we;
   logic alert_trig_val_4_qs;
   logic alert_trig_val_4_wd;
-  logic alert_trig_val_4_we;
   logic alert_trig_val_5_qs;
   logic alert_trig_val_5_wd;
-  logic alert_trig_val_5_we;
   logic alert_trig_val_6_qs;
   logic alert_trig_val_6_wd;
-  logic alert_trig_val_6_we;
-  logic alert_state_val_0_qs;
-  logic alert_state_val_0_wd;
-  logic alert_state_val_0_we;
-  logic alert_state_val_1_qs;
-  logic alert_state_val_1_wd;
-  logic alert_state_val_1_we;
-  logic alert_state_val_2_qs;
-  logic alert_state_val_2_wd;
-  logic alert_state_val_2_we;
-  logic alert_state_val_3_qs;
-  logic alert_state_val_3_wd;
-  logic alert_state_val_3_we;
-  logic alert_state_val_4_qs;
-  logic alert_state_val_4_wd;
-  logic alert_state_val_4_we;
-  logic alert_state_val_5_qs;
-  logic alert_state_val_5_wd;
-  logic alert_state_val_5_we;
-  logic alert_state_val_6_qs;
-  logic alert_state_val_6_wd;
-  logic alert_state_val_6_we;
-  logic [1:0] status_qs;
+  logic alert_trig_val_7_qs;
+  logic alert_trig_val_7_wd;
+  logic alert_trig_val_8_qs;
+  logic alert_trig_val_8_wd;
+  logic alert_trig_val_9_qs;
+  logic alert_trig_val_9_wd;
+  logic alert_trig_val_10_qs;
+  logic alert_trig_val_10_wd;
+  logic alert_trig_val_11_qs;
+  logic alert_trig_val_11_wd;
+  logic alert_trig_val_12_qs;
+  logic alert_trig_val_12_wd;
+  logic fatal_alert_en_we;
+  logic fatal_alert_en_val_0_qs;
+  logic fatal_alert_en_val_0_wd;
+  logic fatal_alert_en_val_1_qs;
+  logic fatal_alert_en_val_1_wd;
+  logic fatal_alert_en_val_2_qs;
+  logic fatal_alert_en_val_2_wd;
+  logic fatal_alert_en_val_3_qs;
+  logic fatal_alert_en_val_3_wd;
+  logic fatal_alert_en_val_4_qs;
+  logic fatal_alert_en_val_4_wd;
+  logic fatal_alert_en_val_5_qs;
+  logic fatal_alert_en_val_5_wd;
+  logic fatal_alert_en_val_6_qs;
+  logic fatal_alert_en_val_6_wd;
+  logic fatal_alert_en_val_7_qs;
+  logic fatal_alert_en_val_7_wd;
+  logic fatal_alert_en_val_8_qs;
+  logic fatal_alert_en_val_8_wd;
+  logic fatal_alert_en_val_9_qs;
+  logic fatal_alert_en_val_9_wd;
+  logic fatal_alert_en_val_10_qs;
+  logic fatal_alert_en_val_10_wd;
+  logic fatal_alert_en_val_11_qs;
+  logic fatal_alert_en_val_11_wd;
+  logic fatal_alert_en_val_12_qs;
+  logic fatal_alert_en_val_12_wd;
+  logic recov_alert_we;
+  logic recov_alert_val_0_qs;
+  logic recov_alert_val_0_wd;
+  logic recov_alert_val_1_qs;
+  logic recov_alert_val_1_wd;
+  logic recov_alert_val_2_qs;
+  logic recov_alert_val_2_wd;
+  logic recov_alert_val_3_qs;
+  logic recov_alert_val_3_wd;
+  logic recov_alert_val_4_qs;
+  logic recov_alert_val_4_wd;
+  logic recov_alert_val_5_qs;
+  logic recov_alert_val_5_wd;
+  logic recov_alert_val_6_qs;
+  logic recov_alert_val_6_wd;
+  logic recov_alert_val_7_qs;
+  logic recov_alert_val_7_wd;
+  logic recov_alert_val_8_qs;
+  logic recov_alert_val_8_wd;
+  logic recov_alert_val_9_qs;
+  logic recov_alert_val_9_wd;
+  logic recov_alert_val_10_qs;
+  logic recov_alert_val_10_wd;
+  logic recov_alert_val_11_qs;
+  logic recov_alert_val_11_wd;
+  logic recov_alert_val_12_qs;
+  logic recov_alert_val_12_wd;
+  logic fatal_alert_val_0_qs;
+  logic fatal_alert_val_1_qs;
+  logic fatal_alert_val_2_qs;
+  logic fatal_alert_val_3_qs;
+  logic fatal_alert_val_4_qs;
+  logic fatal_alert_val_5_qs;
+  logic fatal_alert_val_6_qs;
+  logic fatal_alert_val_7_qs;
+  logic fatal_alert_val_8_qs;
+  logic fatal_alert_val_9_qs;
+  logic fatal_alert_val_10_qs;
+  logic fatal_alert_val_11_qs;
+  logic fatal_alert_val_12_qs;
+  logic fatal_alert_val_13_qs;
+  logic status_ast_init_done_qs;
+  logic [1:0] status_io_pok_qs;
 
   // Register instances
   // R[alert_test]: V(True)
-
-  //   F[recov_as]: 0:0
+  //   F[recov_alert]: 0:0
   prim_subreg_ext #(
     .DW    (1)
-  ) u_alert_test_recov_as (
+  ) u_alert_test_recov_alert (
     .re     (1'b0),
-    .we     (alert_test_recov_as_we),
-    .wd     (alert_test_recov_as_wd),
+    .we     (alert_test_we),
+    .wd     (alert_test_recov_alert_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.alert_test.recov_as.qe),
-    .q      (reg2hw.alert_test.recov_as.q ),
+    .qe     (reg2hw.alert_test.recov_alert.qe),
+    .q      (reg2hw.alert_test.recov_alert.q),
     .qs     ()
   );
 
-
-  //   F[recov_cg]: 1:1
+  //   F[fatal_alert]: 1:1
   prim_subreg_ext #(
     .DW    (1)
-  ) u_alert_test_recov_cg (
+  ) u_alert_test_fatal_alert (
     .re     (1'b0),
-    .we     (alert_test_recov_cg_we),
-    .wd     (alert_test_recov_cg_wd),
+    .we     (alert_test_we),
+    .wd     (alert_test_fatal_alert_wd),
     .d      ('0),
     .qre    (),
-    .qe     (reg2hw.alert_test.recov_cg.qe),
-    .q      (reg2hw.alert_test.recov_cg.q ),
-    .qs     ()
-  );
-
-
-  //   F[recov_gd]: 2:2
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_alert_test_recov_gd (
-    .re     (1'b0),
-    .we     (alert_test_recov_gd_we),
-    .wd     (alert_test_recov_gd_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.alert_test.recov_gd.qe),
-    .q      (reg2hw.alert_test.recov_gd.q ),
-    .qs     ()
-  );
-
-
-  //   F[recov_ts_hi]: 3:3
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_alert_test_recov_ts_hi (
-    .re     (1'b0),
-    .we     (alert_test_recov_ts_hi_we),
-    .wd     (alert_test_recov_ts_hi_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.alert_test.recov_ts_hi.qe),
-    .q      (reg2hw.alert_test.recov_ts_hi.q ),
-    .qs     ()
-  );
-
-
-  //   F[recov_ts_lo]: 4:4
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_alert_test_recov_ts_lo (
-    .re     (1'b0),
-    .we     (alert_test_recov_ts_lo_we),
-    .wd     (alert_test_recov_ts_lo_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.alert_test.recov_ts_lo.qe),
-    .q      (reg2hw.alert_test.recov_ts_lo.q ),
-    .qs     ()
-  );
-
-
-  //   F[recov_ls]: 5:5
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_alert_test_recov_ls (
-    .re     (1'b0),
-    .we     (alert_test_recov_ls_we),
-    .wd     (alert_test_recov_ls_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.alert_test.recov_ls.qe),
-    .q      (reg2hw.alert_test.recov_ls.q ),
-    .qs     ()
-  );
-
-
-  //   F[recov_ot]: 6:6
-  prim_subreg_ext #(
-    .DW    (1)
-  ) u_alert_test_recov_ot (
-    .re     (1'b0),
-    .we     (alert_test_recov_ot_we),
-    .wd     (alert_test_recov_ot_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.alert_test.recov_ot.qe),
-    .q      (reg2hw.alert_test.recov_ot.q ),
+    .qe     (reg2hw.alert_test.fatal_alert.qe),
+    .q      (reg2hw.alert_test.fatal_alert.q),
     .qs     ()
   );
 
 
   // R[cfg_regwen]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W0C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW0C),
     .RESVAL  (1'h1)
   ) u_cfg_regwen (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (cfg_regwen_we),
@@ -310,7 +258,7 @@ module sensor_ctrl_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
@@ -321,705 +269,1510 @@ module sensor_ctrl_reg_top (
   );
 
 
-
-  // Subregister 0 of Multireg ack_mode
-  // R[ack_mode]: V(False)
-
-  // F[val_0]: 1:0
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_0_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_0_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[0].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_0_qs)
-  );
-
-
-  // F[val_1]: 3:2
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_1_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_1_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[1].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_1_qs)
-  );
-
-
-  // F[val_2]: 5:4
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_2_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_2_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[2].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_2_qs)
-  );
-
-
-  // F[val_3]: 7:6
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_3_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_3_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[3].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_3_qs)
-  );
-
-
-  // F[val_4]: 9:8
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_4 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_4_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_4_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[4].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_4_qs)
-  );
-
-
-  // F[val_5]: 11:10
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_5 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_5_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_5_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[5].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_5_qs)
-  );
-
-
-  // F[val_6]: 13:12
-  prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RW"),
-    .RESVAL  (2'h0)
-  ) u_ack_mode_val_6 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface (qualified with register enable)
-    .we     (ack_mode_val_6_we & cfg_regwen_qs),
-    .wd     (ack_mode_val_6_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ack_mode[6].q ),
-
-    // to register interface (read)
-    .qs     (ack_mode_val_6_qs)
-  );
-
-
-
-
   // Subregister 0 of Multireg alert_trig
   // R[alert_trig]: V(False)
-
-  // F[val_0]: 0:0
+  //   F[val_0]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_0_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_0_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[0].q ),
+    .q      (reg2hw.alert_trig[0].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_0_qs)
   );
 
-
-  // F[val_1]: 1:1
+  //   F[val_1]: 1:1
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_1_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_1_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[1].q ),
+    .q      (reg2hw.alert_trig[1].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_1_qs)
   );
 
-
-  // F[val_2]: 2:2
+  //   F[val_2]: 2:2
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_2_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_2_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[2].q ),
+    .q      (reg2hw.alert_trig[2].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_2_qs)
   );
 
-
-  // F[val_3]: 3:3
+  //   F[val_3]: 3:3
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_3_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_3_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[3].q ),
+    .q      (reg2hw.alert_trig[3].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_3_qs)
   );
 
-
-  // F[val_4]: 4:4
+  //   F[val_4]: 4:4
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_4 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_4_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_4_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[4].q ),
+    .q      (reg2hw.alert_trig[4].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_4_qs)
   );
 
-
-  // F[val_5]: 5:5
+  //   F[val_5]: 5:5
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_5 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_5_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_5_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[5].q ),
+    .q      (reg2hw.alert_trig[5].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_5_qs)
   );
 
-
-  // F[val_6]: 6:6
+  //   F[val_6]: 6:6
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_alert_trig_val_6 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_trig_val_6_we),
+    .we     (alert_trig_we),
     .wd     (alert_trig_val_6_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.alert_trig[6].q ),
+    .q      (reg2hw.alert_trig[6].q),
 
     // to register interface (read)
     .qs     (alert_trig_val_6_qs)
   );
 
-
-
-
-  // Subregister 0 of Multireg alert_state
-  // R[alert_state]: V(False)
-
-  // F[val_0]: 0:0
+  //   F[val_7]: 7:7
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_alert_trig_val_7 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_0_we),
-    .wd     (alert_state_val_0_wd),
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_7_wd),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[0].de),
-    .d      (hw2reg.alert_state[0].d ),
+    .de     (1'b0),
+    .d      ('0),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[0].qe),
-    .q      (reg2hw.alert_state[0].q ),
+    .qe     (),
+    .q      (reg2hw.alert_trig[7].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_0_qs)
+    .qs     (alert_trig_val_7_qs)
+  );
+
+  //   F[val_8]: 8:8
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_alert_trig_val_8 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_8_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.alert_trig[8].q),
+
+    // to register interface (read)
+    .qs     (alert_trig_val_8_qs)
+  );
+
+  //   F[val_9]: 9:9
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_alert_trig_val_9 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_9_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.alert_trig[9].q),
+
+    // to register interface (read)
+    .qs     (alert_trig_val_9_qs)
+  );
+
+  //   F[val_10]: 10:10
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_alert_trig_val_10 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_10_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.alert_trig[10].q),
+
+    // to register interface (read)
+    .qs     (alert_trig_val_10_qs)
+  );
+
+  //   F[val_11]: 11:11
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_alert_trig_val_11 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_11_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.alert_trig[11].q),
+
+    // to register interface (read)
+    .qs     (alert_trig_val_11_qs)
+  );
+
+  //   F[val_12]: 12:12
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_alert_trig_val_12 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (alert_trig_we),
+    .wd     (alert_trig_val_12_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.alert_trig[12].q),
+
+    // to register interface (read)
+    .qs     (alert_trig_val_12_qs)
   );
 
 
-  // F[val_1]: 1:1
+  // Subregister 0 of Multireg fatal_alert_en
+  // R[fatal_alert_en]: V(False)
+  //   F[val_0]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_fatal_alert_en_val_0 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_1_we),
-    .wd     (alert_state_val_1_wd),
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_0_wd),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[1].de),
-    .d      (hw2reg.alert_state[1].d ),
+    .de     (1'b0),
+    .d      ('0),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[1].qe),
-    .q      (reg2hw.alert_state[1].q ),
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[0].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_1_qs)
+    .qs     (fatal_alert_en_val_0_qs)
+  );
+
+  //   F[val_1]: 1:1
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_1 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_1_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[1].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_1_qs)
+  );
+
+  //   F[val_2]: 2:2
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_2 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_2_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[2].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_2_qs)
+  );
+
+  //   F[val_3]: 3:3
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_3 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_3_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[3].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_3_qs)
+  );
+
+  //   F[val_4]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_4 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_4_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[4].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_4_qs)
+  );
+
+  //   F[val_5]: 5:5
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_5 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_5_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[5].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_5_qs)
+  );
+
+  //   F[val_6]: 6:6
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_6 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_6_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[6].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_6_qs)
+  );
+
+  //   F[val_7]: 7:7
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_7 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_7_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[7].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_7_qs)
+  );
+
+  //   F[val_8]: 8:8
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_8 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_8_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[8].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_8_qs)
+  );
+
+  //   F[val_9]: 9:9
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_9 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_9_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[9].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_9_qs)
+  );
+
+  //   F[val_10]: 10:10
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_10 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_10_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[10].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_10_qs)
+  );
+
+  //   F[val_11]: 11:11
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_11 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_11_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[11].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_11_qs)
+  );
+
+  //   F[val_12]: 12:12
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_en_val_12 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (fatal_alert_en_we & cfg_regwen_qs),
+    .wd     (fatal_alert_en_val_12_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert_en[12].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_en_val_12_qs)
   );
 
 
-  // F[val_2]: 2:2
+  // Subregister 0 of Multireg recov_alert
+  // R[recov_alert]: V(False)
+  //   F[val_0]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_recov_alert_val_0 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_2_we),
-    .wd     (alert_state_val_2_wd),
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_0_wd),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[2].de),
-    .d      (hw2reg.alert_state[2].d ),
+    .de     (hw2reg.recov_alert[0].de),
+    .d      (hw2reg.recov_alert[0].d),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[2].qe),
-    .q      (reg2hw.alert_state[2].q ),
+    .qe     (),
+    .q      (reg2hw.recov_alert[0].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_2_qs)
+    .qs     (recov_alert_val_0_qs)
+  );
+
+  //   F[val_1]: 1:1
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_1 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_1_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[1].de),
+    .d      (hw2reg.recov_alert[1].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[1].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_1_qs)
+  );
+
+  //   F[val_2]: 2:2
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_2 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_2_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[2].de),
+    .d      (hw2reg.recov_alert[2].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[2].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_2_qs)
+  );
+
+  //   F[val_3]: 3:3
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_3 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_3_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[3].de),
+    .d      (hw2reg.recov_alert[3].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[3].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_3_qs)
+  );
+
+  //   F[val_4]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_4 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_4_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[4].de),
+    .d      (hw2reg.recov_alert[4].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[4].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_4_qs)
+  );
+
+  //   F[val_5]: 5:5
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_5 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_5_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[5].de),
+    .d      (hw2reg.recov_alert[5].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[5].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_5_qs)
+  );
+
+  //   F[val_6]: 6:6
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_6 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_6_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[6].de),
+    .d      (hw2reg.recov_alert[6].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[6].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_6_qs)
+  );
+
+  //   F[val_7]: 7:7
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_7 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_7_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[7].de),
+    .d      (hw2reg.recov_alert[7].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[7].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_7_qs)
+  );
+
+  //   F[val_8]: 8:8
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_8 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_8_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[8].de),
+    .d      (hw2reg.recov_alert[8].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[8].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_8_qs)
+  );
+
+  //   F[val_9]: 9:9
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_9 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_9_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[9].de),
+    .d      (hw2reg.recov_alert[9].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[9].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_9_qs)
+  );
+
+  //   F[val_10]: 10:10
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_10 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_10_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[10].de),
+    .d      (hw2reg.recov_alert[10].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[10].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_10_qs)
+  );
+
+  //   F[val_11]: 11:11
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_11 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_11_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[11].de),
+    .d      (hw2reg.recov_alert[11].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[11].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_11_qs)
+  );
+
+  //   F[val_12]: 12:12
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_alert_val_12 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_alert_we),
+    .wd     (recov_alert_val_12_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_alert[12].de),
+    .d      (hw2reg.recov_alert[12].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_alert[12].q),
+
+    // to register interface (read)
+    .qs     (recov_alert_val_12_qs)
   );
 
 
-  // F[val_3]: 3:3
+  // Subregister 0 of Multireg fatal_alert
+  // R[fatal_alert]: V(False)
+  //   F[val_0]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_fatal_alert_val_0 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_3_we),
-    .wd     (alert_state_val_3_wd),
+    .we     (1'b0),
+    .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[3].de),
-    .d      (hw2reg.alert_state[3].d ),
+    .de     (hw2reg.fatal_alert[0].de),
+    .d      (hw2reg.fatal_alert[0].d),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[3].qe),
-    .q      (reg2hw.alert_state[3].q ),
+    .qe     (),
+    .q      (reg2hw.fatal_alert[0].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_3_qs)
+    .qs     (fatal_alert_val_0_qs)
   );
 
-
-  // F[val_4]: 4:4
+  //   F[val_1]: 1:1
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_4 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_fatal_alert_val_1 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_4_we),
-    .wd     (alert_state_val_4_wd),
+    .we     (1'b0),
+    .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[4].de),
-    .d      (hw2reg.alert_state[4].d ),
+    .de     (hw2reg.fatal_alert[1].de),
+    .d      (hw2reg.fatal_alert[1].d),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[4].qe),
-    .q      (reg2hw.alert_state[4].q ),
+    .qe     (),
+    .q      (reg2hw.fatal_alert[1].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_4_qs)
+    .qs     (fatal_alert_val_1_qs)
   );
 
-
-  // F[val_5]: 5:5
+  //   F[val_2]: 2:2
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_5 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_fatal_alert_val_2 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_5_we),
-    .wd     (alert_state_val_5_wd),
+    .we     (1'b0),
+    .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[5].de),
-    .d      (hw2reg.alert_state[5].d ),
+    .de     (hw2reg.fatal_alert[2].de),
+    .d      (hw2reg.fatal_alert[2].d),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[5].qe),
-    .q      (reg2hw.alert_state[5].q ),
+    .qe     (),
+    .q      (reg2hw.fatal_alert[2].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_5_qs)
+    .qs     (fatal_alert_val_2_qs)
   );
 
-
-  // F[val_6]: 6:6
+  //   F[val_3]: 3:3
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W1C"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h0)
-  ) u_alert_state_val_6 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_fatal_alert_val_3 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (alert_state_val_6_we),
-    .wd     (alert_state_val_6_wd),
+    .we     (1'b0),
+    .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.alert_state[6].de),
-    .d      (hw2reg.alert_state[6].d ),
+    .de     (hw2reg.fatal_alert[3].de),
+    .d      (hw2reg.fatal_alert[3].d),
 
     // to internal hardware
-    .qe     (reg2hw.alert_state[6].qe),
-    .q      (reg2hw.alert_state[6].q ),
+    .qe     (),
+    .q      (reg2hw.fatal_alert[3].q),
 
     // to register interface (read)
-    .qs     (alert_state_val_6_qs)
+    .qs     (fatal_alert_val_3_qs)
   );
 
+  //   F[val_4]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_4 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[4].de),
+    .d      (hw2reg.fatal_alert[4].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[4].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_4_qs)
+  );
+
+  //   F[val_5]: 5:5
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_5 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[5].de),
+    .d      (hw2reg.fatal_alert[5].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[5].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_5_qs)
+  );
+
+  //   F[val_6]: 6:6
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_6 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[6].de),
+    .d      (hw2reg.fatal_alert[6].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[6].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_6_qs)
+  );
+
+  //   F[val_7]: 7:7
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_7 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[7].de),
+    .d      (hw2reg.fatal_alert[7].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[7].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_7_qs)
+  );
+
+  //   F[val_8]: 8:8
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_8 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[8].de),
+    .d      (hw2reg.fatal_alert[8].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[8].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_8_qs)
+  );
+
+  //   F[val_9]: 9:9
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_9 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[9].de),
+    .d      (hw2reg.fatal_alert[9].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[9].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_9_qs)
+  );
+
+  //   F[val_10]: 10:10
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_10 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[10].de),
+    .d      (hw2reg.fatal_alert[10].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[10].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_10_qs)
+  );
+
+  //   F[val_11]: 11:11
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_11 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[11].de),
+    .d      (hw2reg.fatal_alert[11].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[11].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_11_qs)
+  );
+
+  //   F[val_12]: 12:12
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_12 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[12].de),
+    .d      (hw2reg.fatal_alert[12].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[12].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_12_qs)
+  );
+
+  //   F[val_13]: 13:13
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_alert_val_13 (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_alert[13].de),
+    .d      (hw2reg.fatal_alert[13].d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_alert[13].q),
+
+    // to register interface (read)
+    .qs     (fatal_alert_val_13_qs)
+  );
 
 
   // R[status]: V(False)
-
+  //   F[ast_init_done]: 0:0
   prim_subreg #(
-    .DW      (2),
-    .SWACCESS("RO"),
-    .RESVAL  (2'h3)
-  ) u_status (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_status_ast_init_done (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.status.de),
-    .d      (hw2reg.status.d ),
+    .de     (hw2reg.status.ast_init_done.de),
+    .d      (hw2reg.status.ast_init_done.d),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (status_qs)
+    .qs     (status_ast_init_done_qs)
+  );
+
+  //   F[io_pok]: 2:1
+  prim_subreg #(
+    .DW      (2),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (2'h3)
+  ) u_status_io_pok (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.status.io_pok.de),
+    .d      (hw2reg.status.io_pok.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (status_io_pok_qs)
   );
 
 
 
-
-  logic [5:0] addr_hit;
+  logic [6:0] addr_hit;
   always_comb begin
     addr_hit = '0;
     addr_hit[0] = (reg_addr == SENSOR_CTRL_ALERT_TEST_OFFSET);
     addr_hit[1] = (reg_addr == SENSOR_CTRL_CFG_REGWEN_OFFSET);
-    addr_hit[2] = (reg_addr == SENSOR_CTRL_ACK_MODE_OFFSET);
-    addr_hit[3] = (reg_addr == SENSOR_CTRL_ALERT_TRIG_OFFSET);
-    addr_hit[4] = (reg_addr == SENSOR_CTRL_ALERT_STATE_OFFSET);
-    addr_hit[5] = (reg_addr == SENSOR_CTRL_STATUS_OFFSET);
+    addr_hit[2] = (reg_addr == SENSOR_CTRL_ALERT_TRIG_OFFSET);
+    addr_hit[3] = (reg_addr == SENSOR_CTRL_FATAL_ALERT_EN_OFFSET);
+    addr_hit[4] = (reg_addr == SENSOR_CTRL_RECOV_ALERT_OFFSET);
+    addr_hit[5] = (reg_addr == SENSOR_CTRL_FATAL_ALERT_OFFSET);
+    addr_hit[6] = (reg_addr == SENSOR_CTRL_STATUS_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
 
   // Check sub-word write is permitted
   always_comb begin
-    wr_err = 1'b0;
-    if (addr_hit[0] && reg_we && (SENSOR_CTRL_PERMIT[0] != (SENSOR_CTRL_PERMIT[0] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[1] && reg_we && (SENSOR_CTRL_PERMIT[1] != (SENSOR_CTRL_PERMIT[1] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[2] && reg_we && (SENSOR_CTRL_PERMIT[2] != (SENSOR_CTRL_PERMIT[2] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[3] && reg_we && (SENSOR_CTRL_PERMIT[3] != (SENSOR_CTRL_PERMIT[3] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[4] && reg_we && (SENSOR_CTRL_PERMIT[4] != (SENSOR_CTRL_PERMIT[4] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[5] && reg_we && (SENSOR_CTRL_PERMIT[5] != (SENSOR_CTRL_PERMIT[5] & reg_be))) wr_err = 1'b1 ;
+    wr_err = (reg_we &
+              ((addr_hit[0] & (|(SENSOR_CTRL_PERMIT[0] & ~reg_be))) |
+               (addr_hit[1] & (|(SENSOR_CTRL_PERMIT[1] & ~reg_be))) |
+               (addr_hit[2] & (|(SENSOR_CTRL_PERMIT[2] & ~reg_be))) |
+               (addr_hit[3] & (|(SENSOR_CTRL_PERMIT[3] & ~reg_be))) |
+               (addr_hit[4] & (|(SENSOR_CTRL_PERMIT[4] & ~reg_be))) |
+               (addr_hit[5] & (|(SENSOR_CTRL_PERMIT[5] & ~reg_be))) |
+               (addr_hit[6] & (|(SENSOR_CTRL_PERMIT[6] & ~reg_be)))));
   end
+  assign alert_test_we = addr_hit[0] & reg_we & !reg_error;
 
-  assign alert_test_recov_as_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_as_wd = reg_wdata[0];
+  assign alert_test_recov_alert_wd = reg_wdata[0];
 
-  assign alert_test_recov_cg_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_cg_wd = reg_wdata[1];
-
-  assign alert_test_recov_gd_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_gd_wd = reg_wdata[2];
-
-  assign alert_test_recov_ts_hi_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_ts_hi_wd = reg_wdata[3];
-
-  assign alert_test_recov_ts_lo_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_ts_lo_wd = reg_wdata[4];
-
-  assign alert_test_recov_ls_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_ls_wd = reg_wdata[5];
-
-  assign alert_test_recov_ot_we = addr_hit[0] & reg_we & !reg_error;
-  assign alert_test_recov_ot_wd = reg_wdata[6];
-
+  assign alert_test_fatal_alert_wd = reg_wdata[1];
   assign cfg_regwen_we = addr_hit[1] & reg_we & !reg_error;
+
   assign cfg_regwen_wd = reg_wdata[0];
+  assign alert_trig_we = addr_hit[2] & reg_we & !reg_error;
 
-  assign ack_mode_val_0_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_0_wd = reg_wdata[1:0];
-
-  assign ack_mode_val_1_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_1_wd = reg_wdata[3:2];
-
-  assign ack_mode_val_2_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_2_wd = reg_wdata[5:4];
-
-  assign ack_mode_val_3_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_3_wd = reg_wdata[7:6];
-
-  assign ack_mode_val_4_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_4_wd = reg_wdata[9:8];
-
-  assign ack_mode_val_5_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_5_wd = reg_wdata[11:10];
-
-  assign ack_mode_val_6_we = addr_hit[2] & reg_we & !reg_error;
-  assign ack_mode_val_6_wd = reg_wdata[13:12];
-
-  assign alert_trig_val_0_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_0_wd = reg_wdata[0];
 
-  assign alert_trig_val_1_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_1_wd = reg_wdata[1];
 
-  assign alert_trig_val_2_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_2_wd = reg_wdata[2];
 
-  assign alert_trig_val_3_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_3_wd = reg_wdata[3];
 
-  assign alert_trig_val_4_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_4_wd = reg_wdata[4];
 
-  assign alert_trig_val_5_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_5_wd = reg_wdata[5];
 
-  assign alert_trig_val_6_we = addr_hit[3] & reg_we & !reg_error;
   assign alert_trig_val_6_wd = reg_wdata[6];
 
-  assign alert_state_val_0_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_0_wd = reg_wdata[0];
+  assign alert_trig_val_7_wd = reg_wdata[7];
 
-  assign alert_state_val_1_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_1_wd = reg_wdata[1];
+  assign alert_trig_val_8_wd = reg_wdata[8];
 
-  assign alert_state_val_2_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_2_wd = reg_wdata[2];
+  assign alert_trig_val_9_wd = reg_wdata[9];
 
-  assign alert_state_val_3_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_3_wd = reg_wdata[3];
+  assign alert_trig_val_10_wd = reg_wdata[10];
 
-  assign alert_state_val_4_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_4_wd = reg_wdata[4];
+  assign alert_trig_val_11_wd = reg_wdata[11];
 
-  assign alert_state_val_5_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_5_wd = reg_wdata[5];
+  assign alert_trig_val_12_wd = reg_wdata[12];
+  assign fatal_alert_en_we = addr_hit[3] & reg_we & !reg_error;
 
-  assign alert_state_val_6_we = addr_hit[4] & reg_we & !reg_error;
-  assign alert_state_val_6_wd = reg_wdata[6];
+  assign fatal_alert_en_val_0_wd = reg_wdata[0];
+
+  assign fatal_alert_en_val_1_wd = reg_wdata[1];
+
+  assign fatal_alert_en_val_2_wd = reg_wdata[2];
+
+  assign fatal_alert_en_val_3_wd = reg_wdata[3];
+
+  assign fatal_alert_en_val_4_wd = reg_wdata[4];
+
+  assign fatal_alert_en_val_5_wd = reg_wdata[5];
+
+  assign fatal_alert_en_val_6_wd = reg_wdata[6];
+
+  assign fatal_alert_en_val_7_wd = reg_wdata[7];
+
+  assign fatal_alert_en_val_8_wd = reg_wdata[8];
+
+  assign fatal_alert_en_val_9_wd = reg_wdata[9];
+
+  assign fatal_alert_en_val_10_wd = reg_wdata[10];
+
+  assign fatal_alert_en_val_11_wd = reg_wdata[11];
+
+  assign fatal_alert_en_val_12_wd = reg_wdata[12];
+  assign recov_alert_we = addr_hit[4] & reg_we & !reg_error;
+
+  assign recov_alert_val_0_wd = reg_wdata[0];
+
+  assign recov_alert_val_1_wd = reg_wdata[1];
+
+  assign recov_alert_val_2_wd = reg_wdata[2];
+
+  assign recov_alert_val_3_wd = reg_wdata[3];
+
+  assign recov_alert_val_4_wd = reg_wdata[4];
+
+  assign recov_alert_val_5_wd = reg_wdata[5];
+
+  assign recov_alert_val_6_wd = reg_wdata[6];
+
+  assign recov_alert_val_7_wd = reg_wdata[7];
+
+  assign recov_alert_val_8_wd = reg_wdata[8];
+
+  assign recov_alert_val_9_wd = reg_wdata[9];
+
+  assign recov_alert_val_10_wd = reg_wdata[10];
+
+  assign recov_alert_val_11_wd = reg_wdata[11];
+
+  assign recov_alert_val_12_wd = reg_wdata[12];
 
   // Read data return
   always_comb begin
@@ -1028,11 +1781,6 @@ module sensor_ctrl_reg_top (
       addr_hit[0]: begin
         reg_rdata_next[0] = '0;
         reg_rdata_next[1] = '0;
-        reg_rdata_next[2] = '0;
-        reg_rdata_next[3] = '0;
-        reg_rdata_next[4] = '0;
-        reg_rdata_next[5] = '0;
-        reg_rdata_next[6] = '0;
       end
 
       addr_hit[1]: begin
@@ -1040,16 +1788,6 @@ module sensor_ctrl_reg_top (
       end
 
       addr_hit[2]: begin
-        reg_rdata_next[1:0] = ack_mode_val_0_qs;
-        reg_rdata_next[3:2] = ack_mode_val_1_qs;
-        reg_rdata_next[5:4] = ack_mode_val_2_qs;
-        reg_rdata_next[7:6] = ack_mode_val_3_qs;
-        reg_rdata_next[9:8] = ack_mode_val_4_qs;
-        reg_rdata_next[11:10] = ack_mode_val_5_qs;
-        reg_rdata_next[13:12] = ack_mode_val_6_qs;
-      end
-
-      addr_hit[3]: begin
         reg_rdata_next[0] = alert_trig_val_0_qs;
         reg_rdata_next[1] = alert_trig_val_1_qs;
         reg_rdata_next[2] = alert_trig_val_2_qs;
@@ -1057,20 +1795,66 @@ module sensor_ctrl_reg_top (
         reg_rdata_next[4] = alert_trig_val_4_qs;
         reg_rdata_next[5] = alert_trig_val_5_qs;
         reg_rdata_next[6] = alert_trig_val_6_qs;
+        reg_rdata_next[7] = alert_trig_val_7_qs;
+        reg_rdata_next[8] = alert_trig_val_8_qs;
+        reg_rdata_next[9] = alert_trig_val_9_qs;
+        reg_rdata_next[10] = alert_trig_val_10_qs;
+        reg_rdata_next[11] = alert_trig_val_11_qs;
+        reg_rdata_next[12] = alert_trig_val_12_qs;
+      end
+
+      addr_hit[3]: begin
+        reg_rdata_next[0] = fatal_alert_en_val_0_qs;
+        reg_rdata_next[1] = fatal_alert_en_val_1_qs;
+        reg_rdata_next[2] = fatal_alert_en_val_2_qs;
+        reg_rdata_next[3] = fatal_alert_en_val_3_qs;
+        reg_rdata_next[4] = fatal_alert_en_val_4_qs;
+        reg_rdata_next[5] = fatal_alert_en_val_5_qs;
+        reg_rdata_next[6] = fatal_alert_en_val_6_qs;
+        reg_rdata_next[7] = fatal_alert_en_val_7_qs;
+        reg_rdata_next[8] = fatal_alert_en_val_8_qs;
+        reg_rdata_next[9] = fatal_alert_en_val_9_qs;
+        reg_rdata_next[10] = fatal_alert_en_val_10_qs;
+        reg_rdata_next[11] = fatal_alert_en_val_11_qs;
+        reg_rdata_next[12] = fatal_alert_en_val_12_qs;
       end
 
       addr_hit[4]: begin
-        reg_rdata_next[0] = alert_state_val_0_qs;
-        reg_rdata_next[1] = alert_state_val_1_qs;
-        reg_rdata_next[2] = alert_state_val_2_qs;
-        reg_rdata_next[3] = alert_state_val_3_qs;
-        reg_rdata_next[4] = alert_state_val_4_qs;
-        reg_rdata_next[5] = alert_state_val_5_qs;
-        reg_rdata_next[6] = alert_state_val_6_qs;
+        reg_rdata_next[0] = recov_alert_val_0_qs;
+        reg_rdata_next[1] = recov_alert_val_1_qs;
+        reg_rdata_next[2] = recov_alert_val_2_qs;
+        reg_rdata_next[3] = recov_alert_val_3_qs;
+        reg_rdata_next[4] = recov_alert_val_4_qs;
+        reg_rdata_next[5] = recov_alert_val_5_qs;
+        reg_rdata_next[6] = recov_alert_val_6_qs;
+        reg_rdata_next[7] = recov_alert_val_7_qs;
+        reg_rdata_next[8] = recov_alert_val_8_qs;
+        reg_rdata_next[9] = recov_alert_val_9_qs;
+        reg_rdata_next[10] = recov_alert_val_10_qs;
+        reg_rdata_next[11] = recov_alert_val_11_qs;
+        reg_rdata_next[12] = recov_alert_val_12_qs;
       end
 
       addr_hit[5]: begin
-        reg_rdata_next[1:0] = status_qs;
+        reg_rdata_next[0] = fatal_alert_val_0_qs;
+        reg_rdata_next[1] = fatal_alert_val_1_qs;
+        reg_rdata_next[2] = fatal_alert_val_2_qs;
+        reg_rdata_next[3] = fatal_alert_val_3_qs;
+        reg_rdata_next[4] = fatal_alert_val_4_qs;
+        reg_rdata_next[5] = fatal_alert_val_5_qs;
+        reg_rdata_next[6] = fatal_alert_val_6_qs;
+        reg_rdata_next[7] = fatal_alert_val_7_qs;
+        reg_rdata_next[8] = fatal_alert_val_8_qs;
+        reg_rdata_next[9] = fatal_alert_val_9_qs;
+        reg_rdata_next[10] = fatal_alert_val_10_qs;
+        reg_rdata_next[11] = fatal_alert_val_11_qs;
+        reg_rdata_next[12] = fatal_alert_val_12_qs;
+        reg_rdata_next[13] = fatal_alert_val_13_qs;
+      end
+
+      addr_hit[6]: begin
+        reg_rdata_next[0] = status_ast_init_done_qs;
+        reg_rdata_next[2:1] = status_io_pok_qs;
       end
 
       default: begin
@@ -1078,6 +1862,23 @@ module sensor_ctrl_reg_top (
       end
     endcase
   end
+
+  // shadow busy
+  logic shadow_busy;
+  assign shadow_busy = 1'b0;
+
+  // register busy
+  logic reg_busy_sel;
+  assign reg_busy = reg_busy_sel | shadow_busy;
+  always_comb begin
+    reg_busy_sel = '0;
+    unique case (1'b1)
+      default: begin
+        reg_busy_sel  = '0;
+      end
+    endcase
+  end
+
 
   // Unused signal tieoff
 
@@ -1089,12 +1890,12 @@ module sensor_ctrl_reg_top (
   assign unused_be = ^reg_be;
 
   // Assertions for Register Interface
-  `ASSERT_PULSE(wePulse, reg_we)
-  `ASSERT_PULSE(rePulse, reg_re)
+  `ASSERT_PULSE(wePulse, reg_we, clk_i, !rst_ni)
+  `ASSERT_PULSE(rePulse, reg_re, clk_i, !rst_ni)
 
-  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o.d_valid)
+  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o_pre.d_valid, clk_i, !rst_ni)
 
-  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit))
+  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit), clk_i, !rst_ni)
 
   // this is formulated as an assumption such that the FPV testbenches do disprove this
   // property by mistake

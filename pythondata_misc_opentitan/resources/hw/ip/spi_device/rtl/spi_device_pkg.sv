@@ -35,7 +35,7 @@ package spi_device_pkg;
     logic [3:0] s;
   } passthrough_rsp_t;
 
-  parameter passthrough_req_t PASSTHROUGH_RSQ_DEFAULT = '{
+  parameter passthrough_req_t PASSTHROUGH_REQ_DEFAULT = '{
     passthrough_en: 1'b 0,
     sck:            1'b 0,
     sck_gate_en:    1'b 0,
@@ -49,6 +49,167 @@ package spi_device_pkg;
   parameter passthrough_rsp_t PASSTHROUGH_RSP_DEFAULT = '{
     s: 4'h 0
   };
+
+  // Command Type
+  //
+  // Passthrough module does not strictly follow every bit on the SPI line but
+  // loosely tracks the phase of the commands.
+  //
+  // The command in SPI Flash can be categorized as follow:
+  //
+  // - {Address, PayloadOut}:        examples are ReadData
+  // - {Address, Dummy, PayloadOut}: FastRead / Dual/ Quad commands have dummy
+  // - {Dummy, PayloadOut}:          Release Power-down / Manufacturer ID
+  // - {PayloadOut}:                 Right after opcode, the device sends data
+  //                                 to host
+  // - {Address, PayloadIn}:         Host sends address and payload back-to-back
+  // - {PayloadIn}:                  Host sends payload without any address hint
+  // - None:                         The commands complete without any address /
+  //                                 payload(in/out)
+  //
+  // If a received command has more than one state, the counter value will be
+  // set to help the state machine to move to the next state with the exact
+  // timing.
+  //
+  // A `cmd_type_t` struct has information for a command. The actual value for
+  // commands are compile-time parameters. When the logic receives 8 bits of
+  // opcode, it latches the parameter into this struct and references this
+  // through the transaction.
+
+  // Address or anything host driving after opcode counter
+  localparam int unsigned MaxAddrBit = 32;
+  localparam int unsigned AddrCntW = $clog2(MaxAddrBit);
+
+  // Dummy
+  localparam int unsigned MaxDummyBit = 8;
+  localparam int unsigned DummyCntW = $clog2(MaxDummyBit);
+
+  typedef enum logic {
+    PayloadIn  = 1'b 0,
+    PayloadOut = 1'b 1
+  } payload_dir_e;
+  // cmd_info_t defines the command relevant information. SPI Device IP has
+  // #NumCmdInfo cmd registers (default 16). A few of them are assigned to a
+  // specific commands such as Read Status, Read SFDP.
+  //
+  // These fields are SW programmable via CSR interface.
+  typedef struct packed {
+    // opcode: Each cmd_info type has 8bit opcode. SPI_DEVICE has 16 command
+    // slots. The logic compares the opcode and uses the command info when
+    // opcode is matched. If same opcode exists, SPI_DEVICE uses the command
+    // info slot having the lowest index among the matched ones.
+    logic [7:0] opcode;
+
+    // set to 1 if the command has an address field following the opcode.
+    logic addr_en;
+
+    // swap_en is used in the passthrough logic. If this field is set to 1, the
+    // address in the passthrough command is replaced to the preconfigured
+    // value.
+    logic addr_swap_en;
+
+    // If 1, the address size is affected by `cfg_addr_4b_en_i` configuration
+    // field.
+    logic addr_4b_affected;
+
+    // Mbyte field exist. If set to 1, the command waits 1 byte before moving
+    // to dummy field. This field data is ignored.
+    logic mbyte_en;
+
+    // set to 1 if the command has a dummy cycle following the address field.
+    logic                 dummy_en;
+    logic [DummyCntW-1:0] dummy_size;
+
+    // set to non-zero if the command has payload at the end of the protocol. If
+    // dummy_en is 1, then the payload follows the dummy cycle. payload_en has
+    // four bits. Each bit represents the SPI line. If a command is single IO
+    // command and returns data to the host system, the data is returned on the
+    // MISO line (IO[1]). In this case, SW sets payload_en to 4'b0010 and
+    // payload_dir to PayloadOut.
+    logic [3:0]   payload_en;
+    payload_dir_e payload_dir;
+
+    // upload: If upload field in the command info entry is set, the cmdparse
+    // activates the upload submodule when the opcode is received. `addr_en`,
+    // `addr_4B_affected`, and `addr_4b_forced` (TBD) affect the upload
+    // functionality. The three address related configs defines the command
+    // address field size.
+
+    // The logic assumes the following SPI input stream as payload, which max
+    // size is 256B. If the command exceeds the maximum payload size 256B, the
+    // logic wraps the payload and overwrites.
+    logic upload;
+
+    // busy: Set to 1 to set the BUSY bit in the FLASH_STATUS when the command
+    // is received.  This bit is active only when `upload` bit is set.
+    logic busy;
+
+  } cmd_info_t;
+
+  // CmdInfoInput parameter is the default value if no opcode in the cmd info
+  // slot is matched to the received command opcode.
+  parameter cmd_info_t CmdInfoInput = '{
+    opcode:           8'h 00,
+    addr_en:          1'b 0,
+    addr_swap_en:     1'b 0,
+    addr_4b_affected: 1'b 0,
+    mbyte_en:         1'b 0,
+    dummy_en:         1'b 0,
+    dummy_size:       3'h 0,
+    payload_en:       4'b 0001, // MOSI active
+    payload_dir:      PayloadIn,
+    upload:           1'b 0,
+    busy:             1'b 0
+  };
+
+  function automatic logic is_cmdinfo_addr_4b(cmd_info_t ci, logic addr_4b_en);
+    logic result;
+    // TODO: Add force 4B
+    result = ci.addr_4b_affected ? addr_4b_en : 1'b 0;
+    return result;
+  endfunction : is_cmdinfo_addr_4b
+
+  // SPI_DEVICE HWIP has 16 command info slots. A few of them are pre-assigned.
+  // (defined in the spi_device_pkg)
+  //
+  //parameter int unsigned NumCmdInfo = 16;
+
+  // cmd_info_index_e assigns some cmd_info slots to specific commands. The
+  // reason why command slots cannot be fully flexible (unlike NumCmdInfo-way $)
+  // is that the slots are used in the Flash mode also. The Read Status/ SFDP/
+  // etc submodules only see the pre-assigned slot and use it.
+  typedef enum int unsigned {
+    // Read Status subblock in Flash mode only uses opcode of cmd_info
+    CmdInfoReadStatus1 = 0,
+    CmdInfoReadStatus2 = 1,
+    CmdInfoReadStatus3 = 2,
+
+    CmdInfoReadJedecId = 3,
+
+    CmdInfoReadSfdp = 4,
+
+    // 6 slots are assigned to Read commands in Flash mode.
+    //
+    // Read Data / Fast Read / Fast Read Dual / Fast Read Quad
+    // Fast Read Dual IO / Fast Read Quad IO (IO commands are TBD)
+    CmdInfoReadCmdStart = 5,
+    CmdInfoReadCmdEnd   = 10,
+
+    // other slots are used in the Passthrough and/or upload submodules. These
+    // free slots may be used for the commands that are not processed in the
+    // flash mode.  Examples are "Release Power-down / ID",
+    // "Manufacture/Device ID", etc.  They are not always Input mode. Some has
+    // a dummy cycle followed by the output field.
+    CmdInfoReserveStart = 11,
+    CmdInfoReserveEnd   = spi_device_reg_pkg::NumCmdInfo -1
+  } cmd_info_index_e;
+
+  parameter int unsigned NumReadCmdInfo = CmdInfoReadCmdEnd - CmdInfoReadCmdStart + 1;
+
+  import spi_device_reg_pkg::NumCmdInfo;
+  export spi_device_reg_pkg::NumCmdInfo;
+
+  parameter int unsigned CmdInfoIdxW = $clog2(NumCmdInfo);
 
   // SPI Operation mode
   typedef enum logic [1:0] {
@@ -67,7 +228,10 @@ package spi_device_pkg;
     IoModeFw       = 0,
     IoModeCmdParse = 1,
     IoModeReadCmd  = 2,
-    IoModeEnd      = 3 // Indicate of Length
+    IoModeStatus   = 3,
+    IoModeJedec    = 4,
+    IoModeUpload   = 5,
+    IoModeEnd      = 6 // Indicate of Length
   } sub_io_mode_e;
 
   // SPI Line Mode (Mode0 <-> Mode3)
@@ -156,7 +320,8 @@ package spi_device_pkg;
   } spi_cmd_e;
 
   // Sram parameters
-  parameter int unsigned SramDw = 32;
+  parameter int unsigned SramDw    = 32;
+  parameter int unsigned SramStrbW = SramDw/8;
 
   // Msg region is used for read cmd in Flash and Passthrough region
   parameter int unsigned SramMsgDepth = 512; // 2kB
@@ -180,14 +345,45 @@ package spi_device_pkg;
 
   parameter int unsigned SramAw = $clog2(spi_device_reg_pkg::SramDepth);
 
-  typedef logic [SramAw-1:0] sram_addr_t;
-  typedef struct packed {
-    logic [SramDw-1:0]   data;
-  } sram_data_t;
+  typedef logic [SramAw-1:0]    sram_addr_t;
+  typedef logic [SramDw-1:0]    sram_data_t;
+  typedef logic [SramStrbW-1:0] sram_strb_t;
   typedef struct packed {
     logic uncorr;
     logic corr;
   } sram_err_t;
+
+  typedef struct packed {
+    logic       req;
+    logic       we;
+    sram_addr_t addr;
+    sram_data_t wdata;
+    sram_strb_t wstrb;
+  } sram_l2m_t; // logic to Memory
+
+  typedef struct packed {
+    logic       rvalid;
+    sram_data_t rdata;
+    sram_err_t  rerror;
+  } sram_m2l_t; // Memory to logic
+
+  function automatic logic [SramDw-1:0] sram_strb2mask(logic [SramStrbW-1:0] strb);
+    logic [SramDw-1:0] result;
+    for (int unsigned i = 0 ; i < SramStrbW ; i++) begin
+      result[8*i+:8] = strb[i] ? 8'h FF : 8'h 00;
+    end
+    return result;
+  endfunction : sram_strb2mask
+
+  function automatic logic [SramStrbW-1:0] sram_mask2strb(
+    logic [SramDw-1:0] mask
+  );
+    logic [SramStrbW-1:0] result;
+    for (int unsigned i = 0 ; i < SramStrbW ; i++) begin
+      result[i] = &mask[8*i+:8];
+    end
+    return result;
+  endfunction : sram_mask2strb
 
   // Calculate each space's base and size
   parameter sram_addr_t SramReadBufferIdx  = sram_addr_t'(0);
@@ -213,7 +409,7 @@ package spi_device_pkg;
   parameter int unsigned BitCntW   = $clog2(BitLength + 1);
 
   // spi device scanmode usage
-  typedef enum logic [2:0] {
+  typedef enum logic [3:0] {
     ClkInvSel,
     CsbRstMuxSel,
     TxRstMuxSel,
@@ -221,7 +417,16 @@ package spi_device_pkg;
     ClkMuxSel,
     ClkSramSel,
     RstSramSel,
+    TpmRstSel,
     ScanModeUseLast
   } scan_mode_e;
+
+  // TPM ======================================================================
+  typedef struct packed {
+    logic [7:0] rev;
+    logic       locality;
+    logic [2:0] max_xfer_size;
+  } tpm_cap_t;
+  // TPM ----------------------------------------------------------------------
 
 endpackage : spi_device_pkg

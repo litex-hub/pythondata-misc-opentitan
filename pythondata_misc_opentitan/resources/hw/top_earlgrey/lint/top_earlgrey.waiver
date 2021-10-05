@@ -18,8 +18,15 @@ waive -rules RESET_MUX -location {rstmgr.sv rstmgr_por.sv rstmgr_ctrl.sv} -regex
 waive -rules RESET_MUX -location {rstmgr.sv} -regexp {Asynchronous reset 'scan_rst_ni' reaches a multiplexer} \
       -comment "This is dedicated reset infrastructure, and hence permissible"
 
+waive -rules CLOCK_USE -location {top_earlgrey.sv} -regexp {'clkmgr_aon_clocks.clk_io_div2_peri' is connected to 'spi_device' port 'scan_clk_i', and used as a clock} \
+      -comment "This connection is a scan clock connection."
+
 waive -rules CLOCK_MUX -location {clkmgr.sv top_earlgrey.sv} -regexp {.*clk_io_div.* is driven by a multiplexer here} \
       -comment "Divided clocks go through prim_clock_div, which use muxes for scan bypass and clock step down"
+
+# scan reset is a legal asynchronous reset
+waive -rules RESET_USE -location {top_earlgrey.sv} -regexp {'scan_rst_ni' is connected to .* port 'scan_rst_ni', and used as an asynchronous reset or set 'rst_ni' at} \
+      -comment "Scan reset is a legal asynchronous reset"
 
 # Combo loops through uart loopback can be ignored
 waive -rules {COMBO_LOOP} -location {chip_earlgrey_asic.sv} -regexp {'tx' driven in module 'uart_core' by 'rx' at uart_core.sv} \

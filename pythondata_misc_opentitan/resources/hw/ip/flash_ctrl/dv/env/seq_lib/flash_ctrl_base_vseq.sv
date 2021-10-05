@@ -18,10 +18,37 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
 
   `uvm_object_new
 
+
+  // Vseq to do some initial post-reset actions. Can be overriden by extending envs.
+  flash_ctrl_callback_vseq callback_vseq;
+
+  virtual task pre_start();
+    `uvm_create_on(callback_vseq, p_sequencer);
+    super.pre_start();
+  endtask
+
+  // After finishing basic dut_init do some additional required actions with callback_vseq
+  virtual task dut_init(string reset_kind = "HARD");
+    super.dut_init(reset_kind);
+    callback_vseq.dut_init_callback();
+  endtask : dut_init
+
   virtual task dut_shutdown();
     // check for pending flash_ctrl operations and wait for them to complete
     // TODO
   endtask
+
+  virtual task reset_flash();
+    // Set all flash partitions to 1s.
+    flash_dv_part_e part = part.first();
+    do begin
+      cfg.flash_mem_bkdr_init(part, FlashMemInitSet);
+      part = part.next();
+    end while (part != part.first());
+    // Wait for flash_ctrl to finish initializing on every reset
+    // We probably need a parameter to skip this for certain tests
+    csr_spinwait(.ptr(ral.status.init_wip), .exp_data(1'b0));
+  endtask : reset_flash
 
   virtual task apply_reset(string kind = "HARD");
     uvm_reg_data_t data;
@@ -30,11 +57,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
     if (kind == "HARD") begin
       cfg.clk_rst_vif.wait_clks(cfg.post_reset_delay_clks);
     end
-    cfg.flash_mem_bkdr_init(FlashPartInfo1, FlashMemInitSet);
-
-    // Wait for flash_ctrl to finish initializing on every reset
-    // We probably need a parameter to skip this for certain tests
-    csr_spinwait(.ptr(ral.status.init_wip), .exp_data(1'b0));
+    reset_flash();
 
   endtask // apply_reset
 
@@ -43,14 +66,19 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
     uvm_reg_data_t data;
     uvm_reg csr;
     data =
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.en_0, data, region_cfg.en) |
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.rd_en_0, data, region_cfg.read_en) |
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.prog_en_0, data, region_cfg.program_en) |
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.erase_en_0, data, region_cfg.erase_en) |
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.base_0, data, region_cfg.start_page) |
-        get_csr_val_with_updated_field(ral.mp_region_cfg_0.size_0, data, region_cfg.num_pages);
-    csr = ral.get_reg_by_name($sformatf("mp_region_cfg_%0d", index));
-    csr_wr(.ptr(csr), .value(data));
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].en, data,
+                                       region_cfg.en) |
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].rd_en, data,
+                                       region_cfg.read_en) |
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].prog_en, data,
+                                       region_cfg.program_en) |
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].erase_en, data,
+                                       region_cfg.erase_en) |
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].base, data,
+                                       region_cfg.start_page) |
+        get_csr_val_with_updated_field(ral.mp_region_cfg_shadowed[index].size, data,
+                                       region_cfg.num_pages);
+    csr_wr(.ptr(ral.mp_region_cfg_shadowed[index]), .value(data));
   endtask
 
   // Configure the protection for the "default" region (all pages that do not fall into one
@@ -58,15 +86,38 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   virtual task flash_ctrl_default_region_cfg(bit read_en, bit program_en, bit erase_en);
     uvm_reg_data_t data;
 
-    data = get_csr_val_with_updated_field(ral.default_region.rd_en, data, read_en) |
-           get_csr_val_with_updated_field(ral.default_region.prog_en, data, program_en) |
-           get_csr_val_with_updated_field(ral.default_region.erase_en, data, erase_en);
-    csr_wr(.ptr(ral.default_region), .value(data));
+    data = get_csr_val_with_updated_field(ral.default_region_shadowed.rd_en, data, read_en) |
+           get_csr_val_with_updated_field(ral.default_region_shadowed.prog_en, data, program_en) |
+           get_csr_val_with_updated_field(ral.default_region_shadowed.erase_en, data, erase_en);
+    csr_wr(.ptr(ral.default_region_shadowed), .value(data));
+  endtask
+
+  // Configure the memory protection of some selected page in one of the information partitions in
+  //  one of the banks.
+  virtual task flash_ctrl_mp_info_page_cfg(uint bank, uint info_part, uint page,
+                                           flash_bank_mp_info_page_cfg_t page_cfg);
+    uvm_reg_data_t data;
+    uvm_reg csr;
+    string csr_name = $sformatf("bank%0d_info%0d_page_cfg_shadowed", bank, info_part);
+    // If the selected information partition has only 1 page, no suffix needed to the register
+    //  name, if there is more than one page, the page index should be added to the register name.
+    if (flash_ctrl_pkg::InfoTypeSize[info_part] > 1) begin
+      csr_name = $sformatf({csr_name, "_%0d"}, page);
+    end
+    csr = ral.get_reg_by_name(csr_name);
+    data =
+        get_csr_val_with_updated_field(csr.get_field_by_name("en"), data, page_cfg.en) |
+        get_csr_val_with_updated_field(csr.get_field_by_name("rd_en"), data, page_cfg.read_en) |
+        get_csr_val_with_updated_field(csr.get_field_by_name("prog_en"), data,
+                                       page_cfg.program_en) |
+        get_csr_val_with_updated_field(csr.get_field_by_name("erase_en"), data,
+                                       page_cfg.erase_en);
+    csr_wr(.ptr(csr), .value(data));
   endtask
 
   // Configure bank erasability.
   virtual task flash_ctrl_bank_erase_cfg(bit [flash_ctrl_pkg::NumBanks-1:0] bank_erase_en);
-    csr_wr(.ptr(ral.mp_bank_cfg), .value(bank_erase_en));
+    csr_wr(.ptr(ral.mp_bank_cfg_shadowed[0]), .value(bank_erase_en));
   endtask
 
   // Configure read and program fifo levels for interrupt.
@@ -152,13 +203,13 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
 
     csr_wr(.ptr(ral.addr), .value(flash_op.addr));
 
-    // flash_op.partition -> partition_sel  ,    info_sel         |
-    //  (flash_dv_part_e) | (flash_part_e)  | bit[InfoTypesWidth] |
-    // -------------------|-----------------|---------------------|
-    //  FlashPartData = 0 | FlashPartData=0 |         0           |
-    //  FlashPartInfo = 1 | FlashPartInfo=1 |         0           |
-    //  FlashPartInfo1= 2 | FlashPartInfo=1 |         1           |
-    //  FlashPartRed  = 4 | FlashPartInfo=1 |         2           |
+    //    flash_op.partition     -> partition_sel  ,    info_sel         |
+    //     (flash_dv_part_e)     | (flash_part_e)  | bit[InfoTypesWidth] |
+    // --------------------------|-----------------|---------------------|
+    //  FlashPartData        = 0 | FlashPartData=0 |         0           |
+    //  FlashPartInfo        = 1 | FlashPartInfo=1 |         0           |
+    //  FlashPartInfo1       = 2 | FlashPartInfo=1 |         1           |
+    //  FlashPartRedundancy  = 4 | FlashPartInfo=1 |         2           |
     partition_sel = |flash_op.partition;
     info_sel = flash_op.partition >> 1;
 
@@ -174,7 +225,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
 
   // Program data into flash, stopping whenever full.
   // The flash op is assumed to have already commenced.
-  virtual task flash_ctrl_write(bit [TL_DW-1:0] data[$], bit poll_fifo_status);
+  virtual task flash_ctrl_write(data_q_t data, bit poll_fifo_status);
     foreach (data[i]) begin
       // Check if prog fifo is full. If yes, then wait for space to become available.
       // Note that this polling is not needed since the interface is backpressure enabled.
@@ -188,7 +239,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
 
   // Read data from flash, stopping whenever empty.
   // The flash op is assumed to have already commenced.
-  virtual task flash_ctrl_read(uint num_words, ref bit [TL_DW-1:0] data[$], bit poll_fifo_status);
+  virtual task flash_ctrl_read(uint num_words, ref data_q_t data, bit poll_fifo_status);
     for (int i = 0; i < num_words; i++) begin
       // Check if rd fifo is empty. If yes, then wait for data to become available.
       // Note that this polling is not needed since the interface is backpressure enabled.

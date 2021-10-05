@@ -27,6 +27,7 @@
                 "{proj_root}/hw/dv/tools/dvsim/tests/csr_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/intr_test.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/tl_access_tests.hjson",
+                "{proj_root}/hw/dv/tools/dvsim/tests/shadow_reg_errors_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"]
 
   // Add additional tops for simulation.
@@ -80,15 +81,9 @@
       run_opts: ["+test_timeout_ns=10_000_000_000"]
     }
 
-    // zero_delays: avoid check_interrupts and ping response fail happened in the same cycle,
-    //   ensure alert triggers as soon as ping is detected
-    // reduece_ping_timer_wait_cycles: shorten the simulation time, also serves as a switch to turn
-    //   off certain checks and coverages
     {
-      name: alert_handler_ping_corner_cases
-      uvm_test_seq: alert_handler_ping_corner_cases_vseq
-      run_opts: ["+reduce_ping_timer_wait_cycles=1", "+test_timeout_ns=1_000_000_000",
-                 "+zero_delays=1"]
+      name: alert_handler_ping_timeout
+      uvm_test_seq: alert_handler_ping_timeout_vseq
     }
 
     {

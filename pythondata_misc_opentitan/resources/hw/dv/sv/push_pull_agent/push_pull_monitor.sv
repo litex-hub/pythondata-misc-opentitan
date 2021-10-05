@@ -18,61 +18,62 @@ class push_pull_monitor #(parameter int HostDataWidth = 32,
   // uvm_analysis_port #(ITEM_T): req_analysis_port;
 
   `uvm_component_new
-  bit in_reset;
 
   task run_phase(uvm_phase phase);
     @(posedge cfg.vif.rst_n);
     fork
-      handle_reset();
+      monitor_reset();
       collect_valid_trans();
       // We only need to monitor incoming requests if the agent is configured
       // in device mode and is using Pull protocol.
-      if (cfg.if_mode == dv_utils_pkg::Device &&
-          cfg.agent_type == PullAgent) begin
+      if (cfg.if_mode == dv_utils_pkg::Device && cfg.agent_type == PullAgent) begin
         collect_request();
       end
     join_none
   endtask
 
-  virtual protected task handle_reset();
+  virtual protected task monitor_reset();
     forever begin
       @(negedge cfg.vif.rst_n);
-      in_reset = 1;
+      cfg.in_reset = 1;
       // TODO: sample any reset-related covergroups
       @(posedge cfg.vif.rst_n);
-      in_reset = 0;
+      cfg.in_reset = 0;
     end
   endtask
 
   // TODO : sample covergroups
   virtual protected task collect_valid_trans();
-    push_pull_item#(HostDataWidth, DeviceDataWidth) item;
-    bit valid_txn;
     forever begin
       @(cfg.vif.mon_cb);
       if (cfg.agent_type == PushAgent) begin
         if (cfg.vif.mon_cb.ready && cfg.vif.mon_cb.valid) begin
-          valid_txn = 1'b1;
+          create_and_write_item();
           // TODO: sample covergroups
         end
       end else begin
         if (cfg.vif.mon_cb.req && cfg.vif.mon_cb.ack) begin
-          valid_txn = 1'b1;
+          create_and_write_item();
           // TODO: sample covergroups
         end
       end
-      if (valid_txn) begin
-        item = push_pull_item#(HostDataWidth, DeviceDataWidth)::type_id::create("item");
-        item.d_data = cfg.vif.mon_cb.d_data;
-        item.h_data = cfg.vif.mon_cb.h_data;
-        `uvm_info(`gfn,
-                  $sformatf("[%0s] transaction detected: h_data[0x%0x], d_data[0x%0x]",
-                            cfg.agent_type, item.h_data, item.d_data), UVM_HIGH)
-        analysis_port.write(item);
-        valid_txn = 1'b0;
-      end
     end
   endtask
+
+  // Creates and writes the item to the analysis_port.
+  //
+  // The onus is on the caller to invoke this function at the right time -
+  // i.e. when the transaction is valid.
+  virtual protected function void create_and_write_item();
+    push_pull_item#(HostDataWidth, DeviceDataWidth) item;
+    item = push_pull_item#(HostDataWidth, DeviceDataWidth)::type_id::create("item");
+    item.d_data = cfg.vif.mon_cb.d_data;
+    item.h_data = cfg.vif.mon_cb.h_data;
+    `uvm_info(`gfn,
+              $sformatf("[%0s] transaction detected: h_data[0x%0x], d_data[0x%0x]",
+                        cfg.agent_type, item.h_data, item.d_data), UVM_HIGH)
+    analysis_port.write(item);
+  endfunction
 
   // This task is only used for device agents using the Pull protocol.
   // It will pick up any incoming requests from the DUT and send a signal to the
@@ -93,7 +94,7 @@ class push_pull_monitor #(parameter int HostDataWidth = 32,
         // After picking up a request, wait until a response is sent before
         // detecting another request, as this is not a pipelined protocol.
         `DV_SPINWAIT_EXIT(while (!cfg.vif.mon_cb.ack) @(cfg.vif.mon_cb);,
-                          wait(in_reset))
+                          wait(cfg.in_reset))
        end
     end
   endtask

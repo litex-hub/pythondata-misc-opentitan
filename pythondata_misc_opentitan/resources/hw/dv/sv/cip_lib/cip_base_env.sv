@@ -11,7 +11,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
   `uvm_component_param_utils(cip_base_env #(CFG_T, VIRTUAL_SEQUENCER_T, SCOREBOARD_T, COV_T))
 
   tl_agent                                           m_tl_agents[string];
-  tl_reg_adapter#(cip_tl_seq_item)                   m_tl_reg_adapters[string];
+  tl_reg_adapter #(tl_seq_item)                      m_tl_reg_adapters[string];
   alert_esc_agent                                    m_alert_agent[string];
   push_pull_agent#(.DeviceDataWidth(EDN_DATA_WIDTH)) m_edn_pull_agent;
 
@@ -19,6 +19,10 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
 
   virtual function void build_phase(uvm_phase phase);
     super.build_phase(phase);
+
+    // use cip_tl_seq_item to create tl_seq_item with correct integrity values and obtain integrity
+    // related functions
+    if (cfg.en_tl_intg_gen) tl_seq_item::type_id::set_type_override(cip_tl_seq_item::get_type());
 
     // Retrieve the virtual interfaces from uvm_config_db.
     if (!uvm_config_db#(intr_vif)::get(this, "", "intr_vif", cfg.intr_vif) &&
@@ -33,7 +37,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
     // Create & configure the TL agent.
     foreach (cfg.m_tl_agent_cfgs[i]) begin
       m_tl_agents[i] = tl_agent::type_id::create({"m_tl_agent_", i}, this);
-      m_tl_reg_adapters[i] = tl_reg_adapter#(cip_tl_seq_item)::type_id::create(
+      m_tl_reg_adapters[i] = tl_reg_adapter#(tl_seq_item)::type_id::create(
                              {"m_tl_reg_adapter_", i});
       m_tl_reg_adapters[i].cfg = cfg.m_tl_agent_cfgs[i];
       uvm_config_db#(tl_agent_cfg)::set(this, $sformatf("m_tl_agent_%s*", i), "cfg",
@@ -87,6 +91,11 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
       end
       if (cfg.has_edn) cfg.m_edn_pull_agent_cfg.zero_delays = 1;
     end
+
+    // Set the synchronise_ports flag on each of the TL agents configs
+    foreach (cfg.m_tl_agent_cfgs[i]) begin
+      cfg.m_tl_agent_cfgs[i].synchronise_ports = 1'b1;
+    end
   endfunction
 
   virtual function void connect_phase(uvm_phase phase);
@@ -94,6 +103,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
     foreach (m_tl_agents[i]) begin
       m_tl_agents[i].monitor.a_chan_port.connect(scoreboard.tl_a_chan_fifos[i].analysis_export);
       m_tl_agents[i].monitor.d_chan_port.connect(scoreboard.tl_d_chan_fifos[i].analysis_export);
+      m_tl_agents[i].monitor.channel_dir_port.connect(scoreboard.tl_dir_fifos[i].analysis_export);
     end
     foreach (cfg.list_of_alerts[i]) begin
       string alert_name = cfg.list_of_alerts[i];
@@ -127,7 +137,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
     // Set the TL adapter / sequencer to the default_map.
     foreach (cfg.m_tl_agent_cfgs[i]) begin
       if (cfg.m_tl_agent_cfgs[i].is_active) begin
-        cfg.ral.default_map.set_sequencer(m_tl_agents[i].sequencer, m_tl_reg_adapters[i]);
+        cfg.ral_models[i].default_map.set_sequencer(m_tl_agents[i].sequencer, m_tl_reg_adapters[i]);
       end
     end
   endfunction : end_of_elaboration_phase

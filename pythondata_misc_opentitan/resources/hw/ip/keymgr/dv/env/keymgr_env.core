@@ -9,8 +9,9 @@ filesets:
     depend:
       - lowrisc:dv:ralgen
       - lowrisc:dv:cip_lib
-      - lowrisc:dv:keymgr_kmac_agent
+      - lowrisc:dv:kmac_app_agent
       - lowrisc:ip:keymgr
+      - lowrisc:ip:kmac_pkg
     files:
       - keymgr_env_pkg.sv
       - keymgr_if.sv
@@ -24,6 +25,7 @@ filesets:
       - seq_lib/keymgr_common_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_smoke_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_sideload_vseq.sv: {is_include_file: true}
+      - seq_lib/keymgr_sideload_one_intf_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_random_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_cfg_regwen_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_direct_to_disabled_vseq.sv: {is_include_file: true}
@@ -32,6 +34,7 @@ filesets:
       - seq_lib/keymgr_hwsw_invalid_input_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_kmac_rsp_err_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_cmd_invalid_vseq.sv: {is_include_file: true}
+      - seq_lib/keymgr_sync_async_fault_cross_vseq.sv: {is_include_file: true}
       - seq_lib/keymgr_stress_all_vseq.sv: {is_include_file: true}
     file_type: systemVerilogSource
 

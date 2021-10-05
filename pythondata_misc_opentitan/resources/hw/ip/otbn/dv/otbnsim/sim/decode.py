@@ -5,17 +5,14 @@
 '''Code to load instruction words into a simulator'''
 
 import struct
-from typing import List, Optional, Tuple, Type
+from typing import List, Optional, Iterator
 
-from .err_bits import ILLEGAL_INSN
-from .isa import DecodeError, OTBNInsn
+from .constants import ErrBits
+from .isa import INSNS_FILE, OTBNInsn
 from .insn import INSN_CLASSES
 from .state import OTBNState
 
-# A tuple as returned by get_insn_masks: an element (m0, m1, cls) means "if a
-# word has all the bits in m0 clear and all the bits in m1 set, then you should
-# decode it with the given class".
-_MaskTuple = Tuple[int, int, Type[OTBNInsn]]
+MNEM_TO_CLASS = {cls.insn.mnemonic: cls for cls in INSN_CLASSES}
 
 
 class IllegalInsn(OTBNInsn):
@@ -38,54 +35,19 @@ class IllegalInsn(OTBNInsn):
         # disassembling the underlying DummyInsn.
         self._disasm = (pc, '?? 0x{:08x}'.format(raw))
 
-    def execute(self, state: OTBNState) -> None:
-        state.stop_at_end_of_cycle(ILLEGAL_INSN)
-
-
-MASK_TUPLES = None  # type: Optional[List[_MaskTuple]]
-
-
-def get_insn_masks() -> List[_MaskTuple]:
-    '''Generate a list of zeros/ones masks for known instructions
-
-    The result is memoized.
-
-    '''
-    global MASK_TUPLES
-    if MASK_TUPLES is None:
-        tuples = []
-        for cls in INSN_CLASSES:
-            # cls is the class for some OTBNInsn: an object that represents a
-            # decoded instruction. It has a class variable called "insn", which is
-            # the subclass of insn_yaml.Insn that represents that instruction
-            # (without operand values).
-            insn = cls.insn
-            if insn.encoding is None:
-                continue
-
-            m0, m1 = insn.encoding.get_masks()
-
-            # Encoding.get_masks sets bits that are 'x', so we have to do a
-            # difference operation too.
-            tuples.append((m0 & ~m1, m1 & ~m0, cls))
-        MASK_TUPLES = tuples
-
-    return MASK_TUPLES
+    def execute(self, state: OTBNState) -> Optional[Iterator[None]]:
+        state.stop_at_end_of_cycle(ErrBits.ILLEGAL_INSN)
+        return None
 
 
 def _decode_word(pc: int, word: int) -> OTBNInsn:
-    found_cls = None
-    for m0, m1, cls in get_insn_masks():
-        # If any bit is set that should be zero or if any bit is clear that
-        # should be one, ignore this instruction.
-        if word & m0 or (~ word) & m1:
-            continue
-
-        found_cls = cls
-        break
-
-    if found_cls is None:
+    mnem = INSNS_FILE.mnem_for_word(word)
+    if mnem is None:
         return IllegalInsn(pc, word, 'No legal decoding')
+
+    cls = MNEM_TO_CLASS.get(mnem)
+    if cls is None:
+        return IllegalInsn(pc, word, f'No insn class for mnemonic {mnem}')
 
     # Decode the instruction. We know that we have an encoding (we checked in
     # get_insn_masks).
@@ -96,13 +58,7 @@ def _decode_word(pc: int, word: int) -> OTBNInsn:
     # shifting, sign interpretation etc.)
     op_vals = cls.insn.enc_vals_to_op_vals(pc, enc_vals)
 
-    # Catch any decode errors raised by the instruction constructor. This lets
-    # us generate errors if an instruction encoding has extra constraints that
-    # can't be captured by the logic in the Encoding class.
-    try:
-        return cls(word, op_vals)
-    except DecodeError as err:
-        return IllegalInsn(pc, word, str(err))
+    return cls(word, op_vals)
 
 
 def decode_bytes(base_addr: int, data: bytes) -> List[OTBNInsn]:

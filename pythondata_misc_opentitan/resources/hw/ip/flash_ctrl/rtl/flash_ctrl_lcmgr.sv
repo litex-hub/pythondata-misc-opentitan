@@ -16,7 +16,6 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
   // initialization command
   input init_i,
-  output logic init_done_o,
 
   // only access seeds when provisioned
   input provision_en_i,
@@ -26,7 +25,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
   output logic req_o,
   output logic [top_pkg::TL_AW-1:0] addr_o,
   input done_i,
-  input err_i,
+  input flash_ctrl_err_t err_i,
 
   // interface to ctrl_arb data ports
   output logic rready_o,
@@ -50,6 +49,9 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
   // indicate to memory protection what phase the hw interface is in
   output flash_lcmgr_phase_e phase_o,
+
+  // fatal errors
+  output logic fatal_err_o,
 
   // error status to registers
   output logic seed_err_o,
@@ -106,7 +108,6 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
   lc_ctrl_pkg::lc_tx_t err_sts;
   logic err_sts_set;
   lc_ctrl_pkg::lc_tx_t rma_ack_d, rma_ack_q;
-  logic init_done_d;
   logic validate_q, validate_d;
   logic [SeedCntWidth-1:0] seed_cnt_q;
   logic [SeedRdsWidth-1:0] addr_cnt_q;
@@ -127,12 +128,10 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
       state_q <= StIdle;
       rma_ack_q <= lc_ctrl_pkg::Off;
       validate_q <= 1'b0;
-      init_done_o <= 1'b0;
     end else begin
       state_q <= state_d;
       rma_ack_q <= rma_ack_d;
       validate_q <= validate_d;
-      init_done_o <= init_done_d;
     end
   end
 
@@ -229,6 +228,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
     .rst_src_ni(rst_ni),
     .clk_dst_i(clk_otp_i),
     .rst_dst_ni(rst_otp_ni),
+    .req_chk_i(1'b1),
     .src_req_i(addr_key_req_d),
     .src_ack_o(addr_key_ack_q),
     .dst_req_o(otp_key_req_o.addr_req),
@@ -241,6 +241,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
     .rst_src_ni(rst_ni),
     .clk_dst_i(clk_otp_i),
     .rst_dst_ni(rst_otp_ni),
+    .req_chk_i(1'b1),
     .src_req_i(data_key_req_d),
     .src_ack_o(data_key_ack_q),
     .dst_req_o(otp_key_req_o.data_req),
@@ -267,7 +268,6 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
   ///////////////////////////////
   // Hardware Interface FSM
-  // TODO: Merge the read/verify mechanism with RMA later
   ///////////////////////////////
   always_comb begin
 
@@ -297,13 +297,6 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
     // read buffer enable
     rd_buf_en_o = 1'b0;
 
-    // init status
-    // flash_ctrl handles its own arbitration between hardware and software.
-    // So once the init kicks off it is safe to ack.  The done signal is still
-    // to give a chance to hold off further power up progression in the future
-    // if required.
-    init_done_d = 1'b1;
-
     addr_key_req_d = 1'b0;
     data_key_req_d = 1'b0;
 
@@ -318,14 +311,13 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
     unique case (state_q)
 
       StIdle: begin
-        init_done_d = 1'b0;
-        phase = PhaseSeed;
         if (init_q) begin
           state_d = StReqAddrKey;
         end
       end
 
       StReqAddrKey: begin
+        phase = PhaseSeed;
         addr_key_req_d = 1'b1;
         if (addr_key_ack_q) begin
           state_d = StReqDataKey;
@@ -333,6 +325,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
       end
 
       StReqDataKey: begin
+        phase = PhaseSeed;
         data_key_req_d = 1'b1;
         if (data_key_ack_q) begin
           // provision_en is only a "good" value after otp/lc initialization
@@ -351,7 +344,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
         info_sel = seed_info_sel;
 
         // we have checked all seeds, proceed
-        if (seed_cnt_q == NumSeeds[SeedCntWidth-1:0]) begin
+        if (seed_cnt_q == NumSeeds) begin
           start = 1'b0;
           state_d = StWait;
 
@@ -448,6 +441,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
   logic page_cnt_incr;
   logic page_cnt_clr;
   logic word_cnt_incr;
+  logic word_cnt_ld;
   logic word_cnt_clr;
   logic prog_cnt_en;
   logic rd_cnt_en;
@@ -460,45 +454,62 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
   assign end_page = RmaWipeEntries[rma_wipe_idx].start_page +
                     RmaWipeEntries[rma_wipe_idx].num_pages;
 
-  typedef enum logic [2:0] {
-    StRmaIdle,
-    StRmaPageSel,
-    StRmaErase,
-    StRmaWordSel,
-    StRmaProgram,
-    StRmaProgramWait,
-    StRmaRdVerify
-  } rma_state_e;
-
   rma_state_e rma_state_d, rma_state_q;
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  logic [RmaStateWidth-1:0] rma_state_raw_q;
+  assign rma_state_q = rma_state_e'(rma_state_raw_q);
+  prim_flop #(
+    .Width(RmaStateWidth),
+    .ResetValue(RmaStateWidth'(StRmaIdle))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( rma_state_d     ),
+    .q_o ( rma_state_raw_q )
+  );
+
+  logic page_err_q, page_err_d;
+  prim_count #(
+    .Width(PageCntWidth),
+    .OutSelDnCnt(1'b0),
+    .CntStyle(prim_count_pkg::DupCnt)
+  ) u_page_cnt (
+    .clk_i,
+    .rst_ni,
+    .clr_i(page_cnt_clr),
+    .set_i(page_cnt_ld),
+    .set_cnt_i(RmaWipeEntries[rma_wipe_idx].start_page),
+    .en_i(page_cnt_incr),
+    .step_i(PageCntWidth'(1)),
+    .cnt_o(page_cnt),
+    .err_o(page_err_d)
+  );
+
+  logic word_err_q, word_err_d;
+  prim_count #(
+    .Width(WordCntWidth),
+    .OutSelDnCnt(1'b0),
+    .CntStyle(prim_count_pkg::CrossCnt)
+  ) u_word_cnt (
+    .clk_i,
+    .rst_ni,
+    .clr_i(word_cnt_clr),
+    .set_i(word_cnt_ld),
+    .set_cnt_i(WordCntWidth'(BusWordsPerPage)),
+    .en_i(word_cnt_incr),
+    .step_i(WordCntWidth'(WidthMultiple)),
+    .cnt_o(word_cnt),
+    .err_o(word_err_d)
+  );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      rma_state_q <= StRmaIdle;
+      page_err_q <= '0;
+      word_err_q <= '0;
     end else begin
-      rma_state_q <= rma_state_d;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      page_cnt <= '0;
-    end else if (page_cnt_clr) begin
-      page_cnt <= '0;
-    end else if (page_cnt_ld) begin
-      page_cnt <= RmaWipeEntries[rma_wipe_idx].start_page;
-    end else if (page_cnt_incr) begin
-      page_cnt <= page_cnt + 1'b1;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      word_cnt <= '0;
-    end else if (word_cnt_clr) begin
-      word_cnt <= '0;
-    end else if (word_cnt_incr) begin
-      word_cnt <= word_cnt + WidthMultiple[WordCntWidth-1:0];
+      page_err_q <= page_err_q | page_err_d;
+      word_err_q <= word_err_q | word_err_d;
     end
   end
 
@@ -557,10 +568,11 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
   assign rma_part_sel = RmaWipeEntries[rma_wipe_idx].part;
   assign rma_info_sel = RmaWipeEntries[rma_wipe_idx].info_sel;
-  assign rma_num_words = WidthMultiple[11:0] - 1;
+  assign rma_num_words = WidthMultiple - 1;
 
 
   //fsm for handling the actual wipe
+  logic fsm_err;
   always_comb begin
     rma_state_d = rma_state_q;
     rma_wipe_done = 1'b0;
@@ -570,11 +582,13 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
     page_cnt_ld = 1'b0;
     page_cnt_incr = 1'b0;
     page_cnt_clr = 1'b0;
+    word_cnt_ld = 1'b0;
     word_cnt_incr = 1'b0;
     word_cnt_clr = 1'b0;
     prog_cnt_en = 1'b0;
     rd_cnt_en = 1'b0;
     beat_cnt_clr = 1'b0;
+    fsm_err = 1'b0;
 
     unique case (rma_state_q)
 
@@ -599,13 +613,14 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
         rma_start = 1'b1;
         rma_op = FlashOpErase;
         if (done_i) begin
-          err_sts_set = err_i;
+          err_sts_set = |err_i;
+          word_cnt_ld = 1'b1;
           rma_state_d = StRmaWordSel;
         end
       end
 
       StRmaWordSel: begin
-        if (word_cnt < BusWordsPerPage[WordCntWidth-1:0]) begin
+        if (word_cnt < BusWordsPerPage) begin
           rma_state_d = StRmaProgram;
         end else begin
           word_cnt_clr = 1'b1;
@@ -630,7 +645,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
         if (done_i) begin
           beat_cnt_clr = 1'b1;
-          err_sts_set = err_i;
+          err_sts_set = |err_i;
           rma_state_d = StRmaRdVerify;
         end
       end
@@ -653,6 +668,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
 
       default: begin
         err_sts_set = 1'b1;
+        fsm_err = 1'b1;
       end
 
     endcase // unique case (rma_state_q)
@@ -677,6 +693,9 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
   assign phase_o = phase;
 
   assign rma_ack_o = rma_ack_q;
+
+  // all of these are considered fatal errors
+  assign fatal_err_o = page_err_q | word_err_q | fsm_err;
 
   logic unused_seed_valid;
   assign unused_seed_valid = otp_key_rsp_i.seed_valid;

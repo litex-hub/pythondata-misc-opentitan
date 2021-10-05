@@ -70,37 +70,52 @@ Capturing fast and efficient feedback on syntactic and semantic (as well as styl
 Running lint is especially useful with SystemVerilog, a weakly-typed language, unlike more modern hardware description languages.
 Running lint is faster than running a simulation.
 
-### Sign-off Linting using AscentLint
+### Semantic Linting using Verilator (Open Source)
 
-For sign-off we have standardized on the [AscentLint](https://www.realintent.com/rtl-linting-ascent-lint/) tool from RealIntent for this task due to its fast run-times and comprehensive set of rules that provide concise error and warning messages.
+The Verilator tool is open source, thus enabling all project contributors to conveniently download, install and run the tool locally as described [in the installation instructions]({{< relref "doc/ug/install_instructions/index.md#verilator" >}}), without the need for buying a lint tool license.
 
-The sign-off lint flow leverages a new lint rule policy named _"lowRISC Lint Rules"_ that has been tailored towards our [Verilog Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md).
-The lint flow run scripts and waiver files are available in the GitHub repository of this project, but due to the proprietary nature of the lint rules and their configuration, the _"lowRISC Lint Rules"_ lint policy file can not be publicly provided.
-However, the _"lowRISC Lint Rules"_ are available as part of the default policies in AscentLint release 2019.A.p3 or newer (as `LRLR-v1.0.policy`).
-This enables designers that have access to this tool to run the lint flow provided locally on their premises.
-
-For developers of design IP, the recommendation is to set up the AscentLint flow for their IP as described in the [Lint Flow README]({{< relref "hw/lint/doc/README.md" >}}), and use the flow locally to close the errors and warnings.
+For developers of design IP, the recommendation is thus to set up the Verilator lint flow for their IP as described in the [Lint Flow README]({{< relref "hw/lint/doc/README.md" >}}).
+Developers should run their code through the Verilator lint tool before creating a design pull request.
 Linting errors and warnings can be closed by fixing the code in question (preferred), or waiving the error.
-These waivers have to be reviewed as part of the Pull Request review process.
+These waivers have to be reviewed as part of the pull request review process.
 
-For other developers that do not have access to this tool, the recommendation is to run their code through whatever linting tool they have available at their disposal before creating a design Pull Request (e.g. the open source Verilator tool).
-Once the Pull Request has been merged, these developers can then work with the maintainers to enable sign-off linting on their design.
+Note that a pull request cannot be merged if it is not lint-clean, since the continuous integration infrastructure will run Verilator lint on each pull request.
 
-Note that all designs with enabled AscentLint targets will be run through the tool in eight-hour intervals and the results are published as part of the tool dashboards on the [hardware IP overview page](https://docs.opentitan.org/hw), enabling designers to close the lint errors and warnings even if they cannot run the sign-off tool locally.
+### Style Linting using Verible (Open Source)
 
-Goals for linting closure per design milestone are given in the [OpenTitan Development Stages]({{< relref "doc/project/development_stages" >}}) document.
-
-### Style Linting using Verible
-
-In order to complement the sign-off lint flow explained above, we also leverage the Verible style linter, which captures different aspects of the code and detects style elements that are in violation with our [Verilog Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md).
+To complement the Verilator lint explained above, we also leverage the Verible style linter, which captures different aspects of the code and detects style elements that are in violation of our [Verilog Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md).
 
 The tool is open source and freely available on the [Verible GitHub page](https://github.com/google/verible/).
-Hence, the recommendation for IP designers is to install the tool as described [here]({{< relref "doc/ug/install_instructions" >}}) and in the [Lint Flow README]({{< relref "hw/lint/doc/README.md" >}}), and use the flow locally to close the errors and warnings.
+Hence, we recommend IP designers install the tool as described [here]({{< relref "doc/ug/install_instructions/index.md#verible" >}}) and in the [Lint Flow README]({{< relref "hw/lint/doc/README.md" >}}), and use the flow locally to close the errors and warnings.
 
-Note, however, that we do not have a waiver strategy in place yet.
-Until that is the case, the recommendation is to use good judgment and fix all violations that can be addressed without too much effort.
+Developers should run their code through the Verible style lint tool before creating a design pull request.
+Linting errors and warnings can be closed by fixing the code in question (preferred), or waiving the error.
+These waivers have to be reviewed as part of the pull request review process.
 
-Similarly to the sign-off flow, all designs with enabled Verible lint targets will be run through the tool in eight-hour intervals and the results are published as part of the tool dashboards on the [hardware IP overview page](https://docs.opentitan.org/hw), enabling designers to close the lint errors and warnings even if they cannot run the sign-off tool locally.
+Note that a pull request cannot be merged if it is not lint-clean, since the continuous integration infrastructure will run Verible lint on each pull request.
+
+### Semantic Linting using AscentLint (Sign-Off)
+
+The rule set and capabilities of commercial tools currently still go beyond what open-source tools can provide.
+Hence, we have standardized on the [AscentLint](https://www.realintent.com/rtl-linting-ascent-lint/) tool from RealIntent for sign-off.
+This tool exhibits fast run-times and a comprehensive set of rules that provide concise error and warning messages.
+
+The sign-off lint flow leverages a new lint rule policy named _"lowRISC Lint Rules"_ that has been tailored towards our [Verilog Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md).
+The lint flow run scripts and waiver files are available in the GitHub repository of this project but, due to the proprietary nature of the lint rules and their configuration, the _"lowRISC Lint Rules"_ lint policy file can not be publicly provided.
+However, the _"lowRISC Lint Rules"_ are available as part of the default policies in AscentLint release 2019.A.p3 or newer (as `LRLR-v1.0.policy`).
+This allows designers with access to this tool to run the lint flow locally on their premises.
+
+If developers of design IP have access to AscentLint, we recommend to set up the AscentLint flow for their IP as described in the [Lint Flow README]({{< relref "hw/lint/doc/README.md" >}}), and use the flow locally to close the errors and warnings.
+Linting errors and warnings can be closed by fixing the code in question (preferred), or waiving the error.
+These waivers have to be reviewed as part of the pull request review process.
+
+Note that our continuous integration infrastructure does not currently run AscentLint on each pull request as it does with Verilator lint.
+However, all designs with enabled AscentLint targets on the master branch will be run through the tool in eight-hour intervals and the results are published as part of the tool dashboards on the [hardware IP overview page](https://docs.opentitan.org/hw), enabling designers to close the lint errors and warnings even if they cannot run the sign-off tool locally.
+
+Goals for sign-off linting closure per design milestone are given in the [OpenTitan Development Stages]({{< relref "doc/project/development_stages" >}}) document.
+
+Note that cases may occur where the open-source and the sign-off lint tools both output a warning/error that is difficult to fix in RTL in a way that satisfies both tools at the same time.
+In those cases, priority shall be given to the RTL fix that satisfies the sign-off lint tool, and the open-source tool message shall be waived.
 
 ## Assertion Methodology
 
@@ -132,7 +147,7 @@ We will choose a sign-off-grade CDC checking tool that provides the features nee
 It is understandable that not all partner members will have access to the tool.
 Once chosen, the project will use it as its sign-off tool, and results will be shared in some form (TODO: final decision).
 CDC checking errors can be closed by fixing the code in question (preferred), or waiving the error.
-CDC waivers should be reviewed as part of the Pull Request review process.
+CDC waivers should be reviewed as part of the pull request review process.
 Details on how to run the tool will be provided once the decision has been finalized.
 
 The team will standardize on a suite of clock-crossing modules that can be used for most multi-clock designs.
@@ -181,10 +196,31 @@ are checked in.
 There is an over-arching build file in the repository under `hw/Makefile` that builds all of the `regtool` content.
 This is used by an Azure Pipelines pre-submit check script to ensure that the source files produce a generated file that is identical to the one being submitted.
 
-## Getting Started with a Design
+## Automatic SV Code Formatting using Verible (Open Source)
+
+The open source Verible tool used for [style linting]({{< relref "#style-linting-using-verible-open-source" >}}) also supports an automatic code formatting mode for SystemVerilog.
+The formatter follows our [Verilog Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md) and helps reducing manual code alignment steps.
+
+Note that this formatter is still under development and not entirely production ready yet due to some remaining formatting bugs and discrepancies - hence automatic code formatting is not enforced in CI at this point.
+However, the tool is mature enough for manual use on individual files (i.e., certain edits may have to be manually amended after using it).
+
+The tool is open source and freely available on the [Verible GitHub page](https://github.com/google/verible/).
+Hence, we encourage IP designers to install the tool as described [here]({{< relref "doc/ug/install_instructions/index.md#verible" >}}), and run their code through the formatter tool before creating a design pull request.
+
+The tool can be invoked on specific SystemVerilog files with the following command:
+```shell
+util/verible-format.py --inplace --files <path to SV files>
+
+```
+This is an in-place operation, hence it is recommended to commit all changes before invoking the formatter.
+
+Note that the formatter only edits whitespace.
+The tool performs an equivalency check before emitting the reformatted code to ensure that no errors are introduced.
+
+## Getting Started Designing Hardware
 
 The process for getting started with a design involves many steps, including getting clarity on its purpose, its feature set, authorship, documentation, etc.
-These are discussed in the [Getting Started with a Design]({{< relref "getting_started_design.md" >}}) document.
+These are discussed in the [Getting Started Designing Hardware]({{< relref "getting_started_hw_design.md" >}}) document.
 
 ## FPGA vs Silicon
 

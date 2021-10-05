@@ -12,7 +12,7 @@ The valid commands are as follows. All arguments are shown here as <argname>.
 The integer arguments are read with Python's int() function, so should be
 prefixed with "0x" if they are hexadecimal.
 
-    start <addr>         Set the PC to <addr> and start OTBN
+    start                Set the PC to zero and start OTBN
 
     step                 Run one instruction. Print trace information to
                          stdout.
@@ -22,6 +22,14 @@ prefixed with "0x" if they are hexadecimal.
 
     load_elf <path>      Load the ELF file at <path>, replacing current
                          contents of DMEM and IMEM.
+
+    add_loop_warp <addr> <from> <to>
+
+                         Add a loop warp to the simulation. This will trigger
+                         at address <addr> and will jump from iteration <from>
+                         to iteration <to>.
+
+    clear_loop_warps     Clear any loop warp rules
 
     load_d <path>        Replace the current contents of DMEM with <path>
                          (read as an array of 32-bit little-endian words)
@@ -34,10 +42,15 @@ prefixed with "0x" if they are hexadecimal.
 
     print_regs           Write the contents of all registers to stdout (in hex)
 
+    edn_step             Send 32b RND Data to the model.
+
+    edn_rnd_cdc_done     Finish the RND data write process by signalling RTL
+                         is also finished processing 32b packages from EDN.
+
 '''
 
 import sys
-from typing import List
+from typing import List, Optional
 
 from sim.decode import decode_file
 from sim.elf import load_elf
@@ -65,22 +78,19 @@ def end_command() -> None:
     sys.stdout.flush()
 
 
-def on_start(sim: OTBNSim, args: List[str]) -> None:
+def on_start(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Jump to an address given as the (only) argument and start running'''
-    if len(args) != 1:
-        raise ValueError('start expects exactly 1 argument. Got {}.'
-                         .format(args))
+    if len(args) != 0:
+        raise ValueError('start expects zero arguments. Got {}.'.format(args))
 
-    addr = read_word('addr', args[0], 32)
-    if addr & 3:
-        raise ValueError('start address must be word-aligned. Got {:#08x}.'
-                         .format(addr))
+    print('START')
+    sim.state.ext_regs.commit()
+    sim.start()
 
-    print('START {:#08x}'.format(addr))
-    sim.state.start(addr)
+    return None
 
 
-def on_step(sim: OTBNSim, args: List[str]) -> None:
+def on_step(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Step one instruction'''
     if len(args):
         raise ValueError('step expects zero arguments. Got {}.'
@@ -89,30 +99,39 @@ def on_step(sim: OTBNSim, args: List[str]) -> None:
     pc = sim.state.pc
     assert 0 == pc & 3
 
-    insn, changes = sim.step(verbose=False)
+    insn, changes = sim.step(verbose=False, collect_stats=False)
 
     if insn is None:
-        hdr = 'STALL'
+        print('STALL')
     else:
-        hdr = 'E PC: {:#010x}, insn: {:#010x}'.format(pc, insn.raw)
-    print(hdr)
+        print(f'E PC: {pc:#010x}, insn: {insn.raw:#010x}')
+        print(f'# @{pc:#010x}: {insn.insn.mnemonic}')
+
     for change in changes:
         entry = change.rtl_trace()
         if entry is not None:
             print(entry)
 
+    return None
 
-def on_run(sim: OTBNSim, args: List[str]) -> None:
+
+def on_run(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Run until ecall or error'''
     if len(args):
         raise ValueError('run expects zero arguments. Got {}.'
                          .format(args))
 
-    num_cycles = sim.run(verbose=False)
-    print(' ran for {} cycles'.format(num_cycles))
+    print('RUN')
+
+    sim.run(verbose=False, collect_stats=False)
+
+    print(' INSN_CNT = {:#x}'.format(sim.state.ext_regs.read('INSN_CNT', False)))
+    print(' ERR_BITS = {:#x}'.format(sim.state.ext_regs.read('ERR_BITS', False)))
+
+    return None
 
 
-def on_load_elf(sim: OTBNSim, args: List[str]) -> None:
+def on_load_elf(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Load contents of ELF at path given by only argument'''
     if len(args) != 1:
         raise ValueError('load_elf expects exactly 1 argument. Got {}.'
@@ -122,8 +141,47 @@ def on_load_elf(sim: OTBNSim, args: List[str]) -> None:
     print('LOAD_ELF {!r}'.format(path))
     load_elf(sim, path)
 
+    return None
 
-def on_load_d(sim: OTBNSim, args: List[str]) -> None:
+
+def on_add_loop_warp(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
+    '''Add a loop warp to the simulation'''
+    if len(args) != 3:
+        raise ValueError('add_loop_warp expects exactly 3 arguments. Got {}.'
+                         .format(args))
+
+    try:
+        addr = int(args[0], 0)
+        if addr < 0:
+            raise ValueError('addr is negative')
+        from_cnt = int(args[1], 0)
+        if from_cnt < 0:
+            raise ValueError('from_cnt is negative')
+        to_cnt = int(args[2], 0)
+        if to_cnt < 0:
+            raise ValueError('to_cnt is negative')
+    except ValueError as err:
+        raise ValueError('Bad argument to add_loop_warp: {}'
+                         .format(err)) from None
+
+    print('ADD_LOOP_WARP {:#x} {} {}'.format(addr, from_cnt, to_cnt))
+    sim.add_loop_warp(addr, from_cnt, to_cnt)
+
+    return None
+
+
+def on_clear_loop_warps(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
+    '''Run until ecall or error'''
+    if len(args):
+        raise ValueError('clear_loop_warps expects zero arguments. Got {}.'
+                         .format(args))
+
+    sim.loop_warps = {}
+
+    return None
+
+
+def on_load_d(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Load contents of data memory from file at path given by only argument'''
     if len(args) != 1:
         raise ValueError('load_d expects exactly 1 argument. Got {}.'
@@ -134,8 +192,10 @@ def on_load_d(sim: OTBNSim, args: List[str]) -> None:
     with open(path, 'rb') as handle:
         sim.load_data(handle.read())
 
+    return None
 
-def on_load_i(sim: OTBNSim, args: List[str]) -> None:
+
+def on_load_i(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Load contents of insn memory from file at path given by only argument'''
     if len(args) != 1:
         raise ValueError('load_i expects exactly 1 argument. Got {}.'
@@ -145,8 +205,10 @@ def on_load_i(sim: OTBNSim, args: List[str]) -> None:
     print('LOAD_I {!r}'.format(path))
     sim.load_program(decode_file(0, path))
 
+    return None
 
-def on_dump_d(sim: OTBNSim, args: List[str]) -> None:
+
+def on_dump_d(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Dump contents of data memory to file at path given by only argument'''
     if len(args) != 1:
         raise ValueError('dump_d expects exactly 1 argument. Got {}.'
@@ -158,8 +220,10 @@ def on_dump_d(sim: OTBNSim, args: List[str]) -> None:
     with open(path, 'wb') as handle:
         handle.write(sim.state.dmem.dump_le_words())
 
+    return None
 
-def on_print_regs(sim: OTBNSim, args: List[str]) -> None:
+
+def on_print_regs(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Print registers to stdout'''
     if len(args):
         raise ValueError('print_regs expects zero arguments. Got {}.'
@@ -171,8 +235,10 @@ def on_print_regs(sim: OTBNSim, args: List[str]) -> None:
     for idx, value in enumerate(sim.state.wdrs.peek_unsigned_values()):
         print(' w{:<2} = 0x{:064x}'.format(idx, value))
 
+    return None
 
-def on_print_call_stack(sim: OTBNSim, args: List[str]) -> None:
+
+def on_print_call_stack(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Print call stack to stdout. First element is the bottom of the stack'''
     if len(args):
         raise ValueError('print_call_stack expects zero arguments. Got {}.'
@@ -182,22 +248,47 @@ def on_print_call_stack(sim: OTBNSim, args: List[str]) -> None:
     for value in sim.state.peek_call_stack():
         print('0x{:08x}'.format(value))
 
+    return None
 
-def on_edn_rnd_data(sim: OTBNSim, args: List[str]) -> None:
+
+def on_edn_step(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     if len(args) != 1:
-        raise ValueError('edn_rnd_data expects exactly 1 argument. Got {}.'
+        raise ValueError('edn_step expects exactly 1 argument. Got {}.'
                          .format(args))
 
-    edn_rnd_data = read_word('edn_rnd_data', args[0], 256)
-    sim.state.set_rnd_data(edn_rnd_data)
+    edn_rnd_data = read_word('edn_step', args[0], 32)
+
+    sim.state.step_edn(edn_rnd_data)
+
+    return None
 
 
-def on_edn_urnd_reseed_complete(sim: OTBNSim, args: List[str]) -> None:
+def on_edn_rnd_cdc_done(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
+    if len(args) != 0:
+        raise ValueError('edn_rnd_cdc_done expects zero arguments. Got {}.'
+                         .format(args))
+
+    sim.state.rnd_completed()
+
+    return None
+
+
+def on_edn_urnd_reseed_complete(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     if args:
         raise ValueError('edn_urnd_reseed_complete expects zero arguments. Got {}.'
                          .format(args))
 
     sim.state.set_urnd_reseed_complete()
+
+    return None
+
+
+def on_reset(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
+    if args:
+        raise ValueError('reset expects zero arguments. Got {}.'
+                         .format(args))
+
+    return OTBNSim()
 
 
 _HANDLERS = {
@@ -205,39 +296,48 @@ _HANDLERS = {
     'step': on_step,
     'run': on_run,
     'load_elf': on_load_elf,
+    'add_loop_warp': on_add_loop_warp,
+    'clear_loop_warps': on_clear_loop_warps,
     'load_d': on_load_d,
     'load_i': on_load_i,
     'dump_d': on_dump_d,
     'print_regs': on_print_regs,
     'print_call_stack': on_print_call_stack,
-    'edn_rnd_data': on_edn_rnd_data,
+    'reset': on_reset,
+    'edn_step': on_edn_step,
+    'edn_rnd_cdc_done': on_edn_rnd_cdc_done,
     'edn_urnd_reseed_complete': on_edn_urnd_reseed_complete
 }
 
 
-def on_input(sim: OTBNSim, line: str) -> None:
+def on_input(sim: OTBNSim, line: str) -> Optional[OTBNSim]:
     '''Process an input command'''
     words = line.split()
 
     # Just ignore empty lines
     if not words:
-        return
+        return None
 
     verb = words[0]
     handler = _HANDLERS.get(verb)
     if handler is None:
         raise RuntimeError('Unknown command: {!r}'.format(verb))
 
-    handler(sim, words[1:])
+    ret = handler(sim, words[1:])
     print('.')
     sys.stdout.flush()
+
+    return ret
 
 
 def main() -> int:
     sim = OTBNSim()
     try:
         for line in sys.stdin:
-            on_input(sim, line)
+            ret = on_input(sim, line)
+            if ret is not None:
+                sim = ret
+
     except KeyboardInterrupt:
         print("Received shutdown request, ending OTBN simulation.")
         return 0

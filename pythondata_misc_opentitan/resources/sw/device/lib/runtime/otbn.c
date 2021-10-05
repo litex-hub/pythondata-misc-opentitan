@@ -4,45 +4,18 @@
 
 #include "sw/device/lib/runtime/otbn.h"
 
+#include "sw/device/lib/base/mmio.h"
+#include "sw/device/lib/dif/dif_base.h"
 #include "sw/device/lib/dif/dif_otbn.h"
+#include "sw/device/lib/runtime/log.h"
 
 /**
- * Gets the address in OTBN instruction memory referenced by `ptr`.
- *
- * @param ctx The context object.
- * @param ptr The pointer to convert.
- * @param[out] imem_addr_otbn The address of the function in OTBN's instruction
- *                            memory.
- * @return The result of the operation; #kOtbnBadArg if `ptr` is not in the
- *         instruction memory space of the currently loaded application.
+ * Data width of big number subset, in bytes.
  */
-static otbn_result_t func_ptr_to_otbn_imem_addr(const otbn_t *ctx,
-                                                otbn_ptr_t ptr,
-                                                uint32_t *imem_addr_otbn) {
-  uintptr_t ptr_addr = (uintptr_t)ptr;
-  uintptr_t app_imem_start_addr = (uintptr_t)ctx->app.imem_start;
-  uintptr_t app_imem_end_addr = (uintptr_t)ctx->app.imem_end;
+const int kOtbnWlenBytes = 256 / 8;
 
-  if (imem_addr_otbn == NULL || ptr == NULL || ctx == NULL ||
-      ptr_addr < app_imem_start_addr || ptr_addr > app_imem_end_addr) {
-    return kOtbnBadArg;
-  }
-  *imem_addr_otbn = ptr_addr - app_imem_start_addr;
-  return kOtbnOk;
-}
-
-/**
- * Gets the address in OTBN data memory referenced by `ptr`.
- *
- * @param ctx The context object.
- * @param ptr The pointer to convert.
- * @param[out] dmem_addr_otbn The address of the data in OTBN's data memory.
- * @return The result of the operation; #kOtbnBadArg if `ptr` is not in the data
- *         memory space of the currently loaded application.
- */
-static otbn_result_t data_ptr_to_otbn_dmem_addr(const otbn_t *ctx,
-                                                otbn_ptr_t ptr,
-                                                uint32_t *dmem_addr_otbn) {
+otbn_result_t otbn_data_ptr_to_dmem_addr(const otbn_t *ctx, otbn_ptr_t ptr,
+                                         uint32_t *dmem_addr_otbn) {
   uintptr_t ptr_addr = (uintptr_t)ptr;
   uintptr_t app_dmem_start_addr = (uintptr_t)ctx->app.dmem_start;
   uintptr_t app_dmem_end_addr = (uintptr_t)ctx->app.dmem_end;
@@ -58,29 +31,31 @@ static otbn_result_t data_ptr_to_otbn_dmem_addr(const otbn_t *ctx,
 otbn_result_t otbn_busy_wait_for_done(otbn_t *ctx) {
   bool busy = true;
   while (busy) {
-    if (dif_otbn_is_busy(&ctx->dif, &busy) != kDifOtbnOk) {
+    dif_otbn_status_t status;
+    if (dif_otbn_get_status(&ctx->dif, &status) != kDifOk) {
       return kOtbnError;
     }
+    busy = status != kDifOtbnStatusIdle && status != kDifOtbnStatusLocked;
   }
 
   dif_otbn_err_bits_t err_bits;
-  if (dif_otbn_get_err_bits(&ctx->dif, &err_bits) != kDifOtbnOk) {
+  if (dif_otbn_get_err_bits(&ctx->dif, &err_bits) != kDifOk) {
     return kOtbnError;
   }
   if (err_bits != kDifOtbnErrBitsNoError) {
-    return kOtbnExecutionFailed;
+    return kOtbnOperationFailed;
   }
   return kOtbnOk;
 }
 
-otbn_result_t otbn_init(otbn_t *ctx, const dif_otbn_config_t dif_config) {
+otbn_result_t otbn_init(otbn_t *ctx, mmio_region_t base_addr) {
   if (ctx == NULL) {
     return kOtbnBadArg;
   }
 
   ctx->app_is_loaded = false;
 
-  if (dif_otbn_init(&dif_config, &ctx->dif) != kDifOtbnOk) {
+  if (dif_otbn_init(base_addr, &ctx->dif) != kDifOk) {
     return kOtbnError;
   }
 
@@ -104,13 +79,13 @@ otbn_result_t otbn_load_app(otbn_t *ctx, const otbn_app_t app) {
   ctx->app = app;
 
   if (dif_otbn_imem_write(&ctx->dif, 0, ctx->app.imem_start, imem_size) !=
-      kDifOtbnOk) {
+      kDifOk) {
     return kOtbnError;
   }
 
   if (dmem_size > 0) {
     if (dif_otbn_dmem_write(&ctx->dif, 0, ctx->app.dmem_start, dmem_size) !=
-        kDifOtbnOk) {
+        kDifOk) {
       return kOtbnError;
     }
   }
@@ -119,18 +94,12 @@ otbn_result_t otbn_load_app(otbn_t *ctx, const otbn_app_t app) {
   return kOtbnOk;
 }
 
-otbn_result_t otbn_call_function(otbn_t *ctx, otbn_ptr_t func) {
+otbn_result_t otbn_execute(otbn_t *ctx) {
   if (ctx == NULL || !ctx->app_is_loaded) {
     return kOtbnBadArg;
   }
 
-  uint32_t func_imem_addr;
-  otbn_result_t result = func_ptr_to_otbn_imem_addr(ctx, func, &func_imem_addr);
-  if (result != kOtbnOk) {
-    return result;
-  }
-
-  if (dif_otbn_start(&ctx->dif, func_imem_addr) != kDifOtbnOk) {
+  if (dif_otbn_write_cmd(&ctx->dif, kDifOtbnCmdExecute) != kDifOk) {
     return kOtbnError;
   }
 
@@ -144,13 +113,13 @@ otbn_result_t otbn_copy_data_to_otbn(otbn_t *ctx, size_t len_bytes,
   }
 
   uint32_t dest_dmem_addr;
-  otbn_result_t result = data_ptr_to_otbn_dmem_addr(ctx, dest, &dest_dmem_addr);
+  otbn_result_t result = otbn_data_ptr_to_dmem_addr(ctx, dest, &dest_dmem_addr);
   if (result != kOtbnOk) {
     return result;
   }
 
   if (dif_otbn_dmem_write(&ctx->dif, dest_dmem_addr, src, len_bytes) !=
-      kDifOtbnOk) {
+      kDifOk) {
     return kOtbnError;
   }
   return kOtbnOk;
@@ -163,13 +132,12 @@ otbn_result_t otbn_copy_data_from_otbn(otbn_t *ctx, size_t len_bytes,
   }
 
   uint32_t src_dmem_addr;
-  otbn_result_t result = data_ptr_to_otbn_dmem_addr(ctx, src, &src_dmem_addr);
+  otbn_result_t result = otbn_data_ptr_to_dmem_addr(ctx, src, &src_dmem_addr);
   if (result != kOtbnOk) {
     return result;
   }
 
-  if (dif_otbn_dmem_read(&ctx->dif, src_dmem_addr, dest, len_bytes) !=
-      kDifOtbnOk) {
+  if (dif_otbn_dmem_read(&ctx->dif, src_dmem_addr, dest, len_bytes) != kDifOk) {
     return kOtbnError;
   }
   return kOtbnOk;
@@ -189,9 +157,31 @@ otbn_result_t otbn_zero_data_memory(otbn_t *ctx) {
     // Continue the process even if a single write fails to try to clear as much
     // memory as possible.
     if (dif_otbn_dmem_write(&ctx->dif, i * sizeof(uint32_t), &zero,
-                            sizeof(zero)) != kDifOtbnOk) {
+                            sizeof(zero)) != kDifOk) {
       retval = kOtbnError;
     }
   }
   return retval;
+}
+
+otbn_result_t otbn_dump_dmem(const otbn_t *ctx, uint32_t max_addr) {
+  if (ctx == NULL || max_addr % kOtbnWlenBytes != 0 ||
+      max_addr > dif_otbn_get_dmem_size_bytes(&ctx->dif)) {
+    return kOtbnBadArg;
+  }
+
+  if (max_addr == 0) {
+    max_addr = dif_otbn_get_dmem_size_bytes(&ctx->dif);
+  }
+
+  for (int i = 0; i < max_addr; i += kOtbnWlenBytes) {
+    uint32_t data[kOtbnWlenBytes / sizeof(uint32_t)];
+    dif_otbn_dmem_read(&ctx->dif, i, data, kOtbnWlenBytes);
+
+    LOG_INFO("DMEM @%04d: 0x%08x%08x%08x%08x%08x%08x%08x%08x",
+             i / kOtbnWlenBytes, data[7], data[6], data[5], data[4], data[3],
+             data[2], data[1], data[0]);
+  }
+
+  return kOtbnOk;
 }

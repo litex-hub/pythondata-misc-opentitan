@@ -11,6 +11,15 @@ class CSRFile:
     def __init__(self) -> None:
         self.flags = FlagGroups()
 
+        self._known_indices = set()
+        self._known_indices.add(0x7c0)  # FG0
+        self._known_indices.add(0x7c1)  # FG1
+        self._known_indices.add(0x7c8)  # FLAGS
+        for idx in range(0x7d0, 0x7d8):
+            self._known_indices.add(idx)  # MODi
+        self._known_indices.add(0x7d8)  # RND_PREFETCH
+        self._known_indices.add(0xfc0)  # RND
+
     @staticmethod
     def _get_field(field_idx: int, field_size: int, val: int) -> int:
         mask = (1 << field_size) - 1
@@ -23,6 +32,10 @@ class CSRFile:
         mask = (1 << field_size) - 1
         shift = field_size * field_idx
         return (old_val & ~(mask << shift)) | (field_val << shift)
+
+    def check_idx(self, idx: int) -> bool:
+        '''Return True if idx points to a valid CSR; False otherwise.'''
+        return idx in self._known_indices
 
     def read_unsigned(self, wsrs: WSRFile, idx: int) -> int:
         if 0x7c0 <= idx <= 0x7c1:
@@ -39,13 +52,13 @@ class CSRFile:
             mod_n = idx - 0x7d0
             return self._get_field(mod_n, 32, wsrs.MOD.read_unsigned())
 
+        if idx == 0x7d8:
+            # RND_PREFETCH register
+            return 0
+
         if idx == 0xfc0:
             # RND register
             return wsrs.RND.read_u32()
-
-        if idx == 0xfc1:
-            # RND_PREFETCH register
-            return 0
 
         raise RuntimeError('Unknown CSR index: {:#x}'.format(idx))
 
@@ -71,8 +84,13 @@ class CSRFile:
             wsrs.MOD.write_unsigned(self._set_field(mod_n, 32, value, old))
             return
 
-        if idx == 0xfc0 or idx == 0xfc1:
-            # RND/RND_PREFETCH register (writes are ignored)
+        if idx == 0x7d8:
+            # RND_PREFETCH
+            # TODO: Implement.
+            return
+
+        if idx == 0xfc0:
+            # RND register (which ignores writes)
             return
 
         raise RuntimeError('Unknown CSR index: {:#x}'.format(idx))

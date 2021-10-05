@@ -19,6 +19,7 @@ module rglts_pdm_3p3v (
   input main_pd_h_ni,                    // MAIN Regulator Power Down @3.3v
   input main_env_iso_en_h_i,             // Enveloped ISOlation ENable for MAIN @3.3v
   input [1:0] otp_power_seq_h_i,         // MMR0,24 in @3.3v
+  input scan_mode_i,                     // Scan Mode
   output logic vcaon_pok_h_o,            // VCAON (1.1v) Exist @3.3v
   output logic main_pwr_dly_o,           // For modeling only.
   output logic flash_power_down_h_o,     //
@@ -27,10 +28,10 @@ module rglts_pdm_3p3v (
 );
 
 `ifndef SYNTHESIS
-import ast_bhv_pkg::* ;
-
 // Behavioral Model
 ///////////////////////////////////////
+import ast_bhv_pkg::* ;
+
 // localparam time MPVCC_RDLY = 5us,
 //                 MPVCC_FDLY = 100ns,
 //                 MPPD_RDLY  = 50us,
@@ -46,7 +47,8 @@ initial begin
   init_start = 1'b0;
 end
 
-always_ff @( init_start, posedge vcc_pok_h_i, negedge vcc_pok_h_i ) begin
+always_ff @( posedge init_start, negedge init_start,
+             posedge vcc_pok_h_i, negedge vcc_pok_h_i ) begin
   if ( init_start ) begin
     mr_vcc_dly <= 1'b0;
   end else if ( !init_start && vcc_pok_h_i ) begin
@@ -56,7 +58,9 @@ always_ff @( init_start, posedge vcc_pok_h_i, negedge vcc_pok_h_i ) begin
   end
 end
 
-always_ff @( init_start, posedge main_pd_h_ni, negedge main_pd_h_ni ) begin
+always_ff @( posedge init_start, negedge init_start,
+             posedge vcc_pok_h_i, negedge vcc_pok_h_i,
+             posedge main_pd_h_ni, negedge main_pd_h_ni ) begin
   if ( init_start ) begin
     mr_pd_dly <= 1'b1;
   end else if ( !init_start && main_pd_h_ni && vcc_pok_h_i ) begin
@@ -68,19 +72,23 @@ end
 
 assign main_pwr_dly_o = mr_vcc_dly && mr_pd_dly;
 
-vcaon_pok u_vcaon_pok (
-  .vcaon_pok_o ( vcaon_pok_h_o )
+logic vcaon_pok_h;
+
+vcaon_pgd u_vcaon_pok (
+  .vcaon_pok_o ( vcaon_pok_h )
 );
 
-`else  // of SYNTHESIS
-localparam prim_pkg::impl_e Impl = `PRIM_DEFAULT_IMPL;
+assign vcaon_pok_h_o = vcaon_pok_h && vcc_pok_h_i;
 
+`else  // of SYNTHESIS
 // SYNTHESUS/VERILATOR/LINTER/FPGA
 ///////////////////////////////////////
+localparam prim_pkg::impl_e Impl = `PRIM_DEFAULT_IMPL;
+
 logic dummy0, dummy1;
 
-assign dummy0 = vcmain_pok_h_i && vcmain_pok_o_h_i && clk_src_aon_h_i && 1'b0;
-assign dummy1 = vcmain_pok_h_i || vcmain_pok_o_h_i || clk_src_aon_h_i || 1'b1;
+assign dummy0 = vcmain_pok_h_i && vcmain_pok_o_h_i && 1'b0;
+assign dummy1 = vcmain_pok_h_i || vcmain_pok_o_h_i || 1'b1;
 
 assign vcaon_pok_h_o  = dummy0 || !dummy0;  // 1'b1
 assign main_pwr_dly_o = dummy1 || !dummy1;  // 1'b1
@@ -98,14 +106,24 @@ end
 ///////////////////////////////////////
 // Flash
 ///////////////////////////////////////
-assign flash_power_down_h_o  = ~(main_pd_h_ni && vcmain_pok_o_h_i);
+assign flash_power_down_h_o  = scan_mode_i || !(main_pd_h_ni && vcmain_pok_o_h_i);
 assign flash_power_ready_h_o = vcc_pok_h_i;
 
 
 ///////////////////////////////////////
 // OTP
 ///////////////////////////////////////
-assign otp_power_seq_h_o[0] = !flash_power_down_h_o && otp_power_seq_h_i[0];
-assign otp_power_seq_h_o[1] =  flash_power_down_h_o || otp_power_seq_h_i[1];
+assign otp_power_seq_h_o[0] = !scan_mode_i && !flash_power_down_h_o && otp_power_seq_h_i[0];
+assign otp_power_seq_h_o[1] =  scan_mode_i || flash_power_down_h_o || otp_power_seq_h_i[1];
+
+
+///////////////////////
+// Unused Signals
+///////////////////////
+logic unused_sigs;
+assign unused_sigs = ^{ main_env_iso_en_h_i,  // Used in ASIC implementation
+                        vcmain_pok_h_i,       // Used in ASIC implementation
+                        clk_src_aon_h_i       // Used in ASIC implementation
+                      };
 
 endmodule : rglts_pdm_3p3v

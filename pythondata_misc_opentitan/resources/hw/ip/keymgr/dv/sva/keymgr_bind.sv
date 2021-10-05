@@ -18,6 +18,6 @@ module keymgr_bind;
     .rst_ni,
     .h2d    (tl_i),
     .d2h    (tl_o)
-  );
+ );
 
 endmodule

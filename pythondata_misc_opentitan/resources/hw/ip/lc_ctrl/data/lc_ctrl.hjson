@@ -2,11 +2,15 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 { name: "lc_ctrl",
-  clock_primary: "clk_i",
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {clock: "clk_kmac_i", reset: "rst_kmac_ni"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
   scan: "true", // Enable `scanmode_i` port
+  scan_reset: "true", // Enable `scan_rst_ni` port
   regwidth: "32",
 
 
@@ -20,6 +24,9 @@
     }
     { name: "fatal_state_error",
       desc: "This alert triggers if an error in the life cycle state or life cycle controller FSM is detected.",
+    }
+    { name: "fatal_bus_integ_error",
+      desc: "This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected."
     }
   ],
 
@@ -57,7 +64,7 @@
     { name:    "CsrLcStateWidth",
       desc:    "Number of life cycle state enum bits.",
       type:    "int"
-      default: "4",
+      default: "5",
       local:   "true"
     }
     { name:    "CsrLcCountWidth",
@@ -72,8 +79,26 @@
       default: "2",
       local:   "true"
     }
+    { name:    "CsrOtpTestCtrlWidth",
+      desc:    "Number of vendor/test-specific OTP control bits.",
+      type:    "int"
+      default: "32",
+      local:   "true"
+    }
+    { name:    "CsrOtpTestStatusWidth",
+      desc:    "Number of vendor/test-specific OTP status bits.",
+      type:    "int"
+      default: "32",
+      local:   "true"
+    }
     { name:    "NumDeviceIdWords",
       desc:    "Number of 32bit words in the Device ID.",
+      type:    "int"
+      default: "8",
+      local:   "true"
+    }
+    { name:    "NumManufStateWords",
+      desc:    "Number of 32bit words in the manufacturing state.",
       type:    "int"
       default: "8",
       local:   "true"
@@ -95,25 +120,25 @@
     // Escalation inputs from alert handler
     { struct:  "esc_tx"
       type:    "uni"
-      name:    "esc_wipe_secrets_tx"
+      name:    "esc_scrap_state0_tx"
       act:     "rcv"
       package: "prim_esc_pkg"
     }
     { struct:  "esc_rx"
       type:    "uni"
-      name:    "esc_wipe_secrets_rx"
+      name:    "esc_scrap_state0_rx"
       act:     "req"
       package: "prim_esc_pkg"
     }
     { struct:  "esc_tx"
       type:    "uni"
-      name:    "esc_scrap_state_tx"
+      name:    "esc_scrap_state1_tx"
       act:     "rcv"
       package: "prim_esc_pkg"
     }
     { struct:  "esc_rx"
       type:    "uni"
-      name:    "esc_scrap_state_rx"
+      name:    "esc_scrap_state1_rx"
       act:     "req"
       package: "prim_esc_pkg"
     }
@@ -124,6 +149,14 @@
       act:     "rsp",
       package: "pwrmgr_pkg",
     },
+    // Macro-specific test signals to/from LC TAP
+    { struct:  "lc_otp_vendor_test"
+      type:    "req_rsp"
+      name:    "lc_otp_vendor_test"
+      act:     "req"
+      default: "'0"
+      package: "otp_ctrl_pkg"
+    }
     // life cycle state broadcast from OTP
     { struct:  "otp_lc_data"
       type:    "uni"
@@ -141,12 +174,12 @@
       package: "otp_ctrl_pkg"
     }
     // life cycle token hashing command to OTP
-    { struct:  "lc_otp_token"
+    { struct:  "app"
       type:    "req_rsp"
-      name:    "lc_otp_token"
+      name:    "kmac_data"
       act:     "req"
       default: "'0"
-      package: "otp_ctrl_pkg"
+      package: "kmac_pkg"
     }
     // Life cycle broadcast signals
     { struct:  "lc_tx"
@@ -277,13 +310,21 @@
       package: "lc_ctrl_pkg"
     }
     // HW config input for DEVICE_ID
-    { struct:  "otp_hw_cfg"
-      type:    "uni"
-      name:    "otp_hw_cfg"
-      act:     "rcv"
+    { struct:  "otp_device_id",
+      type:    "uni",
+      name:    "otp_device_id",
+      act:     "rcv",
+      package: "otp_ctrl_pkg",
       default: "'0"
-      package: "otp_ctrl_part_pkg"
-    }
+    },
+    // HW config input for MANUF_STATE
+    { struct:  "otp_manuf_state",
+      type:    "uni",
+      name:    "otp_manuf_state",
+      act:     "rcv",
+      package: "otp_ctrl_pkg",
+      default: "'0"
+    },
   ] // inter_signal_list
 
   registers: [
@@ -366,6 +407,13 @@
                 '''
         }
         { bits: "8"
+          name: "BUS_INTEG_ERROR"
+          desc: '''
+                This bit is set to 1 if a fatal bus integrity fault is detected.
+                This error triggers a fatal_bus_integ_error alert.
+                '''
+        }
+        { bits: "9"
           name: "OTP_PARTITION_ERROR"
           desc: '''
                 This bit is set to 1 if the life cycle partition in OTP is in error state.
@@ -449,6 +497,26 @@
         }
       ]
     }
+    { name: "TRANSITION_CTRL",
+      desc: "Control register for state transition requests.",
+      swaccess: "rw",
+      hwaccess: "hrw",
+      hwqe:     "true",
+      hwext:    "true",
+      regwen:   "TRANSITION_REGWEN",
+        tags: [ // To update this register, SW needs to claim the associated hardware mutex via
+                // CLAIM_TRANSITION_IF, so can not auto predict its value.
+                "excl:CsrNonInitTests:CsrExclCheck"],
+      fields: [
+        { bits: "0",
+          name: "EXT_CLOCK_EN",
+          desc: '''
+          When set to 1, the OTP clock will be switched to an externally supplied clock when initiating a life cycle state transition.
+          The clock mux will remain switched until the next system reset.
+          '''
+        }
+      ]
+    }
     { multireg: {
         name:     "TRANSITION_TOKEN",
         desc:     '''
@@ -526,22 +594,54 @@
               desc:  "Unlocked test state where debug functions are enabled."
             }
             { value: "8",
+              name:  "TEST_LOCKED3",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "9",
+              name:  "TEST_UNLOCKED4",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "10",
+              name:  "TEST_LOCKED4",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "11",
+              name:  "TEST_UNLOCKED5",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "12",
+              name:  "TEST_LOCKED5",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "13",
+              name:  "TEST_UNLOCKED6",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "14",
+              name:  "TEST_LOCKED6",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "15",
+              name:  "TEST_UNLOCKED7",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "16",
               name:  "DEV",
               desc:  "Development life cycle state where limited debug functionality is available."
             }
-            { value: "9",
+            { value: "17",
               name:  "PROD",
               desc:  "Production life cycle state."
             }
-            { value: "10",
+            { value: "18",
               name:  "PROD_END",
-              desc:  "Production life cycle state."
+              desc:  "Same as PROD, but transition into RMA is not possible from this state."
             }
-            { value: "11",
+            { value: "19",
               name:  "RMA",
               desc:  "RMA life cycle state."
             }
-            { value: "12",
+            { value: "20",
               name:  "SCRAP",
               desc:  "SCRAP life cycle state where all functions are disabled."
             }
@@ -549,7 +649,48 @@
         }
       ]
     }
-
+    //////////////////////////////////
+    // Vendor Specific OTP Settings //
+    //////////////////////////////////
+    { name:     "OTP_VENDOR_TEST_CTRL",
+      desc:     '''
+                Test/vendor-specific settings for the OTP macro wrapper.
+                These values are only active during RAW, TEST_* and RMA life cycle states.
+                In all other states, these values will be gated to zero before sending
+                them to the OTP macro wrapper - even if this register is programmed to a non-zero value.
+                ''',
+      swaccess: "rw",
+      hwaccess: "hrw",
+      hwqe:     "true",
+      hwext:    "true",
+      regwen:   "TRANSITION_REGWEN",
+      tags: [ // To update this register, SW needs to claim the associated hardware mutex via
+              // CLAIM_TRANSITION_IF, so can not auto predict its value.
+              "excl:CsrNonInitTests:CsrExclCheck"],
+      fields: [
+        { bits: "CsrOtpTestCtrlWidth-1:0"
+        }
+      ]
+    },
+    { name:     "OTP_VENDOR_TEST_STATUS",
+      desc:     '''
+                Test/vendor-specific settings for the OTP macro wrapper.
+                These values are only active during RAW, TEST_* and RMA life cycle states.
+                In all other states, these values will read as zero.
+                ''',
+      swaccess: "ro",
+      hwaccess: "hwo",
+      hwqe:     "true",
+      hwext:    "true",
+      regwen:   "TRANSITION_REGWEN",
+      tags: [ // To update this register, SW needs to claim the associated hardware mutex via
+              // CLAIM_TRANSITION_IF, so can not auto predict its value.
+              "excl:CsrNonInitTests:CsrExclCheck"],
+      fields: [
+        { bits: "CsrOtpTestStatusWidth-1:0"
+        }
+      ]
+    },
     //////////////////
     // LC State CSR //
     //////////////////
@@ -599,35 +740,67 @@
               desc:  "Unlocked test state where debug functions are enabled."
             }
             { value: "8",
+              name:  "TEST_LOCKED3",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "9",
+              name:  "TEST_UNLOCKED4",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "10",
+              name:  "TEST_LOCKED4",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "11",
+              name:  "TEST_UNLOCKED5",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "12",
+              name:  "TEST_LOCKED5",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "13",
+              name:  "TEST_UNLOCKED6",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "14",
+              name:  "TEST_LOCKED6",
+              desc:  "Locked test state where debug all functions are disabled."
+            }
+            { value: "15",
+              name:  "TEST_UNLOCKED7",
+              desc:  "Unlocked test state where debug functions are enabled."
+            }
+            { value: "16",
               name:  "DEV",
               desc:  "Development life cycle state where limited debug functionality is available."
             }
-            { value: "9",
+            { value: "17",
               name:  "PROD",
               desc:  "Production life cycle state."
             }
-            { value: "10",
+            { value: "18",
               name:  "PROD_END",
               desc:  "Same as PROD, but transition into RMA is not possible from this state."
             }
-            { value: "11",
+            { value: "19",
               name:  "RMA",
               desc:  "RMA life cycle state."
             }
-            { value: "12",
+            { value: "20",
               name:  "SCRAP",
               desc:  "SCRAP life cycle state where all functions are disabled."
             }
             // The following states are temporary.
-            { value: "13",
+            { value: "21",
               name:  "POST_TRANSITION",
               desc:  "This state is temporary and behaves the same way as SCRAP."
             }
-            { value: "14",
+            { value: "22",
               name:  "ESCALATE",
               desc:  "This state is temporary and behaves the same way as SCRAP."
             }
-            { value: "15",
+            { value: "23",
               name:  "INVALID",
               desc:   '''
                       This state is reported when the life cycle state encoding is invalid.
@@ -702,6 +875,27 @@
                   If this register reads all-zero, this is indicative that the value has not been programmed to OTP yet.
                   '''
         count:    "NumDeviceIdWords", // 8 x 32bit = 256bit
+        swaccess: "ro",
+        hwaccess: "hwo",
+        hwext:    "true",
+        cname:    "WORD",
+        tags: [ // Life cycle internal HW will update status so can not auto-predict its value.
+                "excl:CsrAllTests:CsrExclCheck"],
+        fields: [
+          { bits: "31:0"
+          }
+        ]
+      }
+    }
+    //////////////////////////////
+    // Manufacturing State Bits //
+    //////////////////////////////
+    { multireg: {
+        name:     "MANUF_STATE",
+        desc:     '''
+                  This is a 256bit field used for keeping track of the manufacturing state.
+                  '''
+        count:    "NumManufStateWords", // 8 x 32bit = 256bit
         swaccess: "ro",
         hwaccess: "hwo",
         hwext:    "true",

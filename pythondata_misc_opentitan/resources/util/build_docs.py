@@ -18,15 +18,16 @@ import re
 import subprocess
 import sys
 import textwrap
+import socket
 from pathlib import Path
 
 import check_tool_requirements
 import dashboard.gen_dashboard_entry as gen_dashboard_entry
 import difgen.gen_dif_listing as gen_dif_listing
+import dvsim.Testplan as Testplan
 import reggen.gen_cfg_html as gen_cfg_html
 import reggen.gen_html as gen_html
 import reggen.gen_selfdoc as reggen_selfdoc
-import dvsim.testplanner.testplan_utils as testplan_utils
 import tlgen
 from reggen.ip_block import IpBlock
 
@@ -66,7 +67,6 @@ config = {
         "hw/ip/keymgr/data/keymgr.hjson",
         "hw/ip/kmac/data/kmac.hjson",
         "hw/ip/lc_ctrl/data/lc_ctrl.hjson",
-        "hw/ip/nmi_gen/data/nmi_gen.hjson",
         "hw/ip/otbn/data/otbn.hjson",
         "hw/ip/otp_ctrl/data/otp_ctrl.hjson",
         "hw/ip/pattgen/data/pattgen.hjson",
@@ -76,7 +76,9 @@ config = {
         "hw/top_earlgrey/ip/clkmgr/data/autogen/clkmgr.hjson",
         "hw/top_earlgrey/ip/pwrmgr/data/autogen/pwrmgr.hjson",
         "hw/top_earlgrey/ip/rstmgr/data/autogen/rstmgr.hjson",
+        "hw/top_earlgrey/ip/sensor_ctrl/data/sensor_ctrl.hjson",
         "hw/top_earlgrey/ip/rv_plic/data/autogen/rv_plic.hjson",
+        "hw/ip/rv_core_ibex/data/rv_core_ibex.hjson",
         "hw/ip/rv_timer/data/rv_timer.hjson",
         "hw/ip/spi_host/data/spi_host.hjson",
         "hw/ip/spi_device/data/spi_device.hjson",
@@ -91,6 +93,9 @@ config = {
     "dashboard_definitions": {
         "comportable": [
             "hw/ip",
+        ],
+        "top_earlgrey": [
+            "hw/top_earlgrey/ip",
         ],
     },
 
@@ -113,19 +118,22 @@ config = {
         "hw/ip/otbn/data/otbn_testplan.hjson",
         "hw/ip/otp_ctrl/data/otp_ctrl_testplan.hjson",
         "hw/ip/pattgen/data/pattgen_testplan.hjson",
-        "hw/ip/pwm/data/pwm_testplan.hjson",
         "hw/ip/pinmux/data/pinmux_fpv_testplan.hjson",
+        "hw/ip/pwm/data/pwm_testplan.hjson",
+        "hw/ip/pwrmgr/data/pwrmgr_testplan.hjson",
+        "hw/ip/rom_ctrl/data/rom_ctrl_testplan.hjson",
+        "hw/ip/rstmgr/data/rstmgr_testplan.hjson",
         "hw/ip/rv_plic/data/rv_plic_fpv_testplan.hjson",
         "hw/ip/rv_timer/data/rv_timer_testplan.hjson",
-        "hw/ip/spi_host/data/spi_host_testplan.hjson",
         "hw/ip/spi_device/data/spi_device_testplan.hjson",
+        "hw/ip/spi_host/data/spi_host_testplan.hjson",
         "hw/ip/sram_ctrl/data/sram_ctrl_base_testplan.hjson",
+        "hw/ip/tlul/data/tlul_testplan.hjson",
         "hw/ip/uart/data/uart_testplan.hjson",
         "hw/ip/usbdev/data/usbdev_testplan.hjson",
-        "hw/ip/tlul/data/tlul_testplan.hjson",
         "hw/top_earlgrey/data/chip_testplan.hjson",
         "hw/top_earlgrey/data/standalone_sw_testplan.hjson",
-        "util/dvsim/testplanner/examples/foo_testplan.hjson",
+        "util/dvsim/examples/testplanner/foo_testplan.hjson",
     ],
 
     # Pre-generated utility selfdoc
@@ -180,13 +188,13 @@ def generate_hardware_blocks():
 
 def generate_testplans():
     for testplan in config["testplan_definitions"]:
-        plan = testplan_utils.parse_testplan(SRCTREE_TOP.joinpath(testplan))
-
+        plan = Testplan.Testplan(SRCTREE_TOP.joinpath(testplan),
+                                 repo_top=SRCTREE_TOP)
         plan_path = config["outdir-generated"].joinpath(testplan + '.testplan')
         plan_path.parent.mkdir(parents=True, exist_ok=True)
 
         testplan_html = open(str(plan_path), mode='w')
-        testplan_utils.gen_html_testplan_table(plan, testplan_html)
+        testplan_html.write(plan.get_testplan_table("html"))
         testplan_html.close()
 
 
@@ -354,7 +362,7 @@ def hugo_match_version(hugo_bin_path, version):
     logging.info("Checking for correct Hugo version: %s", version)
     # Hugo version string example:
     # "Hugo Static Site Generator v0.59.0-1DD0C69C/extended linux/amd64 BuildDate: 2019-10-21T09:45:38Z"  # noqa: E501
-    return bool(re.search("v" + version + ".*/extended", process.stdout))
+    return bool(re.search("v" + version + ".*[/+]extended", process.stdout))
 
 
 def install_hugo(install_dir):
@@ -404,7 +412,7 @@ def install_hugo(install_dir):
     return hugo_bin_path
 
 
-def invoke_hugo(preview, hugo_bin_path):
+def invoke_hugo(preview, bind_wan, hugo_opts, hugo_bin_path):
     site_docs = SRCTREE_TOP.joinpath('site', 'docs')
     config_file = str(site_docs.joinpath('config.toml'))
     layout_dir = str(site_docs.joinpath('layouts'))
@@ -421,6 +429,13 @@ def invoke_hugo(preview, hugo_bin_path):
     ]
     if preview:
         args += ["server"]
+        # --bind-wan only applies when previewing.
+        if bind_wan:
+            args += ["--bind", "0.0.0.0", "--baseURL",
+                     "http://" + socket.getfqdn()]
+    if hugo_opts is not None:
+        args += hugo_opts
+
     subprocess.run(args, check=True, cwd=str(SRCTREE_TOP))
 
 
@@ -440,10 +455,22 @@ def main():
              changes in the documentation files). This feature is intended
              to preview the documentation locally.""")
     parser.add_argument(
+        '--bind-wan',
+        action='store_true',
+        help="""When previewing, bind to all interfaces (instead of just
+            localhost).  This makes the documentation preview visible from
+            other hosts.""")
+    parser.add_argument(
         '--force-global',
         action='store_true',
         help="""Use a global installation of Hugo. This skips the version
             check and relies on Hugo to be available from the environment.""")
+    parser.add_argument(
+        '--hugo-opts',
+        nargs=argparse.REMAINDER,
+        help="""Indicates that all following arguments should be passed as
+            additional options to hugo.  This may be useful for controlling
+            server bindings and so forth.""")
     parser.add_argument('--hugo', help="""TODO""")
 
     args = parser.parse_args()
@@ -468,7 +495,7 @@ def main():
             pass
 
     try:
-        invoke_hugo(args.preview, hugo_bin_path)
+        invoke_hugo(args.preview, args.bind_wan, args.hugo_opts, hugo_bin_path)
     except subprocess.CalledProcessError:
         sys.exit("Error building site")
     except PermissionError:

@@ -104,6 +104,11 @@ module sha3
   // length is bigger than the block limit.
   logic squeezing;
 
+  // If process_i is received, the logic initiates the final absorbing process.
+  // While absorbing, the processing inticator is turned on. This signal is used
+  // to check if multiple process_i is received or not.
+  logic processing;
+
   // FSM variable
   sha3_pkg::sha3_st_e st, st_d;
 
@@ -139,6 +144,13 @@ module sha3
 
   // Squeezing output
   assign squeezing_o = squeezing;
+
+  // processing
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)        processing <= 1'b 0;
+    else if (process_i) processing <= 1'b 1;
+    else if (absorbed)  processing <= 1'b 0;
+  end
 
   assign block_processed_o = keccak_complete;
 
@@ -190,11 +202,10 @@ module sha3
       end
 
       StAbsorb: begin
-        if (process_i) begin
+        if (process_i && !processing) begin
           st_d = StAbsorb;
 
           keccak_process = 1'b 1;
-        // TODO: Software Cancellation here? in case of absorbed not asserted
         end else if (absorbed) begin
           st_d = StSqueeze;
         end else begin
@@ -222,7 +233,6 @@ module sha3
       end
 
       StManualRun: begin
-        // TODO: Software cancellation here?
         if (keccak_complete) begin
           st_d = StSqueeze;
         end else begin
@@ -264,9 +274,7 @@ module sha3
   //  - Sw set process_i, run_i, done_i without start_i
 
   always_comb begin
-    error_o.valid = 1'b 0;
-    error_o.code  = ErrNone;
-    error_o.info  = '0;
+    error_o = '{valid: 1'b0, code: ErrNone, info: '0};
 
     unique case (st)
       StIdle: begin
@@ -280,7 +288,7 @@ module sha3
       end
 
       StAbsorb: begin
-        if (start_i || run_i || done_i) begin
+        if (start_i || run_i || done_i || (process_i && processing)) begin
           error_o = '{
             valid: 1'b 1,
             code: ErrSha3SwControl,

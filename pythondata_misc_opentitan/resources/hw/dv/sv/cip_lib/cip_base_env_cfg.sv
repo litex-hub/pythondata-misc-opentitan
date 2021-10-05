@@ -11,11 +11,30 @@ class cip_base_env_cfg #(type RAL_T = dv_base_reg_block) extends dv_base_env_cfg
   tl_agent_cfg        m_tl_agent_cfg;
   rand tl_agent_cfg   m_tl_agent_cfgs[string];
 
+  // Override this alert name at `initialize` if it's not as below
+  string              tl_intg_alert_name = "fatal_fault";
+
+  // If there is a bit in an "alert cause" register that will be set by a corrupt bus access, this
+  // should be the name of that field (with syntax "reg.field"). Used by cip_base_scoreboard to
+  // update the relevant field in the RAL model if it sees an error.
+  // Format: tl_intg_alert_fields[ral.a_reg.a_field] = value
+  uvm_reg_data_t      tl_intg_alert_fields[dv_base_reg_field];
+
+  // Similar as the associative array above, if DUT has shadow registers, these two associative
+  // arrays contains register fields related to shadow register's update and storage error status.
+  uvm_reg_data_t      shadow_update_err_status_fields[dv_base_reg_field];
+  uvm_reg_data_t      shadow_storage_err_status_fields[dv_base_reg_field];
+
+  // Enables TL integrity generation & checking with *_user bits.
+  // Assume ALL TL agents have integrity check enabled or disabled altogether.
+  bit                 en_tl_intg_gen = 1;
+
   alert_esc_agent_cfg m_alert_agent_cfg[string];
   push_pull_agent_cfg#(.DeviceDataWidth(EDN_DATA_WIDTH)) m_edn_pull_agent_cfg;
 
   // EDN clk freq setting, if EDN is present.
-  rand clk_freq_mhz_e edn_clk_freq_mhz;
+  rand uint edn_clk_freq_mhz;
+  rand clk_freq_diff_e tlul_and_edn_clk_freq_diff;
 
   // Common interfaces - intrrupts, alerts, edn clk.
   intr_vif    intr_vif;
@@ -34,11 +53,29 @@ class cip_base_env_cfg #(type RAL_T = dv_base_reg_block) extends dv_base_env_cfg
   // function is called
   string list_of_alerts[] = {};
 
+  constraint edn_clk_freq_mhz_c {
+    solve tlul_and_edn_clk_freq_diff before edn_clk_freq_mhz;
+
+    if (tlul_and_edn_clk_freq_diff == ClkFreqDiffNone) {
+      edn_clk_freq_mhz == clk_freq_mhz;
+    } else if (tlul_and_edn_clk_freq_diff == ClkFreqDiffSmall) {
+      edn_clk_freq_mhz != clk_freq_mhz;
+      // This could have used a function, but per the LRM that could cause circular
+      // constraints against the "solve ... before" above. Same thing below for the
+      // "big" setting.
+      (edn_clk_freq_mhz - clk_freq_mhz) inside {[-2 : 2]};
+    } else if (tlul_and_edn_clk_freq_diff == ClkFreqDiffBig) {
+      // max diff is 100-24=76
+      !((edn_clk_freq_mhz - clk_freq_mhz) inside {[-70 : 70]});
+    }
+
+    `DV_COMMON_CLK_CONSTRAINT(edn_clk_freq_mhz)
+  }
   `uvm_object_param_utils_begin(cip_base_env_cfg #(RAL_T))
     `uvm_field_aa_object_string(m_tl_agent_cfgs,   UVM_DEFAULT)
     `uvm_field_aa_object_string(m_alert_agent_cfg, UVM_DEFAULT)
     `uvm_field_int             (num_interrupts,    UVM_DEFAULT)
- `uvm_object_utils_end
+  `uvm_object_utils_end
 
   `uvm_object_new
 
@@ -140,11 +177,13 @@ class cip_base_env_cfg #(type RAL_T = dv_base_reg_block) extends dv_base_env_cfg
   // This function retrieves all shadowed registers in the design, then check:
   // - If the update error and storage error alerts are assigned to each shadowed register
   // - If input alert names are within the cfg.list_of_alerts
+  // - Note that shadow alerts originating inside the alert_handler are not checked here
+  //   since these are wired up as "local" alerts within the alert_handler.
   virtual function void check_shadow_reg_alerts();
     dv_base_reg shadowed_csrs[$];
     string update_err_alert_name, storage_err_alert_name;
 
-    ral.get_shadowed_regs(shadowed_csrs);
+    foreach (ral_models[i]) ral_models[i].get_shadowed_regs(shadowed_csrs);
     foreach (shadowed_csrs[i]) begin
       update_err_alert_name = shadowed_csrs[i].get_update_err_alert_name();
       storage_err_alert_name = shadowed_csrs[i].get_storage_err_alert_name();
@@ -155,11 +194,13 @@ class cip_base_env_cfg #(type RAL_T = dv_base_reg_block) extends dv_base_env_cfg
       end
 
       // check if alert names are valid
-      if (!(update_err_alert_name inside {list_of_alerts})) begin
+      if (!(update_err_alert_name inside {list_of_alerts} ||
+          update_err_alert_name == "alert_handler_")) begin
         `uvm_fatal(shadowed_csrs[i].get_full_name, $sformatf(
                    "update_err alert name %0s not in list_of_alerts", update_err_alert_name))
       end
-      if (!(storage_err_alert_name inside {list_of_alerts})) begin
+      if (!(storage_err_alert_name inside {list_of_alerts} ||
+          storage_err_alert_name == "alert_handler_")) begin
         `uvm_fatal(shadowed_csrs[i].get_full_name, $sformatf(
                    "storage_err alert name %0s not in list_of_alerts", storage_err_alert_name))
       end

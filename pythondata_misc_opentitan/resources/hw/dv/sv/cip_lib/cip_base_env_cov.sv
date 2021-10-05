@@ -44,12 +44,158 @@ covergroup intr_pins_cg (uint num_interrupts) with function sample(uint intr_pin
   cp_intr_pins_all_values: cross cp_intr_pin, cp_intr_pin_value;
 endgroup
 
+// This covergroup sampled at changing edges of both clocks.
+covergroup resets_cg (string name) with function sample(logic [1:0] resets);
+  option.per_instance = 1;
+  option.name = name;
+
+  resets_trans: coverpoint resets {
+  // This coverpoint collects the toggle coverage as below:
+  //          _ _ _         _ _ _
+  // RESET1        |_ _ _ _|
+  //          _ _ _ _         _ _ _ _
+  // RESET0          |_ _ _ _|
+    bins rst1_start_first_end_first = ('b01 => 'b00 => 'b10 => 'b11);
+
+  // This coverpoint collects the toggle coverage as below:
+  //          _ _ _         _ _ _ _ _
+  // RESET1        |_ _ _ _|
+  //          _ _         _ _ _ _ _
+  // RESET0      |_ _ _ _|
+    bins rst1_start_last_end_last = ('b10 => 'b00 => 'b01 => 'b11);
+
+  // This coverpoint collects the toggle coverage as below:
+  //          _ _ _         _ _ _ _ _
+  // RESET1        |_ _ _ _|
+  //          _ _ _ _     _ _ _ _ _
+  // RESET0          |_ _|
+    bins rst1_start_first_end_last = ('b01 => 'b00 => 'b01 => 'b11);
+
+  // This coverpoint collects the toggle coverage as below:
+  //          _ _ _ _     _ _ _ _ _
+  // RESET1          |_ _|
+  //          _ _ _         _ _ _ _ _
+  // RESET0        |_ _ _ _|
+    bins rst1_start_last_end_first = ('b10 => 'b00 => 'b10 => 'b11);
+  }
+endgroup
+
+class tl_errors_cg_wrap;
+  // This covergroup sampled all kinds of TL error cases.
+  covergroup tl_errors_cg (string name)
+      with function sample(bit unmapped_err,
+                           bit csr_size_err,
+                           bit mem_byte_access_err,
+                           bit mem_wo_err,
+                           bit mem_ro_err,
+                           bit tl_protocol_err);
+    option.per_instance = 1;
+    option.name = name;
+
+    // these cp should be disabled (set weight to 0), when they're not applicable for the block
+    cp_unmapped_err: coverpoint unmapped_err;
+    cp_csr_size_err: coverpoint csr_size_err;
+    cp_mem_byte_access_err: coverpoint mem_byte_access_err;
+    cp_mem_wo_err: coverpoint mem_wo_err;
+    cp_mem_ro_err: coverpoint mem_ro_err;
+
+    // we don't enumerate the various kinds of TL protocol errors here because there is a covergroup
+    // in tl_agent, which covers those
+    cp_tl_protocol_err: coverpoint tl_protocol_err;
+  endgroup
+
+  // Function: new
+  function new(string name);
+    tl_errors_cg = new(name);
+  endfunction : new
+
+  // Function: sample
+  function void sample(bit unmapped_err,
+                       bit csr_size_err,
+                       bit mem_byte_access_err,
+                       bit mem_wo_err,
+                       bit mem_ro_err,
+                       bit tl_protocol_err);
+    tl_errors_cg.sample(unmapped_err, csr_size_err, mem_byte_access_err,
+                        mem_wo_err, mem_ro_err, tl_protocol_err);
+  endfunction : sample
+
+endclass
+
+class tl_intg_err_cg_wrap;
+  // This covergroup sampled all kinds of TL integrity error and numbers of error bits.
+  covergroup tl_intg_err_cg (string name) with function sample(tl_intg_err_e tl_intg_err_type,
+                                                                   uint          num_cmd_err_bits,
+                                                                   uint          num_data_err_bits,
+                                                                   bit           is_mem);
+    option.per_instance = 1;
+    option.name = name;
+
+    cp_tl_intg_err_type: coverpoint tl_intg_err_type;
+
+    cp_num_cmd_err_bits: coverpoint num_cmd_err_bits {
+      bins values[] = {[0:MAX_TL_ECC_ERRORS]};
+    }
+    cp_num_data_err_bits: coverpoint num_data_err_bits {
+      bins values[] = {[0:MAX_TL_ECC_ERRORS]};
+    }
+    cp_is_mem: coverpoint is_mem;
+  endgroup
+
+  // Function: new
+  function new(string name);
+    tl_intg_err_cg = new(name);
+  endfunction : new
+
+  // Function: sample
+  function void sample(tl_intg_err_e tl_intg_err_type,
+                       uint          num_cmd_err_bits,
+                       uint          num_data_err_bits,
+                       bit           is_mem);
+    tl_intg_err_cg.sample(tl_intg_err_type, num_cmd_err_bits, num_data_err_bits, is_mem);
+  endfunction : sample
+endclass
+
+class tl_intg_err_mem_subword_cg_wrap;
+  // Design handles mem subword write specially. Add this CG to cover all types subword write
+  // with integrity errors
+  covergroup tl_intg_err_mem_subword_cg (string name) with function sample(
+        tl_intg_err_e tl_intg_err_type,
+        bit            write,
+        int            num_enable_bytes);
+    option.per_instance = 1;
+    option.name = name;
+
+    cp_tl_intg_err_type: coverpoint tl_intg_err_type;
+
+    cp_num_num_enable_bytes: coverpoint num_enable_bytes {
+      bins values[] = {[0:BUS_DW/8]};
+    }
+    cp_write: coverpoint write;
+
+    cr_all: cross cp_tl_intg_err_type, cp_num_num_enable_bytes, cp_write;
+  endgroup
+
+  // Function: new
+  function new(string name);
+    tl_intg_err_mem_subword_cg = new(name);
+  endfunction : new
+
+  // Function: sample
+  function void sample(tl_intg_err_e tl_intg_err_type,
+                       uint          write,
+                       uint          num_enable_bytes);
+    tl_intg_err_mem_subword_cg.sample(tl_intg_err_type, write, num_enable_bytes);
+  endfunction : sample
+endclass
+
 class cip_base_env_cov #(type CFG_T = cip_base_env_cfg) extends dv_base_env_cov #(CFG_T);
   `uvm_component_param_utils(cip_base_env_cov #(CFG_T))
 
   intr_cg        intr_cg;
   intr_test_cg   intr_test_cg;
   intr_pins_cg   intr_pins_cg;
+  resets_cg      resets_cg;
   // Coverage for sticky interrupt functionality described in CIP specification
   // As some interrupts are non-sticky, this covergroup should be populated on "as and when needed"
   // basis in extended <ip>_env_cov class for interrupt types that are sticky
@@ -64,6 +210,7 @@ class cip_base_env_cov #(type CFG_T = cip_base_env_cfg) extends dv_base_env_cov 
       intr_test_cg = new(cfg.num_interrupts);
       intr_pins_cg = new(cfg.num_interrupts);
     end
+    if (cfg.has_edn) resets_cg = new("dut_and_edn_rsts");
   endfunction
 
 endclass

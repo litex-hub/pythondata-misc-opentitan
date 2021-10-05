@@ -16,6 +16,7 @@ This document describes the functionality of the reset controller and its intera
 *   Always-on reset information register.
 *   Always-on alert crash dump register.
 *   Always-on cpu crash dump register.
+*   Reset consistency checks.
 
 # Theory of Operation
 
@@ -122,18 +123,17 @@ The reset topology also contains additional properties:
 
 ## Reset Manager
 
-The reset manager handles the reset of the core domain, and also holds relevant reset time information such as [reset reason]({{< regref "RESET_INFO" >}}) and [alert_reason]({{< regref "" >}}).
-*  Reset reason indicates why the system was reset.
-*  Alert reason indicates the recorded alert status prior to system reset.
-   *  This is useful in case the reset was triggered by an alert escalation.
+The reset manager handles the reset of the core domain, and also holds relevant reset information in CSR registers, such as:
 
-There is another TBD feature for recording [last host state](https://docs.google.com/document/d/1KnmIt7vj8vkfqgAIcx6HJo8KH6zirFNF1TxlL5K6Aso/edit?usp=sharing).
-*  Last host state indicates approximately what the host was doing prior to system reset.
+*  {{< regref "RESET_INFO" >}} indicates why the system was reset.
+*  {{< regref "ALERT_INFO" >}} contains the recorded alert status prior to system reset.
+   *  This is useful in case the reset was triggered by an alert escalation.
+*  {{< regref "CPU_INFO" >}} contains recorded CPU state prior to system reset.
    *  This is useful in case the reset was triggered by a watchdog where the host hung on a particular bus transaction.
 
 Additionally, the reset manager, along with the power manager, accepts requests from the system and asserts resets for the appropriate clock trees.
 These requests primarily come from the following sources:
-*  Peripherals capable of reset requests: such as [rbox]() and [always on timers ]().
+*  Peripherals capable of reset requests: such as [sysrst_ctrl]({{< relref "hw/ip/sysrst_ctrl/doc/_index.md" >}}) and [always on timers ]({{< relref "hw/ip/aon_timer/doc/_index.md" >}}).
 *  Debug modules such as `rv_dm`.
 *  Power manager request for low power entry and exit.
 
@@ -144,7 +144,28 @@ These are registers stored in two-or-more constantly checking copies to ensure t
 For these components, the reset manager outputs a shadow reset dedicated to resetting only the shadow storage.
 This reset separation ensures that a targetted attack on the reset line cannot easily defeat shadow registers.
 
-Shadow resets have not been implemented yet.
+### Reset Consistency Checks
+
+The reset manager implements reset consistency checks to ensure that triggered resets are supposed to happen and not due to some fault in the system.
+Every leaf reset in the system has an associated consistency checker.
+
+The consistency check ensures that when a leaf reset asserts, either its parent reset must have asserted, or the software request, if available, has asserted.
+While this sounds simple in principle, the check itself crosses up to 3 clock domains and must be carefully managed.
+
+First, the parent and leaf resets are used to asynchronously assert a flag indication.
+This flag indication is then synchronized into the reset manager's local clock domain.
+
+The reset manager then checks as follows:
+- If a leaf reset has asserted, check to see either its parent or software request (synchronous to the local domain) has asserted.
+
+- If the condition is not true, it is possible the parent reset indication is still being synchronized, thus we wait for the parent indication.
+
+- It is also possible the parent indication was seen first, but the leaf condition was not, in this case, we wait for the leaf indication.
+
+- A timeout period corresponding to the maximum synchronization delay is used to cover both waits.
+  - If the appropriate pairing is not seen in the given amount of time, signal an error, as the leaf reset asserted without cause.
+
+- If all reset conditions are satisfied, wait for the reset release to gracefully complete the cycle.
 
 ## Hardware Interfaces
 
@@ -220,7 +241,7 @@ Assuming a leaf output has N power domains and M clock domains, it potentially m
 
 It is alluded above that reset trees may contain both always-on and non-always-on versions.
 This distinction is required to support power manager's various low power states.
-When a power domain goes offline, all of its components must assert, regardless of the reset tree to which it belongs.
+When a power domain goes offline, all of its components must reset, regardless of the reset tree to which it belongs.
 
 For example, assume a system with two power domains - `Domain A` is always-on, and `Domain B` is non-always-on.
 When `Domain B` is powered off, all of `Domain B`'s resets, from `rst_lc_n`, `rst_sys_n` to `rst_module_n` are asserted.
@@ -305,16 +326,16 @@ The enable for such debug capture can be locked such that it never captures.
 The alert information register contains the value of the alert crash dump prior to a triggered reset.
 Since this information differs in length between system implementation, the alert information register only displays 32-bits at a time.
 
-The [alert_info_attr]({{< regref "ALERT_INFO_ATTR" >}}) register indicates how many 32-bit data segments must be read.
-Software then simply needs to pick the segment it wishes to read and then read out the [alert_info]({{< regref "ALERT_INFO" >}}) register.
+The {{< regref "ALERT_INFO_ATTR" >}} register indicates how many 32-bit data segments must be read.
+Software then simply needs to write in {{< regref "ALERT_INFO_CTRL.INDEX" >}} which segment it wishes and then read out the {{< regref "ALERT_INFO" >}} register.
 
 ### CPU Information
 
 The cpu information register contains the value of the cpu state prior to a triggered reset.
 Since this information differs in length between system implementation, the information register only displays 32-bits at a time.
 
-The [cpu_info_attr]({{< regref "CPU_INFO_ATTR" >}}) register indicates how many 32-bit data segments must be read.
-Software then simply needs to pick the segment it wishes to read and then read out the [cpu_info]({{< regref "CPU_INFO" >}}) register.
+The {{< regref "CPU_INFO_ATTR" >}} register indicates how many 32-bit data segments must be read.
+Software then simply needs to write in {{< regref "CPU_INFO_CTRL.INDEX" >}} which segment it wishes and then read out the {{< regref "CPU_INFO" >}} register.
 
 # Programmers Guide
 

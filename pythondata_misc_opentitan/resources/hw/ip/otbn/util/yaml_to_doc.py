@@ -216,10 +216,11 @@ def name_op_enc_fields(name_to_operand: Dict[str, Operand],
             e2o[msb] = range_name
             continue
 
-        # Otherwise, we need to label the operands. Sorting ranges ensures that
-        # they appear LSB-first.
+        # Otherwise, we need to label the operands. We iterate over the ranges
+        # in scheme_field LSB-first (so that we can number things with the LSB
+        # field having index zero).
         o2e_list = []
-        for idx, (msb, lsb) in enumerate(sorted(scheme_field.bits.ranges)):
+        for idx, (msb, lsb) in enumerate(reversed(scheme_field.bits.ranges)):
             range_name = '{}_{}'.format(basename, idx)
             o2e_list.append(range_name)
             assert msb not in e2o
@@ -242,10 +243,11 @@ def render_insn(insn: Insn, impl: Optional[str], heading_level: int) -> str:
     assert heading_level > 0
 
     parts = []
+    mnem = insn.mnemonic.upper()
+    subhead = '#' * (heading_level + 1) + ' '
 
     # Heading, based on mnemonic (upper-cased)
-    parts.append('{} {}\n'.format('#' * heading_level,
-                                  insn.mnemonic.upper()))
+    parts.append('{} {}\n'.format('#' * heading_level, mnem))
 
     # If there's a note, render it as a callout
     if insn.note is not None:
@@ -262,24 +264,31 @@ def render_insn(insn: Insn, impl: Optional[str], heading_level: int) -> str:
     # Optional documentation (using existing markdown formatting). Add a blank
     # line afterwards to separate from the syntax and operand table.
     if insn.doc is not None:
-        parts.append(insn.doc + '\n\n')
-
-    # Syntax example: either given explicitly or figured out from operands
-    parts.append("```\n")
-    parts.append(insn.mnemonic.upper() + ('' if insn.glued_ops else ' '))
-    parts.append(insn.syntax.render_doc())
-    parts.append("\n```\n\n")
+        parts.append(insn.doc + '\n')
+    parts.append('\n')
 
     # If this came from the RV32I instruction set, say so.
     if insn.rv32i:
         parts.append('This instruction is defined in the RV32I instruction set.\n\n')
 
-    # Show any trailing documentation (stuff that should come after the syntax
-    # example but before the operand table).
-    if insn.trailing_doc is not None:
+    # A list of errors that the instruction might cause.
+    if insn.errs is not None:
+        parts.append(subhead + 'Errors\n')
+        if not insn.errs:
+            parts.append('{} cannot cause any software errors.\n'.format(mnem))
+        else:
+            parts.append('{} might cause the following software errors:\n'
+                         .format(mnem))
+            for desc in insn.errs:
+                parts.append('- {}\n'.format(desc))
         parts.append('\n')
-        parts.append(insn.trailing_doc)
-        parts.append('\n\n')
+
+    # Syntax example: either given explicitly or figured out from operands
+    parts.append(subhead + 'Syntax\n')
+    parts.append("```\n")
+    parts.append(insn.mnemonic.upper() + ('' if insn.glued_ops else ' '))
+    parts.append(insn.syntax.render_doc())
+    parts.append("\n```\n\n")
 
     is_pseudo = insn.literal_pseudo_op or insn.python_pseudo_op
 
@@ -293,10 +302,12 @@ def render_insn(insn: Insn, impl: Optional[str], heading_level: int) -> str:
     # Show the operand table if there is at least one operand and this isn't a
     # pseudo-op.
     if insn.operands and not is_pseudo:
+        parts.append(subhead + 'Operands\n')
         parts.append(render_operand_table(insn.operands, o2e))
 
     # Show encoding if we have one
     if e2o is not None:
+        parts.append(subhead + 'Encoding\n')
         assert insn.encoding is not None
         parts.append(render_encoding(insn.mnemonic, insn.encoding, e2o))
 
@@ -305,8 +316,7 @@ def render_insn(insn: Insn, impl: Optional[str], heading_level: int) -> str:
         parts.append(render_literal_pseudo_op(insn.literal_pseudo_op))
 
     if impl is not None:
-        parts.append('{} Operation\n\n'
-                     .format('#' * (heading_level + 1)))
+        parts.append(subhead + 'Operation\n')
 
         # Add a handy header to remind readers that enum operands and option
         # operands are referred to by their integer values.

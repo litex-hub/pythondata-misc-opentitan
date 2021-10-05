@@ -12,8 +12,8 @@
 
 #include <stdint.h>
 
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/mmio.h"
-#include "sw/device/lib/dif/dif_warn_unused_result.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -97,21 +97,6 @@ typedef struct dif_kmac_params {
 } dif_kmac_params_t;
 
 /**
- * Supported byte order options.
- */
-typedef enum dif_kmac_endianness {
-  /**
-   * Little endian byte ordering.
-   */
-  kDifKmacEndiannessLittle = 0,
-
-  /**
-   * Big endian byte ordering.
-   */
-  kDifKmacEndiannessBig,
-} dif_kmac_endianness_t;
-
-/**
  * Supported entropy modes.
  *
  * Entropy may be provided by the entropy distribution network (EDN) or using a
@@ -138,7 +123,7 @@ typedef struct dif_kmac_config {
    * Entropy fast process mode when enabled prevents the KMAC unit consuming
    * entropy unless it is processing a secret key.
    */
-  dif_kmac_toggle_t entropy_fast_process;
+  bool entropy_fast_process;
 
   /**
    * Entropy seed. Only used when the source of entropy is software.
@@ -159,14 +144,23 @@ typedef struct dif_kmac_config {
   uint16_t entropy_wait_timer;
 
   /**
-   * Byte order used for message.
+   * Convert the message to big-endian byte order.
+   * Note: this option currently had no effect since the message is sent a byte
+   * at a time but will in the future.
    */
-  dif_kmac_endianness_t message_endianness;
+  bool message_big_endian;
 
   /**
-   * Byte order used for output state (digest).
+   * Convert the output state (digest) to big-endian byte order on a word
+   * granularity.
    */
-  dif_kmac_endianness_t output_state_endianness;
+  bool output_big_endian;
+
+  /**
+   * Place kmac inside key sideload mode
+   */
+  bool sideload;
+
 } dif_kmac_config_t;
 
 /**
@@ -179,7 +173,37 @@ typedef struct dif_kmac_config {
 typedef struct dif_kmac {
   dif_kmac_params_t params;
 
-  // TODO: counters and offsets to support streaming APIs.
+  /**
+   * Whether the 'squeezing' phase has been started.
+   */
+  bool squeezing;
+
+  /**
+   * Flag indicating whether the output length (d) should be right encoded in
+   * software and appended to the end of the message. The output length is
+   * required to be appended to the message as part of a KMAC operation.
+   */
+  bool append_d;
+
+  /**
+   * Offset into the output state.
+   */
+  size_t offset;
+
+  /**
+   * The rate (r) in 32-bit words.
+   */
+  size_t r;
+
+  /**
+   * The output length (d) in 32-bit words.
+   *
+   * If the output length is not fixed then this field will be set to 0.
+   *
+   * Note: if the output length is fixed length will be modified to ensure that
+   * `d - offset` always accurately reflects the number of words remaining.
+   */
+  size_t d;
 } dif_kmac_t;
 
 /**
@@ -201,6 +225,19 @@ typedef enum dif_kmac_result {
    * When this value is returned, no hardware operations occurred.
    */
   kDifKmacBadArg,
+
+  /**
+   * The operation failed because writes to a required register are
+   * disabled.
+   */
+  kDifKmacLocked,
+
+  /**
+   * The operation did not fully complete. Input and/or output parameters may
+   * have only been partially processed. See the function description for more
+   * information about how to retry or continue the operation.
+   */
+  kDifKmacIncomplete,
 } dif_kmac_result_t;
 
 /**
@@ -277,7 +314,6 @@ typedef enum dif_kmac_mode_kmac {
  * Maximum lengths supported by the KMAC unit.
  */
 enum {
-  kDifKmacMaxKeyBytes = 512 / 8,
 
   /**
    * The maximum length in bytes of a customization string (S) before it has
@@ -306,6 +342,22 @@ enum {
    * Assumes maximum function name length of 4 bytes (32 bits).
    */
   kDifKmacMaxFunctionNameOverhead = 2,
+
+  /**
+   * The maximum output length (L) that can be set when starting a KMAC
+   * operation.
+   *
+   * The length is in 32-bit words and is designed to be low enough that the
+   * length in bits can still be represented by an unsigned 32-bit integer.
+   */
+  kDifKmacMaxOutputLenWords = (UINT32_MAX - 32) / 32,
+
+  /**
+   * The maximum key length supported by the KMAC operation.
+   *
+   * The length is in 32-bit words.
+   */
+  kDifKmacMaxKeyLenWords = 512 / 32,
 };
 
 /**
@@ -315,15 +367,15 @@ enum {
  */
 typedef enum dif_kmac_key_length {
   /** Software provided 128 bit key. */
-  kDifKmacKeyLen128,
+  kDifKmacKeyLen128 = 0,
   /** Software provided 192 bit key. */
-  kDifKmacKeyLen192,
+  kDifKmacKeyLen192 = 1,
   /** Software provided 256 bit key. */
-  kDifKmacKeyLen256,
+  kDifKmacKeyLen256 = 2,
   /** Software provided 384 bit key. */
-  kDifKmacKeyLen384,
+  kDifKmacKeyLen384 = 3,
   /** Software provided 512 bit key. */
-  kDifKmacKeyLen512,
+  kDifKmacKeyLen512 = 4,
 } dif_kmac_key_length_t;
 
 /**
@@ -335,10 +387,12 @@ typedef enum dif_kmac_key_length {
  *
  * The key shares are encoded in little endian byte order. This is fixed and
  * cannot be changed (unlike the byte order used for the message and state).
+ *
+ * Unused words in the key shares must be set to 0.
  */
 typedef struct dif_kmac_key {
-  uint32_t share0[kDifKmacMaxKeyBytes / sizeof(uint32_t)];
-  uint32_t share1[kDifKmacMaxKeyBytes / sizeof(uint32_t)];
+  uint32_t share0[kDifKmacMaxKeyLenWords];
+  uint32_t share1[kDifKmacMaxKeyLenWords];
   dif_kmac_key_length_t length;
 } dif_kmac_key_t;
 
@@ -351,6 +405,8 @@ typedef struct dif_kmac_customization_string {
   /** Encoded S: left_encode(len(S)) || S */
   char buffer[kDifKmacMaxCustomizationStringLen +
               kDifKmacMaxCustomizationStringOverhead];
+  /** Length of data in buffer in bytes. */
+  uint32_t length;
 } dif_kmac_customization_string_t;
 
 /**
@@ -361,6 +417,8 @@ typedef struct dif_kmac_customization_string {
 typedef struct dif_kmac_function_name {
   /** Encoded N: left_encode(len(N)) || N */
   char buffer[kDifKmacMaxFunctionNameLen + kDifKmacMaxFunctionNameOverhead];
+  /** Length of data in buffer in bytes. */
+  uint32_t length;
 } dif_kmac_function_name_t;
 
 /**
@@ -436,20 +494,8 @@ typedef uint32_t dif_kmac_irq_snapshot_t;
  * @param[out] kmac Out param for the initialized handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_init(dif_kmac_params_t params, dif_kmac_t *kmac);
-
-typedef enum dif_kmac_configure_result {
-  kDifKmacConfigureOk = kDifKmacOk,
-  kDifKmacConfigureBadArg = kDifKmacBadArg,
-  kDifKmacConfigureError = kDifKmacError,
-
-  /**
-   * The operation failed because writes to the configuration register are
-   * disabled. This means that an operation is already in progress.
-   */
-  kDifKmacConfigureLocked,
-} dif_kmac_configure_result_t;
 
 /**
  * Configures KMAC with runtime information.
@@ -458,23 +504,8 @@ typedef enum dif_kmac_configure_result {
  * @param config Runtime configuration parameters.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT dif_kmac_configure_result_t
+OT_WARN_UNUSED_RESULT dif_kmac_result_t
 dif_kmac_configure(dif_kmac_t *kmac, dif_kmac_config_t config);
-
-/**
- * The result of a string encoding operation.
- */
-typedef enum dif_kmac_string_encode_result {
-  kDifKmacStringEncodeOk = kDifKmacOk,
-  kDifKmacStringEncodeBadArg = kDifKmacBadArg,
-  kDifKmacStringEncodeError = kDifKmacError,
-
-  /**
-   * Encoding failed because the provided string exceeded the maximum
-   * supported length.
-   */
-  kDifKmacStringEncodeTooLong,
-} dif_kmac_string_encode_result_t;
 
 /**
  * Encode a customization string (S).
@@ -492,8 +523,8 @@ typedef enum dif_kmac_string_encode_result {
  * @param[out] out Encoded customization string.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_string_encode_result_t dif_kmac_customization_string_init(
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_customization_string_init(
     const char *data, size_t len, dif_kmac_customization_string_t *out);
 
 /**
@@ -512,9 +543,9 @@ dif_kmac_string_encode_result_t dif_kmac_customization_string_init(
  * @param[out] out Encoded function name.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_string_encode_result_t dif_kmac_function_name_init(
-    const char *data, size_t len, dif_kmac_function_name_t *out);
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_function_name_init(const char *data, size_t len,
+                                              dif_kmac_function_name_t *out);
 
 /**
  * Start a SHA-3 operation.
@@ -527,9 +558,9 @@ dif_kmac_string_encode_result_t dif_kmac_function_name_init(
  * @param mode The SHA-3 mode of operation.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_configure_result_t dif_kmac_mode_sha3_start(dif_kmac_t *kmac,
-                                                     dif_kmac_mode_sha3_t mode);
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_mode_sha3_start(dif_kmac_t *kmac,
+                                           dif_kmac_mode_sha3_t mode);
 
 /**
  * Start a SHAKE operation.
@@ -542,9 +573,9 @@ dif_kmac_configure_result_t dif_kmac_mode_sha3_start(dif_kmac_t *kmac,
  * @param mode The mode of operation.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_configure_result_t dif_kmac_mode_shake_start(
-    dif_kmac_t *kmac, dif_kmac_mode_shake_t mode);
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_mode_shake_start(dif_kmac_t *kmac,
+                                            dif_kmac_mode_shake_t mode);
 
 /**
  * Start a cSHAKE operation.
@@ -555,37 +586,22 @@ dif_kmac_configure_result_t dif_kmac_mode_shake_start(
  *
  * @param kmac A KMAC handle.
  * @param mode The mode of operation.
- * @param s Customization string (optional).
  * @param n Function name (optional).
+ * @param s Customization string (optional).
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_configure_result_t dif_kmac_mode_cshake_start(
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_mode_cshake_start(
     dif_kmac_t *kmac, dif_kmac_mode_cshake_t mode,
-    const dif_kmac_customization_string_t *s,
-    const dif_kmac_function_name_t *n);
-
-/**
- * The result of starting a KMAC operation.
- */
-typedef enum dif_kmac_mode_kmac_start_result {
-  kDifKmacModeKmacStartOk = kDifKmacConfigureOk,
-  kDifKmacModeKmacStartBadArg = kDifKmacConfigureBadArg,
-  kDifKmacModeKmacStartError = kDifKmacConfigureError,
-  kDifKmacModeKmacStartLocked = kDifKmacConfigureLocked,
-
-  /**
-   * The key did not meet the security requirements for the selected mode.
-   * Please try either selecting a different mode or using a longer key.
-   */
-  kDifKmacModeKmacStartShortKey,
-} dif_kmac_mode_kmac_start_result_t;
+    const dif_kmac_function_name_t *n,
+    const dif_kmac_customization_string_t *s);
 
 /**
  * Start a KMAC operation.
  *
  * To use KMAC in eXtendable-Output Function (XOF) mode set the output length
- * (`l`) to 0.
+ * (`l`) to 0. The output length must not be greater than
+ * `kDifKmacMaxOutputLenWords`.
  *
  * The key provided must have at least as many bits as the security strength
  * of the `mode`.
@@ -594,51 +610,23 @@ typedef enum dif_kmac_mode_kmac_start_result {
  *
  * @param kmac A KMAC handle.
  * @param mode The mode of operation.
- * @param l Output length (number of bytes that will be 'squeezed').
+ * @param l Output length (number of 32-bit words that will be 'squeezed').
  * @param k Pointer to secret key.
  * @param s Customization string (optional).
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_mode_kmac_start_result_t dif_kmac_mode_kmac_start(
-    dif_kmac_t *kmac, dif_kmac_mode_kmac_t mode, size_t l, dif_kmac_key_t *k,
-    const dif_kmac_customization_string_t *s);
-
-/**
- * The result of an absorb operation.
- */
-typedef enum dif_kmac_absorb_result {
-  kDifKmacAbsorbOk = kDifKmacOk,
-  kDifKmacAbsorbBadArg = kDifKmacBadArg,
-  kDifKmacAbsorbError = kDifKmacError,
-
-  /**
-   * The KMAC unit is not in the correct state to absorb data because an
-   * operation has not yet been started.
-   */
-  kDifKmacAbsorbNotStarted,
-
-  /**
-   * The KMAC unit is not in the correct state to absorb data because the
-   * squeeze operation has been started.
-   */
-  kDifKmacAbsorbSqueezing,
-
-  /**
-   * The message FIFO is full. This is a temporary error and the operation may
-   * be retried. The message may have been partially absorbed or not absorbed
-   * at all. See `dif_kmac_absorb` for further information.
-   */
-  kDifKmacAbsorbFifoFull,
-} dif_kmac_absorb_result_t;
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_mode_kmac_start(
+    dif_kmac_t *kmac, dif_kmac_mode_kmac_t mode, size_t l,
+    const dif_kmac_key_t *k, const dif_kmac_customization_string_t *s);
 
 /**
  * Absorb bytes from the message provided.
  *
- * If `kDifKmacAbsorbFifoFull` is returned then the hardware is currently busy
- * and the message was only partially absorbed. The message pointer and length
- * should be updated according to the number of bytes processed and the absorb
- * operation continued at a later time.
+ * If `kDifKmacIncomplete` is returned then the message FIFO is full and the
+ * message was only partially absorbed. The message pointer and length should be
+ * updated according to the number of bytes processed and the absorb operation
+ * continued at a later time.
  *
  * If `processed` is not provided then this function will block until the entire
  * message has been processed or an error occurs.
@@ -649,41 +637,9 @@ typedef enum dif_kmac_absorb_result {
  * @param[out] processed Number of bytes processed (optional).
  * @preturn The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_absorb(dif_kmac_t *kmac, const void *msg, size_t len,
                                   size_t *processed);
-
-/**
- * The result of an squeeze operation.
- */
-typedef enum dif_kmac_squeeze_result {
-  kDifKmacSqueezeOk = kDifKmacOk,
-  kDifKmacSqueezeBadArg = kDifKmacBadArg,
-  kDifKmacSqueezeError = kDifKmacError,
-
-  /**
-   * The KMAC unit is not in the correct state to squeeze data because an
-   * operation has not yet been started.
-   */
-  kDifKmacSqueezeNotStarted,
-
-  /**
-   * There are not enough bytes remaining to satisfy the request. This occurs
-   * when an attempt is made to squeeze more bytes from the sponge than an
-   * operation with a fixed length output allows.
-   *
-   * No bytes will be written out even if there are bytes remaining.
-   */
-  kDifKmacSqueezeFixedLengthExceeded,
-
-  /**
-   * The output state is still being generated and is not yet ready. This is a
-   * temporary error and the operation may be retried. The output state may
-   * have been partially generated or not generated at all. See
-   * `dif_kmac_squeeze` for further information.
-   */
-  kDifKmacSqueezeStateNotReady,
-} dif_kmac_squeeze_result_t;
 
 /**
  * Squeeze bytes into the output buffer provided.
@@ -691,22 +647,23 @@ typedef enum dif_kmac_squeeze_result {
  * Requesting a squeeze operation will prevent any further absorbtion operations
  * from taking place.
  *
- * If `kDifKmacSqueezeStateNotReady` is returned then the hardware is currently
- * busy and the output was only partially written. The output pointer and length
- * should be updated according to the number of bytes processed and the squeeze
- * operation continued at a later time.
+ * If `kDifKmacIncomplete` is returned then the hardware is currently
+ * recomputing the state and the output was only partially written. The output
+ * pointer and length should be updated according to the number of bytes
+ * processed and the squeeze operation continued at a later time.
  *
  * If `processed` is not provided then this function will block until `len`
  * bytes have been written to `out` or an error occurs.
  *
  * @param kmac A KMAC handle.
  * @param[out] out Pointer to output buffer.
- * @param[out] len Number of bytes to write to output buffer.
- * @param[out] processed Number of bytes written to output buffer (optional).
+ * @param[out] len Number of 32-bit words to write to output buffer.
+ * @param[out] processed Number of 32-bit words written to output buffer
+ * (optional).
  * @preturn The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
-dif_kmac_result_t dif_kmac_squeeze(dif_kmac_t *kmac, void *out, size_t len,
+OT_WARN_UNUSED_RESULT
+dif_kmac_result_t dif_kmac_squeeze(dif_kmac_t *kmac, uint32_t *out, size_t len,
                                    size_t *processed);
 
 /**
@@ -716,7 +673,7 @@ dif_kmac_result_t dif_kmac_squeeze(dif_kmac_t *kmac, void *out, size_t len,
  * @param kmac A KMAC handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_end(dif_kmac_t *kmac);
 
 /**
@@ -726,7 +683,7 @@ dif_kmac_result_t dif_kmac_end(dif_kmac_t *kmac);
  * @param[out] error The current error code.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_get_error(const dif_kmac_t *kmac,
                                      dif_kmac_error_t *error);
 
@@ -740,7 +697,7 @@ dif_kmac_result_t dif_kmac_get_error(const dif_kmac_t *kmac,
  * @param kmac A KMAC handle.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_reset(dif_kmac_t *kmac);
 
 /**
@@ -751,7 +708,7 @@ dif_kmac_result_t dif_kmac_reset(dif_kmac_t *kmac);
  * @param[out] depth The current depth of the FIFO (optional).
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_get_fifo_state(const dif_kmac_t *kmac,
                                           dif_kmac_fifo_state_t *state,
                                           uint32_t *depth);
@@ -768,7 +725,7 @@ dif_kmac_result_t dif_kmac_get_fifo_state(const dif_kmac_t *kmac,
  * @param[out] is_locked Out-param reporting the lock state.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_config_is_locked(const dif_kmac_t *kmac,
                                             bool *is_locked);
 
@@ -780,7 +737,7 @@ dif_kmac_result_t dif_kmac_config_is_locked(const dif_kmac_t *kmac,
  * @param[out] is_pending Out-param for whether the interrupt is pending.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_is_pending(const dif_kmac_t *kmac,
                                           dif_kmac_irq_t irq, bool *is_pending);
 
@@ -792,7 +749,7 @@ dif_kmac_result_t dif_kmac_irq_is_pending(const dif_kmac_t *kmac,
  * @param irq An interrupt type.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_acknowledge(const dif_kmac_t *kmac,
                                            dif_kmac_irq_t irq);
 
@@ -804,7 +761,7 @@ dif_kmac_result_t dif_kmac_irq_acknowledge(const dif_kmac_t *kmac,
  * @param[out] state Out-param toggle state of the interrupt.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_get_enabled(const dif_kmac_t *kmac,
                                            dif_kmac_irq_t irq,
                                            dif_kmac_toggle_t *state);
@@ -817,7 +774,7 @@ dif_kmac_result_t dif_kmac_irq_get_enabled(const dif_kmac_t *kmac,
  * @param state The new toggle state for the interrupt.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_set_enabled(const dif_kmac_t *kmac,
                                            dif_kmac_irq_t irq,
                                            dif_kmac_toggle_t state);
@@ -830,7 +787,7 @@ dif_kmac_result_t dif_kmac_irq_set_enabled(const dif_kmac_t *kmac,
  * @param irq An interrupt type.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_force(const dif_kmac_t *kmac,
                                      dif_kmac_irq_t irq);
 
@@ -842,7 +799,7 @@ dif_kmac_result_t dif_kmac_irq_force(const dif_kmac_t *kmac,
  * @param[out] snapshot Out-param for the snapshot; may be `NULL`.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_disable_all(const dif_kmac_t *kmac,
                                            dif_kmac_irq_snapshot_t *snapshot);
 
@@ -856,7 +813,7 @@ dif_kmac_result_t dif_kmac_irq_disable_all(const dif_kmac_t *kmac,
  * @param snapshot A snapshot to restore from.
  * @return The result of the operation.
  */
-DIF_WARN_UNUSED_RESULT
+OT_WARN_UNUSED_RESULT
 dif_kmac_result_t dif_kmac_irq_restore_all(
     const dif_kmac_t *kmac, const dif_kmac_irq_snapshot_t *snapshot);
 

@@ -169,11 +169,14 @@ The control bit `ES_TYPE` sets whether the entropy will come from the conditioni
 A status bit will be set that can either be polled or generate an interrupt when the entropy bits are available to be read from the {{< regref "ENTROPY_DATA" >}} register.
 The firmware needs to read the {{< regref "ENTROPY_DATA" >}} register twelve times in order to cleanly evacuate the 384-bit seed from the hardware path (12*32bits=384bits total).
 The firmware will directly read out of the main entropy FIFO, and when the control bit `ES_ROUTE` is set, no entropy is being passed to the block hardware interface.
-If the main entropy FIFO fills up, additional entropy that has been health checked and conditioned will be dropped at that point.
+
+If the `esfinal` FIFO fills up, additional entropy that has been health checked will be dropped before entering the conditioner.
+This drop point will save on conditioner power, and still preserve `esfinal` FIFO entropy that has already been collected.
 
 The above process will be repeated for as long as entropy bits are to be collected and processed.
 
-At any time, the `ENABLE` field can be cleared to halt the entropy generation (and health check testing) immediately.
+At any time, the `ENABLE` field can be cleared to halt the entropy generation (and health check testing).
+See the Programmers Guide section for more details on the ENTROPY_SRC block disable sequence.
 
 ## Block Diagram
 
@@ -225,10 +228,13 @@ The `es_fifo_err` interrupt will fire when an internal FIFO has a malfunction.
 The conditions that cause this to happen are either when there is a push to a full FIFO or a pull from an empty FIFO.
 
 
-## Future Features
+## Main State Machine Diagram
+The following diagram shows how the main state machine state is constructed.
+The larger circles show the how the overall state machine transitions.
+The sub-state machines with smaller circles show more detail about how the large circles operate.
 
-- Timer to pace health checks only when there is no demand for entropy seeds
-- Support for golden test pattern
+![ENTROPY_SRC State Diagram](es_main_sm.svg)
+
 
 ### Entropy Source Hardware Interface
 The following waveform shows an example of how the entropy source hardware interface works, which is much like a FIFO.
@@ -400,6 +406,15 @@ int entropy_src_entropy(unsigned int numEntropyBits) {
 
 Note that when software makes frequent re-seed requests to CSRNG, any stored up entropy seeds in the final entropy FIFO will quickly consumed.
 Once the FIFO is empty, subsequent entropy seed requests will have to wait the worst case latency time while new entropy is being created.
+
+
+## Entropy Source Module Disable
+
+A useful feature for the ENTROPY_SRC block is the ability to disable it in a graceful matter.
+Since there exists another feature to avoid power spikes between ENTROPY_SRC and CSRNG, software needs to monitor the disabling process.
+Bit 16 in the {{< regref "DEBUG_STATUS" >}} should be polled after the ENTROPY_SRC enable bits are cleared in the {{< regref "CONF" >}} register.
+After the handshakes with CSRNG are finished, the above bit should be set and the ENTROPY_SRC block can be safely enabled again.
+
 
 ## Error conditions
 

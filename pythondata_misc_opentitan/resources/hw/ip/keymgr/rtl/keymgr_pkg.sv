@@ -8,6 +8,9 @@
 package keymgr_pkg;
 
   parameter int KeyWidth = 256;
+  parameter int CDIs = 2; // 2 different CDIs, sealing / attestation
+  parameter int CdiWidth = prim_util_pkg::vbits(CDIs);
+  parameter int OtbnKeyWidth = 384;
   parameter int DigestWidth = 128;     // uses truncated hash
   parameter int KmacDataIfWidth = 64;  // KMAC interface data width
   parameter int KeyMgrStages = 3;      // Number of key manager stages (creator, ownerInt, owner)
@@ -43,10 +46,10 @@ package keymgr_pkg;
     256'h6EECBF9FC3C64230421DA1EAEC48F871070A3582E71AD4059D5D550784E9B9DE;
   parameter seed_t RndCnstAesSeedDefault =
     256'hC1104CD94EBA084FA6438188038006489F3DF38771214AE0BBA65CEB9BC2366F;
-  parameter seed_t RndCnstHmacSeedDefault =
-    256'h075CF7939313EEC797019BD0036D9500374A8FD9121CC8E78E1E3359D5F77C4E;
   parameter seed_t RndCnstKmacSeedDefault =
     256'h0A5CCCD9627BF6169B3A765D3D6D0CD89DBDCB7B6DF8D3C03746D60A0145D3ED;
+  parameter seed_t RndCnstOtbnSeedDefault =
+    256'h17B0AF865F8ACDDFC7580C2B7BC3FB33FC9BB5A4B292216C123ACF99A7861F96;
 
   // Default Lfsr configurations
   // These LFSR parameters have been generated with
@@ -69,7 +72,7 @@ package keymgr_pkg;
 
   // Width calculations
   // These are the largest calculations in use across all stages
-  parameter int AdvDataWidth = SwBindingWidth + 2*KeyWidth + DevIdWidth + HealthStateWidth;
+  parameter int AdvDataWidth = SwBindingWidth + 3*KeyWidth + DevIdWidth + HealthStateWidth;
   parameter int IdDataWidth = KeyWidth;
   // key version + salt + key ID + constant
   parameter int GenDataWidth = 32 + SaltWidth + KeyWidth*2;
@@ -83,18 +86,18 @@ package keymgr_pkg;
 
   // Enumeration for operations
   typedef enum logic [1:0] {
-    Creator   = 0,
-    OwnerInt  = 1,
-    Owner     = 2,
-    Disable   = 3
+    Creator,
+    OwnerInt,
+    Owner,
+    Disable
   } keymgr_stage_e;
 
   // Enumeration for sideload sel
   typedef enum logic [2:0] {
     None,
     Aes,
-    Hmac,
-    Kmac
+    Kmac,
+    Otbn
   } keymgr_key_dest_e;
 
   // Enumeration for key select
@@ -131,36 +134,101 @@ package keymgr_pkg;
     OpDoneFail = 3
   } keymgr_op_status_e;
 
+  // keymgr has 4 categories of errors
+  // sync errors  - recoverable errors that happen during keymgr operation
+  // async errors - recoverable errors that happen asynchronously
+  // sync faults  - fatal errors that happen during keymgr operation
+  // async faults - fatal errors that happen asynchronously
+
+  typedef enum logic [1:0] {
+    SyncErrInvalidOp,
+    SyncErrInvalidIn,
+    SyncErrLastIdx
+  } keymgr_sync_error_e;
+
+  typedef enum logic [1:0] {
+    AsyncErrShadowUpdate,
+    AsyncErrLastIdx
+  } keymgr_async_error_e;
+
+  typedef enum logic [1:0] {
+    SyncFaultKmacOp,
+    SyncFaultKmacOut,
+    SyncFaultLastIdx
+  } keymgr_sync_fault_e;
+
+  typedef enum logic [3:0] {
+    AsyncFaultKmacCmd,
+    AsyncFaultKmacFsm,
+    AsyncFaultRegIntg,
+    AsyncFaultShadow,
+    AsyncFaultFsmIntg,
+    AsyncFaultCntErr,
+    AsyncFaultRCntErr,
+    AsyncFaultSideErr,
+    AsyncFaultLastIdx
+  } keymgr_async_fault_e;
+
+
   // Bit position of error code
   // Error is encoded as 1 error per bit
   typedef enum logic [2:0] {
     ErrInvalidOp,
-    ErrInvalidCmd,
     ErrInvalidIn,
-    ErrInvalidOut,
+    ErrShadowUpdate,
     ErrLastPos
   } keymgr_err_pos_e;
+
+  // Bit position of fault status
+  typedef enum logic [3:0] {
+    FaultKmacCmd,
+    FaultKmacFsm,
+    FaultKmacOp,
+    FaultKmacOut,
+    FaultRegIntg,
+    FaultShadow,
+    FaultCtrlFsm,
+    FaultCtrlCnt,
+    FaultReseedCnt,
+    FaultSideFsm,
+    FaultLastPos
+  } keymgr_fault_pos_e;
 
   typedef enum logic [2:0] {
     KeyUpdateIdle,
     KeyUpdateRandom,
     KeyUpdateRoot,
     KeyUpdateKmac,
-    KeyUpdateInvalid,
     KeyUpdateWipe
   } keymgr_key_update_e;
 
-  // Key connection to various modules
+  typedef enum logic [2:0] {
+    SideLoadClrIdle,
+    SideLoadClrAes,
+    SideLoadClrKmac,
+    SideLoadClrOtbn
+  } keymgr_sideload_clr_e;
+
+  // Key connection to various symmetric modules
   typedef struct packed {
     logic valid;
-    logic [KeyWidth-1:0] key_share0;
-    logic [KeyWidth-1:0] key_share1;
+    logic [Shares-1:0][KeyWidth-1:0] key;
   } hw_key_req_t;
+
+  // Key connection to otbn
+  typedef struct packed {
+    logic valid;
+    logic [Shares-1:0][OtbnKeyWidth-1:0] key;
+  } otbn_key_req_t;
 
   parameter hw_key_req_t HW_KEY_REQ_DEFAULT = '{
     valid: 1'b0,
-    key_share0: KeyWidth'(32'hDEADBEEF),
-    key_share1: KeyWidth'(32'hFACEBEEF)
+    key: {Shares{KeyWidth'(32'hDEADBEEF)}}
+  };
+
+  parameter otbn_key_req_t OTBN_KEY_REQ_DEFAULT = '{
+    valid: 1'b0,
+    key: {Shares{OtbnKeyWidth'(32'hDEADBEEF)}}
   };
 
   // The following structs should be sourced from other modules
@@ -173,17 +241,6 @@ package keymgr_pkg;
     KeyMgrEnSwBindingEn,
     KeyMgrEnLast
   } keymgr_lc_en_usage_e;
-
-  // TODO: this will be removed later once the device ID information
-  // is broadcasted
-  typedef struct packed {
-    logic [DevIdWidth-1:0] devid;
-  } otp_data_t;
-
-  parameter otp_data_t OTP_DATA_DEFAULT = '{
-    devid:    '0
-  };
-
 
   // perm_data
   function automatic logic[RandWidth-1:0] perm_data (logic [RandWidth-1:0] data,

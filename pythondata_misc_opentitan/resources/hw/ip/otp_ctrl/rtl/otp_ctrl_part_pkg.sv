@@ -20,7 +20,7 @@ package otp_ctrl_part_pkg;
   ////////////////////////////////////
 
   parameter int NumScrmblKeys = 3;
-  parameter int NumDigestSets = 5;
+  parameter int NumDigestSets = 4;
 
   parameter int ScrmblKeySelWidth = vbits(NumScrmblKeys);
   parameter int DigestSetSelWidth = vbits(NumDigestSets);
@@ -45,7 +45,6 @@ package otp_ctrl_part_pkg;
 
   typedef enum logic [ConstSelWidth-1:0] {
     CnstyDigest,
-    LcRawDigest,
     FlashDataKey,
     FlashAddrKey,
     SramDataKey
@@ -60,7 +59,6 @@ package otp_ctrl_part_pkg;
   // Note: digest set 0 is used for computing the partition digests. Constants at
   // higher indices are used to compute the scrambling keys.
   parameter digest_const_array_t RndCnstDigestConst = {
-    128'h9F1F413E87242971B6B52A656A1CAB7F,
     128'h611704E34C28FA16828246F4644F54A7,
     128'h39AED01B4B2277312E9480868216A281,
     128'h1D888AC88259C44AAB06CB4A4C65A7EA,
@@ -68,7 +66,6 @@ package otp_ctrl_part_pkg;
   };
 
   parameter digest_iv_array_t RndCnstDigestIV = {
-    64'hEBF21E5BF1F45EDD,
     64'h7CAD45B5C88E4548,
     64'h97883548F536F544,
     64'hC5F5C1D8AEF35040,
@@ -98,6 +95,7 @@ package otp_ctrl_part_pkg;
     logic hw_digest;  // Whether the partition has a hardware digest
     logic write_lock; // Whether the partition is write lockable (via digest)
     logic read_lock;  // Whether the partition is read lockable (via digest)
+    logic ecc_fatal;  // Whether the an ECC uncorrectable error leads to a fatal alert
   } part_info_t;
 
   parameter part_info_t PartInfoDefault = '{
@@ -108,7 +106,8 @@ package otp_ctrl_part_pkg;
       secret:     1'b0,
       hw_digest:  1'b0,
       write_lock: 1'b0,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b0
   };
 
   ////////////////////////
@@ -116,86 +115,106 @@ package otp_ctrl_part_pkg;
   ////////////////////////
 
   localparam part_info_t PartInfo [NumPart] = '{
-    // CREATOR_SW_CFG
+    // VENDOR_TEST
     '{
       variant:    Unbuffered,
       offset:     11'd0,
-      size:       768,
+      size:       64,
       key_sel:    key_sel_e'('0),
       secret:     1'b0,
       hw_digest:  1'b0,
       write_lock: 1'b1,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b0
+    },
+    // CREATOR_SW_CFG
+    '{
+      variant:    Unbuffered,
+      offset:     11'd64,
+      size:       800,
+      key_sel:    key_sel_e'('0),
+      secret:     1'b0,
+      hw_digest:  1'b0,
+      write_lock: 1'b1,
+      read_lock:  1'b0,
+      ecc_fatal:  1'b1
     },
     // OWNER_SW_CFG
     '{
       variant:    Unbuffered,
-      offset:     11'd768,
-      size:       768,
+      offset:     11'd864,
+      size:       800,
       key_sel:    key_sel_e'('0),
       secret:     1'b0,
       hw_digest:  1'b0,
       write_lock: 1'b1,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b1
     },
     // HW_CFG
     '{
       variant:    Buffered,
-      offset:     11'd1536,
-      size:       240,
+      offset:     11'd1664,
+      size:       80,
       key_sel:    key_sel_e'('0),
       secret:     1'b0,
       hw_digest:  1'b1,
       write_lock: 1'b1,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b1
     },
     // SECRET0
     '{
       variant:    Buffered,
-      offset:     11'd1776,
+      offset:     11'd1744,
       size:       40,
       key_sel:    Secret0Key,
       secret:     1'b1,
       hw_digest:  1'b1,
       write_lock: 1'b1,
-      read_lock:  1'b1
+      read_lock:  1'b1,
+      ecc_fatal:  1'b1
     },
     // SECRET1
     '{
       variant:    Buffered,
-      offset:     11'd1816,
+      offset:     11'd1784,
       size:       88,
       key_sel:    Secret1Key,
       secret:     1'b1,
       hw_digest:  1'b1,
       write_lock: 1'b1,
-      read_lock:  1'b1
+      read_lock:  1'b1,
+      ecc_fatal:  1'b1
     },
     // SECRET2
     '{
       variant:    Buffered,
-      offset:     11'd1904,
+      offset:     11'd1872,
       size:       88,
       key_sel:    Secret2Key,
       secret:     1'b1,
       hw_digest:  1'b1,
       write_lock: 1'b1,
-      read_lock:  1'b1
+      read_lock:  1'b1,
+      ecc_fatal:  1'b1
     },
     // LIFE_CYCLE
     '{
       variant:    LifeCycle,
-      offset:     11'd1992,
-      size:       56,
+      offset:     11'd1960,
+      size:       88,
       key_sel:    key_sel_e'('0),
       secret:     1'b0,
       hw_digest:  1'b0,
       write_lock: 1'b0,
-      read_lock:  1'b0
+      read_lock:  1'b0,
+      ecc_fatal:  1'b1
     }
   };
 
   typedef enum {
+    VendorTestIdx,
     CreatorSwCfgIdx,
     OwnerSwCfgIdx,
     HwCfgIdx,
@@ -217,19 +236,25 @@ package otp_ctrl_part_pkg;
   // Breakout types for easier access of individual items.
   typedef struct packed {
       logic [63:0] hw_cfg_digest;
-      logic [1583:0] unallocated;
+      logic [31:0] unallocated;
+      logic [7:0] en_entropy_src_fw_over;
       logic [7:0] en_entropy_src_fw_read;
+      logic [7:0] en_csrng_sw_app_read;
       logic [7:0] en_sram_ifetch;
+      logic [255:0] manuf_state;
       logic [255:0] device_id;
   } otp_hw_cfg_data_t;
 
   // default value used for intermodule
   parameter otp_hw_cfg_data_t OTP_HW_CFG_DATA_DEFAULT = '{
-    hw_cfg_digest: 64'hABFF25A58087D34A,
-    unallocated: 1584'h0,
+    hw_cfg_digest: 64'h2CD09F705F291B7A,
+    unallocated: 32'h0,
+    en_entropy_src_fw_over: 8'h0,
     en_entropy_src_fw_read: 8'h0,
+    en_csrng_sw_app_read: 8'h0,
     en_sram_ifetch: 8'h0,
-    device_id: 256'h37E5AE39A58FACEE41389646B3968A3B128F4AF0AFFC1AAC77ADEFF42376E09D
+    manuf_state: 256'h41389646B3968A3B128F4AF0AFFC1AAC77ADEFF42376E09D523D5C06786AAC34,
+    device_id: 256'hFA53B8058E157CB69F1F413E87242971B6B52A656A1CAB7FEBF21E5BF1F45EDD
   };
 
   typedef struct packed {
@@ -246,41 +271,62 @@ package otp_ctrl_part_pkg;
 
   // OTP invalid partition default for buffered partitions.
   parameter logic [16383:0] PartInvDefault = 16384'({
-    448'({
-      192'h1D00E175E3739EC1DAAF8720F255C5C84D1D9C10648A878D,
-      256'hB1D5ABE9610E8395490EC23C0A1EDCCE280E8ECA88CEA2E99470329E17324EDB
+    704'({
+      320'hDAAF8720F255C5C84D1D9C10648A878DB1D5ABE9610E8395490EC23C0A1EDCCE280E8ECA88CEA2E9,
+      384'h9470329E17324EDB1E2960279AB8F882A991BEA2CF16541724A52D80A891BCD52BE973D4C5752E3A6912899150240B3A
     }),
     704'({
-      64'h1E2960279AB8F882,
-      256'hA991BEA2CF16541724A52D80A891BCD52BE973D4C5752E3A6912899150240B3A,
+      64'h39C052C50C63C3FB,
       256'hD53651B6259AF2A4FB9DCA186AE168595B637FF7F7BF2E7C26917DDC15EB6827,
-      128'hA1AFEC939D240482026740905E57CA6C
+      256'hA1AFEC939D240482026740905E57CA6C1D96CF9CAB089A9CF80423F61EC116FD,
+      128'h7CB3D374E7DF05B66C61869C02BC1100
     }),
     704'({
-      64'h1D96CF9CAB089A9C,
-      128'hF80423F61EC116FD7CB3D374E7DF05B6,
-      256'h6C61869C02BC11008561BFB99BAFAFC47DED6F942A7014DD9A0656978D66A3C4,
-      256'h19617EDF0BD69B2320EA378AE9812F1F53911418BCBBCCCA9F4C41511001F6AD
+      64'hDC793769D983D0,
+      128'h8561BFB99BAFAFC47DED6F942A7014DD,
+      256'h9A0656978D66A3C419617EDF0BD69B2320EA378AE9812F1F53911418BCBBCCCA,
+      256'h9F4C41511001F6AD24DEEF385A7B3CA65869574E09B5710738066DCD7EF4BB9B
     }),
     320'({
-      64'h24DEEF385A7B3CA6,
-      128'h5869574E09B5710738066DCD7EF4BB9B,
-      128'hC48FDBD8A0031C11FA602470308055C4
+      64'h577127F60790BB5D,
+      128'hC48FDBD8A0031C11FA602470308055C4,
+      128'hABFF25A58087D34A37E5AE39A58FACEE
     }),
-    1920'({
-      64'hABFF25A58087D34A,
-      1584'h0, // unallocated space
+    640'({
+      64'h2CD09F705F291B7A,
+      32'h0, // unallocated space
       8'h0,
       8'h0,
-      256'h37E5AE39A58FACEE41389646B3968A3B128F4AF0AFFC1AAC77ADEFF42376E09D
+      8'h0,
+      8'h0,
+      256'h41389646B3968A3B128F4AF0AFFC1AAC77ADEFF42376E09D523D5C06786AAC34,
+      256'hFA53B8058E157CB69F1F413E87242971B6B52A656A1CAB7FEBF21E5BF1F45EDD
     }),
-    6144'({
-      64'h523D5C06786AAC34,
-      6080'h0
+    6400'({
+      64'h39EB436F1D5AF2D7,
+      2336'h0, // unallocated space
+      512'h0,
+      128'h0,
+      128'h0,
+      512'h0,
+      2560'h0,
+      32'h0,
+      32'h0,
+      32'h0,
+      32'h0,
+      32'h0
     }),
-    6144'({
-      64'hFA53B8058E157CB6,
-      6080'h0
+    6400'({
+      64'h7D7EA64D850E128D,
+      4160'h0, // unallocated space
+      64'h0,
+      32'h0,
+      32'h0,
+      2048'h0
+    }),
+    512'({
+      64'h1D00E175E3739EC1,
+      448'h0
     })});
 
 endpackage : otp_ctrl_part_pkg

@@ -82,6 +82,7 @@ Once the programming is confirmed, the life cycle controller reports a success t
 
 For conditional transitions, such as those that require a token (RAW_UNLOCK, TEST_UNLOCK, TEST_EXIT, RMA_UNLOCK), the life cycle controller advances the state via OTP programming only after it is supplied with the valid token.
 [Some tokens]({{< relref "doc/security/specs/device_life_cycle/_index.md#manufacturing-states" >}}) are hardcoded design constants, while others are stored in OTP.
+Note that conditional transitions will only be allowed if the OTP partition holding the corresponding token has been provisioned and locked.
 
 Since unlock tokens are considered secret, they are not stored in their raw form.
 Instead, the tokens are wrapped and unwrapped based on a global constant using a [PRESENT-based scrambling mechanism]({{< relref "hw/ip/otp_ctrl/doc/_index.md#secret-vs-non-secret-partitions" >}}).
@@ -97,7 +98,7 @@ All others CAN be device unique and are stored in OTP.
 For conditional transitions, there is a limit to how many times they can be attempted.
 This is to prevent an attacker from brute-forcing any specific token, as this also helps to reduce the overall required token size.
 
-For OpenTitan, the total amount of state transitions and transition attempts is limited to 16.
+For OpenTitan, the total amount of state transitions and transition attempts is limited to 24.
 Once this number is reached, the life cycle controller rejects further attempts, effectively locking the device into its current state.
 
 The token counters are maintained in the OTP.
@@ -110,7 +111,7 @@ All 128bit lock and unlock tokens are passed through a cryptographic one way fun
 This mechanism is used to guard against reverse engineering and brute-forcing attempts.
 An attacker able to extract the hashed token values from the scrambled OTP partitions or from the netlist would first have to find a hash collision in order to perform a life cycle transition, since the values supplied to the life cycle controller must be valid hash pre-images.
 
-The token hashing mechanism leverages the PRESENT cipher primitive in order to construct a 128bit -> 128bit hashing function via a Merkle-Damgard construction, as described in the [OTP specification]({{< relref "hw/ip/otp_ctrl/doc/_index.md#unlock-token-hashing" >}}).
+The employed one way function is a 128bit cSHAKE hash with the function name "" and customization string "LC_CTRL", see also [kmac documentation]({{< relref "hw/ip/kmac/doc/_index.md" >}}) and [`kmac_pkg.sv`](https://github.com/lowRISC/opentitan/blob/master/hw/ip/kmac/rtl/kmac_pkg.sv#L148-L155).
 
 ### Post Transition Handling
 
@@ -124,12 +125,11 @@ This general policy places a time-bound on how quickly life cycle states can cha
 
 The life cycle controller contains two escalation paths that are connected to [escalation severities 1 and 2 of the alert handler]({{< relref "hw/ip/alert_handler/doc/_index.md#escalation-signaling" >}}).
 
-The first escalation path is used to trigger escalation mechanisms such as secret wiping devices in OpenTitan.
-Upon assertion, the life cycle controller asserts the ESCALATE_EN life cycle signal which is distributed to all IPs in the design that expose an escalation action.
-
-The second escalation path is used to **TEMPORARILY** alter the life cycle state.
+The two escalation paths are redundant, and both trigger the same mechanism.
+Upon assertion of any of the two escalation actions, the life cycle state is **TEMPORARILY** altered.
 I.e. when this escalation path is triggered, the life cycle state is transitioned into "ESCALATE", which behaves like a virtual "SCRAP" state (i.e. this state is not programmed into OTP).
-This causes [all decoded outputs]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}) to be disabled until the next power cycle, with the exception of the ESCALATE_EN signal which will also be asserted in this case.
+This causes [all decoded outputs]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}) to be disabled until the next power cycle.
+In addition to that, the life cycle controller asserts the ESCALATE_EN life cycle signal which is distributed to all IPs in the design that expose an escalation action (like moving FSMs into terminal error states or clearing sensitive registers).
 
 Whether to escalate to the life cycle controller or not is a software decision, please see the [alert handler]({{< relref "hw/ip/alert_handler/doc/_index.md" >}}) for more details.
 
@@ -160,7 +160,7 @@ Signals marked with an asterisk (Y\*) are only asserted under certain conditions
 #### DFT_EN
 
 As its name implies, this signal enables DFT functions.
-This is accomplished primarily by providing functional isolation on the SOC inserted DFT TAP module and any other memory macros that are built natively with a DFT function (for example flash and OTP MAY have this feature).
+This is accomplished primarily by providing functional isolation on the SOC inserted DFT TAP module and any other memory macros that are built natively with a DFT function (for example flash and OTP).
 
 The isolation ensures three things:
 - The TAP controller is unable to issue instructions that would put the design into scan mode.
@@ -177,6 +177,9 @@ This feature may be there for a variety of reasons, but primarily it can be used
 
 This type of functionality, if it exists, must be disabled during specific life cycle states.
 Since these back-door functions may bypass memory protection, they could be used to read out provisioned secrets that are not meant to be visible to software or a debug host.
+
+Note that NVM_DEBUG_EN is disabled in the last test unlocked state (TEST_UNLOCKED7) such that the isolated flash partition can be be securely populated, without exposing its contents via the NVM backdoor interface.
+See also accessibility description of the [isolated flash partition]({{< relref "#iso_part_sw_rd_en-and-iso_part_sw_wr_en" >}}).
 
 #### HW_DEBUG_EN
 
@@ -219,9 +222,10 @@ The CHECK_BYP_EN signal is only asserted when a transition command is issued.
 
 #### CLK_BYP_REQ
 
-The CLK_BYP_REQ signal switches the main system clock to an external clock signal in RAW and TEST_LOCKED states when initiating a life cycle transition.
-This is needed since the internal clock source may not be fully calibrated yet in those states, and the OTP macro requires a stable clock frequency in order to reliably program the fuse array.
+If the life cycle state is in RAW, TEST* or RMA, and if {{< regref OTP_TEST_CTRL.EXT_CLOCK >}} is set to one, the CLK_BYP_REQ signal is asserted in order to switch the main system clock to an external clock signal.
+This functionality is needed in certain life cycle states where the internal clock source may not be fully calibrated yet, since the OTP macro requires a stable clock frequency in order to reliably program the fuse array.
 The CLK_BYP_REQ signal is only asserted when a transition command is issued.
+This function is not available in production life cycle states.
 
 
 ### Life Cycle Access Control Signals
@@ -252,9 +256,9 @@ This signal is dependent on the personalization state of the device and will onl
 #### ISO_PART_SW_RD_EN and ISO_PART_SW_WR_EN
 
 These signals control whether the isolated flash partition holding additional manufacturing details can be accessed.
-The isolated partition is both read and writable during the DEV / PROD / PROD_END / RMA states.
+The isolated partition is both read and writable during the PROD / PROD_END / RMA states.
 In all other states it is inaccessible, except during the TEST_UNLOCKED* states where the partition is write-only.
-This construction allows to write a value to that partitition and keep it secret before advancing into any of the production states.
+This construction allows to write a value to that partition and keep it secret before advancing into any of the production states.
 
 
 ## OTP Collateral
@@ -369,20 +373,21 @@ Signal                       | Direction        | Type                          
 -----------------------------|------------------|--------------------------------------|---------------
 `jtag_i`                     | `input`          | `jtag_pkg::jtag_req_t`               | JTAG input signals for life cycle TAP.
 `jtag_o`                     | `output`         | `jtag_pkg::jtag_rsp_t`               | JTAG output signals for life cycle TAP.
-`esc_wipe_secrets_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Triggers assertion of the `lc_escalate_en_o` signal.
-`esc_wipe_secrets_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
-`esc_scrap_state_tx_i`       | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
-`esc_scrap_state_rx_o`       | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
+`esc_scrap_state0_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
+`esc_scrap_state0_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
+`esc_scrap_state1_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
+`esc_scrap_state1_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
 `pwr_lc_i`                   | `input`          | `pwrmgr::pwr_lc_req_t`               | Initialization request coming from power manager.
 `pwr_lc_o`                   | `output`         | `pwrmgr::pwr_lc_rsp_t`               | Initialization response and programming idle state going to power manager.
 `lc_otp_program_o`           | `output`         | `otp_ctrl_pkg::lc_otp_program_req_t` | Life cycle state transition request.
 `lc_otp_program_i`           | `input`          | `otp_ctrl_pkg::lc_otp_program_rsp_t` | Life cycle state transition response.
-`lc_otp_token_o`             | `output`         | `otp_ctrl_pkg::lc_otp_token_req_t`   | Life cycle RAW unlock token hashing request.
-`lc_otp_token_i`             | `input`          | `otp_ctrl_pkg::lc_otp_token_rsp_t`   | Life cycle RAW unlock token hashing response.
+`kmac_data_o`                | `output`         | `kmac_pkg::app_req_t`                | Life cycle RAW token hashing request.
+`kmac_data_i`                | `input`          | `kmac_pkg::app_rsp_t`                | Life cycle RAW token hashing response.
 `otp_lc_data_i`              | `input`          | `otp_ctrl_pkg::otp_lc_data_t`        | Life cycle state output holding the current life cycle state, the value of the transition counter and the tokens needed for life cycle transitions.
 `lc_keymgr_div_o`            | `output`         | `lc_keymgr_div_t`                    | Life cycle state group diversification value.
 `lc_flash_rma_seed_o`        | `output`         | `lc_flash_rma_seed_t`                | Seed for flash RMA.
-`otp_hw_cfg_i`               | `input`          | `otp_hw_cfg_t`                       | HW_CFG bits from OTP, used to break out and expose the {{< regref DEVICE_ID_0 >}}.
+`otp_device_id_i`            | `input`          | `otp_device_id_t`                    | HW_CFG bits from OTP ({{< regref DEVICE_ID_0 >}}).
+`otp_manuf_state_i`          | `input`          | `otp_manuf_state_t`                  | HW_CFG bits from OTP ({{< regref MANUF_STATE_0 >}}).
 `lc_dft_en_o`                | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
 `lc_nvm_debug_en_o`          | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
 `lc_hw_debug_en_o`           | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
@@ -418,6 +423,11 @@ See also [power manager documentation]({{< relref "hw/ip/pwrmgr/doc" >}}).
 #### OTP Interfaces
 
 All interfaces to and from OTP are explained in detail in the [OTP Specification Document]({{< relref "hw/ip/otp_ctrl/doc/_index.md#life-cycle-interfaces" >}}).
+
+#### KMAC Interface
+
+The life cycle controller interfaces with KMAC through a [side load interface]({{< relref "hw/ip/kmac/doc/_index.md#keymgr-interface" >}}) in the same way as the key manager.
+Since the KMAC and life cycle controller are in different clock domains, the KMAC interface signals are synchronized to the life cycle clock inside the life cycle controller.
 
 #### Control Signal Propagation
 
@@ -521,7 +531,7 @@ The second readout pass uses a linearly increasing address sequence, whereas the
 
 ### Transition Counter Encoding
 
-The life cycle transition counter has 16 strokes where each stroke maps to one 16bit OTP word.
+The life cycle transition counter has 24 strokes where each stroke maps to one 16bit OTP word.
 The strokes are similarly encoded as the life cycle state in the sense that upon the first transition attempt, all words are initialized with unique Cx values that can later be overwritten with unique Dx values without producing an ECC error.
 
 {{< snippet "lc_ctrl_counter_table.md" >}}
@@ -530,12 +540,10 @@ Upon each life cycle transition attempt, the life cycle controller **FIRST** inc
 
 A decoded version of this counter is exposed in the {{< regref "LC_TRANSITION_CNT" >}} register.
 
-### Strap Selection
+### TAP Isolation
 
-**TODO: update this section and add blockdiagram once TAP selection/isolation is implemented in the pinmux**
-
-Although technically a life cycle feature, the sampling of the strap pins and JTAG isolation is performed in the pinmux after the life cycle controller has initialized.
-See pinmux documentation (**TODO: add link**) and detailed selection listed in [Life Cycle Definition Table]({{< relref "doc/security/specs/device_life_cycle/_index.md#manufacturing-states" >}}).
+Although technically a life cycle feature, the sampling of the strap pins and JTAG / TAP isolation is performed in the pinmux after the life cycle controller has initialized.
+See [pinmux documentation]({{< relref "hw/ip/pinmux/doc/#strap-sampling-and-tap-isolation" >}}) and the detailed selection listed in [Life Cycle Definition Table]({{< relref "doc/security/specs/device_life_cycle/_index.md#manufacturing-states" >}}).
 
 ### Life Cycle State Controller
 
@@ -582,7 +590,7 @@ To arbitrate between the two, a hardware mutex needs to be obtained before eithe
 The hardware mutex internally acts as a mux to block off the unselected path and all accesses to the request interface are blocked until it is claimed.
 If two requests arrive simultaneously, the TAP interface is given priority.
 
-The request interface consists of 4 registers:
+The request interface consists of 5 registers:
 
 1. {{< regref "TRANSITION_TARGET" >}}: Specifies the target state to which the agent wants to transition.
 2. {{< regref "TRANSITION_TOKEN_*" >}}: Any necessary token for conditional transitions.
@@ -600,6 +608,13 @@ If the value is not read back, then the requesting interface should wait and try
 
 When an agent is done with the mutex, it releases the mutex by explicitly writing a 0 to the claim register.
 This resets the mux to select no one and also holds the request interface in reset.
+
+#### Vendor-specific Test Control Register
+
+Certain OTP macros require special configuration bits to be set during the test phases.
+Hence, the life cycle CSRs include register {{< regref OTP_TEST_CTRL.VAL >}}, which is reserved for vendor-specific test control bits.
+Its value is only forwarded to the OTP macro in RAW, TEST_* and RMA life cycle states.
+In all other life cycle states, a value of 0 will be sent to the OTP macro.
 
 ### TAP Construction and Isolation
 
@@ -634,11 +649,17 @@ Hence the following programming sequence applies to both SW running on the devic
 
 3. Claim exclusive access to the transition interface by writing 0xA5 to the {{< regref "CLAIM_TRANSITION_IF" >}} register, and reading it back. If the value read back equals to 0xA5, the hardware mutex has successfully been claimed and SW can proceed to step 4. If the value read back equals to 0, the mutex has already been claimed by the other interface (either CSR or TAP), and SW should try claiming the mutex again.
 
-4. Write the desired target state to {{< regref "TRANSITION_TARGET" >}}. For conditional transitions, the corresponding token has to be written to {{< regref "TRANSITION_TOKEN_0" >}}. For all unconditional transitions, the token registers have to be set to zero. An optional, but recommended step is to read back and verify the values written to these registers before proceeding with step 5.
+4. Write the desired target state to {{< regref "TRANSITION_TARGET" >}}. For conditional transitions, the corresponding token has to be written to {{< regref "TRANSITION_TOKEN_0" >}}. For all unconditional transitions, the token registers have to be set to zero.
 
-5. Write 1 to the {{< regref "TRANSITION_CMD.START" >}} register to initiate the life cycle transition.
+5. If required, enable the external clock and other vendor-specific OTP settings in the {{< regref "OTP_TEST_CTRL" >}} register.
+Note that these settings only take effect in RAW, TEST* and RMA life cycle states.
+They are ignored in the PROD* and DEV states.
 
-6. Poll the {{< regref "STATUS" >}} register and wait until either {{< regref "STATUS.TRANSITION_SUCCESSFUL" >}} or any of the error bits is asserted.
+6. An optional, but recommended step is to read back and verify the values written in steps 4. and 5. before proceeding with step 6.
+
+7. Write 1 to the {{< regref "TRANSITION_CMD.START" >}} register to initiate the life cycle transition.
+
+8. Poll the {{< regref "STATUS" >}} register and wait until either {{< regref "STATUS.TRANSITION_SUCCESSFUL" >}} or any of the error bits is asserted.
 
 Note that any life cycle state transition - no matter whether successful or not - increments the LC_TRANSITION_CNT and moves the life cycle state into the temporary POST_TRANSITION state.
 Hence, step 6. cannot be carried out in case device SW is used to implement the programming sequence above, since the processor is disabled in the POST_TRANSITION life cycle state.

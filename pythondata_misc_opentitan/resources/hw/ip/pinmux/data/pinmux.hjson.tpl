@@ -16,23 +16,26 @@
 ##  - attr_dw:             Width of wakeup counters
 {
   name: "PINMUX",
-  clock_primary: "clk_i",
-  reset_primary: "rst_ni",
-  other_clock_list: [
-    "clk_aon_i",
-  ],
-  other_reset_list:
-  [
-    "rst_aon_ni"
-  ],
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+    {clock: "clk_aon_i", reset: "rst_aon_ni"}
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
   ],
   regwidth: "32",
   scan: "true",
 
+  alert_list: [
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
+    }
+  ],
+
   wakeup_list: [
-    { name: "aon_wkup_req",
+    { name: "pin_wkup_req",
       desc: "pin wake request"
     },
     { name: "usb_wkup_req",
@@ -83,6 +86,14 @@
       package: "pinmux_pkg",
       default: "'0"
     }
+    // DFT indication to stop tap strap sampling
+    { struct:  "logic",
+      type:    "uni",
+      name:    "dft_hold_tap_sel",
+      act:     "rcv",
+      package: "",
+      default: "'0"
+    }
     // Define pwr mgr <-> pinmux signals
     { struct:  "logic",
       type:    "uni",
@@ -100,7 +111,7 @@
     },
     { struct:  "logic",
       type:    "uni",
-      name:    "aon_wkup_req",
+      name:    "pin_wkup_req",
       act:     "req",
       package: "",
       default: "1'b0"
@@ -669,7 +680,12 @@
                 }
     },
     { multireg: { name:         "WKUP_DETECTOR_EN",
-                  desc:         "Enables for the wakeup detectors."
+                  desc:         '''
+                                Enables for the wakeup detectors.
+                                Note that these registers are synced to the always-on clock.
+                                The first write access always completes immediately.
+                                However, read/write accesses following a write will block until that write has completed.
+                                '''
                   count:        "NWkupDetect",
                   compact:      "false",
                   swaccess:     "rw",
@@ -677,6 +693,7 @@
                   regwen:       "WKUP_DETECTOR_REGWEN",
                   regwen_multi: "true",
                   cname:        "DETECTOR",
+                  async:        "clk_aon_i",
                   fields: [
                     { bits: "0:0",
                       name: "EN",
@@ -686,13 +703,27 @@
                       The behavior is as specified in !!WKUP_DETECTOR,
                       !!WKUP_DETECTOR_CNT_TH and !!WKUP_DETECTOR_PADSEL.
                       '''
+                      // In CSR tests, we do not touch the chip IOs. Thet are either pulled low or
+                      // or undriven.
+                      //
+                      // Random writes to the wkup detect CSRs may result in the case where the
+                      // wakeup gets enabled and signaled due to a pin being low for a programmed
+                      // time, which results in wkup_cause register to mismatch, OR, result in
+                      // assertion error due to a pin programmed for wakeup detection is undriven
+                      // (Xs on d_data). Hence, we just turn off the wake up detection logic.
+                      tags: ["excl:CsrNonInitTests:CsrExclWrite"]
                     }
                   ]
                 }
 
     },
     { multireg: { name:         "WKUP_DETECTOR",
-                  desc:         "Configuration of wakeup condition detectors."
+                  desc:         '''
+                                Configuration of wakeup condition detectors.
+                                Note that these registers are synced to the always-on clock.
+                                The first write access always completes immediately.
+                                However, read/write accesses following a write will block until that write has completed.
+                                '''
                   count:        "NWkupDetect",
                   compact:      "false",
                   swaccess:     "rw",
@@ -700,6 +731,7 @@
                   regwen:       "WKUP_DETECTOR_REGWEN",
                   regwen_multi: "true",
                   cname:        "DETECTOR",
+                  async:        "clk_aon_i",
                   fields: [
                     { bits: "2:0",
                       name: "MODE",
@@ -755,7 +787,12 @@
 
     },
     { multireg: { name:         "WKUP_DETECTOR_CNT_TH",
-                  desc:         "Counter thresholds for wakeup condition detectors."
+                  desc:         '''
+                                Counter thresholds for wakeup condition detectors.
+                                Note that these registers are synced to the always-on clock.
+                                The first write access always completes immediately.
+                                However, read/write accesses following a write will block until that write has completed.
+                                '''
                   count:        "NWkupDetect",
                   compact:      "false",
                   swaccess:     "rw",
@@ -763,6 +800,7 @@
                   regwen:       "WKUP_DETECTOR_REGWEN",
                   regwen_multi: "true",
                   cname:        "DETECTOR",
+                  async:        "clk_aon_i",
                   fields: [
                     { bits: "WkupCntWidth-1:0",
                       name: "TH",
@@ -776,7 +814,10 @@
 
     },
     { multireg: { name:         "WKUP_DETECTOR_PADSEL",
-                  desc:         "Pad selects for pad wakeup condition detectors."
+                  desc:         '''
+                                Pad selects for pad wakeup condition detectors.
+                                This register is NOT synced to the AON domain since the muxing mechanism is implemented in the same way as the pinmux muxing matrix.
+                                '''
                   count:        "NWkupDetect",
                   compact:      "false",
                   swaccess:     "rw",
@@ -799,13 +840,17 @@
 
     },
     { multireg: { name:     "WKUP_CAUSE",
-                  desc:     "Cause registers for wakeup detectors."
+                  desc:     '''
+                            Cause registers for wakeup detectors.
+                            Note that these registers are synced to the always-on clock.
+                            The first write access always completes immediately.
+                            However, read/write accesses following a write will block until that write has completed.
+                            '''
                   count:    "NWkupDetect",
                   swaccess: "rw0c",
                   hwaccess: "hrw",
-                  hwext:    "true",
-                  hwqe:     "true",
                   cname:    "DETECTOR",
+                  async:    "clk_aon_i",
                   fields: [
                     { bits: "0",
                       name: "CAUSE",
@@ -814,10 +859,6 @@
                       '''
                     }
                   ]
-                  // these CSRs live in the slow AON clock domain and
-                  // clearing them will be very slow and the changes
-                  // are not immediately visible.
-                  tags: ["excl:CsrAllTests:CsrExclWriteCheck"]
                 }
 
     },

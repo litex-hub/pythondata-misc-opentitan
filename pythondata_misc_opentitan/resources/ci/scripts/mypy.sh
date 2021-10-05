@@ -11,6 +11,8 @@ dirs_with_lint_makefile=(
     hw/ip/otbn/dv/rig
     hw/ip/otbn/dv/otbnsim
     hw/ip/otbn/util
+    hw/ip/rom_ctrl/util
+    util/reggen
 )
 
 retcode=0

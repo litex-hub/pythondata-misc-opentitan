@@ -147,6 +147,13 @@ This gives software an opportunity to confirm that the locking operation has pro
 
 Calculation of the integrity digest depends on whether the partition requires periodic background verification.
 
+### Vendor Test Partition
+
+The vendor test partition is intended to be used for OTP programming smoke checks during the manufacturing flow.
+The silicon creator may implement these checks inside the proprietary version of the `prim_otp` wrapper.
+This partition behaves like any other SW partition, with the exception that ECC uncorrectable errors will not lead to fatal errors / alerts as they do in all other partitions.
+This is due to the nature of the OTP programming smoke checks, which may leave certain OTP words in a state inconsistent with the ECC polynomial employed upon OTP readout.
+
 ### Software Configuration Partitions
 
 The software configuration partitions are used as non-volatile storage for flags, configuration and calibration data.
@@ -317,11 +324,11 @@ Signal                       | Direction        | Type                        | 
 `otp_edn_i`                  | `input`          | `otp_edn_rsp_t`             | Entropy acknowledgment to the entropy distribution network for LFSR reseeding and ephemeral key derivation.
 `pwr_otp_i`                  | `input`          | `pwrmgr::pwr_otp_req_t`     | Initialization request coming from power manager.
 `pwr_otp_o`                  | `output`         | `pwrmgr::pwr_otp_rsp_t`     | Initialization response and programming idle state going to power manager.
+`lc_otp_vendor_test_i`       | `input`          | `lc_otp_vendor_test_req_t`  | Vendor test control signals coming from the life cycle TAP.
+`lc_otp_vendor_test_o`       | `output`         | `lc_otp_vendor_test_rsp_t`  | Vendor test status signals going to the life cycle TAP.
 `lc_otp_program_i`           | `input`          | `lc_otp_program_req_t`      | Life cycle state transition request.
 `lc_otp_program_o`           | `output`         | `lc_otp_program_rsp_t`      | Life cycle state transition response.
-`lc_otp_token_i`             | `input`          | `lc_otp_token_req_t`        | Life cycle RAW unlock token hashing request.
-`lc_otp_token_o`             | `output`         | `lc_otp_token_rsp_t`        | Life cycle RAW unlock token hashing response.
-`lc_escalate_en_i`           | `input`          | `lc_ctrl_pkg::lc_tx_t`      | Life cycle escalation enable coming from life cycle controller. This signal moves all FSMs within OTP into the error state and triggers secret wiping mechanisms in the secret partitions.
+`lc_escalate_en_i`           | `input`          | `lc_ctrl_pkg::lc_tx_t`      | Life cycle escalation enable coming from life cycle controller. This signal moves all FSMs within OTP into the error state.
 `lc_check_byp_en_i`          | `input`          | `lc_ctrl_pkg::lc_tx_t`      | Life cycle partition check bypass signal. This signal causes the life cycle partition to bypass consistency checks during life cycle state transitions in order to prevent spurious consistency check failures.
 `lc_creator_seed_sw_rw_en_i` | `input`          | `lc_ctrl_pkg::lc_tx_t`      | Provision enable qualifier coming from life cycle controller. This signal enables SW read / write access to the RMA_TOKEN and CREATOR_ROOT_KEY_SHARE0 and CREATOR_ROOT_KEY_SHARE1.
 `lc_seed_hw_rd_en_i`         | `input`          | `lc_ctrl_pkg::lc_tx_t`      | Seed read enable coming from life cycle controller. This signal enables HW read access to the CREATOR_ROOT_KEY_SHARE0 and CREATOR_ROOT_KEY_SHARE1.
@@ -360,9 +367,15 @@ See also [power manager documentation]({{< relref "hw/ip/pwrmgr/doc" >}}).
 
 #### Life Cycle Interfaces
 
-The interface to the life cycle controller can be split into three functional sub-interfaces (state output, state transitions, token hashing), and these are explained in more detail below.
+The interface to the life cycle controller can be split into three functional sub-interfaces (vendor test, state output, state transitions), and these are explained in more detail below.
 Note that the OTP and life cycle controllers are supposed to be in the same clock domain, hence no additional signal synchronization is required.
 See also [life cycle controller documentation]({{< relref "hw/ip/lc_ctrl/doc" >}}) for more details.
+
+##### Vendor Test Signals
+
+The `lc_otp_vendor_test_i` and `lc_otp_vendor_test_o` signals are connected to a 32bit control and a 32bit status register in the life cycle TAP, respectively, and are directly routed to the `prim_otp` wrapper.
+These control and status signals may be used by the silicon creator to exercise the OTP programming smoke checks on the VENDOR_TEST partition.
+The signals are gated with the life cycle state inside the life cycle controller such that they do not have any effect in production life cycle states.
 
 ##### State, Counter and Token Ouput
 
@@ -400,12 +413,12 @@ In order to perform life cycle state transitions, the life cycle controller can 
 
 {{< wavejson >}}
 {signal: [
-  {name: 'clk_i',                      wave: 'p.......'},
-  {name: 'lc_otp_program_i.req',       wave: '01.|..0.'},
-  {name: 'lc_otp_program_i.state',     wave: '03.|..0.'},
-  {name: 'lc_otp_program_i.count',     wave: '03.|..0.'},
-  {name: 'lc_otp_program_o.ack',       wave: '0..|.10.'},
-  {name: 'lc_otp_program_o.err',       wave: '0..|.40.'},
+  {name: 'clk_i',                          wave: 'p.......'},
+  {name: 'lc_otp_program_i.req',           wave: '01.|..0.'},
+  {name: 'lc_otp_program_i.state',         wave: '03.|..0.'},
+  {name: 'lc_otp_program_i.count',         wave: '03.|..0.'},
+  {name: 'lc_otp_program_o.ack',           wave: '0..|.10.'},
+  {name: 'lc_otp_program_o.err',           wave: '0..|.40.'},
 ]}
 {{< /wavejson >}}
 
@@ -415,21 +428,9 @@ An error is fatal and indicates that the OTP programming operation has failed.
 Note that the new state must not clear any bits that have already been programmed to OTP - i.e., the new state must be incrementally programmable on top of the previous state.
 There are hence some implications on the life cycle encoding due to the ECC employed, see [life cycle state encoding]({{< relref "hw/ip/lc_ctrl/doc/_index.md#life-cycle-manufacturing-state-encodings" >}}) for details.
 
-##### Token Hashing
-
-The OTP controller implements a [PRESENT-based one-way function]({{< relref "#scrambling-datapath" >}}) on 128bit to compute the partition digests.
-This function is reused for the RAW unlock process (see [life cycle docs]({{< relref "hw/ip/lc_ctrl/doc" >}}) for more info), and can be accessed via `lc_otp_token_i`, `lc_otp_token_o`.
-The expected timining is illustrated below:
-
-{{< wavejson >}}
-{signal: [
-  {name: 'clk_i',                          wave: 'p.......'},
-  {name: 'lc_otp_token_i.req',             wave: '01.|..0.'},
-  {name: 'lc_otp_token_i.token_input',     wave: '03.|..0.'},
-  {name: 'lc_otp_token_o.ack',             wave: '0..|.10.'},
-  {name: 'lc_otp_token_o.hashed_token',    wave: '0..|.40.'},
-]}
-{{< /wavejson >}}
+Note that the behavior of the `lc_otp_program_i.otp_test_ctrl` signal is vendor-specific, and hence the signal is set to `x` in the timing diagram above.
+The purpose of this signal is to control vendor-specific test mechanisms, and its value will only be forwarded to the OTP macro in RAW, TEST_* and RMA states.
+In all other life cycle states this signal will be clamped to zero.
 
 #### Interface to Key Manager
 
@@ -509,7 +510,7 @@ The following is a high-level block diagram that illustrates everything that has
 
 ![OTP Controller Block Diagram](otp_ctrl_blockdiag.svg)
 
-Each of the partitions P0-P6 has its [own controller FSM]({{< relref "#partition-implementations" >}}) that interacts with the OTP wrapper and the [scrambling datapath]({{< relref "#scrambling-datapath" >}}) to fulfill its tasks.
+Each of the partitions P0-P7 has its [own controller FSM]({{< relref "#partition-implementations" >}}) that interacts with the OTP wrapper and the [scrambling datapath]({{< relref "#scrambling-datapath" >}}) to fulfill its tasks.
 The partitions expose the address ranges and access control information to the DAI in order to block accesses that go to locked address ranges.
 Further, the only two blocks that have (conditional) write access to the OTP are the DAI and the Life Cycle Interface (LCI) blocks.
 The partitions can only issue read transactions to the OTP macro.
@@ -517,7 +518,7 @@ Note that the access ranges of the DAI and the LCI are mutually exclusive.
 I.e., the DAI cannot read from nor write to the life cycle partition.
 The LCI cannot read the OTP, but is allowed to write to the life cycle partition.
 
-The CSR node on the left side of this diagram connects to the DAI, the OTP partitions (P0-P6) and the OTP wrapper through a gated TL-UL interface.
+The CSR node on the left side of this diagram connects to the DAI, the OTP partitions (P0-P7) and the OTP wrapper through a gated TL-UL interface.
 All connections from the partitions to the CSR node are read-only, and typically only carry a subset of the information available.
 E.g., the secret partitions only expose their digest value via the CSRs.
 
@@ -562,7 +563,7 @@ Write access through the DAI will be locked in case the digest is set to a non-z
 Also, read access through the DAI and the CSR window can be locked at runtime via a CSR.
 Read transactions through the CSR window will error out if they are out of bounds, or if read access is locked.
 
-Note that unrecoverable [OTP errors]({{< relref "#generalized-open-source-interface" >}}) or ECC failures in the digest register will move the partition controller into a terminal error state.
+Note that unrecoverable [OTP errors]({{< relref "#generalized-open-source-interface" >}}), ECC failures in the digest register or external escalation via `lc_escalate_en` will move the partition controller into a terminal error state.
 
 #### Buffered Partition
 
@@ -586,6 +587,9 @@ Otherwise, if no digest is available, the controller will read out the whole par
 In case of a mismatch, the buffered values are gated to their default, and an alert is triggered through the error handling logic.
 
 Note that in case of unrecoverable OTP errors or ECC failures in the buffer registers, the partition controller FSM is moved into a terminal error state, which locks down all access through DAI and clamps the values that are broadcast in hardware to their defaults.
+
+External escalation via the `lc_escalate_en` signal will move the partition controller FSM into the terminal error state as well.
+See [life cycle controller documentation]({{< relref "hw/ip/lc_ctrl/doc" >}}) for more details.
 
 ### Direct Access Interface Control
 
@@ -616,7 +620,7 @@ In case of unrecoverable OTP errors, the FSM signals an error to the life cycle 
 ![Key Derivation Interface FSM](otp_ctrl_kdi_fsm.svg)
 
 Upon reset release the KDI FSM waits until the OTP controller has initialized and the KDI gets enabled.
-Once it is in the idle state, key derivation and token hashing can be requested via the [token hashing]({{< relref "#token-hashing" >}}), [flash]({{< relref "#interface-to-flash-scrambler" >}}) and [sram]({{< relref "#interface-to-sram-and-otbn-scramblers" >}}) interfaces.
+Once it is in the idle state, key derivation can be requested via the [flash]({{< relref "#interface-to-flash-scrambler" >}}) and [sram]({{< relref "#interface-to-sram-and-otbn-scramblers" >}}) interfaces.
 Based on which interface makes the request, the KDI controller will evaluate a variant of the PRESENT digest mechanism as described in more detail below.
 
 ### Scrambling Datapath
@@ -644,20 +648,10 @@ Then, the data to be digested is split into 128bit chunks, each of which is used
 Chunks that are not aligned with 128bit are padded with zero, and the finalization operation consists of another 31-round encryption pass with a finalization constant.
 Note that both the IV as well as the finalization constant are global netlist constants chosen by the silicon creator.
 
-#### Unlock Token Hashing
-
-The unlock hashing function is used by the life cycle controller to pass the RAW unlock token through a one-way function before performing the actual token comparison with the netlist constant.
-This makes it harder to reverse engineer and break the RAW unlock process since in addition to extracting the hashed RAW unlock token, an attacker would have to invert the one-way function (or find a collision).
-The hash process is similar to the digest calculation, and uses the PRESENT primitive in a Merkle-Damgard construction to reduce the 128bit token into two 64bit hash-halves as illustrated in subfigure c).
-
-
-Due the PRESENT primitive being a 64bit cipher, the hash produced in this manner is essentially 64bit in strength, which would make the two 64bit halves susceptible to brute-force collision attacks if they where computed completely independently.
-To that end, the second 64bit halve is computed in a chained way by using the first 64bit halve as IV input.
-
 #### Scrambling Key Derivation
 
-The key derivation functions for ephemeral SRAM and static FLASH scrambling keys employ a similar construction as the digest calculation and token hashing functions.
-In particular, the keys are derived by repeatedly reducing a (partially random) block of data into a 64bit block, as illustrated in subfigures d) and e).
+The key derivation functions for ephemeral SRAM and static FLASH scrambling keys employ a similar construction as the digest calculation function.
+In particular, the keys are derived by repeatedly reducing a (partially random) block of data into a 64bit block, as illustrated in subfigures c) and d).
 
 For ephemeral SRAM scrambling keys, the data block is composed of the 128bit SRAM_DATA_KEY_SEED stored in OTP, as well as 128bit of fresh entropy fetched from the CSRNG.
 This process is repeated twice in order to produce a 128bit key.
@@ -694,7 +688,8 @@ This is behavior illustrated in the example below.
 The OTP IP is wrapped up in a primitive wrapper that exposes a TL-UL interface for testing purposes, and a generalized open-source interface for functional operation (described below).
 Any OTP redundancy mechanism like per-word ECC is assumed to be handled inside the wrapper, which means that the word width exposed as part of the generalized interface is the effective word width.
 
-Note that the register space exposed via the TL-UL interface is dependent on the underlying proprietary OTP IP and hence not further described in this document.
+Note that the register space exposed via the TL-UL test interface, as well as DFT and power-related signals are dependent on the underlying proprietary OTP IP.
+They are therefore not further described in this document.
 
 #### Generalized Open-source Interface
 
@@ -728,8 +723,6 @@ Also, an error signal returns a non-zero error code in case an error occurred wh
 
 Signal                  | Direction        | Type                        | Description
 ------------------------|------------------|-----------------------------|---------------
-`pwr_seq_o`             | `output`         | `logic`                     | Power sequencing signals to AST (on VDD domain).
-`pwr_seq_h_i`           | `input`          | `logic`                     | Power sequencing signals from AST (on VCC domain).
 `ready_o`               | `output`         | `logic`                     | Ready signal for the command handshake.
 `valid_i`               | `input`          | `logic`                     | Valid signal for the command handshake.
 `size_i`                | `input`          | `logic [SizeWidth-1:0]`     | Number of native OTP words to transfer, minus one: `2'b00 = 1 native word` ... `2'b11 = 4 native words`.
@@ -860,7 +853,7 @@ Alternatively, the `otp_operation_done` interrupt can be enabled up to notify th
 If the region accessed has a 64bit access granule, the 64bit chunk of read data can be read from the {{< regref DIRECT_ACCESS_RDATA_0 >}} and {{< regref DIRECT_ACCESS_RDATA_1 >}} registers.
 7. Go back to 1. and repeat until all data has been read.
 
-Note that the hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
+The hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
 
 ### Programming Sequence
 
@@ -877,7 +870,10 @@ Alternatively, the `otp_operation_done` interrupt can be enabled up to notify th
 6. If the status register flags a DAI error, additional handling is required (see [Section on Error handling]({{< relref "#error-handling" >}})).
 7. Go back to 1. and repeat until all data has been written.
 
-Note that the hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
+The hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
+
+Note that SW is responsible for keeping track of already programmed OTP word locations during the provisioning phase.
+**It is imperative that SW does not write the same word location twice**, since this can lead to ECC inconsistencies, thereby potentially rendering the device useless.
 
 ### Digest Calculation Sequence
 
@@ -890,7 +886,10 @@ The hardware digest computation for the hardware and secret partitions can be tr
 Alternatively, the `otp_operation_done` interrupt can be enabled up to notify the processor once an access has completed.
 6. If the status register flags a DAI error, additional handling is required (see [Section on Error handling]({{< relref "#error-handling" >}})).
 
-Note that the hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
+The hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operation is pending in order to temporarily lock write access to the CSRs registers.
+
+It should also be noted that the effect of locking a partition via the digest only takes effect **after** the next system reset.
+To prevent integrity check failures SW must therefore ensure that no more programming operations are issued to the affected partition after initiating the digest calculation sequence.
 
 ## Error Handling
 
@@ -906,16 +905,20 @@ Note that error codes that originate in the physical OTP macro are prefixed with
 Error Code | Enum Name            | Recoverable | DAI | LCI | Unbuf | Buf   | Description
 -----------|----------------------|-------------|-----|-----|-------|-------|-------------
 0x0        | NoError              | -           |  x  |  x  |   x   |  x    | No error has occurred.
-0x1        | MacroError           | no          |  x  |  x  |   x   |  x    | Returned if the OTP macro command was invalid or did not complete successfully due to a macro malfunction.
+0x1        | MacroError           | no          |  x  |  x  |   x   |  x    | Returned if the OTP macro command did not complete successfully due to a macro malfunction.
 0x2        | MacroEccCorrError    | yes         |  x  |  -  |   x   |  x    | A correctable ECC error has occurred during a read operation in the OTP macro.
 0x3        | MacroEccUncorrError  | no          |  x  |  -  |   x   |  x    | An uncorrectable ECC error has occurred during a read operation in the OTP macro.
-0x4        | MacroWriteBlankError | yes         |  x  |  x  |   x   |  x    | This error is returned if a write operation attempted to clear an already programmed bit location.
+0x4        | MacroWriteBlankError | yes         |  x  |  x  |   -   |  -    | This error is returned if a write operation attempted to clear an already programmed bit location.
 0x5        | AccessError          | yes         |  x  |  -  |   x   |  -    | An access error has occurred (e.g. write to write-locked region, or read to a read-locked region).
 0x6        | CheckFailError       | no          |  -  |  -  |   x   |  x    | An unrecoverable ECC, integrity or consistency error has been detected.
 0x7        | FsmStateError        | no          |  x  |  x  |   x   |  x    | The FSM has been glitched into an invalid state, or escalation has been triggered and the FSM has been moved into a terminal error state.
 
 All non-zero error codes listed above trigger an `otp_error` interrupt.
 In addition, all unrecoverable OTP `Macro*` errors (codes 0x1, 0x3) trigger a `fatal_macro_error` alert, while all remaining unrecoverable errors trigger a `fatal_check_error` alert.
+
+Note that while the `MacroWriteBlankError` is marked as a recoverable error, the affected OTP word may be in an inconsistent state after this error has been returned.
+This can cause several issues when the word is accessed again (either as part of a regular read operation, as part of the readout at boot, or as part of a background check).
+It is important that SW ensures that each word is only written once, since this can render the device useless.
 
 ## Direct Access Memory Map
 

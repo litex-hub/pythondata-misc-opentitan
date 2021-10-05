@@ -165,6 +165,8 @@ module otbn_decoder
   logic a_wlen_word_inc_bignum;
   logic b_inc_bignum;
 
+  logic sel_insn_bignum;
+
   logic ecall_insn;
   logic ld_insn;
   logic st_insn;
@@ -250,7 +252,8 @@ module otbn_decoder
     rf_we:               rf_we_bignum,
     rf_wdata_sel:        rf_wdata_sel_bignum,
     rf_ren_a:            rf_ren_a_bignum,
-    rf_ren_b:            rf_ren_b_bignum
+    rf_ren_b:            rf_ren_b_bignum,
+    sel_insn:            sel_insn_bignum
   };
 
   assign insn_dec_shared_o = '{
@@ -305,6 +308,8 @@ module otbn_decoder
     ispr_wr_insn           = 1'b0;
     ispr_rs_insn           = 1'b0;
 
+    sel_insn_bignum        = 1'b0;
+
     opcode                 = insn_opcode_e'(insn[6:0]);
 
     unique case (opcode)
@@ -323,29 +328,26 @@ module otbn_decoder
         rf_we_base       = 1'b1;
 
         unique case (insn[14:12])
-          3'b000,
-          3'b010,
-          3'b011,
-          3'b100,
-          3'b110,
-          3'b111: illegal_insn = 1'b0;
+          3'b000,  // addi
+          3'b100,  // xori
+          3'b110,  // ori
+          3'b111:  // andi
+            illegal_insn = 1'b0;
 
           3'b001: begin
-            unique case (insn[31:27])
-              5'b0_0000: illegal_insn = 1'b0;   // slli
+            unique case (insn[31:25])
+              7'b0000000: illegal_insn = 1'b0;   // slli
               default: illegal_insn = 1'b1;
             endcase
           end
 
           3'b101: begin
-            if (!insn[26]) begin
-              unique case (insn[31:27])
-                5'b0_0000,                      // srli
-                5'b0_1000: illegal_insn = 1'b0; // srai
+            unique case (insn[31:25])
+              7'b0000000,                      // srli
+              7'b0100000: illegal_insn = 1'b0; // srai
 
-                default: illegal_insn = 1'b1;
-              endcase
-            end
+              default: illegal_insn = 1'b1;
+            endcase
           end
 
           default: illegal_insn = 1'b1;
@@ -357,24 +359,22 @@ module otbn_decoder
         rf_ren_a_base   = 1'b1;
         rf_ren_b_base   = 1'b1;
         rf_we_base      = 1'b1;
-        if ({insn[26], insn[13:12]} != {1'b1, 2'b01}) begin
-          unique case ({insn[31:25], insn[14:12]})
-            // RV32I ALU operations
-            {7'b000_0000, 3'b000},
-            {7'b010_0000, 3'b000},
-            {7'b000_0000, 3'b010},
-            {7'b000_0000, 3'b011},
-            {7'b000_0000, 3'b100},
-            {7'b000_0000, 3'b110},
-            {7'b000_0000, 3'b111},
-            {7'b000_0000, 3'b001},
-            {7'b000_0000, 3'b101},
-            {7'b010_0000, 3'b101}: illegal_insn = 1'b0;
-            default: begin
-              illegal_insn = 1'b1;
-            end
-          endcase
-        end
+        // Look at the funct7 and funct3 fields.
+        unique case ({insn[31:25], insn[14:12]})
+          {7'b000_0000, 3'b000},  // ADD
+          {7'b010_0000, 3'b000},  // SUB
+          {7'b000_0000, 3'b100},  // XOR
+          {7'b000_0000, 3'b110},  // OR
+          {7'b000_0000, 3'b111},  // AND
+          {7'b000_0000, 3'b001},  // SLL
+          {7'b000_0000, 3'b101},  // SRL
+          {7'b010_0000, 3'b101}:  // SRA
+            illegal_insn = 1'b0;
+
+          default: begin
+            illegal_insn = 1'b1;
+          end
+        endcase
       end
 
       ///////////////////////
@@ -465,10 +465,16 @@ module otbn_decoder
           rf_ren_a_base     = 1'b1;
 
           if (insn[14:12] == 3'b001) begin
-            ispr_rd_insn = 1'b1;
+            // No read if destination is x0
+            ispr_rd_insn = insn_rd != 5'b0;
             ispr_wr_insn = 1'b1;
           end else if(insn[14:12] == 3'b010) begin
-            ispr_rs_insn = 1'b1;
+            // Read and set if source register isn't x0, otherwise read only
+            if (insn_rs1 != 5'b0) begin
+              ispr_rs_insn = 1'b1;
+            end else begin
+              ispr_rd_insn = 1'b1;
+            end
           end else begin
             illegal_insn = 1'b1;
           end
@@ -531,9 +537,11 @@ module otbn_decoder
 
         unique case (insn[14:12])
           3'b000: begin // BN.SEL
-            rf_we_bignum    = 1'b1;
-            rf_ren_a_bignum = 1'b1;
-            rf_ren_b_bignum = 1'b1;
+            rf_we_bignum        = 1'b1;
+            rf_ren_a_bignum     = 1'b1;
+            rf_ren_b_bignum     = 1'b1;
+            rf_wdata_sel_bignum = RfWdSelMovSel;
+            sel_insn_bignum     = 1'b1;
           end
           3'b011, 3'b001: begin // BN.CMP[B]
             rf_ren_a_bignum = 1'b1;
@@ -546,7 +554,6 @@ module otbn_decoder
             rf_ren_b_base        = 1'b1;
             rf_wdata_sel_bignum  = RfWdSelLsu;
             rf_d_indirect_bignum = 1'b1;
-            ld_insn              = 1'b1;
 
             if (insn[8]) begin
               a_wlen_word_inc_bignum = 1'b1;
@@ -555,13 +562,16 @@ module otbn_decoder
             end
 
             if (insn[7]) begin
-              d_inc_bignum      = 1;
+              d_inc_bignum      = 1'b1;
               rf_we_base        = 1'b1;
               rf_wdata_sel_base = RfWdSelIncr;
             end
 
             if (insn[8] & insn[7]) begin
-              illegal_insn = 1'b1;
+              // Avoid violating unique constraint for inc selection mux on an illegal instruction
+              a_wlen_word_inc_bignum = 1'b0;
+              d_inc_bignum           = 1'b0;
+              illegal_insn           = 1'b1;
             end
           end
           3'b101: begin // BN.SID
@@ -569,7 +579,6 @@ module otbn_decoder
             rf_ren_a_base        = 1'b1;
             rf_ren_b_base        = 1'b1;
             rf_ren_b_bignum      = 1'b1;
-            st_insn              = 1'b1;
             rf_b_indirect_bignum = 1'b1;
 
             if (insn[8]) begin
@@ -585,13 +594,17 @@ module otbn_decoder
             end
 
             if (insn[8] & insn[7]) begin
-              illegal_insn = 1'b1;
+              // Avoid violating unique constraint for inc selection mux on an illegal instruction
+              a_wlen_word_inc_bignum = 1'b0;
+              b_inc_bignum           = 1'b0;
+              illegal_insn           = 1'b1;
             end
           end
           3'b110: begin // BN.MOV/BN.MOVR
-            insn_subset     = InsnSubsetBignum;
-            rf_we_bignum    = 1'b1;
-            rf_ren_a_bignum = 1'b1;
+            insn_subset         = InsnSubsetBignum;
+            rf_we_bignum        = 1'b1;
+            rf_ren_a_bignum     = 1'b1;
+            rf_wdata_sel_bignum = RfWdSelMovSel;
 
             if (insn[31]) begin // BN.MOVR
               rf_a_indirect_bignum = 1'b1;
@@ -612,6 +625,9 @@ module otbn_decoder
               end
 
               if (insn[9] & insn[7]) begin
+                // Avoid violating unique constraint for inc selection mux on an illegal instruction
+                a_inc_bignum = 1'b0;
+                d_inc_bignum = 1'b0;
                 illegal_insn = 1'b1;
               end
             end
@@ -885,10 +901,6 @@ module otbn_decoder
 
       InsnOpcodeBignumMisc: begin
         unique case (insn[14:12])
-          3'b000: begin // BN.SEL
-            alu_operator_bignum      = AluOpBignumSel;
-            alu_op_b_mux_sel_bignum  = OpBSelRegister;
-          end
           3'b001: begin // BN.CMP
             alu_operator_bignum      = AluOpBignumSub;
             alu_op_b_mux_sel_bignum  = OpBSelRegister;
@@ -908,9 +920,6 @@ module otbn_decoder
             alu_op_b_mux_sel_base = OpBSelImmediate;
             alu_operator_base     = AluOpBaseAdd;
             imm_b_mux_sel_base    = ImmBaseBX;
-          end
-          3'b110: begin // BN.MOV/BN.MOVR
-            alu_operator_bignum     = AluOpBignumMov;
           end
           default: ;
         endcase
@@ -947,9 +956,11 @@ module otbn_decoder
   `ASSERT(IbexRegImmAluOpBaseKnown, (opcode == InsnOpcodeBaseOpImm) |->
       !$isunknown(insn[14:12]))
 
-  // Can only do a single inc
+  // Can only do a single inc. Selection mux in controller doesn't factor in instruction valid (to
+  // ease timing), so these must always be one-hot to 0 to avoid violating unique constraint for mux
+  // case statement.
   `ASSERT(BignumRegIncOnehot,
-    insn_valid_o |-> $onehot0({a_inc_bignum, a_wlen_word_inc_bignum, b_inc_bignum, d_inc_bignum}))
+    $onehot0({a_inc_bignum, a_wlen_word_inc_bignum, b_inc_bignum, d_inc_bignum}))
 
   // RfWdSelIncr requires active selection
   `ASSERT(BignumRegIncReq,

@@ -5,27 +5,28 @@
 class usbdev_env_cfg extends cip_base_env_cfg #(.RAL_T(usbdev_reg_block));
 
   virtual clk_rst_if  usb_clk_rst_vif;
-  rand clk_freq_mhz_e usb_clk_freq_mhz;
+  rand uint usb_clk_freq_mhz;
 
   // Reset kinds for USB
   string reset_kinds[] = {"HARD", "TL_IF", "USB_IF"};
 
   // Constrain USB to be at 48MHz based on spec
   constraint usb_clk_freq_mhz_c {
-    usb_clk_freq_mhz == dv_utils_pkg::ClkFreq48Mhz;
+    usb_clk_freq_mhz == 48;
   }
 
   // ext component cfgs
   rand usb20_agent_cfg m_usb20_agent_cfg;
 
   `uvm_object_utils_begin(usbdev_env_cfg)
-    `uvm_field_object(m_usb20_agent_cfg,                UVM_DEFAULT)
-    `uvm_field_enum  (clk_freq_mhz_e, usb_clk_freq_mhz, UVM_DEFAULT)
+    `uvm_field_object(m_usb20_agent_cfg,  UVM_DEFAULT)
+    `uvm_field_int   (usb_clk_freq_mhz,   UVM_DEFAULT)
   `uvm_object_utils_end
 
   `uvm_object_new
 
   virtual function void initialize(bit [TL_AW-1:0] csr_base_addr = '1);
+    list_of_alerts = usbdev_env_pkg::LIST_OF_ALERTS;
     super.initialize(csr_base_addr);
     // create usb20 agent config obj
     m_usb20_agent_cfg = usb20_agent_cfg::type_id::create("m_usb20_agent_cfg");

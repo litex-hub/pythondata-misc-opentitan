@@ -21,10 +21,9 @@ __DYNAMIC = 0;
 _dv_log_offset = 0x10000;
 
 /**
- * Marking the entrypoint correctly for the ELF file. In reality, we will end up
- * using a hard-coded offset from the slot start, as we don't have the ELF info
- * around once we have the image, and the entry offset is static in the image
- * format.
+ * Marking the entry point correctly for the ELF file. The signer tool will
+ * transfer this value to the `entry_point` field of the manifest, which will
+ * then be used by `mask_rom_boot` to handover execution to ROM_EXT.
  */
 ENTRY(_rom_ext_start_boot)
 
@@ -33,8 +32,8 @@ ENTRY(_rom_ext_start_boot)
  * s19->slm conversion scripts are not able to handle non-word aligned sections.
  */
 SECTIONS {
-  .rom_ext_manifest _slot_start_address : {
-    KEEP(*(.rom_ext_manifest))
+  .manifest _slot_start_address : {
+    KEEP(*(.manifest))
   } > eflash
 
   /**
@@ -63,6 +62,22 @@ SECTIONS {
   .text : ALIGN(4) {
     *(.text)
     *(.text.*)
+
+    /* Ensure section end is word-aligned. */
+    . = ALIGN(4);
+  } > eflash
+
+  /**
+   * Shutdown text section, containing shutdown function(s).
+   *
+   * This must be the last executable section in the ROM_EXT flash image.
+   */
+  .shutdown : ALIGN(4) {
+    *(.shutdown)
+    *(.shutdown.*)
+
+    /* Ensure section end is word-aligned. */
+    . = ALIGN(4);
   } > eflash
 
   /**
@@ -79,13 +94,27 @@ SECTIONS {
   } > eflash
 
   /**
+   * Critical static data that is accessible by both the mask ROM and the ROM
+   * extension.
+   *
+   * Each variable added to .static_critical must be in its own subsection
+   * named after the variable.
+   *
+   * This data is not initialized during CRT (hence NOLOAD). Instead it will
+   * be initialized by the mask ROM.
+   */
+  .static_critical ORIGIN(ram_main) (NOLOAD) : ALIGN(4) {
+    INCLUDE sw/device/silicon_creator/lib/base/static_critical.ld
+  } > ram_main
+
+  /**
    * Mutable data section, at the bottom of ram_main. This will be initialized
    * from flash at runtime by the CRT.
    *
    * Load this by copying the bytes from [_data_init_start, _data_init_end] into
    * the range [_data_start, _data_end].
    */
-  .data ORIGIN(ram_main) : ALIGN(4) {
+  .data : ALIGN(4) {
     _data_start = .;
     _data_init_start = LOADADDR(.data);
 
@@ -139,21 +168,6 @@ SECTIONS {
     . = ALIGN(4);
     _bss_end = .;
   } > ram_main
-
-  /**
-   * ROM_EXT Image End Section.
-   *
-   * This is a dummy section required for correctly calculating the ROM_EXT
-   * image length, for the manifest. See the comments in `rom_ext_manifest.S`
-   * for more information.
-   *
-   * If you add more sections to eflash, ensure they come before this section.
-   *
-   * This section must be LOAD, or the image size won't be calculated correctly.
-   */
-  .rom_ext_end : ALIGN(4) {
-    KEEP(*(.rom_ext_end))
-  } > eflash
 
   INCLUDE sw/device/info_sections.ld
 }

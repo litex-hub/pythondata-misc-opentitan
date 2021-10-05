@@ -5,6 +5,8 @@
 #ifndef OPENTITAN_SW_DEVICE_LIB_RUNTIME_OTBN_H_
 #define OPENTITAN_SW_DEVICE_LIB_RUNTIME_OTBN_H_
 
+#include "sw/device/lib/base/mmio.h"
+#include "sw/device/lib/dif/dif_base.h"
 #include "sw/device/lib/dif/dif_otbn.h"
 
 /**
@@ -67,12 +69,12 @@ typedef enum otbn_result {
    */
   kOtbnBadArg = 2,
   /**
-   * The execution of the application on OTBN failed.
+   * The operation performed on OTBN failed.
    *
    * More specific error information can be obtained with
    * `dif_otbn_get_err_code()`.
    */
-  kOtbnExecutionFailed = 3,
+  kOtbnOperationFailed = 3,
 } otbn_result_t;
 
 /**
@@ -160,10 +162,10 @@ typedef struct otbn {
  * Initializes the OTBN context structure.
  *
  * @param ctx The context object.
- * @param dif_config The OTBN DIF configuration (passed on to the DIF).
+ * @param base_addr The OTBN hardware base address.
  * @return The result of the operation.
  */
-otbn_result_t otbn_init(otbn_t *ctx, const dif_otbn_config_t dif_config);
+otbn_result_t otbn_init(otbn_t *ctx, mmio_region_t base_addr);
 
 /**
  * (Re-)loads the RSA application into OTBN.
@@ -177,21 +179,19 @@ otbn_result_t otbn_init(otbn_t *ctx, const dif_otbn_config_t dif_config);
 otbn_result_t otbn_load_app(otbn_t *ctx, const otbn_app_t app);
 
 /**
- * Calls a function on OTBN.
+ * Starts the OTBN execute operation.
  *
- * Set the entry point (start address) of OTBN to the desired function, and
- * starts the OTBN operation.
- *
- * Use `otbn_busy_wait_for_done()` to wait for the function call to complete.
+ * Use `otbn_busy_wait_for_done()` to wait for execution to complete.
  *
  * @param ctx The context object.
- * @param func The function to be called.
  * @return The result of the operation.
  */
-otbn_result_t otbn_call_function(otbn_t *ctx, otbn_ptr_t func);
+otbn_result_t otbn_execute(otbn_t *ctx);
 
 /**
- * Busy waits for OTBN to be done with its operation.
+ * Busy waits for OTBN to be done with the current operation.
+ *
+ * After an operation, triggered by a command, OTBN is back in idle state.
  *
  * @param ctx The context object.
  * @return The result of the operation.
@@ -233,5 +233,27 @@ otbn_result_t otbn_copy_data_from_otbn(otbn_t *ctx, size_t len_bytes,
  * @return The result of the operation.
  */
 otbn_result_t otbn_zero_data_memory(otbn_t *ctx);
+
+/**
+ * Gets the address in OTBN data memory referenced by `ptr`.
+ *
+ * @param ctx The context object.
+ * @param ptr The pointer to convert.
+ * @param[out] dmem_addr_otbn The address of the data in OTBN's data memory.
+ * @return The result of the operation; #kOtbnBadArg if `ptr` is not in the data
+ *         memory space of the currently loaded application.
+ */
+otbn_result_t otbn_data_ptr_to_dmem_addr(const otbn_t *ctx, otbn_ptr_t ptr,
+                                         uint32_t *dmem_addr_otbn);
+
+/**
+ * Writes a LOG_INFO message with the contents of each 256b DMEM word.
+ *
+ * @param ctx The context object.
+ * @param max_addr The highest address to dump. Set to 0 to output the whole
+ *                 DMEM. Must be a multiple of WLEN.
+ * @return The result of the operation.
+ */
+otbn_result_t otbn_dump_dmem(const otbn_t *ctx, uint32_t max_addr);
 
 #endif  // OPENTITAN_SW_DEVICE_LIB_RUNTIME_OTBN_H_

@@ -10,7 +10,9 @@
 
 module spi_host
   import spi_host_reg_pkg::*;
- (
+#(
+  parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}}
+) (
   input              clk_i,
   input              rst_ni,
   input              clk_core_i,
@@ -22,6 +24,10 @@ module spi_host
   input              tlul_pkg::tl_h2d_t tl_i,
   output             tlul_pkg::tl_d2h_t tl_o,
 
+  // Alerts
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
+
   // SPI Interface
   output logic             cio_sck_o,
   output logic             cio_sck_en_o,
@@ -30,6 +36,10 @@ module spi_host
   output logic [3:0]       cio_sd_o,
   output logic [3:0]       cio_sd_en_o,
   input        [3:0]       cio_sd_i,
+
+  // Passthrough interface
+  input  spi_device_pkg::passthrough_req_t passthrough_i,
+  output spi_device_pkg::passthrough_rsp_t passthrough_o,
 
   output logic             intr_error_o,
   output logic             intr_spi_event_o
@@ -40,10 +50,11 @@ module spi_host
   spi_host_reg2hw_t reg2hw;
   spi_host_hw2reg_t hw2reg;
 
-  tlul_pkg::tl_h2d_t fifo_win_h2d [1];
-  tlul_pkg::tl_d2h_t fifo_win_d2h [1];
+  tlul_pkg::tl_h2d_t fifo_win_h2d;
+  tlul_pkg::tl_d2h_t fifo_win_d2h;
 
   // Register module
+  logic [NumAlerts-1:0] alert_test, alerts;
   spi_host_reg_top u_reg (
     .clk_i,
     .rst_ni,
@@ -53,56 +64,104 @@ module spi_host
     .tl_win_i   (fifo_win_d2h),
     .reg2hw,
     .hw2reg,
-    .intg_err_o (),
+    .intg_err_o (alerts[0]),
     .devmode_i  (1'b1)
   );
 
-  logic  passthru;
-  assign passthru = reg2hw.control.passthru.q;
+  // Alerts
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
 
-  assign cio_sck_en_o = 1'b1;
-  assign cio_csb_en_o = {NumCS{1'b1}};
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(1'b1)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
 
   logic             sck;
   logic [NumCS-1:0] csb;
-  logic [3:0]       sd_o;
+  logic [3:0]       sd_out;
   logic [3:0]       sd_en;
   logic [3:0]       sd_i;
 
-  logic             pt_sck;
-  logic [NumCS-1:0] pt_csb;
-  logic [3:0]       pt_sd_o;
-  logic [3:0]       pt_sd_en;
-  logic [3:0]       pt_sd_i;
+  if (NumCS == 1) begin : gen_passthrough_implementation
+    logic passthrough_en;
+    assign passthrough_en  = passthrough_i.passthrough_en;
 
-  // TODO: Route passthru outputs to ports once structure is defined
-  assign pt_sck   = 1'b0;
-  assign pt_csb   = {NumCS{1'b1}};
-  assign pt_sd_en = 4'h0;
-  assign pt_sd_o  = 4'h0;
+    logic        pt_sck;
+    logic        pt_sck_en;
+    logic [0:0]  pt_csb;
+    logic [0:0]  pt_csb_en;
+    logic [3:0]  pt_sd_out;
+    logic [3:0]  pt_sd_en;
 
-  assign cio_sck_o    = passthru ? pt_sck : sck;
-  assign cio_csb_o    = passthru ? pt_csb : csb;
-  assign cio_sd_o     = passthru ? pt_sd_o : sd_o;
-  assign cio_sd_en_o  = passthru ? pt_sd_en : sd_en;
-  assign pt_sd_i      = cio_sd_i;
-  assign sd_i         = cio_sd_i;
+    assign pt_sck       = passthrough_i.sck;
+    assign pt_sck_en    = passthrough_i.sck_en;
+    assign pt_csb[0]    = passthrough_i.csb;
+    assign pt_csb_en[0] = passthrough_i.csb_en;
+    assign pt_sd_out    = passthrough_i.s;
+    assign pt_sd_en     = passthrough_i.s_en;
+
+    assign cio_sck_o    = passthrough_en ? pt_sck    : sck;
+    assign cio_sck_en_o = passthrough_en ? pt_sck_en : 1'b1;
+    assign cio_csb_o    = passthrough_en ? pt_csb    : csb;
+    assign cio_csb_en_o = passthrough_en ? pt_csb_en : 1'b1;
+    assign cio_sd_o     = passthrough_en ? pt_sd_out : sd_out;
+    assign cio_sd_en_o  = passthrough_en ? pt_sd_en  : sd_en;
+
+  end                   : gen_passthrough_implementation
+  else begin            : gen_passthrough_ignore
+     // Passthrough only supported for instances with one CSb line
+    `ASSERT(PassthroughNumCSCompat_A, !passthrough_i.passthrough_en, clk_i, rst_ni)
+
+    assign cio_sck_o    = sck;
+    assign cio_sck_en_o = 1'b1;
+    assign cio_csb_o    = csb;
+    assign cio_csb_en_o = {NumCS{1'b1}};
+    assign cio_sd_o     = sd_out;
+    assign cio_sd_en_o  = sd_en;
+
+    logic       unused_pt_en;
+    logic       unused_pt_sck;
+    logic       unused_pt_sck_en;
+    logic       unused_pt_csb;
+    logic       unused_pt_csb_en;
+    logic [3:0] unused_pt_sd_out;
+    logic [3:0] unused_pt_sd_en;
+
+    assign unused_pt_en     = passthrough_i.passthrough_en;
+    assign unused_pt_sck    = passthrough_i.sck;
+    assign unused_pt_sck_en = passthrough_i.sck_en;
+    assign unused_pt_csb    = passthrough_i.csb;
+    assign unused_pt_csb_en = passthrough_i.csb_en;
+    assign unused_pt_sd_out = passthrough_i.s;
+    assign unused_pt_sd_en  = passthrough_i.s_en;
+
+  end                   : gen_passthrough_ignore
+
+  logic unused_pt_sck_gate_en;
+  assign unused_pt_sck_gate_en = passthrough_i.sck_gate_en;
+
+  assign passthrough_o.s = cio_sd_i;
+  assign sd_i            = cio_sd_i;
 
   // TODO: REMOVE THIS CODE
   // Temp tie-offs to silence lint warnings
   logic unused_scan;
-  logic unused_flop;
 
   assign unused_scan = ^scanmode_i;
-
-  always_ff @(posedge clk_core_i or negedge rst_core_ni) begin
-    if (!rst_core_ni) begin
-      unused_flop <= 1'b0;
-    end else begin
-      unused_flop <= ^pt_sd_i;
-    end
-  end
-
 
   assign hw2reg.status.byteorder.d  = ByteOrder;
   assign hw2reg.status.byteorder.de = 1'b1;
@@ -119,8 +178,6 @@ module spi_host
   logic test_csid_inval;
   logic test_dir_inval;
   logic test_speed_inval;
-
-  logic [CSW-1:0] csid;
 
   assign test_csid_inval  = (reg2hw.csid.q >= NumCS);
 
@@ -160,25 +217,35 @@ module spi_host
     endcase
   end
 
-  assign csid             = (test_csid_inval) ? '0 : reg2hw.csid.q[CSW-1:0];
   assign error_csid_inval = command_valid & ~command_busy &
                             test_csid_inval;
   assign error_cmd_inval  = command_valid & ~command_busy &
                             (test_speed_inval | test_dir_inval);
 
-  assign command.configopts.clkdiv    = reg2hw.configopts[csid].clkdiv.q;
-  assign command.configopts.csnidle   = reg2hw.configopts[csid].csnidle.q;
-  assign command.configopts.csnlead   = reg2hw.configopts[csid].csnlead.q;
-  assign command.configopts.csntrail  = reg2hw.configopts[csid].csntrail.q;
-  assign command.configopts.full_cyc  = reg2hw.configopts[csid].fullcyc.q;
-  assign command.configopts.cpha      = reg2hw.configopts[csid].cpha.q;
-  assign command.configopts.cpol      = reg2hw.configopts[csid].cpol.q;
+  spi_host_reg_pkg::spi_host_reg2hw_configopts_mreg_t configopts;
 
-  assign command.segment.len          = reg2hw.command.len.q;
-  assign command.segment.csaat        = reg2hw.command.csaat.q;
-  assign command.segment.speed        = reg2hw.command.speed.q;
+  if (NumCS == 1) begin : gen_single_device
+    assign configopts   = reg2hw.configopts[0];
+    assign command.csid = '0;
+  end else begin : gen_multiple_devices
+    logic [CSW-1:0] csid;
+    assign csid         = (test_csid_inval) ? '0 : reg2hw.csid.q[CSW-1:0];
+    assign configopts   = reg2hw.configopts[csid];
+    assign command.csid = csid;
+  end : gen_multiple_devices
 
-  assign command.csid                 = csid[CSW-1:0];
+  assign command.configopts.clkdiv   = configopts.clkdiv.q;
+  assign command.configopts.csnidle  = configopts.csnidle.q;
+  assign command.configopts.csnlead  = configopts.csnlead.q;
+  assign command.configopts.csntrail = configopts.csntrail.q;
+  assign command.configopts.full_cyc = configopts.fullcyc.q;
+  assign command.configopts.cpha     = configopts.cpha.q;
+  assign command.configopts.cpol     = configopts.cpol.q;
+
+  assign command.segment.len         = reg2hw.command.len.q;
+  assign command.segment.csaat       = reg2hw.command.csaat.q;
+  assign command.segment.speed       = reg2hw.command.speed.q;
+
 
   logic [3:0] cmd_qes;
 
@@ -244,8 +311,8 @@ module spi_host
   spi_host_window u_window (
     .clk_i,
     .rst_ni,
-    .win_i      (fifo_win_h2d[0]),
-    .win_o      (fifo_win_d2h[0]),
+    .win_i      (fifo_win_h2d),
+    .win_o      (fifo_win_d2h),
     .tx_data_o  (tx_data),
     .tx_be_o    (tx_be),
     .tx_valid_o (tx_valid),
@@ -392,7 +459,7 @@ module spi_host
     .rx_ready_i      (core_rx_ready),
     .sck_o           (sck),
     .csb_o           (csb),
-    .sd_o,
+    .sd_o            (sd_out),
     .sd_en_o         (sd_en),
     .sd_i,
     .rx_stall_o      (core_rx_stall),
@@ -507,12 +574,12 @@ module spi_host
       tx_empty_q <= 1'b0;
       rx_full_q  <= 1'b0;
     end else begin
-      idle_q     <= idle_q;
-      ready_q    <= ready_q;
-      tx_wm_q    <= tx_wm_q;
-      rx_wm_q    <= rx_wm_q;
-      tx_empty_q <= tx_empty_q;
-      rx_full_q  <= rx_full_q;
+      idle_q     <= idle_d;
+      ready_q    <= ready_d;
+      tx_wm_q    <= tx_wm_d;
+      rx_wm_q    <= rx_wm_d;
+      tx_empty_q <= tx_empty_d;
+      rx_full_q  <= rx_full_d;
     end
   end
 
@@ -532,6 +599,7 @@ module spi_host
 
   `ASSERT_KNOWN(TlDValidKnownO_A, tl_o.d_valid)
   `ASSERT_KNOWN(TlAReadyKnownO_A, tl_o.a_ready)
+  `ASSERT_KNOWN(AlertKnownO_A, alert_tx_o)
   `ASSERT_KNOWN(CioSckKnownO_A, cio_sck_o)
   `ASSERT_KNOWN(CioSckEnKnownO_A, cio_sck_en_o)
   `ASSERT_KNOWN(CioCsbKnownO_A, cio_csb_o)
@@ -540,5 +608,6 @@ module spi_host
   `ASSERT_KNOWN(CioSdEnKnownO_A, cio_sd_en_o)
   `ASSERT_KNOWN(IntrSpiEventKnownO_A, intr_spi_event_o)
   `ASSERT_KNOWN(IntrErrorKnownO_A, intr_error_o)
+  `ASSERT_KNOWN(PassthroughKnownO_A, passthrough_o)
 
 endmodule : spi_host

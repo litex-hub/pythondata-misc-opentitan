@@ -11,6 +11,7 @@ This document specifies the functionality of the OpenTitan clock manager.
 - Attribute based controls of OpenTitan clocks.
 - Minimal software clock controls to reduce risks in clock manipulation.
 - External clock switch support
+- Clock frequency measurement
 
 # Theory of Operation
 
@@ -33,7 +34,7 @@ The table shows the group name, the modules that belong to each group, and wheth
 | Group           | Frequencies                    | Modules                                                        | Software       | Wait for Interrupt |
 | -------------   | ------------------------------ | -------------------------------------------------------------- | -------------- | ------------------ |
 | Power-up        | 100~200KHz, 24MHz              | Clock Manager, Power Manager, Reset Manager, Pinmux            | No             | No                 |
-| Transactional   | ~100MHz                        | Aes, Hmac, Key Manager, Otbn                                   | Yes (1)        | Yes (2)            |
+| Transactional   | ~100MHz                        | Aes, Kmac, Hmac, Key Manager, Otbn                             | Yes (1)        | Yes (2)            |
 | Infrastructural | 24MHz, ~100MHz                 | Fabric, Fabric gaskets (iopmp), Memories                       | No             | Yes (3)            |
 | Security        | 24MHz, ~100MHz                 | Alert handler, Entropy, Life cycle, Plic, Sensors              | No             | No                 |
 | Peripheral      | 24MHz, 48MHz, 96MHz            | I2c, Spi, Uart, Usb, others                                    | Yes            | Yes                |
@@ -159,6 +160,12 @@ The source clocks are gated off during low power states as controlled by the pow
 When the power manager makes a clock enable request, the clock manager ensures all root clock gates are enabled before acknowledging.
 Likewise, when the power manager makes a clock disable request, the clock manager ensures all root clock gates off disabled before acknowledging.
 
+Note, the power manager's request to turn off clocks supersedes all other local controls in the clock manager.
+This means even if a particular clock is turned on by the clock manager (for example a transactional unit that is ongoing or a peripheral that is enabled), the power manager requests will still turn clocks on / off at the root.
+
+This makes it software's responsibility to ensure low power entry requests (which can only be initiated by software) do not conflict with any ongoing activities controlled by software.
+For example, software should ensure that Aes / Otbn activities have completed before initializing a low power entry process.
+
 ### Clock Division
 
 Not all clocks are the same frequency as the source.
@@ -182,18 +189,38 @@ There are two occasions where this is required:
 
 Software request for external clocks is not always valid.
 Software is only able to request for external clocks when dft functions are [allowed]({{< relref "hw/ip/lc_ctrl/doc/_index.md#dft_en" >}}).
+When software requests the external clock switch, it also has the option to request whether the clock divider should be stepped down by a factor of 2.
+
 
 When the life cycle controller requests external clock, a request signal `lc_clk_byp_req_i` is sent from `lc_ctrl` to `clkmgr`.
 `clkmgr` then forwards the request to `ast` through `ast_clk_byp_req_o`, which performs the actual clock switch.
-When the clock switch is complete, the life cycle controller is acknowledged through `lc_clk_byp_ack_o`.
+When the clock switch is complete, the clock dividers are stepped down by a factor of 2 and the life cycle controller is acknowledged through `lc_clk_byp_ack_o`.
 
-When software requests external clock, the register bit {{< regref "EXTCLK_SEL" >}} is written.
+When software requests external clock, the register bit {{< regref "EXTCLK_CTRL" >}} is written.
 If dft functions are allowed, the `clkmgr` sends a request signal `ast_clk_byp_req_o` to `ast`.
 
-In both cases, when the clock switch is complete, the internal dividers of the `clkmgr` are stepped down by 2x.
-A divide-by-4 clock becomes divide-by-2 clock , and a divide-by-2 becomes a divide-by-1 clock.
-The step down function will be made more flexible in the future as it is highly dependent on the ratio of internal to external clock ratios.
-However, given currently known requirements, a blanket 2x step down is sufficient.
+When the divider is stepped down, a divide-by-4 clock becomes divide-by-2 clock , and a divide-by-2 becomes a divide-by-1 clock.
+This allows external connection to be either nominal frequencies or nominal divided-by-2.
+
+### Clock Frequency Measurements
+
+Clock manager can continuously measure root clock frequencies to see if any of the root clocks have deviated from the expected frequency.
+This feature can be enabled through the various measurement control registers such as {{< regref "IO_MEASURE_CTRL" >}}.
+
+The root clocks, specifically the clocks supplied from `ast` and their divided variants, are constantly measured against the `always on clock` when this feature is enabled.
+Software sets both an expected maximum and minimum for each measured clock.
+
+Clock manager then counts the number of relevant root clock cycles in each always-on clock period.
+If the resulting count differs from the programmed thresholds, a recoverable error is registered.
+
+There are two types of errors:
+* Clock too fast error
+* Clock too slow error
+
+Clock too fast is registered when the clock cycle count is greater than the software programmed max threshold.
+Clock too slow is registered when the clock cycle count is less than the software programmed min threshold.
+
+As these are all software supplied values, the entire measurement control can be locked from further programming through {{< regref "MEASURE_CTRL_REGWEN" >}}.
 
 # Programmers Guide
 

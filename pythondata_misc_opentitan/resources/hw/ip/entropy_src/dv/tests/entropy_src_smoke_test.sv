@@ -10,10 +10,16 @@ class entropy_src_smoke_test extends entropy_src_base_test;
   function void configure_env();
     super.configure_env();
 
-    // TODO: Enable scoreboard and predict LFSR output in scoreboard
-    cfg.en_scb = 0;
+    // TODO: Enable scoreboard
+    cfg.en_scb                      = 0;
+    cfg.route_software_pct          = 100;
+    cfg.entropy_data_reg_enable_pct = 100;
 
     `DV_CHECK_RANDOMIZE_FATAL(cfg)
+
+    // To correctly model ast/rng behavior, back-to-back entropy is not allowed
+    cfg.m_rng_agent_cfg.zero_delays = 0;
+
     `uvm_info(`gfn, $sformatf("%s", cfg.convert2string()), UVM_LOW)
   endfunction
 endclass : entropy_src_smoke_test

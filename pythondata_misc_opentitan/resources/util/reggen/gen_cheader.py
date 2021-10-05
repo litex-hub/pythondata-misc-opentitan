@@ -26,6 +26,15 @@ def genout(outfile: TextIO, msg: str) -> None:
     outfile.write(msg)
 
 
+def to_snake_case(s: str) -> str:
+    val = []
+    for i, ch in enumerate(s):
+        if i > 0 and ch.isupper():
+            val.append('_')
+        val.append(ch)
+    return ''.join(val)
+
+
 def as_define(s: str) -> str:
     s = s.upper()
     r = ''
@@ -115,6 +124,10 @@ def gen_cdefine_register(outstr: TextIO,
     genout(
         outstr,
         gen_define(defname + '_REG_OFFSET', [], hex(offset), existing_defines))
+    genout(
+        outstr,
+        gen_define(defname + '_REG_RESVAL', [],
+                   hex(reg.resval), existing_defines))
 
     for field in reg.fields:
         dname = defname + '_' + as_define(field.name)
@@ -200,7 +213,10 @@ def gen_cdefines_module_param(outstr: TextIO,
 
     if param.desc is not None:
         genout(outstr, format_comment(first_line(param.desc)))
-    define_name = as_define(module_name + '_PARAM_' + param.name)
+    # Heuristic: if the name already has underscores, it's already snake_case,
+    # otherwise, assume StudlyCaps and covert it to snake_case.
+    param_name = param.name if '_' in param.name else to_snake_case(param.name)
+    define_name = as_define(module_name + '_PARAM_' + param_name)
     if param.param_type == "int":
         define = gen_define(define_name, [], param.value,
                             existing_defines)

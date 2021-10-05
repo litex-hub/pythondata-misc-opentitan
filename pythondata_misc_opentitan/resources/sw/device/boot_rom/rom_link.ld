@@ -28,6 +28,8 @@ _heap_size = 0xe000;
 _stack_size = LENGTH(ram_main) - _heap_size;
 _stack_end = ORIGIN(ram_main) + LENGTH(ram_main);
 _stack_start = _stack_end - _stack_size;
+_vflash_start = ORIGIN(eflash_virtual);
+_vflash_size = LENGTH(eflash_virtual);
 _flash_start = ORIGIN(eflash);
 
 /**
@@ -37,10 +39,11 @@ _flash_start = ORIGIN(eflash);
  * See sw/device/lib/ext/common/flash_link.ld, under the .flash_header section,
  * which populates it.
  */
-_flash_header = _flash_start;
+_flash_header = _vflash_start;
 
+_rom_digest_size = 32;
 _chip_info_size = 128;
-_chip_info_start = ORIGIN(rom) + LENGTH(rom) - _chip_info_size;
+_chip_info_start = ORIGIN(rom) + LENGTH(rom) - _rom_digest_size - _chip_info_size;
 
 /* DV Log offset (has to be different to other boot stages). */
 _dv_log_offset = 0x0;

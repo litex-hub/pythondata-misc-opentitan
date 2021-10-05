@@ -23,6 +23,11 @@
     'hw/ip/hmac/dv/cryptoc_dpi/*',
     # PRINCE C++ reference model from Sebastien Riou
     'hw/ip/prim/dv/prim_prince/crypto_dpi_prince/prince_ref.h',
+    # PRESENT C reference model from Thomas Siebert
+    'hw/ip/prim/dv/prim_present/crypto_dpi_present/boxes.inc'
+    'hw/ip/prim/dv/prim_present/crypto_dpi_present/comline.inc'
+    'hw/ip/prim/dv/prim_present/crypto_dpi_present/present.inc'
+    'hw/ip/prim/dv/prim_present/crypto_dpi_present/verbose.inc'
     # PRESENT Python reference model
     'util/design/lib/Present.py',
     # Vendored FPGA information
@@ -37,23 +42,6 @@
 
     # Coremark Vendored Files
     'sw/device/benchmarks/coremark/top_earlgrey/*',
-    # Tock Vendored Files
-    'sw/device/tock/chips/opentitan_common/src/uart.rs',
-    'sw/device/tock/chips/opentitan_common/src/lib.rs',
-    'sw/device/tock/chips/opentitan_common/src/gpio.rs'
-    'sw/device/tock/chips/earlgrey/src/uart.rs',
-    'sw/device/tock/chips/earlgrey/src/timer.rs',
-    'sw/device/tock/chips/earlgrey/src/plic.rs',
-    'sw/device/tock/chips/earlgrey/src/lib.rs',
-    'sw/device/tock/chips/earlgrey/src/interrupts.rs',
-    'sw/device/tock/chips/earlgrey/src/gpio.rs',
-    'sw/device/tock/chips/earlgrey/src/chip.rs',
-    'sw/device/tock/boards/opentitan/src/main.rs',
-    'sw/device/tock/boards/opentitan/src/io.rs',
-    'sw/device/tock/boards/opentitan/layout.ld',
-    'sw/device/tock/boards/opentitan/build.rs',
-    'sw/device/tock/**/*.lock',
-    'sw/device/tock/boards/opentitan/rust-toolchain',
 
     ## Other Exclusions
 
@@ -67,6 +55,7 @@
     'sw/otbn/code-snippets/modexp.s',
     'sw/otbn/code-snippets/p256.s',
     'sw/otbn/code-snippets/rsa_verify.s',
+    'sw/otbn/code-snippets/rsa_verify_3072.s',
     # Mersenne Twister PRNG
     'sw/device/sca/lib/prng.c',
   ],

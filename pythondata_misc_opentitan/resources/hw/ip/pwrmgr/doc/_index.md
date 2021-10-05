@@ -69,7 +69,7 @@ Note, most of the states are transitional states, and only the following state c
 *   Slow FSM `Idle` and fast FSM `Active`
 *   Slow FSM `Low Power` and fast FSM `Low Power`
 
-The slow FSM `Low Power` and fast FSM `Active` states specifically are concepts useful when examining [reset handling](#Reset-Request-Handling).
+The slow FSM `Low Power` and fast FSM `Active` states specifically are concepts useful when examining [reset handling](#reset-request-handling).
 
 
 ## Slow Clock Domain FSM
@@ -77,7 +77,7 @@ The slow FSM `Low Power` and fast FSM `Active` states specifically are concepts 
 The slow clock domain FSM (referred to as the slow FSM from here on) resets to the Reset state.
 This state is released by `por_rst_n`, which is supplied from the reset controller.
 The `por_rst_n` signal is released when the reset controller detects the root power domains (`vcaon_pok` from AST) of the system are ready.
-Please see the [AST interface]() for more details.
+Please see the [ast]({{< relref "hw/top_earlgrey/ip/ast/doc" >}})) for more details.
 
 The slow FSM requests the AST to power up the main domain and high speed clocks.
 Once those steps are done, it requests the fast FSM to begin operation.
@@ -93,15 +93,15 @@ Once these steps are complete, the slow FSM transitions to a low power state and
 
 The fast clock domain FSM (referred to as fast FSM from here on) resets to `Low Power` state and waits for a power-up request from the slow FSM.
 
-Once received, the fast FSM releases the life cycle reset stage (see [reset controller](https://docs.google.com/document/d/1oprdDwbm-_opDwMuu-kmmaFVwt4-f1EGqCf0nkO8VpM/edit?usp=sharing) for more details).
-This allows the [OTP]() to begin sensing.
+Once received, the fast FSM releases the life cycle reset stage (see [reset controller]({{< relref "hw/ip/rstmgr/doc" >}}) for more details).
+This allows the [OTP]({{< relref "hw/ip/otp_ctrl/doc" >}}) to begin sensing.
 Once OTP sensing completes , the life cycle controller is initialized.
-The initialization of the life cycle controller puts the device into its allowed operating state (see [life cycle controller](https://docs.google.com/document/d/1H6jHtX2xYgy3nmkWKeHMkYcP0vsPq9duyUtLu5imX2E/edit?usp=sharing) for more details).
+The initialization of the life cycle controller puts the device into its allowed operating state (see [life cycle controller]({{< relref "hw/ip/lc_ctrl/doc" >}}) for more details).
 
-Once life cycle initialization is done, the fast FSM enables all second level clock gating (see [clock controller](https://docs.google.com/document/d/1j8H9ikPO2TKTRQvRFItjE5myiba1825PD-Yhy-yaLt0/edit?usp=sharing) for more details) and initiates strap sampling.
+Once life cycle initialization is done, the fast FSM enables all second level clock gating (see [clock controller]({{< relref "hw/ip/clkmgr/doc" >}}) for more details) and initiates strap sampling.
 For more details on what exactly the strap samples, please see [here](https://docs.google.com/spreadsheets/d/1pH8T1MhQ7TXtP_bFNT85T9jSVIHlxHAfbMnPbsMdjc0/edit?usp=sharing).
 
-Once strap sampling is complete, the system is ready to begin normal operations (note flash initialization is explicitly not done here, please see [sections below](#Flash-Handling) for more details).
+Once strap sampling is complete, the system is ready to begin normal operations (note flash initialization is explicitly not done here, please see [sections below](#flash-handling) for more details).
 The fast FSM acknowledges the slow FSM (which made the original power up request) and releases the system reset stage - this enables the processor to begin operation.
 Afterwards, the fast FSM transitions to `Active` state and waits for a software low power entry request.
 
@@ -110,17 +110,36 @@ Specifically, this means if software issues only WFI, the power manager does not
 The notion of WFI is exported from the processor.
 For Ibex, this is currently in the form of `core_sleeping_o`.
 
-In response to the low power entry request, the fast FSM disables all second level clock gating and asserts appropriate resets if required.  The
-fast FSM then requests the slow FSM to take over.
-Once the request is acknowledged, the fast FSM transitions to low power and waits for the next power up request.
+In response to the low power entry request, the fast FSM disables all second level clock gating.
+Before proceeding, the fast FSM explicitly separates the handling between a normal low power entry and a [reset request](#reset-request-handlig).
+
+For low power entry, there are two cases, [fall through handling](#fall-through-handling) and [abort handling](#abort-handling).
+If none of these exception cases are matched for low power entry, the fast FSM then asserts appropriate resets as necessary and requests the slow FSM to take over.
+
+For reset requests, fall through and aborts are not checked and the system simply resets directly.
+Note in this scenario the slow FSM is not requested to take over.
+
+### Fall Through Handling
+A low power entry fall through occurs when some condition occurs that immediately de-assert the entry conditions right after the software requests it.
+
+In this version of the power manager design, it can happen if right after software asserts WFI, an interrupt is shown to the processor, thus breaking it out of its currently stopped state.
+Whether this type of fall through happens is highly dependent on how the system handles interrupts during low power entry - some systems may choose to completely any interrupt not related to wakeup, others may choose to leave them all enabled.
+The fall through handle is specifically catered to the latter category.
+
+For a normal low power entry, the fast FSM first checks that the low power entry conditions are still true.
+If the entry conditions are no longer true, the fast FSM "falls through" the entry handling and returns the system to active state, thus terminating the entry process.
+
+### Abort Handling
+If the entry conditions are still true, the fast FSM then checks there are no ongoing non-volatile activities from `otp_ctrl`, `lc_ctrl` and `flash_ctrl`.
+If any of the modules is active, the fast FSM "aborts" entry handling and returns the system to active state, thus terminating the entry process.
 
 
 ## Reset Request Handling
 
-There are 3 reset requests in the system - peripheral requested reset such as watchdog, alert escalation reset and non-debug module reset.
-Flash brownout is handled separately and described in [flash handling section](#Flash-Handling) below.
+There are 3 reset requests in the system - peripheral requested reset such as watchdog, power manager's internal reset request and non-debug module reset.
+Flash brownout is handled separately and described in [flash handling section](#flash-handling) below.
 
-Watchdog and alert escalation resets are handled directly by the power manager, while the non-debug module reset is handled by the reset controller.
+Peripheral requested resets such as watchdog are handled directly by the power manager, while the non-debug module reset is handled by the reset controller.
 This separation is because the non-debug reset does not affect the life cycle controller, non-volatile storage controllers and alert states.
 There is thus no need to sequence its operation like the others.
 
@@ -128,8 +147,29 @@ The power controller only observes reset requests in two states - the slow FSM `
 When a reset request is received during slow FSM `Low Power` state, the system begins its usual power up sequence even if a wakeup has not been received.
 
 When a reset request is received during fast FSM `Active` state, the fast FSM asserts resets and transitions back to its `Low Power` state.
-The normal power-up process described [above](#Fast-Clock-Domain-FSM) is then followed to release the resets.
+The normal power-up process described [above](#fast-clock-domain-fsm) is then followed to release the resets.
 Note in this case, the slow FSM is "not activated" and remains in its `Idle` state.
+
+### Power Manager Internal Reset Requests
+
+In additional to external requests, the power manager maintains 2 internal reset requests:
+* Escalation reset request
+* Main power domain unstable reset request
+
+#### Escalation Reset Request
+Alert escalation resets in general behave similarly to peripehral requested resets.
+However, peripheral resets are always handled gracefully and follow the normal FSM transition.
+
+Alert escalations can happen at any time and do not always obey normal rules.
+As a result, upon alert escalation, the power manager makes a best case effort to transition directly into reset handling.
+
+This may not always be possible if the escalation happens while in low power (for example the FSM is in an invalid state).
+In this scenario, the pwrmgr keeps everything powered off and silenced and requests escalation handling if the system ever wakes up.
+
+#### Main Power Unstable Reset Requests
+If the main power ever becomes unstable (the power okay indication is low even though it is powered on), the power manager requests an internal reset.
+
+This reset behaves similarly to the escalation reset and transitions directly into reset handling.
 
 
 ### Reset Requests Received During Other States
@@ -173,7 +213,7 @@ Ultimately when control is returned to software, it may see two reset reasons an
 
 ## Wakeup Recording
 
-Similar to [reset handling](#Reset-Request-Handling), wakeup signals are only observed during slow FSM `Low Power`; however their recording is continuous until explicitly disabled by software.
+Similar to [reset handling](#reset-request-handling), wakeup signals are only observed during slow FSM `Low Power`; however their recording is continuous until explicitly disabled by software.
 
 Wakeup recording begins when the fast FSM transitions out of `Active` state and continues until explicitly disabled by software.
 This ensures wakeup events are not missed until software has set up the appropriate peripherals.

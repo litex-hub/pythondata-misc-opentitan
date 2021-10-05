@@ -19,7 +19,7 @@ project(
   ],
 )
 
-# We allow both GCC and Clang, but these minimum versions.
+# We allow both GCC and Clang, but these minimum versions.
 required_gcc_version = '>=5'
 required_clang_version = '>=3.5'
 
@@ -32,7 +32,6 @@ bin_dir = get_option('bin_dir')
 if bin_dir == 'undef'
   error('bin_dir option not set. Please run meson with a valid binary directory option.')
 endif
-tock_local = get_option('tock_local')
 
 # See the comment in `./util/meson-purge-includes.sh` for why this is necessary.
 if not get_option('keep_includes')
@@ -121,6 +120,9 @@ c_cpp_cross_args = [
   '-fno-asynchronous-unwind-tables',
   # Don't use COMMON sections for uninitialized globals
   '-fno-common',
+  # Place each function into its own section (used in conjunction with
+  # --gc-sections to remove unused functions from output files).
+  '-ffunction-sections',
 ]
 
 # Add extra warning flags for cross builds, if they are supported.
@@ -153,6 +155,8 @@ c_cpp_cross_link_args = [
   '-Wl,--orphan-handling=warn',
   # Turn Linker Warnings into Errors
   '-Wl,--fatal-warnings',
+  # Garbage collect unused sections.
+  '-Wl,--gc-sections',
 ]
 add_project_link_arguments(
   c_cpp_cross_link_args,
@@ -199,7 +203,7 @@ gen_hw_hdr = generator(
   prog_python,
   output: '@BASENAME@_regs.h',
   arguments: [
-    '@SOURCE_DIR@/util/regtool.py', '-D', '-o', '@BUILD_DIR@/@BASENAME@_regs.h',
+    '@SOURCE_DIR@/util/regtool.py', '-D', '-o', '@OUTPUT@',
     '@INPUT@',
   ],
 )
@@ -210,7 +214,7 @@ hw_ip_aes_reg_h = gen_hw_hdr.process('hw/ip/aes/data/aes.hjson')
 hw_ip_alert_handler_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/alert_handler/data/autogen/alert_handler.hjson')
 hw_ip_aon_timer_reg_h = gen_hw_hdr.process('hw/ip/aon_timer/data/aon_timer.hjson')
 hw_ip_clkmgr_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/clkmgr/data/autogen/clkmgr.hjson')
-hw_ip_entropy_reg_h = gen_hw_hdr.process('hw/ip/entropy_src/data/entropy_src.hjson')
+hw_ip_entropy_src_reg_h = gen_hw_hdr.process('hw/ip/entropy_src/data/entropy_src.hjson')
 hw_ip_flash_ctrl_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/flash_ctrl/data/autogen/flash_ctrl.hjson')
 hw_ip_gpio_reg_h = gen_hw_hdr.process('hw/ip/gpio/data/gpio.hjson')
 hw_ip_hmac_reg_h = gen_hw_hdr.process('hw/ip/hmac/data/hmac.hjson')
@@ -230,6 +234,7 @@ hw_ip_uart_reg_h = gen_hw_hdr.process('hw/ip/uart/data/uart.hjson')
 hw_ip_usbdev_reg_h = gen_hw_hdr.process('hw/ip/usbdev/data/usbdev.hjson')
 hw_ip_pwrmgr_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/pwrmgr/data/autogen/pwrmgr.hjson')
 hw_ip_rstmgr_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/rstmgr/data/autogen/rstmgr.hjson')
+hw_ip_ibex_reg_h = gen_hw_hdr.process('hw//ip/rv_core_ibex/data/rv_core_ibex.hjson')
 hw_top_earlgrey_pinmux_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/pinmux/data/autogen/pinmux.hjson')
 hw_top_earlgrey_rv_plic_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip/rv_plic/data/autogen/rv_plic.hjson')
 

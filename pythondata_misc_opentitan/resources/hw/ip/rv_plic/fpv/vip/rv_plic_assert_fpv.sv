@@ -7,17 +7,19 @@
 
 module rv_plic_assert_fpv #(parameter int NumSrc = 1,
                             parameter int NumTarget = 1,
+                            parameter int NumAlerts = 1,
                             parameter int PRIOW = $clog2(7+1)
 ) (
   input clk_i,
   input rst_ni,
   input [NumSrc-1:0] intr_src_i,
+  input prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  input prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
   input [NumTarget-1:0] irq_o,
-  input [$clog2(NumSrc+1)-1:0] irq_id_o [NumTarget],
+  input [$clog2(NumSrc)-1:0] irq_id_o [NumTarget],
   input [NumTarget-1:0] msip_o,
   // probe design signals
   input [NumSrc-1:0] ip,
-  input [NumSrc-1:0] le,
   input [NumSrc-1:0] ie [NumTarget],
   input [NumSrc-1:0] claim,
   input [NumSrc-1:0] complete,
@@ -28,7 +30,7 @@ module rv_plic_assert_fpv #(parameter int NumSrc = 1,
   logic claim_reg, claimed;
   logic max_priority;
   logic irq;
-  logic [$clog2(NumSrc+1)-1:0] i_high_prio;
+  logic [$clog2(NumSrc)-1:0] i_high_prio;
 
   // symbolic variables
   int unsigned src_sel;
@@ -76,18 +78,11 @@ module rv_plic_assert_fpv #(parameter int NumSrc = 1,
   end
 
   // when IP is set, previous cycle should follow edge or level triggered criteria
-  `ASSERT(LevelTriggeredIp_A, $rose(ip[src_sel]) |->
-          $past(le[src_sel]) || $past(intr_src_i[src_sel]))
-
-  `ASSERT(EdgeTriggeredIp_A, $rose(ip[src_sel]) |->
-          !$past(le[src_sel]) || $rose($past(intr_src_i[src_sel])))
+  `ASSERT(LevelTriggeredIp_A, ##3 $rose(ip[src_sel]) |-> $past(intr_src_i[src_sel], 3))
 
   // when interrupt is trigger, and nothing claimed yet, then next cycle should assert IP.
-  `ASSERT(LevelTriggeredIpWithClaim_A, !le[src_sel] && intr_src_i[src_sel] && !claimed |=>
-          ip[src_sel])
-
-  `ASSERT(EdgeTriggeredIpWithClaim_A, le[src_sel] && $rose(intr_src_i[src_sel]) && !claimed |=>
-          ip[src_sel])
+  `ASSERT(LevelTriggeredIpWithClaim_A, ##2 $past(intr_src_i[src_sel], 2) &&
+          !claimed |=> ip[src_sel])
 
   // ip stays stable until claimed, reset to 0 after claimed, and stays 0 until complete
   `ASSERT(IpStableAfterTriggered_A, ip[src_sel] && !claimed  |=> ip[src_sel])
@@ -100,7 +95,7 @@ module rv_plic_assert_fpv #(parameter int NumSrc = 1,
           max_priority && ie[tgt_sel][src_sel] |=> irq_o[tgt_sel])
 
   `ASSERT(TriggerIrqBackwardCheck_A, $rose(irq_o[tgt_sel]) |->
-          $past(irq) && (irq_id_o[tgt_sel]) == $past(i_high_prio))
+          $past(irq) && (irq_id_o[tgt_sel] == $past(i_high_prio)))
 
   // when irq ID changed, but not to ID=0, irq_o should be high, or irq represents the largest prio
   // but smaller than the threshold

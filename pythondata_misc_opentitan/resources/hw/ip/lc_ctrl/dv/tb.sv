@@ -9,7 +9,7 @@ module tb;
   import lc_ctrl_env_pkg::*;
   import lc_ctrl_test_pkg::*;
   import otp_ctrl_pkg::*;
-  import jtag_agent_pkg::*;
+  import jtag_riscv_agent_pkg::*;
 
   // macro includes
   `include "uvm_macros.svh"
@@ -18,9 +18,11 @@ module tb;
   wire clk, rst_n;
   wire devmode;
   wire [LcPwrIfWidth-1:0] pwr_lc;
-  // TODO: can delete once push-pull agent support constraint data
-  wire otp_ctrl_pkg::lc_otp_program_rsp_t otp_prog_rsp;
-  wire otp_ctrl_pkg::lc_otp_token_rsp_t   otp_token_rsp;
+
+  // TODO: need to connect this properly
+  wire [OtpTestCtrlWidth-1:0] otp_vendor_test_ctrl;
+  wire [OtpTestStatusWidth-1:0] otp_vendor_test_status;
+  assign otp_vendor_test_status = '0;
 
   // interfaces
   clk_rst_if   clk_rst_if(.clk(clk), .rst_n(rst_n));
@@ -28,26 +30,56 @@ module tb;
   pins_if      #(LcPwrIfWidth) pwr_lc_if(pwr_lc);
   tl_if        tl_if(.clk(clk), .rst_n(rst_n));
   lc_ctrl_if   lc_ctrl_if(.clk(clk), .rst_n(rst_n));
-  alert_esc_if esc_wipe_secrets_if(.clk(clk), .rst_n(rst_n));
-  alert_esc_if esc_scrap_state_if(.clk(clk), .rst_n(rst_n));
+  alert_esc_if esc_scrap_state1_if(.clk(clk), .rst_n(rst_n));
+  alert_esc_if esc_scrap_state0_if(.clk(clk), .rst_n(rst_n));
   jtag_if      jtag_if();
   push_pull_if #(.HostDataWidth(OTP_PROG_HDATA_WIDTH), .DeviceDataWidth(OTP_PROG_DDATA_WIDTH))
                otp_prog_if(.clk(clk), .rst_n(rst_n));
-  push_pull_if #(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)) otp_token_if(.clk(clk), .rst_n(rst_n));
+  push_pull_if #(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth))
+               otp_token_if(.clk(clk), .rst_n(rst_n));
+
+  // TODO: need to properly hook up KMAC agent.
+  logic req_q;
+  lc_ctrl_state_pkg::lc_token_t token_q;
+  kmac_pkg::app_rsp_t kmac_data_in;
+  kmac_pkg::app_req_t kmac_data_out;
+  assign kmac_data_in.ready = 1'b1;
+  assign kmac_data_in.done = otp_token_if.ack;
+  assign kmac_data_in.digest_share0 = kmac_pkg::AppDigestW'(otp_token_if.d_data);
+  assign kmac_data_in.digest_share1 = '0;
+  assign kmac_data_in.error = 1'b0;
+
+  assign otp_token_if.req = req_q;
+  assign otp_token_if.h_data = token_q;
+
+  always_ff @(posedge clk or negedge rst_n) begin : p_kmac_regs
+    if (!rst_n) begin
+      req_q <= 1'b0;
+      token_q <= '0;
+    end else begin
+      req_q <= req_q & ~otp_token_if.ack;
+      if (kmac_data_out.valid) begin
+        if (kmac_data_out.last) begin
+          req_q <= 1'b1;
+          token_q[64 +: 64] <= kmac_data_out.data;
+        end else begin
+          token_q[0 +: 64] <= kmac_data_out.data;
+        end
+      end
+    end
+  end
+
 
   `DV_ALERT_IF_CONNECT
-
-  // TODO: remove once OTP_PROG_DDATA_WIDTH is set to 1
-  assign otp_prog_rsp.err = lc_ctrl_if.prog_err;
-  assign otp_prog_rsp.ack = otp_prog_if.ack;
-  assign otp_token_rsp.ack = otp_token_if.ack;
-  // TODO: temp constraint to 0 because it has to equal to otp_lc_data_i tokens
-  assign otp_token_rsp.hashed_token = lc_ctrl_if.hashed_token;
 
   // dut
   lc_ctrl dut (
     .clk_i                      (clk      ),
     .rst_ni                     (rst_n    ),
+
+    // TODO: connect this to a different clock
+    .clk_kmac_i                 (clk      ),
+    .rst_kmac_ni                (rst_n    ),
 
     .tl_i                       (tl_if.h2d),
     .tl_o                       (tl_if.d2h),
@@ -58,19 +90,22 @@ module tb;
     .jtag_o                     ({jtag_if.tdo, lc_ctrl_if.tdo_oe}),
     .scanmode_i                 (1'b0     ),
 
-    .esc_wipe_secrets_tx_i      (esc_wipe_secrets_if.esc_tx),
-    .esc_wipe_secrets_rx_o      (esc_wipe_secrets_if.esc_rx),
-    .esc_scrap_state_tx_i       (esc_scrap_state_if.esc_tx),
-    .esc_scrap_state_rx_o       (esc_scrap_state_if.esc_rx),
+    .esc_scrap_state0_tx_i      (esc_scrap_state0_if.esc_tx),
+    .esc_scrap_state0_rx_o      (esc_scrap_state0_if.esc_rx),
+    .esc_scrap_state1_tx_i      (esc_scrap_state1_if.esc_tx),
+    .esc_scrap_state1_rx_o      (esc_scrap_state1_if.esc_rx),
 
     .pwr_lc_i                   (pwr_lc[LcPwrInitReq]),
     .pwr_lc_o                   (pwr_lc[LcPwrDoneRsp:LcPwrIdleRsp]),
 
-    .lc_otp_program_o           ({otp_prog_if.req, otp_prog_if.h_data}),
-    .lc_otp_program_i           (otp_prog_rsp),
+    .lc_otp_vendor_test_o       (otp_vendor_test_ctrl),
+    .lc_otp_vendor_test_i       (otp_vendor_test_status),
 
-    .lc_otp_token_o             ({otp_token_if.req, otp_token_if.h_data}),
-    .lc_otp_token_i             (otp_token_rsp),
+    .lc_otp_program_o           ({otp_prog_if.req, otp_prog_if.h_data}),
+    .lc_otp_program_i           ({otp_prog_if.d_data, otp_prog_if.ack}),
+
+    .kmac_data_i                (kmac_data_in),
+    .kmac_data_o                (kmac_data_out),
 
     .otp_lc_data_i              (lc_ctrl_if.otp_i),
 
@@ -96,7 +131,9 @@ module tb;
 
     .lc_keymgr_div_o            (lc_ctrl_if.keymgr_div_o),
 
-    .otp_hw_cfg_i               (lc_ctrl_if.otp_hw_cfg_i)
+    .otp_device_id_i            (lc_ctrl_if.otp_device_id_i),
+
+    .otp_manuf_state_i          (lc_ctrl_if.otp_manuf_state_i)
   );
 
   initial begin
@@ -107,12 +144,15 @@ module tb;
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent*", "vif", tl_if);
     uvm_config_db#(pwr_lc_vif)::set(null, "*.env", "pwr_lc_vif", pwr_lc_if);
     uvm_config_db#(virtual lc_ctrl_if)::set(null, "*.env", "lc_ctrl_vif", lc_ctrl_if);
-    uvm_config_db#(virtual jtag_if)::set(null, "*env.m_jtag_agent*", "vif", jtag_if);
 
-    uvm_config_db#(virtual alert_esc_if)::set(null, "*env.m_esc_wipe_secrets_agent*", "vif",
-                                              esc_wipe_secrets_if);
-    uvm_config_db#(virtual alert_esc_if)::set(null, "*env.m_esc_scrap_state_agent*", "vif",
-                                              esc_scrap_state_if);
+    // The jtag_agent is a low_level agent that configured inside jtag_riscv_agent.
+    uvm_config_db#(virtual jtag_if)::set(null, "*.env.m_jtag_riscv_agent.m_jtag_agent*", "vif",
+                                         jtag_if);
+
+    uvm_config_db#(virtual alert_esc_if)::set(null, "*env.m_esc_scrap_state1_agent*", "vif",
+                                              esc_scrap_state1_if);
+    uvm_config_db#(virtual alert_esc_if)::set(null, "*env.m_esc_scrap_state0_agent*", "vif",
+                                              esc_scrap_state0_if);
 
     uvm_config_db#(virtual push_pull_if#(.HostDataWidth(OTP_PROG_HDATA_WIDTH),
                                          .DeviceDataWidth(OTP_PROG_DDATA_WIDTH)))::

@@ -11,6 +11,7 @@ module tb;
   import top_pkg::*;
   import chip_test_pkg::*;
   import xbar_test_pkg::*;
+  import mem_bkdr_util_pkg::mem_bkdr_util;
 
   // macro includes
   `include "uvm_macros.svh"
@@ -18,8 +19,6 @@ module tb;
   `include "chip_hier_macros.svh"
 
   wire clk, rst_n;
-  wire usb_clk, usb_rst_n;
-
   wire [NUM_GPIOS-1:0] gpio_pins;
 
   wire jtag_tck;
@@ -41,21 +40,21 @@ module tb;
 
   wire usb_dp0, usb_dn0, usb_sense0, usb_dppullup0, usb_dnpullup0;
 
-  wire uart_rx, uart_tx;
+  wire uart_rx[NUM_UARTS], uart_tx[NUM_UARTS];
 
   bit stub_cpu;
   bit en_sim_sram = 1'b1;
 
   // internal clocks and resets
   // cpu clock cannot reference cpu_hier since cpu clocks are forced off in stub_cpu mode
-  wire cpu_clk = `CLKMGR_HIER.clocks_o.clk_proc_main;
+  wire cpu_clk = `CPU_HIER.clk_i;
   wire cpu_rst_n = `CPU_HIER.rst_ni;
   wire alert_handler_clk = `ALERT_HANDLER_HIER.clk_i;
+  wire alert_handler_rst_n = `ALERT_HANDLER_HIER.rst_ni;
 
   // interfaces
   clk_rst_if clk_rst_if(.clk, .rst_n);
-  clk_rst_if usb_clk_rst_if(.clk(usb_clk), .rst_n(usb_rst_n));
-  alert_esc_if alert_if[NUM_ALERTS](.clk(alert_handler_clk), .rst_n(rst_n));
+  alert_esc_if alert_if[NUM_ALERTS](.clk(alert_handler_clk), .rst_n(alert_handler_rst_n));
   pins_if #(NUM_GPIOS) gpio_if(.pins(gpio_pins));
   pins_if #(1) srst_n_if(.pins(srst_n));
   pins_if #(2) tap_straps_if(.pins(tap_straps));
@@ -64,7 +63,7 @@ module tb;
   pins_if #(1) rst_n_mon_if(.pins(cpu_rst_n));
   spi_if spi_if(.rst_n);
   tl_if cpu_d_tl_if(.clk(cpu_clk), .rst_n(cpu_rst_n));
-  uart_if uart_if();
+  uart_if uart_if[NUM_UARTS-1:0]();
   jtag_if jtag_if();
 
   // TODO: Replace with correct interfaces once
@@ -75,16 +74,6 @@ module tb;
   assign (weak0, weak1) tie_off = '0;
   assign (weak0, weak1) spi_host_tie_off = '0;
   assign (weak0, weak1) spi_dev_tie_off = '0;
-
-  // backdoors
-  bind `ROM_HIER mem_bkdr_if rom_mem_bkdr_if();
-  bind `RAM_MAIN_HIER mem_bkdr_if #(.MEM_PARITY(1)) ram_mem_bkdr_if();
-  bind `RAM_RET_HIER mem_bkdr_if #(.MEM_PARITY(1)) ram_mem_bkdr_if();
-  bind `FLASH0_MEM_HIER mem_bkdr_if flash0_mem_bkdr_if();
-  bind `FLASH1_MEM_HIER mem_bkdr_if flash1_mem_bkdr_if();
-  bind `FLASH0_INFO_HIER mem_bkdr_if flash0_info_bkdr_if();
-  bind `FLASH1_INFO_HIER mem_bkdr_if flash1_info_bkdr_if();
-  bind `OTP_MEM_HIER mem_bkdr_if #(.MEM_ECC(1)) otp_bkdr_if();
 
   // TODO: the external clk is currently not connected.
   // We will need to feed this in via a muxed pin, once that function implemented.
@@ -125,13 +114,15 @@ module tb;
     .IOB5(gpio_pins[14]),  // MIO 14
     .IOB6(gpio_pins[15]),  // MIO 15
     .IOB7(tie_off[0]),     // MIO 16
-    .IOB8(tie_off[1]),     // MIO 17
-    .IOB9(tie_off[2]),     // MIO 18
-    .IOB10(tie_off[3]),    // MIO 19
-    .IOB11(tie_off[4]),    // MIO 20
-    .IOB12(tie_off[5]),    // MIO 21
+    // TODO, we probably need to change this when we have the final pinout configuration
+    // Connect this to IOB8 to align with SW bootstrap.c
+    .IOB8(sw_straps[0]),   // MIO 17
+    .IOB9(tie_off[1]),     // MIO 18
+    .IOB10(tie_off[2]),    // MIO 19
+    .IOB11(tie_off[3]),    // MIO 20
+    .IOB12(tie_off[4]),    // MIO 21
     // Bank C (VCC domain)
-    .IOC0(sw_straps[0]),   // MIO 22
+    .IOC0(tie_off[5]),     // MIO 22
     .IOC1(sw_straps[1]),   // MIO 23
     .IOC2(sw_straps[2]),   // MIO 24
     .IOC3(dft_straps[0]),  // MIO 25
@@ -141,8 +132,8 @@ module tb;
     .IOC7(tie_off[7]),     // MIO 29
     .IOC8(tap_straps[0]),  // MIO 30
     .IOC9(tie_off[8]),     // MIO 31
-    .IOC10(uart_rx),       // MIO 32
-    .IOC11(uart_tx),       // MIO 33
+    .IOC10(uart_rx[0]),    // MIO 32
+    .IOC11(uart_tx[0]),    // MIO 33
     .IOC12(tie_off[9]),    // MIO 34
     // Bank R (VCC domain)
     .IOR0(jtag_tms),       // MIO 35
@@ -150,14 +141,14 @@ module tb;
     .IOR2(jtag_tdi),       // MIO 37
     .IOR3(jtag_tck),       // MIO 38
     .IOR4(jtag_trst_n),    // MIO 39
-    .IOR5(tie_off[10]),    // MIO 40
-    .IOR6(tie_off[11]),    // MIO 41
-    .IOR7(tie_off[12]),    // MIO 42
-    .IOR8(tie_off[13]),    // MIO 43
-    .IOR9(tie_off[14]),    // MIO 44
-    .IOR10(tie_off[15]),   // MIO 45
-    .IOR11(tie_off[16]),   // MIO 46
-    .IOR12(tie_off[17]),   // MIO 47
+    .IOR5(uart_rx[1]),     // MIO 40
+    .IOR6(uart_tx[1]),     // MIO 41
+    .IOR7(uart_rx[2]),     // MIO 42
+    .IOR8(tie_off[13]),    // MIO 43, Dedicated sysrst_ctrl output (ec_rst_l)
+    .IOR9(tie_off[14]),    // MIO 44, Dedicated sysrst_ctrl output (pwrb_out)
+    .IOR10(uart_tx[2]),    // MIO 45
+    .IOR11(uart_rx[3]),    // MIO 46
+    .IOR12(uart_tx[3]),    // MIO 47
     .IOR13(tie_off[18]),   // MIO 48
     // DCD (VCC domain)
     .CC1(tie_off[19]),
@@ -192,13 +183,6 @@ module tb;
   assign spi_device_sdi_i = spi_if.sio[0];
   assign spi_if.sio[1]    = spi_device_sdo_o;
 
-  // TODO: Replace this weak pull to a known value with initialization
-  // in the agent/interface.
-  assign (weak0, weak1) uart_rx = 1'b1;
-  assign (weak0, weak1) uart_tx = 1'b1;
-  assign uart_rx = uart_if.uart_rx;
-  assign uart_if.uart_tx = uart_tx;
-
   // TODO: USB-related signals, hookup an interface.
   assign usb_rst_n  = `USBDEV_HIER.rst_usb_48mhz_ni;
   assign usb_dp0    = 1'b1;
@@ -216,7 +200,7 @@ module tb;
     .tl_in_i  (`CPU_HIER.tl_d_o_int),
     .tl_in_o  (),
     .tl_out_o (),
-    .tl_out_i (`CPU_HIER.tl_d_i)
+    .tl_out_i (`CPU_HIER.cored_tl_h_i)
   );
 
   initial begin
@@ -224,7 +208,7 @@ module tb;
     if (!stub_cpu && en_sim_sram) begin
       `SIM_SRAM_IF.start_addr = SW_DV_START_ADDR;
       force `CPU_HIER.tl_d_i_int = u_sim_sram.tl_in_o;
-      force `CPU_HIER.tl_d_o = u_sim_sram.tl_out_o;
+      force `CPU_HIER.cored_tl_h_o = u_sim_sram.tl_out_o;
     end else begin
       force u_sim_sram.clk_i = 1'b0;
     end
@@ -254,19 +238,13 @@ module tb;
   end : gen_connect_alerts_pins
 
   initial begin
-    // Set clk_rst_vifs
-    // drive rst_n from clk_if
-    // clk_rst_if references internal clock created by ast
+    // Set clk_rst_vifs.
     clk_rst_if.set_active();
-    usb_clk_rst_if.set_active(.drive_clk_val(1'b1), .drive_rst_n_val(1'b0));
-    // clk_rst_if will be gotten by env and env.scoreboard (for xbar)
     uvm_config_db#(virtual clk_rst_if)::set(null, "*.env*", "clk_rst_vif", clk_rst_if);
-    uvm_config_db#(virtual clk_rst_if)::set(null, "*.env", "usb_clk_rst_vif", usb_clk_rst_if);
 
     // IO Interfaces
     uvm_config_db#(virtual pins_if #(NUM_GPIOS))::set(null, "*.env", "gpio_vif", gpio_if);
-    uvm_config_db#(virtual uart_if)::set(null, "*.env.m_uart_agent*", "vif", uart_if);
-    uvm_config_db#(virtual jtag_if)::set(null, "*.env.m_jtag_agent*", "vif", jtag_if);
+    uvm_config_db#(virtual jtag_if)::set(null, "*.env.m_jtag_riscv_agent*", "vif", jtag_if);
     uvm_config_db#(virtual spi_if)::set(null, "*.env.m_spi_agent*", "vif", spi_if);
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent*", "vif", cpu_d_tl_if);
 
@@ -279,24 +257,6 @@ module tb;
         null, "*.env", "sw_straps_vif", sw_straps_if);
     uvm_config_db#(virtual pins_if #(1))::set(
         null, "*.env", "rst_n_mon_vif", rst_n_mon_if);
-
-    // Backdoors
-    uvm_config_db#(mem_bkdr_vif)::set(
-        null, "*.env", "rom_bkdr_vif", `ROM_HIER.rom_mem_bkdr_if);
-    uvm_config_db#(parity_mem_bkdr_vif)::set(
-        null, "*.env", "ram_main_bkdr_vif", `RAM_MAIN_HIER.ram_mem_bkdr_if);
-    uvm_config_db#(parity_mem_bkdr_vif)::set(
-        null, "*.env", "ram_ret_bkdr_vif", `RAM_RET_HIER.ram_mem_bkdr_if);
-    uvm_config_db#(mem_bkdr_vif)::set(
-        null, "*.env", "flash_bank0_bkdr_vif", `FLASH0_MEM_HIER.flash0_mem_bkdr_if);
-    uvm_config_db#(mem_bkdr_vif)::set(
-        null, "*.env", "flash_bank1_bkdr_vif", `FLASH1_MEM_HIER.flash1_mem_bkdr_if);
-    uvm_config_db#(mem_bkdr_vif)::set(
-        null, "*.env", "flash_info0_bkdr_vif", `FLASH0_INFO_HIER.flash0_info_bkdr_if);
-    uvm_config_db#(mem_bkdr_vif)::set(
-        null, "*.env", "flash_info1_bkdr_vif", `FLASH1_INFO_HIER.flash1_info_bkdr_if);
-    uvm_config_db#(ecc_mem_bkdr_vif)::set(
-        null, "*.env", "otp_bkdr_vif", `OTP_MEM_HIER.otp_bkdr_if);
 
     // SW logger and test status interfaces.
     uvm_config_db#(virtual sw_test_status_if)::set(
@@ -313,7 +273,93 @@ module tb;
     run_test();
   end
 
+  for (genvar i = 0; i < NUM_UARTS; i++) begin : gen_uart_if
+    // TODO: Replace this weak pull to a known value with initialization
+    // in the agent/interface.
+    assign (weak0, weak1) uart_rx[i] = 1'b1;
+    assign (weak0, weak1) uart_tx[i] = 1'b1;
+    assign uart_rx[i] = uart_if[i].uart_rx;
+    assign uart_if[i].uart_tx = uart_tx[i];
+
+    initial begin
+      uvm_config_db#(virtual uart_if)::set(null, $sformatf("*.env.m_uart_agent%0d*", i),
+                                           "vif", uart_if[i]);
+    end
+  end
   `undef SIM_SRAM_IF
+
+  // Instantitate the memory backdoor util instances.
+  if (`PRIM_DEFAULT_IMPL == prim_pkg::ImplGeneric) begin : gen_generic
+    initial begin
+      mem_bkdr_util m_mem_bkdr_util[chip_mem_e];
+
+      m_mem_bkdr_util[FlashBank0Data] = new(
+          .name  ("mem_bkdr_util[FlashBank0Data]"),
+          .path  (`DV_STRINGIFY(`FLASH0_DATA_MEM_HIER)),
+          .depth ($size(`FLASH0_DATA_MEM_HIER)),
+          .n_bits($bits(`FLASH0_DATA_MEM_HIER)),
+          .err_detection_scheme(mem_bkdr_util_pkg::ErrDetectionNone));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[FlashBank0Data], `FLASH0_DATA_MEM_HIER)
+
+      m_mem_bkdr_util[FlashBank0Info] = new(
+          .name  ("mem_bkdr_util[FlashBank0Info]"),
+          .path  (`DV_STRINGIFY(`FLASH0_INFO_MEM_HIER)),
+          .depth ($size(`FLASH0_INFO_MEM_HIER)),
+          .n_bits($bits(`FLASH0_INFO_MEM_HIER)),
+          .err_detection_scheme(mem_bkdr_util_pkg::ErrDetectionNone));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[FlashBank0Info], `FLASH0_INFO_MEM_HIER)
+
+      m_mem_bkdr_util[FlashBank1Data] = new(
+          .name  ("mem_bkdr_util[FlashBank1Data]"),
+          .path  (`DV_STRINGIFY(`FLASH1_DATA_MEM_HIER)),
+          .depth ($size(`FLASH1_DATA_MEM_HIER)),
+          .n_bits($bits(`FLASH1_DATA_MEM_HIER)),
+          .err_detection_scheme(mem_bkdr_util_pkg::ErrDetectionNone));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[FlashBank1Data], `FLASH0_DATA_MEM_HIER)
+
+      m_mem_bkdr_util[FlashBank1Info] = new(
+          .name  ("mem_bkdr_util[FlashBank1Info]"),
+          .path  (`DV_STRINGIFY(`FLASH1_INFO_MEM_HIER)),
+          .depth ($size(`FLASH1_INFO_MEM_HIER)),
+          .n_bits($bits(`FLASH1_INFO_MEM_HIER)),
+          .err_detection_scheme(mem_bkdr_util_pkg::ErrDetectionNone));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[FlashBank1Info], `FLASH1_INFO_MEM_HIER)
+
+      m_mem_bkdr_util[Otp] = new(.name  ("mem_bkdr_util[Otp]"),
+                                 .path  (`DV_STRINGIFY(`OTP_MEM_HIER)),
+                                 .depth ($size(`OTP_MEM_HIER)),
+                                 .n_bits($bits(`OTP_MEM_HIER)),
+                                 .err_detection_scheme(mem_bkdr_util_pkg::EccHamming_22_16));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[Otp], `OTP_MEM_HIER)
+
+      m_mem_bkdr_util[RamMain] = new(.name  ("mem_bkdr_util[RamMain]"),
+                                     .path  (`DV_STRINGIFY(`RAM_MAIN_MEM_HIER)),
+                                     .depth ($size(`RAM_MAIN_MEM_HIER)),
+                                     .n_bits($bits(`RAM_MAIN_MEM_HIER)),
+                                     .err_detection_scheme(mem_bkdr_util_pkg::ParityOdd));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[RamMain], `RAM_MAIN_MEM_HIER)
+
+      m_mem_bkdr_util[RamRet] = new(.name  ("mem_bkdr_util[RamRet]"),
+                                    .path  (`DV_STRINGIFY(`RAM_RET_MEM_HIER)),
+                                    .depth ($size(`RAM_RET_MEM_HIER)),
+                                    .n_bits($bits(`RAM_RET_MEM_HIER)),
+                                    .err_detection_scheme(mem_bkdr_util_pkg::ParityOdd));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[RamRet], `RAM_RET_MEM_HIER)
+
+      m_mem_bkdr_util[Rom] = new(.name  ("mem_bkdr_util[Rom]"),
+                                 .path  (`DV_STRINGIFY(`ROM_MEM_HIER)),
+                                 .depth ($size(`ROM_MEM_HIER)),
+                                 .n_bits($bits(`ROM_MEM_HIER)),
+                                 .err_detection_scheme(mem_bkdr_util_pkg::Ecc_39_32));
+      `MEM_BKDR_UTIL_FILE_OP(m_mem_bkdr_util[Rom], `ROM_MEM_HIER)
+
+      for (chip_mem_e mem = mem.first(), int i = 0; i < mem.num(); mem = mem.next(), i++) begin
+        uvm_config_db#(mem_bkdr_util)::set(
+            null, "*.env", m_mem_bkdr_util[mem].get_name(), m_mem_bkdr_util[mem]);
+      end
+
+    end
+  end
 
   // stub cpu environment
   // if enabled, clock to cpu is forced to 0
@@ -321,13 +367,28 @@ module tb;
   initial begin
     void'($value$plusargs("stub_cpu=%0b", stub_cpu));
     if (stub_cpu) begin
-      force `CPU_HIER.clk_i = 1'b0;
-      force `CPU_HIER.tl_d_o = cpu_d_tl_if.h2d;
+      // silence the main cpu clock to ensure there are no transactions.
+      // also silence the translation modules as they contain arbiters
+      // that are unhappy with X's, which can happen if csr_rw happens to
+      // hit the right register during testing.
+      // We cannot kill all clocks to CPU_CORE because the DV hijack point
+      // is in front of a FIFO, so potentially this can kill transactions
+      // being buffered.
+      force `CPU_CORE_HIER.clk_i = 1'b0;
+      force `CPU_HIER.u_ibus_trans.rst_ni = 1'b0;
+      force `CPU_HIER.u_dbus_trans.rst_ni = 1'b0;
+      // tl type is used to calculate ECC and we use DataType for cpu data interface
+      force cpu_d_tl_if.h2d.a_user.tl_type = tlul_pkg::DataType;
+      force `CPU_TL_ADAPT_D_HIER.tl_out = cpu_d_tl_if.h2d;
+      force cpu_d_tl_if.d2h = `CPU_TL_ADAPT_D_HIER.tl_i;
     end else begin
-      force cpu_d_tl_if.h2d = `CPU_HIER.tl_d_o;
+      // when en_sim_sram == 1, need to make sure the access to sim_sram doesn't appear on
+      // cpu_d_tl_if, otherwise, we may have unmapped access as scb doesn't regnize addresses of
+      // sim_sram. `CPU_HIER.tl_d_* is the right place to avoid seeing sim_sram accesses
+      force cpu_d_tl_if.h2d = `CPU_HIER.cored_tl_h_o;
+      force cpu_d_tl_if.d2h = `CPU_HIER.cored_tl_h_i;
     end
   end
-  assign cpu_d_tl_if.d2h = `CPU_HIER.tl_d_i;
 
   // otp test_access memory is only accessible after otp_init and lc_dft_en = 1.
   // TODO: remove them once the otp/pwr otp/lc connections are completed.

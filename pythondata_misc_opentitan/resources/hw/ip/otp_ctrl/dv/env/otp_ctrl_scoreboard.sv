@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class otp_ctrl_scoreboard extends cip_base_scoreboard #(
-    .CFG_T(otp_ctrl_env_cfg),
-    .RAL_T(otp_ctrl_reg_block),
+class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
+  extends cip_base_scoreboard #(
+    .CFG_T(CFG_T),
+    .RAL_T(otp_ctrl_core_reg_block),
     .COV_T(otp_ctrl_env_cov)
   );
-  `uvm_component_utils(otp_ctrl_scoreboard)
+  `uvm_component_param_utils(otp_ctrl_scoreboard #(CFG_T))
 
   // local variables
   bit [TL_DW-1:0] otp_a [OTP_ARRAY_SIZE];
@@ -19,6 +20,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   // This flag is used when reset is issued during otp dai write access.
   bit dai_wr_ip;
   int dai_digest_ip = LifeCycleIdx; // Default to LC as it does not have digest.
+  bit ignore_digest_chk = 0;
 
   // This bit is used for DAI interface to mark if the read access is valid.
   bit dai_read_valid;
@@ -27,7 +29,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   bit under_chk, under_dai_access;
   bit [TL_DW-1:0] exp_status, status_mask;
 
-  bit macro_alert_triggered;
+  otp_alert_e exp_alert = OtpNoAlert;
 
   // TLM agent fifos
   uvm_tlm_analysis_fifo #(push_pull_item#(.DeviceDataWidth(SRAM_DATA_SIZE)))
@@ -37,8 +39,6 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   uvm_tlm_analysis_fifo #(push_pull_item#(.DeviceDataWidth(FLASH_DATA_SIZE))) flash_data_fifo;
   uvm_tlm_analysis_fifo #(push_pull_item#(.DeviceDataWidth(1), .HostDataWidth(LC_PROG_DATA_SIZE)))
                         lc_prog_fifo;
-  uvm_tlm_analysis_fifo #(push_pull_item#(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)))
-                        lc_token_fifo;
 
   // local queues to hold incoming packets pending comparison
 
@@ -53,7 +53,6 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     flash_addr_fifo = new("flash_addr_fifo", this);
     flash_data_fifo = new("flash_data_fifo", this);
     lc_prog_fifo    = new("lc_prog_fifo", this);
-    lc_token_fifo   = new("lc_token_fifo", this);
   endfunction
 
   function void connect_phase(uvm_phase phase);
@@ -63,15 +62,48 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
     fork
+      process_wipe_mem();
       process_otp_power_up();
       process_lc_esc();
-      process_lc_token_req();
       process_lc_prog_req();
       process_edn_req();
       check_otbn_rsp();
       check_flash_rsps();
       check_sram_rsps();
+      recover_lc_prog_req();
     join_none
+  endtask
+
+  // Once sequence uses backdoor method to clear memory, this task resets internal otp_a and
+  // resets `cfg.backdoor_clear_mem` to 0.
+  virtual task process_wipe_mem();
+    forever begin
+      @(posedge cfg.backdoor_clear_mem) begin
+        bit [SCRAMBLE_DATA_SIZE-1:0] data = descramble_data(0, Secret0Idx);
+        otp_a        = '{default:0};
+        otp_lc_data  = '{default:0};
+        // secret partitions have been scrambled before writing to OTP.
+        // here calculate the pre-srambled raw data when clearing internal OTP to all 0s.
+        for (int i = SECRET0_START_ADDR; i <= SECRET0_END_ADDR; i++) begin
+          otp_a[i] = ((i - SECRET0_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
+                                                      data[TL_DW-1:0];
+        end
+        data = descramble_data(0, Secret1Idx);
+        for (int i = SECRET1_START_ADDR; i <= SECRET1_END_ADDR; i++) begin
+          otp_a[i] = ((i - SECRET1_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
+                                                      data[TL_DW-1:0];
+        end
+        data = descramble_data(0, Secret2Idx);
+        for (int i = SECRET2_START_ADDR; i <= SECRET2_END_ADDR; i++) begin
+          otp_a[i] = ((i - SECRET2_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
+                                                      data[TL_DW-1:0];
+        end
+        `uvm_info(`gfn, "clear internal memory and digest", UVM_HIGH)
+        cfg.backdoor_clear_mem = 0;
+        dai_wr_ip = 0;
+        dai_digest_ip = LifeCycleIdx;
+      end
+    end
   endtask
 
   // This task process the following logic in during otp_power_up:
@@ -81,46 +113,23 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   virtual task process_otp_power_up();
     if (cfg.en_scb) begin
       forever begin
-        @(posedge cfg.otp_ctrl_vif.pwr_otp_init_i) begin
-          if (cfg.backdoor_clear_mem) begin
-            bit [SCRAMBLE_DATA_SIZE-1:0] data = descramble_data(0, Secret0Idx);
-            otp_a        = '{default:0};
-            otp_lc_data  = '{default:0};
-            // secret partitions have been scrambled before writing to OTP.
-            // here calculate the pre-srambled raw data when clearing internal OTP to all 0s.
-            for (int i = SECRET0_START_ADDR; i <= SECRET0_END_ADDR; i++) begin
-              otp_a[i] = ((i - SECRET0_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
-                                                          data[TL_DW-1:0];
-            end
-            data = descramble_data(0, Secret1Idx);
-            for (int i = SECRET1_START_ADDR; i <= SECRET1_END_ADDR; i++) begin
-              otp_a[i] = ((i - SECRET1_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
-                                                          data[TL_DW-1:0];
-            end
-            data = descramble_data(0, Secret2Idx);
-            for (int i = SECRET2_START_ADDR; i <= SECRET2_END_ADDR; i++) begin
-              otp_a[i] = ((i - SECRET2_START_ADDR) % 2) ? data[SCRAMBLE_DATA_SIZE-1:TL_DW] :
-                                                          data[TL_DW-1:0];
-            end
-            predict_digest_csrs();
-            `uvm_info(`gfn, "clear internal memory and digest", UVM_HIGH)
-          end
-        end
-        @(posedge cfg.otp_ctrl_vif.pwr_otp_done_o || cfg.under_reset) begin
-          if (!cfg.under_reset) begin
+        @(posedge cfg.otp_ctrl_vif.pwr_otp_done_o || cfg.under_reset ||
+                  cfg.otp_ctrl_vif.alert_reqs) begin
+          if (!cfg.under_reset && !cfg.otp_ctrl_vif.alert_reqs) begin
             otp_ctrl_part_pkg::otp_hw_cfg_data_t exp_hwcfg_data;
             otp_ctrl_pkg::otp_keymgr_key_t       exp_keymgr_data;
+            otp_ctrl_pkg::otp_lc_data_t          exp_lc_data;
             bit [otp_ctrl_pkg::KeyMgrKeyWidth-1:0] exp_keymgr_key0, exp_keymgr_key1;
 
             if (dai_digest_ip != LifeCycleIdx) begin
               bit [TL_DW-1:0] otp_addr = PART_OTP_DIGEST_ADDRS[dai_digest_ip];
-              otp_a[otp_addr]   = cfg.mem_bkdr_vif.read32(otp_addr << 2);
-              otp_a[otp_addr+1] = cfg.mem_bkdr_vif.read32((otp_addr << 2) + 4);
+              otp_a[otp_addr]   = cfg.mem_bkdr_util_h.read32(otp_addr << 2);
+              otp_a[otp_addr+1] = cfg.mem_bkdr_util_h.read32((otp_addr << 2) + 4);
               dai_digest_ip = LifeCycleIdx;
             end
             predict_digest_csrs();
 
-            if (cfg.otp_ctrl_vif.lc_esc_on == 0) begin
+            if (cfg.otp_ctrl_vif.under_error_states() == 0) begin
               // Dai access is unlocked because the power init is done
               void'(ral.direct_access_regwen.predict(1));
 
@@ -129,71 +138,152 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
             end
 
             // Hwcfg_o gets data from OTP HW cfg partition
-            exp_hwcfg_data = cfg.otp_ctrl_vif.lc_esc_on ?
+            exp_hwcfg_data = cfg.otp_ctrl_vif.under_error_states() ?
                              otp_ctrl_part_pkg::PartInvDefault[HwCfgOffset*8 +: HwCfgSize*8] :
                              otp_hw_cfg_data_t'({<<32 {otp_a[HwCfgOffset/4 +: HwCfgSize/4]}});
             `DV_CHECK_EQ(cfg.otp_ctrl_vif.otp_hw_cfg_o.data, exp_hwcfg_data)
 
-            if (!cfg.otp_ctrl_vif.lc_esc_on) begin
-              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.count, otp_lc_data[0 +: LcCountWidth])
-              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.state,
-                           otp_lc_data[LcCountWidth +: LcStateWidth])
-            end
+            if (!cfg.otp_ctrl_vif.under_error_states() && cfg.en_scb) begin
+              // ---------------------- Check lc_data_o output -----------------------------------
+              // Because initialization was succesful, the valid should be set and error should be
+              // reset.
+              exp_lc_data.valid = 1;
+              exp_lc_data.error = 0;
 
-            // Otp_keymgr outputs creator root key shares from the secret2 partition.
-            // Depends on lc_seed_hw_rd_en_i, it will output the real keys or a constant
-            exp_keymgr_data.valid = get_otp_digest_val(Secret2Idx) != 0;
-            if (cfg.otp_ctrl_vif.lc_seed_hw_rd_en_i == lc_ctrl_pkg::On) begin
-              exp_keymgr_data.key_share0 =
-                  {<<32 {otp_a[CreatorRootKeyShare0Offset/4 +: CreatorRootKeyShare0Size/4]}};
-              exp_keymgr_data.key_share1 =
-                  {<<32 {otp_a[CreatorRootKeyShare1Offset/4 +: CreatorRootKeyShare1Size/4]}};
-            end else begin
-              exp_keymgr_data.key_share0 =
-                  PartInvDefault[CreatorRootKeyShare0Offset*8 +: CreatorRootKeyShare0Size*8];
-              exp_keymgr_data.key_share1 =
-                  PartInvDefault[CreatorRootKeyShare1Offset*8 +: CreatorRootKeyShare1Size*8];
-            end
-            // Check keymgr_key_o in otp_ctrl_if
-            if (cfg.otp_ctrl_vif.lc_esc_on == 0) begin
+              // Secrets and tokens valid signals are depend on whether secret partitions are
+              // locked.
+              exp_lc_data.secrets_valid = get_otp_digest_val(Secret2Idx) ? On : Off;
+              exp_lc_data.test_tokens_valid = get_otp_digest_val(Secret0Idx) ? On : Off;
+              exp_lc_data.rma_token_valid = get_otp_digest_val(Secret2Idx) ? On : Off;
+
+              // LC output is depend on LC partitions value.
+              exp_lc_data.count = otp_lc_data[0 +: LcCountWidth];
+              exp_lc_data.state = otp_lc_data[LcCountWidth +: LcStateWidth];
+
+              // Token values are depend on secret partitions value.
+              exp_lc_data.test_unlock_token =
+                      {<<32 {otp_a[TestUnlockTokenOffset/4 +: TestUnlockTokenSize/4]}};
+              exp_lc_data.test_exit_token =
+                      {<<32 {otp_a[TestExitTokenOffset/4 +: TestExitTokenSize/4]}};
+              exp_lc_data.rma_token = {<<32 {otp_a[RmaTokenOffset/4 +: RmaTokenSize/4]}};
+
+              // Check otp_lc_data_t struct by item is easier to debug.
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.valid, exp_lc_data.valid)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.error, exp_lc_data.error)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.state, exp_lc_data.state)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.count, exp_lc_data.count)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.secrets_valid, exp_lc_data.secrets_valid)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.test_tokens_valid,
+                           exp_lc_data.test_tokens_valid)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.test_unlock_token,
+                           exp_lc_data.test_unlock_token)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.test_exit_token, exp_lc_data.test_exit_token)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.rma_token_valid, exp_lc_data.rma_token_valid)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o.rma_token, exp_lc_data.rma_token)
+
+              // Check otp_lc_data_t all together in case there is any missed item.
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.lc_data_o, exp_lc_data)
+
+              // ---------------------- Check keymgr_key_o output ---------------------------------
+              // Otp_keymgr outputs creator root key shares from the secret2 partition.
+              // Depends on lc_seed_hw_rd_en_i, it will output the real keys or a constant
+              exp_keymgr_data.valid = get_otp_digest_val(Secret2Idx) != 0;
+              if (cfg.otp_ctrl_vif.lc_seed_hw_rd_en_i == lc_ctrl_pkg::On) begin
+                exp_keymgr_data.key_share0 =
+                    {<<32 {otp_a[CreatorRootKeyShare0Offset/4 +: CreatorRootKeyShare0Size/4]}};
+                exp_keymgr_data.key_share1 =
+                    {<<32 {otp_a[CreatorRootKeyShare1Offset/4 +: CreatorRootKeyShare1Size/4]}};
+              end else begin
+                exp_keymgr_data.key_share0 =
+                    PartInvDefault[CreatorRootKeyShare0Offset*8 +: CreatorRootKeyShare0Size*8];
+                exp_keymgr_data.key_share1 =
+                    PartInvDefault[CreatorRootKeyShare1Offset*8 +: CreatorRootKeyShare1Size*8];
+              end
+
+              // Check otp_keymgr_key_t struct by item is easier to debug.
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.keymgr_key_o.valid, exp_keymgr_data.valid)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.keymgr_key_o.key_share0, exp_keymgr_data.key_share0)
+              `DV_CHECK_EQ(cfg.otp_ctrl_vif.keymgr_key_o.key_share1, exp_keymgr_data.key_share1)
+
+              // Check otp_keymgr_key_t struct all together in case there is any missed item.
               `DV_CHECK_EQ(cfg.otp_ctrl_vif.keymgr_key_o, exp_keymgr_data)
-            end
 
-            if (cfg.en_cov) begin
-              bit [NumPart-2:0] parts_locked;
-              foreach (parts_locked[i]) parts_locked[i] = (get_otp_digest_val(i) != 0);
-              cov.power_on_cg.sample(cfg.otp_ctrl_vif.lc_esc_on, parts_locked);
+              if (cfg.en_cov) begin
+                cov.keymgr_o_cg.sample(cfg.otp_ctrl_vif.lc_seed_hw_rd_en_i == lc_ctrl_pkg::On,
+                                       exp_keymgr_data.valid);
+              end
             end
+          end else if (cfg.otp_ctrl_vif.alert_reqs) begin
+            // Ignore digest CSR check when otp_ctrl initialization is interrupted by fatal errors.
+            // SCB cannot predict how many partitions already finished initialization and updated
+            // the digest value to CSRs.
+            ignore_digest_chk = 1;
+          end
+          if (cfg.en_cov) begin
+            bit [NumPart-2:0] parts_locked;
+            foreach (parts_locked[i]) parts_locked[i] = (get_otp_digest_val(i) != 0);
+            cov.power_on_cg.sample(cfg.otp_ctrl_vif.lc_esc_on, parts_locked);
           end
         end
       end
     end
   endtask
 
+  // This task monitors internal escalation triggered by two methods:
+  // 1. Externally lc_escalation_en is set to lc_ctrl_pkg::On.
+  // 2. Internal fatal alert triggered and all partitions are driven to error states.
   virtual task process_lc_esc();
     forever begin
-      wait(cfg.otp_ctrl_vif.lc_esc_on == 1);
-      // LC_escalate_en will trigger fatal check alert.
-      set_exp_alert("fatal_check_error", 1, 5);
+      wait(cfg.otp_ctrl_vif.alert_reqs == 1 && cfg.en_scb);
+
+      if (cfg.otp_ctrl_vif.lc_esc_on == 0) `DV_CHECK_NE(exp_alert, OtpNoAlert)
+
+      if (exp_alert != OtpCheckAlert) set_exp_alert("fatal_check_error", 1, 5);
+
+      // If the lc_escalation is triggered by internal fatal alert, wait 2 negedge until status is
+      // updated internally
+      if (cfg.otp_ctrl_vif.lc_esc_on == 0) begin
+        cfg.clk_rst_vif.wait_n_clks(2);
+        exp_status[OtpCheckPendingIdx] = 0;
+        exp_status[OtpDaiIdleIdx] = 0;
+      end else begin
+        exp_status = '0;
+        // Only lc_esc_on will set these bits to 1.
+        exp_status[OtpDerivKeyFsmErrIdx:OtpLfsrFsmErrIdx] = '1;
+      end
 
       // Update status bits.
-      exp_status = '0;
-      for (int i = 0; i < OtpTimeoutErrIdx; i++) begin
-        predict_err(.status_err_idx(otp_status_e'(i)), .err_code(OtpFsmStateError),
-                    .update_esc_err(1));
+      foreach (FATAL_EXP_STATUS[i]) begin
+        if (FATAL_EXP_STATUS[i]) begin
+          predict_err(.status_err_idx(otp_status_e'(i)), .err_code(OtpFsmStateError),
+                      .update_esc_err(1));
+        end
       end
-      exp_status[OtpDerivKeyFsmErrIdx:OtpLfsrFsmErrIdx] = '1;
 
       // Update digest values and direct_access_regwen.
       predict_rdata(1, 0, 0);
-      void'(ral.direct_access_regwen.predict(0));
+      void'(ral.direct_access_regwen.predict(.value(0), .kind(UVM_PREDICT_READ)));
 
-      // Unlike reset, OTP write won't exit immediately when lc_escalate_en is On.
-      // So here wait until otp program done, then backdoor read.
-      cfg.clk_rst_vif.wait_clks(12);
-      recover_interrupted_op();
+      // DAI access is locked until reset, so no need to backdoor read otp write value until reset.
 
-      wait(cfg.otp_ctrl_vif.lc_esc_on == 0);
+      wait(cfg.otp_ctrl_vif.alert_reqs == 0);
+    end
+  endtask
+
+  // This task monitors if lc_program req is interrupted by reset.
+  // If it happens, scb cannot predict how many bits have been written to OTP_CTRL.
+  // So here we will backdoor read back OTP lc partitions bits.
+  virtual task recover_lc_prog_req();
+    forever begin
+      wait(cfg.otp_ctrl_vif.lc_prog_req == 1);
+      wait(cfg.otp_ctrl_vif.lc_prog_req == 0);
+      // Wait one 1ps to avoid race condition.
+      #1ps;
+      if (cfg.otp_ctrl_vif.rst_ni == 0) begin
+        for (int i = 0; i < LC_PROG_DATA_SIZE/32; i++) begin
+          otp_lc_data[i*32+:32] = cfg.mem_bkdr_util_h.read32(LifeCycleOffset + i * 4);
+        end
+      end
     end
   endtask
 
@@ -223,23 +313,6 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     end
   endtask
 
-  virtual task process_lc_token_req();
-    forever begin
-      push_pull_item#(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)) rcv_item;
-      bit [SCRAMBLE_DATA_SIZE-1:0] exp_data_0, exp_data_1;
-      lc_token_fifo.get(rcv_item);
-      exp_data_0 = present_encode_with_final_const(
-                   .data(RndCnstDigestIV[LcRawDigest]),
-                   .key(rcv_item.h_data),
-                   .final_const(RndCnstDigestConst[LcRawDigest]));
-      exp_data_1 = present_encode_with_final_const(
-                   .data(exp_data_0),
-                   .key(rcv_item.h_data),
-                   .final_const(RndCnstDigestConst[LcRawDigest]));
-      `DV_CHECK_EQ(rcv_item.d_data, {exp_data_1, exp_data_0}, "lc_token_encode_mismatch")
-    end
-  endtask
-
   virtual task process_edn_req();
     forever begin
       push_pull_item#(.DeviceDataWidth(EDN_DATA_WIDTH)) edn_item;
@@ -263,7 +336,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
       seed_valid  = rcv_item.d_data[0];
       nonce       = rcv_item.d_data[1+:OtbnNonceWidth];
       key         = rcv_item.d_data[OtbnNonceWidth+1+:OtbnKeyWidth];
-      part_locked = {`gmv(ral.secret1_digest_0), `gmv(ral.secret1_digest_1)} != '0;
+      part_locked = {`gmv(ral.secret1_digest[0]), `gmv(ral.secret1_digest[1])} != '0;
 
       // seed is valid as long as secret1 is locked
       `DV_CHECK_EQ(seed_valid, part_locked, "otbn seed_valid mismatch")
@@ -328,7 +401,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
           end
           seed_valid  = rcv_item.d_data[0];
           key         = rcv_item.d_data[1+:FlashKeyWidth];
-          part_locked = {`gmv(ral.secret1_digest_0), `gmv(ral.secret1_digest_1)} != '0;
+          part_locked = {`gmv(ral.secret1_digest[0]), `gmv(ral.secret1_digest[1])} != '0;
           `DV_CHECK_EQ(seed_valid, part_locked,
                       $sformatf("flash %0s seed_valid mismatch", sel_flash.name()))
 
@@ -368,7 +441,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
 
           sram_fifos[index].get(rcv_item);
           seed_valid = rcv_item.d_data[0];
-          part_locked = {`gmv(ral.secret1_digest_0), `gmv(ral.secret1_digest_1)} != '0;
+          part_locked = {`gmv(ral.secret1_digest[0]), `gmv(ral.secret1_digest[1])} != '0;
 
           // seed is valid as long as secret1 is locked
           `DV_CHECK_EQ(seed_valid, part_locked, $sformatf("sram_%0d seed_valid mismatch", index))
@@ -423,7 +496,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     bit data_phase_write  = (write && channel == DataChannel);
 
     // if access was to a valid csr, get the csr handle
-    if (csr_addr inside {cfg.csr_addrs[ral_name]}) begin
+    if (csr_addr inside {cfg.ral_models[ral_name].csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
       `downcast(dv_reg, csr)
@@ -432,7 +505,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
         {[SW_WINDOW_BASE_ADDR : SW_WINDOW_BASE_ADDR + SW_WINDOW_SIZE]}) begin
       if (data_phase_read) begin
         bit [TL_AW-1:0] otp_addr = (csr_addr & addr_mask - SW_WINDOW_BASE_ADDR) >> 2;
-        // TODO: macro ecc uncorrectable error once mem_bkdr_if supports
+        // TODO: macro ecc uncorrectable error once mem_bkdr_util supports
         //`DV_CHECK_EQ(item.d_data, 0,
         //             $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
         //             csr_addr, otp_addr << 2))
@@ -450,18 +523,13 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     end
 
     if (addr_phase_write) begin
+      if (cfg.en_cov && cfg.otp_ctrl_vif.alert_reqs && csr.get_name == "direct_access_cmd") begin
+        cov.req_dai_access_after_alert_cg.sample(item.a_data);
+      end
+
       // Skip predict if the register is locked by `direct_access_regwen`.
       if (ral.direct_access_regwen.locks_reg_or_fld(dv_reg) &&
           `gmv(ral.direct_access_regwen) == 0) return;
-
-      // Skip predict if the register is accessing DAI interface while macro alert is triggered.
-      if (macro_alert_triggered) begin
-        if (csr.get_name() inside {"direct_access_cmd", "creator_sw_cfg_read_lock",
-          "owner_sw_cfg_read_lock", "direct_access_wdata_0", "direct_access_wdata_1",
-          "direct_access_address"}) begin
-          return;
-        end
-      end
 
       void'(csr.predict(.value(item.a_data), .kind(UVM_PREDICT_WRITE), .be(item.a_mask)));
     end
@@ -472,17 +540,24 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     case (csr.get_name())
       // add individual case item for each csr
       "intr_state": begin
-        if (data_phase_read && do_read_check) begin
-          bit [TL_DW-1:0] intr_en           = `gmv(ral.intr_enable);
-          bit [NumOtpCtrlIntr-1:0] intr_exp = `gmv(ral.intr_state);
+        if (data_phase_read) begin
+          // Disable intr_state checking when lc_program is in progress, because scb cannot
+          // accurately predict when program_error will be triggered.
+          // We will check the intr_state after lc_program request is done, and the error bit will
+          // be checked in the `process_lc_prog_req` task.
+          if (cfg.otp_ctrl_vif.lc_prog_no_sta_check) do_read_check = 0;
+            if (do_read_check) begin
+              bit [TL_DW-1:0] intr_en           = `gmv(ral.intr_enable);
+              bit [NumOtpCtrlIntr-1:0] intr_exp = `gmv(ral.intr_state);
 
-          foreach (intr_exp[i]) begin
-            otp_intr_e intr = otp_intr_e'(i);
-            `DV_CHECK_CASE_EQ(cfg.intr_vif.pins[i], (intr_en[i] & intr_exp[i]),
-                              $sformatf("Interrupt_pin: %0s", intr.name));
-            if (cfg.en_cov) begin
-              cov.intr_cg.sample(i, intr_en[i], item.d_data[i]);
-              cov.intr_pins_cg.sample(i, cfg.intr_vif.pins[i]);
+              foreach (intr_exp[i]) begin
+              otp_intr_e intr = otp_intr_e'(i);
+              `DV_CHECK_CASE_EQ(cfg.intr_vif.pins[i], (intr_en[i] & intr_exp[i]),
+                                $sformatf("Interrupt_pin: %0s", intr.name));
+              if (cfg.en_cov) begin
+                cov.intr_cg.sample(i, intr_en[i], item.d_data[i]);
+                cov.intr_pins_cg.sample(i, cfg.intr_vif.pins[i]);
+              end
             end
           end
         end
@@ -501,9 +576,9 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
         end
       end
       "direct_access_cmd": begin
-        if (addr_phase_write && !cfg.otp_ctrl_vif.lc_esc_on) begin
+        if (addr_phase_write && !cfg.otp_ctrl_vif.under_error_states()) begin
           // here only normalize to 2 lsb, if is secret, will be reduced further
-          bit [TL_AW-1:0] dai_addr = `gmv(ral.direct_access_address) >> 2 << 2;
+          bit [TL_AW-1:0] dai_addr = normalize_dai_addr(`gmv(ral.direct_access_address));
           int part_idx = get_part_index(dai_addr);
           void'(ral.direct_access_regwen.predict(0));
           under_dai_access = 1;
@@ -513,12 +588,20 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
             predict_err(OtpDaiErrIdx, OtpAccessError);
             if (item.a_data == DaiRead) predict_rdata(is_secret(dai_addr), 0, 0);
           end else begin
+            if (cfg.en_cov && part_idx == Secret2Idx) begin
+              cov.dai_access_secret2_cg.sample(
+                  !(cfg.otp_ctrl_vif.lc_creator_seed_sw_rw_en_i == lc_ctrl_pkg::Off),
+                  item.a_data);
+            end
+
             case (item.a_data)
               DaiDigest: cal_digest_val(part_idx);
               DaiRead: begin
                 // Check if it is sw partition read lock
                 bit sw_read_lock = 0;
-                if (part_idx == CreatorSwCfgIdx) begin
+                if (part_idx == VendorTestIdx) begin
+                  sw_read_lock = `gmv(ral.vendor_test_read_lock) == 0;
+                end else if (part_idx == CreatorSwCfgIdx) begin
                   sw_read_lock = `gmv(ral.creator_sw_cfg_read_lock) == 0;
                 end else if (part_idx == OwnerSwCfgIdx) begin
                   sw_read_lock = `gmv(ral.owner_sw_cfg_read_lock) == 0;
@@ -537,31 +620,46 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
                   predict_err(OtpDaiErrIdx, OtpAccessError);
                   predict_rdata(is_secret(dai_addr) || is_digest(dai_addr), 0, 0);
                   // DAI interface access error, even though injected ECC error, it won't be read
-                  // out and detected. (TODO: can remove this once ECC is adopted in mem_bkdr_if)
+                  // out and detected. (TODO: can remove this once ECC is adopted in mem_bkdr_util)
                   cfg.ecc_err = OtpNoEccErr;
 
                 end else begin
                   bit [TL_AW-1:0] otp_addr = get_scb_otp_addr();
-                  if (cfg.ecc_err == OtpNoEccErr) begin
+                  // Check if write has any write_blank_error, then potentially read might have ECC
+                  // error.
+                  bit [TL_DW-1:0] err_code = `gmv(ral.err_code[0]);
+                  if (get_field_val(ral.err_code[0].err_code[DaiIdx], err_code) ==
+                      OtpMacroWriteBlankError ||
+                      cfg.ecc_err != OtpNoEccErr) begin
+                    bit [TL_DW-1:0] read_out;
+                    int ecc_err = read_a_word_with_ecc(dai_addr, read_out);
+                    if (is_secret(dai_addr) || is_digest(dai_addr)) begin
+                      ecc_err = max2(read_a_word_with_ecc(dai_addr + 4, read_out), ecc_err);
+                    end
+
+                    if (ecc_err == OtpEccCorrErr) begin
+                      predict_err(OtpDaiErrIdx, OtpMacroEccCorrError);
+                      backdoor_update_otp_array(dai_addr);
+                      predict_rdata(is_secret(dai_addr) || is_digest(dai_addr),
+                                    otp_a[otp_addr], otp_a[otp_addr+1]);
+                    end else if (ecc_err == OtpEccUncorrErr) begin
+                      predict_err(OtpDaiErrIdx, OtpMacroEccUncorrError);
+                      // Max wait 20 clock cycles because scb did not know when exactly OTP will
+                      // finish reading and reporting the uncorrectable error.
+                      set_exp_alert("fatal_macro_error", 1, 20);
+                      predict_rdata(1, 0, 0);
+                    end else begin
+                      predict_rdata(is_secret(dai_addr) || is_digest(dai_addr),
+                                    otp_a[otp_addr], otp_a[otp_addr+1]);
+                    end
+
+                    // In sequence, we backdoor write back to non-error value, so here scb reset
+                    // the ecc_err back to NoErr.
+                    if (cfg.ecc_err == OtpEccCorrErr) cfg.ecc_err = OtpNoEccErr;
+                  end else begin
                     predict_no_err(OtpDaiErrIdx);
                     predict_rdata(is_secret(dai_addr) || is_digest(dai_addr),
                                   otp_a[otp_addr], otp_a[otp_addr+1]);
-                  end else if (cfg.ecc_err == OtpEccCorrErr) begin
-                    predict_err(OtpDaiErrIdx, OtpMacroEccCorrError);
-                    predict_rdata(is_secret(dai_addr) || is_digest(dai_addr),
-                                  otp_a[otp_addr], otp_a[otp_addr+1]);
-                    // In sequence, we backdoor write back to non-error value, so here scb reset
-                    // the ecc_err back to NoErr.
-                    cfg.ecc_err = OtpNoEccErr;
-
-                  // OTP macro uncorrectable error: DAI interface goes to error state
-                  end else begin
-                    predict_err(OtpDaiErrIdx, OtpMacroEccUncorrError);
-                    // Max wait 20 clock cycles because scb did not know when exactly OTP will
-                    // finish reading and reporting the uncorrectable error.
-                    set_exp_alert("fatal_macro_error", 1, 20);
-                    macro_alert_triggered = 1;
-                    predict_rdata(1, 0, 0);
                   end
                 end
               end
@@ -574,13 +672,13 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
                   predict_err(OtpDaiErrIdx, OtpAccessError);
                 end else begin
                   predict_no_err(OtpDaiErrIdx);
-                  dai_wr_ip = 1;
                   // write digest
                   if (is_sw_digest(dai_addr)) begin
                     bit [TL_DW*2-1:0] curr_digest, prev_digest;
-                    curr_digest = {`gmv(ral.direct_access_wdata_1),
-                                   `gmv(ral.direct_access_wdata_0)};
+                    curr_digest = {`gmv(ral.direct_access_wdata[1]),
+                                   `gmv(ral.direct_access_wdata[0])};
                     prev_digest = {otp_a[otp_addr+1], otp_a[otp_addr]};
+                    dai_wr_ip = 1;
                     // allow bit write
                     if ((prev_digest & curr_digest) == prev_digest) begin
                       update_digest_to_otp(part_idx, curr_digest);
@@ -591,8 +689,9 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
                     predict_err(OtpDaiErrIdx, OtpAccessError);
                   // write OTP memory
                   end else begin
+                    dai_wr_ip = 1;
                     if (!is_secret(dai_addr)) begin
-                      bit [TL_DW-1:0] wr_data = `gmv(ral.direct_access_wdata_0);
+                      bit [TL_DW-1:0] wr_data = `gmv(ral.direct_access_wdata[0]);
                       // allow bit write
                       if ((otp_a[otp_addr] & wr_data) == otp_a[otp_addr]) begin
                         otp_a[otp_addr] = wr_data;
@@ -603,13 +702,13 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
                     end else begin
                       bit [SCRAMBLE_DATA_SIZE-1:0] secret_data = {otp_a[otp_addr + 1],
                                                                   otp_a[otp_addr]};
-                      bit [SCRAMBLE_DATA_SIZE-1:0] wr_data = {`gmv(ral.direct_access_wdata_1),
-                                                              `gmv(ral.direct_access_wdata_0)};
+                      bit [SCRAMBLE_DATA_SIZE-1:0] wr_data = {`gmv(ral.direct_access_wdata[1]),
+                                                              `gmv(ral.direct_access_wdata[0])};
                       wr_data = scramble_data(wr_data, part_idx);
                       secret_data = scramble_data(secret_data, part_idx);
                       if ((secret_data & wr_data) == secret_data) begin
-                        otp_a[otp_addr]     = `gmv(ral.direct_access_wdata_0);
-                        otp_a[otp_addr + 1] = `gmv(ral.direct_access_wdata_1);
+                        otp_a[otp_addr]     = `gmv(ral.direct_access_wdata[0]);
+                        otp_a[otp_addr + 1] = `gmv(ral.direct_access_wdata[1]);
                         // wait until secret scrambling is done
                         check_otp_idle(.val(0), .wait_clks(34));
                       end else begin
@@ -649,6 +748,11 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
           if (cfg.otp_ctrl_vif.lc_prog_no_sta_check) status_mask[OtpLciErrIdx] = 1;
 
         end else if (data_phase_read) begin
+          if (cfg.en_cov) begin
+            cov.collect_status_cov(item.d_data);
+            if (cfg.otp_ctrl_vif.alert_reqs) cov.csr_rd_after_alert_cg_wrap.sample(csr.get_offset());
+          end
+
           if (item.d_data[OtpDaiIdleIdx]) begin
             check_otp_idle(1);
             dai_wr_ip = 0;
@@ -669,7 +773,7 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
             end
           end
 
-          if (under_dai_access && !cfg.otp_ctrl_vif.lc_esc_on) begin
+          if (under_dai_access && !cfg.otp_ctrl_vif.under_error_states()) begin
             if (item.d_data[OtpDaiIdleIdx]) begin
               under_dai_access = 0;
               void'(ral.direct_access_regwen.predict(1));
@@ -681,6 +785,10 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
         do_read_check = 0;
       end
       "check_trigger": begin
+        if (addr_phase_write && cfg.en_cov && cfg.otp_ctrl_vif.alert_reqs) begin
+          cov.issue_checks_after_alert_cg.sample(item.a_data);
+        end
+
         if (addr_phase_write && `gmv(ral.check_trigger_regwen) && item.a_data inside {[1:3]}) begin
           exp_status[OtpCheckPendingIdx] = 1;
           under_chk = 1;
@@ -696,25 +804,27 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
           end
         end
       end
-      "creator_sw_cfg_digest_0", "creator_sw_cfg_digest_1", "owner_sw_cfg_digest_0",
-      "owner_sw_cfg_digest_1": begin
-        // TODO: temp ignore checking until stress_all_with_rand_reset is supported
-        if (cfg.otp_ctrl_vif.lc_esc_on) do_read_check = 0;
-      end
       "err_code": begin
         // If lc_prog in progress, err_code might update anytime in DUT. Ignore checking until req
         // is acknowledged.
         if (cfg.m_lc_prog_pull_agent_cfg.vif.req) do_read_check = 0;
+        if (cfg.en_cov && do_read_check) begin
+          bit [TL_DW-1:0] dai_addr = `gmv(ral.direct_access_address) >> 2 << 2;
+          int part_idx = get_part_index(dai_addr);
+          cov.collect_err_code_cov(item.d_data, part_idx);
+        end
       end
       "hw_cfg_digest_0", "hw_cfg_digest_1", "secret0_digest_0", "secret0_digest_1",
       "secret1_digest_0", "secret1_digest_1", "secret2_digest_0", "secret2_digest_1",
       "creator_sw_cfg_digest_0", "creator_sw_cfg_digest_1", "owner_sw_cfg_digest_0",
-      "owner_sw_cfg_digest_1", "direct_access_regwen", "direct_access_wdata_0",
-      "direct_access_wdata_1", "direct_access_address", "direct_access_rdata_0",
-      "direct_access_rdata_1", "check_regwen", "check_trigger_regwen", "check_trigger",
-      "check_timeout", "intr_enable", "creator_sw_cfg_read_lock",
-      "owner_sw_cfg_read_lock", "integrity_check_period", "consistency_check_period",
-      "alert_test": begin
+      "owner_sw_cfg_digest_1", "vendor_test_digest_0", "vendor_test_digest_1": begin
+        if (ignore_digest_chk) do_read_check = 0;
+      end
+      "direct_access_regwen", "direct_access_wdata_0", "direct_access_wdata_1",
+      "direct_access_address", "direct_access_rdata_0", "direct_access_rdata_1",
+      "check_regwen", "check_trigger_regwen", "check_trigger", "check_timeout", "intr_enable",
+      "creator_sw_cfg_read_lock", "owner_sw_cfg_read_lock", "integrity_check_period",
+      "consistency_check_period", "alert_test", "vendor_test_read_lock": begin
         // Do nothing
       end
       default: begin
@@ -727,6 +837,9 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
       if (do_read_check) begin
         `DV_CHECK_EQ(csr.get_mirrored_value(), item.d_data,
                      $sformatf("reg name: %0s", csr.get_full_name()))
+        if (cfg.en_cov && cfg.otp_ctrl_vif.alert_reqs) begin
+          cov.csr_rd_after_alert_cg_wrap.sample(csr.get_offset());
+        end
       end
       void'(csr.predict(.value(item.d_data), .kind(UVM_PREDICT_READ)));
     end
@@ -734,21 +847,43 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
 
   // If reset or lc_escalate_en is issued during otp program, this function will backdoor update
   // otp memory write value because scb did not know how many cells haven been written.
+  // We won't update csr `direct_access_address` after fatal alert happened, so in this function
+  // we can directly call method `get_scb_otp_addr` to get the interrupted dai address.
   virtual function void recover_interrupted_op();
     if (dai_wr_ip) begin
       bit [TL_DW-1:0] otp_addr = get_scb_otp_addr();
       bit [TL_DW-1:0] dai_addr = otp_addr << 2;
-      otp_a[otp_addr] = cfg.mem_bkdr_vif.read32(dai_addr);
-
-      if (is_secret(dai_addr)) begin
-        int part_idx = get_part_index(dai_addr);
-        bit [TL_DW*2-1:0] mem_rd_val      = cfg.mem_bkdr_vif.read64(dai_addr);
-        bit [TL_DW*2-1:0] descrabmled_val = descramble_data(mem_rd_val, part_idx);
-        otp_a[otp_addr+1] = descrabmled_val[TL_DW*2-1:TL_DW];
-        otp_a[otp_addr]   = descrabmled_val[TL_DW-1:0];
-      end
+      backdoor_update_otp_array(dai_addr);
       dai_wr_ip = 0;
     end
+  endfunction
+
+  virtual function void backdoor_update_otp_array(bit [TL_DW-1:0] dai_addr);
+    bit [TL_DW-1:0] otp_addr = dai_addr >> 2;
+    bit [TL_DW-1:0] readout_word, readout_word1;
+    void'(read_a_word_with_ecc(dai_addr,     readout_word));
+    void'(read_a_word_with_ecc(dai_addr + 4, readout_word1));
+    otp_a[otp_addr] = readout_word;
+
+    if (is_digest(dai_addr)) begin
+      otp_a[otp_addr+1] = readout_word1;
+    end else if (is_secret(dai_addr)) begin
+      int part_idx = get_part_index(dai_addr);
+      bit [TL_DW*2-1:0] mem_rd_val, descrambled_val;
+      mem_rd_val        = {readout_word1 ,readout_word};
+      descrambled_val   = descramble_data(mem_rd_val, part_idx);
+      otp_a[otp_addr+1] = descrambled_val[TL_DW*2-1:TL_DW];
+      otp_a[otp_addr]   = descrambled_val[TL_DW-1:0];
+    end
+  endfunction
+
+  virtual function bit [1:0] read_a_word_with_ecc(bit [TL_DW-1:0] dai_addr,
+                                                  ref bit [TL_DW-1:0] readout_word);
+    prim_secded_pkg::secded_28_22_t ecc_rd_data0 = cfg.mem_bkdr_util_h.ecc_read16(dai_addr);
+    prim_secded_pkg::secded_28_22_t ecc_rd_data1 = cfg.mem_bkdr_util_h.ecc_read16(dai_addr + 2);
+    readout_word[15:0]  = ecc_rd_data0.data;
+    readout_word[31:16] = ecc_rd_data1.data;
+    return max2(ecc_rd_data0.err, ecc_rd_data1.err);
   endfunction
 
   virtual function void reset(string kind = "HARD");
@@ -759,15 +894,15 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     flash_addr_fifo.flush();
     flash_data_fifo.flush();
     lc_prog_fifo.flush();
-    lc_token_fifo.flush();
     for (int i = 0; i < NumSramKeyReqSlots; i++) begin
       sram_fifos[i].flush();
     end
 
     under_chk             = 0;
     under_dai_access      = 0;
-    macro_alert_triggered = 0;
+    ignore_digest_chk     = 0;
     exp_status            = `gmv(ral.status);
+    exp_alert             = OtpNoAlert;
 
     edn_data_q.delete();
 
@@ -798,10 +933,9 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
                  cfg.m_sram_pull_agent_cfg[0].vif.req ||
                  cfg.m_sram_pull_agent_cfg[1].vif.req ||
                  cfg.m_lc_prog_pull_agent_cfg.vif.req ||
-                 cfg.m_lc_token_pull_agent_cfg.vif.req ||
                  // When lc_escalation is on, the DAI interface goes to ErrorSt, so ignore
                  // otp_idle checking.
-                 cfg.otp_ctrl_vif.lc_esc_on ||
+                 cfg.otp_ctrl_vif.alert_reqs ||
                  // Check timeout will keep doing background check, issue #5616
                  exp_status[OtpTimeoutErrIdx]);
           end
@@ -813,34 +947,39 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
 
   // predict digest registers
   virtual function void predict_digest_csrs();
-    void'(ral.creator_sw_cfg_digest_0.predict(
+    void'(ral.vendor_test_digest[0].predict(
+          .value(otp_a[PART_OTP_DIGEST_ADDRS[VendorTestIdx]]), .kind(UVM_PREDICT_DIRECT)));
+    void'(ral.vendor_test_digest[1].predict(
+          .value(otp_a[PART_OTP_DIGEST_ADDRS[VendorTestIdx] + 1]), .kind(UVM_PREDICT_DIRECT)));
+
+    void'(ral.creator_sw_cfg_digest[0].predict(
           .value(otp_a[PART_OTP_DIGEST_ADDRS[CreatorSwCfgIdx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.creator_sw_cfg_digest_1.predict(
+    void'(ral.creator_sw_cfg_digest[1].predict(
           .value(otp_a[PART_OTP_DIGEST_ADDRS[CreatorSwCfgIdx] + 1]), .kind(UVM_PREDICT_DIRECT)));
 
-    void'(ral.owner_sw_cfg_digest_0.predict(
+    void'(ral.owner_sw_cfg_digest[0].predict(
           .value(otp_a[PART_OTP_DIGEST_ADDRS[OwnerSwCfgIdx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.owner_sw_cfg_digest_1.predict(
+    void'(ral.owner_sw_cfg_digest[1].predict(
           .value(otp_a[PART_OTP_DIGEST_ADDRS[OwnerSwCfgIdx] + 1]), .kind(UVM_PREDICT_DIRECT)));
 
-    void'(ral.hw_cfg_digest_0.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.hw_cfg_digest[0].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[HwCfgIdx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.hw_cfg_digest_1.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.hw_cfg_digest[1].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[HwCfgIdx] + 1]), .kind(UVM_PREDICT_DIRECT)));
 
-    void'(ral.secret0_digest_0.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret0_digest[0].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret0Idx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.secret0_digest_1.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret0_digest[1].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret0Idx] + 1]), .kind(UVM_PREDICT_DIRECT)));
 
-    void'(ral.secret1_digest_0.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret1_digest[0].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret1Idx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.secret1_digest_1.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret1_digest[1].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret1Idx] + 1]), .kind(UVM_PREDICT_DIRECT)));
 
-    void'(ral.secret2_digest_0.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret2_digest[0].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret2Idx]]), .kind(UVM_PREDICT_DIRECT)));
-    void'(ral.secret2_digest_1.predict(.value((cfg.otp_ctrl_vif.lc_esc_on) ? 0 :
+    void'(ral.secret2_digest[1].predict(.value(cfg.otp_ctrl_vif.under_error_states() ? 0 :
           otp_a[PART_OTP_DIGEST_ADDRS[Secret2Idx] + 1]), .kind(UVM_PREDICT_DIRECT)));
   endfunction
 
@@ -860,17 +999,14 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   // chunk of partition data are fed in as keys
   // The last 64-round PRESENT calculation will use a global digest constant as key input
   function void cal_digest_val(int part_idx);
-    bit [NUM_ROUND-1:0] [SCRAMBLE_DATA_SIZE-1:0] enc_array;
-    bit [SCRAMBLE_DATA_SIZE-1:0]                 init_vec = RndCnstDigestIV[0];
-    bit [TL_DW-1:0]   mem_q[$];
-    int               array_size;
-    real              key_factor  = SCRAMBLE_KEY_SIZE / TL_DW;
-    bit [TL_DW*2-1:0] digest, prev_digest;
+    bit [TL_DW-1:0]              mem_q[$];
+    int                          array_size;
+    bit [SCRAMBLE_DATA_SIZE-1:0] digest;
 
-    if (cfg.otp_ctrl_vif.lc_esc_on) return;
+    if (cfg.otp_ctrl_vif.under_error_states()) return;
 
     if (get_digest_reg_val(part_idx) != 0 ||
-        part_idx inside {CreatorSwCfgIdx, OwnerSwCfgIdx, LifeCycleIdx}) begin
+        part_idx inside {VendorTestIdx, CreatorSwCfgIdx, OwnerSwCfgIdx, LifeCycleIdx}) begin
       predict_err(OtpDaiErrIdx, OtpAccessError);
       return;
     end else if (part_idx == Secret2Idx &&
@@ -905,64 +1041,10 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
       mem_q = scrambled_mem_q;
     end
 
-    for (int i = 0; i < $ceil(array_size / key_factor); i++) begin
-      bit [SCRAMBLE_DATA_SIZE-1:0] input_data = (i == 0) ? init_vec : digest;
-      bit [SCRAMBLE_KEY_SIZE-1:0]  key;
-
-      // Pad 32-bit partition data into 128-bit key input
-      // Because the mem_q size is a multiple of 64-bit, so if the last round only has 64-bits key,
-      // it will repeat the last 64-bits twice
-      for (int j = 0; j < key_factor; j++) begin
-        int index = i * key_factor + j;
-        key |= ((index >= array_size ? mem_q[index-2] : mem_q[index]) << (j * TL_DW));
-      end
-
-      // Trigger 32 round of PRESENT encrypt
-      crypto_dpi_present_pkg::sv_dpi_present_encrypt(input_data, key, SCRAMBLE_KEY_SIZE == 80,
-                                                     enc_array);
-      // XOR the previous state into the digest result according to the Davies-Meyer scheme.
-      digest = enc_array[NUM_ROUND-1] ^ input_data;
-    end
-
-    // Last 32 round of digest is calculated with a digest constant
-    crypto_dpi_present_pkg::sv_dpi_present_encrypt(digest,
-                                                   RndCnstDigestConst[0],
-                                                   SCRAMBLE_KEY_SIZE == 80,
-                                                   enc_array);
-    // XOR the previous state into the digest result according to the Davies-Meyer scheme.
-    digest ^= enc_array[NUM_ROUND-1];
-
+    digest = otp_scrambler_pkg::cal_digest(part_idx, mem_q);
     update_digest_to_otp(part_idx, digest);
   endfunction
 
-  // when secret data write into otp_array, it will be scrambled
-  function bit [SCRAMBLE_DATA_SIZE-1:0] scramble_data(bit [SCRAMBLE_DATA_SIZE-1:0] input_data,
-                                                      int part_idx);
-    int secret_idx = part_idx - Secret0Idx;
-    bit [NUM_ROUND-1:0][SCRAMBLE_DATA_SIZE-1:0] output_data;
-    crypto_dpi_present_pkg::sv_dpi_present_encrypt(input_data,
-                                                   RndCnstKey[secret_idx],
-                                                   SCRAMBLE_KEY_SIZE == 80,
-                                                   output_data);
-    scramble_data = output_data[NUM_ROUND-1];
-  endfunction
-
-  // when secret data read out of otp_array, it will be descrambled
-  function bit [SCRAMBLE_DATA_SIZE-1:0] descramble_data(bit [SCRAMBLE_DATA_SIZE-1:0] input_data,
-                                                        int part_idx);
-    int secret_idx = part_idx - Secret0Idx;
-    bit [NUM_ROUND-1:0][SCRAMBLE_DATA_SIZE-1:0] output_data;
-    bit [NUM_ROUND-1:0][SCRAMBLE_DATA_SIZE-1:0] padded_input;
-
-    padded_input[NUM_ROUND-1] = input_data;
-    crypto_dpi_present_pkg::sv_dpi_present_decrypt(padded_input,
-                                                   RndCnstKey[secret_idx],
-                                                   SCRAMBLE_KEY_SIZE == 80,
-                                                   output_data);
-    descramble_data = output_data[NUM_ROUND-1];
-    if (input_data != 0) begin
-    end
-  endfunction
 
   // this function go through present encode algo two or three iterations:
   // first iteration with input key,
@@ -995,54 +1077,62 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
     present_encode_with_final_const = enc_array[NUM_ROUND-1] ^ intermediate_state;
   endfunction
 
-  function bit [TL_AW-1:0] get_scb_otp_addr();
+  // Get address for scoreboard's otp_a array from the `direct_access_address` CSR
+  function bit [TL_DW-1:0] get_scb_otp_addr();
     bit [TL_DW-1:0] dai_addr = `gmv(ral.direct_access_address);
-    get_scb_otp_addr = (is_secret(dai_addr) || is_digest(dai_addr)) ? dai_addr >> 3 << 1 :
-                                                                      dai_addr >> 2;
+    get_scb_otp_addr = normalize_dai_addr(dai_addr) >> 2;
   endfunction
 
   // This function predict OTP error related registers: intr_state, status, and err_code
   virtual function void predict_err(otp_status_e   status_err_idx,
                                     otp_err_code_e err_code = OtpNoError,
                                     bit            update_esc_err = 0);
-    if (cfg.otp_ctrl_vif.lc_esc_on && !update_esc_err) return;
+    if (cfg.otp_ctrl_vif.under_error_states() && !update_esc_err) return;
 
     // Update intr_state
     void'(ral.intr_state.otp_error.predict(.value(1), .kind(UVM_PREDICT_READ)));
     // Update status
     exp_status[status_err_idx] = 1;
 
-    // Only first 8 status errors have corresponding err_code
+    // Only first 9 status errors have corresponding err_code
     if (status_err_idx <= OtpLciErrIdx) begin
       dv_base_reg_field err_code_flds[$];
       if (err_code == OtpNoError) begin
         `uvm_error(`gfn, $sformatf("please set status error: %0s error code", status_err_idx.name))
       end
-      ral.err_code.get_dv_base_reg_fields(err_code_flds);
-      void'(err_code_flds[status_err_idx].predict(.value(err_code), .kind(UVM_PREDICT_READ)));
+      ral.err_code[0].get_dv_base_reg_fields(err_code_flds);
+
+      if (`gmv(err_code_flds[status_err_idx]) inside {OTP_TERMINAL_ERRS}) begin
+        `uvm_info(`gfn, "terminal error cannot be updated", UVM_HIGH)
+      end else if (status_err_idx == OtpLciErrIdx &&
+                   `gmv(err_code_flds[status_err_idx]) != OtpNoError) begin
+        `uvm_info(`gfn, "For LC partition, all errors are terminal error!", UVM_HIGH)
+      end else begin
+        void'(err_code_flds[status_err_idx].predict(.value(err_code), .kind(UVM_PREDICT_READ)));
+      end
     end
 
   endfunction
 
   // TODO: consider combine it with function predict_err()
   virtual function void predict_no_err(otp_status_e status_err_idx);
-    if (cfg.otp_ctrl_vif.lc_esc_on) return;
+    if (cfg.otp_ctrl_vif.under_error_states()) return;
 
     exp_status[status_err_idx] = 0;
     if (status_err_idx == OtpDaiErrIdx) exp_status[OtpDaiIdleIdx] = 1;
 
     if (status_err_idx <= OtpLciErrIdx) begin
       dv_base_reg_field err_code_flds[$];
-      ral.err_code.get_dv_base_reg_fields(err_code_flds);
+      ral.err_code[0].get_dv_base_reg_fields(err_code_flds);
       void'(err_code_flds[status_err_idx].predict(OtpNoError));
     end
   endfunction
 
   virtual function void predict_rdata(bit is_64_bits, bit [TL_DW-1:0] rdata0,
                                       bit [TL_DW-1:0] rdata1 = 0);
-    void'(ral.direct_access_rdata_0.predict(.value(rdata0), .kind(UVM_PREDICT_READ)));
+    void'(ral.direct_access_rdata[0].predict(.value(rdata0), .kind(UVM_PREDICT_READ)));
     if (is_64_bits) begin
-      void'(ral.direct_access_rdata_1.predict(.value(rdata1), .kind(UVM_PREDICT_READ)));
+      void'(ral.direct_access_rdata[1].predict(.value(rdata1), .kind(UVM_PREDICT_READ)));
     end
   endfunction
 
@@ -1068,40 +1158,65 @@ class otp_ctrl_scoreboard extends cip_base_scoreboard #(
   virtual function bit [TL_DW*2-1:0] get_digest_reg_val(int part_idx);
     bit [TL_DW*2-1:0] digest;
     case (part_idx)
-      CreatorSwCfgIdx: begin
-        digest = {`gmv(ral.creator_sw_cfg_digest_1), `gmv(ral.creator_sw_cfg_digest_0)};
+      VendorTestIdx: begin
+        digest = {`gmv(ral.vendor_test_digest[1]), `gmv(ral.vendor_test_digest[0])};
       end
-      OwnerSwCfgIdx: digest = {`gmv(ral.owner_sw_cfg_digest_1), `gmv(ral.owner_sw_cfg_digest_0)};
-      HwCfgIdx: digest = {`gmv(ral.hw_cfg_digest_1), `gmv(ral.hw_cfg_digest_0)};
-      Secret0Idx: digest = {`gmv(ral.secret0_digest_1), `gmv(ral.secret0_digest_0)};
-      Secret1Idx: digest = {`gmv(ral.secret1_digest_1), `gmv(ral.secret1_digest_0)};
-      Secret2Idx: digest = {`gmv(ral.secret2_digest_1), `gmv(ral.secret2_digest_0)};
+      CreatorSwCfgIdx: begin
+        digest = {`gmv(ral.creator_sw_cfg_digest[1]), `gmv(ral.creator_sw_cfg_digest[0])};
+      end
+      OwnerSwCfgIdx: digest = {`gmv(ral.owner_sw_cfg_digest[1]), `gmv(ral.owner_sw_cfg_digest[0])};
+      HwCfgIdx: digest = {`gmv(ral.hw_cfg_digest[1]), `gmv(ral.hw_cfg_digest[0])};
+      Secret0Idx: digest = {`gmv(ral.secret0_digest[1]), `gmv(ral.secret0_digest[0])};
+      Secret1Idx: digest = {`gmv(ral.secret1_digest[1]), `gmv(ral.secret1_digest[0])};
+      Secret2Idx: digest = {`gmv(ral.secret2_digest[1]), `gmv(ral.secret2_digest[0])};
       default: `uvm_fatal(`gfn, $sformatf("Partition %0d does not have digest", part_idx))
     endcase
     return digest;
   endfunction
 
-  virtual function bit is_tl_mem_access_allowed(tl_seq_item item, string ral_name);
+  virtual function bit is_tl_mem_access_allowed(input tl_seq_item item, input string ral_name,
+                                                output bit mem_byte_access_err,
+                                                output bit mem_wo_err,
+                                                output bit mem_ro_err);
     // If sw partition is read locked, then access policy changes from RO to no access
     uvm_reg_addr_t addr = ral.get_word_aligned_addr(item.a_addr);
-    if (`gmv(ral.creator_sw_cfg_read_lock) == 0 || cfg.otp_ctrl_vif.lc_esc_on == 1) begin
-      if (addr inside {[cfg.mem_ranges[ral_name][0].start_addr :
-                       cfg.mem_ranges[ral_name][0].start_addr + CreatorSwCfgSize - 1]}) begin
+    if (`gmv(ral.vendor_test_read_lock) == 0 || cfg.otp_ctrl_vif.under_error_states()) begin
+      if (addr inside {[cfg.ral_models[ral_name].mem_ranges[0].start_addr + VendorTestOffset :
+                        cfg.ral_models[ral_name].mem_ranges[0].start_addr + VendorTestOffset +
+                        VendorTestSize - 1]}) begin
+        predict_err(OtpVendorTestErrIdx, OtpAccessError);
+        `DV_CHECK_EQ(item.d_data, 0,
+                     $sformatf("locked mem read mismatch at TLUL addr %0h in VendorTest", addr))
+        return 0;
+      end
+    end
+    if (`gmv(ral.creator_sw_cfg_read_lock) == 0 || cfg.otp_ctrl_vif.under_error_states()) begin
+      if (addr inside {[cfg.ral_models[ral_name].mem_ranges[0].start_addr + CreatorSwCfgOffset :
+                        cfg.ral_models[ral_name].mem_ranges[0].start_addr + CreatorSwCfgOffset +
+                        CreatorSwCfgSize - 1]}) begin
         predict_err(OtpCreatorSwCfgErrIdx, OtpAccessError);
         `DV_CHECK_EQ(item.d_data, 0,
                      $sformatf("locked mem read mismatch at TLUL addr %0h in CreatorSwCfg", addr))
         return 0;
       end
     end
-    if (`gmv(ral.owner_sw_cfg_read_lock) == 0 ||  cfg.otp_ctrl_vif.lc_esc_on == 1) begin
-      if (addr inside {[cfg.mem_ranges[ral_name][0].start_addr + OwnerSwCfgOffset :
-          cfg.mem_ranges[ral_name][0].start_addr + OwnerSwCfgSize + OwnerSwCfgOffset - 1]}) begin
+    if (`gmv(ral.owner_sw_cfg_read_lock) == 0 ||  cfg.otp_ctrl_vif.under_error_states()) begin
+      if (addr inside {[cfg.ral_models[ral_name].mem_ranges[0].start_addr + OwnerSwCfgOffset :
+                        cfg.ral_models[ral_name].mem_ranges[0].start_addr + OwnerSwCfgOffset +
+                        OwnerSwCfgSize - 1]}) begin
         predict_err(OtpOwnerSwCfgErrIdx, OtpAccessError);
         `DV_CHECK_EQ(item.d_data, 0,
                      $sformatf("locked mem read mismatch at TLUL addr %0h in OwnerSwCfg", addr))
         return 0;
       end
     end
-    return super.is_tl_mem_access_allowed(item, ral_name);
+    return super.is_tl_mem_access_allowed(item, ral_name, mem_byte_access_err, mem_wo_err,
+                                          mem_ro_err);
   endfunction
+
+  virtual function void set_exp_alert(string alert_name, bit is_fatal = 0, int max_delay = 0);
+    exp_alert = alert_name == "fatal_check_error" ? OtpCheckAlert : OtpMacroAlert;
+    super.set_exp_alert(alert_name, is_fatal, max_delay);
+  endfunction
+
 endclass

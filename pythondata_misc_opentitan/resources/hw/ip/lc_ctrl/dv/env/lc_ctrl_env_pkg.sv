@@ -8,6 +8,7 @@ package lc_ctrl_env_pkg;
   import top_pkg::*;
   import dv_utils_pkg::*;
   import dv_lib_pkg::*;
+  import dv_base_reg_pkg::*;
   import tl_agent_pkg::*;
   import cip_base_pkg::*;
   import csr_utils_pkg::*;
@@ -17,22 +18,24 @@ package lc_ctrl_env_pkg;
   import otp_ctrl_pkg::*;
   import push_pull_agent_pkg::*;
   import alert_esc_agent_pkg::*;
-  import jtag_agent_pkg::*;
+  import jtag_riscv_agent_pkg::*;
+  import lc_ctrl_dv_utils_pkg::*;
 
   // macro includes
   `include "uvm_macros.svh"
   `include "dv_macros.svh"
 
   // parameters
-  parameter string LIST_OF_ALERTS[] = {"fatal_prog_error", "fatal_state_error"};
-  parameter uint   NUM_ALERTS = 2;
+  parameter string LIST_OF_ALERTS[] = {"fatal_prog_error",
+                                       "fatal_state_error",
+                                       "fatal_bus_integ_error"};
+  parameter uint   NUM_ALERTS = 3;
   parameter uint   CLAIM_TRANS_VAL = 'ha5;
-  parameter uint   NUM_STATES = 16;
+  parameter uint   NUM_STATES = 24;
 
   // lc_otp_program host data width: lc_state_e width + lc_cnt_e width
   parameter uint OTP_PROG_HDATA_WIDTH = LcStateWidth + LcCountWidth;
-  // TODO: temp set to 0, once push-pull agent can constraint data, it will set to 1 for error bit
-  parameter uint OTP_PROG_DDATA_WIDTH = 0;
+  parameter uint OTP_PROG_DDATA_WIDTH = 1;
 
   typedef struct packed {
     lc_ctrl_pkg::lc_tx_e lc_dft_en_o;
@@ -65,9 +68,25 @@ package lc_ctrl_env_pkg;
     {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
     // TestUnlock3
     {On,  On,  On,  On,  Off, Off, Off, Off, On,  Off, Off},
+    // TestLock3
+    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
+    // TestUnlock4
+    {On,  On,  On,  On,  Off, Off, Off, Off, On,  Off, Off},
+    // TestLock4
+    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
+    // TestUnlock5
+    {On,  On,  On,  On,  Off, Off, Off, Off, On,  Off, Off},
+    // TestLock5
+    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
+    // TestUnlock6
+    {On,  On,  On,  On,  Off, Off, Off, Off, On,  Off, Off},
+    // TestLock6
+    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
+    // TestUnlock7
+    {On,  Off, On,  On,  Off, Off, Off, Off, On,  Off, Off},
     // Dev: lc_creator_seed_sw_rw_en_o (On if device is not personalized),
     // lc_seed_hw_rd_en_o (On if device is personalized)
-    {Off, Off, On,  On,  On,  On,  On,  On,  On,  On,  Off},
+    {Off, Off, On,  On,  On,  On,  On,  Off, On,  On,  Off},
     // Prod: lc_creator_seed_sw_rw_en_o (On if device is not personalized),
     // lc_seed_hw_rd_en_o (On if device is personalized)
     {Off, Off, Off, On,  On,  On,  On,  On,  On,  On,  Off},
@@ -79,33 +98,11 @@ package lc_ctrl_env_pkg;
     // Scrap
     {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, On},
     // PostTrans
-    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, On},
+    {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
     // Escalate
     {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, On},
     // Invalid
     {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, On}
-  };
-
-  // associative array cannot declare parameter here, so we used const instead
-  const dec_lc_state_e VALID_NEXT_STATES [dec_lc_state_e][$] = '{
-    DecLcStRma:     {DecLcStScrap},
-    DecLcStProdEnd: {DecLcStScrap},
-    DecLcStProd:    {DecLcStScrap, DecLcStRma},
-    DecLcStDev:     {DecLcStScrap, DecLcStRma},
-    DecLcStTestUnlocked3: {DecLcStScrap, DecLcStRma, DecLcStProdEnd, DecLcStProd, DecLcStDev},
-    DecLcStTestUnlocked2: {DecLcStScrap, DecLcStProdEnd, DecLcStProd, DecLcStDev,
-                           DecLcStTestLocked2},
-    DecLcStTestUnlocked1: {DecLcStScrap, DecLcStRma, DecLcStProdEnd, DecLcStProd, DecLcStDev,
-                           DecLcStTestLocked2, DecLcStTestLocked1},
-    DecLcStTestUnlocked0: {DecLcStScrap, DecLcStRma, DecLcStProdEnd, DecLcStProd, DecLcStDev,
-                           DecLcStTestLocked2, DecLcStTestLocked1, DecLcStTestLocked0},
-    DecLcStTestLocked2: {DecLcStScrap, DecLcStProdEnd, DecLcStProd,
-                         DecLcStDev, DecLcStTestUnlocked3},
-    DecLcStTestLocked1: {DecLcStScrap, DecLcStProdEnd, DecLcStProd, DecLcStDev,
-                         DecLcStTestUnlocked3, DecLcStTestUnlocked2},
-    DecLcStTestLocked0: {DecLcStScrap, DecLcStProdEnd, DecLcStProd, DecLcStDev,
-                         DecLcStTestUnlocked3, DecLcStTestUnlocked2, DecLcStTestUnlocked1},
-    DecLcStRaw: {DecLcStScrap, DecLcStTestUnlocked2, DecLcStTestUnlocked1, DecLcStTestUnlocked0}
   };
 
   // types
@@ -121,54 +118,73 @@ package lc_ctrl_env_pkg;
 
   // functions
   function automatic bit valid_state_for_trans(lc_state_e curr_state);
-    valid_state_for_trans = 0;
-    if (curr_state inside {LcStRma, LcStProdEnd, LcStProd, LcStDev, LcStTestUnlocked3,
-                           LcStTestUnlocked2, LcStTestUnlocked1, LcStTestUnlocked0,
-                           LcStTestLocked2, LcStTestLocked1, LcStTestLocked0, LcStRaw}) begin
-      valid_state_for_trans = 1;
+    return (curr_state inside {LcStRaw,
+                               LcStTestUnlocked0,
+                               LcStTestLocked0,
+                               LcStTestUnlocked1,
+                               LcStTestLocked1,
+                               LcStTestUnlocked2,
+                               LcStTestLocked2,
+                               LcStTestUnlocked3,
+                               LcStTestLocked3,
+                               LcStTestUnlocked4,
+                               LcStTestLocked4,
+                               LcStTestUnlocked5,
+                               LcStTestLocked5,
+                               LcStTestUnlocked6,
+                               LcStTestLocked6,
+                               LcStTestUnlocked7,
+                               LcStDev,
+                               LcStProd,
+                               LcStProdEnd,
+                               LcStRma});
+  endfunction
+
+  function automatic lc_ctrl_pkg::token_idx_e get_exp_token(dec_lc_state_e curr_state,
+                                                            dec_lc_state_e next_state);
+    // Raw Token
+    if (curr_state == DecLcStRaw && is_test_unlocked_state(next_state, 0, 7)) begin
+      get_exp_token = lc_ctrl_pkg::RawUnlockTokenIdx;
+    // RMA Token
+    end else if (curr_state inside {DecLcStProd, DecLcStDev} && next_state == DecLcStRma) begin
+      get_exp_token = lc_ctrl_pkg::RmaTokenIdx;
+    // Test Exit Token
+    end else if ((is_test_unlocked_state(curr_state, 0, 7) ||
+                  is_test_locked_state(curr_state, 0, 6)) &&
+                 next_state inside {DecLcStDev,
+                                    DecLcStProd,
+                                    DecLcStProdEnd}) begin
+      get_exp_token = lc_ctrl_pkg::TestExitTokenIdx;
+    // Test Unlock Token
+    end else if ((curr_state == DecLcStTestLocked6 && is_test_unlocked_state(next_state, 7, 7)) ||
+                 (curr_state == DecLcStTestLocked5 && is_test_unlocked_state(next_state, 6, 7)) ||
+                 (curr_state == DecLcStTestLocked4 && is_test_unlocked_state(next_state, 5, 7)) ||
+                 (curr_state == DecLcStTestLocked3 && is_test_unlocked_state(next_state, 4, 7)) ||
+                 (curr_state == DecLcStTestLocked2 && is_test_unlocked_state(next_state, 3, 7)) ||
+                 (curr_state == DecLcStTestLocked1 && is_test_unlocked_state(next_state, 2, 7)) ||
+                 (curr_state == DecLcStTestLocked0 && is_test_unlocked_state(next_state, 1, 7)))
+    begin
+      get_exp_token = lc_ctrl_pkg::TestUnlockTokenIdx;
+    // Test Zero Token
+    end else if ((next_state == DecLcStScrap) ||
+                 (is_test_unlocked_state(curr_state, 0, 7) && next_state == DecLcStRma) ||
+                 (curr_state == DecLcStTestUnlocked6 && is_test_locked_state(next_state, 6, 6)) ||
+                 (curr_state == DecLcStTestUnlocked5 && is_test_locked_state(next_state, 5, 6)) ||
+                 (curr_state == DecLcStTestUnlocked4 && is_test_locked_state(next_state, 4, 6)) ||
+                 (curr_state == DecLcStTestUnlocked3 && is_test_locked_state(next_state, 3, 6)) ||
+                 (curr_state == DecLcStTestUnlocked2 && is_test_locked_state(next_state, 2, 6)) ||
+                 (curr_state == DecLcStTestUnlocked1 && is_test_locked_state(next_state, 1, 6)) ||
+                 (curr_state == DecLcStTestUnlocked0 && is_test_locked_state(next_state, 0, 6)))
+    begin
+      get_exp_token = lc_ctrl_pkg::ZeroTokenIdx;
+    // Test Invalid Token
+    end else begin
+      get_exp_token = lc_ctrl_pkg::InvalidTokenIdx;
     end
   endfunction
 
-  function automatic dec_lc_state_e dec_lc_state(lc_state_e curr_state);
-    case (curr_state)
-      LcStRaw:           return DecLcStRaw;
-      LcStTestUnlocked0: return DecLcStTestUnlocked0;
-      LcStTestLocked0:   return DecLcStTestLocked0;
-      LcStTestUnlocked1: return DecLcStTestUnlocked1;
-      LcStTestLocked1:   return DecLcStTestLocked1;
-      LcStTestUnlocked2: return DecLcStTestUnlocked2;
-      LcStTestLocked2:   return DecLcStTestLocked2;
-      LcStTestUnlocked3: return DecLcStTestUnlocked3;
-      LcStDev:           return DecLcStDev;
-      LcStProd:          return DecLcStProd;
-      LcStProdEnd:       return DecLcStProdEnd;
-      LcStRma:           return DecLcStRma;
-      LcStScrap:         return DecLcStScrap;
-      default: `uvm_fatal("lc_env_pkg", $sformatf("unknown lc_state 0x%0h", curr_state))
-    endcase
-  endfunction
-
-  function automatic int dec_lc_cnt(lc_cnt_e curr_cnt);
-    case (curr_cnt)
-      LcCnt0  : return 0;
-      LcCnt1  : return 1;
-      LcCnt2  : return 2;
-      LcCnt3  : return 3;
-      LcCnt4  : return 4;
-      LcCnt5  : return 5;
-      LcCnt6  : return 6;
-      LcCnt7  : return 7;
-      LcCnt8  : return 8;
-      LcCnt9  : return 9;
-      LcCnt10 : return 10;
-      LcCnt11 : return 11;
-      LcCnt12 : return 12;
-      LcCnt13 : return 13;
-      LcCnt14 : return 14;
-      LcCnt15 : return 15;
-      LcCnt16 : return 16;
-      default: `uvm_fatal("lc_env_pkg", $sformatf("unknown lc_cnt 0x%0h", curr_cnt))
-    endcase
+  function automatic lc_ctrl_state_pkg::lc_token_t get_random_token();
+    `DV_CHECK_STD_RANDOMIZE_FATAL(get_random_token, , "lc_ctrl_env_pkg");
   endfunction
 
   // package sources

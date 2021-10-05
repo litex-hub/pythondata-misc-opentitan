@@ -41,6 +41,7 @@ class lc_ctrl_scoreboard extends cip_base_scoreboard #(
     fork
       check_lc_output();
       process_otp_prog_rsp();
+      process_otp_token_rsp();
     join_none
   endtask
 
@@ -76,8 +77,21 @@ class lc_ctrl_scoreboard extends cip_base_scoreboard #(
       push_pull_item#(.HostDataWidth(OTP_PROG_HDATA_WIDTH),
                       .DeviceDataWidth(OTP_PROG_DDATA_WIDTH)) item_rcv;
       otp_prog_fifo.get(item_rcv);
-      if (cfg.lc_ctrl_vif.prog_err == 1) begin
+      if (item_rcv.d_data == 1 && cfg.en_scb) begin
         set_exp_alert(.alert_name("fatal_prog_error"), .is_fatal(1));
+      end
+    end
+  endtask
+
+  virtual task process_otp_token_rsp();
+    forever begin
+      push_pull_item#(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)) item_rcv;
+      otp_token_fifo.get(item_rcv);
+      if (cfg.en_scb) begin
+        `DV_CHECK_EQ(item_rcv.h_data, {`gmv(ral.transition_token[3]),
+                                       `gmv(ral.transition_token[2]),
+                                       `gmv(ral.transition_token[1]),
+                                       `gmv(ral.transition_token[0])})
       end
     end
   endtask
@@ -112,7 +126,7 @@ class lc_ctrl_scoreboard extends cip_base_scoreboard #(
     bit data_phase_write  = (write && channel == DataChannel);
 
     // if access was to a valid csr, get the csr handle
-    if (csr_addr inside {cfg.csr_addrs[ral_name]}) begin
+    if (csr_addr inside {cfg.ral_models[ral_name].csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
     end
@@ -133,9 +147,7 @@ class lc_ctrl_scoreboard extends cip_base_scoreboard #(
       "lc_transition_cnt", "lc_state": do_read_check = 1;
       "status": begin
         if (data_phase_read) begin
-          // when lc successfully req a transition, all outputs are turned off, except for the
-          // lc_escalate_en_o signal, which is asserted when in scrap state.
-          exp.lc_escalate_en_o = lc_ctrl_pkg::On;
+          // when lc successfully req a transition, all outputs are turned off.
           if (item.d_data[ral.status.transition_successful.get_lsb_pos()]) check_lc_outputs(exp);
         end
       end

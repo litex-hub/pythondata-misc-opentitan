@@ -7,6 +7,7 @@ r"""Top Module Generator
 import argparse
 import logging as log
 import random
+import shutil
 import subprocess
 import sys
 from collections import OrderedDict
@@ -24,13 +25,18 @@ from reggen import access, gen_rtl, window
 from reggen.inter_signal import InterSignal
 from reggen.ip_block import IpBlock
 from reggen.lib import check_list
-from topgen import amend_clocks, get_hjsonobj_xbars
+from topgen import get_hjsonobj_xbars
 from topgen import intermodule as im
 from topgen import lib as lib
 from topgen import merge_top, search_ips, validate_top
-from topgen.c import TopGenC
+from topgen.c import C_FILE_EXTENSIONS
+from topgen.c_test import TopGenCTest
 from topgen.gen_dv import gen_dv
+from topgen.gen_top_docs import gen_top_docs
 from topgen.top import Top
+from topgen.clocks import Clocks
+from topgen.merge import extract_clocks, connect_clocks, create_alert_lpgs
+from topgen.resets import Resets
 
 # Common header for generated files
 warnhdr = '''//
@@ -42,9 +48,24 @@ genhdr = '''// Copyright lowRISC contributors.
 // SPDX-License-Identifier: Apache-2.0
 ''' + warnhdr
 
+GENCMD = ("// util/topgen.py -t hw/top_{topname}/data/top_{topname}.hjson\n"
+          "// -o hw/top_{topname}")
+
 SRCTREE_TOP = Path(__file__).parent.parent.resolve()
 
 TOPGEN_TEMPLATE_PATH = Path(__file__).parent / 'topgen/templates'
+
+
+def clang_format(outfile: Path) -> None:
+    """Formats auto-generated C sources with clang-format."""
+    assert shutil.which("clang-format"), log.error(
+        "clang-format is not installed!")
+
+    try:
+        subprocess.check_call(["clang-format", "-i", outfile])
+    except subprocess.CalledProcessError:
+        log.error(f"Failed to format {outfile} with clang-format.")
+        sys.exit(1)
 
 
 def generate_top(top, name_to_block, tpl_filename, **kwargs):
@@ -116,29 +137,30 @@ def generate_alert_handler(top, out_path):
     # default values
     esc_cnt_dw = 32
     accu_cnt_dw = 16
-    async_on = "'0"
+    async_on = []
     # leave this constant
     n_classes = 4
+    # low power groups
+    n_lpg = 1
+    lpg_map = []
 
     topname = top["name"]
 
-    # check if there are any params to be passed through reggen and placed into
-    # the generated package
-    ip_list_in_top = [x["name"].lower() for x in top["module"]]
-    ah_idx = ip_list_in_top.index("alert_handler")
-    if 'localparam' in top['module'][ah_idx]:
-        if 'EscCntDw' in top['module'][ah_idx]['localparam']:
-            esc_cnt_dw = int(top['module'][ah_idx]['localparam']['EscCntDw'])
-        if 'AccuCntDw' in top['module'][ah_idx]['localparam']:
-            accu_cnt_dw = int(top['module'][ah_idx]['localparam']['AccuCntDw'])
-
-    if esc_cnt_dw < 1:
-        log.error("EscCntDw must be larger than 0")
-    if accu_cnt_dw < 1:
-        log.error("AccuCntDw must be larger than 0")
-
-    # Count number of alerts
+    # Count number of alerts and LPGs
     n_alerts = sum([x["width"] if "width" in x else 1 for x in top["alert"]])
+    n_lpg = len(top['alert_lpgs'])
+    n_lpg_width = n_lpg.bit_length()
+    # format used to print out indices in binary format
+    async_on_format = "1'b{:01b}"
+    lpg_idx_format = str(n_lpg_width) + "'d{:d}"
+
+    # Double check that all these values are greated than 0
+    if esc_cnt_dw < 1:
+        raise ValueError("esc_cnt_dw must be larger than 0")
+    if accu_cnt_dw < 1:
+        raise ValueError("accu_cnt_dw must be larger than 0")
+    if n_lpg < 1:
+        raise ValueError("n_lpg must be larger than 0")
 
     if n_alerts < 1:
         # set number of alerts to 1 such that the config is still valid
@@ -146,17 +168,20 @@ def generate_alert_handler(top, out_path):
         n_alerts = 1
         log.warning("no alerts are defined in the system")
     else:
-        async_on = ""
+        async_on = []
+        lpg_map = []
         for alert in top['alert']:
             for k in range(alert['width']):
-                async_on = str(alert['async']) + async_on
-        async_on = ("%d'b" % n_alerts) + async_on
+                async_on.append(async_on_format.format(int(alert['async'])))
+                lpg_map.append(lpg_idx_format.format(int(alert['lpg_idx'])))
 
     log.info("alert handler parameterization:")
     log.info("NAlerts   = %d" % n_alerts)
     log.info("EscCntDw  = %d" % esc_cnt_dw)
     log.info("AccuCntDw = %d" % accu_cnt_dw)
     log.info("AsyncOn   = %s" % async_on)
+    log.info("NLpg      = %s" % n_lpg)
+    log.info("LpgMap    = %s" % lpg_map)
 
     # Define target path
     rtl_path = out_path / 'ip/alert_handler/rtl/autogen'
@@ -178,7 +203,9 @@ def generate_alert_handler(top, out_path):
                                    esc_cnt_dw=esc_cnt_dw,
                                    accu_cnt_dw=accu_cnt_dw,
                                    async_on=async_on,
-                                   n_classes=n_classes)
+                                   n_classes=n_classes,
+                                   n_lpg=n_lpg,
+                                   lpg_map=lpg_map)
         except:  # noqa: E722
             log.error(exceptions.text_error_template().render())
         log.info("alert_handler hjson: %s" % out)
@@ -409,57 +436,11 @@ def generate_clkmgr(top, cfg_path, out_path):
     outputs = [hjson_out, rtl_out, pkg_out]
     names = ['clkmgr.hjson', 'clkmgr.sv', 'clkmgr_pkg.sv']
 
-    # clock classification
-    grps = top['clocks']['groups']
+    clocks = top['clocks']
+    assert isinstance(clocks, Clocks)
 
-    ft_clks = OrderedDict()
-    rg_clks = OrderedDict()
-    sw_clks = OrderedDict()
-    src_aon_attr = OrderedDict()
-    hint_clks = OrderedDict()
-
-    # construct a dictionary of the aon attribute for easier lookup
-    # ie, src_name_A: True, src_name_B: False
-    for src in top['clocks']['srcs'] + top['clocks']['derived_srcs']:
-        if src['aon'] == 'yes':
-            src_aon_attr[src['name']] = True
-        else:
-            src_aon_attr[src['name']] = False
-
-    rg_srcs = [src for (src, attr) in src_aon_attr.items() if not attr]
-
-    # clocks fed through clkmgr but are not disturbed in any way
-    # This maintains the clocking structure consistency
-    # This includes two groups of clocks
-    # Clocks fed from the always-on source
-    # Clocks fed to the powerup group
-    ft_clks = OrderedDict([(clk, src) for grp in grps
-                           for (clk, src) in grp['clocks'].items()
-                           if src_aon_attr[src] or grp['name'] == 'powerup'])
-
-    # root-gate clocks
-    rg_clks = OrderedDict([(clk, src) for grp in grps
-                           for (clk, src) in grp['clocks'].items()
-                           if grp['name'] != 'powerup' and
-                           grp['sw_cg'] == 'no' and not src_aon_attr[src]])
-
-    # direct sw control clocks
-    sw_clks = OrderedDict([(clk, src) for grp in grps
-                           for (clk, src) in grp['clocks'].items()
-                           if grp['sw_cg'] == 'yes' and not src_aon_attr[src]])
-
-    # sw hint clocks
-    hints = OrderedDict([(clk, src) for grp in grps
-                         for (clk, src) in grp['clocks'].items()
-                         if grp['sw_cg'] == 'hint' and not src_aon_attr[src]])
-
-    # hint clocks dict
-    for clk, src in hints.items():
-        # the clock is constructed as clk_{src_name}_{module_name}.
-        # so to get the module name we split from the right and pick the last entry
-        hint_clks[clk] = OrderedDict()
-        hint_clks[clk]['name'] = (clk.rsplit('_', 1)[-1])
-        hint_clks[clk]['src'] = src
+    typed_clocks = clocks.typed_clocks()
+    hint_names = typed_clocks.hint_names()
 
     for idx, tpl in enumerate(tpls):
         out = ""
@@ -467,13 +448,9 @@ def generate_clkmgr(top, cfg_path, out_path):
             tpl = Template(fin.read())
             try:
                 out = tpl.render(cfg=top,
-                                 div_srcs=top['clocks']['derived_srcs'],
-                                 rg_srcs=rg_srcs,
-                                 ft_clks=ft_clks,
-                                 rg_clks=rg_clks,
-                                 sw_clks=sw_clks,
-                                 export_clks=top['exported_clks'],
-                                 hint_clks=hint_clks)
+                                 clocks=clocks,
+                                 typed_clocks=typed_clocks,
+                                 hint_names=hint_names)
             except:  # noqa: E722
                 log.error(exceptions.text_error_template().render())
 
@@ -503,7 +480,13 @@ def generate_pwrmgr(top, out_path):
     if n_wkups < 1:
         n_wkups = 1
         log.warning(
-            "The design has no wakeup sources. Low power not supported")
+            "The design has no wakeup sources. Low power not supported.")
+
+    if n_rstreqs < 1:
+        n_rstreqs = 1
+        log.warning(
+            "The design has no reset request sources. "
+            "Reset requests are not supported.")
 
     # Define target path
     rtl_path = out_path / 'ip/pwrmgr/rtl/autogen'
@@ -564,33 +547,22 @@ def generate_rstmgr(topcfg, out_path):
             outputs.append(rtl_path / Path(x))
 
     # Parameters needed for generation
-    clks = []
-    output_rsts = OrderedDict()
-    sw_rsts = OrderedDict()
-    leaf_rsts = OrderedDict()
+    reset_obj = topcfg['resets']
+
+    # The original resets dict is transformed to the reset class
+    assert isinstance(reset_obj, Resets)
 
     # unique clocks
-    for rst in topcfg["resets"]["nodes"]:
-        if rst['type'] != "ext" and rst['clk'] not in clks:
-            clks.append(rst['clk'])
+    clks = reset_obj.get_clocks()
 
     # resets sent to reset struct
-    output_rsts = [
-        rst for rst in topcfg["resets"]["nodes"] if rst['type'] == "top"
-    ]
+    output_rsts = reset_obj.get_top_resets()
 
     # sw controlled resets
-    sw_rsts = [
-        rst for rst in topcfg["resets"]["nodes"]
-        if 'sw' in rst and rst['sw'] == 1
-    ]
+    sw_rsts = reset_obj.get_sw_resets()
 
     # leaf resets
-    leaf_rsts = [rst for rst in topcfg["resets"]["nodes"] if rst['gen']]
-
-    log.info("output resets {}".format(output_rsts))
-    log.info("software resets {}".format(sw_rsts))
-    log.info("leaf resets {}".format(leaf_rsts))
+    leaf_rsts = reset_obj.get_generated_resets()
 
     # Number of reset requests
     n_rstreqs = len(topcfg["reset_requests"])
@@ -607,7 +579,8 @@ def generate_rstmgr(topcfg, out_path):
                                  sw_rsts=sw_rsts,
                                  output_rsts=output_rsts,
                                  leaf_rsts=leaf_rsts,
-                                 export_rsts=topcfg['exported_rsts'])
+                                 export_rsts=topcfg['exported_rsts'],
+                                 reset_obj=topcfg['resets'])
 
             except:  # noqa: E722
                 log.error(exceptions.text_error_template().render())
@@ -638,7 +611,10 @@ def generate_flash(topcfg, out_path):
     # Read template files from ip directory.
     tpls = []
     outputs = []
-    names = ['flash_ctrl.hjson', 'flash_ctrl.sv', 'flash_ctrl_pkg.sv']
+    names = ['flash_ctrl.hjson',
+             'flash_ctrl.sv',
+             'flash_ctrl_pkg.sv',
+             'flash_ctrl_region_cfg.sv']
 
     for x in names:
         tpls.append(tpl_path / Path(x + ".tpl"))
@@ -648,12 +624,12 @@ def generate_flash(topcfg, out_path):
             outputs.append(rtl_path / Path(x))
 
     # Parameters needed for generation
-    flash_mems = [mem for mem in topcfg['memory'] if mem['type'] == 'eflash']
+    flash_mems = [module for module in topcfg['module'] if module['type'] == 'flash_ctrl']
     if len(flash_mems) > 1:
         log.error("This design does not currently support multiple flashes")
         return
 
-    cfg = flash_mems[0]
+    cfg = flash_mems[0]['memory']['mem']['config']
 
     # Generate templated files
     for idx, t in enumerate(tpls):
@@ -727,30 +703,71 @@ def generate_top_ral(top: Dict[str, object],
     # Collect up the memories to add
     mems = []
     for item in list(top.get("memory", [])):
-        byte_write = ('byte_write' in item and
-                      item["byte_write"].lower() == "true")
-        data_intg_passthru = ('data_intg_passthru' in item and
-                              item["data_intg_passthru"].lower() == "true")
-        size_in_bytes = int(item['size'], 0)
-        num_regs = size_in_bytes // addrsep
-        swaccess = access.SWAccess('top-level memory',
-                                   item.get('swaccess', 'rw'))
+        mems.append(create_mem(item, addrsep, regwidth))
 
-        mems.append(window.Window(name=item['name'],
-                                  desc='(generated from top-level)',
-                                  unusual=False,
-                                  byte_write=byte_write,
-                                  data_intg_passthru=data_intg_passthru,
-                                  validbits=regwidth,
-                                  items=num_regs,
-                                  size_in_bytes=size_in_bytes,
-                                  offset=int(item["base_addr"], 0),
-                                  swaccess=swaccess))
+    # Top-level may override the mem setting. Store the new type to name_to_block
+    # If no other instance uses the orignal type, delete it
+    original_types = set()
+    for module in top['module']:
+        if 'memory' in module.keys() and len(module['memory']) > 0:
+            newtype = '{}_{}'.format(module['type'], module['name'])
+            assert newtype not in name_to_block
+
+            block = deepcopy(name_to_block[module['type']])
+            name_to_block[newtype] = block
+            inst_to_block[module['name']] = newtype
+
+            original_types.add(module['type'])
+
+            for mem_name, item in module['memory'].items():
+                assert block.reg_blocks[mem_name]
+                assert len(block.reg_blocks[mem_name].windows) <= 1
+                item['name'] = mem_name
+
+                win = create_mem(item, addrsep, regwidth)
+                if len(block.reg_blocks[mem_name].windows) > 0:
+                    blk_win = block.reg_blocks[mem_name].windows[0]
+
+                    # Top can only add new info for mem, shouldn't overwrite
+                    # existing configuration
+                    assert win.items == blk_win.items
+                    assert win.byte_write == blk_win.byte_write
+                    assert win.data_intg_passthru == blk_win.data_intg_passthru
+
+                    block.reg_blocks[mem_name].windows[0] = win
+                else:
+                    block.reg_blocks[mem_name].windows.append(win)
+
+    for t in original_types:
+        if t not in inst_to_block.values():
+            del name_to_block[t]
 
     chip = Top(regwidth, name_to_block, inst_to_block, if_addrs, mems, attrs)
 
     # generate the top ral model with template
     return gen_dv(chip, dv_base_prefix, str(out_path))
+
+
+def create_mem(item, addrsep, regwidth):
+    byte_write = ('byte_write' in item and
+                  item["byte_write"].lower() == "true")
+    data_intg_passthru = ('data_intg_passthru' in item and
+                          item["data_intg_passthru"].lower() == "true")
+    size_in_bytes = int(item['size'], 0)
+    num_regs = size_in_bytes // addrsep
+    swaccess = access.SWAccess('top-level memory',
+                               item.get('swaccess', 'rw'))
+
+    return window.Window(name=item['name'],
+                         desc='(generated from top-level)',
+                         unusual=False,
+                         byte_write=byte_write,
+                         data_intg_passthru=data_intg_passthru,
+                         validbits=regwidth,
+                         items=num_regs,
+                         size_in_bytes=size_in_bytes,
+                         offset=int(item.get('base_addr', '0'), 0),
+                         swaccess=swaccess)
 
 
 def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
@@ -785,7 +802,8 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
     # Unlike other generated hjsons, clkmgr thankfully does not require
     # ip.hjson information.  All the information is embedded within
     # the top hjson file
-    amend_clocks(topcfg)
+    topcfg['clocks'] = Clocks(topcfg['clocks'])
+    extract_clocks(topcfg)
     generate_clkmgr(topcfg, cfg_path, out_path)
 
     # It may require two passes to check if the module is needed.
@@ -839,6 +857,14 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
     except ValueError:
         raise SystemExit(sys.exc_info()[1])
 
+    name_to_block = {}  # type: Dict[str, IpBlock]
+    for block in ip_objs:
+        lblock = block.name.lower()
+        assert lblock not in name_to_block
+        name_to_block[lblock] = block
+
+    connect_clocks(topcfg, name_to_block)
+
     # Read the crossbars under the top directory
     xbar_objs = get_hjsonobj_xbars(hjson_dir)
 
@@ -863,12 +889,6 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
     if error != 0:
         raise SystemExit("Error occured while validating top.hjson")
 
-    name_to_block = {}  # type: Dict[str, IpBlock]
-    for block in ip_objs:
-        lblock = block.name.lower()
-        assert lblock not in name_to_block
-        name_to_block[lblock] = block
-
     completecfg = merge_top(topcfg, name_to_block, xbar_objs)
 
     # Generate flash controller and flash memory
@@ -881,6 +901,10 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
         generate_plic(completecfg, out_path)
         if args.plic_only:
             sys.exit()
+
+    # Create Alert Handler LPGs before
+    # generating the Alert Handler
+    create_alert_lpgs(topcfg, name_to_block)
 
     # Generate Alert Handler
     if not args.xbar_only:
@@ -972,6 +996,11 @@ def main():
         type=int,
         metavar='<seed>',
         help='Custom seed for RNG to compute netlist constants.')
+    # Miscellaneous: only return the list of blocks and exit.
+    parser.add_argument('--get_blocks',
+                        default=False,
+                        action='store_true',
+                        help="Only return the list of blocks and exit.")
 
     args = parser.parse_args()
 
@@ -986,10 +1015,11 @@ def main():
             "'no' series options cannot be used with 'only' series options")
         raise SystemExit(sys.exc_info()[1])
 
-    if args.verbose:
-        log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
-    else:
-        log.basicConfig(format="%(levelname)s: %(message)s")
+    # Don't print warnings when querying the list of blocks.
+    log_level = (log.ERROR if args.get_blocks else
+                 log.DEBUG if args.verbose else None)
+
+    log.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
 
     if not args.outdir:
         outdir = Path(args.topcfg).parent / ".."
@@ -1044,6 +1074,10 @@ def main():
             completecfg, name_to_block = _process_top(topcfg, args, cfg_path, out_path, pass_idx)
 
     topname = topcfg["name"]
+
+    if args.get_blocks:
+        print("\n".join(name_to_block.keys()))
+        sys.exit(0)
 
     # Generate xbars
     if not args.no_xbar or args.xbar_only:
@@ -1103,7 +1137,7 @@ def main():
 
         # The C / SV file needs some complex information, so we initialize this
         # object to store it.
-        c_helper = TopGenC(completecfg, name_to_block)
+        c_helper = TopGenCTest(completecfg, name_to_block)
 
         # 'toplevel_pkg.sv.tpl' -> 'rtl/autogen/top_{topname}_pkg.sv'
         render_template(TOPGEN_TEMPLATE_PATH / "toplevel_pkg.sv.tpl",
@@ -1179,7 +1213,7 @@ def main():
         # generate chip level xbar and alert_handler TB
         tb_files = [
             "xbar_env_pkg__params.sv", "tb__xbar_connect.sv",
-            "tb__alert_handler_connect.sv"
+            "tb__alert_handler_connect.sv", "xbar_tgl_excl.cfg"
         ]
         for fname in tb_files:
             tpl_fname = "%s.tpl" % (fname)
@@ -1206,6 +1240,20 @@ def main():
 
         with rendered_path.open(mode='w', encoding='UTF-8') as fout:
             fout.write(template_contents)
+
+        # generate documentation for toplevel
+        gen_top_docs(completecfg, c_helper, out_path)
+
+        # Auto-generate tests in 'sw/device/tests/autogen` area.
+        gencmd = warnhdr + GENCMD.format(topname=topname)
+        for fname in ["plic_all_irqs_test.c", "meson.build"]:
+            outfile = SRCTREE_TOP / 'sw/device/tests/autogen' / fname
+            render_template(TOPGEN_TEMPLATE_PATH / f"{fname}.tpl",
+                            outfile,
+                            helper=c_helper,
+                            gencmd=gencmd)
+            if str(outfile).endswith(C_FILE_EXTENSIONS):
+                clang_format(outfile)
 
 
 if __name__ == "__main__":

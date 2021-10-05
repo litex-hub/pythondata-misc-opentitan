@@ -8,7 +8,9 @@
 
 module csrng_core import csrng_pkg::*; #(
   parameter aes_pkg::sbox_impl_e SBoxImpl = aes_pkg::SBoxImplLut,
-  parameter int NHwApps = 2
+  parameter int NHwApps = 2,
+  parameter cs_keymgr_div_t RndCnstCsKeymgrDivNonProduction = CsKeymgrDivWidth'(0),
+  parameter cs_keymgr_div_t RndCnstCsKeymgrDivProduction = CsKeymgrDivWidth'(0)
 ) (
   input logic        clk_i,
   input logic        rst_ni,
@@ -35,7 +37,10 @@ module csrng_core import csrng_pkg::*; #(
   output csrng_rsp_t  [NHwApps-1:0] csrng_cmd_o,
 
   // Alerts
-  output logic           alert_test_o,
+
+  output logic           recov_alert_test_o,
+  output logic           fatal_alert_test_o,
+  output logic           recov_alert_o,
   output logic           fatal_alert_o,
 
   output logic           intr_cs_cmd_req_done_o,
@@ -60,6 +65,9 @@ module csrng_core import csrng_pkg::*; #(
   localparam int BlkEncArbWidth = KeyLen+BlkLen+StateId+Cmd;
   localparam int NUpdateArbReqs = 2;
   localparam int UpdateArbWidth = KeyLen+BlkLen+SeedLen+StateId+Cmd;
+  localparam int MaxClen = 12;
+  localparam int ADataDepthWidth = SeedLen/AppCmdWidth;
+  localparam unsigned ADataDepthClog = $clog2(ADataDepthWidth)+1;
 
   // signals
   // interrupt signals
@@ -68,7 +76,18 @@ module csrng_core import csrng_pkg::*; #(
   logic       event_cs_hw_inst_exc;
   logic       event_cs_fatal_err;
   logic       cs_enable;
-  logic       aes_cipher_enable;
+  logic       cs_enable_pfe;
+  logic       cs_enable_pfd;
+  logic       cs_enable_pfa;
+  logic       sw_app_enable;
+  logic       sw_app_enable_pfe;
+  logic       sw_app_enable_pfd;
+  logic       sw_app_enable_pfa;
+  logic       read_int_state;
+  logic       read_int_state_pfe;
+  logic       read_int_state_pfd;
+  logic       read_int_state_pfa;
+  logic       recov_alert_event;
   logic       acmd_avail;
   logic       acmd_sop;
   logic       acmd_mop;
@@ -89,6 +108,10 @@ module csrng_core import csrng_pkg::*; #(
   logic [AppCmdWidth-1:0] acmd_bus;
 
   logic [SeedLen-1:0]     packer_adata;
+  logic [ADataDepthClog-1:0] packer_adata_depth;
+  logic                   packer_adata_pop;
+  logic                   packer_adata_clr;
+  logic [SeedLen-1:0]     seed_diversification;
 
   logic                   cmd_entropy_req;
   logic                   cmd_entropy_avail;
@@ -101,6 +124,7 @@ module csrng_core import csrng_pkg::*; #(
   logic [Cmd-1:0]         cmd_result_ccmd;
   logic                   cmd_result_ack_rdy;
   logic [StateId-1:0]     cmd_result_inst_id;
+  logic                   cmd_result_glast;
   logic                   cmd_result_fips;
   logic [SeedLen-1:0]     cmd_result_adata;
   logic [KeyLen-1:0]      cmd_result_key;
@@ -114,6 +138,7 @@ module csrng_core import csrng_pkg::*; #(
   logic                   gen_result_wr_req;
   logic                   gen_result_ack_sts;
   logic                   gen_result_ack_rdy;
+  logic [Cmd-1:0]         gen_result_ccmd;
   logic [StateId-1:0]     gen_result_inst_id;
   logic                   gen_result_fips;
   logic [KeyLen-1:0]      gen_result_key;
@@ -128,7 +153,7 @@ module csrng_core import csrng_pkg::*; #(
   logic                   generate_req;
   logic                   update_req;
   logic                   uninstant_req;
-  logic [3:0]             fifo_sel;
+  logic                   clr_adata_packer;
   logic [Cmd-1:0]         ctr_drbg_cmd_ccmd;
   logic                   ctr_drbg_cmd_req;
   logic                   ctr_drbg_gen_req;
@@ -183,6 +208,7 @@ module csrng_core import csrng_pkg::*; #(
   logic                   state_db_rd_fips;
   logic [2:0]             acmd_hold;
   logic [3:0]             shid;
+  logic                   gen_last;
   logic                   flag0;
 
   // blk encrypt arbiter
@@ -273,6 +299,7 @@ module csrng_core import csrng_pkg::*; #(
   logic [NApps-1:0]       cmd_stage_rdy;
   logic [NApps-1:0]       cmd_arb_req;
   logic [NApps-1:0]       cmd_arb_gnt;
+  logic [$clog2(NApps)-1:0] cmd_arb_idx;
   logic [NApps-1:0]       cmd_arb_sop;
   logic [NApps-1:0]       cmd_arb_mop;
   logic [NApps-1:0]       cmd_arb_eop;
@@ -292,17 +319,14 @@ module csrng_core import csrng_pkg::*; #(
   logic                    genbits_stage_bus_rd_sw;
   logic [31:0]             genbits_stage_bus_sw;
   logic                    genbits_stage_fips_sw;
-  logic [2:0]              pfifo_sw_genbits_depth;
 
   logic [14:0]             hw_exception_sts;
-  logic                    lc_hw_debug_not_on;
   logic                    lc_hw_debug_on;
+  logic                    state_db_is_dump_en;
   logic                    state_db_reg_rd_sel;
   logic                    state_db_reg_rd_id_pulse;
   logic [StateId-1:0]      state_db_reg_rd_id;
   logic [31:0]             state_db_reg_rd_val;
-  logic                    halt_main_sm;
-  logic                    main_sm_sts;
 
   logic [30:0]             err_code_test_bit;
   logic                    ctr_drbg_upd_es_ack;
@@ -313,44 +337,51 @@ module csrng_core import csrng_pkg::*; #(
   logic [7:0]              track_sm[16];
   logic [1:0]              sel_track_sm_grp;
 
+  logic                    unused_err_code_test_bit;
+  logic                    unused_reg2hw_genbits;
+  logic                    unused_int_state_val;
+
   // flops
   logic [2:0]  acmd_q, acmd_d;
   logic [3:0]  shid_q, shid_d;
+  logic        gen_last_q, gen_last_d;
   logic        flag0_q, flag0_d;
+  logic [$clog2(NApps)-1:0] cmd_arb_idx_q, cmd_arb_idx_d;
   logic        statedb_wr_select_q, statedb_wr_select_d;
   logic        genbits_stage_fips_sw_q, genbits_stage_fips_sw_d;
-  logic        lc_hw_debug_not_on_q, lc_hw_debug_not_on_d;
-  logic        lc_hw_debug_on_q, lc_hw_debug_on_d;
   logic        cmd_req_dly_q, cmd_req_dly_d;
   logic [Cmd-1:0] cmd_req_ccmd_dly_q, cmd_req_ccmd_dly_d;
   logic           cs_aes_halt_q, cs_aes_halt_d;
-  logic           packer_adata_pop_q, packer_adata_pop_d;
+  logic [SeedLen-1:0] entropy_src_seed_q, entropy_src_seed_d;
+  logic               entropy_src_fips_q, entropy_src_fips_d;
 
   always_ff @(posedge clk_i or negedge rst_ni)
     if (!rst_ni) begin
       acmd_q  <= '0;
       shid_q  <= '0;
+      gen_last_q <= '0;
       flag0_q <= '0;
+      cmd_arb_idx_q <= '0;
       statedb_wr_select_q <= '0;
       genbits_stage_fips_sw_q <= '0;
-      lc_hw_debug_not_on_q <= '0;
-      lc_hw_debug_on_q <= '0;
       cmd_req_dly_q <= '0;
       cmd_req_ccmd_dly_q <= '0;
       cs_aes_halt_q <= '0;
-      packer_adata_pop_q <= '0;
+      entropy_src_seed_q <= '0;
+      entropy_src_fips_q <= '0;
     end else begin
       acmd_q  <= acmd_d;
       shid_q  <= shid_d;
+      gen_last_q <= gen_last_d;
       flag0_q <= flag0_d;
+      cmd_arb_idx_q <= cmd_arb_idx_d;
       statedb_wr_select_q <= statedb_wr_select_d;
       genbits_stage_fips_sw_q <= genbits_stage_fips_sw_d;
-      lc_hw_debug_not_on_q <= lc_hw_debug_not_on_d;
-      lc_hw_debug_on_q <= lc_hw_debug_on_d;
       cmd_req_dly_q <= cmd_req_dly_d;
       cmd_req_ccmd_dly_q <= cmd_req_ccmd_dly_d;
       cs_aes_halt_q <= cs_aes_halt_d;
-      packer_adata_pop_q <= packer_adata_pop_d;
+      entropy_src_seed_q <= entropy_src_seed_d;
+      entropy_src_fips_q <= entropy_src_fips_d;
     end
 
   //--------------------------------------------
@@ -631,16 +662,47 @@ module csrng_core import csrng_pkg::*; #(
   assign fatal_alert_o = event_cs_fatal_err;
 
   // alert test
-  assign alert_test_o = {
-    reg2hw.alert_test.q &
-    reg2hw.alert_test.qe
+  assign recov_alert_test_o = {
+    reg2hw.alert_test.recov_alert.q &&
+    reg2hw.alert_test.recov_alert.qe
+  };
+  assign fatal_alert_test_o = {
+    reg2hw.alert_test.fatal_alert.q &&
+    reg2hw.alert_test.fatal_alert.qe
   };
 
+
+  assign recov_alert_event = cs_enable_pfa || sw_app_enable_pfa || read_int_state_pfa;
+
+  assign recov_alert_o = recov_alert_event;
+
+
+
+  // check for illegal enable field states, and set alert if detected
+
+  assign cs_enable_pfe = (cs_enb_e'(reg2hw.ctrl.enable.q) == CS_FIELD_ON);
+  assign cs_enable_pfd = (cs_enb_e'(reg2hw.ctrl.enable.q) == ~CS_FIELD_ON);
+  assign cs_enable_pfa = !(cs_enable_pfe || cs_enable_pfd);
+  assign hw2reg.recov_alert_sts.enable_field_alert.de = cs_enable_pfa;
+  assign hw2reg.recov_alert_sts.enable_field_alert.d  = cs_enable_pfa;
+
+  assign sw_app_enable_pfe = (cs_enb_e'(reg2hw.ctrl.sw_app_enable.q) == CS_FIELD_ON);
+  assign sw_app_enable_pfd = (cs_enb_e'(reg2hw.ctrl.sw_app_enable.q) == ~CS_FIELD_ON);
+  assign sw_app_enable_pfa = !(sw_app_enable_pfe || sw_app_enable_pfd);
+  assign hw2reg.recov_alert_sts.sw_app_enable_field_alert.de = sw_app_enable_pfa;
+  assign hw2reg.recov_alert_sts.sw_app_enable_field_alert.d  = sw_app_enable_pfa;
+
+  assign read_int_state_pfe = (cs_enb_e'(reg2hw.ctrl.read_int_state.q) == CS_FIELD_ON);
+  assign read_int_state_pfd = (cs_enb_e'(reg2hw.ctrl.read_int_state.q) == ~CS_FIELD_ON);
+  assign read_int_state_pfa = !(read_int_state_pfe || read_int_state_pfd);
+  assign hw2reg.recov_alert_sts.read_int_state_field_alert.de = read_int_state_pfa;
+  assign hw2reg.recov_alert_sts.read_int_state_field_alert.d  = read_int_state_pfa;
+
+
   // master module enable
-  assign cs_enable = reg2hw.ctrl.enable.q;
-  assign aes_cipher_enable = !reg2hw.ctrl.aes_cipher_disable.q;
-  // fifo selection for debug
-  assign fifo_sel = reg2hw.ctrl.fifo_depth_sts_sel.q;
+  assign cs_enable = cs_enable_pfe;
+  assign sw_app_enable = sw_app_enable_pfe;
+  assign read_int_state = read_int_state_pfe;
 
   //------------------------------------------
   // application interface
@@ -702,7 +764,7 @@ module csrng_core import csrng_pkg::*; #(
   // genbits
   assign hw2reg.genbits_vld.genbits_vld.d = genbits_stage_vldo_sw;
   assign hw2reg.genbits_vld.genbits_fips.d = genbits_stage_fips_sw;
-  assign hw2reg.genbits.d = efuse_sw_app_enable_i ? genbits_stage_bus_sw : '0;
+  assign hw2reg.genbits.d = (sw_app_enable && efuse_sw_app_enable_i) ? genbits_stage_bus_sw : '0;
   assign genbits_stage_bus_rd_sw = reg2hw.genbits.re;
 
 
@@ -721,11 +783,12 @@ module csrng_core import csrng_pkg::*; #(
     .rvalid_o   (genbits_stage_vldo_sw),
     .rdata_o    (genbits_stage_bus_sw),
     .rready_i   (genbits_stage_bus_rd_sw),
-    .depth_o    (pfifo_sw_genbits_depth)
+    .depth_o    ()
   );
 
   // flops for SW fips status
-  assign genbits_stage_fips_sw_d = !cs_enable ? 1'b0 :
+  assign genbits_stage_fips_sw_d =
+         (!cs_enable) ? 1'b0 :
          (genbits_stage_rdy[NApps-1] && genbits_stage_vld[NApps-1]) ? genbits_stage_fips[NApps-1] :
          genbits_stage_fips_sw_q;
 
@@ -780,24 +843,27 @@ module csrng_core import csrng_pkg::*; #(
   // and processed by the main state machine
   // logic block.
 
+  assign cmd_arb_idx_d = (acmd_avail && acmd_accept) ? cmd_arb_idx : cmd_arb_idx_q;
 
-  // create control bus for commands
-  assign acmd_sop = (|cmd_arb_sop);
-  assign acmd_mop = (|cmd_arb_mop);
-  assign acmd_eop = (|cmd_arb_eop);
+  assign acmd_sop = cmd_arb_sop[cmd_arb_idx_q];
+  assign acmd_mop = cmd_arb_mop[cmd_arb_idx_q];
+  assign acmd_eop = cmd_arb_eop[cmd_arb_idx_q];
+  assign acmd_bus = cmd_arb_bus[cmd_arb_idx_q];
 
   prim_arbiter_ppc #(
+    .EnDataPort(0),    // Ignore data port
     .N(NApps),  // Number of request ports
-    .DW(AppCmdWidth) // Data width
+    .DW(1) // Data width
   ) u_prim_arbiter_ppc_acmd (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
+    .req_chk_i(1'b1),
     .req_i(cmd_arb_req),
-    .data_i(cmd_arb_bus),
+    .data_i('{default: 1'b0}),
     .gnt_o(cmd_arb_gnt),
-    .idx_o(), // NC
+    .idx_o(cmd_arb_idx),
     .valid_o(acmd_avail), // 1 req
-    .data_o(acmd_bus), // info with req
+    .data_o(), //NC
     .ready_i(acmd_accept) // 1 fsm rdy
   );
 
@@ -805,17 +871,33 @@ module csrng_core import csrng_pkg::*; #(
   assign acmd_hold = acmd_sop ? acmd_bus[2:0] : acmd_q;
   assign flag0 = acmd_bus[8];
   assign shid = acmd_bus[15:12];
+  assign gen_last = acmd_bus[16];
 
-  assign acmd_d = acmd_sop ? acmd_bus[2:0] : acmd_q;
-  assign shid_d = acmd_sop ? shid :
-         state_db_reg_rd_id_pulse ? state_db_reg_rd_id :
+  assign acmd_d =
+         (!cs_enable) ? '0 :
+         acmd_sop ? acmd_bus[2:0] :
+         acmd_q;
+
+  assign shid_d =
+         (!cs_enable) ? '0 :
+         acmd_sop ? shid :
          shid_q;
-  assign flag0_d = acmd_sop ? flag0 : flag0_q;
+
+  assign gen_last_d =
+         (!cs_enable) ? '0 :
+         acmd_sop ? gen_last :
+         gen_last_q;
+
+  assign flag0_d =
+         (!cs_enable) ? '0 :
+         acmd_sop ? flag0 :
+         flag0_q;
 
   // sm to process all instantiation requests
   csrng_main_sm u_csrng_main_sm (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
+    .enable_i(cs_enable),
     .acmd_avail_i(acmd_avail),
     .acmd_accept_o(acmd_accept),
     .acmd_hdr_capt_o(acmd_hdr_capt),
@@ -830,9 +912,8 @@ module csrng_core import csrng_pkg::*; #(
     .generate_req_o(generate_req),
     .update_req_o(update_req),
     .uninstant_req_o(uninstant_req),
+    .clr_adata_packer_o(clr_adata_packer),
     .cmd_complete_i(state_db_wr_req),
-    .halt_main_sm_i(halt_main_sm),
-    .main_sm_halted_o(main_sm_sts),
     .main_sm_err_o(main_sm_err)
   );
 
@@ -863,21 +944,21 @@ module csrng_core import csrng_pkg::*; #(
   ) u_prim_packer_fifo_adata (
     .clk_i      (clk_i),
     .rst_ni     (rst_ni),
-    .clr_i      (!cs_enable),
+    .clr_i      (!cs_enable || packer_adata_clr),
     .wvalid_i   (acmd_mop),
     .wdata_i    (acmd_bus),
     .wready_o   (),
     .rvalid_o   (),
     .rdata_o    (packer_adata),
-    .rready_i   (packer_adata_pop_q),
-    .depth_o    ()
+    .rready_i   (packer_adata_pop),
+    .depth_o    (packer_adata_depth)
   );
 
-  assign packer_adata_pop_d = cs_enable &&
-         ((instant_req && flag0_q) ||
-          reseed_req ||
-          update_req ||
-          (generate_req && flag0_q));
+  assign packer_adata_pop = cs_enable &&
+         clr_adata_packer && (packer_adata_depth == ADataDepthClog'(MaxClen));
+
+  assign packer_adata_clr = cs_enable &&
+         clr_adata_packer && (packer_adata_depth < ADataDepthClog'(MaxClen));
 
   //-------------------------------------
   // csrng_state_db nstantiation
@@ -893,11 +974,7 @@ module csrng_core import csrng_pkg::*; #(
   assign state_db_reg_rd_id = reg2hw.int_state_num.q;
   assign state_db_reg_rd_id_pulse = reg2hw.int_state_num.qe;
   assign hw2reg.int_state_val.d = state_db_reg_rd_val;
-
-  // main sm control
-  assign halt_main_sm = reg2hw.halt_main_sm.q;
-  assign hw2reg.main_sm_sts.de = 1'b1;
-  assign hw2reg.main_sm_sts.d = main_sm_sts;
+  assign state_db_is_dump_en = cs_enable && read_int_state && efuse_sw_app_enable_i;
 
 
   csrng_state_db #(
@@ -928,16 +1005,20 @@ module csrng_core import csrng_pkg::*; #(
     .state_db_wr_res_ctr_i(state_db_wr_rc),
     .state_db_wr_sts_i(state_db_wr_sts),
 
-    .state_db_lc_en_i(lc_hw_debug_on_q),
+    .state_db_is_dump_en_i(state_db_is_dump_en),
     .state_db_reg_rd_sel_i(state_db_reg_rd_sel),
     .state_db_reg_rd_id_pulse_i(state_db_reg_rd_id_pulse),
+    .state_db_reg_rd_id_i(state_db_reg_rd_id),
     .state_db_reg_rd_val_o(state_db_reg_rd_val),
     .state_db_sts_ack_o(state_db_sts_ack),
     .state_db_sts_sts_o(state_db_sts_sts),
     .state_db_sts_id_o(state_db_sts_id)
   );
 
-  assign statedb_wr_select_d = !statedb_wr_select_q;
+  assign statedb_wr_select_d =
+         (!cs_enable) ? '0 :
+         !statedb_wr_select_q;
+
   assign cmd_blk_select = !statedb_wr_select_q;
   assign gen_blk_select =  statedb_wr_select_q;
 
@@ -948,8 +1029,8 @@ module csrng_core import csrng_pkg::*; #(
   // muxes for statedb block inputs
   assign state_db_wr_req = gen_blk_select ? gen_result_wr_req : cmd_result_wr_req;
   assign state_db_wr_inst_id = gen_blk_select ? gen_result_inst_id : cmd_result_inst_id;
-  assign state_db_wr_fips = cmd_result_fips;
-  assign state_db_wr_ccmd = cmd_result_ccmd;
+  assign state_db_wr_fips = gen_blk_select ? gen_result_fips : cmd_result_fips;
+  assign state_db_wr_ccmd = gen_blk_select ?  gen_result_ccmd : cmd_result_ccmd;
   assign state_db_wr_key = gen_blk_select ? gen_result_key : cmd_result_key;
   assign state_db_wr_v = gen_blk_select ? gen_result_v : cmd_result_v;
   assign state_db_wr_rc = gen_blk_select ? gen_result_rc : cmd_result_rc;
@@ -964,13 +1045,25 @@ module csrng_core import csrng_pkg::*; #(
   assign entropy_src_hw_if_o.es_req = cs_enable &&
          cmd_entropy_req;
 
-  assign cmd_entropy =
-         (instant_req && !flag0_q) ? entropy_src_hw_if_i.es_bits :
-         reseed_req ? entropy_src_hw_if_i.es_bits :
-         update_req ? entropy_src_hw_if_i.es_bits :
-         '0;
 
-  assign cmd_entropy_fips = (instant_req && !flag0_q) ? entropy_src_hw_if_i.es_fips : 1'b0;
+  assign seed_diversification = lc_hw_debug_on ? RndCnstCsKeymgrDivNonProduction :
+                                                 RndCnstCsKeymgrDivProduction;
+
+  // Capture entropy from entropy_src
+  assign entropy_src_seed_d =
+         cmd_req_dly_q ? '0 :                  // reset after every cmd
+         (cmd_entropy_avail && flag0_q) ? '0 : // special case where zero is used
+         cmd_entropy_avail ? (entropy_src_hw_if_i.es_bits ^ seed_diversification) :
+         entropy_src_seed_q;
+  assign entropy_src_fips_d =
+         cmd_req_dly_q ? '0 :                  // reset after every cmd
+         (cmd_entropy_avail && flag0_q) ? '0 : // special case where zero is used
+         cmd_entropy_avail ? entropy_src_hw_if_i.es_fips :
+         entropy_src_fips_q;
+
+  assign cmd_entropy = entropy_src_seed_q;
+
+  assign cmd_entropy_fips = entropy_src_fips_q;
 
   //-------------------------------------
   // csrng_ctr_drbg_cmd instantiation
@@ -998,11 +1091,16 @@ module csrng_core import csrng_pkg::*; #(
 
 
 
-  assign cmd_req_ccmd_dly_d = acmd_hold;
+  assign cmd_req_ccmd_dly_d =
+         (!cs_enable) ? '0 :
+         acmd_hold;
+
   assign ctr_drbg_cmd_ccmd = cmd_req_ccmd_dly_q;
 
+
   assign cmd_req_dly_d =
-         instant_req || reseed_req || generate_req || update_req || uninstant_req;
+         (!cs_enable) ? '0 :
+         (instant_req || reseed_req || generate_req || update_req || uninstant_req);
 
   assign ctr_drbg_cmd_req = cmd_req_dly_q;
 
@@ -1021,6 +1119,7 @@ module csrng_core import csrng_pkg::*; #(
     .ctr_drbg_cmd_rdy_o(ctr_drbg_cmd_req_rdy),
     .ctr_drbg_cmd_ccmd_i(ctr_drbg_cmd_ccmd),
     .ctr_drbg_cmd_inst_id_i(shid_q),
+    .ctr_drbg_cmd_glast_i(gen_last_q),
     .ctr_drbg_cmd_entropy_i(cmd_entropy),
     .ctr_drbg_cmd_entropy_fips_i(cmd_entropy_fips), // send to state_db
     .ctr_drbg_cmd_adata_i(packer_adata),
@@ -1034,6 +1133,7 @@ module csrng_core import csrng_pkg::*; #(
     .ctr_drbg_cmd_rdy_i(cmd_result_ack_rdy),
     .ctr_drbg_cmd_ccmd_o(cmd_result_ccmd),
     .ctr_drbg_cmd_inst_id_o(cmd_result_inst_id),
+    .ctr_drbg_cmd_glast_o(cmd_result_glast),
     .ctr_drbg_cmd_fips_o(cmd_result_fips),
     .ctr_drbg_cmd_adata_o(cmd_result_adata),
     .ctr_drbg_cmd_key_o(cmd_result_key),
@@ -1130,6 +1230,7 @@ module csrng_core import csrng_pkg::*; #(
   ) u_prim_arbiter_ppc_updblk_arb (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
+    .req_chk_i(1'b1),
     .req_i({genblk_updblk_arb_req,cmdblk_updblk_arb_req}),
     .data_i(updblk_arb_din),
     .gnt_o({updblk_genblk_arb_req_rdy,updblk_cmdblk_arb_req_rdy}),
@@ -1163,10 +1264,10 @@ module csrng_core import csrng_pkg::*; #(
   // provide control logic to determine
   // how certain debug features are controlled.
 
-  lc_ctrl_pkg::lc_tx_t [1:0] lc_hw_debug_en_out;
+  lc_ctrl_pkg::lc_tx_t lc_hw_debug_en_out;
 
   prim_lc_sync #(
-    .NumCopies(2)
+    .NumCopies(1)
   ) u_prim_lc_sync (
     .clk_i,
     .rst_ni,
@@ -1174,12 +1275,8 @@ module csrng_core import csrng_pkg::*; #(
     .lc_en_o(lc_hw_debug_en_out)
   );
 
-  assign      lc_hw_debug_not_on = (lc_hw_debug_en_out[0] != lc_ctrl_pkg::On);
-  assign      lc_hw_debug_on = (lc_hw_debug_en_out[1] == lc_ctrl_pkg::On);
+  assign      lc_hw_debug_on = (lc_hw_debug_en_out == lc_ctrl_pkg::On);
 
-  // flop for better timing
-  assign      lc_hw_debug_not_on_d = lc_hw_debug_not_on;
-  assign      lc_hw_debug_on_d = lc_hw_debug_on;
 
   //-------------------------------------
   // csrng_block_encrypt instantiation
@@ -1200,9 +1297,7 @@ module csrng_core import csrng_pkg::*; #(
   ) u_csrng_block_encrypt (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
-    .block_encrypt_bypass_i(!aes_cipher_enable),
     .block_encrypt_enable_i(cs_enable),
-    .block_encrypt_lc_hw_debug_not_on_i(lc_hw_debug_not_on_q),
     .block_encrypt_req_i(benblk_arb_vld),
     .block_encrypt_rdy_o(benblk_arb_rdy),
     .block_encrypt_key_i(benblk_arb_key),
@@ -1226,6 +1321,7 @@ module csrng_core import csrng_pkg::*; #(
   ) u_prim_arbiter_ppc_benblk_arb (
     .clk_i(clk_i),
     .rst_ni(rst_ni),
+    .req_chk_i(1'b1),
     .req_i({genblk_benblk_arb_req,updblk_benblk_arb_req}),
     .data_i(benblk_arb_din),
     .gnt_o({genblk_benblk_arb_req_rdy,updblk_benblk_arb_req_rdy}),
@@ -1260,6 +1356,7 @@ module csrng_core import csrng_pkg::*; #(
 
 
   csrng_ctr_drbg_gen #(
+    .NApps(NApps),
     .Cmd(Cmd),
     .StateId(StateId),
     .BlkLen(BlkLen),
@@ -1274,6 +1371,7 @@ module csrng_core import csrng_pkg::*; #(
     .ctr_drbg_gen_rdy_o(ctr_drbg_gen_req_rdy),
     .ctr_drbg_gen_ccmd_i(cmd_result_ccmd),
     .ctr_drbg_gen_inst_id_i(cmd_result_inst_id),
+    .ctr_drbg_gen_glast_i(cmd_result_glast),
     .ctr_drbg_gen_fips_i(cmd_result_fips),
     .ctr_drbg_gen_adata_i(cmd_result_adata),
     .ctr_drbg_gen_key_i(cmd_result_key),
@@ -1283,7 +1381,7 @@ module csrng_core import csrng_pkg::*; #(
     .ctr_drbg_gen_ack_o(gen_result_wr_req),
     .ctr_drbg_gen_sts_o(gen_result_ack_sts),
     .ctr_drbg_gen_rdy_i(gen_result_ack_rdy),
-    .ctr_drbg_gen_ccmd_o(), // NC
+    .ctr_drbg_gen_ccmd_o(gen_result_ccmd),
     .ctr_drbg_gen_inst_id_o(gen_result_inst_id),
     .ctr_drbg_gen_fips_o(gen_result_fips),
     .ctr_drbg_gen_key_o(gen_result_key),
@@ -1333,7 +1431,9 @@ module csrng_core import csrng_pkg::*; #(
 
 
   // es to cs halt request to reduce power spikes
-  assign cs_aes_halt_d = ctr_drbg_upd_es_ack && ctr_drbg_gen_es_ack && block_encrypt_quiet;
+  assign cs_aes_halt_d =
+         (ctr_drbg_upd_es_ack && ctr_drbg_gen_es_ack && block_encrypt_quiet);
+
   assign cs_aes_halt_o.cs_aes_halt_ack = cs_aes_halt_q;
 
   //--------------------------------------------
@@ -1407,12 +1507,34 @@ module csrng_core import csrng_pkg::*; #(
 
   assign sel_track_sm_grp = reg2hw.sel_tracking_sm.q;
 
-  assign hw2reg.tracking_sm_obs.de = cs_enable;
-  assign hw2reg.tracking_sm_obs.d =
-         (sel_track_sm_grp == 2'h3) ? {track_sm[15],track_sm[14],track_sm[13],track_sm[12]} :
-         (sel_track_sm_grp == 2'h2) ? {track_sm[11],track_sm[10],track_sm[9],track_sm[8]} :
-         (sel_track_sm_grp == 2'h1) ? {track_sm[7],track_sm[6],track_sm[5],track_sm[4]} :
-         {track_sm[3],track_sm[2],track_sm[1],track_sm[0]};
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs0.de = cs_enable && lc_hw_debug_on;
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs1.de = cs_enable && lc_hw_debug_on;
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs2.de = cs_enable && lc_hw_debug_on;
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs3.de = cs_enable && lc_hw_debug_on;
+
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs3.d =
+         (sel_track_sm_grp == 2'h3) ? track_sm[15] :
+         (sel_track_sm_grp == 2'h2) ? track_sm[11] :
+         (sel_track_sm_grp == 2'h1) ? track_sm[7] :
+         track_sm[3];
+
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs2.d =
+         (sel_track_sm_grp == 2'h3) ? track_sm[14] :
+         (sel_track_sm_grp == 2'h2) ? track_sm[10] :
+         (sel_track_sm_grp == 2'h1) ? track_sm[6] :
+         track_sm[2];
+
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs1.d =
+         (sel_track_sm_grp == 2'h3) ? track_sm[13] :
+         (sel_track_sm_grp == 2'h2) ? track_sm[9] :
+         (sel_track_sm_grp == 2'h1) ? track_sm[5] :
+         track_sm[1];
+
+  assign hw2reg.tracking_sm_obs.tracking_sm_obs0.d =
+         (sel_track_sm_grp == 2'h3) ? track_sm[12] :
+         (sel_track_sm_grp == 2'h2) ? track_sm[8] :
+         (sel_track_sm_grp == 2'h1) ? track_sm[4] :
+         track_sm[0];
 
   //--------------------------------------------
   // report csrng request summary
@@ -1422,19 +1544,10 @@ module csrng_core import csrng_pkg::*; #(
   assign hw2reg.hw_exc_sts.de = cs_enable;
   assign hw2reg.hw_exc_sts.d  = hw_exception_sts;
 
-  assign hw2reg.sum_sts.fifo_depth_sts.de = cs_enable;
-  assign hw2reg.sum_sts.fifo_depth_sts.d  =
-         (fifo_sel == 4'h0) ? {21'b0,pfifo_sw_genbits_depth} :
-         24'b0;
-
-  assign hw2reg.sum_sts.diag.de = !cs_enable;
-  assign hw2reg.sum_sts.diag.d  =
-         (|err_code_test_bit[19:16]) && // not used
-         (|err_code_test_bit[27:26]) && // not used
-         (reg2hw.regwen.q)        && // not used
-         (|reg2hw.genbits.q)      && // not used
-         (|reg2hw.int_state_val.q); // not used
-
+  // unused signals
+  assign unused_err_code_test_bit = (|err_code_test_bit[19:16]) || (|err_code_test_bit[27:26]);
+  assign unused_reg2hw_genbits = (|reg2hw.genbits.q);
+  assign unused_int_state_val = (|reg2hw.int_state_val.q);
 
 
 endmodule // csrng_core

@@ -6,101 +6,121 @@
 # for OpenTitan.
 
 # Global configuration options.
-ARG VERILATOR_VERSION=4.104
-
+ARG VERILATOR_VERSION=4.210
+ARG OPENOCD_VERSION=0.11.0
+ARG VERIBLE_VERSION=v0.0-1213-g9e5c085
 # The RISCV toolchain version should match the release tag used in GitHub.
 ARG RISCV_TOOLCHAIN_TAR_VERSION=20210412-1
-
-# Build OpenOCD
-# OpenOCD is a tool to connect with the target chip over JTAG and similar
-# transports.
-FROM ubuntu:18.04 AS openocd
-RUN apt-get update && apt-get install -y \
-    autoconf \
-    git \
-    libftdi1-dev \
-    libtool \
-    libusb-1.0.0-dev \
-    pkg-config \
-    texinfo
-RUN git clone --depth=1 https://github.com/riscv/riscv-openocd.git /usr/local/src/openocd
-RUN cd /usr/local/src/openocd && ./bootstrap && mkdir build && cd build && \
-    ../configure --enable-ftdi --enable-verbose-jtag-io --disable-vsllink \
-    --enable-remote-bitbang --prefix=/tools/openocd && \
-    make -j$(nproc) && make install
-
-# Build Verilator.
-FROM ubuntu:18.04 as verilator
-ARG VERILATOR_VERSION
-RUN apt-get update && apt-get install -y \
-    autoconf \
-    automake \
-    autotools-dev \
-    bison \
-    build-essential \
-    flex \
-    git
-RUN git clone --depth=1 -b  v${VERILATOR_VERSION} \
-    https://github.com/verilator/verilator.git /usr/local/src/verilator
-RUN cd /usr/local/src/verilator && \
-    autoconf && ./configure --prefix=/tools/verilator/${VERILATOR_VERSION} && \
-    make -j$(nproc) && make install
-
+ARG RUST_VERSION=1.55.0
 
 # Main container image.
 FROM ubuntu:18.04 AS opentitan
 ARG VERILATOR_VERSION
+ARG OPENOCD_VERSION
+ARG VERIBLE_VERSION
 ARG RISCV_TOOLCHAIN_TAR_VERSION
+ARG RUST_VERSION
 
 LABEL version="1.0"
-LABEL description="OpenTitan container for hardware development."
-LABEL maintainer="miguelosorio@google.com"
+LABEL description="OpenTitan development container."
+LABEL maintainer="opentitan-dev@opentitan.org"
 
-# Copy tools from previous build stages
-WORKDIR /tools
-COPY --from=openocd /tools/openocd openocd
-COPY --from=verilator /tools/verilator/${VERILATOR_VERSION} verilator/${VERILATOR_VERSION}
+# Use bash as default shell.
+RUN ln -sf /bin/bash /bin/sh
 
-# Install (and cleanup) required packages (from apt-requirements.txt)
-# The list of extra packages is leftover from before this Dockerfile used
-# apt-requirements.txt
+# Add OBS repository to apt sources.
+RUN OBS_URL="https://download.opensuse.org/repositories"; \
+    OBS_PATH="/home:/phiwag:/edatools/xUbuntu_18.04"; \
+    REPO_URL="${OBS_URL}${OBS_PATH}"; \
+    \
+    EDATOOLS_REPO_KEY="${REPO_URL}/Release.key"; \
+    EDATOOLS_REPO="deb ${REPO_URL}/ /"; \
+    \
+    apt-get update && \
+    apt-get install -y curl && \
+    \
+    curl -f -sL -o "$TMPDIR/obs.asc" "$EDATOOLS_REPO_KEY" || { \
+        error "Failed to download repository key from ${REPO_URL}"; \
+    } && \
+    echo "$EDATOOLS_REPO" > "$TMPDIR/obs.list" && \
+    mv "$TMPDIR/obs.asc"  /etc/apt/trusted.gpg.d/obs.asc && \
+    mv "$TMPDIR/obs.list" /etc/apt/sources.list.d/edatools.list
+
+# Install system packages
 #
-# This also adds `locales` and `locales-all` so we can set the locale to utf-8
+# Install (and cleanup) required packages (from apt-requirements.txt).
+# Also add some additional packages for the use within this container and for
+# developer convenience:
+# - gosu and sudo are used by the scripting to make the image more convenient
+#   to use.
+# - locales and locales-all are required to set the locale.
+# - minicom and screen are useful to see UART communication.
+# - dc and time are requirements of Synopsys VCS.
 COPY apt-requirements.txt /tmp/apt-requirements.txt
-RUN apt-get update && \
-    sed 's/#.*//' /tmp/apt-requirements.txt \
-        | xargs apt-get install -y && \
-    apt-get install -y \
+RUN echo "verilator-${VERILATOR_VERSION}" >>/tmp/apt-requirements.txt \
+    && echo "openocd-${OPENOCD_VERSION}"     >>/tmp/apt-requirements.txt \
+    && sed -i -e '/^$/d' -e '/^#/d' -e 's/#.*//' /tmp/apt-requirements.txt \
+    && apt-get update \
+    && xargs apt-get install -y </tmp/apt-requirements.txt \
+    && apt-get install -y \
+        sudo \
+        gosu \
         locales \
         locales-all \
-        gnupg2 \
-        libc6-i386 \
-        libtool \
         minicom \
-        screen && \
-    apt-get clean ; \
+        screen \
+        dc \
+        time \
+    && apt-get clean; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+# RISC-V device toolchain
+COPY util/get-toolchain.py /tmp/get-toolchain.py
+RUN /tmp/get-toolchain.py -r ${RISCV_TOOLCHAIN_TAR_VERSION} \
+    && rm -f /tmp/get-toolchain.py
+
+# Install Verible
+RUN curl -f -Ls -o verible.tar.gz \
+        https://github.com/chipsalliance/verible/releases/download/${VERIBLE_VERSION}/verible-${VERIBLE_VERSION}-Ubuntu-18.04-bionic-x86_64.tar.gz \
+    && mkdir -p /tools/verible \
+    && tar -C /tools/verible -xf verible.tar.gz --strip-components=1
+ENV PATH "/tools/verible/bin:${PATH}"
 
 # Set Locale to utf-8 everywhere
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 
-# Copy repository into tmp directory to execute additional install steps.
+# Scripting for use within this container.
+COPY util/container/start.sh /start.sh
+COPY util/container/sudoconf /etc/sudoers.d/dev
+
+# Add the development user (UID/GID to be replaced).
+RUN groupadd dev \
+    && useradd --create-home -g dev dev \
+    && usermod -p '*' dev \
+    && passwd -u dev
+
+# All subsequent steps are performed as user.
+USER dev
+
+# Install Rust plus packages.
+COPY sw/vendor/rustup/rustup-init.sh /tmp/rustup-init.sh
+RUN /tmp/rustup-init.sh -y --default-toolchain ${RUST_VERSION}
+
+# Install Python plus packages.
+#
+# Explicitly updating pip and setuptools is required to have these tools
+# properly parse Python-version metadata, which some packages uses to
+# specify that an older version of a package must be used for a certain
+# Python version. If that information is not read, pip installs the latest
+# version, which then fails to run.
+ENV PATH "/home/dev/.local/bin:${PATH}"
 COPY python-requirements.txt /tmp/python-requirements.txt
-RUN pip3 install -r /tmp/python-requirements.txt
+RUN python3 -m pip install --user -U pip setuptools \
+    && python3 -m pip install --user -r /tmp/python-requirements.txt \
+        --no-warn-script-location
 
-COPY util/get-toolchain.py /tmp/get-toolchain.py
-RUN /tmp/get-toolchain.py -r ${RISCV_TOOLCHAIN_TAR_VERSION}
-RUN rm /tmp/python-requirements.txt /tmp/get-toolchain.py
+USER root
 
-# Use bash as default shell
-RUN ln -sf /bin/bash /bin/sh
-
-# Include tools in PATH.
-ENV PATH "/tools/verilator/${VERILATOR_VERSION}/bin:${PATH}"
-
-# Configures default container user.
-ENV USER ot
-
-ENTRYPOINT /bin/bash
+ENTRYPOINT [ "/start.sh" ]

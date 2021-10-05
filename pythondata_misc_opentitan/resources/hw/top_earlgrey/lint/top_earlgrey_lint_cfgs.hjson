@@ -39,6 +39,17 @@
                   import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
                   rel_path: "hw/ip/aon_timer/lint/{tool}"
              },
+             {    name: ast
+                  fusesoc_core: lowrisc:systems:ast
+                  import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
+                  rel_path: "hw/top_earlgrey/ip/ast/lint/{tool}"
+                  overrides: [
+                    {
+                      name: design_level
+                      value: "top"
+                    }
+                  ]
+             },
              {    name: entropy_src
                   fusesoc_core: lowrisc:ip:entropy_src
                   import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
@@ -116,11 +127,6 @@
                   import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
                   rel_path: "hw/ip/keymgr/lint/{tool}"
              },
-             {    name: nmi_gen
-                  fusesoc_core: lowrisc:ip:nmi_gen
-                  import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
-                  rel_path: "hw/ip/nmi_gen/lint/{tool}"
-             },
              {    name: otbn
                   fusesoc_core: lowrisc:ip:otbn
                   import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
@@ -141,6 +147,23 @@
                   fusesoc_core: lowrisc:ip:pinmux
                   import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
                   rel_path: "hw/ip/pinmux/lint/{tool}"
+                  overrides: [
+                    {
+                      name: design_level
+                      value: "top"
+                    }
+                  ]
+             },
+             {    name: pwm
+                  fusesoc_core: lowrisc:ip:pwm
+                  import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
+                  rel_path: "hw/ip/pwm/lint/{tool}"
+                  overrides: [
+                    {
+                      name: design_level
+                      value: "top"
+                    }
+                  ]
              },
              {    name: pwrmgr
                   fusesoc_core: lowrisc:ip:pwrmgr
@@ -152,6 +175,11 @@
                       value: "top"
                     }
                   ]
+             },
+             {    name: rom_ctrl
+                  fusesoc_core: lowrisc:ip:rom_ctrl
+                  import_cfgs: ["{proj_root}/hw/lint/tools/dvsim/common_lint_cfg.hjson"]
+                  rel_path: "hw/ip/rom_ctrl/lint/{tool}"
              },
              {    name: rstmgr
                   fusesoc_core: lowrisc:ip:rstmgr

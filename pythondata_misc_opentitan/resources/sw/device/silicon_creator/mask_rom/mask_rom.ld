@@ -37,6 +37,19 @@ _chip_info_start = _chip_info_end - _chip_info_size;
 /* DV Log offset (has to be different to other boot stages). */
 _dv_log_offset = 0x0;
 
+/**
+ * Physical Memory Protection (PMP) encoded address register values.
+ *
+ * Some addresses required for PMP entries are known only at link time.
+ * These addresses are encoded here so that no calculations need to be
+ * performed at runtime.
+ *
+ * See The RISC-V Instruction Set Manual Volume II: Privileged Architecture
+ * for more information about PMP address register encodings.
+ */
+_epmp_text_tor_lo = _text_start / 4;
+_epmp_text_tor_hi = _text_end / 4;
+_epmp_stack_guard_na4 = _stack_start / 4;
 
 ENTRY(_mask_rom_start_boot);
 
@@ -52,6 +65,7 @@ SECTIONS {
    * reset handler correctly.
    */
   .vectors _mask_rom_boot_address : ALIGN(256) {
+    _text_start = .;
     KEEP(*(.vectors))
   } > rom
 
@@ -71,6 +85,24 @@ SECTIONS {
   .text : ALIGN(4) {
     *(.text)
     *(.text.*)
+
+
+    /* Ensure section end is word-aligned. */
+    . = ALIGN(4);
+  } > rom
+
+  /**
+   * Shutdown text section, containing shutdown function(s).
+   *
+   * This must be the last executable section in the ROM.
+   */
+  .shutdown : ALIGN(4) {
+    *(.shutdown)
+    *(.shutdown.*)
+
+    /* Ensure section end is word-aligned. */
+    . = ALIGN(4);
+    _text_end = .;
   } > rom
 
   /**
@@ -87,13 +119,27 @@ SECTIONS {
   } > rom
 
   /**
-   * Mutable data section, at the bottom of ram_main. This will be initialized
-   * from rom at runtime by the CRT.
+   * Critical static data that is accessible by both the mask ROM and the ROM
+   * extension.
    *
-   * Load this by copying the bytes from [_data_init_start, _data_init_end] into
-   * the range [_data_start, _data_end].
+   * Each variable added to .static_critical must be in its own subsection
+   * named after the variable.
+   *
+   * This data is not initialized during CRT (hence NOLOAD). The mask ROM must
+   * initialize this data explicitly.
    */
-  .data ORIGIN(ram_main) : ALIGN(4) {
+  .static_critical ORIGIN(ram_main) (NOLOAD) : ALIGN(4) {
+    INCLUDE sw/device/silicon_creator/lib/base/static_critical.ld
+  } > ram_main
+
+  /**
+   * Mutable data section. This will be initialized from rom at runtime by the
+   * CRT.
+   *
+   * Load this by copying the bytes from [_data_init_start, _data_init_end) into
+   * the range [_data_start, _data_end).
+   */
+  .data : ALIGN(4) {
     _data_start = .;
     _data_init_start = LOADADDR(.data);
 

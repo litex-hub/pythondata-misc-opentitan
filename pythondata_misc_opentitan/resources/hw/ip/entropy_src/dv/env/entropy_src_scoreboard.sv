@@ -10,8 +10,9 @@ class entropy_src_scoreboard extends cip_base_scoreboard #(
   `uvm_component_utils(entropy_src_scoreboard)
 
   // local variables
-  bit [entropy_src_pkg::RNG_BUS_WIDTH-1:0] rng_item_data_q[$];
-  bit [31:0] entropy_data_q[$];
+  push_pull_item#(.HostDataWidth(entropy_src_pkg::RNG_BUS_WIDTH))  rng_item;
+  bit [31:0]                                                       entropy_data_q[$];
+  bit [entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH-1:0]                  fips_csrng_q[$];
 
   // TLM agent fifos
   uvm_tlm_analysis_fifo#(push_pull_item#(.HostDataWidth(entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH)))
@@ -19,16 +20,13 @@ class entropy_src_scoreboard extends cip_base_scoreboard #(
   uvm_tlm_analysis_fifo#(push_pull_item#(.HostDataWidth(entropy_src_pkg::RNG_BUS_WIDTH)))
       rng_fifo;
 
-  // local queues to hold incoming packets pending comparison
-  push_pull_item#(.HostDataWidth(entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH))  csrng_q[$];
-  push_pull_item#(.HostDataWidth(entropy_src_pkg::RNG_BUS_WIDTH))  rng_item;
-
   `uvm_component_new
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
 
-    rng_fifo = new("rng_fifo", this);
+    rng_fifo   = new("rng_fifo", this);
+    csrng_fifo = new("csrng_fifo", this);
   endfunction
 
   function void connect_phase(uvm_phase phase);
@@ -37,8 +35,10 @@ class entropy_src_scoreboard extends cip_base_scoreboard #(
 
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
+
     fork
-      concatenate();
+      collect_entropy();
+      process_csrng();
     join_none
   endtask
 
@@ -50,7 +50,7 @@ class entropy_src_scoreboard extends cip_base_scoreboard #(
     uvm_reg_addr_t csr_addr = ral.get_word_aligned_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
-    if (csr_addr inside {cfg.csr_addrs[ral_name]}) begin
+    if (csr_addr inside {cfg.ral_models[ral_name].csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
     end
@@ -149,19 +149,55 @@ class entropy_src_scoreboard extends cip_base_scoreboard #(
     end
   endtask
 
-  task concatenate;
-    bit [31:0] entropy_data;
+  function bit [entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH-1:0] predict_fips_csrng (
+      bit [entropy_src_pkg::RNG_BUS_WIDTH-1:0] data_q[$]);
+    bit [entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH - 1:0]   fips_csrng_data;
+    bit [entropy_src_pkg::CSRNG_BUS_WIDTH - 1:0]        csrng_data;
+    bit [entropy_src_pkg::FIPS_BUS_WIDTH - 1:0]         fips_data;
+
+    // TODO: Add shah3 prediction
+    if (cfg.type_bypass) begin
+      fips_data = '0;
+    end
+    for (int i = data_q.size() - 1; i >= 0 ; i--) begin
+      csrng_data = (csrng_data << 4) + data_q[i];
+    end
+    fips_csrng_data = {fips_data, csrng_data};
+
+    return csrng_data;
+  endfunction
+
+  task collect_entropy();
+    bit [15:0]   window_size;
+    bit [entropy_src_pkg::RNG_BUS_WIDTH-1:0]   rng_data_q[$];
+
+    // TODO: Read window size from register
+    if (cfg.type_bypass)
+      window_size = entropy_src_pkg::CSRNG_BUS_WIDTH;
+    else
+      window_size = 2048;
 
     forever begin
       rng_fifo.get(rng_item);
-      rng_item_data_q.push_back(rng_item.h_data);
-      if ((rng_item_data_q.size() % 8) == 0) begin
-        for (int i = 0; i < 8; i++) begin
-          entropy_data = entropy_data + (rng_item_data_q[rng_item_data_q.size - 8 + i] << (4 * i));
+      rng_data_q.push_back(rng_item.h_data);
+      if (rng_data_q.size() == entropy_src_pkg::CSRNG_BUS_WIDTH/entropy_src_pkg::RNG_BUS_WIDTH) begin
+        fips_csrng_q.push_back(predict_fips_csrng(rng_data_q[0:entropy_src_pkg::CSRNG_BUS_WIDTH-1]));
+        for (int i = 0; i < entropy_src_pkg::CSRNG_BUS_WIDTH/entropy_src_pkg::RNG_BUS_WIDTH; i++) begin
+          rng_data_q.delete(0);
         end
-        entropy_data_q.push_back(entropy_data);
-        entropy_data = 32'h0;
       end
+    end
+  endtask
+
+  virtual task process_csrng();
+    push_pull_item#(.HostDataWidth(entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH))  item;
+    bit [entropy_src_pkg::FIPS_CSRNG_BUS_WIDTH - 1:0]   fips_csrng_data;
+
+    forever begin
+      csrng_fifo.get(item);
+      fips_csrng_data = item.d_data;
+      `DV_CHECK_EQ_FATAL(fips_csrng_data, fips_csrng_q[0])
+      fips_csrng_q.pop_front();
     end
   endtask
 

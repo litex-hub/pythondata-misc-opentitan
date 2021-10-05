@@ -7,139 +7,14 @@
  * https://chromium.googlesource.com/chromiumos/platform/ec/+/refs/heads/cr50_stab/chip/g/dcrypto/dcrypto_p256.c
  */
 
-.globl p256_init
 .globl p256_isoncurve
-.globl p256_scalarmult
-.globl p256_scalar_base_mult
+.globl p256_scalar_mult
+.globl p256_base_mult
 .globl p256_sign
 .globl p256_verify
 .globl proj_add
 
 .text
-
-/**
- * Initialize field modulus and corresponding Barrett constant for P-256
- *
- * This routine runs in constant time.
- *
- * Flags: This routine does not modify any flag group
- *
- * @param[out]  w29: p, modulus of P-256 underlying finite field
- * @param[out]  w28: u, lower 256 bit of Barrett constant for curve P-256
- * @param[out]  MOD: p, modulus of P-256 underlying finite field
- *
- * clobbered registers: x2, w28, w29
- * clobbered flag groups: none
- */
-setup_barrett_p:
-  /* load field modulus p =
-     w29 = p = 2^256 - 2^224 + 2^192 + 2^96 - 1
-     0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF */
-  sw        x0, 524(x0)
-  sw        x0, 528(x0)
-  sw        x0, 532(x0)
-  addi      x2, x0, 1
-  sw        x2, 536(x0)
-  addi      x2, x0, -1
-  sw        x2, 512(x0)
-  sw        x2, 516(x0)
-  sw        x2, 520(x0)
-  sw        x2, 540(x0)
-  addi      x2, x0, 29
-  bn.lid    x2, 512(x0)
-
-  /* store modulus to MOD WSR */
-  bn.wsrw   0, w29
-
-  /* load Barrett constant u (lower 256 bit only)
-     w28 = u = floor(2^512/p)[255:0] =
-     0X00000000FFFFFFFFFFFFFFFEFFFFFFFEFFFFFFFEFFFFFFFF0000000000000003*/
-  sw        x0, 548(x0)
-  sw        x0, 572(x0)
-  addi      x2, x0, -1
-  sw        x2, 552(x0)
-  sw        x2, 568(x0)
-  addi      x2, x0, 3
-  sw        x2, 544(x0)
-  addi      x2, x0, -2
-  sw        x2, 556(x0)
-  sw        x2, 560(x0)
-  sw        x2, 564(x0)
-  addi      x2, x0, 28
-  bn.lid    x2, 544(x0)
-
-  ret
-
-
-/**
- * Initialize curve P-256 (secp256r1)
- *
- * Setup the context for the P-256 curve:
- *  - load domain parameter b
- *  - load P-256 underlying field modulus p and corresponding Barrett constant
- *  - prepare all-zero-reg and always-one-reg
- *
- * Note that the domain parameter 'a' of P-256 can be written as a=-3.
- * Therefore, parameter 'a' is not provided in a register but has to be
- * incorporated in the algorithms of the individual subroutines.
- * This routine runs in constant time.
- *
- * Flags: This routine does not modify any flag group
- *
- * @param[out]  w27: b, domain parameter b of P-256
- * @param[out]  w28: u, lower 256 bit of Barrett constant for curve P-256
- * @param[out]  w29: p, modulus of P-256 underlying finite field
- * @param[out]  w30: constant 1
- * @param[out]  w31: all-zero
- *
- * clobbered registers: x2, x3, w27, w28, w29, w30, w31
- * clobbered flag groups: none
- */
-p256_init:
-  addi      x3, x0, 31
-  bn.lid    x3, 0(x0)
-
-  /* init all-zero register */
-  bn.xor    w31, w31, w31
-
-  /* init reg with constant 1 */
-  bn.addi   w30, w31, 1
-
-  /* setup modulus and corresponding Barrett constant */
-  jal       x1, setup_barrett_p
-
-  /* load domain parameter b via dmem
-     w27 = b
-     b = 0X5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B */
-  lui       x2, 163110
-  addi      x2, x2, 75
-  sw        x2, 576(x0)
-  lui       x2, 244964
-  addi      x2, x2, -962
-  sw        x2, 580(x0)
-  lui       x2, 836923
-  addi      x2, x2, 246
-  sw        x2, 584(x0)
-  lui       x2, 414160
-  addi      x2, x2, 1712
-  sw        x2, 588(x0)
-  lui       x2, 485768
-  addi      x2, x2, 1724
-  sw        x2, 592(x0)
-  lui       x2, 736956
-  addi      x2, x2, -683
-  sw        x2, 596(x0)
-  lui       x2, 697257
-  addi      x2, x2, 999
-  sw        x2, 600(x0)
-  lui       x2, 371811
-  addi      x2, x2, 1496
-  sw        x2, 604(x0)
-  addi      x2, x0, 27
-  bn.lid    x2, 576(x0)
-
-  ret
-
 
 /**
  * 256-bit modular multiplication based on Barrett reduction algorithm.
@@ -172,8 +47,7 @@ p256_init:
  * added or the modulus has to be in a range such that it can be mathematically
  * proven that a single subtraction is sufficient.
  *
- * Flags: Flags when leaving this subroutine depend on a potentially discarded
- *        value and therefore are not usable after return.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * @param[in]  w24: a, first 256 bit operand (a < p)
  * @param[in]  w25: b, second 256 bit operand with (b < p)
@@ -328,9 +202,7 @@ mod_mul_256x256:
  * comparison to the caller.
  * The routine runs in constant time.
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * @param[in]  dmem[12]: dptr_r, pointer to dmem location where right
  *                               side result r will be stored
@@ -340,98 +212,84 @@ mod_mul_256x256:
  *                               x-coordinate of input point
  * @param[in]  dmem[24]: dptr_y, pointer to dmem location containing affine
  *                               y-coordinate of input point
- * @param[in]  w27: b, curve domain parameter
- * @param[in]  w29: p, modulus, 2^256 > p > 2^255.
- * @param[in]  w28: u, pre-computed Barrett constant (without u[256]/MSb
- *                       of u which is always 1 for the allowed range.
- * @param[in]  w31: all-zero.
- * @param[in]  MOD: p, modulus, 2^256 > p > 2^255.
  *
- * clobbered registers: x8, x13, x14, x19, x20, x21, w0, w19 to w25
+ * clobbered registers: x2, x3, x19, x20, w0, w19 to w25
  * clobbered flag groups: FG0
  */
 p256_isoncurve:
 
-  addi      x3, x0, 0
-  bn.lid    x3, 0(x0)
+  /* setup all-zero reg */
+  bn.xor    w31, w31, w31
 
-  lw        x16, 0(x0)
-  lw        x17, 4(x0)
-  lw        x18, 8(x0)
+  /* load dmem pointer to signature r in dmem: x19 <= dptr_r = dmem[12] */
+  la        x19, dptr_r
+  lw        x19, 0(x19)
 
-  /* load dmem pointer to signature r from dmem: x19 <= dptr_r = dmem[12] */
-  lw        x19, 12(x0)
+  /* load dmem pointer to signature s in dmem: x20 <= dptr_s = dmem[16] */
+  la        x20, dptr_s
+  lw        x20, 0(x20)
 
-  /* load dmem pointer to signature s from dmem, x20 <= dptr_s = dmem[16] */
-  lw        x20, 16(x0)
+  /* setup modulus p and Barrett constant u
+     MOD <= w29 <= dmem[p256_p] = p; w28 <= dmem[p256_u_p] = u_p */
+  li        x2, 29
+  la        x3, p256_p
+  bn.lid    x2, 0(x3)
+  bn.wsrw   0, w29
+  li        x2, 28
+  la        x3, p256_u_p
+  bn.lid    x2, 0(x3)
 
-  /* load dmem pointer to affine x-coordinate of curve point from dmem:
-     x21 <= dptr_x = dmem[20] */
-  lw        x21, 20(x0)
+  /* load domain parameter b from dmem
+     w27 <= b = dmem[p256_b] */
+  li        x2, 27
+  la        x3, p256_b
+  bn.lid    x2, 0(x3)
 
-  /* load dmem pointer to affine y-coordinate of curve point from dmem:
-     x22 <= dptr_y = dmem[24] */
-  lw        x22, 24(x0)
+  /* load affine y-coordinate of curve point from dmem
+     w26 <= dmem[dptr_y] = dmem[24] */
+  la        x3, dptr_y
+  lw        x3, 0(x3)
+  li        x2, 24
+  bn.lid    x2, 0(x3)
 
-  lw        x23, 28(x0)
-
-  /* setup pointers to WREGs */
-  addi      x8, x0, 0
-
-  lw        x9, 4(x0)
-  lw        x10, 8(x0)
-  lw        x11, 12(x0)
-  lw        x12, 16(x0)
-
-  /* setup pointers to WREGs */
-  addi      x13, x0, 24
-  addi      x14, x0, 24
-
-  lw        x15, 28(x0)
-
-  /* load y-coordinate from dmem
-     w24 = y = dmem[dptr_y] = dmem[x22]] */
-  bn.lid    x14, 0(x22)
-
-  /* w0 = w19 = y^2 = w24*w24 */
-  bn.mov    w25, w24
-  jal       x1, mod_mul_256x256
-  bn.mov    w0, w19
-
-  /* load x-coordinate from dmem
-     w24 = x = dmem[dptr_x] = dmem[x21] */
-  bn.lid    x13, 0(x21)
-
-  /* w19 = x^2 = w24*w24 */
+  /* w19 <= y^2 = w24*w24 */
   bn.mov    w25, w24
   jal       x1, mod_mul_256x256
 
-  /* reload x-coordinate from dmem */
-  bn.lid    x13, 0(x21)
+  /* store left side result: dmem[dptr_s] <= w0 = y^2  mod p */
+  li        x2, 19
+  bn.sid    x2, 0(x20)
 
-  /* w19 = x^3 = x^2 * x = w25*w24 = w19*w24 */
+  /* load affine x-coordinate of curve point from dmem
+     w26 <= dmem[dptr_x] = dmem[20] */
+  la        x3, dptr_x
+  lw        x3, 0(x3)
+  li        x2, 26
+  bn.lid    x2, 0(x3)
+
+  /* w19 <= x^2 = w26*w26 */
+  bn.mov    w25, w26
+  bn.mov    w24, w26
+  jal       x1, mod_mul_256x256
+
+  /* w19 = x^3 <= x^2 * x = w25*w24 = w26*w19 */
   bn.mov    w25, w19
+  bn.mov    w24, w26
   jal       x1, mod_mul_256x256
-
-  /* reload x-coordinate from dmem */
-  bn.lid    x13, 0(x21)
 
   /* for curve P-256, 'a' can be written as a = -3, therefore we subtract
      x three times from x^3.
-     w19 = x^3 + ax = x^3 - 3x  mod p */
-  bn.subm   w19, w19, w24
-  bn.subm   w19, w19, w24
-  bn.subm   w19, w19, w24
+     w19 = x^3 + ax <= x^3 - 3x  mod p */
+  bn.subm   w19, w19, w26
+  bn.subm   w19, w19, w26
+  bn.subm   w19, w19, w26
 
-  /* w24 = x^3 + ax + b = w19 + w27  mod p */
-  bn.addm   w24, w19, w27
+  /* w24 <= x^3 + ax + b mod p = w19 + w27 mod p */
+  bn.addm   w19, w19, w27
 
-  /* store results in dmem */
-  /* dmem[dptr_r] = w24 = x^3 + ax + b  mod p */
-  bn.sid    x13, 0(x19)
-
-  /* dmem[dptr_s] = w0 = y^2  mod p */
-  bn.sid    x8, 0(x20)
+  /* store right side result: dmem[dptr_s] <= w19 = x^3 + ax + b mod p */
+  li        x2, 19
+  bn.sid    x2, 0(x19)
 
   ret
 
@@ -475,9 +333,7 @@ p256_isoncurve:
  * @param[out]  w12: y_r, x-coordinate of resulting point R
  * @param[out]  w13: z_r, x-coordinate of resulting point R
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * clobbered registers: w11 to w25
  * clobbered flag groups: FG0
@@ -898,15 +754,11 @@ proj_to_affine:
  * @param[in]  w0: x, a 256 bit operand with x < m
  * @param[in]  w29: m, modulus, 2^256 > m > 2^255.
  * @param[in]  w28: u, lower 256 bit of pre-computed Barrett constant
- * @param[in]  w30, constant 1
  * @param[in]  w31, all-zero
  * @param[in]  MOD: m, modulus
  * @param[out]  w1: x_inv, modular multiplicative inverse
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on a
- *        potentially discarded intermediate result and are not usable after
- *        return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * clobbered registers: w1, w2, w3, w19, w24, w25
  * clobbered flag groups: FG0
@@ -919,7 +771,7 @@ mod_inv:
   bn.subi   w2, w2, 2
 
   /* init square and multiply: w1 = 1 */
-  bn.mov    w1, w30
+  bn.addi   w1, w31, 1
 
   /* square and multiply loop */
   loopi     256, 14
@@ -936,7 +788,7 @@ mod_inv:
 
     /* skip multiplication if C flag not set */
     bn.sel    w1, w1, w3, C
-    csrrs     x2, 1984, x0
+    csrrs     x2, 0x7c0, x0
     andi      x2, x2, 1
     beq       x2, x0, nomul
 
@@ -981,7 +833,7 @@ mod_inv:
  * Flags: When leaving this subroutine, the M, L and Z flags of FG0 depend on
  *        the scaled projective y-coordinate.
  *
- * clobbered registers: w2, w6, w7, w19, w24, w25, w26
+ * clobbered registers: w2, w6, w7, w19 to w26
  * clobbered flag groups: FG0
  */
 fetch_proj_randomize:
@@ -1039,9 +891,7 @@ fetch_proj_randomize:
  * @param[out]  w12: y_r, y-coordinate of resulting point
  * @param[out]  w13: z_r, z-coordinate of resulting point
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * clobbered registers: w11 to w25
  * clobbered flag groups: FG0
@@ -1062,86 +912,13 @@ proj_double:
 
 
 /**
- * Setup Barrett parameters for order of base point of P-256
- *
- * Loads n, ther order of the base point G of P-256 in the modulus register.
- * Loads the matching Barrett constant u = floor(2^512/n)[255:0].
- *
- * This routine runs in constant time.
- *
- * Flags: This routine does not modify any flag group
- *
- * @param[out]  w29: n, order of base point G of P-256
- * @param[out]  w28: u_n, lower 256 bit of Barrett constant base point order
- * @param[out]  MOD: n, order of base point G of P-256
- *
- * clobbered registers: x2, w28, w29
- * clobbered flag groups: none
- */
-setup_barrett_n:
-  /* load order of base point G of P-256
-     w29 = n =
-     0XFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551 */
-  addi      x2, x0, 0
-  sw        x2, 632(x0)
-  addi      x2, x2, -1
-  sw        x2, 624(x0)
-  sw        x2, 628(x0)
-  sw        x2, 636(x0)
-  lui       x2, 1033778
-  addi      x2, x2, 1361
-  sw        x2, 608(x0)
-  lui       x2, 998301
-  addi      x2, x2, -1342
-  sw        x2, 612(x0)
-  lui       x2, 684410
-  addi      x2, x2, -380
-  sw        x2, 616(x0)
-  lui       x2, 773744
-  addi      x2, x2, -1363
-  sw        x2, 620(x0)
-  addi      x2, x0, 29
-  bn.lid    x2, 608(x0)
-
-  /* store n to MOD WSR */
-  bn.wsrw   0, w29
-
-  /* load Barrett constant u (lower 256 bit only)
-     w28 = u_n = floor(2^512/n)[255:0] =
-     0X00000000FFFFFFFFFFFFFFFEFFFFFFFF43190552DF1A6C21012FFD85EEDF9BFE */
-  addi      x2, x0, 0
-  sw        x2, 668(x0)
-  addi      x2, x0, -1
-  sw        x2, 656(x0)
-  sw        x2, 664(x0)
-  addi      x2, x0, -2
-  sw        x2, 660(x0)
-  lui       x2, 978426
-  addi      x2, x2, -1026
-  sw        x2, 640(x0)
-  lui       x2, 4864
-  addi      x2, x2, -635
-  sw        x2, 644(x0)
-  lui       x2, 913831
-  addi      x2, x2, -991
-  sw        x2, 648(x0)
-  lui       x2, 274832
-  addi      x2, x2, 1362
-  sw        x2, 652(x0)
-  addi      x2, x0, 28
-  bn.lid    x2, 640(x0)
-
-  ret
-
-
-/**
  * P-256 scalar point multiplication in affine space
  *
  * returns R = k*P = k*(x_p, y_p)
  *         with R, P being valid P-256 curve points in affine coordinates
  *              k being a 256 bit scalar
  *
- * This routines performs scalar multiplication based on the group laws
+ * This routine performs scalar multiplication based on the group laws
  * of Weierstrass curves.
  * A constant time double-and-add algorithm (sometimes referred to as
  * double-and-add-always) is used.
@@ -1151,18 +928,11 @@ setup_barrett_n:
  * exponent/scalar k into a random number (rnd) and rnd-k. The double-and-add
  * loop operates on both shares in parallel applying Shamir's trick.
  *
- * @param[in]  x9: constant 1
- * @param[in]  x10: constant 24
- * @param[in]  x17: dRnd, pointer to location in dmem containing random number
- *                          to be used for additive splitting of scalar
  * @param[in]  x21: dptr_x, pointer to affine x-coordinate in dmem
  * @param[in]  x22: dptr_y, pointer to affine y-coordinate in dmem
  * @param[in]  w0: k, scalar for multiplication
+ * @param[in]  w1: rnd, blinding parameter
  * @param[in]  w27: b, curve domain parameter
- * @param[in]  w28: u, pre-computed Barrett constant (without u[256]/MSb
- *                           of u which is always 1 for the allowed range.
- * @param[in]  w29: p, modulus, 2^256 > p > 2^255.
- * @param[in]  w30: constant 1
  * @param[in]  w31: all-zero
  * @param[in]  MOD: p, modulus, 2^256 > p > 2^255.
  * @param[out]  w11: x_r, affine x-coordinate of resulting point
@@ -1171,17 +941,19 @@ setup_barrett_n:
  * Flags: When leaving this subroutine, the M, L and Z flags of FG0 depend on
  *        the computed affine y-coordinate.
  *
- * clobbered registers: w0 to w25
+ * clobbered registers: x2, x3, x10, w0 to w26
  * clobbered flag groups: FG0
  */
 scalar_mult_int:
 
-  /* setup domain parameter n (order of base point G) as the modulus */
-  jal       x1, setup_barrett_n
+  /* load order of base point G of P-256
+     w29 <= n = dmem[p256_n] */
+  li        x2, 29
+  la        x3, p256_n
+  bn.lid    x2, 0(x3)
 
-  /* fetch externally supplied random number from dmem
-     w1 = dmem[dptr_rnd] = rnd */
-  bn.lid    x9, 0(x17)
+  /* store n to MOD WSR */
+  bn.wsrw   0, w29
 
   /* 1st share (reduced rnd)
      rnd = w1 <= rnd mod n */
@@ -1191,12 +963,31 @@ scalar_mult_int:
      w0 = w0 - w1 = k - rnd mod n */
   bn.subm   w0, w0, w1
 
-  /* setup Barrett parameter and modulus for P-256 underlying field */
-  jal       x1, setup_barrett_p
+  /* load field modulus p from dmem
+     w29 <= p = dmem[p256_p] */
+  li        x2, 29
+  la        x3, p256_p
+  bn.lid    x2, 0(x3)
+
+  /* store modulus to MOD WSR */
+  bn.wsrw   0, w29
+
+  /* load lower 256 bit of Barrett constant u for modulus p from dmem
+     w28 <= u = dmem[p256_u_p] */
+  li        x2, 28
+  la        x3, p256_u_p
+  bn.lid    x2, 0(x3)
+
+  /* load domain parameter b from dmem
+     w27 <= b = dmem[p256_b] */
+  li        x2, 27
+  la        x3, p256_b
+  bn.lid    x2, 0(x3)
 
   /* get randomized projective coodinates of curve point
      P = (x_p, y_p, z_p) = (w8, w9, w10) = (w6, w7, w26) =
      (x*z mod p, y*z mod p, z) */
+  li        x10, 24
   jal       x1, fetch_proj_randomize
   bn.mov    w8, w6
   bn.mov    w9, w7
@@ -1213,7 +1004,7 @@ scalar_mult_int:
   /* init double-and-add with point in infinity
      Q = (w8, w9, w10) <= (0, 1, 0) */
   bn.mov    w8, w31
-  bn.mov    w9, w30
+  bn.addi   w9, w31, 1
   bn.mov    w10, w31
 
   /* double-and-add loop with decreasing index */
@@ -1222,7 +1013,6 @@ scalar_mult_int:
     /* double point Q
        Q = (w11, w12, w13) <= 2*(w8, w9, w10) = 2*Q */
     jal       x1, proj_double
-
 
     /* re-fetch and randomize P again
        P = (w6, w7, w26) */
@@ -1302,81 +1092,6 @@ scalar_mult_int:
 
 
 /**
- * Load base points of P-256
- *
- * Flags: This routine does not modify any flag group
- *
- * @param[out]  w8: x_g, base point affine x-coordinate
- * @param[out]  w9: y_g, base point affine y-coordinate
- *
- * clobbered registers: x2, w8, w9
- * clobbered flag groups: none
- */
-load_basepoint:
-  /* load base point x-coordinate
-     w8 = x_g =
-     0X6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296 */
-  lui       x2, 887180
-  addi      x2, x2, 662
-  sw        x2, 672(x0)
-  lui       x2, 1002004
-  addi      x2, x2, -1723
-  sw        x2, 676(x0)
-  lui       x2, 188083
-  addi      x2, x2, 928
-  sw        x2, 680(x0)
-  lui       x2, 487480
-  addi      x2, x2, -639
-  sw        x2, 684(x0)
-  lui       x2, 408132
-  addi      x2, x2, 242
-  sw        x2, 688(x0)
-  lui       x2, 1018830
-  addi      x2, x2, 1765
-  sw        x2, 692(x0)
-  lui       x2, 922308
-  addi      x2, x2, 583
-  sw        x2, 696(x0)
-  lui       x2, 438653
-  addi      x2, x2, 498
-  sw        x2, 700(x0)
-  addi      x2, x0, 8
-  bn.lid    x2, 672(x0)
-
-  /* load base point y-coordinate
-     w9 = y_g =
-     0X4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5 */
-  lui       x2, 228341
-  addi      x2, x2, 501
-  sw        x2, 704(x0)
-  lui       x2, 834404
-  addi      x2, x2, 104
-  sw        x2, 708(x0)
-  lui       x2, 439062
-  addi      x2, x2, -306
-  sw        x2, 712(x0)
-  lui       x2, 179427
-  addi      x2, x2, 855
-  sw        x2, 716(x0)
-  lui       x2, 508154
-  addi      x2, x2, -490
-  sw        x2, 720(x0)
-  lui       x2, 585343
-  addi      x2, x2, -1206
-  sw        x2, 724(x0)
-  lui       x2, 1040808
-  addi      x2, x2, -101
-  sw        x2, 728(x0)
-  lui       x2, 327220
-  addi      x2, x2, 738
-  sw        x2, 732(x0)
-  addi      x2, x0, 9
-  bn.lid    x2, 704(x0)
-
-  ret
-
-
-/**
  * P-256 ECDSA signature generation
  *
  * returns the signature as the pair r, s with
@@ -1393,7 +1108,7 @@ load_basepoint:
  *
  * @param[in]  dmem[0]: dptr_k, pointer to a 256 bit random secret in dmem
  * @param[in]  dmem[4]: dptr_rnd, pointer to location in dmem containing random
- *                        number for blinding
+ *                                number for blinding
  * @param[in]  dmem[8]: dptr_msg, pointer to the message to be signed in dmem
  * @param[in]  dmem[12]: dptr_r, pointer to dmem location where s component
  *                               of signature will be placed
@@ -1404,99 +1119,83 @@ load_basepoint:
  * Flags: When leaving this subroutine, the M, L and Z flags of FG0 depend on
  *        the computed affine y-coordinate.
  *
- * clobbered registers: x3, x8 to x23, w0 to w25
+ * clobbered registers: x2, x3, x16 to x23, w0 to w26
  * clobbered flag groups: FG0
  */
 p256_sign:
 
-  addi      x0, x0, 0
-  addi      x3, x0, 0
-  bn.lid    x3, 0(x0)
+  /* init all-zero register */
+  bn.xor    w31, w31, w31
 
-  /* load dmem pointer to secret random number k in dmem
-     x16 <= dptr_k = dmem[0]*/
-  lw        x16, 0(x0)
+  /* load dmem pointer to secret random scalar k: x16 <= dptr_k = dmem[0] */
+  la        x16, dptr_k
+  lw        x16, 0(x16)
 
   /* load dmem pointer to random number for blinding rnd in dmem:
      x17 <= dptr_rnd = dmem[4] */
-  lw        x17, 4(x0)
+  la        x17, dptr_rnd
+  lw        x17, 0(x17)
 
   /* load dmem pointer to message msg in dmem: x18 <= dptr_msg = dmem[8] */
-  lw        x18, 8(x0)
+  la        x18, dptr_msg
+  lw        x18, 0(x18)
 
   /* load dmem pointer to signature r in dmem: x19 <= dptr_r = dmem[12] */
-  lw        x19, 12(x0)
+  la        x19, dptr_r
+  lw        x19, 0(x19)
 
   /* load dmem pointer to signature s in dmem: x20 <= dptr_s = dmem[16] */
-  lw        x20, 16(x0)
+  la        x20, dptr_s
+  lw        x20, 0(x20)
 
-  /* load dmem pointer to affine x-coordinate in dmem:
-     x21 <= dptr_x = dmem[20] */
-  lw        x21, 20(x0)
-
-  /* load dmem pointer to affine y-coordinate in dmem:
-     x22 <= dptr_y = dmem[24] */
-  lw        x22, 24(x0)
-
-  /* load dmem pointer to private key d in dmem: dD = x15 <= dmem[28] */
-  lw        x23, 28(x0)
-
-  /* setup pointers into reg file */
-  addi      x8, x0, 0
-  addi      x9, x0, 1
-  addi      x10, x0, 24
-
-  /* setup more dmem pointers */
-  lw        x11, 12(x0)
-
-  /* setup pointers into reg file */
-  addi      x12, x0, 8
-  addi      x13, x0, 9
-
-  /* load dmem pointer to affine y-coordinate in dmem: x14 <= dptr_y = dmem[24] */
-  lw        x14, 24(x0)
-
-  /* load dmem pointer to private key d in dmem: x15 <= dptr_d = dmem[28] */
-  lw        x15, 28(x0)
-
-  /* load base point G affine coordinates: G = (w8, w9) <= (x_g, y_g) */
-  jal       x1, load_basepoint
-
-  /* store affine base point coordinates in dmem
-     dmem[dptr_x] = w8; dmem[dptr_y] = w9 */
-  bn.sid    x12, 0(x21)
-  bn.sid    x13, 0(x22)
+  /* load dmem pointer to private key d in dmem: x23 <= d = dmem[28] */
+  la        x23, dptr_d
+  lw        x23, 0(x23)
 
   /* load private key d from dmem: w0 = dmem[dptr_d] */
-  addi      x0, x0, 0
-  bn.lid    x8, 0(x16)
+  li        x2, 0
+  bn.lid    x2, 0(x16)
+
+  /* load random number for blinding from dmem: w1 = dmem[dptr_rnd] */
+  li        x2, 1
+  bn.lid    x2, 0(x17)
 
   /* scalar multiplication with base point
      (x_1, y_1) = (w11, w12) <= d*G = w0*(dmem[dptr_x], dmem[dptr_y]) */
+  la        x21, p256_gx
+  la        x22, p256_gy
   jal       x1, scalar_mult_int
 
-  /* setup modulus n */
-  jal       x1, setup_barrett_n
+  /* setup modulus n (curve order) and Barrett constant
+     MOD <= w29 <= n = dmem[p256_n]; w28 <= u_n = dmem[p256_u_n]  */
+  li        x2, 29
+  la        x3, p256_n
+  bn.lid    x2, 0(x3)
+  bn.wsrw   0, w29
+  li        x2, 28
+  la        x3, p256_u_n
+  bn.lid    x2, 0(x3)
 
   /* load secret random number k from dmem: w0 <= k = dmem[dptr_k] */
-  bn.lid    x8, 0(x16)
+  li        x2, 0
+  bn.lid    x2, 0(x16)
 
   /* modular multiplicative inverse of k
      w1 <= k^-1 mod n */
   jal       x1, mod_inv
 
   /* w19 = k^-1*d mod n; w24 = d = dmem[dptr_d] */
-  bn.lid    x10, 0(x23)
+  li        x2, 24
+  bn.lid    x2, 0(x23)
   bn.mov    w25, w1
   jal       x1, mod_mul_256x256
 
   /* w24 = r <= w11  mod n */
   bn.addm   w24, w11, w31
 
-  /* store r of signature in dmem: dmem[dptr_r] <= r = w25 */
-  bn.sid    x10, 0(x19)
-
-  addi      x0, x0, 0
+  /* store r of signature in dmem: dmem[dptr_r] <= r = w24 */
+  li        x2, 24
+  bn.sid    x2, 0(x19)
 
   /* w0 = w19 <= w24*w25 = w24*w19 = r*k^-1*d  mod n */
   bn.mov    w25, w19
@@ -1504,7 +1203,8 @@ p256_sign:
   bn.mov    w0, w19
 
   /* load message from dmem: w24 = msg <= dmem[dptr_msg] = dmem[x18] */
-  bn.lid    x10, 0(x18)
+  li        x2, 24
+  bn.lid    x2, 0(x18)
 
   /* w19 = k^-1*msg <= w25*w24 = w1*w24  mod n */
   bn.mov    w25, w1
@@ -1514,9 +1214,8 @@ p256_sign:
   bn.addm   w0, w19, w0
 
   /* store s of signature in dmem: dmem[dptr_s] <= s = w0 */
-  bn.sid    x8, 0(x20)
-
-  jal       x1, setup_barrett_p
+  li        x2, 0
+  bn.sid    x2, 0(x20)
 
   ret
 
@@ -1534,70 +1233,61 @@ p256_sign:
  * This routine runs in constant time.
  *
  * @param[in]  dmem[4]: dptr_rnd, pointer to location in dmem containing random
- *                        number for blinding
+ *                      number for blinding
  * @param[in]  dmem[20]: dptr_x, pointer to affine x-coordinate in dmem
  * @param[in]  dmem[22]: dptr_y, pointer to affine y-coordinate in dmem
  * @param[in]  dmem[28]: dptr_d, pointer to location in dmem containing
  *                               scalar d
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
- * clobbered registers: x3, x8 to x23, w0 to w25
+ * clobbered registers: x2, x3, x16, x17, x21, x22, w0 to w26
  * clobbered flag groups: FG0
  */
-p256_scalar_base_mult:
+p256_base_mult:
 
-  addi      x0, x0, 0
-  addi      x3, x0, 0
-  bn.lid    x3, 0(x0)
+  /* init all-zero register */
+  bn.xor    w31, w31, w31
 
-  /* setup pointers into dmem */
-  lw        x16, 0(x0)
-  lw        x17, 4(x0)
-  lw        x18, 8(x0)
-  lw        x19, 12(x0)
-  lw        x20, 16(x0)
-  lw        x21, 20(x0)
-  lw        x22, 24(x0)
-  lw        x23, 28(x0)
+  /* load scalar d: w0 <= d = dmem[dptr_d] */
+  la        x16, dptr_d
+  lw        x16, 0(x16)
 
-  /* setup pointers into reg file */
-  addi      x8, x0, 0
-  addi      x9, x0, 1
-  addi      x10, x0, 24
-  addi      x11, x0, 11
-  addi      x12, x0, 8
-  addi      x13, x0, 9
+  /* load dmem pointer to random number for blinding rnd in dmem:
+     x17 <= dptr_rnd = dmem[4] */
+  la        x17, dptr_rnd
+  lw        x17, 0(x17)
 
-  /* setup more dmem pointers */
-  lw        x14, 24(x0)
-  lw        x15, 28(x0)
+  /* set dmem pointers to base point coordinates */
+  la        x21, p256_gx
+  la        x22, p256_gy
 
-  bn.lid    x8, 0(x17)
+  /* load private key d from dmem: w0 = dmem[dptr_d] */
+  li        x2, 0
+  bn.lid    x2, 0(x16)
 
-  /* load base point G affine coordinates G = (w8, w9) <= (x_g, y_g) */
-  jal       x1, load_basepoint
+  /* load random number for blinding from dmem: w1 = dmem[dptr_rnd] */
+  li        x2, 1
+  bn.lid    x2, 0(x17)
 
-  /* store affine base point coordinates in dmem
-     dmem[dptr_x] = w8; dmem[dptr_y] = w9 */
-  bn.sid    x12, 0(x21)
-  bn.sid    x13, 0(x22)
-
-  /* load scalar d from dmem w0 = dmem[dptr_d] */
-  addi      x0, x0, 0
-  bn.lid    x8, 0(x23)
-
-  /* scalar multiplication with base point
-     R = (x_r, y_r) = (w11, w12) <= d*G = w0*(dmem[dptr_x], dmem[dptr_y]) */
+  /* call internal scalar multiplication routine
+     R = (x_a, y_a) = (w11, w12) <= k*P = w0*P */
   jal       x1, scalar_mult_int
 
+  /* set dmem pointer to point x-coordinate */
+  la        x21, dptr_x
+  lw        x21, 0(x21)
+
+  /* set dmem pointer to point y-coordinate */
+  la        x22, dptr_y
+  lw        x22, 0(x22)
+
   /* store result (affine coordinates) in dmem
-     dmem[x21] = dmem[dptr_x] <= x_r = w11
-     dmem[x22] = dmem[dptr_y] <= y_r = w12 */
-  bn.sid    x11++, 0(x21)
-  bn.sid    x11++, 0(x22)
+     dmem[x21] = dmem[dptr_x] <= x_a = w11
+     dmem[x22] = dmem[dptr_y] <= y_a = w12 */
+  li        x2, 11
+  bn.sid    x2++, 0(x21)
+  bn.sid    x2, 0(x22)
 
   ret
 
@@ -1621,13 +1311,10 @@ p256_scalar_base_mult:
  * show a data dependent timing and execution profile. Only use in situations
  * where a full white-box environment is acceptable.
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
  * @param[in]  w0: a, operand
  * @param[in]  MOD: m, modulus
- * @param[in]  w30: constant 1
  * @param[in]  w31: all-zero
  * @param[out]  w1: result c
  *
@@ -1640,7 +1327,7 @@ mod_inv_var:
   bn.mov    w2, w31
 
   /* w3 = s = 1 */
-  bn.mov    w3, w30
+  bn.addi   w3, w31, 1
 
   /* w4 = u = MOD */
   bn.wsrr   w4, 0
@@ -1652,7 +1339,7 @@ mod_inv_var:
   ebgcd_loop:
   /* test if u is odd */
   bn.or     w4, w4, w4
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 4
   bne       x2, x0, ebgcd_u_odd
 
@@ -1662,7 +1349,7 @@ mod_inv_var:
 
   /* test if r is odd */
   bn.or     w2, w2, w2
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 4
   bne       x2, x0, ebgcd_r_odd
 
@@ -1681,7 +1368,7 @@ mod_inv_var:
   ebgcd_u_odd:
   /* test if v is odd */
   bn.or     w5, w5, w5
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 4
   bne       x2, x0, ebgcd_uv_odd
 
@@ -1691,7 +1378,7 @@ mod_inv_var:
 
   /* test if s is odd */
   bn.or     w3, w3, w3
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 4
   bne       x2, x0, ebgcd_s_odd
 
@@ -1710,7 +1397,7 @@ mod_inv_var:
   ebgcd_uv_odd:
   /* test if v >= u */
   bn.cmp    w5, w4
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 1
   beq       x2, x0, ebgcd_v_gte_u
 
@@ -1730,7 +1417,7 @@ mod_inv_var:
   bn.sub    w5, w5, w4
 
   /* if v > 0 go back to start of loop */
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 8
   beq       x2, x0, ebgcd_loop
 
@@ -1757,95 +1444,85 @@ mod_inv_var:
  * host side. The signature is valid if x1 == r.
  * This routine runs in variable time.
  *
- * @param[in]  dmem[4]: dptr_x1, pointer to dmem location where the reduced
- *                           affine x1-coordinate will be stored
  * @param[in]  dmem[8]: dptr_msg, pointer to the message to be verified in dmem
  * @param[in]  dmem[12]: dptr_r, pointer to s of signature in dmem
  * @param[in]  dmem[16]: dptr_s, pointer to r of signature in dmem
  * @param[in]  dmem[20]: dptr_x, pointer to x-coordinate of public key in dmem
  * @param[in]  dmem[20]: dptr_y, pointer to y-coordinate of public key in dmem
+ * @param[in]  dmem[32]: dptr_x_r, pointer to dmem location where the reduced
+ *                           affine x_r-coordinate will be stored (aka x_1)
  *
- * Flags: When leaving this subroutine, flags of FG0 depend on an
- *        intermediate result and are not usable after return.
- *        FG1 is not modified in this subroutine.
+ * Flags: Flags have no meaning beyond the scope of this subroutine.
  *
- * clobbered registers: x2, x3, x8 to x23, w0 to w25
+ * clobbered registers: x2, x3, x13, x14, x17 to x24, w0 to w25
  * clobbered flag groups: FG0
  */
 p256_verify:
 
-  addi      x3, x0, 6
-  bn.lid    x3, 0(x0)
+  /* init all-zero register */
+  bn.xor    w31, w31, w31
 
-  lw        x16, 0(x0)
+  /* load domain parameter b from dmem
+     w27 <= b = dmem[p256_b] */
+  li        x2, 27
+  la        x3, p256_b
+  bn.lid    x2, 0(x3)
 
-  /* load dmem pointer to x1 (result) from dmem: x17 <= dptr_x1 = dmem[4] */
-  lw        x17, 4(x0)
+  /* load dmem pointer to x_r (result) from dmem: x17 <= dptr_x_r = dmem[32] */
+  la        x17, dptr_x_r
+  lw        x17, 0(x17)
 
-  /* load dmem pointer to message from dmem: x18 <= dptr_msg = dmem[8] */
-  lw        x18, 8(x0)
+  /* load dmem pointer to message msg in dmem: x18 <= dptr_msg = dmem[8] */
+  la        x18, dptr_msg
+  lw        x18, 0(x18)
 
-  /* load dmem pointer to signature r from dmem: x19 <= dptr_r = dmem[12] */
-  lw        x19, 12(x0)
+  /* load dmem pointer to signature r in dmem: x19 <= dptr_r = dmem[12] */
+  la        x19, dptr_r
+  lw        x19, 0(x19)
 
-  /* load dmem pointer to signature s from dmem, x20 <= dptr_s = dmem[16] */
-  lw        x20, 16(x0)
+  /* load dmem pointer to signature s in dmem: x20 <= dptr_s = dmem[16] */
+  la        x20, dptr_s
+  lw        x20, 0(x20)
 
   /* load dmem pointer to affine x-coordinate of public key from dmem:
      x21 <= dptr_x = dmem[20] */
-  lw        x21, 20(x0)
+  la        x21, dptr_x
+  lw        x21, 0(x21)
 
   /* load dmem pointer to affine y-coordinate of public key from dmem:
      x22 <= dptr_y = dmem[24] */
-  lw        x22, 24(x0)
+  la        x22, dptr_y
+  lw        x22, 0(x22)
 
-  lw        x23, 28(x0)
-
-  /* setup pointers to WREGs */
-  addi      x8, x0, 11
-
-  /* load dmem pointer to x1 (result) from dmem: x17 <= dptr_x1 = dmem[4] */
-  lw        x9, 4(x0)
-
-  /* setup pointers to WREGs */
-  addi      x10, x0, 24
-  addi      x11, x0, 24
-  addi      x12, x0, 0
-  addi      x13, x0, 8
-  addi      x14, x0, 9
-  addi      x15, x0, 12
+  la        x23, p256_gx
+  la        x24, p256_gy
 
   /* load r of signature from dmem: w24 = r = dmem[dptr_r] */
-  bn.lid    x11, 0(x19)
+  li        x2, 11
+  bn.lid    x2, 0(x19)
 
-  bn.mov    w24, w6
-  bn.not    w24, w24
-
-  /* setup modulus n (curve order) and Barrett constant */
-  jal       x1, setup_barrett_n
-
-  bn.cmp    w6, w31
-  csrrs     x2, 1984, x0
-  andi      x2, x2, 8
-  bne       x2, x0, fail
-
-  bn.cmp    w6, w29
-  csrrs     x2, 1984, x0
-  andi      x2, x2, 1
-  beq       x2, x0, fail
+  /* setup modulus n (curve order) and Barrett constant
+     MOD <= w29 <= n = dmem[p256_n]; w28 <= u_n = dmem[p256_u_n]  */
+  li        x2, 29
+  la        x3, p256_n
+  bn.lid    x2, 0(x3)
+  bn.wsrw   0, w29
+  li        x2, 28
+  la        x3, p256_u_n
+  bn.lid    x2, 0(x3)
 
   /* load s of signature from dmem: w0 = s = dmem[dptr_s] */
-  bn.lid    x12, 0(x20)
+  bn.lid    x0, 0(x20)
 
   /* goto 'fail' if w0 == w31 <=> s == 0 */
   bn.cmp    w0, w31
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 8
   bne       x2, x0, fail
 
   /* goto 'fail' if w0 >= w29 <=> s >= n */
   bn.cmp    w0, w29
-  csrrs     x2, 1984, x0
+  csrrs     x2, 0x7c0, x0
   andi      x2, x2, 1
   beq       x2, x0, fail
 
@@ -1853,7 +1530,20 @@ p256_verify:
   jal       x1, mod_inv_var
 
   /* load r of signature from dmem: w24 = r = dmem[dptr_r] */
-  bn.lid    x11, 0(x19)
+  li        x2,  24
+  bn.lid    x2, 0(x19)
+
+  /* goto 'fail' if w24 == w31 <=> r == 0 */
+  bn.cmp    w24, w31
+  csrrs     x2, 0x7c0, x0
+  andi      x2, x2, 8
+  bne       x2, x0, fail
+
+  /* goto 'fail' if w0 >= w29 <=> r >= n */
+  bn.cmp    w24, w29
+  csrrs     x2, 0x7c0, x0
+  andi      x2, x2, 1
+  beq       x2, x0, fail
 
   /* w25 = s^-1 = w1 */
   bn.mov    w25, w1
@@ -1863,7 +1553,8 @@ p256_verify:
   bn.mov    w0, w19
 
   /* load message, w24 = msg = dmem[dptr_msg] */
-  bn.lid    x10, 0(x18)
+  li        x2, 24
+  bn.lid    x2, 0(x18)
 
   /* u1 = w1 = w19 <= w24*w25 = w24*w1 = msg*s^-1 mod n */
   bn.mov    w25, w1
@@ -1871,25 +1562,35 @@ p256_verify:
   bn.mov    w1, w19
 
   /* setup modulus p and Barrett constant */
-  jal       x1, setup_barrett_p
+  li        x2, 29
+  la        x3, p256_p
+  bn.lid    x2, 0(x3)
+  bn.wsrw   0, w29
+  li        x2, 28
+  la        x3, p256_u_p
+  bn.lid    x2, 0(x3)
 
   /* load public key Q from dmem and use in projective form (set z to 1)
      Q = (w11, w12, w13) = (dmem[dptr_x], dmem[dptr_y], 1) */
-  bn.lid    x8, 0(x21)
-  bn.lid    x15, 0(x22)
-  bn.mov    w13, w30
+  li        x2, 11
+  bn.lid    x2++, 0(x21)
+  bn.lid    x2, 0(x22)
+  bn.addi   w13, w31, 1
 
   /* load base point G and use in projective form (set z to 1)
      G = (w8, w9, w10) = (x_g, y_g, 1) */
-  jal       x1, load_basepoint
-  bn.mov    w10, w30
+  li        x13, 8
+  li        x14, 9
+  bn.lid    x13, 0(x23)
+  bn.lid    x14, 0(x24)
+  bn.addi   w10, w31, 1
 
   /* The rest of the routine implements a variable time double-and-add
      algorithm. For the signature verification we need to compute the point
      C = (x1, y1) = u_1*G + u_2*Q. This can be done in a single
      double-and-add routine by using Shamir's Trick. */
 
-  /* G+Q = (w3, w4, w5) = (w11, w12, w13) = (w8, w9, w10) + (w11, w12, w13) */
+  /* G+Q = (w3,w4,w5) = (w11,w12,w13) = (w8,w9,w10) (+) (w11,w12,w13) */
   jal       x1, proj_add
   bn.mov    w3, w11
   bn.mov    w4, w12
@@ -1900,13 +1601,13 @@ p256_verify:
 
   /* init double and add algorithm with (0, 1, 0) */
   bn.mov    w11, w31
-  bn.mov    w12, w30
+  bn.addi   w12, w31, 1
   bn.mov    w13, w31
 
   /* main loop with dicreasing index i (i=255 downto 0) */
-  loopi     256, 30
+  loopi     256, 31
 
-    /* always double: C <= 2*C */
+    /* always double: C = (w11,w12,w13) <= 2 (*) C = 2 (*) (w11,w12,w13) */
     bn.mov    w8, w11
     bn.mov    w9, w12
     bn.mov    w10, w13
@@ -1914,7 +1615,7 @@ p256_verify:
 
     /* if either  u_1[i] == 0 or u_2[i] == 0 jump to 'no_both' */
     bn.add    w2, w2, w2
-    csrrs     x2, 1984, x0
+    csrrs     x2, 0x7c0, x0
     andi      x2, x2, 1
     beq       x2, x0, no_both
 
@@ -1931,26 +1632,30 @@ p256_verify:
 
     /* if u2[i] is not set jump to 'no_g' */
     bn.add    w6, w0, w0
-    csrrs     x2, 1984, x0
+    csrrs     x2, 0x7c0, x0
     andi      x2, x2, 1
     beq       x2, x0, no_g
 
     /* u2[i] is set: do C <= C + Q */
     bn.lid    x13, 0(x21)
     bn.lid    x14, 0(x22)
-    bn.mov    w10, w30
+    bn.addi   w10, w31, 1
     jal       x1, proj_add
 
     no_g:
     /* if u1[i] is not set jump to 'no_q' */
     bn.add    w6, w1, w1
-    csrrs     x2, 1984, x0
+    csrrs     x2, 0x7c0, x0
     andi      x2, x2, 1
     beq       x2, x0, no_q
 
+    /* load base point x-coordinate
+      w8 <= g_x = dmem [p256_gx]; w9 <= g_y = dmem[p256_gy] */
+    bn.lid    x13, 0(x23)
+    bn.lid    x14, 0(x24)
+
     /* u1[i] is set: do C <= C + G */
-    jal       x1, load_basepoint
-    bn.mov    w10, w30
+    bn.addi   w10, w31, 1
     jal       x1, proj_add
 
     no_q:
@@ -1968,12 +1673,15 @@ p256_verify:
   jal       x1, mod_mul_256x256
 
   /* final reduction: w24 = x1 <= x1 mod n */
-  jal       x1, setup_barrett_n
+  la        x3, p256_n
+  bn.lid    x0, 0(x3)
+  bn.wsrw   0, w0
   bn.subm   w24, w19, w31
 
   fail:
-  /* store affine x-coordinate in dmem: dmem[dptr_x1] = w24 = x1 */
-  bn.sid    x11, 0(x17)
+  /* store affine x-coordinate in dmem: dmem[dptr_x_r] = w24 = x_r */
+  li        x2, 24
+  bn.sid    x2, 0(x17)
 
   ret
 
@@ -1997,49 +1705,38 @@ p256_verify:
  * Flags: When leaving this subroutine, the M, L and Z flags of FG0 depend on
  *        the computed affine y-coordinate.
  *
- * clobbered registers: x3, x8 to x23, w0 to w25
+ * clobbered registers: x2, x3, x16, x17, x21, x22, w0 to w25
  * clobbered flag groups: FG0
  */
-p256_scalarmult:
+p256_scalar_mult:
 
-  /* w0 = dmem[0] */
-  addi      x3, x0, 0
-  bn.lid    x3, 0(x0)
+  /* init all-zero register */
+  bn.xor    w31, w31, w31
 
-  /* setup pointers to dmem */
-  /* x16 = dptr_k */
-  lw        x16, 0(x0)
+  /* load dmem pointer to scalar k: x16 <= dptr_k = dmem[0] */
+  la        x16, dptr_k
+  lw        x16, 0(x16)
 
-  /* x17 = dptr_rnd */
-  lw        x17, 4(x0)
+  /* load dmem pointer to random number for blinding rnd in dmem:
+     x17 <= dptr_rnd = dmem[4] */
+  la        x17, dptr_rnd
+  lw        x17, 0(x17)
 
-  lw        x18, 8(x0)
-  lw        x19, 12(x0)
-  lw        x20, 16(x0)
+  /* set dmem pointer to point x-coordinate */
+  la        x21, dptr_x
+  lw        x21, 0(x21)
 
-  /* x21 = dptr_x */
-  lw        x21, 20(x0)
+  /* set dmem pointer to point y-coordinate */
+  la        x22, dptr_y
+  lw        x22, 0(x22)
 
-  /* x22 = dptr_y */
-  lw        x22, 24(x0)
+  /* load private key d from dmem: w0 = dmem[dptr_d] */
+  li        x2, 0
+  bn.lid    x2, 0(x16)
 
-  lw        x23, 28(x0)
-
-  /* setup pointers to WREGs */
-  addi      x8, x0, 0
-  addi      x9, x0, 1
-  addi      x10, x0, 24
-  addi      x11, x0, 11
-
-  /* setup pointers to dmem */
-  lw        x12, 16(x0)
-  lw        x13, 20(x0)
-  lw        x14, 24(x0)
-  lw        x15, 28(x0)
-
-  /* load scalar k
-     w0 = k = dmem[x16] = dmem[0] */
-  bn.lid    x8, 0(x16)
+  /* load random number for blinding from dmem: w1 = dmem[dptr_rnd] */
+  li        x2, 1
+  bn.lid    x2, 0(x17)
 
   /* call internal scalar multiplication routine
      R = (x_a, y_a) = (w11, w12) <= k*P = w0*P */
@@ -2048,7 +1745,155 @@ p256_scalarmult:
   /* store result (affine coordinates) in dmem
      dmem[x21] = dmem[dptr_x] <= x_a = w11
      dmem[x22] = dmem[dptr_y] <= y_a = w12 */
-  bn.sid    x11++, 0(x21)
-  bn.sid    x11++, 0(x22)
+  li        x2, 11
+  bn.sid    x2++, 0(x21)
+  bn.sid    x2, 0(x22)
 
   ret
+
+.section .data
+
+/* pointer to k (dptr_k) */
+.globl dptr_k
+.balign 4
+dptr_k:
+  .zero 4
+
+/* pointer to rnd (dptr_rnd) */
+.globl dptr_rnd
+.balign 4
+dptr_rnd:
+  .zero 4
+
+/* pointer to msg (dptr_msg) */
+.globl dptr_msg
+.balign 4
+dptr_msg:
+  .zero 4
+
+/* pointer to R (dptr_r) */
+.globl dptr_r
+.balign 4
+dptr_r:
+  .zero 4
+
+/* pointer to S (dptr_s) */
+.globl dptr_s
+.balign 4
+dptr_s:
+  .zero 4
+
+/* pointer to X (dptr_x) */
+.globl dptr_x
+.balign 4
+dptr_x:
+  .zero 4
+
+/* pointer to Y (dptr_y) */
+.globl dptr_y
+.balign 4
+dptr_y:
+  .zero 4
+
+/* pointer to D (dptr_d) */
+.globl dptr_d
+.balign 4
+dptr_d:
+  .zero 4
+
+/* pointer to verification result x_r aka x_1 (dptr_x_r) */
+.globl dptr_x_r
+.balign 4
+dptr_x_r:
+  .zero 4
+
+/* P-256 domain parameter b */
+.globl p256_b
+.balign 32
+p256_b:
+  .word 0x27d2604b
+  .word 0x3bce3c3e
+  .word 0xcc53b0f6
+  .word 0x651d06b0
+  .word 0x769886bc
+  .word 0xb3ebbd55
+  .word 0xaa3a93e7
+  .word 0x5ac635d8
+
+/* P-256 domain parameter p (modulus) */
+.globl p256_p
+.balign 32
+p256_p:
+  .word 0xffffffff
+  .word 0xffffffff
+  .word 0xffffffff
+  .word 0x00000000
+  .word 0x00000000
+  .word 0x00000000
+  .word 0x00000001
+  .word 0xffffffff
+
+/* Barrett constant u for modulus p */
+.globl p256_u_p
+.balign 32
+p256_u_p:
+  .word 0x00000003
+  .word 0x00000000
+  .word 0xffffffff
+  .word 0xfffffffe
+  .word 0xfffffffe
+  .word 0xfffffffe
+  .word 0xffffffff
+  .word 0x00000000
+
+/* P-256 domain parameter n (order of base point) */
+.globl p256_n
+.balign 32
+p256_n:
+  .word 0xfc632551
+  .word 0xf3b9cac2
+  .word 0xa7179e84
+  .word 0xbce6faad
+  .word 0xffffffff
+  .word 0xffffffff
+  .word 0x00000000
+  .word 0xffffffff
+
+/* Barrett constant u for n */
+.globl p256_u_n
+.balign 32
+p256_u_n:
+  .word 0xeedf9bfe
+  .word 0x012ffd85
+  .word 0xdf1a6c21
+  .word 0x43190552
+  .word 0xffffffff
+  .word 0xfffffffe
+  .word 0xffffffff
+  .word 0x00000000
+
+/* P-256 basepoint G affine x-coordinate */
+.globl p256_gx
+.balign 32
+p256_gx:
+  .word 0xd898c296
+  .word 0xf4a13945
+  .word 0x2deb33a0
+  .word 0x77037d81
+  .word 0x63a440f2
+  .word 0xf8bce6e5
+  .word 0xe12c4247
+  .word 0x6b17d1f2
+
+/* P-256 basepoint G affine y-coordinate */
+.globl p256_gy
+.balign 32
+p256_gy:
+  .word 0x37bf51f5
+  .word 0xcbb64068
+  .word 0x6b315ece
+  .word 0x2bce3357
+  .word 0x7c0f9e16
+  .word 0x8ee7eb4a
+  .word 0xfe1a7f9b
+  .word 0x4fe342e2

@@ -24,8 +24,12 @@ module sha2 import hmac_pkg::*; (
   output logic hash_done,
 
   input        [63:0] message_length,   // bits but byte based
-  output sha_word_t [7:0] digest
+  output sha_word_t [7:0] digest,
+
+  output logic idle
 );
+
+  localparam int unsigned RoundWidth = $clog2(NumRound);
 
   logic msg_feed_complete;
 
@@ -33,10 +37,12 @@ module sha2 import hmac_pkg::*; (
   sha_word_t shaf_rdata;
   logic      shaf_rvalid;
 
-  logic [$clog2(NumRound)-1:0] round;
+  logic [RoundWidth-1:0] round;
 
   logic      [3:0]  w_index;
   sha_word_t [15:0] w;
+
+  localparam sha_word_t ZeroWord = '0;
 
   // w, hash, digest update logic control signals
   logic update_w_from_fifo, calculate_next_w;
@@ -79,7 +85,7 @@ module sha2 import hmac_pkg::*; (
     //  end
     end else if (run_hash) begin
       // Just shift-out. There's no incoming data
-      w <= {sha_word_t'(0), w[15:1]};
+      w <= {ZeroWord, w[15:1]};
     end
   end : fill_w
 
@@ -126,7 +132,7 @@ module sha2 import hmac_pkg::*; (
     end else if (!sha_en) begin
       round <= '0;
     end else if (run_hash) begin
-      if (round == (NumRound-1)) begin
+      if (round == RoundWidth'(unsigned'(NumRound-1))) begin
         round <= '0;
       end else begin
         round <= round + 1;
@@ -311,5 +317,7 @@ module sha2 import hmac_pkg::*; (
     .msg_feed_complete
   );
 
+  // Idle
+  assign idle = (fifo_st_q == FifoIdle) && (sha_st_q == ShaIdle) && !hash_start;
 
 endmodule : sha2

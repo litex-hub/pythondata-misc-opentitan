@@ -12,15 +12,18 @@ module alert_handler_esc_timer_bind_fpv;
     .rst_ni,
     .en_i,
     .clr_i,
-    .accum_trig_i,
+    .accu_trig_i,
+    .accu_fail_i,
     .timeout_en_i,
     .timeout_cyc_i,
     .esc_en_i,
     .esc_map_i,
     .phase_cyc_i,
+    .crashdump_phase_i,
+    .latch_crashdump_o,
     .esc_trig_o,
     .esc_cnt_o,
-    .esc_sig_en_o,
+    .esc_sig_req_o,
     .esc_state_o
   );
 

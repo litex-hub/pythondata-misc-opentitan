@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
+#include "otbn_model.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -9,13 +11,12 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <string>
-#include <svdpi.h>
 
 #include "iss_wrapper.h"
-#include "otbn_memutil.h"
+#include "otbn_model_dpi.h"
 #include "otbn_trace_checker.h"
 #include "sv_scoped.h"
+#include "sv_utils.h"
 
 // Read (the start of) the contents of a file at path as a vector of bytes.
 // Expects num_bytes bytes of data. On failure, throws a std::runtime_error.
@@ -26,57 +27,6 @@ static std::vector<uint8_t> read_vector_from_file(const std::string &path,
 // std::runtime_error.
 static void write_vector_to_file(const std::string &path,
                                  const std::vector<uint8_t> &data);
-
-namespace {
-struct OtbnModel {
- public:
-  OtbnModel(const std::string &mem_scope, const std::string &design_scope,
-            unsigned imem_size_words, unsigned dmem_size_words)
-      : mem_util(mem_scope),
-        design_scope_(design_scope),
-        imem_size_words_(imem_size_words),
-        dmem_size_words_(dmem_size_words) {}
-
-  // This class is a thin wrapper around ISSWrapper. The point is that we want
-  // to create the model in an initial block in the SystemVerilog simulation,
-  // but might not actually want to spawn the ISS. To handle that in a non-racy
-  // way, the most convenient thing is to spawn the ISS the first time it's
-  // actually needed.
-  //
-  // If ensure is true, this constructs an ISS wrapper if necessary. If
-  // something goes wrong, this function prints a message and then returns
-  // null. If ensure is true, it will never return null without printing a
-  // message, so error handling at the callsite can silently return a failure
-  // code.
-  ISSWrapper *get_wrapper(bool ensure) {
-    if (!iss) {
-      try {
-        iss.reset(new ISSWrapper());
-      } catch (const std::runtime_error &err) {
-        std::cerr << "Error when constructing ISS wrapper: " << err.what()
-                  << "\n";
-        return nullptr;
-      }
-    }
-    assert(iss);
-    return iss.get();
-  }
-
-  std::vector<uint8_t> get_sim_memory(bool is_imem) const {
-    const MemArea &mem_area = mem_util.GetMemArea(is_imem);
-    return mem_area.Read(0, mem_area.GetSizeWords());
-  }
-
-  void set_sim_memory(bool is_imem, const std::vector<uint8_t> &data) const {
-    mem_util.GetMemArea(is_imem).Write(0, data);
-  }
-
-  std::unique_ptr<ISSWrapper> iss;
-  OtbnMemUtil mem_util;
-  std::string design_scope_;
-  unsigned imem_size_words_, dmem_size_words_;
-};
-}  // namespace
 
 extern "C" {
 // These functions are only implemented if DesignScope != "", i.e. if we're
@@ -91,41 +41,6 @@ int otbn_stack_element_peek(int index, svBitVecVal *val) __attribute__((weak));
 #define CHECK_DUE_BIT (1U << 1)
 #define FAILED_STEP_BIT (1U << 2)
 #define FAILED_CMP_BIT (1U << 3)
-
-// The main entry point to the OTBN model, exported from here and used in
-// otbn_core_model.sv.
-//
-// This communicates state with otbn_core_model.sv through the status
-// parameter, which has the following bits:
-//
-//    Bit 0:      running       True if the model is currently running
-//    Bit 1:      check_due     True if the model finished running last cycle
-//    Bit 2:      failed_step   Something failed when trying to start/step ISS
-//    Bit 3:      failed_cmp    Consistency check at end of run failed
-//
-// The otbn_model_step function should only be called when either the model is
-// running (bit 0 of status), has a check due (bit 1 of status), or when start
-// is asserted. At other times, it will return immediately (but wastes a DPI
-// call).
-//
-// If the model is running and start is false, otbn_model_step steps the ISS by
-// a single cycle. If something goes wrong, it will set failed_step to true and
-// running to false.
-//
-// If nothing goes wrong, but the ISS finishes its run, we set running to false,
-// write out err_bits and do the post-run task. If the model's design_scope is
-// non-empty, it should be the scope of an RTL implementation.  In that case, we
-// compare register and memory contents with that implementation, printing to
-// stderr and setting the failed_cmp bit if there are any mismatches. If the
-// model's design_scope is the empty string, we grab the contents of DMEM from
-// the ISS and inject them into the simulation memory.
-//
-// If start is true, we start the model at start_addr and then step once (as
-// described above).
-extern "C" unsigned otbn_model_step(
-    OtbnModel *model, svLogic start, unsigned start_addr, unsigned status,
-    svLogic edn_rnd_data_valid, svLogicVecVal *edn_rnd_data, /* logic [255:0] */
-    svLogic edn_urnd_data_valid, svBitVecVal *err_bits /* bit [31:0] */);
 
 static std::vector<uint8_t> read_vector_from_file(const std::string &path,
                                                   size_t num_bytes) {
@@ -172,50 +87,6 @@ static void write_vector_to_file(const std::string &path,
   }
 }
 
-extern "C" OtbnModel *otbn_model_init(const char *mem_scope,
-                                      const char *design_scope,
-                                      unsigned imem_words,
-                                      unsigned dmem_words) {
-  assert(mem_scope && design_scope);
-  return new OtbnModel(mem_scope, design_scope, imem_words, dmem_words);
-}
-
-extern "C" void otbn_model_destroy(OtbnModel *model) { delete model; }
-
-// Start a new run with the model, writing IMEM/DMEM and jumping to the given
-// start address. Returns 0 on success; -1 on failure.
-static int start_model(OtbnModel &model, unsigned start_addr) {
-  const MemArea &imem = model.mem_util.GetMemArea(true);
-  assert(start_addr % 4 == 0);
-  assert(start_addr / 4 < imem.GetSizeWords());
-
-  ISSWrapper *iss = model.get_wrapper(true);
-  if (!iss)
-    return -1;
-
-  std::string dfname(iss->make_tmp_path("dmem"));
-  std::string ifname(iss->make_tmp_path("imem"));
-
-  try {
-    write_vector_to_file(dfname, model.get_sim_memory(false));
-    write_vector_to_file(ifname, model.get_sim_memory(true));
-  } catch (const std::exception &err) {
-    std::cerr << "Error when dumping memory contents: " << err.what() << "\n";
-    return -1;
-  }
-
-  try {
-    iss->load_d(dfname);
-    iss->load_i(ifname);
-    iss->start(start_addr);
-  } catch (const std::runtime_error &err) {
-    std::cerr << "Error when starting ISS: " << err.what() << "\n";
-    return -1;
-  }
-
-  return 0;
-}
-
 // Extract 256-bit RND EDN data from a 4 state logic value. RND data is placed
 // into 8 element uint32_t array dst.
 static void set_rnd_data(uint32_t dst[8], const svLogicVecVal src[8]) {
@@ -226,135 +97,7 @@ static void set_rnd_data(uint32_t dst[8], const svLogicVecVal src[8]) {
   }
 }
 
-// Pack uint32_t-based error bitfield into a SystemVerilog bit vector that
-// represents a "bit [31:0]" (as in the SV prototype of otbn_model_step)
-static void set_err_bits(svBitVecVal *dst, uint32_t src) {
-  for (int i = 0; i < 32; ++i) {
-    svBit bit = (src >> i) & 1;
-    svPutBitselBit(dst, i, bit);
-  }
-}
-
 static bool is_xz(svLogic l) { return l == sv_x || l == sv_z; }
-
-// Step once in the model. Returns 1 if the model has finished, 0 if not and -1
-// on failure. If gen_trace is true, pass trace entries to the trace checker.
-// If the model has finished, writes otbn.ERR_BITS to *err_bits.
-static int step_model(OtbnModel &model, svLogic edn_rnd_data_valid,
-                      svLogicVecVal *edn_rnd_data, /* logic [255:0] */
-                      svLogic edn_urnd_data_valid, bool gen_trace,
-                      svBitVecVal *err_bits /* bit [31:0] */) {
-  assert(err_bits);
-
-  ISSWrapper *iss = model.get_wrapper(true);
-  if (!iss)
-    return -1;
-
-  assert(!is_xz(edn_rnd_data_valid));
-  assert(!is_xz(edn_urnd_data_valid));
-
-  try {
-    if (edn_rnd_data_valid) {
-      uint32_t int_edn_rnd_data[8];
-      set_rnd_data(int_edn_rnd_data, edn_rnd_data);
-      iss->edn_rnd_data(int_edn_rnd_data);
-    }
-
-    if (edn_urnd_data_valid) {
-      iss->edn_urnd_reseed_complete();
-    }
-
-    std::pair<int, uint32_t> ret = iss->step(gen_trace);
-    switch (ret.first) {
-      case -1:
-        // Something went wrong, such as a trace mismatch. We've already printed
-        // a message to stderr so can just return -1.
-        return -1;
-
-      case 1:
-        // The simulation has stopped. Extract err_bits
-        set_err_bits(err_bits, ret.second);
-        return 1;
-
-      case 0:
-        // The simulation is still running
-        return 0;
-
-      default:
-        // This shouldn't happen
-        assert(0);
-    }
-  } catch (const std::runtime_error &err) {
-    std::cerr << "Error when stepping ISS: " << err.what() << "\n";
-    return -1;
-  }
-}
-
-// Grab contents of dmem from the model and load it back into the RTL. Returns
-// 0 on success; -1 on failure.
-static int load_dmem(OtbnModel &model) {
-  ISSWrapper *iss = model.get_wrapper(false);
-  if (!iss) {
-    std::cerr << "Cannot load dmem from OTBN model: ISS has not started.\n";
-    return -1;
-  }
-
-  const MemArea &dmem = model.mem_util.GetMemArea(false);
-
-  std::string dfname(iss->make_tmp_path("dmem_out"));
-  try {
-    iss->dump_d(dfname);
-    model.set_sim_memory(false,
-                         read_vector_from_file(dfname, dmem.GetSizeBytes()));
-  } catch (const std::exception &err) {
-    std::cerr << "Error when loading dmem from ISS: " << err.what() << "\n";
-    return -1;
-  }
-  return 0;
-}
-
-// Grab contents of dmem from the model and compare it with the RTL.
-// Prints messages to stderr on failure or mismatch. Returns true on
-// success; false on mismatch. Throws a std::runtime_error on failure.
-static bool check_dmem(OtbnModel &model, ISSWrapper &iss) {
-  const MemArea &dmem = model.mem_util.GetMemArea(false);
-  uint32_t dmem_bytes = dmem.GetSizeBytes();
-
-  std::string dfname(iss.make_tmp_path("dmem_out"));
-
-  iss.dump_d(dfname);
-  std::vector<uint8_t> iss_data = read_vector_from_file(dfname, dmem_bytes);
-  assert(iss_data.size() == dmem_bytes);
-
-  std::vector<uint8_t> rtl_data = model.get_sim_memory(false);
-  assert(rtl_data.size() == dmem_bytes);
-
-  // If the arrays match, we're done.
-  if (0 == memcmp(&iss_data[0], &rtl_data[0], dmem_bytes))
-    return true;
-
-  // If not, print out the first 10 mismatches
-  std::ios old_state(nullptr);
-  old_state.copyfmt(std::cerr);
-  std::cerr << "ERROR: Mismatches in dmem data:\n"
-            << std::hex << std::setfill('0');
-  int bad_count = 0;
-  for (size_t i = 0; i < dmem_bytes; ++i) {
-    if (iss_data[i] != rtl_data[i]) {
-      std::cerr << " @offset 0x" << std::setw(3) << i << ": rtl has 0x"
-                << std::setw(2) << (int)rtl_data[i] << "; iss has 0x"
-                << std::setw(2) << (int)iss_data[i] << "\n";
-      ++bad_count;
-
-      if (bad_count == 10) {
-        std::cerr << " (skipping further errors...)\n";
-        break;
-      }
-    }
-  }
-  std::cerr.copyfmt(old_state);
-  return false;
-}
 
 template <typename T>
 static std::array<T, 32> get_rtl_regs(const std::string &reg_scope) {
@@ -409,12 +152,20 @@ static std::vector<T> get_stack(const std::string &stack_scope) {
   while (1) {
     int peek_result = otbn_stack_element_peek(i, buf);
 
+    // otbn_stack_element_peek is defined in otbn_stack_snooper_if.sv. Possible
+    // return values are: 0 on success, if we've returned an element. 1 if the
+    // stack doesn't have an element at index i. 2 if something terrible has
+    // gone wrong (such as a completely bogus index).
+    assert(peek_result <= 2);
+
     if (peek_result == 2) {
       std::ostringstream oss;
       oss << "Failed to peek into RTL to get value of stack element " << i
           << " at scope `" << stack_scope << "'.";
       throw std::runtime_error(oss.str());
-    } else if (peek_result == 1) {
+    }
+
+    if (peek_result == 1) {
       // No more elements on stack
       break;
     }
@@ -429,15 +180,278 @@ static std::vector<T> get_stack(const std::string &stack_scope) {
   return ret;
 }
 
-// Compare contents of ISS registers with those from the design. Prints
-// messages to stderr on failure or mismatch. Returns true on success; false on
-// mismatch. Throws a std::runtime_error on failure.
-static bool check_regs(OtbnModel &model, ISSWrapper &iss) {
+OtbnModel::OtbnModel(const std::string &mem_scope,
+                     const std::string &design_scope, unsigned imem_size_words,
+                     unsigned dmem_size_words)
+    : mem_util_(mem_scope),
+      design_scope_(design_scope),
+      imem_size_words_(imem_size_words),
+      dmem_size_words_(dmem_size_words) {}
+
+OtbnModel::~OtbnModel() {}
+
+int OtbnModel::take_loop_warps(const OtbnMemUtil &memutil) {
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  try {
+    iss->clear_loop_warps();
+  } catch (std::runtime_error &err) {
+    std::cerr << "Error when clearing loop warps: " << err.what() << "\n";
+    return -1;
+  }
+
+  for (auto &pr : memutil.GetLoopWarps()) {
+    auto &key = pr.first;
+    uint32_t addr = key.first;
+    uint32_t from_cnt = key.second;
+    uint32_t to_cnt = pr.second;
+
+    try {
+      iss->add_loop_warp(addr, from_cnt, to_cnt);
+    } catch (const std::runtime_error &err) {
+      std::cerr << "Error when adding loop warp: " << err.what() << "\n";
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+int OtbnModel::start() {
+  const MemArea &imem = mem_util_.GetMemArea(true);
+
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  std::string dfname(iss->make_tmp_path("dmem"));
+  std::string ifname(iss->make_tmp_path("imem"));
+
+  try {
+    write_vector_to_file(dfname, get_sim_memory(false));
+    write_vector_to_file(ifname, get_sim_memory(true));
+  } catch (const std::exception &err) {
+    std::cerr << "Error when dumping memory contents: " << err.what() << "\n";
+    return -1;
+  }
+
+  try {
+    iss->load_d(dfname);
+    iss->load_i(ifname);
+    iss->start();
+  } catch (const std::runtime_error &err) {
+    std::cerr << "Error when starting ISS: " << err.what() << "\n";
+    return -1;
+  }
+
+  return 0;
+}
+
+void OtbnModel::edn_step(svLogicVecVal *edn_rnd_data /* logic [31:0] */) {
+  ISSWrapper *iss = ensure_wrapper();
+
+  iss->edn_step(edn_rnd_data->aval);
+}
+
+void OtbnModel::edn_rnd_cdc_done() {
+  ISSWrapper *iss = ensure_wrapper();
+  iss->edn_rnd_cdc_done();
+}
+
+int OtbnModel::step(svLogic edn_urnd_data_valid,
+                    svBitVecVal *status /* bit [7:0] */,
+                    svBitVecVal *insn_cnt /* bit [31:0] */,
+                    svBitVecVal *err_bits /* bit [31:0] */,
+                    svBitVecVal *stop_pc /* bit [31:0] */) {
+  assert(insn_cnt && err_bits && stop_pc);
+
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  assert(!is_xz(edn_urnd_data_valid));
+
+  try {
+    if (edn_urnd_data_valid) {
+      iss->edn_urnd_reseed_complete();
+    }
+
+    switch (iss->step(has_rtl())) {
+      case -1:
+        // Something went wrong, such as a trace mismatch. We've already printed
+        // a message to stderr so can just return -1.
+        return -1;
+
+      case 1:
+        // The simulation has stopped. Fill in status, insn_cnt, err_bits and
+        // stop_pc. Note that status should never have anything in its top 24
+        // bits.
+        if (iss->get_mirrored().status >> 8) {
+          throw std::runtime_error("STATUS register had non-empty top bits.");
+        }
+        set_sv_u8(status, iss->get_mirrored().status);
+        set_sv_u32(insn_cnt, iss->get_mirrored().insn_cnt);
+        set_sv_u32(err_bits, iss->get_mirrored().err_bits);
+        set_sv_u32(stop_pc, iss->get_mirrored().stop_pc);
+        return 1;
+
+      case 0:
+        // The simulation is still running. Update status and insn_cnt.
+        if (iss->get_mirrored().status >> 8) {
+          throw std::runtime_error("STATUS register had non-empty top bits.");
+        }
+        set_sv_u8(status, iss->get_mirrored().status);
+        set_sv_u32(insn_cnt, iss->get_mirrored().insn_cnt);
+        return 0;
+
+      default:
+        // This shouldn't happen
+        assert(0);
+    }
+  } catch (const std::runtime_error &err) {
+    std::cerr << "Error when stepping ISS: " << err.what() << "\n";
+    return -1;
+  }
+}
+
+int OtbnModel::check() const {
+  if (!has_rtl())
+    return 1;
+
+  ISSWrapper *iss = iss_.get();
+  if (!iss) {
+    std::cerr << "Cannot check OTBN model: ISS has not started.\n";
+    return -1;
+  }
+
+  bool good = true;
+
+  good &= OtbnTraceChecker::get().Finish();
+
+  try {
+    good &= check_dmem(*iss);
+  } catch (const std::exception &err) {
+    std::cerr << "Failed to check DMEM: " << err.what() << "\n";
+    return -1;
+  }
+
+  try {
+    good &= check_regs(*iss);
+  } catch (const std::exception &err) {
+    std::cerr << "Failed to check registers: " << err.what() << "\n";
+    return -1;
+  }
+
+  try {
+    good &= check_call_stack(*iss);
+  } catch (const std::exception &err) {
+    std::cerr << "Failed to check call stack: " << err.what() << "\n";
+    return -1;
+  }
+
+  return good ? 1 : 0;
+}
+
+int OtbnModel::load_dmem() {
+  ISSWrapper *iss = iss_.get();
+  if (!iss) {
+    std::cerr << "Cannot load dmem from OTBN model: ISS has not started.\n";
+    return -1;
+  }
+
+  const MemArea &dmem = mem_util_.GetMemArea(false);
+
+  std::string dfname(iss->make_tmp_path("dmem_out"));
+  try {
+    iss->dump_d(dfname);
+    set_sim_memory(false, read_vector_from_file(dfname, dmem.GetSizeBytes()));
+  } catch (const std::exception &err) {
+    std::cerr << "Error when loading dmem from ISS: " << err.what() << "\n";
+    return -1;
+  }
+  return 0;
+}
+
+void OtbnModel::reset() {
+  ISSWrapper *iss = iss_.get();
+  if (iss)
+    iss->reset(has_rtl());
+}
+
+ISSWrapper *OtbnModel::ensure_wrapper() {
+  if (!iss_) {
+    try {
+      iss_.reset(new ISSWrapper());
+    } catch (const std::runtime_error &err) {
+      std::cerr << "Error when constructing ISS wrapper: " << err.what()
+                << "\n";
+      return nullptr;
+    }
+  }
+  assert(iss_);
+  return iss_.get();
+}
+
+std::vector<uint8_t> OtbnModel::get_sim_memory(bool is_imem) const {
+  const MemArea &mem_area = mem_util_.GetMemArea(is_imem);
+  return mem_area.Read(0, mem_area.GetSizeWords());
+}
+
+void OtbnModel::set_sim_memory(bool is_imem, const std::vector<uint8_t> &data) {
+  mem_util_.GetMemArea(is_imem).Write(0, data);
+}
+
+bool OtbnModel::check_dmem(ISSWrapper &iss) const {
+  const MemArea &dmem = mem_util_.GetMemArea(false);
+  uint32_t dmem_bytes = dmem.GetSizeBytes();
+
+  std::string dfname(iss.make_tmp_path("dmem_out"));
+
+  iss.dump_d(dfname);
+  std::vector<uint8_t> iss_data = read_vector_from_file(dfname, dmem_bytes);
+  assert(iss_data.size() == dmem_bytes);
+
+  std::vector<uint8_t> rtl_data = get_sim_memory(false);
+  assert(rtl_data.size() == dmem_bytes);
+
+  // If the arrays match, we're done.
+  if (0 == memcmp(&iss_data[0], &rtl_data[0], dmem_bytes))
+    return true;
+
+  // If not, print out the first 10 mismatches
+  std::ios old_state(nullptr);
+  old_state.copyfmt(std::cerr);
+  std::cerr << "ERROR: Mismatches in dmem data:\n"
+            << std::hex << std::setfill('0');
+  int bad_count = 0;
+  for (size_t i = 0; i < dmem_bytes; ++i) {
+    if (iss_data[i] != rtl_data[i]) {
+      std::cerr << " @offset 0x" << std::setw(3) << i << ": rtl has 0x"
+                << std::setw(2) << (int)rtl_data[i] << "; iss has 0x"
+                << std::setw(2) << (int)iss_data[i] << "\n";
+      ++bad_count;
+
+      if (bad_count == 10) {
+        std::cerr << " (skipping further errors...)\n";
+        break;
+      }
+    }
+  }
+  std::cerr.copyfmt(old_state);
+  return false;
+}
+
+bool OtbnModel::check_regs(ISSWrapper &iss) const {
+  assert(design_scope_.size());
+
   std::string base_scope =
-      model.design_scope_ +
+      design_scope_ +
       ".u_otbn_rf_base.gen_rf_base_ff.u_otbn_rf_base_inner.u_snooper";
   std::string wide_scope =
-      model.design_scope_ + ".gen_rf_bignum_ff.u_otbn_rf_bignum.u_snooper";
+      design_scope_ +
+      ".u_otbn_rf_bignum.gen_rf_bignum_ff.u_otbn_rf_bignum_inner.u_snooper";
 
   auto rtl_gprs = get_rtl_regs<uint32_t>(base_scope);
   auto rtl_wdrs = get_rtl_regs<ISSWrapper::u256_t>(wide_scope);
@@ -449,7 +463,7 @@ static bool check_regs(OtbnModel &model, ISSWrapper &iss) {
   bool good = true;
 
   for (int i = 0; i < 32; ++i) {
-    // Register index 1 is call stack, which is checked seperately
+    // Register index 1 is call stack, which is checked separately
     if (i == 1)
       continue;
 
@@ -490,12 +504,11 @@ static bool check_regs(OtbnModel &model, ISSWrapper &iss) {
   return good;
 }
 
-// Compare contents of ISS call stack with those from the design. Prints
-// messages to stderr on failure or mismatch. Returns true on success; false on
-// mismatch.  Throws a std::runtime_error on failure.
-static bool check_call_stack(OtbnModel &model, ISSWrapper &iss) {
+bool OtbnModel::check_call_stack(ISSWrapper &iss) const {
+  assert(design_scope_.size());
+
   std::string call_stack_snooper_scope =
-      model.design_scope_ + ".u_otbn_rf_base.u_call_stack_snooper";
+      design_scope_ + ".u_otbn_rf_base.u_call_stack_snooper";
 
   auto rtl_call_stack = get_stack<uint32_t>(call_stack_snooper_scope);
 
@@ -529,128 +542,113 @@ static bool check_call_stack(OtbnModel &model, ISSWrapper &iss) {
   return good;
 }
 
-// Check model against RTL when a run has finished. Prints messages to stderr
-// on failure or mismatch. Returns 1 for a match, 0 for a mismatch, -1 for some
-// other failure.
-int check_model(OtbnModel *model) {
-  assert(model);
-
-  ISSWrapper *iss = model->get_wrapper(false);
-  if (!iss) {
-    std::cerr << "Cannot check OTBN model: ISS has not started.\n";
-    return -1;
-  }
-
-  bool good = true;
-
-  good &= OtbnTraceChecker::get().Finish();
-
-  try {
-    good &= check_dmem(*model, *iss);
-  } catch (const std::exception &err) {
-    std::cerr << "Failed to check DMEM: " << err.what() << "\n";
-    return -1;
-  }
-
-  try {
-    good &= check_regs(*model, *iss);
-  } catch (const std::exception &err) {
-    std::cerr << "Failed to check registers: " << err.what() << "\n";
-    return -1;
-  }
-
-  try {
-    good &= check_call_stack(*model, *iss);
-  } catch (const std::exception &err) {
-    std::cerr << "Failed to check call stack: " << err.what() << "\n";
-    return -1;
-  }
-
-  return good ? 1 : 0;
+OtbnModel *otbn_model_init(const char *mem_scope, const char *design_scope,
+                           unsigned imem_words, unsigned dmem_words) {
+  assert(mem_scope && design_scope);
+  return new OtbnModel(mem_scope, design_scope, imem_words, dmem_words);
 }
 
-extern "C" unsigned otbn_model_step(
-    OtbnModel *model, svLogic start, unsigned start_addr, unsigned status,
-    svLogic edn_rnd_data_valid, svLogicVecVal *edn_rnd_data, /* logic [255:0] */
-    svLogic edn_urnd_data_valid, svBitVecVal *err_bits       /* bit [31:0] */
-) {
-  assert(model && err_bits);
+void otbn_model_destroy(OtbnModel *model) { delete model; }
+
+void edn_model_step(OtbnModel *model,
+                    svLogicVecVal *edn_rnd_data /* logic [31:0] */) {
+  model->edn_step(edn_rnd_data);
+}
+
+void edn_model_rnd_cdc_done(OtbnModel *model) { model->edn_rnd_cdc_done(); }
+
+unsigned otbn_model_step(OtbnModel *model, svLogic start, unsigned model_state,
+                         svLogic edn_urnd_data_valid,
+                         svBitVecVal *status /* bit [7:0] */,
+                         svBitVecVal *insn_cnt /* bit [31:0] */,
+                         svBitVecVal *err_bits /* bit [31:0] */,
+                         svBitVecVal *stop_pc /* bit [31:0] */) {
+  assert(model && status && insn_cnt && err_bits && stop_pc);
 
   // Run model checks if needed. This usually happens just after an operation
   // has finished.
-  bool check_rtl = (model->design_scope_.size() > 0);
-  if (check_rtl && (status & CHECK_DUE_BIT)) {
-    switch (check_model(model)) {
+  if (model->has_rtl() && (model_state & CHECK_DUE_BIT)) {
+    switch (model->check()) {
       case 1:
         // Match (success)
         break;
 
       case 0:
         // Mismatch
-        status |= FAILED_CMP_BIT;
+        model_state |= FAILED_CMP_BIT;
         break;
 
       default:
         // Something went wrong
-        return (status & ~RUNNING_BIT) | FAILED_STEP_BIT;
+        return (model_state & ~RUNNING_BIT) | FAILED_STEP_BIT;
     }
-    status &= ~CHECK_DUE_BIT;
+    model_state &= ~CHECK_DUE_BIT;
   }
 
   assert(!is_xz(start));
 
   // Start the model if requested
   if (start) {
-    switch (start_model(*model, start_addr)) {
+    switch (model->start()) {
       case 0:
         // All good
-        status |= RUNNING_BIT;
+        model_state |= RUNNING_BIT;
         break;
 
       default:
         // Something went wrong.
-        return (status & ~RUNNING_BIT) | FAILED_STEP_BIT;
+        return (model_state & ~RUNNING_BIT) | FAILED_STEP_BIT;
     }
   }
 
   // If the model isn't running, there's nothing more to do.
-  if (!(status & RUNNING_BIT))
-    return status;
+  if (!(model_state & RUNNING_BIT))
+    return model_state;
 
   // Step the model once
-  switch (step_model(*model, edn_rnd_data_valid, edn_rnd_data,
-                     edn_urnd_data_valid, check_rtl, err_bits)) {
+  switch (
+      model->step(edn_urnd_data_valid, status, insn_cnt, err_bits, stop_pc)) {
     case 0:
       // Still running: no change
       break;
 
     case 1:
       // Finished
-      status = (status & ~RUNNING_BIT) | CHECK_DUE_BIT;
+      model_state = (model_state & ~RUNNING_BIT) | CHECK_DUE_BIT;
       break;
 
     default:
       // Something went wrong
-      return (status & ~RUNNING_BIT) | FAILED_STEP_BIT;
+      return (model_state & ~RUNNING_BIT) | FAILED_STEP_BIT;
   }
 
   // If we're still running, there's nothing more to do.
-  if (status & RUNNING_BIT)
-    return status;
+  if (model_state & RUNNING_BIT)
+    return model_state;
 
   // If we've just stopped running and there's no RTL, load the contents of
   // DMEM back from the ISS
-  if (!check_rtl) {
-    switch (load_dmem(*model)) {
+  if (!model->has_rtl()) {
+    switch (model->load_dmem()) {
       case 0:
         // Success
         break;
 
       default:
         // Failed to load DMEM
-        return (status & ~RUNNING_BIT) | FAILED_STEP_BIT;
+        return (model_state & ~RUNNING_BIT) | FAILED_STEP_BIT;
     }
   }
 
-  return status;
+  return model_state;
+}
+
+void otbn_model_reset(OtbnModel *model) {
+  assert(model);
+  model->reset();
+}
+
+void otbn_take_loop_warps(OtbnModel *model, OtbnMemUtil *memutil) {
+  assert(model && memutil);
+  model->take_loop_warps(*memutil);
 }

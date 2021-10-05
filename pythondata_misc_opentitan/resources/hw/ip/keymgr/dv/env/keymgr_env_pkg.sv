@@ -13,7 +13,7 @@ package keymgr_env_pkg;
   import dv_base_reg_pkg::*;
   import csr_utils_pkg::*;
   import keymgr_ral_pkg::*;
-  import keymgr_kmac_agent_pkg::*;
+  import kmac_app_agent_pkg::*;
 
   // macro includes
   `include "uvm_macros.svh"
@@ -26,10 +26,33 @@ package keymgr_env_pkg;
 
   typedef virtual keymgr_if keymgr_vif;
   typedef bit [keymgr_pkg::Shares-1:0][keymgr_pkg::KeyWidth-1:0] key_shares_t;
+  typedef bit [keymgr_pkg::Shares-1:0][kmac_pkg::AppDigestW-1:0] kmac_digests_t;
   typedef enum {
     IntrOpDone,
     NumKeyMgrIntr
   } keymgr_intr_e;
+
+  typedef enum {
+    Sealing,
+    Attestation
+  } keymgr_cdi_type_e;
+
+  typedef enum {
+    OtpRootKeyInvalid,
+    OtpRootKeyValidLow,
+    LcStateInvalid,
+    OtpDevIdInvalid,
+    RomDigestInvalid,
+    RomDigestValidLow,
+    FlashCreatorSeedInvalid,
+    FlashOwnerSeedInvalid
+  } keymgr_invalid_hw_input_type_e;
+
+  typedef enum bit[1:0] {
+    SideLoadNotAvail,
+    SideLoadAvail,
+    SideLoadClear
+  } keymgr_sideload_status_e;
 
   string msg_id = "keymgr_env_pkg";
   // functions

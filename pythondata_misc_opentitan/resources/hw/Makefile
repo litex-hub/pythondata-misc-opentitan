@@ -4,7 +4,6 @@
 
 CUR_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PRJ_DIR := $(realpath ${CUR_DIR}/../)
-export PRJ_DIR
 
 REG_OUTPUT_DIR    ?= ${PRJ_DIR}/build/regs-generated
 REG_OUTPUT_DV_DIR ?= ${REG_OUTPUT_DIR}/dv
@@ -25,13 +24,15 @@ IPS ?= aes           \
        i2c           \
        keymgr        \
        lc_ctrl       \
-       nmi_gen       \
        otp_ctrl      \
        pattgen       \
        pinmux        \
+       pwm           \
        pwrmgr        \
        rom_ctrl      \
        rstmgr        \
+       rv_core_ibex  \
+       rv_dm         \
        rv_plic       \
        rv_timer      \
        sensor_ctrl   \
@@ -56,66 +57,87 @@ endif
 
 dir_hjson = data
 
-dynips_reg = $(addsuffix _reg, $(IPS))
+hjson_for_ip = ${PRJ_DIR}/hw/ip/$(1)/$(dir_hjson)/$(1).hjson
 
-ips_reg = $(addsuffix _reg, $(IPS))
+# IPs that have a directory in hw/ip
+local_ips := \
+  $(foreach i,$(IPS),$(if $(wildcard $(call hjson_for_ip,$(i))),$(i)))
 
-ips_reg_header = $(addsuffix _reg_header, $(IPS))
+# Per-IP targets (all phonies)
+ips_reg        = $(addsuffix _reg, $(local_ips))
+ips_reg_header = $(addsuffix _reg_header, $(local_ips))
+ips_reg_rust   = $(foreach ip,$(local_ips),$(REG_OUTPUT_SW_DIR)/$(ip)_reg_constants.rs)
 
+# Per-top targets (all phonies)
 tops_gen = $(addsuffix _gen,$(TOPS))
-
 tops_reg = $(addsuffix _reg,$(TOPS))
 
-all: $(dynips_reg) $(tops_gen) $(tops_reg) banner
+# Targets for installing files into TOCK_ROOT (empty if TOCK_ROOT is not defined)
+ifneq ($(TOCK_ROOT),)
+tock_rust_destdir    := $(TOCK_ROOT)/chips/lowrisc/src/reg_constants
+ips_reg_rust_install := $(addprefix $(tock_rust_destdir)/,$(notdir $(ips_reg_rust)))
 
-banner:
-	@echo "############################################"
-	@echo "Note: Regs for DV & SW are now generated at:"
-	@echo "${REG_OUTPUT_DIR}"
-	@echo "############################################"
+$(tock_rust_destdir):
+	mkdir -p $@
+endif
 
-regs: $(dynips_reg) $(tops_reg) banner
+.PHONY: $(ips_reg) $(ips_reg_header) $(ips_reg_rust) $(tops_gen) $(tops_reg)
 
-pre_reg:
-	mkdir -p ${REG_OUTPUT_DIR}
-	mkdir -p ${REG_OUTPUT_DV_DIR}
-	mkdir -p ${REG_OUTPUT_SW_DIR}
+all: $(ips_reg) $(tops_gen) $(tops_reg)
 
-$(ips_reg): pre_reg otp-mmap lc-state-enc
-	if [ -f ${PRJ_DIR}/hw/ip/$(subst _reg,,$@)/$(dir_hjson)/$(subst _reg,,$@).hjson ]; then \
-		${PRJ_DIR}/util/regtool.py ${toolflags} -r ${PRJ_DIR}/hw/ip/$(subst _reg,,$@)/$(dir_hjson)/$(subst _reg,,$@).hjson && \
-		${PRJ_DIR}/util/regtool.py -s -t ${REG_OUTPUT_DV_DIR} \
-		  ${PRJ_DIR}/hw/ip/$(subst _reg,,$@)/$(dir_hjson)/$(subst _reg,,$@).hjson; \
-	fi
+regs: $(ips_reg) $(tops_reg)
 
+$(REG_OUTPUT_DV_DIR) $(REG_OUTPUT_SW_DIR): %:
+	mkdir -p $@
+
+blk-gen-script = $(PRJ_DIR)/hw/ip/$*/util/$*_gen.py
+blk-hjson      = $(PRJ_DIR)/hw/ip/$*/$(dir_hjson)/$*.hjson
+
+# If the ip has a local generation script, run it first. This will
+# require all blocks to use a consistent naming. This should be hooked
+# into ipgen (see #5636) for completeness.
+$(ips_reg): %_reg: | $(REG_OUTPUT_DV_DIR)
+	$(if $(wildcard $(blk-gen-script)),$(blk-gen-script))
+	${PRJ_DIR}/util/regtool.py ${toolflags} -r $(blk-hjson)
+	${PRJ_DIR}/util/regtool.py -s -t $(REG_OUTPUT_DV_DIR) $(blk-hjson)
+
+# Register generation for otp_ctrl also depends on running gen-otp-mmap.py
+.PHONY: otp-mmap
+$(filter otp_ctrl_reg,$(ips_reg)): otp-mmap
 otp-mmap:
 	cd ${PRJ_DIR} && ./util/design/gen-otp-mmap.py
 
+# Register generation for lc_ctrl also depends on running gen-lc-state-enc.py
+.PHONY: lc-state-enc
+$(filter lc_ctrl_reg,$(ips_reg)): lc-state-enc
 lc-state-enc:
 	cd ${PRJ_DIR} && ./util/design/gen-lc-state-enc.py
 
-regs-header: $(ips_reg_header) banner
+regs-header: $(ips_reg_header)
 
-$(ips_reg_header): pre_reg
-	if [ -f ${PRJ_DIR}/hw/ip/$(subst _reg_header,,$@)/$(dir_hjson)/$(subst _reg_header,,$@).hjson ]; then \
-		${PRJ_DIR}/util/regtool.py -D -o ${REG_OUTPUT_SW_DIR}/$(subst _reg_header,_reg_headers,$@).h\
-		${PRJ_DIR}/hw/ip/$(subst _reg_header,,$@)/$(dir_hjson)/$(subst _reg_header,,$@).hjson; \
-	fi
+$(ips_reg_header): %_reg_header: | $(REG_OUTPUT_SW_DIR)
+	${PRJ_DIR}/util/regtool.py -D -o $(REG_OUTPUT_SW_DIR)/$*_reg_headers.h $(blk-hjson)
+
+regs-rust: $(ips_reg_rust_install) $(ips_reg_rust)
+
+$(ips_reg_rust): $(REG_OUTPUT_SW_DIR)/%_reg_constants.rs: | $(REG_OUTPUT_SW_DIR)
+	${PRJ_DIR}/util/regtool.py -R -o $@ $(blk-hjson)
+
+$(ips_reg_rust_install): $(tock_rust_destdir)/%: $(REG_OUTPUT_SW_DIR)/% | $(tock_rust_destdir)
+	cp $< $@
 
 clean-regs-header:
 	rm -r -f ${REG_OUTPUT_SW_DIR}
 
+top-hjson = $(PRJ_DIR)/hw/$*/data/$*.hjson
+
 top: $(tops_gen) $(tops_reg)
-$(tops_gen):
-	$(eval $@_TOP := $(strip $(foreach top,$(TOPS),$(findstring $(top),$@))))
-	${PRJ_DIR}/util/topgen.py -t ${PRJ_DIR}/hw/$($@_TOP)/data/$($@_TOP).hjson \
-		-o ${PRJ_DIR}/hw/$($@_TOP)/ ${toolflags}
+$(tops_gen): %_gen:
+	${PRJ_DIR}/util/topgen.py -t $(top-hjson) -o ${PRJ_DIR}/hw/$*/ ${toolflags}
 
-$(tops_reg): pre_reg
-	$(eval $@_TOP := $(strip $(foreach top,$(TOPS),$(findstring $(top),$@))))
-	mkdir -p ${REG_OUTPUT_DV_DIR}/$($@_TOP)
-	${PRJ_DIR}/util/topgen.py -t ${PRJ_DIR}/hw/$($@_TOP)/data/$($@_TOP).hjson \
-		-r -o ${REG_OUTPUT_DV_DIR}/$($@_TOP) ${toolflags}
+$(tops_reg): %_reg:
+	mkdir -p ${REG_OUTPUT_DV_DIR}/$*
+	${PRJ_DIR}/util/topgen.py -t $(top-hjson) -r -o ${REG_OUTPUT_DV_DIR}/$* ${toolflags}
 
 
-.PHONY: all banner otp-mmap lc-state-enc $(ips_reg) $(tops_gen) $(ips_reg_header)
+.PHONY: all

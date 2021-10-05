@@ -8,6 +8,7 @@ package pattgen_env_pkg;
   import top_pkg::*;
   import dv_utils_pkg::*;
   import csr_utils_pkg::*;
+  import dv_base_reg_pkg::*;
   import tl_agent_pkg::*;
   import pattgen_agent_pkg::*;
   import dv_lib_pkg::*;
@@ -37,6 +38,10 @@ package pattgen_env_pkg;
     Enable      = 1'b1,
     Disable     = 1'b0
   } channel_status_e;
+
+  // alerts
+  parameter uint NUM_ALERTS = 1;
+  parameter string LIST_OF_ALERTS[] = {"fatal_fault"};
 
   // package sources
   `include "pattgen_seq_cfg.sv"

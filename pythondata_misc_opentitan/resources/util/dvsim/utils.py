@@ -555,6 +555,35 @@ def rm_path(path, ignore_error=False):
             raise exc
 
 
+def mk_path(path):
+    '''Create the specified path if it does not exist.
+
+    'path' is a Path-like object. If it does exist, the function simply
+    returns. If it does not exist, the function creates the path and its
+    parent dictories if necessary.
+    '''
+    try:
+        Path(path).mkdir(parents=True, exist_ok=True)
+    except PermissionError as e:
+        log.fatal("Failed to create dirctory {}:\n{}.".format(path, e))
+        sys.exit(1)
+
+
+def mk_symlink(path, link):
+    '''Create a symlink from the given path.
+
+    'link' is a Path-like object. If it does exist, remove the existing link and
+    create a new symlink with this given path.
+    If it does not exist, the function creates the symlink with the given path.
+    '''
+    while True:
+        try:
+            os.symlink(path, link)
+            break
+        except FileExistsError:
+            rm_path(link)
+
+
 def clean_odirs(odir, max_odirs, ts_format=TS_FORMAT):
     """Clean previous output directories.
 

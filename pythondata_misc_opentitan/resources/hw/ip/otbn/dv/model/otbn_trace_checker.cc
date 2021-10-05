@@ -4,12 +4,13 @@
 
 #include "otbn_trace_checker.h"
 
-#include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <iostream>
 #include <memory>
 
 #include "otbn_trace_source.h"
+#include "sv_utils.h"
 
 static std::unique_ptr<OtbnTraceChecker> trace_checker;
 
@@ -18,7 +19,8 @@ OtbnTraceChecker::OtbnTraceChecker()
       rtl_stall_(false),
       iss_pending_(false),
       done_(true),
-      seen_err_(false) {
+      seen_err_(false),
+      last_data_vld_(false) {
   OtbnTraceSource::get().AddListener(this);
 }
 
@@ -45,8 +47,9 @@ void OtbnTraceChecker::AcceptTraceString(const std::string &trace,
     return;
 
   done_ = false;
-  TraceEntry trace_entry = TraceEntry::from_rtl_trace(trace);
-  if (trace_entry.hdr_.empty()) {
+  OtbnTraceEntry trace_entry;
+  trace_entry.from_rtl_trace(trace);
+  if (trace_entry.empty()) {
     std::cerr << "ERROR: Invalid RTL trace entry with empty header:\n";
     trace_entry.print("  ", std::cerr);
     seen_err_ = true;
@@ -66,11 +69,10 @@ void OtbnTraceChecker::AcceptTraceString(const std::string &trace,
   // When an execution entry comes up, we check it matches the pending stall
   // entry and then merge all the fields together, finally setting
   // rtl_pending_.
-  bool is_stall = trace_entry.hdr_[0] == 'S';
-  if (is_stall) {
+  if (trace_entry.is_stall()) {
     if (rtl_stall_) {
       // We already have a stall line. Make sure the headers match.
-      if (rtl_stalled_entry_.hdr_ != trace_entry.hdr_) {
+      if (!trace_entry.is_compatible(rtl_stalled_entry_)) {
         std::cerr
             << ("ERROR: Stall trace entry followed by "
                 "mis-matching stall.\n"
@@ -91,7 +93,7 @@ void OtbnTraceChecker::AcceptTraceString(const std::string &trace,
   }
 
   // This wasn't a stall entry. Check it's an execution.
-  if (trace_entry.hdr_[0] != 'E') {
+  if (!trace_entry.is_exec()) {
     std::cerr << "ERROR: Invalid RTL trace entry (neither S nor E):\n";
     trace_entry.print("  ", std::cerr);
     seen_err_ = true;
@@ -101,8 +103,7 @@ void OtbnTraceChecker::AcceptTraceString(const std::string &trace,
   // If had a stall before, merge in any writes from it, making sure the lines
   // match.
   if (rtl_stall_) {
-    if (trace_entry.hdr_.compare(1, std::string::npos, rtl_stalled_entry_.hdr_,
-                                 1, std::string::npos) != 0) {
+    if (!trace_entry.is_compatible(rtl_stalled_entry_)) {
       std::cerr
           << ("ERROR: Execution trace entry doesn't match stall:\n"
               "  Stall entry was:\n");
@@ -150,7 +151,12 @@ bool OtbnTraceChecker::OnIssTrace(const std::vector<std::string> &lines) {
     return true;
   }
 
-  TraceEntry trace_entry = TraceEntry::from_iss_trace(lines);
+  OtbnIssTraceEntry trace_entry;
+  if (!trace_entry.from_iss_trace(lines)) {
+    // Error parsing ISS trace. This has already printed a message to stderr.
+    // Just return false to pass the error code along.
+    return false;
+  }
 
   done_ = false;
   if (iss_pending_) {
@@ -168,6 +174,12 @@ bool OtbnTraceChecker::OnIssTrace(const std::vector<std::string> &lines) {
   iss_entry_ = trace_entry;
 
   return MatchPair();
+}
+
+void OtbnTraceChecker::Flush() {
+  rtl_pending_ = false;
+  rtl_stall_ = false;
+  iss_pending_ = false;
 }
 
 bool OtbnTraceChecker::Finish() {
@@ -195,6 +207,14 @@ bool OtbnTraceChecker::Finish() {
   return true;
 }
 
+const OtbnIssTraceEntry::IssData *OtbnTraceChecker::PopIssData() {
+  if (!last_data_vld_)
+    return nullptr;
+
+  last_data_vld_ = false;
+  return &last_data_;
+}
+
 bool OtbnTraceChecker::MatchPair() {
   if (!(rtl_pending_ && iss_pending_)) {
     return true;
@@ -211,71 +231,39 @@ bool OtbnTraceChecker::MatchPair() {
     seen_err_ = true;
     return false;
   }
+
+  // We've got a matching pair. Move the ISS data out of the (now defunct)
+  // iss_entry_ and into last_data_.
+  last_data_ = std::move(iss_entry_.data_);
+  last_data_vld_ = true;
+
   return true;
 }
 
-OtbnTraceChecker::TraceEntry OtbnTraceChecker::TraceEntry::from_rtl_trace(
-    const std::string &trace) {
-  TraceEntry entry;
+// Exposed over DPI as:
+//
+//  import "DPI-C" function bit
+//    otbn_trace_checker_pop_iss_insn(output bit [31:0] insn_addr,
+//                                    output string     mnemonic);
+//
+// Any string output argument will stay unchanged until the next call to this
+// function.
 
-  size_t eol = trace.find('\n');
-  entry.hdr_ = trace.substr(0, eol);
+extern "C" unsigned char otbn_trace_checker_pop_iss_insn(
+    svBitVecVal *insn_addr, const char **mnemonic) {
+  static char mnemonic_buf[16];
 
-  while (eol != std::string::npos) {
-    size_t bol = eol + 1;
-    eol = trace.find('\n', bol);
-    size_t line_len =
-        (eol == std::string::npos) ? std::string::npos : eol - bol;
-    std::string line = trace.substr(bol, line_len);
-    if (line.size() > 0 && line[0] == '>')
-      entry.writes_.push_back(line);
-  }
-  std::sort(entry.writes_.begin(), entry.writes_.end());
+  const OtbnIssTraceEntry::IssData *iss_data =
+      OtbnTraceChecker::get().PopIssData();
+  if (!iss_data)
+    return 0;
 
-  return entry;
-}
+  assert(iss_data->mnemonic.size() + 1 <= sizeof mnemonic_buf);
+  memcpy(mnemonic_buf, iss_data->mnemonic.c_str(),
+         iss_data->mnemonic.size() + 1);
+  *mnemonic = mnemonic_buf;
 
-OtbnTraceChecker::TraceEntry OtbnTraceChecker::TraceEntry::from_iss_trace(
-    const std::vector<std::string> &lines) {
-  TraceEntry entry;
-  if (!lines.empty()) {
-    entry.hdr_ = lines[0];
-  }
-  bool first = true;
-  for (const std::string &line : lines) {
-    if (first) {
-      entry.hdr_ = line;
-    } else {
-      // Ignore '!' lines (which are used to tell the simulation about external
-      // register changes, not tracked by the RTL core simulation)
-      bool is_bang = (line.size() > 0 && line[0] == '!');
-      if (!is_bang) {
-        entry.writes_.push_back(line);
-      }
-    }
-    first = false;
-  }
-  std::sort(entry.writes_.begin(), entry.writes_.end());
-  return entry;
-}
+  set_sv_u32(insn_addr, iss_data->insn_addr);
 
-bool OtbnTraceChecker::TraceEntry::operator==(const TraceEntry &other) const {
-  return hdr_ == other.hdr_ && writes_ == other.writes_;
-}
-
-void OtbnTraceChecker::TraceEntry::print(const std::string &indent,
-                                         std::ostream &os) const {
-  os << indent << hdr_ << "\n";
-  for (const std::string &write : writes_) {
-    os << indent << write << "\n";
-  }
-}
-
-void OtbnTraceChecker::TraceEntry::take_writes(const TraceEntry &other) {
-  if (!other.writes_.empty()) {
-    for (const std::string &write : other.writes_) {
-      writes_.push_back(write);
-    }
-    std::sort(writes_.begin(), writes_.end());
-  }
+  return 1;
 }

@@ -18,12 +18,15 @@ class TraceExtRegChange(Trace):
         self.new_value = new_value
 
     def trace(self) -> str:
-        return ("otbn.{} {} {:#010x}{} (now {:#010x})"
+        suff = (''
+                if self.new_value == self.written
+                else ' (now {:#010x})'.format(self.new_value))
+        return ("otbn.{} {} {:#010x}{}{}"
                 .format(self.name,
                         self.op,
                         self.written,
-                        ' (from HW)' if self.from_hw else '',
-                        self.new_value))
+                        ' (from SW)' if not self.from_hw else '',
+                        suff))
 
     def rtl_trace(self) -> str:
         return '! otbn.{}: {:#010x}'.format(self.name, self.new_value)
@@ -31,7 +34,31 @@ class TraceExtRegChange(Trace):
 
 class RGField:
     '''A wrapper around a field in a register as parsed by reggen'''
-    def __init__(self, field: Field):
+    def __init__(self,
+                 name: str,
+                 width: int,
+                 lsb: int,
+                 reset_value: int,
+                 swaccess: str):
+        # We only support some values of swaccess (the ones we need)
+        assert swaccess in ['rw1c', 'rw', 'wo', 'r0w1c', 'ro']
+        assert width > 0
+        assert lsb >= 0
+
+        self.name = name
+        self.width = width
+        self.lsb = lsb
+        self.value = reset_value
+
+        # swaccess
+        self.w1c = swaccess in ['rw1c', 'r0w1c']
+        self.read_only = swaccess == 'ro'
+        self.read_zero = swaccess in ['wo', 'r0w1c']
+
+        self.next_value = reset_value
+
+    @staticmethod
+    def from_field(field: Field) -> 'RGField':
         name = field.name
         assert isinstance(name, str)
 
@@ -47,23 +74,7 @@ class RGField:
         swaccess = field.swaccess.key
         assert isinstance(swaccess, str)
 
-        # We only support some values of swaccess (the ones we need)
-        assert swaccess in ['rw1c', 'rw', 'wo', 'r0w1c', 'ro']
-
-        assert width > 0
-        assert lsb >= 0
-
-        self.name = name
-        self.width = width
-        self.lsb = lsb
-        self.value = reset_value
-
-        # swaccess
-        self.w1c = swaccess in ['rw1c', 'r0w1c']
-        self.read_only = swaccess == 'ro'
-        self.read_zero = swaccess in ['wo', 'r0w1c']
-
-        self.next_value = reset_value
+        return RGField(name, width, lsb, reset_value, swaccess)
 
     def _next_sw_read(self) -> int:
         return 0 if self.read_zero else self.next_value
@@ -105,8 +116,12 @@ class RGField:
 
 class RGReg:
     '''A wrapper around a register as parsed by reggen'''
-    def __init__(self, reg: Register):
-        self.fields = [RGField(fd) for fd in reg.fields]
+    def __init__(self, fields: List[RGField]):
+        self.fields = fields
+
+    @staticmethod
+    def from_register(reg: Register) -> 'RGReg':
+        return RGReg([RGField.from_field(fd) for fd in reg.fields])
 
     def _apply_fields(self,
                       func: Callable[[RGField, int], int],
@@ -166,7 +181,15 @@ class OTBNExtRegs:
             # reggen's validation should have checked that we have no
             # duplicates.
             assert entry.name not in self.regs
-            self.regs[entry.name] = RGReg(entry)
+            self.regs[entry.name] = RGReg.from_register(entry)
+
+        # Add a fake "STOP_PC" register.
+        #
+        # TODO: We might well add something like this to the actual design in
+        # the future (see issue #4327) but, for now, it's just used in
+        # simulation to help track whether RIG-generated binaries finished
+        # where they expected to finish.
+        self.regs['STOP_PC'] = RGReg([RGField('STOP_PC', 32, 0, 0, 'ro')])
 
     def _get_reg(self, reg_name: str) -> RGReg:
         reg = self.regs.get(reg_name)
@@ -194,6 +217,15 @@ class OTBNExtRegs:
         new_val = self._get_reg(reg_name).clear_bits(value)
         self.trace.append(TraceExtRegChange(reg_name, '&= ~',
                                             value, True, new_val))
+
+    def increment_insn_cnt(self) -> None:
+        '''Increment the INSN_CNT register'''
+        reg = self._get_reg('INSN_CNT')
+        assert len(reg.fields) == 1
+        fld = reg.fields[0]
+        new_val = reg.write(min(fld.value + 1, (1 << 32) - 1), True)
+        self.trace.append(TraceExtRegChange('INSN_CNT', '=',
+                                            new_val, True, new_val))
 
     def read(self, reg_name: str, from_hw: bool) -> int:
         reg = self.regs.get(reg_name)

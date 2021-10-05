@@ -9,16 +9,18 @@ module rv_plic_bind_fpv;
   bind rv_plic rv_plic_assert_fpv #(
     .NumSrc(rv_plic_reg_pkg::NumSrc),
     .NumTarget(rv_plic_reg_pkg::NumTarget),
+    .NumAlerts(rv_plic_reg_pkg::NumAlerts),
     .PRIOW($clog2(7+1))
   ) rv_plic_assert_fpv(
     .clk_i,
     .rst_ni,
     .intr_src_i,
+    .alert_rx_i,
+    .alert_tx_o,
     .irq_o,
     .irq_id_o,
     .msip_o,
     .ip,
-    .le,
     .ie,
     .claim,
     .complete,

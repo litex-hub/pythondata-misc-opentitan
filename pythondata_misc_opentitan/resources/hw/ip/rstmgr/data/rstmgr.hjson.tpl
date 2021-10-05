@@ -4,20 +4,28 @@
 
 <%
   crash_dump_srcs = ['alert', 'cpu']
+  total_hw_resets = num_rstreqs+2
 %>
 
 # RSTMGR register template
 #
 {
   name: "RSTMGR",
-  clock_primary: "clk_i",
-  other_clock_list: [
-% for clk in clks:
-    "clk_${clk}_i"
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", primary: true},
+% for clk in reset_obj.get_clocks():
+    {clock: "clk_${clk}_i"}
 % endfor
-  ],
+  ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
+  ],
+  alert_list: [
+    { name: "fatal_fault",
+      desc: '''
+      This fatal alert is triggered when a fatal TL-UL bus integrity fault is detected.
+      '''
+    }
   ],
   regwidth: "32",
   scan: "true",
@@ -38,9 +46,9 @@
     },
 
     { name: "NumHwResets",
-      desc: "Number of hardware reset requests, inclusive of escalation",
+      desc: "Number of hardware reset requests, inclusive of pwrmgr's 2 internal resets",
       type: "int",
-      default: "${num_rstreqs+1}",
+      default: "${total_hw_resets}",
       local: "true"
     },
 
@@ -56,6 +64,13 @@
 
   // Define rstmgr struct package
   inter_signal_list: [
+    { struct:  "logic",
+      type:    "uni",
+      name:    "por_n",
+      act:     "rcv",
+      width:   "${len(power_domains)}"
+    },
+
     { struct:  "pwr_rst",    // pwr_rst_req_t, pwr_rst_rsp_t
       type:    "req_rsp",
       name:    "pwr",        // resets_o (req), resets_i (rsp)
@@ -69,11 +84,22 @@
       package: "rstmgr_pkg", // Origin package (only needs for the req)
     },
 
-    { struct:  "rstmgr_cpu",
+    { struct:  "rstmgr_rst_en",
       type:    "uni",
-      name:    "cpu",
-      act:     "rcv",
+      name:    "rst_en",
+      act:     "req",
       package: "rstmgr_pkg", // Origin package (only needs for the req)
+    },
+
+    { struct:  "logic",
+      type:    "uni",
+      name:    "rst_cpu_n",
+      act:     "rcv",
+    },
+    { struct:  "logic",
+      type:    "uni",
+      name:    "ndmreset_req",
+      act:     "rcv",
     },
 
     { struct:  "alert_crashdump",
@@ -136,7 +162,7 @@
         },
 
         // reset requests include escalation reset + peripheral requests
-        { bits: "${3 + num_rstreqs}:3",
+        { bits: "${3 + total_hw_resets - 1}:3",
           hwaccess: "hrw",
           name: "HW_REQ",
           desc: '''
@@ -218,7 +244,7 @@
     { name: "${dump_src.upper()}_INFO",
       desc: '''
               ${dump_src.capitalize()} dump information prior to last reset.
-              Which value read is controlled by the !${dump_src.upper()}_INFO_CTRL register.
+              Which value read is controlled by the !!${dump_src.upper()}_INFO_CTRL register.
             ''',
       swaccess: "ro",
       hwaccess: "hwo",
@@ -242,11 +268,11 @@
 
     { multireg: {
         cname: "RSTMGR_SW_RST",
-        name:  "SW_RST_REGEN",
+        name:  "SW_RST_REGWEN",
         desc:  '''
-          Register write enable for software controllabe resets.
-          When a particular bit value is 0, the corresponding value in !SW_RST_CTRL can no longer be changed.
-          When a particular bit value is 1, the corresponding value in !SW_RST_CTRL can be changed.
+          Register write enable for software controllable resets.
+          When a particular bit value is 0, the corresponding value in !!SW_RST_CTRL_N can no longer be changed.
+          When a particular bit value is 1, the corresponding value in !!SW_RST_CTRL_N can be changed.
         ''',
         count: "NumSwResets",
         swaccess: "rw0c",
@@ -259,8 +285,6 @@
             resval: "1",
           },
         ],
-        tags: [// Don't reset other IPs as it will affect CSR access on these IPs
-               "excl:CsrAllTests:CsrExclWrite"]
       }
     }
 
@@ -268,7 +292,7 @@
         cname: "RSTMGR_SW_RST",
         name:  "SW_RST_CTRL_N",
         desc:  '''
-          Software controllabe resets.
+          Software controllable resets.
           When a particular bit value is 0, the corresponding module is held in reset.
           When a particular bit value is 1, the corresponding module is not held in reset.
         ''',
@@ -289,7 +313,31 @@
                "excl:CsrAllTests:CsrExclWrite"]
       }
     }
+
+    { name: "ERR_CODE",
+      desc: '''
+        A bit vector of all the errors that have occurred in reset manager
+      ''',
+      swaccess: "rw1c",
+      hwaccess: "hwo",
+      fields: [
+        { bits: "0",
+          name: "REG_INTG_ERR",
+          desc: '''
+            The register file has experienced an integrity error.
+          '''
+          resval: "0"
+        },
+
+        { bits: "1",
+          name: "RESET_CONSISTENCY_ERR",
+          desc: '''
+            A inconsistent parent / child reset was observed.
+          '''
+          resval: "0"
+        },
+
+      ]
+    },
   ]
-
-
 }

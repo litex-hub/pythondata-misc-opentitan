@@ -52,10 +52,6 @@ ascentlint.rpt
 # Foundry library
 hw/foundry/
 
-# Local Tock checkout
-sw/device/tock/tock_local
-sw/device/tock/tock/Cargo.toml
-
 # ROM_EXT signer vendored in dependencies
 sw/host/rom_ext_image_signer/vendored_dependencies
 
@@ -65,3 +61,10 @@ hw/top_englishbreakfast/ip/alert_handler/dv/alert_handler_env_pkg__params.sv
 hw/top_englishbreakfast/ip/sensor_ctrl/rtl/*
 hw/top_englishbreakfast/ip/xbar_main/xbar_main.core
 hw/top_englishbreakfast/ip/xbar_peri/xbar_peri.core
+
+# Rust Cargo build system files.
+Cargo.lock
+sw/host/**/target
+
+# Bazel-related cache and output directories
+bazel-*

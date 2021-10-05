@@ -11,15 +11,15 @@ module lc_ctrl_state_decode
   // Life cycle state vector.
   input  logic              lc_state_valid_i,
   input  lc_state_e         lc_state_i,
-  input  lc_id_state_e      lc_id_state_i,
   input  lc_cnt_e           lc_cnt_i,
+  input  lc_tx_t            secrets_valid_i,
   // Main FSM state.
   input  fsm_state_e        fsm_state_i,
   // Decoded state vector.
   output dec_lc_state_e     dec_lc_state_o,
   output dec_lc_id_state_e  dec_lc_id_state_o,
   output dec_lc_cnt_t       dec_lc_cnt_o,
-  output logic              state_invalid_error_o
+  output logic [5:0]        state_invalid_error_o
 );
 
   //////////////////////////
@@ -35,13 +35,13 @@ module lc_ctrl_state_decode
     dec_lc_state_o        = DecLcStInvalid;
     dec_lc_cnt_o          = {DecLcCountWidth{1'b1}};
     dec_lc_id_state_o     = DecLcIdInvalid;
-    state_invalid_error_o = 1'b0;
+    state_invalid_error_o = '0;
 
     unique case (fsm_state_i)
       // Don't decode anything in ResetSt
       ResetSt: ;
       // These are temporary, terminal states that are not encoded
-      // in the persistenc LC state vector from OTP, hence we decode them first.
+      // in the persistent LC state vector from OTP, hence we decode them first.
       EscalateSt:  dec_lc_state_o = DecLcStEscalate;
       PostTransSt: dec_lc_state_o = DecLcStPostTrans;
       InvalidSt:   dec_lc_state_o = DecLcStInvalid;
@@ -52,7 +52,7 @@ module lc_ctrl_state_decode
         // This will trigger an invalid_state_error when the OTP partition
         // is corrupt and moved into an error state, where the valid bit is
         // deasserted.
-        state_invalid_error_o = ~lc_state_valid_i;
+        state_invalid_error_o[0] = ~lc_state_valid_i;
 
         unique case (lc_state_i)
           LcStRaw:           dec_lc_state_o = DecLcStRaw;
@@ -63,12 +63,20 @@ module lc_ctrl_state_decode
           LcStTestUnlocked2: dec_lc_state_o = DecLcStTestUnlocked2;
           LcStTestLocked2:   dec_lc_state_o = DecLcStTestLocked2;
           LcStTestUnlocked3: dec_lc_state_o = DecLcStTestUnlocked3;
+          LcStTestLocked3:   dec_lc_state_o = DecLcStTestLocked3;
+          LcStTestUnlocked4: dec_lc_state_o = DecLcStTestUnlocked4;
+          LcStTestLocked4:   dec_lc_state_o = DecLcStTestLocked4;
+          LcStTestUnlocked5: dec_lc_state_o = DecLcStTestUnlocked5;
+          LcStTestLocked5:   dec_lc_state_o = DecLcStTestLocked5;
+          LcStTestUnlocked6: dec_lc_state_o = DecLcStTestUnlocked6;
+          LcStTestLocked6:   dec_lc_state_o = DecLcStTestLocked6;
+          LcStTestUnlocked7: dec_lc_state_o = DecLcStTestUnlocked7;
           LcStDev:           dec_lc_state_o = DecLcStDev;
           LcStProd:          dec_lc_state_o = DecLcStProd;
           LcStProdEnd:       dec_lc_state_o = DecLcStProdEnd;
           LcStRma:           dec_lc_state_o = DecLcStRma;
           LcStScrap:         dec_lc_state_o = DecLcStScrap;
-          default:           state_invalid_error_o = 1'b1;
+          default:           state_invalid_error_o[1] = 1'b1;
         endcase // lc_state_i
 
         unique case (lc_cnt_i)
@@ -89,30 +97,40 @@ module lc_ctrl_state_decode
           LcCnt14:  dec_lc_cnt_o = 5'd14;
           LcCnt15:  dec_lc_cnt_o = 5'd15;
           LcCnt16:  dec_lc_cnt_o = 5'd16;
-          default:  state_invalid_error_o = 1'b1;
+          LcCnt17:  dec_lc_cnt_o = 5'd17;
+          LcCnt18:  dec_lc_cnt_o = 5'd18;
+          LcCnt19:  dec_lc_cnt_o = 5'd19;
+          LcCnt20:  dec_lc_cnt_o = 5'd20;
+          LcCnt21:  dec_lc_cnt_o = 5'd21;
+          LcCnt22:  dec_lc_cnt_o = 5'd22;
+          LcCnt23:  dec_lc_cnt_o = 5'd23;
+          LcCnt24:  dec_lc_cnt_o = 5'd24;
+          default:  state_invalid_error_o[2] = 1'b1;
         endcase // lc_cnt_i
 
-        unique case (lc_id_state_i)
-          LcIdBlank:        dec_lc_id_state_o = DecLcIdBlank;
-          LcIdPersonalized: dec_lc_id_state_o = DecLcIdPersonalized;
-          default:          state_invalid_error_o = 1'b1;
-        endcase // lc_id_state_i
+        unique case (secrets_valid_i)
+          // If the secrets have not been provisioned, the ID state is "blank".
+          Off:  dec_lc_id_state_o = DecLcIdBlank;
+          // If the secrets have been provisioned, the ID state is "personalized".
+          On:   dec_lc_id_state_o = DecLcIdPersonalized;
+          default: state_invalid_error_o[3] = 1'b1;
+        endcase // secrets_valid_i
 
         // Require that any non-raw state has a valid, nonzero
         // transition count.
         if (lc_state_i != LcStRaw && lc_cnt_i == LcCnt0) begin
-          state_invalid_error_o = 1'b1;
+          state_invalid_error_o[4] = 1'b1;
         end
 
         // We can't have a personalized device that is
         // still in RAW or any of the test states.
-        if ((lc_id_state_i == LcIdPersonalized) &&
+        if ((secrets_valid_i == On) &&
             !(lc_state_i inside {LcStDev,
                                  LcStProd,
                                  LcStProdEnd,
                                  LcStRma,
                                  LcStScrap})) begin
-          state_invalid_error_o = 1'b1;
+          state_invalid_error_o[5] = 1'b1;
         end
       end
     endcase // lc_id_state_i

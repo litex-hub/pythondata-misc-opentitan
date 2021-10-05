@@ -5,13 +5,9 @@
 # AES register template
 {
   name: "aes",
-  clock_primary: "clk_i",
-  other_clock_list: [
-    "clk_edn_i"
-  ],
-  reset_primary: "rst_ni",
-  other_reset_list: [
-    "rst_edn_ni"
+  clocking: [
+    {clock: "clk_i", reset: "rst_ni", idle: "idle_o", primary: true},
+    {clock: "clk_edn_i", reset: "rst_edn_ni", idle: "idle_o"}
   ]
   bus_interfaces: [
     { protocol: "tlul", direction: "device" }
@@ -161,6 +157,12 @@
       act:     "req"
       package: "edn_pkg"
     }
+    { struct:  "hw_key_req"
+      type:    "uni"
+      name:    "keymgr_key"
+      act:     "rcv"
+      package: "keymgr_pkg"
+    }
   ],
   alert_list: [
     //{ name: "informative",
@@ -181,7 +183,13 @@
     { name: "fatal_fault",
       desc: '''
         This fatal alert is triggered upon detecting a fatal fault inside the AES unit.
-        Examples for such faults include i) storage errors in the shadowed Control Register, ii) any internal FSM entering an invalid state, iii) any sparsely encoded signal taking on an invalid value, iv) errors in the internal round counter, and v) escalations triggered by the life cycle controller.
+        Examples for such faults include
+        i) storage errors in the shadowed Control Register,
+        ii) any internal FSM entering an invalid state,
+        iii) any sparsely encoded signal taking on an invalid value,
+        iv) errors in the internal round counter,
+        v) escalations triggered by the life cycle controller, and
+        vi) fatal integrity failures on the TL-UL bus.
         The AES unit cannot recover from such an error and needs to be reset.
       '''
     }
@@ -346,6 +354,7 @@
         desc:  '''
           Select encryption(0) or decryption(1) operation of AES unit.
         '''
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_operation"]
       }
       { bits: "6:1",
         name: "MODE",
@@ -393,6 +402,7 @@
             '''
           }
         ]
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_mode"]
       }
       { bits: "9:7",
         name: "KEY_LEN",
@@ -424,8 +434,17 @@
             '''
           }
         ]
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_key_len"]
       }
       { bits: "10",
+        name: "SIDELOAD",
+        resval: "0",
+        desc: '''
+          Controls whether the AES unit uses the key provided by the key manager via key sideload interface (1) or the key provided by software via Initial Key Registers KEY_SHARE1_0 - KEY_SHARE1_7 (0).
+        '''
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_sideload"]
+      }
+      { bits: "11",
         name: "MANUAL_OPERATION",
         resval: "0"
         desc:  '''
@@ -436,8 +455,9 @@
           In manual mode (1), the AES unit i) only starts to encrypt/decrypt after receiving a start trigger (see Trigger Register), and ii) overwrites previous output data irrespective of whether it has been read out or not.
           This mode is useful if software needs full control over the AES unit.
         '''
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_manual_operation"]
       }
-      { bits: "11",
+      { bits: "12",
         name: "FORCE_ZERO_MASKS",
         resval: "0"
         desc:  '''
@@ -446,13 +466,13 @@
           To completely disable the masking, the second key share (KEY_SHARE1_0 - KEY_SHARE1_7) must be zero as well.
           Only applicable if both the Masking parameter and the SecAllowForcingMasks parameter are set to one.
         '''
+        tags: ["shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed.u_ctrl_reg_shadowed_force_zero_masks"]
       }
     ]
     tags: [// Updated by the HW.
            // Updates based on writes to this reg (reset test possible).
            // Exclude from write-read checks.
-           "excl:CsrNonInitTests:CsrExclWriteCheck",
-           "shadowed_reg_path:u_aes_core.u_ctrl_reg_shadowed"]
+           "excl:CsrNonInitTests:CsrExclWriteCheck"]
   },
   { name: "TRIGGER",
     desc: '''
@@ -585,7 +605,13 @@
         desc:  '''
           No fatal fault has occurred inside the AES unit (0).
           A fatal fault has occurred and the AES unit needs to be reset (1).
-          Examples for fatal faults include i) storage errors in the Control Register, ii) if any internal FSM enters an invalid state, iii) if any sparsely encoded signal takes on an invalid value, iv) errors in the internal round counter, and v) escalations triggered by the life cycle controller.
+          Examples for fatal faults include
+          i) storage errors in the Control Register,
+          ii) if any internal FSM enters an invalid state,
+          iii) if any sparsely encoded signal takes on an invalid value,
+          iv) errors in the internal round counter,
+          v) escalations triggered by the life cycle controller, and
+          vi) fatal integrity failures on the TL-UL bus.
         '''
       }
     ]

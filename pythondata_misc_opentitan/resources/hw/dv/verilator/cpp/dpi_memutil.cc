@@ -146,7 +146,7 @@ static std::vector<uint8_t> FlattenElfFile(const std::string &filepath) {
       continue;
     }
 
-    if (phdr.p_memsz == 0) {
+    if (phdr.p_filesz == 0) {
       continue;
     }
 
@@ -154,11 +154,11 @@ static std::vector<uint8_t> FlattenElfFile(const std::string &filepath) {
       low = phdr.p_paddr;
     }
 
-    Elf32_Addr seg_top = phdr.p_paddr + (phdr.p_memsz - 1);
+    Elf32_Addr seg_top = phdr.p_paddr + (phdr.p_filesz - 1);
     if (seg_top < phdr.p_paddr) {
       std::ostringstream oss;
       oss << "phdr for segment " << i << " has start 0x" << std::hex
-          << phdr.p_paddr << " and size 0x" << phdr.p_memsz
+          << phdr.p_paddr << " and size 0x" << phdr.p_filesz
           << ", which overflows the address space.";
       throw ElfError(filepath, oss.str());
     }
@@ -201,15 +201,12 @@ static std::vector<uint8_t> FlattenElfFile(const std::string &filepath) {
       throw ElfError(filepath, oss.str());
     }
 
-    uint32_t off = phdr.p_paddr - low;
-    uint32_t dst_len = phdr.p_memsz;
-    uint32_t src_len = std::min(phdr.p_filesz, dst_len);
-
-    if (!dst_len)
+    if (phdr.p_filesz == 0)
       continue;
 
-    std::vector<uint8_t> seg(dst_len, 0);
-    memcpy(&seg[0], file_data + phdr.p_offset, src_len);
+    uint32_t off = phdr.p_paddr - low;
+    std::vector<uint8_t> seg(phdr.p_filesz, 0);
+    memcpy(&seg[0], file_data + phdr.p_offset, phdr.p_filesz);
     ret.AddSegment(off, std::move(seg));
   }
 
@@ -328,8 +325,8 @@ void DpiMemUtil::RegisterMemoryArea(const std::string &name, uint32_t base,
 
   size_t new_idx = mem_areas_.size();
   auto pr = name_to_mem_.emplace(name, new_idx);
-  const MemArea &stored = *mem_areas_[pr.first->second];
   if (!pr.second) {
+    const MemArea &stored = *mem_areas_[pr.first->second];
     std::ostringstream oss;
     oss << "Cannot register '" << name << "' at: '" << mem_area->GetScope()
         << "' (Previously defined at: '" << stored.GetScope() << "')"
@@ -431,7 +428,7 @@ void DpiMemUtil::LoadElfToMemories(bool verbose, const std::string &filepath) {
 
     const MemArea &mem_area = *mem_areas_[mem_area_it->second];
 
-    for (const auto seg_pr : staged_mem.GetSegs()) {
+    for (const auto &seg_pr : staged_mem.GetSegs()) {
       const AddrRange<uint32_t> &seg_rng = seg_pr.first;
       const std::vector<uint8_t> &seg_data = seg_pr.second;
 
@@ -458,6 +455,9 @@ void DpiMemUtil::StageElf(bool verbose, const std::string &path) {
 
   ElfFile elf(path);
 
+  // Allow subclasses to get at the loaded ELF data if they need it
+  OnElfLoaded(elf.ptr_);
+
   size_t file_size;
   const char *file_data = elf_rawfile(elf.ptr_, &file_size);
   assert(file_data);
@@ -470,11 +470,11 @@ void DpiMemUtil::StageElf(bool verbose, const std::string &path) {
     if (phdr.p_type != PT_LOAD)
       continue;
 
-    if (phdr.p_memsz == 0)
+    if (phdr.p_filesz == 0)
       continue;
 
     size_t mem_area_idx =
-        GetRegionForSegment(path, i, phdr.p_paddr, phdr.p_memsz);
+        GetRegionForSegment(path, i, phdr.p_paddr, phdr.p_filesz);
 
     const MemArea &mem_area = *mem_areas_[mem_area_idx];
     uint32_t mem_area_base = base_addrs_[mem_area_idx];
@@ -515,8 +515,8 @@ void DpiMemUtil::StageElf(bool verbose, const std::string &path) {
     StagedMem &staged_mem = staging_area_[name];
 
     const char *seg_data = file_data + phdr.p_offset;
-    std::vector<uint8_t> vec(phdr.p_memsz, 0);
-    memcpy(&vec[0], seg_data, std::min(phdr.p_filesz, phdr.p_memsz));
+    std::vector<uint8_t> vec(phdr.p_filesz, 0);
+    memcpy(&vec[0], seg_data, phdr.p_filesz);
 
     staged_mem.AddSegment(local_base, std::move(vec));
   }

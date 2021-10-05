@@ -9,7 +9,16 @@
 module clkmgr_reg_top (
   input clk_i,
   input rst_ni,
-
+  input clk_io_i,
+  input rst_io_ni,
+  input clk_io_div2_i,
+  input rst_io_div2_ni,
+  input clk_io_div4_i,
+  input rst_io_div4_ni,
+  input clk_main_i,
+  input rst_main_ni,
+  input clk_usb_i,
+  input rst_usb_ni,
   input  tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
   // To HW
@@ -25,7 +34,7 @@ module clkmgr_reg_top (
 
   import clkmgr_reg_pkg::* ;
 
-  localparam int AW = 5;
+  localparam int AW = 6;
   localparam int DW = 32;
   localparam int DBW = DW/8;                    // Byte Width
 
@@ -41,14 +50,16 @@ module clkmgr_reg_top (
   logic          addrmiss, wr_err;
 
   logic [DW-1:0] reg_rdata_next;
+  logic reg_busy;
 
   tlul_pkg::tl_h2d_t tl_reg_h2d;
   tlul_pkg::tl_d2h_t tl_reg_d2h;
 
+
   // incoming payload check
   logic intg_err;
   tlul_cmd_intg_chk u_chk (
-    .tl_i,
+    .tl_i(tl_i),
     .err_o(intg_err)
   );
 
@@ -72,7 +83,7 @@ module clkmgr_reg_top (
     .EnableDataIntgGen(1)
   ) u_rsp_intg_gen (
     .tl_i(tl_o_pre),
-    .tl_o
+    .tl_o(tl_o)
   );
 
   assign tl_reg_h2d = tl_i;
@@ -83,8 +94,8 @@ module clkmgr_reg_top (
     .RegDw(DW),
     .EnableDataIntgGen(0)
   ) u_reg_if (
-    .clk_i,
-    .rst_ni,
+    .clk_i  (clk_i),
+    .rst_ni (rst_ni),
 
     .tl_i (tl_reg_h2d),
     .tl_o (tl_reg_d2h),
@@ -94,8 +105,71 @@ module clkmgr_reg_top (
     .addr_o  (reg_addr),
     .wdata_o (reg_wdata),
     .be_o    (reg_be),
+    .busy_i  (reg_busy),
     .rdata_i (reg_rdata),
     .error_i (reg_error)
+  );
+
+  // cdc oversampling signals
+    logic sync_io_update;
+  prim_sync_reqack u_io_tgl (
+    .clk_src_i(clk_io_i),
+    .rst_src_ni(rst_io_ni),
+    .clk_dst_i(clk_i),
+    .rst_dst_ni(rst_ni),
+    .req_chk_i(1'b1),
+    .src_req_i(1'b1),
+    .src_ack_o(),
+    .dst_req_o(sync_io_update),
+    .dst_ack_i(sync_io_update)
+  );
+    logic sync_io_div2_update;
+  prim_sync_reqack u_io_div2_tgl (
+    .clk_src_i(clk_io_div2_i),
+    .rst_src_ni(rst_io_div2_ni),
+    .clk_dst_i(clk_i),
+    .rst_dst_ni(rst_ni),
+    .req_chk_i(1'b1),
+    .src_req_i(1'b1),
+    .src_ack_o(),
+    .dst_req_o(sync_io_div2_update),
+    .dst_ack_i(sync_io_div2_update)
+  );
+    logic sync_io_div4_update;
+  prim_sync_reqack u_io_div4_tgl (
+    .clk_src_i(clk_io_div4_i),
+    .rst_src_ni(rst_io_div4_ni),
+    .clk_dst_i(clk_i),
+    .rst_dst_ni(rst_ni),
+    .req_chk_i(1'b1),
+    .src_req_i(1'b1),
+    .src_ack_o(),
+    .dst_req_o(sync_io_div4_update),
+    .dst_ack_i(sync_io_div4_update)
+  );
+    logic sync_main_update;
+  prim_sync_reqack u_main_tgl (
+    .clk_src_i(clk_main_i),
+    .rst_src_ni(rst_main_ni),
+    .clk_dst_i(clk_i),
+    .rst_dst_ni(rst_ni),
+    .req_chk_i(1'b1),
+    .src_req_i(1'b1),
+    .src_ack_o(),
+    .dst_req_o(sync_main_update),
+    .dst_ack_i(sync_main_update)
+  );
+    logic sync_usb_update;
+  prim_sync_reqack u_usb_tgl (
+    .clk_src_i(clk_usb_i),
+    .rst_src_ni(rst_usb_ni),
+    .clk_dst_i(clk_i),
+    .rst_dst_ni(rst_ni),
+    .req_chk_i(1'b1),
+    .src_req_i(1'b1),
+    .src_ack_o(),
+    .dst_req_o(sync_usb_update),
+    .dst_ack_i(sync_usb_update)
   );
 
   assign reg_rdata = reg_rdata_next ;
@@ -104,105 +178,395 @@ module clkmgr_reg_top (
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
   //        or <reg>_{wd|we|qs} if field == 1 or 0
-  logic extclk_sel_regwen_qs;
-  logic extclk_sel_regwen_wd;
-  logic extclk_sel_regwen_we;
-  logic [3:0] extclk_sel_qs;
-  logic [3:0] extclk_sel_wd;
-  logic extclk_sel_we;
+  logic alert_test_we;
+  logic alert_test_recov_fault_wd;
+  logic alert_test_fatal_fault_wd;
+  logic extclk_ctrl_regwen_we;
+  logic extclk_ctrl_regwen_qs;
+  logic extclk_ctrl_regwen_wd;
+  logic extclk_ctrl_we;
+  logic [3:0] extclk_ctrl_sel_qs;
+  logic [3:0] extclk_ctrl_sel_wd;
+  logic [3:0] extclk_ctrl_step_down_qs;
+  logic [3:0] extclk_ctrl_step_down_wd;
+  logic jitter_enable_we;
   logic jitter_enable_qs;
   logic jitter_enable_wd;
-  logic jitter_enable_we;
+  logic clk_enables_we;
   logic clk_enables_clk_io_div4_peri_en_qs;
   logic clk_enables_clk_io_div4_peri_en_wd;
-  logic clk_enables_clk_io_div4_peri_en_we;
   logic clk_enables_clk_io_div2_peri_en_qs;
   logic clk_enables_clk_io_div2_peri_en_wd;
-  logic clk_enables_clk_io_div2_peri_en_we;
+  logic clk_enables_clk_io_peri_en_qs;
+  logic clk_enables_clk_io_peri_en_wd;
   logic clk_enables_clk_usb_peri_en_qs;
   logic clk_enables_clk_usb_peri_en_wd;
-  logic clk_enables_clk_usb_peri_en_we;
+  logic clk_hints_we;
   logic clk_hints_clk_main_aes_hint_qs;
   logic clk_hints_clk_main_aes_hint_wd;
-  logic clk_hints_clk_main_aes_hint_we;
   logic clk_hints_clk_main_hmac_hint_qs;
   logic clk_hints_clk_main_hmac_hint_wd;
-  logic clk_hints_clk_main_hmac_hint_we;
   logic clk_hints_clk_main_kmac_hint_qs;
   logic clk_hints_clk_main_kmac_hint_wd;
-  logic clk_hints_clk_main_kmac_hint_we;
+  logic clk_hints_clk_io_div4_otbn_hint_qs;
+  logic clk_hints_clk_io_div4_otbn_hint_wd;
   logic clk_hints_clk_main_otbn_hint_qs;
   logic clk_hints_clk_main_otbn_hint_wd;
-  logic clk_hints_clk_main_otbn_hint_we;
   logic clk_hints_status_clk_main_aes_val_qs;
   logic clk_hints_status_clk_main_hmac_val_qs;
   logic clk_hints_status_clk_main_kmac_val_qs;
+  logic clk_hints_status_clk_io_div4_otbn_val_qs;
   logic clk_hints_status_clk_main_otbn_val_qs;
+  logic measure_ctrl_regwen_we;
+  logic measure_ctrl_regwen_qs;
+  logic measure_ctrl_regwen_wd;
+  logic io_measure_ctrl_we;
+  logic [23:0] io_measure_ctrl_qs;
+  logic io_measure_ctrl_busy;
+  logic io_div2_measure_ctrl_we;
+  logic [21:0] io_div2_measure_ctrl_qs;
+  logic io_div2_measure_ctrl_busy;
+  logic io_div4_measure_ctrl_we;
+  logic [19:0] io_div4_measure_ctrl_qs;
+  logic io_div4_measure_ctrl_busy;
+  logic main_measure_ctrl_we;
+  logic [23:0] main_measure_ctrl_qs;
+  logic main_measure_ctrl_busy;
+  logic usb_measure_ctrl_we;
+  logic [21:0] usb_measure_ctrl_qs;
+  logic usb_measure_ctrl_busy;
+  logic recov_err_code_we;
+  logic recov_err_code_io_measure_err_qs;
+  logic recov_err_code_io_measure_err_wd;
+  logic recov_err_code_io_div2_measure_err_qs;
+  logic recov_err_code_io_div2_measure_err_wd;
+  logic recov_err_code_io_div4_measure_err_qs;
+  logic recov_err_code_io_div4_measure_err_wd;
+  logic recov_err_code_main_measure_err_qs;
+  logic recov_err_code_main_measure_err_wd;
+  logic recov_err_code_usb_measure_err_qs;
+  logic recov_err_code_usb_measure_err_wd;
+  logic fatal_err_code_qs;
+  // Define register CDC handling.
+  // CDC handling is done on a per-reg instead of per-field boundary.
+
+  logic  io_io_measure_ctrl_en_qs_int;
+  logic [9:0]  io_io_measure_ctrl_max_thresh_qs_int;
+  logic [9:0]  io_io_measure_ctrl_min_thresh_qs_int;
+  logic [23:0] io_io_measure_ctrl_d;
+  logic [23:0] io_io_measure_ctrl_wdata;
+  logic io_io_measure_ctrl_we;
+  logic unused_io_io_measure_ctrl_wdata;
+  logic io_io_measure_ctrl_regwen;
+
+  always_comb begin
+    io_io_measure_ctrl_d = '0;
+    io_io_measure_ctrl_d[0] = io_io_measure_ctrl_en_qs_int;
+    io_io_measure_ctrl_d[13:4] = io_io_measure_ctrl_max_thresh_qs_int;
+    io_io_measure_ctrl_d[23:14] = io_io_measure_ctrl_min_thresh_qs_int;
+  end
+
+  prim_reg_cdc #(
+    .DataWidth(24),
+    .ResetVal(24'h759ea0),
+    .BitMask(24'hfffff1)
+  ) u_io_measure_ctrl_cdc (
+    .clk_src_i    (clk_i),
+    .rst_src_ni   (rst_ni),
+    .clk_dst_i    (clk_io_i),
+    .rst_dst_ni   (rst_io_ni),
+    .src_update_i (sync_io_update),
+    .src_regwen_i (measure_ctrl_regwen_qs),
+    .src_we_i     (io_measure_ctrl_we),
+    .src_re_i     ('0),
+    .src_wd_i     (reg_wdata[23:0]),
+    .src_busy_o   (io_measure_ctrl_busy),
+    .src_qs_o     (io_measure_ctrl_qs), // for software read back
+    .dst_d_i      (io_io_measure_ctrl_d),
+    .dst_we_o     (io_io_measure_ctrl_we),
+    .dst_re_o     (),
+    .dst_regwen_o (io_io_measure_ctrl_regwen),
+    .dst_wd_o     (io_io_measure_ctrl_wdata)
+  );
+  assign unused_io_io_measure_ctrl_wdata = ^io_io_measure_ctrl_wdata;
+
+  logic  io_div2_io_div2_measure_ctrl_en_qs_int;
+  logic [8:0]  io_div2_io_div2_measure_ctrl_max_thresh_qs_int;
+  logic [8:0]  io_div2_io_div2_measure_ctrl_min_thresh_qs_int;
+  logic [21:0] io_div2_io_div2_measure_ctrl_d;
+  logic [21:0] io_div2_io_div2_measure_ctrl_wdata;
+  logic io_div2_io_div2_measure_ctrl_we;
+  logic unused_io_div2_io_div2_measure_ctrl_wdata;
+  logic io_div2_io_div2_measure_ctrl_regwen;
+
+  always_comb begin
+    io_div2_io_div2_measure_ctrl_d = '0;
+    io_div2_io_div2_measure_ctrl_d[0] = io_div2_io_div2_measure_ctrl_en_qs_int;
+    io_div2_io_div2_measure_ctrl_d[12:4] = io_div2_io_div2_measure_ctrl_max_thresh_qs_int;
+    io_div2_io_div2_measure_ctrl_d[21:13] = io_div2_io_div2_measure_ctrl_min_thresh_qs_int;
+  end
+
+  prim_reg_cdc #(
+    .DataWidth(22),
+    .ResetVal(22'h1ccfa0),
+    .BitMask(22'h3ffff1)
+  ) u_io_div2_measure_ctrl_cdc (
+    .clk_src_i    (clk_i),
+    .rst_src_ni   (rst_ni),
+    .clk_dst_i    (clk_io_div2_i),
+    .rst_dst_ni   (rst_io_div2_ni),
+    .src_update_i (sync_io_div2_update),
+    .src_regwen_i (measure_ctrl_regwen_qs),
+    .src_we_i     (io_div2_measure_ctrl_we),
+    .src_re_i     ('0),
+    .src_wd_i     (reg_wdata[21:0]),
+    .src_busy_o   (io_div2_measure_ctrl_busy),
+    .src_qs_o     (io_div2_measure_ctrl_qs), // for software read back
+    .dst_d_i      (io_div2_io_div2_measure_ctrl_d),
+    .dst_we_o     (io_div2_io_div2_measure_ctrl_we),
+    .dst_re_o     (),
+    .dst_regwen_o (io_div2_io_div2_measure_ctrl_regwen),
+    .dst_wd_o     (io_div2_io_div2_measure_ctrl_wdata)
+  );
+  assign unused_io_div2_io_div2_measure_ctrl_wdata = ^io_div2_io_div2_measure_ctrl_wdata;
+
+  logic  io_div4_io_div4_measure_ctrl_en_qs_int;
+  logic [7:0]  io_div4_io_div4_measure_ctrl_max_thresh_qs_int;
+  logic [7:0]  io_div4_io_div4_measure_ctrl_min_thresh_qs_int;
+  logic [19:0] io_div4_io_div4_measure_ctrl_d;
+  logic [19:0] io_div4_io_div4_measure_ctrl_wdata;
+  logic io_div4_io_div4_measure_ctrl_we;
+  logic unused_io_div4_io_div4_measure_ctrl_wdata;
+  logic io_div4_io_div4_measure_ctrl_regwen;
+
+  always_comb begin
+    io_div4_io_div4_measure_ctrl_d = '0;
+    io_div4_io_div4_measure_ctrl_d[0] = io_div4_io_div4_measure_ctrl_en_qs_int;
+    io_div4_io_div4_measure_ctrl_d[11:4] = io_div4_io_div4_measure_ctrl_max_thresh_qs_int;
+    io_div4_io_div4_measure_ctrl_d[19:12] = io_div4_io_div4_measure_ctrl_min_thresh_qs_int;
+  end
+
+  prim_reg_cdc #(
+    .DataWidth(20),
+    .ResetVal(20'h6e820),
+    .BitMask(20'hffff1)
+  ) u_io_div4_measure_ctrl_cdc (
+    .clk_src_i    (clk_i),
+    .rst_src_ni   (rst_ni),
+    .clk_dst_i    (clk_io_div4_i),
+    .rst_dst_ni   (rst_io_div4_ni),
+    .src_update_i (sync_io_div4_update),
+    .src_regwen_i (measure_ctrl_regwen_qs),
+    .src_we_i     (io_div4_measure_ctrl_we),
+    .src_re_i     ('0),
+    .src_wd_i     (reg_wdata[19:0]),
+    .src_busy_o   (io_div4_measure_ctrl_busy),
+    .src_qs_o     (io_div4_measure_ctrl_qs), // for software read back
+    .dst_d_i      (io_div4_io_div4_measure_ctrl_d),
+    .dst_we_o     (io_div4_io_div4_measure_ctrl_we),
+    .dst_re_o     (),
+    .dst_regwen_o (io_div4_io_div4_measure_ctrl_regwen),
+    .dst_wd_o     (io_div4_io_div4_measure_ctrl_wdata)
+  );
+  assign unused_io_div4_io_div4_measure_ctrl_wdata = ^io_div4_io_div4_measure_ctrl_wdata;
+
+  logic  main_main_measure_ctrl_en_qs_int;
+  logic [9:0]  main_main_measure_ctrl_max_thresh_qs_int;
+  logic [9:0]  main_main_measure_ctrl_min_thresh_qs_int;
+  logic [23:0] main_main_measure_ctrl_d;
+  logic [23:0] main_main_measure_ctrl_wdata;
+  logic main_main_measure_ctrl_we;
+  logic unused_main_main_measure_ctrl_wdata;
+  logic main_main_measure_ctrl_regwen;
+
+  always_comb begin
+    main_main_measure_ctrl_d = '0;
+    main_main_measure_ctrl_d[0] = main_main_measure_ctrl_en_qs_int;
+    main_main_measure_ctrl_d[13:4] = main_main_measure_ctrl_max_thresh_qs_int;
+    main_main_measure_ctrl_d[23:14] = main_main_measure_ctrl_min_thresh_qs_int;
+  end
+
+  prim_reg_cdc #(
+    .DataWidth(24),
+    .ResetVal(24'h7a9fe0),
+    .BitMask(24'hfffff1)
+  ) u_main_measure_ctrl_cdc (
+    .clk_src_i    (clk_i),
+    .rst_src_ni   (rst_ni),
+    .clk_dst_i    (clk_main_i),
+    .rst_dst_ni   (rst_main_ni),
+    .src_update_i (sync_main_update),
+    .src_regwen_i (measure_ctrl_regwen_qs),
+    .src_we_i     (main_measure_ctrl_we),
+    .src_re_i     ('0),
+    .src_wd_i     (reg_wdata[23:0]),
+    .src_busy_o   (main_measure_ctrl_busy),
+    .src_qs_o     (main_measure_ctrl_qs), // for software read back
+    .dst_d_i      (main_main_measure_ctrl_d),
+    .dst_we_o     (main_main_measure_ctrl_we),
+    .dst_re_o     (),
+    .dst_regwen_o (main_main_measure_ctrl_regwen),
+    .dst_wd_o     (main_main_measure_ctrl_wdata)
+  );
+  assign unused_main_main_measure_ctrl_wdata = ^main_main_measure_ctrl_wdata;
+
+  logic  usb_usb_measure_ctrl_en_qs_int;
+  logic [8:0]  usb_usb_measure_ctrl_max_thresh_qs_int;
+  logic [8:0]  usb_usb_measure_ctrl_min_thresh_qs_int;
+  logic [21:0] usb_usb_measure_ctrl_d;
+  logic [21:0] usb_usb_measure_ctrl_wdata;
+  logic usb_usb_measure_ctrl_we;
+  logic unused_usb_usb_measure_ctrl_wdata;
+  logic usb_usb_measure_ctrl_regwen;
+
+  always_comb begin
+    usb_usb_measure_ctrl_d = '0;
+    usb_usb_measure_ctrl_d[0] = usb_usb_measure_ctrl_en_qs_int;
+    usb_usb_measure_ctrl_d[12:4] = usb_usb_measure_ctrl_max_thresh_qs_int;
+    usb_usb_measure_ctrl_d[21:13] = usb_usb_measure_ctrl_min_thresh_qs_int;
+  end
+
+  prim_reg_cdc #(
+    .DataWidth(22),
+    .ResetVal(22'h1ccfa0),
+    .BitMask(22'h3ffff1)
+  ) u_usb_measure_ctrl_cdc (
+    .clk_src_i    (clk_i),
+    .rst_src_ni   (rst_ni),
+    .clk_dst_i    (clk_usb_i),
+    .rst_dst_ni   (rst_usb_ni),
+    .src_update_i (sync_usb_update),
+    .src_regwen_i (measure_ctrl_regwen_qs),
+    .src_we_i     (usb_measure_ctrl_we),
+    .src_re_i     ('0),
+    .src_wd_i     (reg_wdata[21:0]),
+    .src_busy_o   (usb_measure_ctrl_busy),
+    .src_qs_o     (usb_measure_ctrl_qs), // for software read back
+    .dst_d_i      (usb_usb_measure_ctrl_d),
+    .dst_we_o     (usb_usb_measure_ctrl_we),
+    .dst_re_o     (),
+    .dst_regwen_o (usb_usb_measure_ctrl_regwen),
+    .dst_wd_o     (usb_usb_measure_ctrl_wdata)
+  );
+  assign unused_usb_usb_measure_ctrl_wdata = ^usb_usb_measure_ctrl_wdata;
 
   // Register instances
-  // R[extclk_sel_regwen]: V(False)
+  // R[alert_test]: V(True)
+  //   F[recov_fault]: 0:0
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_alert_test_recov_fault (
+    .re     (1'b0),
+    .we     (alert_test_we),
+    .wd     (alert_test_recov_fault_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.alert_test.recov_fault.qe),
+    .q      (reg2hw.alert_test.recov_fault.q),
+    .qs     ()
+  );
 
+  //   F[fatal_fault]: 1:1
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_alert_test_fatal_fault (
+    .re     (1'b0),
+    .we     (alert_test_we),
+    .wd     (alert_test_fatal_fault_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (reg2hw.alert_test.fatal_fault.qe),
+    .q      (reg2hw.alert_test.fatal_fault.q),
+    .qs     ()
+  );
+
+
+  // R[extclk_ctrl_regwen]: V(False)
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("W0C"),
+    .SwAccess(prim_subreg_pkg::SwAccessW0C),
     .RESVAL  (1'h1)
-  ) u_extclk_sel_regwen (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_extclk_ctrl_regwen (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (extclk_sel_regwen_we),
-    .wd     (extclk_sel_regwen_wd),
+    .we     (extclk_ctrl_regwen_we),
+    .wd     (extclk_ctrl_regwen_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
     .q      (),
 
     // to register interface (read)
-    .qs     (extclk_sel_regwen_qs)
+    .qs     (extclk_ctrl_regwen_qs)
   );
 
 
-  // R[extclk_sel]: V(False)
-
+  // R[extclk_ctrl]: V(False)
+  //   F[sel]: 3:0
   prim_subreg #(
     .DW      (4),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (4'h5)
-  ) u_extclk_sel (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_extclk_ctrl_sel (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (extclk_sel_we & extclk_sel_regwen_qs),
-    .wd     (extclk_sel_wd),
+    // from register interface
+    .we     (extclk_ctrl_we & extclk_ctrl_regwen_qs),
+    .wd     (extclk_ctrl_sel_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.extclk_sel.q ),
+    .q      (reg2hw.extclk_ctrl.sel.q),
 
     // to register interface (read)
-    .qs     (extclk_sel_qs)
+    .qs     (extclk_ctrl_sel_qs)
+  );
+
+  //   F[step_down]: 7:4
+  prim_subreg #(
+    .DW      (4),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (4'h5)
+  ) u_extclk_ctrl_step_down (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (extclk_ctrl_we & extclk_ctrl_regwen_qs),
+    .wd     (extclk_ctrl_step_down_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.extclk_ctrl.step_down.q),
+
+    // to register interface (read)
+    .qs     (extclk_ctrl_step_down_qs)
   );
 
 
   // R[jitter_enable]: V(False)
-
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h0)
   ) u_jitter_enable (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
     .we     (jitter_enable_we),
@@ -210,11 +574,11 @@ module clkmgr_reg_top (
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.jitter_enable.q ),
+    .q      (reg2hw.jitter_enable.q),
 
     // to register interface (read)
     .qs     (jitter_enable_qs)
@@ -222,79 +586,101 @@ module clkmgr_reg_top (
 
 
   // R[clk_enables]: V(False)
-
   //   F[clk_io_div4_peri_en]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_clk_enables_clk_io_div4_peri_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_enables_clk_io_div4_peri_en_we),
+    .we     (clk_enables_we),
     .wd     (clk_enables_clk_io_div4_peri_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_enables.clk_io_div4_peri_en.q ),
+    .q      (reg2hw.clk_enables.clk_io_div4_peri_en.q),
 
     // to register interface (read)
     .qs     (clk_enables_clk_io_div4_peri_en_qs)
   );
 
-
   //   F[clk_io_div2_peri_en]: 1:1
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_clk_enables_clk_io_div2_peri_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_enables_clk_io_div2_peri_en_we),
+    .we     (clk_enables_we),
     .wd     (clk_enables_clk_io_div2_peri_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_enables.clk_io_div2_peri_en.q ),
+    .q      (reg2hw.clk_enables.clk_io_div2_peri_en.q),
 
     // to register interface (read)
     .qs     (clk_enables_clk_io_div2_peri_en_qs)
   );
 
-
-  //   F[clk_usb_peri_en]: 2:2
+  //   F[clk_io_peri_en]: 2:2
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
-  ) u_clk_enables_clk_usb_peri_en (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_clk_enables_clk_io_peri_en (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_enables_clk_usb_peri_en_we),
+    .we     (clk_enables_we),
+    .wd     (clk_enables_clk_io_peri_en_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.clk_enables.clk_io_peri_en.q),
+
+    // to register interface (read)
+    .qs     (clk_enables_clk_io_peri_en_qs)
+  );
+
+  //   F[clk_usb_peri_en]: 3:3
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h1)
+  ) u_clk_enables_clk_usb_peri_en (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (clk_enables_we),
     .wd     (clk_enables_clk_usb_peri_en_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_enables.clk_usb_peri_en.q ),
+    .q      (reg2hw.clk_enables.clk_usb_peri_en.q),
 
     // to register interface (read)
     .qs     (clk_enables_clk_usb_peri_en_qs)
@@ -302,105 +688,126 @@ module clkmgr_reg_top (
 
 
   // R[clk_hints]: V(False)
-
   //   F[clk_main_aes_hint]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_clk_hints_clk_main_aes_hint (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_hints_clk_main_aes_hint_we),
+    .we     (clk_hints_we),
     .wd     (clk_hints_clk_main_aes_hint_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_hints.clk_main_aes_hint.q ),
+    .q      (reg2hw.clk_hints.clk_main_aes_hint.q),
 
     // to register interface (read)
     .qs     (clk_hints_clk_main_aes_hint_qs)
   );
 
-
   //   F[clk_main_hmac_hint]: 1:1
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_clk_hints_clk_main_hmac_hint (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_hints_clk_main_hmac_hint_we),
+    .we     (clk_hints_we),
     .wd     (clk_hints_clk_main_hmac_hint_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_hints.clk_main_hmac_hint.q ),
+    .q      (reg2hw.clk_hints.clk_main_hmac_hint.q),
 
     // to register interface (read)
     .qs     (clk_hints_clk_main_hmac_hint_qs)
   );
 
-
   //   F[clk_main_kmac_hint]: 2:2
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
   ) u_clk_hints_clk_main_kmac_hint (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_hints_clk_main_kmac_hint_we),
+    .we     (clk_hints_we),
     .wd     (clk_hints_clk_main_kmac_hint_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_hints.clk_main_kmac_hint.q ),
+    .q      (reg2hw.clk_hints.clk_main_kmac_hint.q),
 
     // to register interface (read)
     .qs     (clk_hints_clk_main_kmac_hint_qs)
   );
 
-
-  //   F[clk_main_otbn_hint]: 3:3
+  //   F[clk_io_div4_otbn_hint]: 3:3
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RW"),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
     .RESVAL  (1'h1)
-  ) u_clk_hints_clk_main_otbn_hint (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+  ) u_clk_hints_clk_io_div4_otbn_hint (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (clk_hints_clk_main_otbn_hint_we),
+    .we     (clk_hints_we),
+    .wd     (clk_hints_clk_io_div4_otbn_hint_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.clk_hints.clk_io_div4_otbn_hint.q),
+
+    // to register interface (read)
+    .qs     (clk_hints_clk_io_div4_otbn_hint_qs)
+  );
+
+  //   F[clk_main_otbn_hint]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h1)
+  ) u_clk_hints_clk_main_otbn_hint (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (clk_hints_we),
     .wd     (clk_hints_clk_main_otbn_hint_wd),
 
     // from internal hardware
     .de     (1'b0),
-    .d      ('0  ),
+    .d      ('0),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.clk_hints.clk_main_otbn_hint.q ),
+    .q      (reg2hw.clk_hints.clk_main_otbn_hint.q),
 
     // to register interface (read)
     .qs     (clk_hints_clk_main_otbn_hint_qs)
@@ -408,22 +815,22 @@ module clkmgr_reg_top (
 
 
   // R[clk_hints_status]: V(False)
-
   //   F[clk_main_aes_val]: 0:0
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h1)
   ) u_clk_hints_status_clk_main_aes_val (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.clk_hints_status.clk_main_aes_val.de),
-    .d      (hw2reg.clk_hints_status.clk_main_aes_val.d ),
+    .d      (hw2reg.clk_hints_status.clk_main_aes_val.d),
 
     // to internal hardware
     .qe     (),
@@ -433,22 +840,22 @@ module clkmgr_reg_top (
     .qs     (clk_hints_status_clk_main_aes_val_qs)
   );
 
-
   //   F[clk_main_hmac_val]: 1:1
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h1)
   ) u_clk_hints_status_clk_main_hmac_val (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.clk_hints_status.clk_main_hmac_val.de),
-    .d      (hw2reg.clk_hints_status.clk_main_hmac_val.d ),
+    .d      (hw2reg.clk_hints_status.clk_main_hmac_val.d),
 
     // to internal hardware
     .qe     (),
@@ -458,22 +865,22 @@ module clkmgr_reg_top (
     .qs     (clk_hints_status_clk_main_hmac_val_qs)
   );
 
-
   //   F[clk_main_kmac_val]: 2:2
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h1)
   ) u_clk_hints_status_clk_main_kmac_val (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.clk_hints_status.clk_main_kmac_val.de),
-    .d      (hw2reg.clk_hints_status.clk_main_kmac_val.d ),
+    .d      (hw2reg.clk_hints_status.clk_main_kmac_val.d),
 
     // to internal hardware
     .qe     (),
@@ -483,22 +890,47 @@ module clkmgr_reg_top (
     .qs     (clk_hints_status_clk_main_kmac_val_qs)
   );
 
-
-  //   F[clk_main_otbn_val]: 3:3
+  //   F[clk_io_div4_otbn_val]: 3:3
   prim_subreg #(
     .DW      (1),
-    .SWACCESS("RO"),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h1)
+  ) u_clk_hints_status_clk_io_div4_otbn_val (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.clk_hints_status.clk_io_div4_otbn_val.de),
+    .d      (hw2reg.clk_hints_status.clk_io_div4_otbn_val.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (clk_hints_status_clk_io_div4_otbn_val_qs)
+  );
+
+  //   F[clk_main_otbn_val]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
     .RESVAL  (1'h1)
   ) u_clk_hints_status_clk_main_otbn_val (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
 
+    // from register interface
     .we     (1'b0),
-    .wd     ('0  ),
+    .wd     ('0),
 
     // from internal hardware
     .de     (hw2reg.clk_hints_status.clk_main_otbn_val.de),
-    .d      (hw2reg.clk_hints_status.clk_main_otbn_val.d ),
+    .d      (hw2reg.clk_hints_status.clk_main_otbn_val.d),
 
     // to internal hardware
     .qe     (),
@@ -509,96 +941,757 @@ module clkmgr_reg_top (
   );
 
 
+  // R[measure_ctrl_regwen]: V(False)
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW0C),
+    .RESVAL  (1'h1)
+  ) u_measure_ctrl_regwen (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (measure_ctrl_regwen_we),
+    .wd     (measure_ctrl_regwen_wd),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+
+    // to register interface (read)
+    .qs     (measure_ctrl_regwen_qs)
+  );
 
 
-  logic [5:0] addr_hit;
+  // R[io_measure_ctrl]: V(False)
+  //   F[en]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_io_measure_ctrl_en (
+    .clk_i   (clk_io_i),
+    .rst_ni  (rst_io_ni),
+
+    // from register interface
+    .we     (io_io_measure_ctrl_we & io_io_measure_ctrl_regwen),
+    .wd     (io_io_measure_ctrl_wdata[0]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_measure_ctrl.en.q),
+
+    // to register interface (read)
+    .qs     (io_io_measure_ctrl_en_qs_int)
+  );
+
+  //   F[max_thresh]: 13:4
+  prim_subreg #(
+    .DW      (10),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (10'h1ea)
+  ) u_io_measure_ctrl_max_thresh (
+    .clk_i   (clk_io_i),
+    .rst_ni  (rst_io_ni),
+
+    // from register interface
+    .we     (io_io_measure_ctrl_we & io_io_measure_ctrl_regwen),
+    .wd     (io_io_measure_ctrl_wdata[13:4]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_measure_ctrl.max_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_io_measure_ctrl_max_thresh_qs_int)
+  );
+
+  //   F[min_thresh]: 23:14
+  prim_subreg #(
+    .DW      (10),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (10'h1d6)
+  ) u_io_measure_ctrl_min_thresh (
+    .clk_i   (clk_io_i),
+    .rst_ni  (rst_io_ni),
+
+    // from register interface
+    .we     (io_io_measure_ctrl_we & io_io_measure_ctrl_regwen),
+    .wd     (io_io_measure_ctrl_wdata[23:14]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_measure_ctrl.min_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_io_measure_ctrl_min_thresh_qs_int)
+  );
+
+
+  // R[io_div2_measure_ctrl]: V(False)
+  //   F[en]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_io_div2_measure_ctrl_en (
+    .clk_i   (clk_io_div2_i),
+    .rst_ni  (rst_io_div2_ni),
+
+    // from register interface
+    .we     (io_div2_io_div2_measure_ctrl_we & io_div2_io_div2_measure_ctrl_regwen),
+    .wd     (io_div2_io_div2_measure_ctrl_wdata[0]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div2_measure_ctrl.en.q),
+
+    // to register interface (read)
+    .qs     (io_div2_io_div2_measure_ctrl_en_qs_int)
+  );
+
+  //   F[max_thresh]: 12:4
+  prim_subreg #(
+    .DW      (9),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (9'hfa)
+  ) u_io_div2_measure_ctrl_max_thresh (
+    .clk_i   (clk_io_div2_i),
+    .rst_ni  (rst_io_div2_ni),
+
+    // from register interface
+    .we     (io_div2_io_div2_measure_ctrl_we & io_div2_io_div2_measure_ctrl_regwen),
+    .wd     (io_div2_io_div2_measure_ctrl_wdata[12:4]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div2_measure_ctrl.max_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_div2_io_div2_measure_ctrl_max_thresh_qs_int)
+  );
+
+  //   F[min_thresh]: 21:13
+  prim_subreg #(
+    .DW      (9),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (9'he6)
+  ) u_io_div2_measure_ctrl_min_thresh (
+    .clk_i   (clk_io_div2_i),
+    .rst_ni  (rst_io_div2_ni),
+
+    // from register interface
+    .we     (io_div2_io_div2_measure_ctrl_we & io_div2_io_div2_measure_ctrl_regwen),
+    .wd     (io_div2_io_div2_measure_ctrl_wdata[21:13]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div2_measure_ctrl.min_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_div2_io_div2_measure_ctrl_min_thresh_qs_int)
+  );
+
+
+  // R[io_div4_measure_ctrl]: V(False)
+  //   F[en]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_io_div4_measure_ctrl_en (
+    .clk_i   (clk_io_div4_i),
+    .rst_ni  (rst_io_div4_ni),
+
+    // from register interface
+    .we     (io_div4_io_div4_measure_ctrl_we & io_div4_io_div4_measure_ctrl_regwen),
+    .wd     (io_div4_io_div4_measure_ctrl_wdata[0]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div4_measure_ctrl.en.q),
+
+    // to register interface (read)
+    .qs     (io_div4_io_div4_measure_ctrl_en_qs_int)
+  );
+
+  //   F[max_thresh]: 11:4
+  prim_subreg #(
+    .DW      (8),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (8'h82)
+  ) u_io_div4_measure_ctrl_max_thresh (
+    .clk_i   (clk_io_div4_i),
+    .rst_ni  (rst_io_div4_ni),
+
+    // from register interface
+    .we     (io_div4_io_div4_measure_ctrl_we & io_div4_io_div4_measure_ctrl_regwen),
+    .wd     (io_div4_io_div4_measure_ctrl_wdata[11:4]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div4_measure_ctrl.max_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_div4_io_div4_measure_ctrl_max_thresh_qs_int)
+  );
+
+  //   F[min_thresh]: 19:12
+  prim_subreg #(
+    .DW      (8),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (8'h6e)
+  ) u_io_div4_measure_ctrl_min_thresh (
+    .clk_i   (clk_io_div4_i),
+    .rst_ni  (rst_io_div4_ni),
+
+    // from register interface
+    .we     (io_div4_io_div4_measure_ctrl_we & io_div4_io_div4_measure_ctrl_regwen),
+    .wd     (io_div4_io_div4_measure_ctrl_wdata[19:12]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.io_div4_measure_ctrl.min_thresh.q),
+
+    // to register interface (read)
+    .qs     (io_div4_io_div4_measure_ctrl_min_thresh_qs_int)
+  );
+
+
+  // R[main_measure_ctrl]: V(False)
+  //   F[en]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_main_measure_ctrl_en (
+    .clk_i   (clk_main_i),
+    .rst_ni  (rst_main_ni),
+
+    // from register interface
+    .we     (main_main_measure_ctrl_we & main_main_measure_ctrl_regwen),
+    .wd     (main_main_measure_ctrl_wdata[0]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.main_measure_ctrl.en.q),
+
+    // to register interface (read)
+    .qs     (main_main_measure_ctrl_en_qs_int)
+  );
+
+  //   F[max_thresh]: 13:4
+  prim_subreg #(
+    .DW      (10),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (10'h1fe)
+  ) u_main_measure_ctrl_max_thresh (
+    .clk_i   (clk_main_i),
+    .rst_ni  (rst_main_ni),
+
+    // from register interface
+    .we     (main_main_measure_ctrl_we & main_main_measure_ctrl_regwen),
+    .wd     (main_main_measure_ctrl_wdata[13:4]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.main_measure_ctrl.max_thresh.q),
+
+    // to register interface (read)
+    .qs     (main_main_measure_ctrl_max_thresh_qs_int)
+  );
+
+  //   F[min_thresh]: 23:14
+  prim_subreg #(
+    .DW      (10),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (10'h1ea)
+  ) u_main_measure_ctrl_min_thresh (
+    .clk_i   (clk_main_i),
+    .rst_ni  (rst_main_ni),
+
+    // from register interface
+    .we     (main_main_measure_ctrl_we & main_main_measure_ctrl_regwen),
+    .wd     (main_main_measure_ctrl_wdata[23:14]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.main_measure_ctrl.min_thresh.q),
+
+    // to register interface (read)
+    .qs     (main_main_measure_ctrl_min_thresh_qs_int)
+  );
+
+
+  // R[usb_measure_ctrl]: V(False)
+  //   F[en]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (1'h0)
+  ) u_usb_measure_ctrl_en (
+    .clk_i   (clk_usb_i),
+    .rst_ni  (rst_usb_ni),
+
+    // from register interface
+    .we     (usb_usb_measure_ctrl_we & usb_usb_measure_ctrl_regwen),
+    .wd     (usb_usb_measure_ctrl_wdata[0]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.usb_measure_ctrl.en.q),
+
+    // to register interface (read)
+    .qs     (usb_usb_measure_ctrl_en_qs_int)
+  );
+
+  //   F[max_thresh]: 12:4
+  prim_subreg #(
+    .DW      (9),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (9'hfa)
+  ) u_usb_measure_ctrl_max_thresh (
+    .clk_i   (clk_usb_i),
+    .rst_ni  (rst_usb_ni),
+
+    // from register interface
+    .we     (usb_usb_measure_ctrl_we & usb_usb_measure_ctrl_regwen),
+    .wd     (usb_usb_measure_ctrl_wdata[12:4]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.usb_measure_ctrl.max_thresh.q),
+
+    // to register interface (read)
+    .qs     (usb_usb_measure_ctrl_max_thresh_qs_int)
+  );
+
+  //   F[min_thresh]: 21:13
+  prim_subreg #(
+    .DW      (9),
+    .SwAccess(prim_subreg_pkg::SwAccessRW),
+    .RESVAL  (9'he6)
+  ) u_usb_measure_ctrl_min_thresh (
+    .clk_i   (clk_usb_i),
+    .rst_ni  (rst_usb_ni),
+
+    // from register interface
+    .we     (usb_usb_measure_ctrl_we & usb_usb_measure_ctrl_regwen),
+    .wd     (usb_usb_measure_ctrl_wdata[21:13]),
+
+    // from internal hardware
+    .de     (1'b0),
+    .d      ('0),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.usb_measure_ctrl.min_thresh.q),
+
+    // to register interface (read)
+    .qs     (usb_usb_measure_ctrl_min_thresh_qs_int)
+  );
+
+
+  // R[recov_err_code]: V(False)
+  //   F[io_measure_err]: 0:0
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_err_code_io_measure_err (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_err_code_we),
+    .wd     (recov_err_code_io_measure_err_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_err_code.io_measure_err.de),
+    .d      (hw2reg.recov_err_code.io_measure_err.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_err_code.io_measure_err.q),
+
+    // to register interface (read)
+    .qs     (recov_err_code_io_measure_err_qs)
+  );
+
+  //   F[io_div2_measure_err]: 1:1
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_err_code_io_div2_measure_err (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_err_code_we),
+    .wd     (recov_err_code_io_div2_measure_err_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_err_code.io_div2_measure_err.de),
+    .d      (hw2reg.recov_err_code.io_div2_measure_err.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_err_code.io_div2_measure_err.q),
+
+    // to register interface (read)
+    .qs     (recov_err_code_io_div2_measure_err_qs)
+  );
+
+  //   F[io_div4_measure_err]: 2:2
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_err_code_io_div4_measure_err (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_err_code_we),
+    .wd     (recov_err_code_io_div4_measure_err_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_err_code.io_div4_measure_err.de),
+    .d      (hw2reg.recov_err_code.io_div4_measure_err.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_err_code.io_div4_measure_err.q),
+
+    // to register interface (read)
+    .qs     (recov_err_code_io_div4_measure_err_qs)
+  );
+
+  //   F[main_measure_err]: 3:3
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_err_code_main_measure_err (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_err_code_we),
+    .wd     (recov_err_code_main_measure_err_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_err_code.main_measure_err.de),
+    .d      (hw2reg.recov_err_code.main_measure_err.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_err_code.main_measure_err.q),
+
+    // to register interface (read)
+    .qs     (recov_err_code_main_measure_err_qs)
+  );
+
+  //   F[usb_measure_err]: 4:4
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessW1C),
+    .RESVAL  (1'h0)
+  ) u_recov_err_code_usb_measure_err (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (recov_err_code_we),
+    .wd     (recov_err_code_usb_measure_err_wd),
+
+    // from internal hardware
+    .de     (hw2reg.recov_err_code.usb_measure_err.de),
+    .d      (hw2reg.recov_err_code.usb_measure_err.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.recov_err_code.usb_measure_err.q),
+
+    // to register interface (read)
+    .qs     (recov_err_code_usb_measure_err_qs)
+  );
+
+
+  // R[fatal_err_code]: V(False)
+  prim_subreg #(
+    .DW      (1),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (1'h0)
+  ) u_fatal_err_code (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.fatal_err_code.de),
+    .d      (hw2reg.fatal_err_code.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (reg2hw.fatal_err_code.q),
+
+    // to register interface (read)
+    .qs     (fatal_err_code_qs)
+  );
+
+
+
+  logic [14:0] addr_hit;
   always_comb begin
     addr_hit = '0;
-    addr_hit[0] = (reg_addr == CLKMGR_EXTCLK_SEL_REGWEN_OFFSET);
-    addr_hit[1] = (reg_addr == CLKMGR_EXTCLK_SEL_OFFSET);
-    addr_hit[2] = (reg_addr == CLKMGR_JITTER_ENABLE_OFFSET);
-    addr_hit[3] = (reg_addr == CLKMGR_CLK_ENABLES_OFFSET);
-    addr_hit[4] = (reg_addr == CLKMGR_CLK_HINTS_OFFSET);
-    addr_hit[5] = (reg_addr == CLKMGR_CLK_HINTS_STATUS_OFFSET);
+    addr_hit[ 0] = (reg_addr == CLKMGR_ALERT_TEST_OFFSET);
+    addr_hit[ 1] = (reg_addr == CLKMGR_EXTCLK_CTRL_REGWEN_OFFSET);
+    addr_hit[ 2] = (reg_addr == CLKMGR_EXTCLK_CTRL_OFFSET);
+    addr_hit[ 3] = (reg_addr == CLKMGR_JITTER_ENABLE_OFFSET);
+    addr_hit[ 4] = (reg_addr == CLKMGR_CLK_ENABLES_OFFSET);
+    addr_hit[ 5] = (reg_addr == CLKMGR_CLK_HINTS_OFFSET);
+    addr_hit[ 6] = (reg_addr == CLKMGR_CLK_HINTS_STATUS_OFFSET);
+    addr_hit[ 7] = (reg_addr == CLKMGR_MEASURE_CTRL_REGWEN_OFFSET);
+    addr_hit[ 8] = (reg_addr == CLKMGR_IO_MEASURE_CTRL_OFFSET);
+    addr_hit[ 9] = (reg_addr == CLKMGR_IO_DIV2_MEASURE_CTRL_OFFSET);
+    addr_hit[10] = (reg_addr == CLKMGR_IO_DIV4_MEASURE_CTRL_OFFSET);
+    addr_hit[11] = (reg_addr == CLKMGR_MAIN_MEASURE_CTRL_OFFSET);
+    addr_hit[12] = (reg_addr == CLKMGR_USB_MEASURE_CTRL_OFFSET);
+    addr_hit[13] = (reg_addr == CLKMGR_RECOV_ERR_CODE_OFFSET);
+    addr_hit[14] = (reg_addr == CLKMGR_FATAL_ERR_CODE_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
 
   // Check sub-word write is permitted
   always_comb begin
-    wr_err = 1'b0;
-    if (addr_hit[0] && reg_we && (CLKMGR_PERMIT[0] != (CLKMGR_PERMIT[0] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[1] && reg_we && (CLKMGR_PERMIT[1] != (CLKMGR_PERMIT[1] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[2] && reg_we && (CLKMGR_PERMIT[2] != (CLKMGR_PERMIT[2] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[3] && reg_we && (CLKMGR_PERMIT[3] != (CLKMGR_PERMIT[3] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[4] && reg_we && (CLKMGR_PERMIT[4] != (CLKMGR_PERMIT[4] & reg_be))) wr_err = 1'b1 ;
-    if (addr_hit[5] && reg_we && (CLKMGR_PERMIT[5] != (CLKMGR_PERMIT[5] & reg_be))) wr_err = 1'b1 ;
+    wr_err = (reg_we &
+              ((addr_hit[ 0] & (|(CLKMGR_PERMIT[ 0] & ~reg_be))) |
+               (addr_hit[ 1] & (|(CLKMGR_PERMIT[ 1] & ~reg_be))) |
+               (addr_hit[ 2] & (|(CLKMGR_PERMIT[ 2] & ~reg_be))) |
+               (addr_hit[ 3] & (|(CLKMGR_PERMIT[ 3] & ~reg_be))) |
+               (addr_hit[ 4] & (|(CLKMGR_PERMIT[ 4] & ~reg_be))) |
+               (addr_hit[ 5] & (|(CLKMGR_PERMIT[ 5] & ~reg_be))) |
+               (addr_hit[ 6] & (|(CLKMGR_PERMIT[ 6] & ~reg_be))) |
+               (addr_hit[ 7] & (|(CLKMGR_PERMIT[ 7] & ~reg_be))) |
+               (addr_hit[ 8] & (|(CLKMGR_PERMIT[ 8] & ~reg_be))) |
+               (addr_hit[ 9] & (|(CLKMGR_PERMIT[ 9] & ~reg_be))) |
+               (addr_hit[10] & (|(CLKMGR_PERMIT[10] & ~reg_be))) |
+               (addr_hit[11] & (|(CLKMGR_PERMIT[11] & ~reg_be))) |
+               (addr_hit[12] & (|(CLKMGR_PERMIT[12] & ~reg_be))) |
+               (addr_hit[13] & (|(CLKMGR_PERMIT[13] & ~reg_be))) |
+               (addr_hit[14] & (|(CLKMGR_PERMIT[14] & ~reg_be)))));
   end
+  assign alert_test_we = addr_hit[0] & reg_we & !reg_error;
 
-  assign extclk_sel_regwen_we = addr_hit[0] & reg_we & !reg_error;
-  assign extclk_sel_regwen_wd = reg_wdata[0];
+  assign alert_test_recov_fault_wd = reg_wdata[0];
 
-  assign extclk_sel_we = addr_hit[1] & reg_we & !reg_error;
-  assign extclk_sel_wd = reg_wdata[3:0];
+  assign alert_test_fatal_fault_wd = reg_wdata[1];
+  assign extclk_ctrl_regwen_we = addr_hit[1] & reg_we & !reg_error;
 
-  assign jitter_enable_we = addr_hit[2] & reg_we & !reg_error;
+  assign extclk_ctrl_regwen_wd = reg_wdata[0];
+  assign extclk_ctrl_we = addr_hit[2] & reg_we & !reg_error;
+
+  assign extclk_ctrl_sel_wd = reg_wdata[3:0];
+
+  assign extclk_ctrl_step_down_wd = reg_wdata[7:4];
+  assign jitter_enable_we = addr_hit[3] & reg_we & !reg_error;
+
   assign jitter_enable_wd = reg_wdata[0];
+  assign clk_enables_we = addr_hit[4] & reg_we & !reg_error;
 
-  assign clk_enables_clk_io_div4_peri_en_we = addr_hit[3] & reg_we & !reg_error;
   assign clk_enables_clk_io_div4_peri_en_wd = reg_wdata[0];
 
-  assign clk_enables_clk_io_div2_peri_en_we = addr_hit[3] & reg_we & !reg_error;
   assign clk_enables_clk_io_div2_peri_en_wd = reg_wdata[1];
 
-  assign clk_enables_clk_usb_peri_en_we = addr_hit[3] & reg_we & !reg_error;
-  assign clk_enables_clk_usb_peri_en_wd = reg_wdata[2];
+  assign clk_enables_clk_io_peri_en_wd = reg_wdata[2];
 
-  assign clk_hints_clk_main_aes_hint_we = addr_hit[4] & reg_we & !reg_error;
+  assign clk_enables_clk_usb_peri_en_wd = reg_wdata[3];
+  assign clk_hints_we = addr_hit[5] & reg_we & !reg_error;
+
   assign clk_hints_clk_main_aes_hint_wd = reg_wdata[0];
 
-  assign clk_hints_clk_main_hmac_hint_we = addr_hit[4] & reg_we & !reg_error;
   assign clk_hints_clk_main_hmac_hint_wd = reg_wdata[1];
 
-  assign clk_hints_clk_main_kmac_hint_we = addr_hit[4] & reg_we & !reg_error;
   assign clk_hints_clk_main_kmac_hint_wd = reg_wdata[2];
 
-  assign clk_hints_clk_main_otbn_hint_we = addr_hit[4] & reg_we & !reg_error;
-  assign clk_hints_clk_main_otbn_hint_wd = reg_wdata[3];
+  assign clk_hints_clk_io_div4_otbn_hint_wd = reg_wdata[3];
+
+  assign clk_hints_clk_main_otbn_hint_wd = reg_wdata[4];
+  assign measure_ctrl_regwen_we = addr_hit[7] & reg_we & !reg_error;
+
+  assign measure_ctrl_regwen_wd = reg_wdata[0];
+  assign io_measure_ctrl_we = addr_hit[8] & reg_we & !reg_error;
+
+
+
+  assign io_div2_measure_ctrl_we = addr_hit[9] & reg_we & !reg_error;
+
+
+
+  assign io_div4_measure_ctrl_we = addr_hit[10] & reg_we & !reg_error;
+
+
+
+  assign main_measure_ctrl_we = addr_hit[11] & reg_we & !reg_error;
+
+
+
+  assign usb_measure_ctrl_we = addr_hit[12] & reg_we & !reg_error;
+
+
+
+  assign recov_err_code_we = addr_hit[13] & reg_we & !reg_error;
+
+  assign recov_err_code_io_measure_err_wd = reg_wdata[0];
+
+  assign recov_err_code_io_div2_measure_err_wd = reg_wdata[1];
+
+  assign recov_err_code_io_div4_measure_err_wd = reg_wdata[2];
+
+  assign recov_err_code_main_measure_err_wd = reg_wdata[3];
+
+  assign recov_err_code_usb_measure_err_wd = reg_wdata[4];
 
   // Read data return
   always_comb begin
     reg_rdata_next = '0;
     unique case (1'b1)
       addr_hit[0]: begin
-        reg_rdata_next[0] = extclk_sel_regwen_qs;
+        reg_rdata_next[0] = '0;
+        reg_rdata_next[1] = '0;
       end
 
       addr_hit[1]: begin
-        reg_rdata_next[3:0] = extclk_sel_qs;
+        reg_rdata_next[0] = extclk_ctrl_regwen_qs;
       end
 
       addr_hit[2]: begin
-        reg_rdata_next[0] = jitter_enable_qs;
+        reg_rdata_next[3:0] = extclk_ctrl_sel_qs;
+        reg_rdata_next[7:4] = extclk_ctrl_step_down_qs;
       end
 
       addr_hit[3]: begin
-        reg_rdata_next[0] = clk_enables_clk_io_div4_peri_en_qs;
-        reg_rdata_next[1] = clk_enables_clk_io_div2_peri_en_qs;
-        reg_rdata_next[2] = clk_enables_clk_usb_peri_en_qs;
+        reg_rdata_next[0] = jitter_enable_qs;
       end
 
       addr_hit[4]: begin
-        reg_rdata_next[0] = clk_hints_clk_main_aes_hint_qs;
-        reg_rdata_next[1] = clk_hints_clk_main_hmac_hint_qs;
-        reg_rdata_next[2] = clk_hints_clk_main_kmac_hint_qs;
-        reg_rdata_next[3] = clk_hints_clk_main_otbn_hint_qs;
+        reg_rdata_next[0] = clk_enables_clk_io_div4_peri_en_qs;
+        reg_rdata_next[1] = clk_enables_clk_io_div2_peri_en_qs;
+        reg_rdata_next[2] = clk_enables_clk_io_peri_en_qs;
+        reg_rdata_next[3] = clk_enables_clk_usb_peri_en_qs;
       end
 
       addr_hit[5]: begin
+        reg_rdata_next[0] = clk_hints_clk_main_aes_hint_qs;
+        reg_rdata_next[1] = clk_hints_clk_main_hmac_hint_qs;
+        reg_rdata_next[2] = clk_hints_clk_main_kmac_hint_qs;
+        reg_rdata_next[3] = clk_hints_clk_io_div4_otbn_hint_qs;
+        reg_rdata_next[4] = clk_hints_clk_main_otbn_hint_qs;
+      end
+
+      addr_hit[6]: begin
         reg_rdata_next[0] = clk_hints_status_clk_main_aes_val_qs;
         reg_rdata_next[1] = clk_hints_status_clk_main_hmac_val_qs;
         reg_rdata_next[2] = clk_hints_status_clk_main_kmac_val_qs;
-        reg_rdata_next[3] = clk_hints_status_clk_main_otbn_val_qs;
+        reg_rdata_next[3] = clk_hints_status_clk_io_div4_otbn_val_qs;
+        reg_rdata_next[4] = clk_hints_status_clk_main_otbn_val_qs;
+      end
+
+      addr_hit[7]: begin
+        reg_rdata_next[0] = measure_ctrl_regwen_qs;
+      end
+
+      addr_hit[8]: begin
+        reg_rdata_next = DW'(io_measure_ctrl_qs);
+      end
+      addr_hit[9]: begin
+        reg_rdata_next = DW'(io_div2_measure_ctrl_qs);
+      end
+      addr_hit[10]: begin
+        reg_rdata_next = DW'(io_div4_measure_ctrl_qs);
+      end
+      addr_hit[11]: begin
+        reg_rdata_next = DW'(main_measure_ctrl_qs);
+      end
+      addr_hit[12]: begin
+        reg_rdata_next = DW'(usb_measure_ctrl_qs);
+      end
+      addr_hit[13]: begin
+        reg_rdata_next[0] = recov_err_code_io_measure_err_qs;
+        reg_rdata_next[1] = recov_err_code_io_div2_measure_err_qs;
+        reg_rdata_next[2] = recov_err_code_io_div4_measure_err_qs;
+        reg_rdata_next[3] = recov_err_code_main_measure_err_qs;
+        reg_rdata_next[4] = recov_err_code_usb_measure_err_qs;
+      end
+
+      addr_hit[14]: begin
+        reg_rdata_next[0] = fatal_err_code_qs;
       end
 
       default: begin
@@ -606,6 +1699,38 @@ module clkmgr_reg_top (
       end
     endcase
   end
+
+  // shadow busy
+  logic shadow_busy;
+  assign shadow_busy = 1'b0;
+
+  // register busy
+  logic reg_busy_sel;
+  assign reg_busy = reg_busy_sel | shadow_busy;
+  always_comb begin
+    reg_busy_sel = '0;
+    unique case (1'b1)
+      addr_hit[8]: begin
+        reg_busy_sel = io_measure_ctrl_busy;
+      end
+      addr_hit[9]: begin
+        reg_busy_sel = io_div2_measure_ctrl_busy;
+      end
+      addr_hit[10]: begin
+        reg_busy_sel = io_div4_measure_ctrl_busy;
+      end
+      addr_hit[11]: begin
+        reg_busy_sel = main_measure_ctrl_busy;
+      end
+      addr_hit[12]: begin
+        reg_busy_sel = usb_measure_ctrl_busy;
+      end
+      default: begin
+        reg_busy_sel  = '0;
+      end
+    endcase
+  end
+
 
   // Unused signal tieoff
 
@@ -617,12 +1742,12 @@ module clkmgr_reg_top (
   assign unused_be = ^reg_be;
 
   // Assertions for Register Interface
-  `ASSERT_PULSE(wePulse, reg_we)
-  `ASSERT_PULSE(rePulse, reg_re)
+  `ASSERT_PULSE(wePulse, reg_we, clk_i, !rst_ni)
+  `ASSERT_PULSE(rePulse, reg_re, clk_i, !rst_ni)
 
-  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o.d_valid)
+  `ASSERT(reAfterRv, $rose(reg_re || reg_we) |=> tl_o_pre.d_valid, clk_i, !rst_ni)
 
-  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit))
+  `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit), clk_i, !rst_ni)
 
   // this is formulated as an assumption such that the FPV testbenches do disprove this
   // property by mistake

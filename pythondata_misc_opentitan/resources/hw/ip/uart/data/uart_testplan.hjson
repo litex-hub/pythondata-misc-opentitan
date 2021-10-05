@@ -4,9 +4,10 @@
 {
   name: "uart"
   import_testplans: ["hw/dv/tools/dvsim/testplans/csr_testplan.hjson",
+                     "hw/dv/tools/dvsim/testplans/alert_test_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/intr_test_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/tl_device_access_types_testplan.hjson"]
-  entries: [
+  testpoints: [
     {
       name: smoke
       desc: '''
@@ -177,6 +178,15 @@
       tests: ["uart_rx_oversample"]
     }
     {
+      name: long_b2b_transfer
+      desc: '''
+            - Reduce delay to fill TX fifo and read RX fifo to ensure back2back transfers
+            - Use long back2back transfer to ensure clock difference won't be accumulated across transactions
+            - Uart monitor checks the clock offset between sender and receiver is never over 1/4 of the period'''
+      milestone: V2
+      tests: ["uart_long_xfer_wo_dly"]
+    }
+    {
       name: stress_all
       desc: '''
             - Combine above sequences in one test to run sequentially, except csr sequence and
@@ -190,6 +200,14 @@
       desc: '''Have random reset in parallel with stress_all and tl_errors sequences'''
       milestone: V2
       tests: ["uart_stress_all_with_rand_reset"]
+    }
+  ]
+
+  covergroups: [
+    {
+      name: foo_cg
+      desc: '''
+            '''
     }
   ]
 }

@@ -203,7 +203,7 @@ class Process:
 
 
 class LoggingSerial(serial.Serial):
-    """ Acess to a serial console which logs all read/written data to file. """
+    """ Access to a serial console which logs all read/written data to file. """
     def __init__(self,
                  *args,
                  log_dir_path,
@@ -366,16 +366,21 @@ def dump_temp_files(tmp_path):
 
 
 def load_sw_over_spi(tmp_path,
-                     spiflash_path,
+                     loader_path,
                      sw_test_bin,
-                     spiflash_args=[],
+                     loader_args=[],
                      timeout=600):
-    """ Use the spiflash utility to load software onto a device. """
+    """ Use the specified loader utility to load software onto a device. """
 
     log.info("Flashing device software from {} over SPI".format(
         str(sw_test_bin)))
 
-    cmd_flash = [spiflash_path, '--input', sw_test_bin] + spiflash_args
+    # cw310_loader.py supports both loading bistream and firmware.
+    if re.search('cw310_loader', str(loader_path)):
+        bin_arg = '--firmware'
+    else:  # spiflash loads firmware only.
+        bin_arg = '--input'
+    cmd_flash = [loader_path, bin_arg, sw_test_bin] + loader_args
     p_flash = Process(cmd_flash, logdir=tmp_path, cwd=tmp_path)
     p_flash.run()
     p_flash.proc.wait(timeout=timeout)
@@ -511,7 +516,7 @@ def filter_remove_sw_test_status_log_prefix(line):
     """
 
     # Example of a full prefix to be matched:
-    # 1629002: (../src/lowrisc_dv_sw_test_status_0/sw_test_status_if.sv:42) [TOP.chip_earlgrey_verilator.u_sw_test_status_if]
+    # 1629002: (../src/lowrisc_dv_sw_test_status_0/sw_test_status_if.sv:42) [TOP.chip_earlgrey_verilator.u_sw_test_status_if]  # noqa: E501
     pattern = r'\d+: \(.+/sw_test_status_if\.sv:\d+\) \[TOP\..+\] '
     if isinstance(line, bytes):
         return re.sub(bytes(pattern, encoding='utf-8'), b'', line)

@@ -41,6 +41,19 @@
       reg_block_path = reg_block_path if block.hier_path is None else block.hier_path + "." + reg_block_path
 %>\
 // Block: ${block_name.lower()}${if_desc}
+// TODO(issue #8204): a hack to allow 'real' AST register model to extend from ast_base_reg
+//instead of extending directly from dv_base_reg.
+//ast_base_reg is an extension of dv_base_reg that abstracts some of the AST specific features
+//and that is only visible in Nuvoton's internal repo.
+//In chip level register model all the blocks except AST extend from dv_base_reg class.
+<%
+  dv_base_my_prefix = dv_base_prefix
+%>\
+%if (block_name.lower() == "ast"):
+<%
+  dv_base_my_prefix = "ast_base"
+%>\
+%endif
 ${make_ral_pkg(dv_base_prefix, top.regwidth, reg_block_path, rb, esc_if_name)}
 %   endfor
 % endfor
@@ -126,13 +139,20 @@ ${make_ral_pkg_window_class(dv_base_prefix, 'chip', window)}
         qual_if_name = (inst_name, if_name)
         base_addr = top.if_addrs[qual_if_name]
         base_addr_txt = sv_base_addr(top, qual_if_name)
+
+        hpr_indent = (len(if_inst) + len('.set_hdl_path_root(')) * ' '
 %>\
-      ${if_inst} = ${bcname(esc_if_name)}::type_id::create("${if_inst}");
+      ${if_inst} =
+          ${bcname(esc_if_name)}::type_id::create("${if_inst}");
+      ${if_inst}.set_ip_name("${inst_name}");
       ${if_inst}.configure(.parent(this));
       ${if_inst}.build(.base_addr(base_addr + ${base_addr_txt}), .csr_excl(csr_excl));
-      ${if_inst}.set_hdl_path_root("${hdl_path}", "BkdrRegPathRtl");
-      ${if_inst}.set_hdl_path_root("${hdl_path}", "BkdrRegPathRtlCommitted");
-      ${if_inst}.set_hdl_path_root("${hdl_path}", "BkdrRegPathRtlShadow");
+      ${if_inst}.set_hdl_path_root("${hdl_path}",
+      ${hpr_indent}"BkdrRegPathRtl");
+      ${if_inst}.set_hdl_path_root("${hdl_path}",
+      ${hpr_indent}"BkdrRegPathRtlCommitted");
+      ${if_inst}.set_hdl_path_root("${hdl_path}",
+      ${hpr_indent}"BkdrRegPathRtlShadow");
       default_map.add_submap(.child_map(${if_inst}.default_map),
                              .offset(base_addr + ${base_addr_txt}));
 %     endfor

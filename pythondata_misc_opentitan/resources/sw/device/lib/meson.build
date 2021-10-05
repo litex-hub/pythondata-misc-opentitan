@@ -7,7 +7,6 @@ subdir('arch')
 subdir('crt')
 subdir('dif')
 subdir('runtime')
-subdir('testing')
 
 # Flash controller library (sw_lib_flash_ctrl)
 sw_lib_flash_ctrl = declare_dependency(
@@ -23,13 +22,13 @@ sw_lib_flash_ctrl = declare_dependency(
   )
 )
 
-# PINMUX library (sw_lib_pinmux)
-sw_lib_pinmux = declare_dependency(
+# Temp ibex peri library (sw_lib_ibex)
+sw_lib_ibex = declare_dependency(
   link_with: static_library(
-    'pinmux_ot',
+    'ibex_ot',
     sources: [
-      hw_top_earlgrey_pinmux_reg_h,
-      'pinmux.c',
+      hw_ip_ibex_reg_h,
+      'ibex_peri.c',
     ],
     dependencies: [
       top_earlgrey,
@@ -37,13 +36,13 @@ sw_lib_pinmux = declare_dependency(
   )
 )
 
-# AES library (sw_lib_aes)
-sw_lib_aes = declare_dependency(
+# PINMUX library (sw_lib_pinmux)
+sw_lib_pinmux = declare_dependency(
   link_with: static_library(
-    'aes_ot',
+    'pinmux_ot',
     sources: [
-      hw_ip_aes_reg_h,
-      'aes.c',
+      hw_top_earlgrey_pinmux_reg_h,
+      'pinmux.c',
     ],
     dependencies: [
       top_earlgrey,
@@ -98,3 +97,5 @@ sw_lib_usb = declare_dependency(
     ]
   )
 )
+
+subdir('testing')

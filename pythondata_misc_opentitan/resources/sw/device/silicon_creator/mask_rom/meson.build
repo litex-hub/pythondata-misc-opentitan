@@ -6,30 +6,192 @@
 #
 # See sw/device/exts/common/flash_link.ld for additional info about these
 # parameters.
+
 rom_linkfile = files(['mask_rom.ld'])
 rom_link_args = [
   '-Wl,-L,@0@'.format(meson.source_root()),
   '-Wl,-T,@0@/@1@'.format(meson.source_root(), rom_linkfile[0]),
-  # Flatten the array, otherwise `mask_rom_lib` generation fails.
-  ''.join(embedded_target_extra_link_args),
-]
+] + embedded_target_extra_link_args
 rom_link_deps = [rom_linkfile]
+
+# Signature verification.
+sw_silicon_creator_mask_rom_sigverify = declare_dependency(
+  link_with: static_library(
+    'sw_silicon_creator_mask_rom_sigverify',
+    sources: [
+      'sigverify_keys.c',
+      hw_ip_otp_ctrl_reg_h,
+    ],
+    dependencies: [
+      sw_silicon_creator_lib_sigverify,
+      sw_silicon_creator_lib_driver_otp,
+      sw_lib_bitfield,
+    ],
+  ),
+)
+
+# ROM_EXT image.
+sw_silicon_creator_mask_rom_boot_policy = declare_dependency(
+  link_with: static_library(
+    'sw_silicon_creator_mask_rom_boot_policy',
+    sources: [
+      'boot_policy.c',
+    ],
+  ),
+)
+
+# Mask ROM ePMP library
+sw_silicon_creator_mask_rom_epmp = declare_dependency(
+  link_with: static_library(
+    'sw_silicon_creator_mask_rom_epmp',
+    sources: [
+      'mask_rom_epmp.S',
+      'mask_rom_epmp.c',
+    ],
+    dependencies: [
+      sw_silicon_creator_lib_epmp,
+    ],
+  )
+)
+
+# Mask ROM ePMP test library.
+mask_rom_epmp_test_lib = declare_dependency(
+  sources: [
+    hw_ip_aon_timer_reg_h,
+    hw_ip_entropy_src_reg_h,
+    hw_ip_csrng_reg_h,
+    hw_ip_edn_reg_h,
+    hw_ip_sram_ctrl_reg_h,
+    hw_ip_pwrmgr_reg_h,
+    'mask_rom_start.S',
+  ],
+  link_args: rom_link_args,
+  dependencies: [
+    freestanding_headers,
+    sw_silicon_creator_lib_base_sec_mmio,
+    sw_silicon_creator_lib_driver_uart,
+    sw_silicon_creator_lib_epmp_test_unlock,
+    sw_silicon_creator_lib_fake_deps,
+    sw_silicon_creator_lib_irq_asm,
+    sw_silicon_creator_mask_rom_epmp,
+    sw_lib_crt,
+    sw_lib_pinmux,
+    sw_lib_runtime_print,
+    sw_lib_testing_test_status,
+  ],
+  link_with: static_library(
+    'mask_rom_epmp_test_lib',
+    sources: [
+      hw_ip_sram_ctrl_reg_h,
+      'mask_rom_epmp_test.c',
+    ],
+    link_depends: [rom_linkfile],
+  )
+)
+
+# Mask ROM ePMP test images
+foreach device_name, device_lib : sw_lib_arch_core_devices
+  mask_rom_epmp_test_elf = executable(
+    'mask_rom_epmp_test_' + device_name,
+    name_suffix: 'elf',
+    link_depends: rom_link_deps,
+    link_args: [
+      '-Wl,-Map=@0@/mask_rom_@1@.map'.format(meson.current_build_dir(), device_name),
+    ],
+    dependencies: [
+      device_lib,
+      mask_rom_epmp_test_lib,
+    ],
+  )
+
+  target_name = 'mask_rom_epmp_test_@0@_' + device_name
+
+  mask_rom_epmp_test_dis = custom_target(
+    target_name.format('dis'),
+    input: mask_rom_epmp_test_elf,
+    kwargs: elf_to_dis_custom_target_args,
+  )
+
+  mask_rom_epmp_test_bin = custom_target(
+    target_name.format('bin'),
+    input: mask_rom_epmp_test_elf,
+    kwargs: elf_to_bin_custom_target_args,
+  )
+
+  mask_rom_epmp_test_vmem32 = custom_target(
+    target_name.format('vmem32'),
+    input: mask_rom_epmp_test_bin,
+    kwargs: bin_to_vmem32_custom_target_args,
+  )
+
+  mask_rom_epmp_test_vmem64 = custom_target(
+    target_name.format('vmem64'),
+    input: mask_rom_epmp_test_bin,
+    kwargs: bin_to_vmem64_custom_target_args,
+  )
+
+  mask_rom_epmp_test_scrambled = custom_target(
+    target_name.format('scrambled'),
+    command: scramble_image_command,
+    depend_files: scramble_image_depend_files,
+    input: mask_rom_epmp_test_elf,
+    output: scramble_image_outputs,
+    build_by_default: true,
+  )
+
+  custom_target(
+    target_name.format('export'),
+    command: export_target_command,
+    depend_files: [export_target_depend_files,],
+    input: [
+      mask_rom_epmp_test_elf,
+      mask_rom_epmp_test_dis,
+      mask_rom_epmp_test_bin,
+      mask_rom_epmp_test_vmem32,
+      mask_rom_epmp_test_vmem64,
+      mask_rom_epmp_test_scrambled,
+    ],
+    output: target_name.format('export'),
+    build_always_stale: true,
+    build_by_default: true,
+  )
+endforeach
 
 # MaskROM library.
 mask_rom_lib = declare_dependency(
   sources: [
+    hw_ip_aon_timer_reg_h,
+    hw_ip_entropy_src_reg_h,
+    hw_ip_csrng_reg_h,
+    hw_ip_edn_reg_h,
+    hw_ip_sram_ctrl_reg_h,
     'mask_rom_start.S',
   ],
     link_args: rom_link_args,
     dependencies: [
       freestanding_headers,
-      rom_ext_manifest_parser,
+      sw_silicon_creator_lib_driver_hmac,
+      sw_silicon_creator_lib_driver_keymgr,
+      sw_silicon_creator_lib_driver_lifecycle,
+      sw_silicon_creator_lib_driver_pinmux,
+      sw_silicon_creator_lib_driver_retention_sram,
+      sw_silicon_creator_lib_driver_rstmgr,
+      sw_silicon_creator_lib_driver_uart,
+      sw_silicon_creator_lib_fake_deps,
+      sw_silicon_creator_lib_irq_asm,
+      sw_silicon_creator_lib_manifest,
+      sw_silicon_creator_lib_shutdown,
+      sw_silicon_creator_mask_rom_epmp,
+      sw_silicon_creator_mask_rom_sigverify,
+      sw_silicon_creator_mask_rom_boot_policy,
       sw_lib_crt,
-      sw_lib_pinmux,
+      sw_lib_runtime_print,
     ],
     link_with: static_library(
       'mask_rom_lib',
-      sources: ['mask_rom.c'],
+      sources: [
+        'mask_rom.c',
+      ],
       link_depends: [rom_linkfile],
   )
 )
@@ -40,28 +202,98 @@ foreach device_name, device_lib : sw_lib_arch_core_devices
     'mask_rom_' + device_name,
     name_suffix: 'elf',
     link_depends: rom_link_deps,
+    link_args: [
+      '-Wl,-Map=@0@/mask_rom_@1@.map'.format(meson.current_build_dir(), device_name),
+    ],
     dependencies: [
       device_lib,
       mask_rom_lib,
     ],
   )
 
-  mask_rom_embedded = custom_target(
-    'mask_rom_' + device_name,
-    command: make_embedded_target_command,
-    depend_files: [make_embedded_target_depend_files,],
+  target_name = 'mask_rom_@0@_' + device_name
+
+  mask_rom_dis = custom_target(
+    target_name.format('dis'),
     input: mask_rom_elf,
-    output: make_embedded_target_outputs,
+    kwargs: elf_to_dis_custom_target_args,
+  )
+
+  mask_rom_bin = custom_target(
+    target_name.format('bin'),
+    input: mask_rom_elf,
+    kwargs: elf_to_bin_custom_target_args,
+  )
+
+  mask_rom_vmem32 = custom_target(
+    target_name.format('vmem32'),
+    input: mask_rom_bin,
+    kwargs: bin_to_vmem32_custom_target_args,
+  )
+
+  mask_rom_vmem64 = custom_target(
+    target_name.format('vmem64'),
+    input: mask_rom_bin,
+    kwargs: bin_to_vmem64_custom_target_args,
+  )
+
+  mask_rom_scrambled = custom_target(
+    target_name.format('scrambled'),
+    command: scramble_image_command,
+    depend_files: scramble_image_depend_files,
+    input: mask_rom_elf,
+    output: scramble_image_outputs,
     build_by_default: true,
   )
 
   custom_target(
-    'mask_rom_export_' + device_name,
+    target_name.format('export'),
     command: export_target_command,
     depend_files: [export_target_depend_files,],
-    input: [mask_rom_elf, mask_rom_embedded],
-    output: 'mask_rom_export_' + device_name,
+    input: [
+      mask_rom_elf,
+      mask_rom_dis,
+      mask_rom_bin,
+      mask_rom_vmem32,
+      mask_rom_vmem64,
+      mask_rom_scrambled,
+    ],
+    output: target_name.format('export'),
     build_always_stale: true,
     build_by_default: true,
   )
 endforeach
+
+test('sw_silicon_creator_mask_rom_boot_policy_unittest', executable(
+    'sw_silicon_creator_mask_rom_boot_policy_unittest',
+    sources: [
+      'boot_policy_unittest.cc',
+      'boot_policy.c',
+    ],
+    dependencies: [
+      sw_vendor_gtest,
+    ],
+    native: true,
+    c_args: ['-DOT_OFF_TARGET_TEST'],
+    cpp_args: ['-DOT_OFF_TARGET_TEST'],
+  ),
+  suite: 'mask_rom',
+)
+
+test('sw_silicon_creator_mask_rom_sigverify_keys_unittest', executable(
+    'sw_silicon_creator_mask_rom_sigverify_keys_unittest',
+    sources: [
+      'sigverify_keys.c',
+      'sigverify_keys_unittest.cc',
+      hw_ip_otp_ctrl_reg_h,
+    ] + sw_silicon_creator_lib_sigverify_sources_for_boot_stage_tests,
+    dependencies: [
+      sw_vendor_gtest,
+      sw_lib_testing_bitfield,
+    ],
+    native: true,
+    c_args: ['-DOT_OFF_TARGET_TEST'],
+    cpp_args: ['-DOT_OFF_TARGET_TEST'],
+  ),
+  suite: 'mask_rom',
+)

@@ -68,8 +68,9 @@ module flash_phy_rd import flash_phy_pkg::*; (
   input [FullDataWidth-1:0] data_i,
 
   // error status reporting
+  // only single bit error is shown here as multi-bit errors are
+  // actual data errors are reflected in-band through data_err_o
   output logic ecc_single_err_o,
-  output logic ecc_multi_err_o,
   output logic [BusBankAddrW-1:0] ecc_addr_o
   );
 
@@ -140,12 +141,11 @@ module flash_phy_rd import flash_phy_pkg::*; (
 
   prim_arbiter_tree #(
     .N(NumBuf),
-    // disable request stability assertion
-    .EnReqStabA(0),
     .DW(2)
   ) i_valid_random (
     .clk_i,
     .rst_ni,
+    .req_chk_i(1'b0), // Valid is allowed to drop without ready.
     .req_i(buf_valid),
     .data_i(dummy_data),
     .gnt_o(buf_valid_alloc),
@@ -340,6 +340,7 @@ module flash_phy_rd import flash_phy_pkg::*; (
 
   // scrambled data must pass through ECC first
   logic valid_ecc;
+  logic ecc_multi_err_raw;
   logic ecc_multi_err;
   logic ecc_single_err;
   logic [DataWidth-1:0] data_ecc_chk;
@@ -353,29 +354,30 @@ module flash_phy_rd import flash_phy_pkg::*; (
   assign data_erased = rd_done & (data_i == {FullDataWidth{1'b1}});
 
   prim_secded_hamming_72_64_dec u_dec (
-    .in(data_i[ScrDataWidth-1:0]),
-    .d_o(data_ecc_chk),
+    .data_i(data_i[ScrDataWidth-1:0]),
+    .data_o(data_ecc_chk),
     .syndrome_o(),
-    .err_o({ecc_multi_err, ecc_single_err})
+    .err_o({ecc_multi_err_raw, ecc_single_err})
   );
-
-  // If data needs to be de-scrambled and has not been erased, pass through ecc decoder.
-  // Otherwise, pass the data through untouched.
-  // Likewise, ecc error is only observed if the data needs to be de-scrambled and has not been
-  // erased.
-  // rd_done signal below is duplicated (already in data_erased) to show clear intent of the code.
-  assign data_int = valid_ecc ? data_ecc_chk :
-                                data_i[DataWidth-1:0];
 
   // For instruction type accesses, always return the transaction error
   // For data type accesses, allow the error return to be configurable, as the actual data may
   // need to be debugged
-  assign data_err = (rd_attrs.req_type == tlul_pkg::InstrType) ?
-                    ecc_multi_err_o :
-                    ecc_multi_err_o & ecc_multi_err_en_i;
+  assign ecc_multi_err = (rd_attrs.req_type == tlul_pkg::InstrType) ?
+                         ecc_multi_err_raw :
+                         ecc_multi_err_raw & ecc_multi_err_en_i;
+
+  // If there is a detected multi-bit error or a single bit error, always return the
+  // ECC corrected result (even though it is possibly wrong).
+  // There is no data error of any kind (specifically when multi_err is disabled), just
+  // return the raw data so that it can be debugged.
+  assign data_int = data_err | ecc_single_err_o ?
+                    data_ecc_chk :
+                    data_i[DataWidth-1:0];
+
+  assign data_err = valid_ecc & ecc_multi_err;
 
   // always send out sideband indication on error
-  assign ecc_multi_err_o = valid_ecc & ecc_multi_err;
   assign ecc_single_err_o = valid_ecc & ecc_single_err;
 
   // ecc address return is always the full flash word

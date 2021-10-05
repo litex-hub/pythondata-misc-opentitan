@@ -74,6 +74,18 @@ full .fst wave trace pass the `-t` flag. To get an instruction level trace pass
 the `--otbn-trace-file=trace.log` argument. The instruction trace format is
 documented in `hw/ip/otbn/dv/tracer`.
 
+To run several auto-generated binaries against the Verilated RTL, use
+the script at `dv/verilator/run-some.py`. For example,
+
+```sh
+hw/ip/otbn/dv/verilator/run-some.py --size=1500 --count=50 X
+```
+
+will generate and run 50 binaries, each of which will execute up to
+1500 instructions when run. The generated binaries, a Verilated model
+and the output from running them can all be found in the directory
+called `X`.
+
 ### Run the smoke test
 
 A smoke test which exercises some functionality of OTBN can be found, together
@@ -105,8 +117,8 @@ simulation run, e.g.
 
 ```sh
 build/lowrisc_systems_chip_earlgrey_verilator_0.1/sim-verilator/Vchip_earlgrey_verilator \
-  --meminit=rom,build-bin/sw/device/boot_rom/boot_rom_sim_verilator.elf  \
-  --meminit=flash,build-bin/sw/device/tests/dif_otbn_smoketest_sim_verilator.elf \
+  --meminit=rom,build-bin/sw/device/boot_rom/boot_rom_sim_verilator.scr.39.vmem \
+  --meminit=flash,build-bin/sw/device/tests/otbn_smoketest_sim_verilator.elf \
   --meminit=otp,build-bin/sw/device/otp_img/otp_img_sim_verilator.vmem \
   +UARTDPI_LOG_uart0=- \
   +OTBN_USE_MODEL=1

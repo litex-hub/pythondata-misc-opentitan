@@ -8,6 +8,7 @@ filesets:
   files_formal:
     depend:
       - lowrisc:prim:all
+      - lowrisc:prim:esc
     files:
       - vip/prim_esc_rxtx_assert_fpv.sv
       - tb/prim_esc_rxtx_bind_fpv.sv
@@ -18,7 +19,7 @@ targets:
   default: &default_target
     # note, this setting is just used
     # to generate a file list for jg
-    formal: icarus
+    default_tool: icarus
     filesets:
       - files_formal
     toplevel:

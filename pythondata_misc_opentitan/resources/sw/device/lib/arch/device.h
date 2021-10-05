@@ -36,8 +36,13 @@ typedef enum device_type {
    */
   kDeviceSimVerilator,
   /**
-   * Represents the "Nexys Video FPGA" device, i.e., the particular FPGA board
-   * blessed for OpenTitan development, containing a Xilinx FPGA.
+   * Represents the "ChipWhisperer CW310 FPGA" device, i.e., the particular
+   * FPGA board blessed for OpenTitan development, containing a Xilinx FPGA.
+   */
+  kDeviceFpgaCw310,
+  /**
+   * Represents the "Nexys Video FPGA" device, i.e., the previous main FPGA
+   * development board for OpenTitan, containing a Xilinx FPGA.
    */
   kDeviceFpgaNexysVideo,
 } device_type_t;
@@ -74,6 +79,20 @@ extern const uint64_t kClockFreqUsbHz;
  * The baudrate of the UART peripheral (if such a thing is present).
  */
 extern const uint64_t kUartBaudrate;
+
+/**
+ * A helper macro to calculate NCO values.
+ * NOTE: the left shift value is dependent on the UART hardware.
+ * The NCO width is 16 bits and the NCO calculates a 16x oversampling clock.
+ */
+#define CALCULATE_UART_NCO(baudrate, peripheral_clock) \
+  (((baudrate) << (16 + 4)) / (peripheral_clock))
+
+/**
+ * The pre-calculated UART NCO value based on the Baudrate and Peripheral clock.
+ */
+extern const uint32_t kUartNCOValue;
+;
 
 /**
  * An address to write to to report test status.

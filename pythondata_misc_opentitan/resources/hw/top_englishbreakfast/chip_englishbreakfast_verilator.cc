@@ -22,12 +22,14 @@ int main(int argc, char **argv) {
       "u_prim_ram_1p_adv.u_mem."
       "gen_generic.u_impl_generic");
 
-  MemArea rom(top_scope + ".u_rom_rom.u_prim_rom.gen_generic.u_impl_generic",
+  MemArea rom(top_scope +
+                  ".u_rom_ctrl.gen_rom_scramble_disabled.u_rom."
+                  "u_prim_rom.gen_generic.u_impl_generic",
               0x4000 / 4, 4);
   MemArea ram(top_scope + ".u_ram1p_ram_main." + ram1p_adv_scope, 0x20000 / 4,
               4);
   MemArea flash(top_scope +
-                    ".u_flash_eflash.u_flash.gen_generic.u_impl_generic."
+                    ".u_flash_ctrl.u_eflash.u_flash.gen_generic.u_impl_generic."
                     "gen_prim_flash_banks[0].u_prim_flash_bank.u_mem."
                     "gen_generic.u_impl_generic",
                 0x100000 / 8, 8);
@@ -38,7 +40,7 @@ int main(int argc, char **argv) {
   simctrl.RegisterExtension(&memutil);
 
   // see chip_earlgrey_verilator.cc for justification and explanation
-  simctrl.SetInitialResetDelay(500);
+  simctrl.SetInitialResetDelay(1000);
   simctrl.SetResetDuration(10);
 
   std::cout << "Simulation of OpenTitan English Breakfast" << std::endl

@@ -5,26 +5,40 @@
 #include "sw/device/lib/dif/dif_lc_ctrl.h"
 
 #include "sw/device/lib/base/memory.h"
+
 #include "lc_ctrl_regs.h"  // Generated.
 
-dif_lc_ctrl_result_t dif_lc_ctrl_init(dif_lc_ctrl_params_t params,
-                                      dif_lc_ctrl_t *lc) {
+enum {
+  /**
+   * To claim the hardware mutex, SW can write 0xa5 to register
+   * `CLAIM_TRANSITION_IF`. See
+   * https://docs.opentitan.org/hw/ip/lc_ctrl/doc/index.html#Reg_claim_transition_if
+   * for details.
+   */
+  kLcCtrlMutexAcquire = 0xa5,
+  /**
+   * To release the hardware mutex, SW can write 0 to register
+   * `CLAIM_TRANSITION_IF`.
+   */
+  kLcCtrlMutexRelease = 0,
+};
+
+dif_result_t dif_lc_ctrl_init(mmio_region_t base_addr, dif_lc_ctrl_t *lc) {
   if (lc == NULL) {
-    return kDifLcCtrlBadArg;
+    return kDifBadArg;
   }
 
-  lc->params = params;
-  return kDifLcCtrlOk;
+  lc->base_addr = base_addr;
+  return kDifOk;
 }
 
-dif_lc_ctrl_result_t dif_lc_ctrl_get_state(const dif_lc_ctrl_t *lc,
-                                           dif_lc_ctrl_state_t *state) {
+dif_result_t dif_lc_ctrl_get_state(const dif_lc_ctrl_t *lc,
+                                   dif_lc_ctrl_state_t *state) {
   if (lc == NULL || state == NULL) {
-    return kDifLcCtrlBadArg;
+    return kDifBadArg;
   }
 
-  uint32_t reg =
-      mmio_region_read32(lc->params.base_addr, LC_CTRL_LC_STATE_REG_OFFSET);
+  uint32_t reg = mmio_region_read32(lc->base_addr, LC_CTRL_LC_STATE_REG_OFFSET);
   switch (bitfield_field32_read(reg, LC_CTRL_LC_STATE_STATE_FIELD)) {
     case LC_CTRL_LC_STATE_STATE_VALUE_RAW:
       *state = kDifLcCtrlStateRaw;
@@ -49,6 +63,30 @@ dif_lc_ctrl_result_t dif_lc_ctrl_get_state(const dif_lc_ctrl_t *lc,
       break;
     case LC_CTRL_LC_STATE_STATE_VALUE_TEST_UNLOCKED3:
       *state = kDifLcCtrlStateTestUnlocked3;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_LOCKED3:
+      *state = kDifLcCtrlStateTestLocked3;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_UNLOCKED4:
+      *state = kDifLcCtrlStateTestUnlocked4;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_LOCKED4:
+      *state = kDifLcCtrlStateTestLocked4;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_UNLOCKED5:
+      *state = kDifLcCtrlStateTestUnlocked5;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_LOCKED5:
+      *state = kDifLcCtrlStateTestLocked5;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_UNLOCKED6:
+      *state = kDifLcCtrlStateTestUnlocked6;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_LOCKED6:
+      *state = kDifLcCtrlStateTestLocked6;
+      break;
+    case LC_CTRL_LC_STATE_STATE_VALUE_TEST_UNLOCKED7:
+      *state = kDifLcCtrlStateTestUnlocked7;
       break;
     case LC_CTRL_LC_STATE_STATE_VALUE_DEV:
       *state = kDifLcCtrlStateDev;
@@ -77,38 +115,36 @@ dif_lc_ctrl_result_t dif_lc_ctrl_get_state(const dif_lc_ctrl_t *lc,
       break;
 
     default:
-      return kDifLcCtrlError;
+      return kDifError;
   }
 
-  return kDifLcCtrlOk;
+  return kDifOk;
 }
 
-dif_lc_ctrl_attempts_result_t dif_lc_ctrl_get_attempts(const dif_lc_ctrl_t *lc,
-                                                       uint8_t *count) {
+dif_result_t dif_lc_ctrl_get_attempts(const dif_lc_ctrl_t *lc, uint8_t *count) {
   if (lc == NULL || count == NULL) {
-    return kDifLcCtrlAttemptsBadArg;
-  }
-
-  uint32_t reg = mmio_region_read32(lc->params.base_addr,
-                                    LC_CTRL_LC_TRANSITION_CNT_REG_OFFSET);
-  uint8_t value =
-      bitfield_field32_read(reg, LC_CTRL_LC_TRANSITION_CNT_CNT_FIELD);
-  if (value == LC_CTRL_LC_TRANSITION_CNT_CNT_MASK) {
-    return kDifLcCtrlAttemptsTooMany;
-  }
-
-  *count = value;
-  return kDifLcCtrlAttemptsOk;
-}
-
-dif_lc_ctrl_result_t dif_lc_ctrl_get_status(const dif_lc_ctrl_t *lc,
-                                            dif_lc_ctrl_status_t *status) {
-  if (lc == NULL || status == NULL) {
-    return kDifLcCtrlBadArg;
+    return kDifBadArg;
   }
 
   uint32_t reg =
-      mmio_region_read32(lc->params.base_addr, LC_CTRL_STATUS_REG_OFFSET);
+      mmio_region_read32(lc->base_addr, LC_CTRL_LC_TRANSITION_CNT_REG_OFFSET);
+  uint8_t value =
+      bitfield_field32_read(reg, LC_CTRL_LC_TRANSITION_CNT_CNT_FIELD);
+  if (value == LC_CTRL_LC_TRANSITION_CNT_CNT_MASK) {
+    return kDifError;
+  }
+
+  *count = value;
+  return kDifOk;
+}
+
+dif_result_t dif_lc_ctrl_get_status(const dif_lc_ctrl_t *lc,
+                                    dif_lc_ctrl_status_t *status) {
+  if (lc == NULL || status == NULL) {
+    return kDifBadArg;
+  }
+
+  uint32_t reg = mmio_region_read32(lc->base_addr, LC_CTRL_STATUS_REG_OFFSET);
 
   dif_lc_ctrl_status_t status_word = 0;
 
@@ -137,6 +173,11 @@ dif_lc_ctrl_result_t dif_lc_ctrl_get_status(const dif_lc_ctrl_t *lc,
         bitfield_bit32_write(status_word, kDifLcCtrlStatusCodeBadToken, true);
   }
 
+  if (bitfield_bit32_read(reg, LC_CTRL_STATUS_FLASH_RMA_ERROR_BIT)) {
+    status_word = bitfield_bit32_write(status_word,
+                                       kDifLcCtrlStatusCodeFlashRmaError, true);
+  }
+
   if (bitfield_bit32_read(reg, LC_CTRL_STATUS_OTP_ERROR_BIT)) {
     status_word =
         bitfield_bit32_write(status_word, kDifLcCtrlStatusCodeOtpError, true);
@@ -147,18 +188,28 @@ dif_lc_ctrl_result_t dif_lc_ctrl_get_status(const dif_lc_ctrl_t *lc,
         bitfield_bit32_write(status_word, kDifLcCtrlStatusCodeCorrupt, true);
   }
 
+  if (bitfield_bit32_read(reg, LC_CTRL_STATUS_BUS_INTEG_ERROR_BIT)) {
+    status_word = bitfield_bit32_write(status_word,
+                                       kDifLcCtrlStatusCodeBusIntegError, true);
+  }
+
+  if (bitfield_bit32_read(reg, LC_CTRL_STATUS_OTP_PARTITION_ERROR_BIT)) {
+    status_word = bitfield_bit32_write(status_word,
+                                       kDifLcCtrlStatusCodeOtpPartError, true);
+  }
+
   *status = status_word;
-  return kDifLcCtrlOk;
+  return kDifOk;
 }
 
-dif_lc_ctrl_result_t dif_lc_ctrl_get_id_state(const dif_lc_ctrl_t *lc,
-                                              dif_lc_ctrl_id_state_t *state) {
+dif_result_t dif_lc_ctrl_get_id_state(const dif_lc_ctrl_t *lc,
+                                      dif_lc_ctrl_id_state_t *state) {
   if (lc == NULL || state == NULL) {
-    return kDifLcCtrlBadArg;
+    return kDifBadArg;
   }
 
   uint32_t reg =
-      mmio_region_read32(lc->params.base_addr, LC_CTRL_LC_ID_STATE_REG_OFFSET);
+      mmio_region_read32(lc->base_addr, LC_CTRL_LC_ID_STATE_REG_OFFSET);
   switch (bitfield_field32_read(reg, LC_CTRL_LC_ID_STATE_STATE_FIELD)) {
     case LC_CTRL_LC_ID_STATE_STATE_VALUE_BLANK:
       *state = kDifLcCtrlIdStateBlank;
@@ -170,16 +221,28 @@ dif_lc_ctrl_result_t dif_lc_ctrl_get_id_state(const dif_lc_ctrl_t *lc,
       *state = kDifLcCtrlIdStateInvalid;
       break;
     default:
-      return kDifLcCtrlError;
+      return kDifError;
   }
 
-  return kDifLcCtrlOk;
+  return kDifOk;
 }
 
-dif_lc_ctrl_result_t dif_lc_ctrl_alert_force(const dif_lc_ctrl_t *lc,
-                                             dif_lc_ctrl_alert_t alert) {
+dif_result_t dif_lc_ctrl_get_device_id(const dif_lc_ctrl_t *lc,
+                                       dif_lc_ctrl_device_id_t *device_id) {
   if (lc == NULL) {
-    return kDifLcCtrlBadArg;
+    return kDifBadArg;
+  }
+
+  mmio_region_memcpy_from_mmio32(lc->base_addr, LC_CTRL_DEVICE_ID_0_REG_OFFSET,
+                                 device_id->data,
+                                 ARRAYSIZE(device_id->data) * sizeof(uint32_t));
+  return kDifOk;
+}
+
+dif_result_t dif_lc_ctrl_alert_force(const dif_lc_ctrl_t *lc,
+                                     dif_lc_ctrl_alert_t alert) {
+  if (lc == NULL) {
+    return kDifBadArg;
   }
 
   bitfield_bit32_index_t alert_idx;
@@ -190,57 +253,60 @@ dif_lc_ctrl_result_t dif_lc_ctrl_alert_force(const dif_lc_ctrl_t *lc,
     case kDifLcCtrlAlertCorrupt:
       alert_idx = LC_CTRL_ALERT_TEST_FATAL_STATE_ERROR_BIT;
       break;
+    case kDifLcCtrlAlertBus:
+      alert_idx = LC_CTRL_ALERT_TEST_FATAL_BUS_INTEG_ERROR_BIT;
+      break;
     default:
-      return kDifLcCtrlBadArg;
+      return kDifBadArg;
   }
 
   uint32_t reg = bitfield_bit32_write(0, alert_idx, true);
-  mmio_region_write32(lc->params.base_addr, LC_CTRL_ALERT_TEST_REG_OFFSET, reg);
+  mmio_region_write32(lc->base_addr, LC_CTRL_ALERT_TEST_REG_OFFSET, reg);
 
-  return kDifLcCtrlOk;
+  return kDifOk;
 }
 
-dif_lc_ctrl_mutex_result_t dif_lc_ctrl_mutex_try_acquire(
-    const dif_lc_ctrl_t *lc) {
+dif_result_t dif_lc_ctrl_mutex_try_acquire(const dif_lc_ctrl_t *lc) {
   if (lc == NULL) {
-    return kDifLcCtrlMutexBadArg;
+    return kDifBadArg;
   }
 
-  mmio_region_write32(lc->params.base_addr,
-                      LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET, 1);
-  uint32_t reg = mmio_region_read32(lc->params.base_addr,
-                                    LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET);
+  mmio_region_write32(lc->base_addr, LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET,
+                      kLcCtrlMutexAcquire);
+  uint32_t reg =
+      mmio_region_read32(lc->base_addr, LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET);
   // If the register is zero, that means we failed to take the mutex for
   // whatever reason.
-  if (reg == 0) {
-    return kDifLcCtrlMutexAlreadyTaken;
+  if (reg == kLcCtrlMutexRelease) {
+    return kDifUnavailable;
   } else {
-    return kDifLcCtrlMutexOk;
+    return kDifOk;
   }
 }
 
-dif_lc_ctrl_mutex_result_t dif_lc_ctrl_mutex_release(const dif_lc_ctrl_t *lc) {
+dif_result_t dif_lc_ctrl_mutex_release(const dif_lc_ctrl_t *lc) {
   if (lc == NULL) {
-    return kDifLcCtrlMutexBadArg;
+    return kDifBadArg;
   }
 
-  uint32_t reg = mmio_region_read32(lc->params.base_addr,
-                                    LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET);
-  if (reg == 0) {
+  uint32_t reg =
+      mmio_region_read32(lc->base_addr, LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET);
+  if (reg == kLcCtrlMutexRelease) {
     // We're not holding the mutex, which is a programmer error.
-    return kDifLcCtrlMutexError;
+    return kDifError;
   }
 
-  mmio_region_write32(lc->params.base_addr,
-                      LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET, 0);
-  return kDifLcCtrlMutexOk;
+  mmio_region_write32(lc->base_addr, LC_CTRL_CLAIM_TRANSITION_IF_REG_OFFSET,
+                      kLcCtrlMutexRelease);
+  return kDifOk;
 }
 
-dif_lc_ctrl_mutex_result_t dif_lc_ctrl_transition(
-    const dif_lc_ctrl_t *lc, dif_lc_ctrl_state_t state,
-    const dif_lc_ctrl_token_t *token) {
+dif_result_t dif_lc_ctrl_transition(const dif_lc_ctrl_t *lc,
+                                    dif_lc_ctrl_state_t state,
+                                    const dif_lc_ctrl_token_t *token,
+                                    const dif_lc_ctrl_settings_t *settings) {
   if (lc == NULL) {
-    return kDifLcCtrlMutexBadArg;
+    return kDifBadArg;
   }
 
   uint32_t target;
@@ -269,6 +335,30 @@ dif_lc_ctrl_mutex_result_t dif_lc_ctrl_transition(
     case kDifLcCtrlStateTestUnlocked3:
       target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_UNLOCKED3;
       break;
+    case kDifLcCtrlStateTestLocked3:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_LOCKED3;
+      break;
+    case kDifLcCtrlStateTestUnlocked4:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_UNLOCKED4;
+      break;
+    case kDifLcCtrlStateTestLocked4:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_LOCKED4;
+      break;
+    case kDifLcCtrlStateTestUnlocked5:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_UNLOCKED5;
+      break;
+    case kDifLcCtrlStateTestLocked5:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_LOCKED5;
+      break;
+    case kDifLcCtrlStateTestUnlocked6:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_UNLOCKED6;
+      break;
+    case kDifLcCtrlStateTestLocked6:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_LOCKED6;
+      break;
+    case kDifLcCtrlStateTestUnlocked7:
+      target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_TEST_UNLOCKED7;
+      break;
     case kDifLcCtrlStateDev:
       target = LC_CTRL_TRANSITION_TARGET_STATE_VALUE_DEV;
       break;
@@ -286,31 +376,85 @@ dif_lc_ctrl_mutex_result_t dif_lc_ctrl_transition(
       break;
 
     default:
-      return kDifLcCtrlMutexBadArg;
+      return kDifBadArg;
   }
 
-  uint32_t busy = mmio_region_read32(lc->params.base_addr,
-                                     LC_CTRL_TRANSITION_REGWEN_REG_OFFSET);
+  uint32_t ctrl_reg = 0;
+  if (settings != NULL) {
+    switch (settings->clock_select) {
+      case kDifLcCtrlInternalClockEn:
+        ctrl_reg = bitfield_bit32_write(
+            ctrl_reg, LC_CTRL_TRANSITION_CTRL_EXT_CLOCK_EN_BIT, false);
+        break;
+      case kDifLcCtrlExternalClockEn:
+        ctrl_reg = bitfield_bit32_write(
+            ctrl_reg, LC_CTRL_TRANSITION_CTRL_EXT_CLOCK_EN_BIT, true);
+        break;
+
+      default:
+        return kDifBadArg;
+    }
+  } else {
+    // Default to internal clock
+    ctrl_reg = bitfield_bit32_write(
+        ctrl_reg, LC_CTRL_TRANSITION_CTRL_EXT_CLOCK_EN_BIT, false);
+  }
+
+  uint32_t busy =
+      mmio_region_read32(lc->base_addr, LC_CTRL_TRANSITION_REGWEN_REG_OFFSET);
   if (busy == 0) {
-    return kDifLcCtrlMutexAlreadyTaken;
+    return kDifUnavailable;
   }
 
   // Set the target for the transition.
-  mmio_region_write32(lc->params.base_addr,
-                      LC_CTRL_TRANSITION_TARGET_REG_OFFSET, target);
+  mmio_region_write32(lc->base_addr, LC_CTRL_TRANSITION_TARGET_REG_OFFSET,
+                      target);
+
+  // Program the clock selection.
+  mmio_region_write32(lc->base_addr, LC_CTRL_TRANSITION_CTRL_REG_OFFSET,
+                      ctrl_reg);
 
   // Fill in a token, if necessary.
   if (token != NULL) {
     for (int i = 0; i < sizeof(token->data); i += sizeof(uint32_t)) {
       uint32_t word;
       memcpy(&word, &token->data[i], sizeof(uint32_t));
-      mmio_region_write32(lc->params.base_addr,
+      mmio_region_write32(lc->base_addr,
                           LC_CTRL_TRANSITION_TOKEN_0_REG_OFFSET + i, word);
     }
   }
 
   // With both parameters set up, schedule the transition.
-  mmio_region_write32(lc->params.base_addr, LC_CTRL_TRANSITION_CMD_REG_OFFSET,
-                      1);
-  return kDifLcCtrlMutexOk;
+  mmio_region_write32(lc->base_addr, LC_CTRL_TRANSITION_CMD_REG_OFFSET, 1);
+  return kDifOk;
+}
+
+dif_result_t dif_lc_ctrl_set_otp_vendor_test_reg(const dif_lc_ctrl_t *lc,
+                                                 uint32_t settings) {
+  if (lc == NULL) {
+    return kDifBadArg;
+  }
+
+  uint32_t busy =
+      mmio_region_read32(lc->base_addr, LC_CTRL_TRANSITION_REGWEN_REG_OFFSET);
+  if (busy == 0) {
+    return kDifUnavailable;
+  }
+
+  mmio_region_write32(lc->base_addr, LC_CTRL_OTP_VENDOR_TEST_CTRL_REG_OFFSET,
+                      settings);
+
+  return kDifOk;
+}
+
+dif_result_t dif_lc_ctrl_get_otp_vendor_test_reg(const dif_lc_ctrl_t *lc,
+                                                 uint32_t *settings) {
+  if (lc == NULL || settings == NULL) {
+    return kDifBadArg;
+  }
+
+  *settings = mmio_region_read32(lc->base_addr,
+                                 LC_CTRL_OTP_VENDOR_TEST_CTRL_REG_OFFSET);
+
+  return kDifOk;
 }

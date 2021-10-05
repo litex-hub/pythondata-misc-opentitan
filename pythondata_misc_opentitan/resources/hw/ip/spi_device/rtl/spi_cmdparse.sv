@@ -22,22 +22,22 @@ module spi_cmdparse
   // Configurations
   input spi_mode_e spi_mode_i,
 
-  // 256b indicator determines which commands to be uploaded
-  // If 1 and the command does not fall into other modules
-  // (SFDP/JEDEC/Read/etc), Command Processor triggers upload module.
-  // Other upload related configurations (Address/ Payload) are used
-  // in upload module.
+  // Command info slot
   //
-  // If Command Config (from DPSRAM) is implemented, this signal shall be
-  // changed to 8bit width.
-  input logic [255:0] upload_mask_i,
+  // cmdparse uses the command info slot to activate sub-datapath. It uses
+  // pre-assigned index and search opcode. e.g) if cmdslot[0].opcode == 'h03,
+  // then if received opcode matches to the cmdslot[0] opcode, then it activates
+  // Read Status module as Index 0 is pre-assigned to Read Status.
+  input cmd_info_t [NumCmdInfo-1:0] cmd_info_i,
 
   // control to spi_s2p
   output io_mode_e io_mode_o,
 
   // Activate downstream modules
-  output sel_datapath_e sel_dp_o,
-  output spi_byte_t     opcode_o,
+  // cmd_info_o is a registered output, latched at 8th posedge SCK
+  output sel_datapath_e          sel_dp_o,
+  output cmd_info_t              cmd_info_o,
+  output logic [CmdInfoIdxW-1:0] cmd_info_idx_o,
 
   // Command Config is not implemented yet.
   // Indicator of command config. The pulse is generated at 3rd bit position
@@ -53,6 +53,21 @@ module spi_cmdparse
   assign io_mode_o = SingleIO;
   assign cmd_config_req_o = 1'b 0;
   assign cmd_config_idx_o = data_i[4:0];
+
+  // Only opcode in the cmd_info is used. Tie the rest of the members.
+  logic unused_cmdinfo_members;
+  always_comb begin
+    unused_cmdinfo_members = 1'b 0;
+    for (int unsigned i = 0 ; i < NumCmdInfo ; i++) begin
+      unused_cmdinfo_members ^= ^{ cmd_info_i[i].addr_4b_affected,
+                                   cmd_info_i[i].addr_en,
+                                   cmd_info_i[i].addr_swap_en,
+                                   cmd_info_i[i].dummy_en,
+                                  ^cmd_info_i[i].dummy_size,
+                                   cmd_info_i[i].payload_dir,
+                                  ^cmd_info_i[i].payload_en};
+    end
+  end
 
   ////////////////
   // Definition //
@@ -73,7 +88,10 @@ module spi_cmdparse
     // Mailbox is processed in Read Command block.
     StReadCmd,
 
-    StUpload
+    StUpload,
+
+    // If opcode does not matched, FSM moves to here and wait the reset.
+    StWait
   } st_e;
   st_e st, st_d;
 
@@ -101,19 +119,68 @@ module spi_cmdparse
   sel_datapath_e sel_dp;
   assign sel_dp_o = sel_dp;
 
+  // FSM asserts latching enable signal for cmd_info in 8th opcode cycle.
+  logic                   latch_cmdinfo;
+  cmd_info_t              cmd_info_d;
+  logic [CmdInfoIdxW-1:0] cmd_info_idx_d;
+
   // the logic operates only when module_active condition is met
   logic module_active;
   logic in_flashmode, in_passthrough;
 
-  // Opcode out
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      opcode_o <= spi_byte_t'(0);
-    end else if (st == StIdle && data_valid_i) begin
-      opcode_o <=  data_i;
+  // below signals are used in the FSM to determine to activate a certain
+  // datapath based on the received input (opcode). The opcode is the SW
+  // configurable CSRs `cmd_info_i`.
+  logic opcode_readstatus, opcode_readjedec, opcode_readsfdp, opcode_readcmd;
+
+  assign opcode_readstatus = (data_i == cmd_info_i[CmdInfoReadStatus1].opcode)
+                           | (data_i == cmd_info_i[CmdInfoReadStatus2].opcode)
+                           | (data_i == cmd_info_i[CmdInfoReadStatus3].opcode);
+  assign opcode_readjedec = (data_i == cmd_info_i[CmdInfoReadJedecId].opcode);
+  assign opcode_readsfdp = (data_i == cmd_info_i[CmdInfoReadSfdp].opcode);
+
+  always_comb begin
+    opcode_readcmd = 1'b 0;
+    for (int unsigned i = CmdInfoReadCmdStart ; i <= CmdInfoReadCmdEnd ; i++) begin
+      if (data_i == cmd_info_i[i].opcode) opcode_readcmd = 1'b 1;
     end
   end
 
+  // cmd_info latch
+  // TODO: This can be furthur optimized. At 7th beat, check the opcode[7:1]
+  // with cmd_info[NumCmdInfo-1:0].opcode[7:1]. Unless SW configures more than
+  // one cmd_info slots with same opcode, at most two slots match with the
+  // opcode[7:1]. The two can be latched then at 8th beat, only the last bit
+  // of the opcode in the two cmd_info entries can be compared.
+  //
+  // It reduces the logic from 8bit compare with 24 logic depth into 1bit
+  // compare with 1 logic depth.
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      cmd_info_o     <= '{default: '0};
+      cmd_info_idx_o <= '0;
+    end else if (latch_cmdinfo) begin
+      cmd_info_o     <= cmd_info_d;
+      cmd_info_idx_o <= cmd_info_idx_d;
+    end
+  end
+
+  always_comb begin
+    cmd_info_d     = '{default: '0};
+    cmd_info_idx_d = '0;
+    if ((st == StIdle) && module_active && data_valid_i) begin
+      for (int unsigned i = 0 ; i < NumCmdInfo ; i++ ) begin
+        if (data_i == cmd_info_i[i].opcode) begin
+          cmd_info_d     = cmd_info_i[i];
+          cmd_info_idx_d = CmdInfoIdxW'(i);
+        end
+      end
+    end
+  end
+
+  // Check upload field in the cmd_info
+  logic upload;
+  assign upload = cmd_info_d.upload;
   ///////////////////
   // State Machine //
   ///////////////////
@@ -136,74 +203,71 @@ module spi_cmdparse
 
     sel_dp = DpNone;
 
+    latch_cmdinfo = 1'b 0;
+
     unique case (st)
       StIdle: begin
         if (module_active && data_valid_i) begin
           // 8th bit is valid here
-          unique case (data_i) inside
-            OpReadStatus1, OpReadStatus2, OpReadStatus3: begin
-              // Always handled by internal Status
-              // regardless of FlashMode/ PassThrough
-              st_d = StStatus;
+          latch_cmdinfo = 1'b 1;
 
+          priority case (1'b 1)
+            opcode_readstatus: begin
+              // TODO: Check CFG config for passthrough
+              st_d = StStatus;
             end
 
-            OpReadJEDEC: begin
-              // Let it move to Jedec when FlashMode
+            opcode_readjedec: begin
               if (in_flashmode) begin
                 st_d = StJedec;
-
               end else begin
-                // PassThrough
-                st_d = StIdle;
+                // TODO: Passthrough ? <= check cfg
+                st_d = StWait;
               end
             end
 
-            OpReadSfdp: begin
+            // Read SFDP may combine with Read command later
+            opcode_readsfdp: begin
               if (in_flashmode) begin
                 st_d = StSfdp;
               end else begin
-                // PassThrough
-                st_d = StIdle;
+                // TODO: Passthrough? Cannot stay in the Idle as it will compare at the next byte
+                // Check passthrough
+                st_d = StWait;
               end
             end
 
-            OpReadNormal, OpReadFast, OpReadDual, OpReadQuad, OpReadDualIO, OpReadQuadIO: begin
+            opcode_readcmd: begin
               // Let it move to ReadCmd regardless of the modes
               // Then, ReadCmd will handle Mailbox command if received address
               // falls into Mailbox address range
               st_d = StReadCmd;
+            end
 
-              // Does not set Datapath to Read Command yet. As Read command
-              // processing block can be active after 8th edge of SCK.
-              //sel_dp = DpReadCmd;
+            upload: begin
+              st_d = StUpload;
+
+              // Reason to select dp here is for Opcode-only commands such as
+              // ChipErase. As no further SCK is given after 8th bit, need to
+              // write the command to FIFO at the same cycle.
+              //
+              // May sel_dp have glitch. As Opcode isn't yet fully stable, it
+              // has a chance to select datapath to Upload and back to None.
+              // If we can write opcode in negedge of SCK, then selecting DP
+              // at 8th posedge of SCK is also possible.
+              //
+              // If not, then we may end up latch `sel_dp` at negedge of SCK.
+              // Then when 8th bit is visible here (`data_valid_i`), the
+              // sel_dp may change. But the output of sel_dp affects only when
+              // 8th negedge of SCK.
+
+              sel_dp = DpUpload;
             end
 
             default: begin
-              // If Command Config in DPSRAM, need to change as below
-              // if (upload_mask_i[data_i[2:0]]) begin
-              if (upload_mask_i[data_i]) begin
-                st_d = StUpload;
+              st_d = StWait;
 
-                // Reason to select dp here is for Opcode-only commands such as
-                // ChipErase. As no further SCK is given after 8th bit, need to
-                // write the command to FIFO at the same cycle.
-                //
-                // May sel_dp have glitch. As Opcode isn't yet fully stable, it
-                // has a chance to select datapath to Upload and back to None.
-                // If we can write opcode in negedge of SCK, then selecting DP
-                // at 8th posedge of SCK is also possible.
-                //
-                // If not, then we may end up latch `sel_dp` at negedge of SCK.
-                // Then when 8th bit is visible here (`data_valid_i`), the
-                // sel_dp may change. But the output of sel_dp affects only when
-                // 8th negedge of SCK.
-                sel_dp = DpUpload;
-              end else begin
-                st_d = StIdle;
-
-                // DpNone
-              end
+              // DpNone
             end
           endcase
         end
@@ -220,6 +284,12 @@ module spi_cmdparse
 
       StUpload:  sel_dp = DpUpload;
 
+      StWait: begin
+        st_d = StWait;
+
+        sel_dp = DpNone;
+      end
+
       default: begin
         sel_dp = DpNone;
 
@@ -234,5 +304,10 @@ module spi_cmdparse
   ///////////////
   // Assertion //
   ///////////////
+
+  // at the first byte, only one datapath shall be active or stay silent.
+  `ASSERT(OnlyOneDatapath_A, module_active && data_valid_i && (st == StIdle)
+          |-> $onehot0({opcode_readstatus, opcode_readjedec, opcode_readsfdp,
+                        opcode_readcmd}))
 
 endmodule

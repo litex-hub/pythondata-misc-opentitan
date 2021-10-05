@@ -13,7 +13,13 @@ This document also defines a non-cryptographic **Device Identifier** to
 facilitate silicon tracking during manufacturing flows. The Device Identifier is
 also mixed into the Creator Identity.
 
+Further, this scheme is compatible with the [Open DICE profile](https://pigweed.googlesource.com/open-dice/+/refs/heads/main/docs/specification.md).
+
+Overall identity flow:
 <img src="identities_and_root_keys_fig1.svg" alt="Fig1" style="width: 1000px;"/>
+
+DICE compatible identity flow:
+<img src="identities_and_root_keys_DICE_fig1b.svg" alt="Fig1b" style="width: 1000px;"/>
 
 ## Terminology
 
@@ -127,7 +133,7 @@ CreatorRootKey = KM_DERIVE(RootKey,
     <td><strong>Description</strong></td>
   </tr>
   <tr>
-    <td>RootKey</td>
+    <td id="root-key">RootKey</td>
     <td>OTP</td>
     <td>
 Device root key. Provisioned at manufacturing time by the Silicon Creator.
@@ -136,7 +142,7 @@ Hidden from software once personalization is complete.
     </td>
   </tr>
   <tr>
-    <td>DiversificationKey</td>
+    <td id="diversification-key">DiversificationKey</td>
     <td>Flash</td>
     <td>
 Additional diversification key stored in flash. Provisioned at
@@ -268,7 +274,7 @@ OwnerIntermediateKey =
     <td><strong>Description</strong></td>
   </tr>
   <tr>
-    <td>OwnerRootSecret</td>
+    <td id="owner-root-secret">OwnerRootSecret</td>
     <td>Flash</td>
     <td>
 Used as a diversification constant with acceptable entropy. Provisioned at

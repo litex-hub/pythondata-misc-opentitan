@@ -223,6 +223,21 @@ class VeribleToolReq(ToolReq):
         return '.'.join(m.group(1, 2, 3))
 
 
+class VivadoToolReq(ToolReq):
+    tool_cmd = ['vivado', '-version']
+    version_regex = re.compile(r'Vivado v(.*)\s')
+
+    def to_semver(self, version, from_req):
+        # Regular Vivado releases just have a major and minor version.
+        # In this case, we set the patch level to 0.
+        m = re.fullmatch(r'([0-9]+)\.([0-9]+)(?:\.([0-9]+))?', version)
+        if m is None:
+            raise ValueError("{} has invalid version string format."
+                             .format(version))
+
+        return '.'.join((m.group(1), m.group(2), m.group(3) or '0'))
+
+
 class VcsToolReq(ToolReq):
     tool_cmd = ['vcs', '-full64', '-ID']
     tool_env = {'VCS_ARCH_OVERRIDE': 'linux'}
@@ -258,6 +273,23 @@ class VcsToolReq(ToolReq):
         patch = int(match.group(4) or 0)
         comb = str(sp * 100 + patch)
         return '{}.{}{}'.format(major, minor, comb)
+
+
+class NinjaToolReq(ToolReq):
+    tool_cmd = ['ninja', '--version']
+
+    def to_semver(self, version, from_req):
+        # There exist different version string variants that we need to be
+        # able to parse. Some only contain the semantic version, e.g. "1.10.0",
+        # while others contain an additional suffix, e.g.
+        # "1.10.0.git.kitware.jobserver-1". This parser only extracts the first
+        # three digits and ignores the rest.
+        m = re.fullmatch(r'([0-9]+)\.([0-9]+)\.([0-9]+).*', version)
+        if m is None:
+            raise ValueError("{} has invalid version string format."
+                             .format(version))
+
+        return '.'.join(m.group(1, 2, 3))
 
 
 class PyModuleToolReq(ToolReq):
@@ -308,7 +340,9 @@ def dict_to_tool_req(path, tool, raw):
         'edalize': PyModuleToolReq,
         'vcs': VcsToolReq,
         'verible': VeribleToolReq,
-        'verilator': VerilatorToolReq
+        'verilator': VerilatorToolReq,
+        'vivado': VivadoToolReq,
+        'ninja': NinjaToolReq
     }
     cls = classes.get(tool, ToolReq)
 

@@ -36,6 +36,7 @@
     hier_paths: {
       top: "clkmgr_aon_clocks.", // top level is a struct
       ext: "",                   // ext is a port of the clock name
+      lpg: "clkmgr_aon_cg_en.",  // top level struct for alert lpg reset enables
     },
 
     // Clock Source attributes
@@ -85,7 +86,10 @@
     // The proc group is not peripheral, and directly hardwired
 
     groups: [
+      // the ast group is used to represent input clocks to the top
+      { name: "ast",     src:"ext", sw_cg: "no"                   }
       // the powerup group is used exclusively by clk/pwr/rstmgr/pinmux
+      { name: "ast",     src:"ext", sw_cg: "no"                   }
       { name: "powerup", src:"top", sw_cg: "no"                   }
       { name: "trans",   src:"top", sw_cg: "hint", unique: "yes", }
       { name: "infra",   src:"top", sw_cg: "no",                  }
@@ -103,7 +107,7 @@
     ],
   },
 
-  // This is the reset data strcture of the design.
+  // This is the reset data structure of the design.
   // The hier path refers to the reset reference path (struct / port)
   //   - The top/ext desgination follows the same scheme as inter-module
   // The node key represents all the known resets in the design
@@ -112,6 +116,7 @@
     hier_paths: {
       top: "rstmgr_aon_resets.", // top level is a struct
       ext: "",                   // ext is a port of the clock name
+      lpg: "rstmgr_aon_rst_en.", // top level struct for alert lpg reset enables
     },
 
     // Reset node attributes
@@ -140,78 +145,27 @@
     // likely external or generated from a voltage comparator
     //
     nodes: [
-      { name: "rst_ni",      gen: false, type: "ext",                                                          }
-      { name: "por_aon",     gen: false, type: "top", domains: ["Aon"     ],                    clk: "aon"     }
-      { name: "lc_src",      gen: false, type: "int", domains: ["Aon", "0"],                    clk: "io_div4" }
-      { name: "sys_src",     gen: false, type: "int", domains: ["Aon", "0"],                    clk: "io_div4" }
-      { name: "por",         gen: true,  type: "top", domains: ["Aon"     ], parent: "por_aon", clk: "main"    }
-      { name: "por_io",      gen: true,  type: "top", domains: ["Aon",    ], parent: "por_aon", clk: "io"      }
-      { name: "por_io_div2", gen: true,  type: "top", domains: ["Aon",    ], parent: "por_aon", clk: "io_div2" }
-      { name: "por_io_div4", gen: true , type: "top", domains: ["Aon",    ], parent: "por_aon", clk: "io_div4" }
-      { name: "por_usb",     gen: true,  type: "top", domains: ["Aon",    ], parent: "por_aon", clk: "usb"     }
-      { name: "lc",          gen: true,  type: "top", domains: [       "0"], parent: "lc_src",  clk: "main"    }
-      { name: "lc_io_div4",  gen: true,  type: "top", domains: [       "0"], parent: "lc_src",  clk: "io_div4" }
-      { name: "sys",         gen: true,  type: "top", domains: [       "0"], parent: "sys_src", clk: "main"    }
-      { name: "sys_io_div4", gen: true,  type: "top", domains: ["Aon", "0"], parent: "sys_src", clk: "io_div4" }
-      { name: "sys_aon",     gen: true,  type: "top", domains: ["Aon", "0"], parent: "sys_src", clk: "aon"     }
-      { name: "spi_device",  gen: true,  type: "top", domains: [       "0"], parent: "sys_src", clk: "io_div2", sw: 1 }
-      { name: "spi_host0",   gen: true,  type: "top", domains: [       "0"], parent: "sys_src", clk: "io_div2", sw: 1 }
-      { name: "usb",         gen: true,  type: "top", domains: [       "0"], parent: "sys_src", clk: "usb",     sw: 1 }
+      { name: "por_aon",     gen: false, type: "top",                    clk: "aon"     }
+      { name: "lc_src",      gen: false, type: "int",                    clk: "io_div4" }
+      { name: "sys_src",     gen: false, type: "int",                    clk: "io_div4" }
+      { name: "por",         gen: true,  type: "top", parent: "por_aon", clk: "main"    }
+      { name: "por_io",      gen: true,  type: "top", parent: "por_aon", clk: "io"      }
+      { name: "por_io_div2", gen: true,  type: "top", parent: "por_aon", clk: "io_div2" }
+      { name: "por_io_div4", gen: true , type: "top", parent: "por_aon", clk: "io_div4" }
+      { name: "por_usb",     gen: true,  type: "top", parent: "por_aon", clk: "usb"     }
+      { name: "lc",          gen: true,  type: "top", parent: "lc_src",  clk: "main"    }
+      { name: "lc_io_div4",  gen: true,  type: "top", parent: "lc_src",  clk: "io_div4" }
+      { name: "sys",         gen: true,  type: "top", parent: "sys_src", clk: "main"    }
+      { name: "sys_io_div4", gen: true,  type: "top", parent: "sys_src", clk: "io_div4" }
+      { name: "sys_aon",     gen: true,  type: "top", parent: "sys_src", clk: "aon"     }
+      { name: "spi_device",  gen: true,  type: "top", parent: "sys_src", clk: "io_div2", sw: true }
+      { name: "spi_host0",   gen: true,  type: "top", parent: "sys_src", clk: "io",      sw: true }
+      { name: "usb",         gen: true,  type: "top", parent: "sys_src", clk: "usb",     sw: true }
     ]
   }
 
   // Number of cores: used in rv_plic and timer
   num_cores: "1",
-
-
-  // `host` defines the host only components in the system (such as processor)
-  // This should eventually be used to cover more functionality, but for now,
-  // it is a temporary solution for top level connectivity
-  host: [
-    { name: "rv_core_ibex",
-      type: "rv_core_ibex",
-      inter_signal_list: [
-        { struct:  "esc_tx",
-          type:    "uni",
-          name:    "esc_nmi_tx",
-          act:     "rcv",
-          package: "prim_esc_pkg",
-        },
-
-        { struct:  "esc_rx",
-          type:    "uni",
-          name:    "esc_nmi_rx",
-          act:     "req",
-          package: "prim_esc_pkg",
-        },
-
-        { struct:  "crash_dump",
-          type:    "uni",
-          name:    "crash_dump",
-          act:     "req",
-          package: "ibex_pkg",
-        },
-
-        { struct:  "lc_tx_t",
-          type:    "uni",
-          name:    "lc_cpu_en",
-          act:     "rcv",
-          package: "lc_ctrl_pkg",
-        },
-      ],
-    }
-    { name: "rv_dm",
-      type: "rv_dm",
-      inter_signal_list: [
-        { struct:  "jtag",
-          type:    "req_rsp",
-          name:    "jtag",
-          act:     "rsp",
-          package: "jtag_pkg",
-        },
-      ]
-    }
-  ]
 
   // `module` defines the peripherals.
   // Details are coming from each modules' config file `ip.hjson`
@@ -255,7 +209,7 @@
     },
     { name: "spi_host0",
       type: "spi_host",
-      clock_srcs: {clk_i: "io_div4", clk_core_i: "io_div2"},
+      clock_srcs: {clk_i: "io_div4", clk_core_i: "io"},
       clock_group: "peri",
       reset_connections: {rst_ni: "spi_host0", rst_core_ni: "spi_host0"},
       base_addr: "0x40060000",
@@ -271,45 +225,20 @@
       type: "usbdev",
       clock_srcs: {clk_i: "io_div4", clk_aon_i: "aon", clk_usb_48mhz_i: "usb"},
       clock_group: "peri",
-      clock_reset_export: ["ast"],
       reset_connections: {rst_ni: "sys_io_div4", rst_aon_ni: "sys_aon", rst_usb_48mhz_ni: "usb"},
       base_addr: "0x40110000",
     },
-    { name: "lc_ctrl",
-      type: "lc_ctrl",
-      clock_srcs: {clk_i: "io_div4"},
-      clock_group: "timers",
-      reset_connections: {rst_ni: "lc_io_div4"},
-      base_addr: "0x40140000",
-    },
-    { name: "alert_handler",
-      type: "alert_handler",
-      clock_srcs: {clk_i: "io_div4", clk_edn_i: "main"},
-      clock_group: "timers",
-      reset_connections: {rst_ni: "sys_io_div4", rst_edn_ni: "sys"},
-      base_addr: "0x40150000",
-      attr: "templated",
-      localparam: {
-        EscCntDw:  32,
-        AccuCntDw: 16,
-        LfsrSeed:  "0x7FFFFFFF"
-      }
-    },
-    // dummy module to capture the alert handler escalation signals
-    // and test them by converting them into IRQs
-    { name: "nmi_gen",
-      type: "nmi_gen",
-      clock_srcs: {clk_i: "io_div4"},
-      clock_group: "timers",
-      reset_connections: {rst_ni: "sys_io_div4"},
-      base_addr: "0x40160000",
-    }
     { name: "pwrmgr_aon",
       type: "pwrmgr",
-      clock_srcs: {clk_i: "io_div4", clk_slow_i: "aon"},
+      clock_srcs: {clk_i: "io_div4", clk_slow_i: "aon", clk_esc_i: "io_div4"},
       clock_group: "powerup",
-      reset_connections: {rst_ni: "por", rst_slow_ni: "por_aon"},
-      domain: "Aon",
+      reset_connections: {
+        rst_ni: "por_io_div4",
+        rst_esc_ni: "lc_io_div4",
+        rst_main_ni: "por_aon",
+        rst_slow_ni: "por_aon"
+      },
+      domain: ["Aon"],
       base_addr: "0x40400000",
       attr: "templated",
 
@@ -319,18 +248,41 @@
       clock_srcs: {clk_i: "io_div4", clk_aon_i: "aon", clk_main_i: "main", clk_io_i: "io", clk_usb_i: "usb",
                    clk_io_div2_i: "io_div2", clk_io_div4_i: "io_div4"},
       clock_group: "powerup",
-      reset_connections: {rst_ni: "rst_ni"},
-      domain: "Aon",
+      reset_connections: {rst_ni: "por_io_div4"},
+      domain: ["Aon"],
       base_addr: "0x40410000",
       attr: "templated",
     },
     { name: "clkmgr_aon",
       type: "clkmgr",
-      clock_srcs: {clk_i: "io_div4"},
+      clock_srcs: {
+        clk_i: "io_div4",
+        clk_main_i: {
+          group: "ast",
+          clock: "main"
+        },
+        clk_io_i: {
+          group: "ast",
+          clock: "io"
+        },
+        clk_usb_i: {
+          group: "ast",
+          clock: "usb"
+        },
+        clk_aon_i: {
+          group: "ast",
+          clock: "aon"
+        }
+      },
       clock_group: "powerup",
-      reset_connections: {rst_ni: "por_io_div4", rst_main_ni: "por", rst_io_ni: "por_io", rst_usb_ni: "por_usb"
-                          rst_io_div2_ni: "por_io_div2", rst_io_div4_ni: "por_io_div4"},
-      domain: "Aon",
+      reset_connections: {rst_ni: "por_io_div4",
+                          rst_main_ni: "por",
+                          rst_io_ni: "por_io",
+                          rst_usb_ni: "por_usb",
+                          rst_io_div2_ni: "por_io_div2",
+                          rst_io_div4_ni: "por_io_div4",
+                          rst_aon_ni: "por_aon"},
+      domain: ["Aon"],
       base_addr: "0x40420000",
       attr: "templated",
     },
@@ -339,42 +291,99 @@
       clock_srcs: {clk_i: "io_div4", clk_aon_i: "aon"},
       clock_group: "powerup",
       reset_connections: {rst_ni: "sys_io_div4", rst_aon_ni: "sys_aon"},
-      domain: "Aon",
+      domain: ["Aon"],
       base_addr: "0x40460000",
       attr: "templated",
     },
-    { name: "sensor_ctrl_aon",
-      type: "sensor_ctrl",
-      clock_srcs: {clk_i: "io_div4"},
+    { name: "aon_timer_aon",
+      type: "aon_timer",
+      clock_srcs: {clk_i: "io_div4", clk_aon_i: "aon"},
+      clock_group: "timers",
+      reset_connections: {rst_ni: "sys_io_div4", rst_aon_ni: "sys_aon"},
+      domain: ["Aon"],
+      base_addr: "0x40470000",
+      attr: "templated",
+    },
+    { name: "ast",
+      type: "ast",
+      clock_srcs: {
+        clk_ast_tlul_i: "io_div4",
+        clk_ast_adc_i: "aon",
+        clk_ast_alert_i: "io_div4",
+        clk_ast_es_i: "main",
+        clk_ast_rng_i: "main",
+        clk_ast_usb_i: "usb"
+      },
       clock_group: "secure",
-      clock_reset_export: ["ast"],
-      reset_connections: {rst_ni: "sys_io_div4"},
-      domain: "Aon",
-      base_addr: "0x40490000",
-      attr: "reggen_top",
+      reset_connections: {
+        rst_ast_tlul_ni: "lc_io_div4",
+        rst_ast_adc_ni: "sys_aon",
+        rst_ast_alert_ni: "lc_io_div4",
+        rst_ast_es_ni: "sys",
+        rst_ast_rng_ni: "sys",
+        rst_ast_usb_ni: "usb"
+      },
+      base_addr: "0x40480000",
+      attr: "reggen_only",
     },
     { name: "sram_ctrl_ret_aon",
       type: "sram_ctrl",
       clock_srcs: {clk_i: "io_div4", clk_otp_i: "io_div4"},
-      clock_group: "peri",
+      clock_group: "infra",
       reset_connections: {rst_ni: "sys_io_div4", rst_otp_ni: "lc_io_div4"},
-      domain: "Aon",
-      base_addr: "0x40500000"
+      domain: ["Aon"],
+      param_decl: {
+        InstrExec: "0",
+      }
+      base_addrs: {regs: "0x40500000", ram: "0x40600000"},
+      // Memory regions must be associated with a dedicated
+      // TL-UL device interface.
+      memory: {
+        ram: {
+          label:    "ram_ret_aon",
+          swaccess:   "rw",
+          exec:       "True",
+          byte_write: "True",
+          size:     "0x1000"
+        }
+      }
     },
     { name: "flash_ctrl",
       type: "flash_ctrl",
       clock_srcs: {clk_i: "main", clk_otp_i: "io_div4"},
       clock_group: "infra",
       reset_connections: {rst_ni: "lc", rst_otp_ni: "lc_io_div4"},
-      base_addrs: {core: "0x41000000", prim: "0x41008000"}
+      base_addrs: {core: "0x41000000", prim: "0x41008000", mem: "0x20000000"}
+      memory: {
+        mem: {
+          label:      "eflash",
+          swaccess:   "ro",
+          exec:       "True",
+          byte_write: "False",
+          config: {
+            type: "flash",
+            banks: 2,
+            pages_per_bank: 16,
+            program_resolution: 8, // maximum number of flash words allowed to program at one time
+          }
+        }
+      }
       attr: "templated",
+    },
+    { name: "rv_dm",
+      type: "rv_dm",
+      clock_srcs: {clk_i: "main"},
+      clock_group: "infra",
+      reset_connections: {rst_ni: "lc"},
+      // Note that this module also contains a bus host.
+      base_addrs: {rom: "0x00010000", regs: "0x41200000"}
     },
     { name: "rv_plic",
       type: "rv_plic",
       clock_srcs: {clk_i: "main"},
       clock_group: "secure",
       reset_connections: {rst_ni: "sys"},
-      base_addr: "0x41010000",
+      base_addr: "0x48000000",
       attr: "templated",
     },
     { name: "aes",
@@ -382,6 +391,10 @@
       clock_srcs: {clk_i: "main", clk_edn_i: "main"},
       clock_group: "trans",
       reset_connections: {rst_ni: "sys", rst_edn_ni: "sys"},
+      param_decl: {
+        Masking: "1",
+        SBoxImpl: "aes_pkg::SBoxImplDom"
+      }
       base_addr: "0x41100000",
     },
     { name: "hmac",
@@ -396,185 +409,72 @@
       clock_srcs: {clk_i: "main", clk_otp_i: "io_div4"},
       clock_group: "secure",
       reset_connections: {rst_ni: "sys", rst_otp_ni: "lc_io_div4"},
-      base_addr: "0x411C0000",
+      param_decl: {
+        InstrExec: "1",
+      }
+      base_addrs: {regs: "0x411C0000", ram: "0x10000000"},
+      // Memory regions must be associated with a dedicated
+      // TL-UL device interface.
+      memory: {
+        ram: {
+          label:      "ram_main",
+          swaccess:   "rw",
+          exec:       "True",
+          byte_write: "True",
+          size:       "0x20000"
+        }
+      }
+    },
+    { name: "rom_ctrl",
+      type: "rom_ctrl",
+      clock_srcs: {clk_i: "main"},
+      clock_group: "infra",
+      reset_connections: {rst_ni: "sys"},
+      base_addrs: {rom: "0x00008000", regs: "0x411e0000"}
+      memory: {
+        rom: {
+          label:      "rom",
+          swaccess:   "ro",
+          exec:       "True",
+          byte_write: "False",
+          size:       "0x4000"
+        }
+      },
+      param_decl: {
+        SecDisableScrambling: "1'b1"
+      }
+    },
+    { name: "rv_core_ibex",
+      type: "rv_core_ibex",
+      param_decl: {PMPEnable: "1",
+                   PMPGranularity: "0",
+                   PMPNumRegions: "16",
+                   MHPMCounterNum: "10",
+                   MHPMCounterWidth: "32",
+                   RV32E: "0",
+                   RV32M: "ibex_pkg::RV32MSingleCycle",
+                   RV32B: "ibex_pkg::RV32BNone",
+                   RegFile: "ibex_pkg::RegFileFF",
+                   BranchTargetALU: "1",
+                   WritebackStage: "1",
+                   ICache: "1",
+                   ICacheECC: "1",
+                   BranchPredictor: "0",
+                   DbgTriggerEn: "1",
+                   SecureIbex: "1",
+                   DmHaltAddr: "tl_main_pkg::ADDR_SPACE_RV_DM__ROM + dm::HaltAddress[31:0]",
+                   DmExceptionAddr: "tl_main_pkg::ADDR_SPACE_RV_DM__ROM + dm::ExceptionAddress[31:0]",
+                   PipeLine: "0"
+                  }
+      clock_srcs: {clk_i: "main", clk_esc_i: "io_div4"},
+      clock_group: "infra",
+      reset_connections: {rst_ni: "sys", rst_esc_ni: "lc_io_div4"},
+      base_addr: "0x411F0000",
     },
   ]
 
-  // Memories (ROM, RAM, eFlash) are defined at the top.
-  // It utilizes the primitive cells but configurable
-  memory: [
-    { name: "rom",
-      clock_srcs: {clk_i: "main"},
-      clock_group: "infra",
-      reset_connections: {rst_ni: "sys"},
-      type: "rom",
-      base_addr: "0x00008000",
-      swaccess: "ro",
-      size: "0x4000",
-      // data integrity width
-      integ_width: 8,
-      inter_signal_list: [
-        { struct: "tl"
-          package: "tlul_pkg"
-          type: "req_rsp"
-          act: "rsp"
-          name: "tl"
-        }
-      ]
-    },
-    { name: "ram_main",
-      clock_srcs: {clk_i: "main"},
-      clock_group: "infra",
-      reset_connections: {rst_ni: "sys"},
-      type: "ram_1p_scr",
-      base_addr: "0x10000000",
-      size: "0x10000",
-      byte_write: "true",
-      // data integrity width
-      integ_width: 7,
-      exec: "1",
-      inter_signal_list: [
-        { struct: "tl"
-          package: "tlul_pkg"
-          type: "req_rsp"
-          act: "rsp"
-          name: "tl"
-        },
-        // Interface to SRAM controller
-        { struct:  "sram_scr",
-          package: "sram_ctrl_pkg"
-          type:    "req_rsp",
-          name:    "sram_scr",
-          act:     "rsp",
-        },
-        { struct:  "sram_scr_init",
-          package: "sram_ctrl_pkg"
-          type:    "req_rsp",
-          name:    "sram_scr_init",
-          act:     "rsp",
-        },
-        { struct:  "tl_instr_en",
-          package: "tlul_pkg"
-          type:    "uni",
-          name:    "en_ifetch",
-          act:     "rcv",
-        },
-        { struct:  "logic",
-          package: ""
-          type:    "uni",
-          name:    "intg_error",
-          act:     "req",
-        },
-      ]
-    },
-    { name: "ram_ret_aon",
-      clock_srcs: {clk_i: "io_div4"},
-      clock_group: "infra",
-      reset_connections: {rst_ni: "sys_io_div4"},
-      domain: "Aon",
-      type: "ram_1p_scr",
-      base_addr: "0x40600000",
-      size: "0x1000",
-      byte_write: "true",
-      // data integrity width
-      integ_width: 7,
-      exec: "0",
-      inter_signal_list: [
-        { struct: "tl"
-          package: "tlul_pkg"
-          type: "req_rsp"
-          act: "rsp"
-          name: "tl"
-        },
-        // Interface to SRAM controller
-        { struct:  "sram_scr",
-          package: "sram_ctrl_pkg"
-          type:    "req_rsp",
-          name:    "sram_scr",
-          act:     "rsp",
-        },
-        { struct:  "sram_scr_init",
-          package: "sram_ctrl_pkg"
-          type:    "req_rsp",
-          name:    "sram_scr_init",
-          act:     "rsp",
-        },
-        { struct:  "tl_instr_en",
-          package: "tlul_pkg"
-          type:    "uni",
-          name:    "en_ifetch",
-          act:     "rcv",
-        },
-        { struct:  "logic",
-          package: ""
-          type:    "uni",
-          name:    "intg_error",
-          act:     "req",
-        },
-      ]
-    },
-    { name: "eflash",
-      clock_srcs: {clk_i: "main"},
-      clock_group: "infra",
-      reset_connections: {rst_ni: "lc"},
-      type: "eflash",
-      base_addr: "0x20000000",
-      banks: 2,
-      pages_per_bank: 16,
-      program_resolution: 8, // maximum number of flash words allowed to program at one time
-      swaccess: "ro",
-      inter_signal_list: [
-        { struct: "flash",    // flash_req_t, flash_rsp_t
-          type: "req_rsp",
-          name: "flash_ctrl", // flash_ctrl_i (req), flash_ctrl_o (rsp)
-          act:  "rsp",
-        },
-        { struct: "tl"
-          package: "tlul_pkg"
-          type: "req_rsp"
-          act: "rsp"
-          name: "tl"
-        },
-        { struct: "lc_tx",
-          package: "lc_ctrl_pkg",
-          type: "uni"
-          act: "rcv"
-          name: "lc_nvm_debug_en"
-        },
-        { struct: "lc_tx"
-          package: "lc_ctrl_pkg"
-          type: "uni"
-          act: "rcv"
-          name: "flash_bist_enable"
-        },
-        { struct: "logic"
-          package: ""
-          type: "uni"
-          act: "rcv"
-          name: "flash_power_down_h"
-        },
-        { struct: "logic"
-          package: ""
-          type: "uni"
-          act: "rcv"
-          name: "flash_power_ready_h"
-        },
-        { struct: "logic",
-          package: "",
-          width: "4",
-          type: "uni"
-          act: "rcv"
-          name: "flash_test_mode_a"
-        },
-        { struct: "logic",
-          package: "",
-          type: "uni"
-          act: "rcv"
-          name: "flash_test_voltage_h"
-        },
-      ],
-    },
-  ],
+  // All memories wrapped up in relevant controllers
+  memory: [],
 
   // The port data structure is not something that should be used liberally.
   // It is used specifically to assign special attributes to specific ports.
@@ -639,35 +539,13 @@
   //  e.g flash_ctrl0.flash: [flash_phy0.flash_ctrl]
   inter_module: {
     'connect': {
-      'alert_handler.crashdump' : ['rstmgr_aon.alert_dump'],
-      'alert_handler.esc_rx'    : ['rv_core_ibex.esc_nmi_rx',
-                                   'lc_ctrl.esc_wipe_secrets_rx',
-                                   'lc_ctrl.esc_scrap_state_rx'
-                                   'pwrmgr_aon.esc_rst_rx'],
-      'alert_handler.esc_tx'    : ['rv_core_ibex.esc_nmi_tx',
-                                   'lc_ctrl.esc_wipe_secrets_tx',
-                                   'lc_ctrl.esc_scrap_state_tx',
-                                   'pwrmgr_aon.esc_rst_tx'],
-      'flash_ctrl.flash'        : ['eflash.flash_ctrl'],
-      'flash_ctrl.rma_req'      : ['lc_ctrl.lc_flash_rma_req'],
-      'flash_ctrl.rma_ack'      : ['lc_ctrl.lc_flash_rma_ack'],
-      'flash_ctrl.rma_seed'     : ['lc_ctrl.lc_flash_rma_seed'],
-      'sram_ctrl_main.sram_scr' : ['ram_main.sram_scr'],
-      'sram_ctrl_main.sram_scr_init' : ['ram_main.sram_scr_init'],
-      'sram_ctrl_ret_aon.sram_scr'  : ['ram_ret_aon.sram_scr'],
-      'sram_ctrl_ret_aon.sram_scr_init' : ['ram_ret_aon.sram_scr_init'],
-      'sram_ctrl_main.en_ifetch'    : ['ram_main.en_ifetch'],
-      'sram_ctrl_ret_aon.en_ifetch' : ['ram_ret_aon.en_ifetch'],
-      'ram_main.intg_error'     : ['sram_ctrl_main.intg_error'],
-      'ram_ret_aon.intg_error'  : ['sram_ctrl_ret_aon.intg_error'],
       'pwrmgr_aon.pwr_flash'    : ['flash_ctrl.pwrmgr'],
       'pwrmgr_aon.pwr_rst'      : ['rstmgr_aon.pwr'],
       'pwrmgr_aon.pwr_clk'      : ['clkmgr_aon.pwr'],
-      'pwrmgr_aon.pwr_lc'       : ['lc_ctrl.pwr_lc'],
       'pwrmgr_aon.strap'        : ['pinmux_aon.strap_en'],
-      'pwrmgr_aon.low_power'    : ['pinmux_aon.sleep_en'],
-      'alert_handler.crashdump' : ['rstmgr_aon.alert_dump'],
-      'rv_core_ibex.crash_dump'  : ['rstmgr_aon.cpu_dump'],
+      'pwrmgr_aon.low_power'    : ['pinmux_aon.sleep_en',
+                                   'aon_timer_aon.sleep_mode'],
+      'pwrmgr_aon.fetch_en'     : ['rv_core_ibex.pwrmgr_cpu_en'],
 
       // usbdev connection to pinmux
       'usbdev.usb_out_of_rst'   : ['pinmux_aon.usb_out_of_rst'],
@@ -682,78 +560,97 @@
       'clkmgr_aon.idle'         : [],
 
       // Pinmux JTAG signals
-      // Note that the DFT TAP will be connected
-      // automatically by the DFT insertion tool,
-      // hence it does not have to be connected here.
-      'pinmux_aon.lc_jtag' : ['lc_ctrl.jtag'],
       'pinmux_aon.rv_jtag' : ['rv_dm.jtag'],
 
-      // LC function control signal broadcast
-      'lc_ctrl.lc_dft_en'          : ['pinmux_aon.lc_dft_en'],
-      'lc_ctrl.lc_nvm_debug_en'    : ['eflash.lc_nvm_debug_en'],
-      'lc_ctrl.lc_hw_debug_en'     : ['sram_ctrl_main.lc_hw_debug_en',
-                                      'sram_ctrl_ret_aon.lc_hw_debug_en',
-                                      'pinmux_aon.lc_hw_debug_en'],
-      'lc_ctrl.lc_cpu_en'          : ['rv_core_ibex.lc_cpu_en'],
-      'lc_ctrl.lc_keymgr_en'       : [],
-      'lc_ctrl.lc_escalate_en'     : ['aes.lc_escalate_en',
-                                      'sram_ctrl_main.lc_escalate_en',
-                                      'sram_ctrl_ret_aon.lc_escalate_en'],
-      'lc_ctrl.lc_clk_byp_req'     : ['clkmgr_aon.lc_clk_byp_req'],
-      'lc_ctrl.lc_clk_byp_ack'     : ['clkmgr_aon.lc_clk_byp_ack'],
+      // rv_plic connections
+      'rv_plic.msip' : ['rv_core_ibex.irq_software'],
+      'rv_plic.irq'  : ['rv_core_ibex.irq_external'],
 
-      // LC access control signal broadcast
-      'lc_ctrl.lc_creator_seed_sw_rw_en'   : ['flash_ctrl.lc_creator_seed_sw_rw_en'],
-      'lc_ctrl.lc_owner_seed_sw_rw_en'     : ['flash_ctrl.lc_owner_seed_sw_rw_en'],
-      'lc_ctrl.lc_iso_part_sw_rd_en'       : ['flash_ctrl.lc_iso_part_sw_rd_en'],
-      'lc_ctrl.lc_iso_part_sw_wr_en'       : ['flash_ctrl.lc_iso_part_sw_wr_en'],
-      'lc_ctrl.lc_seed_hw_rd_en'           : ['flash_ctrl.lc_seed_hw_rd_en'],
+      // rv_dm connections
+      'rv_dm.debug_req': ['rv_core_ibex.debug_req'],
+
+      // rv_timer connections
+
+
+      // rv core ibex connections
+      'rv_core_ibex.rst_cpu_n'  : ['rstmgr_aon.rst_cpu_n'],
+      'rv_core_ibex.crash_dump' : ['rstmgr_aon.cpu_dump'],
+      'rv_core_ibex.pwrmgr'     : ['pwrmgr_aon.pwr_cpu'],
+
+      // spi passthrough connection
+      'spi_device.passthrough'     : ['spi_host0.passthrough']
+
+      // Debug module reset request to reset manager
+      'rv_dm.ndmreset_req' : ['rstmgr_aon.ndmreset_req']
     }
 
     // top is to connect to top net/struct.
     // It defines the signal in the top and connect from the module,
     // use of the signal is up to top template
     'top': [
-        'rstmgr_aon.resets', 'rstmgr_aon.cpu', 'pwrmgr_aon.pwr_cpu', 'clkmgr_aon.clocks',
+        // top level net for clocks
+        'clkmgr_aon.clocks',
+
+        // top level clock gating indications for alert subsystem
+        'clkmgr_aon.cg_en',
+
+        // top level net for reset
+        'rstmgr_aon.resets',
+
+        // top level reset asserted indications for alert subsystem
+        'rstmgr_aon.rst_en',
+
+        // dedicated timer interrupt
+        'rv_core_ibex.irq_timer',
+
+        // hardwired connections
+        'rv_core_ibex.hart_id', 'rv_core_ibex.boot_addr',
+
+        // lc_ctrl.lc_cpu_en - always enabled for English Breakfast
+        'rv_core_ibex.lc_cpu_en'
 
         // Xbars
-        'main.tl_corei', 'main.tl_cored', 'main.tl_dm_sba', 'main.tl_debug_mem'
+
+        // Pinmux JTAG signals for the tool-inserted DFT TAP
+        'pinmux_aon.dft_jtag',
+
+        // OTP HW_CFG Broadcast signals.
+        // TODO(#6713): The actual struct breakout and mapping currently needs to
+        // be performed by hand in the toplevel template.
+        'sram_ctrl_main.otp_en_sram_ifetch',
+        'sram_ctrl_ret_aon.otp_en_sram_ifetch'
     ],
 
     // ext is to create port in the top.
     'external': {
-        // 'adc_ctrl_aon.adc'             : 'adc'
+        # 'adc_ctrl_aon.adc'             : 'adc'
         'ast.edn'                      : '',
         'ast.lc_dft_en'                : '',
         'ast.ram_1p_cfg'               : 'ram_1p_cfg',
         'ast.ram_2p_cfg'               : 'ram_2p_cfg',
         'ast.rom_cfg'                  : 'rom_cfg',
-        'clkmgr_aon.clk_main'          : 'clk_main',  // clock inputs
-        'clkmgr_aon.clk_io'            : 'clk_io',    // clock inputs
-        'clkmgr_aon.clk_usb'           : 'clk_usb',   // clock inputs
-        'clkmgr_aon.clk_aon'           : 'clk_aon',   // clock inputs
         'clkmgr_aon.jitter_en'         : 'clk_main_jitter_en',
         'clkmgr_aon.ast_clk_byp_req'   : 'ast_clk_byp_req',
         'clkmgr_aon.ast_clk_byp_ack'   : 'ast_clk_byp_ack',
-        'eflash.flash_bist_enable'     : 'flash_bist_enable',
-        'eflash.flash_power_down_h'    : 'flash_power_down_h',
-        'eflash.flash_power_ready_h'   : 'flash_power_ready_h',
+        'flash_ctrl.flash_alert'           : 'flash_alert',
+        'flash_ctrl.flash_bist_enable'     : 'flash_bist_enable',
+        'flash_ctrl.flash_power_down_h'    : 'flash_power_down_h',
+        'flash_ctrl.flash_power_ready_h'   : 'flash_power_ready_h',
         # 'entropy_src.entropy_src_rng'  : '',
         # 'entropy_src.rng_fips'         : '',
-        # 'peri.tl_ast'                  : '',
+        'peri.tl_ast'                  : 'ast_tl',
         'pinmux_aon.dft_strap_test'    : 'dft_strap_test'
+        'pinmux_aon.dft_hold_tap_sel'  : 'dft_hold_tap_sel',
         'pwrmgr_aon.pwr_ast'           : 'pwrmgr_ast',
         # 'otp_ctrl.otp_ast_pwr_seq'     : '',
         # 'otp_ctrl.otp_ast_pwr_seq_h'   : '',
-        'sensor_ctrl_aon.ast_alert'    : 'sensor_ctrl_ast_alert',
-        'sensor_ctrl_aon.ast_status'   : 'sensor_ctrl_ast_status',
-        'sensor_ctrl_aon.ast2pinmux'   : '',
-        'usbdev.usb_ref_val'           : '',
-        'usbdev.usb_ref_pulse'         : '',
+        # 'otp_ctrl.otp_alert'           : 'otp_alert',
+        'rstmgr_aon.por_n'               : 'por_n'
+        'usbdev.usb_ref_val'             : '',
+        'usbdev.usb_ref_pulse'           : '',
+        'spi_device.sck_monitor'         : 'sck_monitor',
     },
   },
-
-  debug_mem_base_addr: "0x1A110000",
 
   // Crossbars: having a top level crossbar
   // This version assumes all crossbars are instantiated at the top.
@@ -772,6 +669,20 @@
       reset_connections: {rst_peri_ni: "sys_io_div4"},
     }
   ],
+
+  // Modules whose interrupts are connected to RV_PLIC.
+  interrupt_module: [
+    "uart0",
+    "gpio",
+    "spi_device",
+    "spi_host0",
+    // "rv_timer", connected to a dedicated interrupt input in rv_core_ibex.
+    "usbdev",
+    "pwrmgr_aon",
+    "aon_timer_aon",
+    "flash_ctrl",
+    "hmac",
+  ]
 
   // ===== PINMUX & PINOUT ======================================================
 
@@ -882,7 +793,8 @@
     //
     // - instance: This is the comportable IO instance name where the IO signal comes from.
     //
-    // - connection: Can have either of the following values:
+    // - connection: This key is similar to the connection key in the pinout/pad configuration and
+    //               can have either of the following values:
     //
     //               1) 'direct': This is a dedicated IO signal that is directly connected to a pad.
     //                            Such an IO signal must also specify the 'port' and 'pad' keys
@@ -933,7 +845,6 @@
       { instance: "gpio",            port: '',      connection: 'muxed' , pad: ''             , desc: ''},
       { instance: "uart0",           port: '',      connection: 'muxed' , pad: ''             , desc: ''},
       { instance: "flash_ctrl",      port: '',      connection: 'muxed' , pad: ''             , desc: ''},
-      { instance: "sensor_ctrl_aon", port: '',      connection: 'muxed' , pad: ''             , desc: ''},
     ],
 
     // Number of wakeup detectors to instantiate, and bitwidth for the wakeup counters.
@@ -977,8 +888,9 @@
           { name: 'IO_USB_DNPULLUP0', type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual USB signal for FPGA target'}
           { name: 'IO_USB_DPPULLUP0', type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual USB signal for FPGA target'}
           // ChipWhisperer IO
-          { name: 'TIO_CLKOUT',       type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual clock output for SCA setup'}
-          { name: 'IO_UTX_DEBUG',     type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual UART TX debug output'      }
+          { name: 'IO_CLKOUT',        type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual clock output for SCA setup'}
+          { name: 'IO_TRIGGER',       type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual trigger output for SCA setup'}
+          { name: 'IO_UTX_DEBUG',     type: 'BidirStd', bank: 'VCC', connection: 'manual', desc: 'Manual UART TX debug output'}
         ],
       }
 

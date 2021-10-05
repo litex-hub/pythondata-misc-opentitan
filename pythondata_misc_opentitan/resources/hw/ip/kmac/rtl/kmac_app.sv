@@ -11,7 +11,8 @@ module kmac_app
 #(
   // App specific configs are defined in kmac_pkg
   parameter  bit EnMasking = 1'b0,
-  localparam int Share = (EnMasking) ? 2 : 1 // derived parameter
+  localparam int Share = (EnMasking) ? 2 : 1, // derived parameter
+  parameter  bit SecIdleAcceptSwMsg = 1'b0
 ) (
   input clk_i,
   input rst_ni,
@@ -88,6 +89,9 @@ module kmac_app
   // to SW
   output logic absorbed_o,
 
+  // To status
+  output logic app_active_o,
+
   // Error input
   // This error comes from KMAC/SHA3 engine.
   // KeyMgr interface delivers the error signal to KeyMgr to drop the current op
@@ -95,6 +99,9 @@ module kmac_app
   // If error happens, regardless of SW-initiated or KeyMgr-initiated, the error
   // is reported to the ERR_CODE so that SW can look into.
   input error_i,
+
+  // SW sets err_processed bit in CTRL then the logic goes to Idle
+  input err_processed_i,
 
   // error_o value is pushed to Error FIFO at KMAC/SHA3 top and reported to SW
   output kmac_pkg::err_t error_o
@@ -105,11 +112,16 @@ module kmac_app
   /////////////////
 
   // Digest width is same to the key width `keymgr_pkg::KeyWidth`.
-  localparam int KeyMgrKeyW = $bits(keymgr_key_i.key_share0);
+  localparam int KeyMgrKeyW = $bits(keymgr_key_i.key[0]);
 
   localparam key_len_e KeyLen [5] = '{Key128, Key192, Key256, Key384, Key512};
 
-  localparam int SelKeySize = (AppDigestW == 128) ? 0 :
+  localparam int SelKeySize = (AppKeyW == 128) ? 0 :
+                              (AppKeyW == 192) ? 1 :
+                              (AppKeyW == 256) ? 2 :
+                              (AppKeyW == 384) ? 3 :
+                              (AppKeyW == 512) ? 4 : 0 ;
+  localparam int SelDigSize = (AppDigestW == 128) ? 0 :
                               (AppDigestW == 192) ? 1 :
                               (AppDigestW == 256) ? 2 :
                               (AppDigestW == 384) ? 3 :
@@ -140,9 +152,34 @@ module kmac_app
     24'h FFFFFF  // Key512
   };
 
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 9 -n 10 \
+  //      -s 155490773 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||| (16.67%)
+  //  4: |||||||||||||||||||| (30.56%)
+  //  5: |||||||||||||||| (25.00%)
+  //  6: ||||||||| (13.89%)
+  //  7: ||||||||| (13.89%)
+  //  8: --
+  //  9: --
+  // 10: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 7
+  // Minimum Hamming weight: 2
+  // Maximum Hamming weight: 9
+  //
+  localparam int StateWidth = 10;
+
   // States
-  typedef enum logic [3:0] {
-    StIdle = 4'b 0000,
+  typedef enum logic [StateWidth-1:0] {
+    StIdle = 10'b1011011010,
 
     // Application operation.
     //
@@ -159,45 +196,40 @@ module kmac_app
 
     // In StAppCfg state, it latches the cfg from AppCfg parameter to determine
     // the kmac_mode, sha3_mode, keccak strength.
-    StAppCfg = 4'b 1110,
+    StAppCfg = 10'b0001010000,
 
-    StAppMsg = 4'b 0101,
+    StAppMsg = 10'b0001011111,
 
     // In StKeyOutLen, this module pushes encoded outlen to the MSG_FIFO.
     // Assume the length is 256 bit, the data will be 48'h 02_0100
-    StAppOutLen = 4'b 0110,
-    StAppProcess = 4'b 1010,
-    StAppWait = 4'b 0111,
+    StAppOutLen  = 10'b1011001111,
+    StAppProcess = 10'b1000100110,
+    StAppWait    = 10'b0010010110,
 
     // SW Controlled
     // If start request comes from SW first, until the operation ends, all
     // requests from KeyMgr will be discarded.
-    StSw = 4'b 0100,
+    StSw = 10'b0111111111,
 
     // Error KeyNotValid
     // When KeyMgr operates, the secret key is not ready yet.
-    StKeyMgrErrKeyNotValid = 4'b 1111
-  } keyctrl_st_e;
+    StKeyMgrErrKeyNotValid = 10'b1001110100,
 
-  typedef enum logic [2:0] {
-    SelNone = 3'b 000,
-    SelApp = 3'b 101,
-    SelOutLen = 3'b 110,
-    SelSw = 3'b 010
-  } mux_sel_e ;
+    StError = 10'b1101011101
+  } st_e;
 
   /////////////
   // Signals //
   /////////////
 
-  keyctrl_st_e st, st_d;
+  st_e st, st_d;
 
   // app_rsp_t signals
   // The state machine controls mux selection, which controls the ready signal
   // the other responses are controled in separate logic. So define the signals
   // here and merge them to the response.
-  logic app_data_ready;
-  logic app_digest_done;
+  logic app_data_ready, fsm_data_ready;
+  logic app_digest_done, fsm_digest_done_q, fsm_digest_done_d;
   logic [AppDigestW-1:0] app_digest [2];
 
   // One more slot for value NumAppIntf. It is the value when no app intf is
@@ -214,7 +246,7 @@ module kmac_app
 
   // state output
   // Mux selection signal
-  mux_sel_e mux_sel;
+  app_mux_sel_e mux_sel;
 
   // Error checking logic
 
@@ -230,13 +262,14 @@ module kmac_app
   // clear digest right after done to not leak info to other interface
   always_comb begin
     for (int unsigned i = 0 ; i < NumAppIntf ; i++) begin
-      if (AppIdxW'(i) == app_id) begin
+      if (i == app_id) begin
         app_o[i] = '{
-          ready:         app_data_ready,
-          done:          app_digest_done,
+          ready:         app_data_ready | fsm_data_ready,
+          done:          app_digest_done | fsm_digest_done_q,
           digest_share0: app_digest[0],
           digest_share1: app_digest[1],
-          error:         error_i
+          // if fsm asserts done, should be an error case.
+          error:         error_i | fsm_digest_done_q
         };
       end else begin
         app_o[i] = '{
@@ -298,21 +331,33 @@ module kmac_app
   assign app_id_d = AppIdxW'(arb_idx);
   assign arb_ready = set_appid;
 
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) fsm_digest_done_q <= 1'b 0;
+    else         fsm_digest_done_q <= fsm_digest_done_d;
+  end
+
   /////////
   // FSM //
   /////////
 
   // State register
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) st <= StIdle;
-    else         st <= st_d;
-  end
+  logic [StateWidth-1:0] st_raw;
+  assign st = st_e'(st_raw);
+  prim_flop #(
+    .Width      (StateWidth),
+    .ResetValue (StateWidth'(StIdle))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .d_i ( st_d   ),
+    .q_o ( st_raw )
+  );
 
   // Next State & output logic
   always_comb begin
     st_d = StIdle;
 
-    mux_sel = SelNone;
+    mux_sel = SecIdleAcceptSwMsg ? SelSw : SelNone;
 
     // app_id control
     set_appid = 1'b 0;
@@ -327,9 +372,13 @@ module kmac_app
     // Error
     fsm_err = '{valid: 1'b 0, code: ErrNone, info: '0};
 
+    // If error happens, FSM asserts data ready but discard incoming msg
+    fsm_data_ready = 1'b 0;
+    fsm_digest_done_d = 1'b 0;
+
     unique case (st)
       StIdle: begin
-        if (arb_valid && keymgr_key_i.valid) begin
+        if (arb_valid) begin
           st_d = StAppCfg;
 
           // choose app_id
@@ -348,9 +397,9 @@ module kmac_app
         if ((AppCfg[app_id].Mode == AppKMAC) && !keymgr_key_i.valid) begin
           st_d = StKeyMgrErrKeyNotValid;
 
-          fsm_err.valid = 1'b 1;
-          fsm_err.code = ErrKeyNotValid;
-          fsm_err.info = '0;
+          // As mux_sel is not set to SelApp, app_data_ready is still 0.
+          // This logic won't accept the requests from the selected App.
+
         end else begin
           // As Cfg is stable now, it sends cmd
           st_d = StAppMsg;
@@ -416,7 +465,33 @@ module kmac_app
       end
 
       StKeyMgrErrKeyNotValid: begin
-        st_d = StKeyMgrErrKeyNotValid;
+        st_d = StError;
+
+        // As mux_sel is not set to SelApp, app_data_ready is still 0.
+        // This logic won't accept the requests from the selected App.
+        fsm_err.valid = 1'b 1;
+        fsm_err.code = ErrKeyNotValid;
+        fsm_err.info = 24'(app_id);
+      end
+
+      StError: begin
+        // In this state, the state machine flush out the request
+        st_d = StError;
+
+        fsm_data_ready = 1'b 1;
+
+        if (err_processed_i) begin
+          st_d = StIdle;
+
+          // clear internal variables
+          clr_appid = 1'b 1;
+        end
+
+        if (app_i[app_id].valid && app_i[app_id].last) begin
+          // Send garbage digest to the app interface to complete transaction
+          fsm_digest_done_d = 1'b 1;
+        end
+
       end
 
       default: begin
@@ -425,12 +500,18 @@ module kmac_app
     endcase
   end
 
+  if (SecIdleAcceptSwMsg != 1'b0) begin : gen_lint_err
+    // Create a lint error to reduce the risk of accidentally enabling this feature.
+    logic sec_idle_accept_sw_msg_dummy;
+    assign sec_idle_accept_sw_msg_dummy = (st == StIdle);
+  end
+
   //////////////
   // Datapath //
   //////////////
 
   // Encoded output length
-  assign encoded_outlen      = EncodedOutLen[SelKeySize];
+  assign encoded_outlen      = EncodedOutLen[SelDigSize];
   assign encoded_outlen_mask = EncodedOutLenMask[SelKeySize];
 
   // Data mux
@@ -487,22 +568,20 @@ module kmac_app
   always_comb begin
     mux_err = '{valid: 1'b 0, code: ErrNone, info: '0};
 
-    if (mux_sel != SelSw) begin
-      if (sw_valid_i) begin
-        // If SW writes message into FIFO
-        mux_err = '{
-          valid: 1'b 1,
-          code: ErrSwPushedMsgFifo,
-          info: 24'({8'h 00, 8'(st), 8'(mux_sel)})
-        };
-      end else if (!(sw_cmd_i inside {CmdNone, CmdStart})) begin
-        // If SW issues command except start
-        mux_err = '{
-          valid: 1'b 1,
-          code: ErrSwPushedWrongCmd,
-          info: 24'(sw_cmd_i)
-        };
-      end
+    if (mux_sel != SelSw && sw_valid_i) begin
+      // If SW writes message into FIFO
+      mux_err = '{
+        valid: 1'b 1,
+        code: ErrSwPushedMsgFifo,
+        info: 24'({8'h 00, 8'(st), 8'(mux_sel)})
+      };
+    end else if (app_active_o && sw_cmd_i != CmdNone) begin
+      // If SW issues command except start
+      mux_err = '{
+        valid: 1'b 1,
+        code: ErrSwIssuedCmdInAppActive,
+        info: 24'(sw_cmd_i)
+      };
     end
   end
 
@@ -541,11 +620,16 @@ module kmac_app
   // Combine share keys into unpacked array for logic below to assign easily.
   logic [MaxKeyLen-1:0] keymgr_key [Share];
   if (EnMasking == 1) begin : g_masked_key
-    assign keymgr_key[0] =  {(MaxKeyLen-KeyMgrKeyW)'(0), keymgr_key_i.key_share0};
-    assign keymgr_key[1] =  {(MaxKeyLen-KeyMgrKeyW)'(0), keymgr_key_i.key_share1};
+    for (genvar i = 0; i < Share; i++) begin : gen_key_pad
+      assign keymgr_key[i] =  {(MaxKeyLen-KeyMgrKeyW)'(0), keymgr_key_i.key[i]};
+    end
   end else begin : g_unmasked_key
-    assign keymgr_key[0] = {(MaxKeyLen-KeyMgrKeyW)'(0),
-                            keymgr_key_i.key_share0 ^ keymgr_key_i.key_share1};
+    always_comb begin
+      keymgr_key[0] = '0;
+      for (int i = 0; i < Share; i++) begin
+        keymgr_key[0][KeyMgrKeyW-1:0] ^= keymgr_key_i.key[i];
+      end
+    end
   end
 
   // Sideloaded key is used when KeyMgr KDF is active or !!CFG.sideload is set
@@ -571,10 +655,10 @@ module kmac_app
     sha3_prefix_o = '0;
 
     unique case (st)
-      StAppMsg: begin
+      StAppCfg, StAppMsg, StAppOutLen, StAppProcess, StAppWait: begin
         // Check app intf cfg
         for (int unsigned i = 0 ; i < NumAppIntf ; i++) begin
-          if (app_id == AppIdxW'(i)) begin
+          if (app_id == i) begin
             if (AppCfg[i].PrefixMode == 1'b 0) begin
               sha3_prefix_o = reg_prefix_i;
             end else begin
@@ -618,6 +702,10 @@ module kmac_app
     end
   end
 
+  // Status
+  assign app_active_o = (st inside {StAppCfg, StAppMsg, StAppOutLen,
+                                    StAppProcess, StAppWait});
+
   // Error Reporting ==========================================================
   always_comb begin
     priority casez ({fsm_err.valid, mux_err.valid})
@@ -632,7 +720,7 @@ module kmac_app
   ////////////////
 
   // KeyMgr sideload key and the digest should be in the Key Length value
-  `ASSERT_INIT(SideloadKeySameToDigest_A, KeyMgrKeyW == AppDigestW)
+  `ASSERT_INIT(SideloadKeySameToDigest_A, KeyMgrKeyW <= AppDigestW)
   `ASSERT_INIT(AppIntfInRange_A, AppDigestW inside {128, 192, 256, 384, 512})
 
 

@@ -14,15 +14,24 @@ class csrng_monitor extends dv_base_monitor #(
   // csrng_agent_cov: cov
   // uvm_analysis_port #(csrng_item): analysis_port
 
-  `uvm_component_new
+  uvm_tlm_analysis_fifo#(push_pull_item#(.HostDataWidth(csrng_pkg::CSRNG_CMD_WIDTH)))
+      csrng_cmd_fifo;
+
   bit in_reset;
+
+  `uvm_component_new
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+
+    csrng_cmd_fifo = new("csrng_cmd_fifo", this);
+  endfunction
 
   task run_phase(uvm_phase phase);
     @(posedge cfg.vif.rst_n);
     fork
       handle_reset();
-      // TODO: implement function
-      // collect_valid_trans();
+      collect_valid_trans();
       // We only need to monitor incoming requests if the agent is configured
       // in device mode.
       if (cfg.if_mode == dv_utils_pkg::Device) begin
@@ -41,6 +50,31 @@ class csrng_monitor extends dv_base_monitor #(
     end
   endtask
 
+  virtual task collect_valid_trans();
+    push_pull_item#(.HostDataWidth(csrng_pkg::CSRNG_CMD_WIDTH))  item;
+    csrng_item   cs_item;
+
+    cs_item = csrng_item::type_id::create("cs_item");
+
+    forever begin
+      for (int i = 0; i <= cs_item.clen; i++) begin
+        csrng_cmd_fifo.get(item);
+	if (i == 0) begin
+          cs_item.acmd  = item.h_data[3:0];
+          cs_item.clen  = item.h_data[7:4];
+          cs_item.flags = item.h_data[11:8];
+          cs_item.glen  = item.h_data[30:12];
+          cs_item.cmd_data_q.delete();
+        end
+        else begin
+          cs_item.cmd_data_q.push_back(item.h_data);
+        end
+      end
+      `uvm_info(`gfn, $sformatf("Captured cs_item: %s", cs_item.convert2string()), UVM_HIGH)
+      analysis_port.write(cs_item);
+    end
+  endtask
+
   // This task is only used for device agents responding
   // It will pick up any incoming requests from the DUT and send a signal to the
   // sequencer (in the form of a sequence item), which will then be forwarded to
@@ -51,8 +85,8 @@ class csrng_monitor extends dv_base_monitor #(
   virtual protected task collect_request();
     csrng_item   item;
     forever begin
-      @(cfg.vif.req_push_if.mon_cb);
-      if (cfg.vif.req_push_if.mon_cb.valid) begin
+      @(cfg.vif.cmd_push_if.mon_cb);
+      if (cfg.vif.cmd_push_if.mon_cb.valid) begin
         // TODO: sample any covergroups
 	// TODO: Implement suggestion in PR #5456
         item = csrng_item::type_id::create("item");
@@ -66,7 +100,4 @@ class csrng_monitor extends dv_base_monitor #(
        end
     end
   endtask
-
-  // TODO: collect_trans
-
 endclass

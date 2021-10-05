@@ -10,10 +10,12 @@
 module pinmux
   import pinmux_pkg::*;
   import pinmux_reg_pkg::*;
+  import prim_pad_wrapper_pkg::*;
 #(
   // Taget-specific pinmux configuration passed down from the
   // target-specific top-level.
-  parameter target_cfg_t TargetCfg = DefaultTargetCfg
+  parameter target_cfg_t TargetCfg = DefaultTargetCfg,
+  parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}}
 ) (
   input                            clk_i,
   input                            rst_ni,
@@ -23,11 +25,10 @@ module pinmux
   input                            clk_aon_i,
   input                            rst_aon_ni,
   // Wakeup request, running on clk_aon_i
-  output logic                     aon_wkup_req_o,
+  output logic                     pin_wkup_req_o,
   output logic                     usb_wkup_req_o,
   // Sleep enable and strap sample enable
   // from pwrmgr, running on clk_i
-  // TODO(#5198): figure out the connections.
   input                            sleep_en_i,
   input                            strap_en_i,
   // LC signals for TAP qualification
@@ -35,6 +36,8 @@ module pinmux
   input  lc_ctrl_pkg::lc_tx_t      lc_hw_debug_en_i,
   // Sampled values for DFT straps
   output dft_strap_test_req_t      dft_strap_test_o,
+  // DFT indication to stop tap strap sampling
+  input                            dft_hold_tap_sel_i,
   // Qualified JTAG signals for TAPs
   output jtag_pkg::jtag_req_t      lc_jtag_o,
   input  jtag_pkg::jtag_rsp_t      lc_jtag_i,
@@ -51,6 +54,9 @@ module pinmux
   // Bus Interface (device)
   input  tlul_pkg::tl_h2d_t        tl_i,
   output tlul_pkg::tl_d2h_t        tl_o,
+  // Alerts
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
   // Muxed Peripheral side
   input        [NMioPeriphOut-1:0] periph_to_mio_i,
   input        [NMioPeriphOut-1:0] periph_to_mio_oe_i,
@@ -76,19 +82,47 @@ module pinmux
   // Regfile Breakout and Mapping //
   //////////////////////////////////
 
+  logic [NumAlerts-1:0] alert_test, alerts;
   pinmux_reg2hw_t reg2hw;
   pinmux_hw2reg_t hw2reg;
 
   pinmux_reg_top u_reg (
-    .clk_i  ,
-    .rst_ni ,
-    .tl_i   ,
-    .tl_o   ,
-    .reg2hw ,
-    .hw2reg ,
-    .intg_err_o(),
+    .clk_i,
+    .rst_ni,
+    .clk_aon_i,
+    .rst_aon_ni,
+    .tl_i,
+    .tl_o,
+    .reg2hw,
+    .hw2reg,
+    .intg_err_o(alerts[0]),
     .devmode_i(1'b1)
   );
+
+  ////////////
+  // Alerts //
+  ////////////
+
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
+
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(1'b1)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
 
   /////////////////////////////
   // Pad attribute registers //
@@ -121,8 +155,9 @@ module pinmux
   // Connect attributes //
   ////////////////////////
 
+  pad_attr_t [NDioPads-1:0] dio_attr;
   for (genvar k = 0; k < NDioPads; k++) begin : gen_dio_attr
-    prim_pad_wrapper_pkg::pad_attr_t warl_mask;
+    pad_attr_t warl_mask;
 
     prim_pad_attr #(
       .PadType(TargetCfg.dio_pad_type[k])
@@ -130,12 +165,13 @@ module pinmux
       .attr_warl_o(warl_mask)
     );
 
-    assign dio_attr_o[k]            = dio_pad_attr_q[k] & warl_mask;
+    assign dio_attr[k]              = dio_pad_attr_q[k] & warl_mask;
     assign hw2reg.dio_pad_attr[k].d = dio_pad_attr_q[k] & warl_mask;
   end
 
+  pad_attr_t [NMioPads-1:0] mio_attr;
   for (genvar k = 0; k < NMioPads; k++) begin : gen_mio_attr
-    prim_pad_wrapper_pkg::pad_attr_t warl_mask;
+    pad_attr_t warl_mask;
 
     prim_pad_attr #(
       .PadType(TargetCfg.mio_pad_type[k])
@@ -143,7 +179,7 @@ module pinmux
       .attr_warl_o(warl_mask)
     );
 
-    assign mio_attr_o[k]            = mio_pad_attr_q[k] & warl_mask;
+    assign mio_attr[k]              = mio_pad_attr_q[k] & warl_mask;
     assign hw2reg.mio_pad_attr[k].d = mio_pad_attr_q[k] & warl_mask;
   end
 
@@ -167,18 +203,21 @@ module pinmux
     .rst_ni,
     .scanmode_i,
     // To padring side
-    .out_padring_o ( {dio_out_o, mio_out_o} ),
-    .oe_padring_o  ( {dio_oe_o , mio_oe_o } ),
-    .in_padring_i  ( {dio_in_i , mio_in_i } ),
+    .out_padring_o  ( {dio_out_o,  mio_out_o}  ),
+    .oe_padring_o   ( {dio_oe_o ,  mio_oe_o }  ),
+    .in_padring_i   ( {dio_in_i ,  mio_in_i }  ),
+    .attr_padring_o ( {dio_attr_o, mio_attr_o} ),
     // To core side
-    .out_core_i    ( {dio_out, mio_out} ),
-    .oe_core_i     ( {dio_oe,  mio_oe}  ),
-    .in_core_o     ( {dio_in,  mio_in}  ),
+    .out_core_i     ( {dio_out,  mio_out}  ),
+    .oe_core_i      ( {dio_oe,   mio_oe}   ),
+    .in_core_o      ( {dio_in,   mio_in}   ),
+    .attr_core_i    ( {dio_attr, mio_attr} ),
     // Strap and JTAG signals
     .strap_en_i,
     .lc_dft_en_i,
     .lc_hw_debug_en_i,
     .dft_strap_test_o,
+    .dft_hold_tap_sel_i,
     .lc_jtag_o,
     .lc_jtag_i,
     .rv_jtag_o,
@@ -205,8 +244,8 @@ module pinmux
     // input signals for resume detection
     .usb_dp_async_alw_i(dio_to_periph_o[TargetCfg.usb_dp_idx]),
     .usb_dn_async_alw_i(dio_to_periph_o[TargetCfg.usb_dn_idx]),
-    .usb_dppullup_en_alw_i(dio_oe_o[TargetCfg.usb_dp_pullup_idx]),
-    .usb_dnpullup_en_alw_i(dio_oe_o[TargetCfg.usb_dn_pullup_idx]),
+    .usb_dppullup_en_alw_i(dio_out_o[TargetCfg.usb_dp_pullup_idx]),
+    .usb_dnpullup_en_alw_i(dio_out_o[TargetCfg.usb_dn_pullup_idx]),
 
     // tie this to something from usbdev to indicate its out of reset
     .usb_out_of_rst_upwr_i(usb_out_of_rst_i),
@@ -375,28 +414,28 @@ module pinmux
                        dio_wkup_mux[reg2hw.wkup_detector_padsel[k]] :
                        mio_wkup_mux[reg2hw.wkup_detector_padsel[k]];
 
+    // This module runs on the AON clock entirely
     pinmux_wkup u_pinmux_wkup (
-      .clk_i,
-      .rst_ni,
-      .clk_aon_i,
-      .rst_aon_ni,
-      // config signals. these are synched to clk_aon internally
-      .wkup_en_i          ( reg2hw.wkup_detector_en[k].q                ),
-      .filter_en_i        ( reg2hw.wkup_detector[k].filter.q            ),
-      .wkup_mode_i        ( wkup_mode_e'(reg2hw.wkup_detector[k].mode.q)),
-      .wkup_cnt_th_i      ( reg2hw.wkup_detector_cnt_th[k].q            ),
-      .pin_value_i        ( pin_value                                   ),
-      // cause reg signals. these are synched from/to clk_aon internally
-      .wkup_cause_valid_i ( reg2hw.wkup_cause[k].qe                     ),
-      .wkup_cause_data_i  ( reg2hw.wkup_cause[k].q                      ),
-      .wkup_cause_data_o  ( hw2reg.wkup_cause[k].d                      ),
-      // wakeup request signals on clk_aon (level encoded)
-      .aon_wkup_req_o     ( aon_wkup_req[k]                             )
+      .clk_i              (clk_aon_i                                     ),
+      .rst_ni             (rst_aon_ni                                    ),
+      // config signals have already been synced to the AON domain inside the CSR node.
+      .wkup_en_i          ( reg2hw.wkup_detector_en[k].q                 ),
+      .filter_en_i        ( reg2hw.wkup_detector[k].filter.q             ),
+      .wkup_mode_i        ( wkup_mode_e'(reg2hw.wkup_detector[k].mode.q) ),
+      .wkup_cnt_th_i      ( reg2hw.wkup_detector_cnt_th[k].q             ),
+      .pin_value_i        ( pin_value                                    ),
+      // wakeup request pulse on clk_aon, will be synced back to the bus domain insie the CSR node.
+      .aon_wkup_pulse_o   ( hw2reg.wkup_cause[k].de                      )
     );
+
+    assign hw2reg.wkup_cause[k].d = 1'b1;
+
+    // This is the latched wakeup request, hence this request signal is level encoded.
+    assign aon_wkup_req[k] = reg2hw.wkup_cause[k].q;
   end
 
   // OR' together all wakeup requests
-  assign aon_wkup_req_o = |aon_wkup_req;
+  assign pin_wkup_req_o = |aon_wkup_req;
 
   ////////////////
   // Assertions //
@@ -404,19 +443,9 @@ module pinmux
 
   `ASSERT_KNOWN(TlDValidKnownO_A, tl_o.d_valid)
   `ASSERT_KNOWN(TlAReadyKnownO_A, tl_o.a_ready)
-  // `ASSERT_KNOWN(MioToPeriphKnownO_A, mio_to_periph_o)
+  `ASSERT_KNOWN(AlertsKnown_A, alert_tx_o)
   `ASSERT_KNOWN(MioOeKnownO_A, mio_oe_o)
-  // `ASSERT_KNOWN(DioToPeriphKnownO_A, dio_to_periph_o)
   `ASSERT_KNOWN(DioOeKnownO_A, dio_oe_o)
-
-  // TODO: need to check why some outputs are not valid (e.g. SPI device SDO)
-  // for (genvar k = 0; k < NMioPads; k++) begin : gen_mio_known_if
-  //   `ASSERT_KNOWN_IF(MioOutKnownO_A, mio_out_o[k], mio_oe_o[k])
-  // end
-
-  // for (genvar k = 0; k < NDioPads; k++) begin : gen_dio_known_if
-  //   `ASSERT_KNOWN_IF(DioOutKnownO_A, dio_out_o[k], dio_oe_o[k])
-  // end
 
   `ASSERT_KNOWN(MioKnownO_A, mio_attr_o)
   `ASSERT_KNOWN(DioKnownO_A, dio_attr_o)
@@ -436,6 +465,27 @@ module pinmux
   `ASSERT_KNOWN(DftStrapsKnown_A, dft_strap_test_o)
 
   // running on slow AON clock
-  `ASSERT_KNOWN(AonWkupReqKnownO_A, aon_wkup_req_o, clk_aon_i, !rst_aon_ni)
+  `ASSERT_KNOWN(AonWkupReqKnownO_A, pin_wkup_req_o, clk_aon_i, !rst_aon_ni)
+  `ASSERT_KNOWN(UsbWkupReqKnownO_A, usb_wkup_req_o, clk_aon_i, !rst_aon_ni)
+  `ASSERT_KNOWN(UsbStateDebugKnownO_A, usb_state_debug_o, clk_aon_i, !rst_aon_ni)
+
+  // The wakeup signal is not latched in the pwrmgr so must be held until acked by software
+  `ASSERT(PinmuxWkupStable_A, pin_wkup_req_o |=> pin_wkup_req_o ||
+      $fell(|reg2hw.wkup_cause) && !sleep_en_i, clk_aon_i, !rst_aon_ni)
+
+  // Some inputs at the chip-level may be forced to X in chip-level simulations.
+  // Therefore, we do not instantiate these assertions.
+  // `ASSERT_KNOWN(MioToPeriphKnownO_A, mio_to_periph_o)
+  // `ASSERT_KNOWN(DioToPeriphKnownO_A, dio_to_periph_o)
+
+  // The assertions below are not instantiated for a similar reason as the assertions above.
+  // I.e., some IPs have pass-through paths, which may lead to X'es propagating
+  // from input to output.
+  // for (genvar k = 0; k < NMioPads; k++) begin : gen_mio_known_if
+  //   `ASSERT_KNOWN_IF(MioOutKnownO_A, mio_out_o[k], mio_oe_o[k])
+  // end
+  // for (genvar k = 0; k < NDioPads; k++) begin : gen_dio_known_if
+  //   `ASSERT_KNOWN_IF(DioOutKnownO_A, dio_out_o[k], dio_oe_o[k])
+  // end
 
 endmodule : pinmux

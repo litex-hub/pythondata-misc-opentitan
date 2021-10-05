@@ -24,5 +24,19 @@ package otbn_memutil_pkg;
   import "DPI-C" function bit OtbnMemUtilGetSegData(chandle mem_util, bit is_imem, int word_off,
                                                     output bit [31:0] data_value);
 
+  import "DPI-C" function int OtbnMemUtilGetExpEndAddr(chandle mem_util);
+
+  import "DPI-C" function bit OtbnMemUtilGetLoopWarp(chandle           mem_util,
+                                                     bit [31:0]        addr,
+                                                     bit [31:0]        from_cnt,
+                                                     output bit [31:0] to_cnt);
+
+  import "DPI-C" function int OtbnMemUtilGetNumLoopWarps(chandle mem_util);
+
+  import "DPI-C" function void OtbnMemUtilGetLoopWarpByIndex(chandle           mem_util,
+                                                             int               idx,
+                                                             output bit [31:0] addr,
+                                                             output bit [31:0] from_cnt,
+                                                             output bit [31:0] to_cnt);
 endpackage
 `endif // SYNTHESIS

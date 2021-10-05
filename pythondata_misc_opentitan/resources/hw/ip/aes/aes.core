@@ -14,10 +14,12 @@ filesets:
       - lowrisc:ip:tlul
       - lowrisc:ip:lc_ctrl_pkg
       - lowrisc:ip:edn_pkg
+      - lowrisc:ip:keymgr_pkg
     files:
       - rtl/aes_reg_pkg.sv
       - rtl/aes_pkg.sv
       - rtl/aes_reg_top.sv
+      - rtl/aes_ctrl_reg_shadowed.sv
       - rtl/aes_core.sv
       - rtl/aes_ctr.sv
       - rtl/aes_control.sv

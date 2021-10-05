@@ -5,6 +5,7 @@
 module pinmux_strap_sampling
   import pinmux_pkg::*;
   import pinmux_reg_pkg::*;
+  import prim_pad_wrapper_pkg::*;
 #(
   // Taget-specific pinmux configuration passed down from the
   // target-specific top-level.
@@ -14,19 +15,23 @@ module pinmux_strap_sampling
   input                            rst_ni,
   input lc_ctrl_pkg::lc_tx_t       scanmode_i,
   // To padring side
-  output logic [NumIOs-1:0]        out_padring_o,
-  output logic [NumIOs-1:0]        oe_padring_o,
-  input  logic [NumIOs-1:0]        in_padring_i,
+  output pad_attr_t [NumIOs-1:0]   attr_padring_o,
+  output logic      [NumIOs-1:0]   out_padring_o,
+  output logic      [NumIOs-1:0]   oe_padring_o,
+  input  logic      [NumIOs-1:0]   in_padring_i,
   // To core side
-  input  logic [NumIOs-1:0]        out_core_i,
-  input  logic [NumIOs-1:0]        oe_core_i,
-  output logic [NumIOs-1:0]        in_core_o,
+  input  pad_attr_t [NumIOs-1:0]   attr_core_i,
+  input  logic      [NumIOs-1:0]   out_core_i,
+  input  logic      [NumIOs-1:0]   oe_core_i,
+  output logic      [NumIOs-1:0]   in_core_o,
   // Used for TAP qualification
   input  logic                     strap_en_i,
   input  lc_ctrl_pkg::lc_tx_t      lc_dft_en_i,
   input  lc_ctrl_pkg::lc_tx_t      lc_hw_debug_en_i,
   // Sampled values for DFT straps
   output dft_strap_test_req_t      dft_strap_test_o,
+  // Hold tap strap select
+  input                            dft_hold_tap_sel_i,
   // Qualified JTAG signals for TAPs
   output jtag_pkg::jtag_req_t      lc_jtag_o,
   input  jtag_pkg::jtag_rsp_t      lc_jtag_i,
@@ -98,22 +103,38 @@ module pinmux_strap_sampling
   assign dft_strap_test_o.straps = dft_strap_q;
 
 
+  // During dft enabled states, we continously sample all straps unless
+  // told not to do so by external dft logic
+  logic tap_sampling_en;
+  logic dft_hold_tap_sel;
+
+  prim_buf #(
+    .Width(1)
+  ) u_buf_hold_tap (
+    .in_i(dft_hold_tap_sel_i),
+    .out_o(dft_hold_tap_sel)
+  );
+  assign tap_sampling_en = (lc_dft_en[0] == lc_ctrl_pkg::On) & ~dft_hold_tap_sel;
+
   always_comb begin : p_strap_sampling
     lc_strap_sample_en = 1'b0;
     rv_strap_sample_en = 1'b0;
     dft_strap_sample_en = 1'b0;
-
     // Initial strap sampling pulse from pwrmgr,
     // qualified by life cycle signals.
+    // The DFT-mode straps are always sampled only once.
+    if (strap_en_i) begin
+      if (lc_dft_en[0] == lc_ctrl_pkg::On) begin
+        dft_strap_sample_en = 1'b1;
+      end
+    end
     // In DFT-enabled life cycle states we continously
-    // sample all straps.
-    if (strap_en_i || lc_dft_en[0] == lc_ctrl_pkg::On) begin
+    // sample the TAP straps to be able to switch back and
+    // forth between different TAPs.
+    if (strap_en_i || tap_sampling_en) begin
       lc_strap_sample_en = 1'b1;
       if (lc_hw_debug_en[0] == lc_ctrl_pkg::On) begin
         rv_strap_sample_en = 1'b1;
-      end
-      if (lc_dft_en[0] == lc_ctrl_pkg::On) begin
-        dft_strap_sample_en = 1'b1;
       end
     end
   end
@@ -221,27 +242,36 @@ module pinmux_strap_sampling
     .clk_o(jtag_req.trst_n)
   );
 
-  // Input tie-off muxes
+  // Input tie-off muxes and output overrides
   for (genvar k = 0; k < NumIOs; k++) begin : gen_input_tie_off
     if (k == TargetCfg.tck_idx  ||
         k == TargetCfg.tms_idx  ||
         k == TargetCfg.trst_idx ||
         k == TargetCfg.tdi_idx  ||
         k == TargetCfg.tdo_idx) begin : gen_jtag_signal
-      assign in_core_o[k] = (jtag_en) ? 1'b0 : in_padring_i[k];
-    end else begin : gen_other_inputs
-      assign in_core_o[k] = in_padring_i[k];
-    end
-  end
 
-  // Override TDO output
-  for (genvar k = 0; k < NumIOs; k++) begin : gen_output_mux
-    if (k == TargetCfg.tdo_idx) begin : gen_tdo
-      assign out_padring_o[k] = (jtag_en) ? jtag_rsp.tdo    : out_core_i[k];
-      assign oe_padring_o[k]  = (jtag_en) ? jtag_rsp.tdo_oe : oe_core_i[k];
-    end else begin : gen_other_outputs
-      assign out_padring_o[k] = out_core_i[k];
-      assign oe_padring_o[k]  = oe_core_i[k];
+      // Tie off inputs.
+      assign in_core_o[k] = (jtag_en) ? 1'b0 : in_padring_i[k];
+
+      if (k == TargetCfg.tdo_idx) begin : gen_output_mux
+        // Override TDO output.
+        assign out_padring_o[k] = (jtag_en) ? jtag_rsp.tdo    : out_core_i[k];
+        assign oe_padring_o[k]  = (jtag_en) ? jtag_rsp.tdo_oe : oe_core_i[k];
+      end else begin : gen_output_tie_off
+        // Make sure these pads are set to high-z.
+        assign out_padring_o[k] = (jtag_en) ? 1'b0 : out_core_i[k];
+        assign oe_padring_o[k]  = (jtag_en) ? 1'b0 : oe_core_i[k];
+      end
+
+      // Also reset all corresponding pad attributes to the default ('0) when JTAG is enabled.
+      // This disables functional pad features that may have been set, e.g., pull-up/pull-down.
+      assign attr_padring_o[k] = (jtag_en) ? '0 : attr_core_i[k];
+
+    end else begin : gen_other_inputs
+      assign attr_padring_o[k] = attr_core_i[k];
+      assign in_core_o[k]      = in_padring_i[k];
+      assign out_padring_o[k]  = out_core_i[k];
+      assign oe_padring_o[k]   = oe_core_i[k];
     end
   end
 

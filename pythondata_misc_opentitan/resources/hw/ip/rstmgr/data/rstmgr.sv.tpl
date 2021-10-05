@@ -7,24 +7,37 @@
 `include "prim_assert.sv"
 
 // This top level controller is fairly hardcoded right now, but will be switched to a template
-module rstmgr import rstmgr_pkg::*; (
+module rstmgr
+  import rstmgr_pkg::*;
+  import rstmgr_reg_pkg::*;
+#(
+  parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}}
+) (
   // Primary module clocks
   input clk_i,
-  input rst_ni, // this is connected to the top level reset
-% for clk in clks:
+  input rst_ni,
+% for clk in reset_obj.get_clocks():
   input clk_${clk}_i,
 % endfor
+
+  // POR input
+  input [PowerDomains-1:0] por_n_i,
 
   // Bus Interface
   input tlul_pkg::tl_h2d_t tl_i,
   output tlul_pkg::tl_d2h_t tl_o,
+
+  // Alerts
+  input  prim_alert_pkg::alert_rx_t [NumAlerts-1:0] alert_rx_i,
+  output prim_alert_pkg::alert_tx_t [NumAlerts-1:0] alert_tx_o,
 
   // pwrmgr interface
   input pwrmgr_pkg::pwr_rst_req_t pwr_i,
   output pwrmgr_pkg::pwr_rst_rsp_t pwr_o,
 
   // cpu related inputs
-  input rstmgr_cpu_t cpu_i,
+  input logic rst_cpu_n_i,
+  input logic ndmreset_req_i,
 
   // Interface to alert handler
   input alert_pkg::alert_crashdump_t alert_dump_i,
@@ -36,6 +49,9 @@ module rstmgr import rstmgr_pkg::*; (
   input scan_rst_ni,
   input lc_ctrl_pkg::lc_tx_t scanmode_i,
 
+  // Reset asserted indications going to alert handler
+  output rstmgr_rst_en_t rst_en_o,
+
   // reset outputs
 % for intf in export_rsts:
   output rstmgr_${intf}_out_t resets_${intf}_o,
@@ -44,17 +60,14 @@ module rstmgr import rstmgr_pkg::*; (
 
 );
 
-  import rstmgr_reg_pkg::*;
-
   // receive POR and stretch
   // The por is at first stretched and synced on clk_aon
   // The rst_ni and pok_i input will be changed once AST is integrated
   logic [PowerDomains-1:0] rst_por_aon_n;
 
   for (genvar i = 0; i < PowerDomains; i++) begin : gen_rst_por_aon
-    if (i == DomainAonSel) begin : gen_rst_por_aon_normal
 
-      lc_ctrl_pkg::lc_tx_t por_aon_scanmode;
+      lc_ctrl_pkg::lc_tx_t por_scanmode;
       prim_lc_sync #(
         .NumCopies(1),
         .AsyncOn(0)
@@ -62,45 +75,126 @@ module rstmgr import rstmgr_pkg::*; (
         .clk_i(1'b0),  // unused clock
         .rst_ni(1'b1), // unused reset
         .lc_en_i(scanmode_i),
-        .lc_en_o(por_aon_scanmode)
+        .lc_en_o(por_scanmode)
       );
 
+    if (i == DomainAonSel) begin : gen_rst_por_aon_normal
       rstmgr_por u_rst_por_aon (
         .clk_i(clk_aon_i),
-        .rst_ni, // this is the only use of rst_ni in this module
+        .rst_ni(por_n_i[i]),
         .scan_rst_ni,
-        .scanmode_i(por_aon_scanmode == lc_ctrl_pkg::On),
+        .scanmode_i(por_scanmode == lc_ctrl_pkg::On),
         .rst_no(rst_por_aon_n[i])
       );
-    end else begin : gen_rst_por_aon_tieoff
-      assign rst_por_aon_n[i] = 1'b0;
+
+      // reset asserted indication for alert handler
+      prim_lc_sender #(
+        .ResetValueIsOn(1)
+      ) u_prim_lc_sender (
+        .clk_i(clk_aon_i),
+        .rst_ni(rst_por_aon_n[i]),
+        .lc_en_i(lc_ctrl_pkg::Off),
+        .lc_en_o(rst_en_o.por_aon[i])
+      );
+    end else begin : gen_rst_por_domain
+      logic rst_por_aon_premux;
+      prim_flop_2sync #(
+        .Width(1),
+        .ResetValue('0)
+      ) u_por_domain_sync (
+        .clk_i(clk_aon_i),
+        // do not release from reset if aon has not
+        .rst_ni(rst_por_aon_n[DomainAonSel] & por_n_i[i]),
+        .d_i(1'b1),
+        .q_o(rst_por_aon_premux)
+      );
+
+      prim_clock_mux2 #(
+        .NoFpgaBufG(1'b1)
+      ) u_por_domain_mux (
+        .clk0_i(rst_por_aon_premux),
+        .clk1_i(scan_rst_ni),
+        .sel_i(por_scanmode == lc_ctrl_pkg::On),
+        .clk_o(rst_por_aon_n[i])
+      );
+
+      // reset asserted indication for alert handler
+      prim_lc_sender #(
+        .ResetValueIsOn(1)
+      ) u_prim_lc_sender (
+        .clk_i(clk_aon_i),
+        .rst_ni(rst_por_aon_n[i]),
+        .lc_en_i(lc_ctrl_pkg::Off),
+        .lc_en_o(rst_en_o.por_aon[i])
+      );
     end
-
-    assign resets_o.rst_por_aon_n[i] = rst_por_aon_n[i];
   end
-
+  assign resets_o.rst_por_aon_n = rst_por_aon_n;
 
   ////////////////////////////////////////////////////
   // Register Interface                             //
   ////////////////////////////////////////////////////
 
-  // local_rst_n is the reset used by the rstmgr for its internal logic
-  logic local_rst_n;
-  assign local_rst_n = resets_o.rst_por_io_div2_n[DomainAonSel];
-
   rstmgr_reg_pkg::rstmgr_reg2hw_t reg2hw;
   rstmgr_reg_pkg::rstmgr_hw2reg_t hw2reg;
 
+  logic reg_intg_err;
   rstmgr_reg_top u_reg (
     .clk_i,
-    .rst_ni(local_rst_n),
+    .rst_ni,
     .tl_i,
     .tl_o,
     .reg2hw,
     .hw2reg,
-    .intg_err_o(),
+    .intg_err_o(reg_intg_err),
     .devmode_i(1'b1)
   );
+
+
+  ////////////////////////////////////////////////////
+  // Errors                                         //
+  ////////////////////////////////////////////////////
+
+  // consistency check errors
+  logic [${len(leaf_rsts)-1}:0][PowerDomains-1:0] cnsty_chk_errs;
+  logic [${len(leaf_rsts)-1}:0][PowerDomains-1:0] shadow_cnsty_chk_errs;
+
+  assign hw2reg.err_code.reg_intg_err.d  = 1'b1;
+  assign hw2reg.err_code.reg_intg_err.de = reg_intg_err;
+  assign hw2reg.err_code.reset_consistency_err.d  = 1'b1;
+  assign hw2reg.err_code.reset_consistency_err.de = |cnsty_chk_errs |
+                                                    |shadow_cnsty_chk_errs;
+
+  ////////////////////////////////////////////////////
+  // Alerts                                         //
+  ////////////////////////////////////////////////////
+  logic [NumAlerts-1:0] alert_test, alerts;
+
+  // All of these are fatal alerts
+  assign alerts[0] = reg_intg_err |
+                     |cnsty_chk_errs |
+                     |shadow_cnsty_chk_errs;
+
+  assign alert_test = {
+    reg2hw.alert_test.q &
+    reg2hw.alert_test.qe
+  };
+
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
+    prim_alert_sender #(
+      .AsyncOn(AlertAsyncOn[i]),
+      .IsFatal(1'b1)
+    ) u_prim_alert_sender (
+      .clk_i,
+      .rst_ni,
+      .alert_test_i  ( alert_test[i] ),
+      .alert_req_i   ( alerts[0]     ),
+      .alert_ack_o   (               ),
+      .alert_state_o (               ),
+      .alert_rx_i    ( alert_rx_i[i] ),
+      .alert_tx_o    ( alert_tx_o[i] )
+    );
+  end
 
   ////////////////////////////////////////////////////
   // Input handling                                 //
@@ -112,10 +206,10 @@ module rstmgr import rstmgr_pkg::*; (
   prim_flop_2sync #(
     .Width(1),
     .ResetValue('0)
-  ) u_sync (
+  ) u_ndm_sync (
     .clk_i,
-    .rst_ni(local_rst_n),
-    .d_i(cpu_i.ndmreset_req),
+    .rst_ni,
+    .d_i(ndmreset_req_i),
     .q_o(ndmreset_req_q)
   );
 
@@ -150,7 +244,7 @@ module rstmgr import rstmgr_pkg::*; (
     .clk_i,
     .scanmode_i(rst_ctrl_scanmode == lc_ctrl_pkg::On),
     .scan_rst_ni,
-    .rst_ni(local_rst_n),
+    .rst_ni,
     .rst_req_i(pwr_i.rst_lc_req),
     .rst_parent_ni({PowerDomains{1'b1}}),
     .rst_no(rst_lc_src_n)
@@ -161,7 +255,7 @@ module rstmgr import rstmgr_pkg::*; (
     .clk_i,
     .scanmode_i(rst_ctrl_scanmode == lc_ctrl_pkg::On),
     .scan_rst_ni,
-    .rst_ni(local_rst_n),
+    .rst_ni,
     .rst_req_i(pwr_i.rst_sys_req | {PowerDomains{ndm_req_valid}}),
     .rst_parent_ni(rst_lc_src_n),
     .rst_no(rst_sys_src_n)
@@ -179,12 +273,12 @@ module rstmgr import rstmgr_pkg::*; (
   for (genvar i=0; i < NumSwResets; i++) begin : gen_sw_rst_ext_regs
     prim_subreg #(
       .DW(1),
-      .SWACCESS("RW"),
+      .SwAccess(prim_subreg_pkg::SwAccessRW),
       .RESVAL(1)
     ) u_rst_sw_ctrl_reg (
       .clk_i,
-      .rst_ni(local_rst_n),
-      .we(reg2hw.sw_rst_ctrl_n[i].qe & reg2hw.sw_rst_regen[i]),
+      .rst_ni,
+      .we(reg2hw.sw_rst_ctrl_n[i].qe & reg2hw.sw_rst_regwen[i]),
       .wd(reg2hw.sw_rst_ctrl_n[i].q),
       .de('0),
       .d('0),
@@ -213,39 +307,46 @@ module rstmgr import rstmgr_pkg::*; (
  );
 
 % for i, rst in enumerate(leaf_rsts):
-  logic [PowerDomains-1:0] rst_${rst['name']}_n;
-  % for domain in power_domains:
-    % if domain in rst['domains']:
-  prim_flop_2sync #(
-    .Width(1),
-    .ResetValue('0)
-  ) u_${domain.lower()}_${rst['name']} (
-    .clk_i(clk_${rst['clk']}_i),
-    .rst_ni(rst_${rst['parent']}_n[Domain${domain}Sel]),
-      % if "sw" in rst:
-    .d_i(sw_rst_ctrl_n[${rst['name'].upper()}]),
+<%
+  names = [rst.name]
+  err_prefix = [""]
+  if rst.shadowed:
+    names.append(f'{rst.name}_shadowed')
+    err_prefix.append('shadow_')
+%>\
+  // Generating resets for ${rst.name}
+  // Power Domains: ${rst.domains}
+  // Shadowed: ${rst.shadowed}
+  % for j, name in enumerate(names):
+    % for domain in power_domains:
+       % if domain in rst.domains:
+  rstmgr_leaf_rst u_d${domain.lower()}_${name} (
+    .clk_i,
+    .rst_ni,
+    .leaf_clk_i(clk_${rst.clock.name}_i),
+    .parent_rst_ni(rst_${rst.parent}_n[Domain${domain}Sel]),
+         % if rst.sw:
+    .sw_rst_req_ni(sw_rst_ctrl_n[${rst.name.upper()}]),
+         % else:
+    .sw_rst_req_ni(1'b1),
+         % endif
+    .scan_rst_ni,
+    .scan_sel(leaf_rst_scanmode[${i}] == lc_ctrl_pkg::On),
+    .rst_en_o(rst_en_o.${name}[Domain${domain}Sel]),
+    .leaf_rst_o(resets_o.rst_${name}_n[Domain${domain}Sel]),
+    .err_o(${err_prefix[j]}cnsty_chk_errs[${i}][Domain${domain}Sel])
+  );
       % else:
-    .d_i(1'b1),
+  assign resets_o.rst_${name}_n[Domain${domain}Sel] = '0;
+  assign ${err_prefix[j]}cnsty_chk_errs[${i}][Domain${domain}Sel] = '0;
+  assign rst_en_o.${name}[Domain${domain}Sel] = lc_ctrl_pkg::On;
       % endif
-    .q_o(rst_${rst['name']}_n[Domain${domain}Sel])
-  );
-
-  prim_clock_mux2 #(
-    .NoFpgaBufG(1'b1)
-  ) u_${domain.lower()}_${rst['name']}_mux (
-    .clk0_i(rst_${rst['name']}_n[Domain${domain}Sel]),
-    .clk1_i(scan_rst_ni),
-    .sel_i(leaf_rst_scanmode[${i}] == lc_ctrl_pkg::On),
-    .clk_o(resets_o.rst_${rst['name']}_n[Domain${domain}Sel])
-  );
-
-    % else:
-  assign rst_${rst['name']}_n[Domain${domain}Sel] = 1'b0;
-  assign resets_o.rst_${rst['name']}_n[Domain${domain}Sel] = rst_${rst['name']}_n[Domain${domain}Sel];
-
-
+    % endfor
+    % if len(names) == 1:
+  assign shadow_cnsty_chk_errs[${i}] = '0;
     % endif
   % endfor
+
 % endfor
 
   ////////////////////////////////////////////////////
@@ -257,27 +358,33 @@ module rstmgr import rstmgr_pkg::*; (
   logic rst_ndm;
   logic rst_cpu_nq;
   logic first_reset;
+  logic pwrmgr_rst_req;
+
+  // there is a valid reset request from pwrmgr
+  assign pwrmgr_rst_req = |pwr_i.rst_lc_req | |pwr_i.rst_sys_req;
 
   // The qualification of first reset below could technically be POR as well.
   // However, that would enforce software to clear POR upon cold power up.  While that is
   // the most likely outcome anyways, hardware should not require that.
-  assign rst_hw_req    = ~first_reset & pwr_i.reset_cause == pwrmgr_pkg::HwReq;
+  assign rst_hw_req    = ~first_reset & pwrmgr_rst_req &
+                         (pwr_i.reset_cause == pwrmgr_pkg::HwReq);
   assign rst_ndm       = ~first_reset & ndm_req_valid;
-  assign rst_low_power = ~first_reset & pwr_i.reset_cause == pwrmgr_pkg::LowPwrEntry;
+  assign rst_low_power = ~first_reset & pwrmgr_rst_req &
+                         (pwr_i.reset_cause == pwrmgr_pkg::LowPwrEntry);
 
   prim_flop_2sync #(
     .Width(1),
     .ResetValue('0)
   ) u_cpu_reset_synced (
     .clk_i,
-    .rst_ni(local_rst_n),
-    .d_i(cpu_i.rst_cpu_n),
+    .rst_ni,
+    .d_i(rst_cpu_n_i),
     .q_o(rst_cpu_nq)
   );
 
   // first reset is a flag that blocks reset recording until first de-assertion
-  always_ff @(posedge clk_i or negedge local_rst_n) begin
-    if (!local_rst_n) begin
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
       first_reset <= 1'b1;
     end else if (rst_cpu_nq) begin
       first_reset <= 1'b0;
@@ -302,6 +409,10 @@ module rstmgr import rstmgr_pkg::*; (
 
   logic dump_capture;
   assign dump_capture =  rst_hw_req | rst_ndm | rst_low_power;
+
+  // halt dump capture once we hit particular conditions
+  logic dump_capture_halt;
+  assign dump_capture_halt = rst_hw_req;
 
   rstmgr_crash_info #(
     .CrashDumpWidth($bits(alert_pkg::alert_crashdump_t))
@@ -330,9 +441,9 @@ module rstmgr import rstmgr_pkg::*; (
   // once dump is captured, no more information is captured until
   // re-eanbled by software.
   assign hw2reg.alert_info_ctrl.en.d  = 1'b0;
-  assign hw2reg.alert_info_ctrl.en.de = dump_capture;
+  assign hw2reg.alert_info_ctrl.en.de = dump_capture_halt;
   assign hw2reg.cpu_info_ctrl.en.d  = 1'b0;
-  assign hw2reg.cpu_info_ctrl.en.de = dump_capture;
+  assign hw2reg.cpu_info_ctrl.en.de = dump_capture_halt;
 
   ////////////////////////////////////////////////////
   // Exported resets                                //
@@ -340,7 +451,7 @@ module rstmgr import rstmgr_pkg::*; (
 % for intf, eps in export_rsts.items():
   % for ep, rsts in eps.items():
     % for rst in rsts:
-  assign resets_${intf}_o.rst_${intf}_${ep}_${rst}_n = resets_o.rst_${rst}_n;
+  assign resets_${intf}_o.rst_${intf}_${ep}_${rst['name']}_n = resets_o.rst_${rst['name']}_n;
     % endfor
   % endfor
 % endfor
@@ -352,13 +463,17 @@ module rstmgr import rstmgr_pkg::*; (
   // Assertions                                     //
   ////////////////////////////////////////////////////
 
+  `ASSERT_INIT(ParameterMatch_A, NumHwResets == pwrmgr_pkg::TotalResetWidth)
+
   // when upstream resets, downstream must also reset
 
   // output known asserts
   `ASSERT_KNOWN(TlDValidKnownO_A,    tl_o.d_valid  )
   `ASSERT_KNOWN(TlAReadyKnownO_A,    tl_o.a_ready  )
+  `ASSERT_KNOWN(AlertsKnownO_A,      alert_tx_o    )
   `ASSERT_KNOWN(PwrKnownO_A,         pwr_o         )
   `ASSERT_KNOWN(ResetsKnownO_A,      resets_o      )
+  `ASSERT_KNOWN(RstEnKnownO_A,       rst_en_o      )
 % for intf in export_rsts:
   `ASSERT_KNOWN(${intf.capitalize()}ResetsKnownO_A, resets_${intf}_o )
 % endfor

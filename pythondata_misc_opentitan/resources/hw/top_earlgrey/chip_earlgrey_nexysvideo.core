@@ -10,6 +10,7 @@ filesets:
       - lowrisc:systems:top_earlgrey:0.1
       - lowrisc:systems:top_earlgrey_pkg
       - lowrisc:systems:padring
+      - lowrisc:systems:ast
       - lowrisc:tool:chip_earlgrey_nexysvideo_size_check
     files:
       - rtl/clkgen_xil7series.sv
@@ -20,7 +21,6 @@ filesets:
     files:
       - data/clocks.xdc
       - data/pins_nexysvideo.xdc
-      - data/placement.xdc
     file_type: xdc
 
   files_tcl:
@@ -35,14 +35,14 @@ filesets:
 parameters:
   # XXX: This parameter needs to be absolute, or relative to the *.runs/synth_1
   # directory. It's best to pass it as absolute path when invoking fusesoc, e.g.
-  # --BootRomInitFile=$PWD/build-bin/sw/device/boot_rom/boot_rom_fpga_nexysvideo.32.vmem
+  # --BootRomInitFile=$PWD/build-bin/sw/device/boot_rom/boot_rom_fpga_nexysvideo.scr.39.vmem
   # XXX: The VMEM file should be added to the sources of the Vivado project to
   # make the Vivado dependency tracking work. However this requires changes to
   # fusesoc first.
   BootRomInitFile:
     datatype: str
-    description: Boot ROM initialization file in 32 bit vmem hex format
-    default: "../../../../../build-bin/sw/device/boot_rom/boot_rom_fpga_nexysvideo.32.vmem"
+    description: Scrambled boot ROM initialization file in 40 bit vmem hex format
+    default: "../../../../../build-bin/sw/device/boot_rom/boot_rom_fpga_nexysvideo.scr.39.vmem"
     paramtype: vlogparam
   OtpCtrlMemInitFile:
     datatype: str

@@ -10,29 +10,36 @@ filesets:
       - lowrisc:ip:tlul
       - lowrisc:prim:all
       - lowrisc:prim:clock_buf
+      - lowrisc:prim:clock_div
       - lowrisc:prim:clock_gating
       - lowrisc:prim:clock_inv
-      - lowrisc:prim:prim_pkg
       - lowrisc:prim:lc_dec
-      - lowrisc:top_earlgrey:pinmux_reg
+      - lowrisc:prim:lfsr
+      - lowrisc:ip:pinmux_reg
       - lowrisc:ip:pinmux_component
+      - lowrisc:prim:prim_pkg
       - lowrisc:ip:lc_ctrl_pkg
       - lowrisc:ip:edn_pkg
+      - lowrisc:ip:rstmgr_pkg
+      - lowrisc:systems:clkmgr_pkg
     files:
       - rtl/ast_reg_pkg.sv
       - rtl/ast_pkg.sv
       - rtl/ast_bhv_pkg.sv
       - rtl/ast.sv
       - rtl/adc.sv
+      - rtl/adc_ana.sv
       - rtl/aon_clk.sv
       - rtl/aon_osc.sv
+      - rtl/ast_dft.sv
       - rtl/ast_reg_top.sv
       - rtl/ast_entropy.sv
+      - rtl/dev_entropy.sv
       - rtl/ast_alert.sv
-      - rtl/vcc_pok.sv
-      - rtl/vio_pok.sv
-      - rtl/vcaon_pok.sv
-      - rtl/vcmain_pok.sv
+      - rtl/vcc_pgd.sv
+      - rtl/vio_pgd.sv
+      - rtl/vcaon_pgd.sv
+      - rtl/vcmain_pgd.sv
       - rtl/io_clk.sv
       - rtl/io_osc.sv
       - rtl/rglts_pdm_3p3v.sv
@@ -44,9 +51,32 @@ filesets:
 
     file_type: systemVerilogSource
 
+  files_verilator_waiver:
+    depend:
+      # common waivers
+      - lowrisc:lint:common
+    files:
+      - lint/ast.vlt
+    file_type: vlt
+
+  files_ascentlint_waiver:
+    depend:
+      # common waivers
+      - lowrisc:lint:common
+    files:
+      - lint/ast.waiver
+    file_type: waiver
+
+  files_veriblelint_waiver:
+    depend:
+      # common waivers
+      - lowrisc:lint:common
 
 parameters:
   SYNTHESIS:
+    datatype: bool
+    paramtype: vlogdefine
+  AST_BYPASS_CLK:
     datatype: bool
     paramtype: vlogdefine
 
@@ -54,15 +84,21 @@ parameters:
 targets:
   default: &default_target
     filesets:
+      - tool_verilator   ? (files_verilator_waiver)
+      - tool_ascentlint  ? (files_ascentlint_waiver)
+      - tool_veriblelint ? (files_veriblelint_waiver)
       - files_rtl
     toplevel: ast
     parameters:
      - SYNTHESIS
+     - AST_BYPASS_CLK
 
 
   lint:
     <<: *default_target
     default_tool: verilator
+    parameters:
+      - SYNTHESIS=true
     tools:
       verilator:
         mode: lint-only

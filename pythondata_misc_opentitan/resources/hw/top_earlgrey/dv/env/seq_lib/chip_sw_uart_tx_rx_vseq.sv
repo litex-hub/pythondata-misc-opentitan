@@ -11,28 +11,40 @@ class chip_sw_uart_tx_rx_vseq extends chip_sw_base_vseq;
   localparam uint UART_RX_FIFO_SIZE = 32;
 
   // A set of bytes expected to be received on TX.
-  rand byte exp_uart_tx_data[];
+  rand bit [7:0] exp_uart_tx_data[];
   constraint exp_uart_tx_data_c {
     exp_uart_tx_data.size() == UART_DATASET_SIZE;
   }
 
   // A set of bytes to be send back over RX.
-  rand byte uart_rx_data[];
+  rand bit [7:0] uart_rx_data[];
   constraint uart_rx_data_c {
     uart_rx_data.size() == UART_DATASET_SIZE;
   }
 
+  bit [7:0] uart_idx = 0;
+
+  task pre_start();
+    void'($value$plusargs("uart_idx=%0d", uart_idx));
+    `DV_CHECK_LT(uart_idx, NUM_UARTS)
+    super.pre_start();
+  endtask
+
   virtual task cpu_init();
+    // sw_symbol_backdoor_overwrite takes an array as the input
+    bit [7:0] uart_idx_data[] = {uart_idx};
+
     super.cpu_init();
-    sw_symbol_backdoor_overwrite("uart_tx_data", exp_uart_tx_data);
-    sw_symbol_backdoor_overwrite("exp_uart_rx_data", uart_rx_data);
+    sw_symbol_backdoor_overwrite("kUartTxData", exp_uart_tx_data);
+    sw_symbol_backdoor_overwrite("kExpUartRxData", uart_rx_data);
+    sw_symbol_backdoor_overwrite("kUartIdx", uart_idx_data);
   endtask
 
   virtual task body();
     super.body();
 
     // Spawn off a thread to retrieve UART TX items.
-    fork get_uart_tx_items(); join_none
+    fork get_uart_tx_items(uart_idx); join_none
 
     // Wait until we receive at least 1 byte from the DUT (SW test).
     wait(uart_tx_data_q.size() > 0);
@@ -56,7 +68,7 @@ class chip_sw_uart_tx_rx_vseq extends chip_sw_base_vseq;
   // Send data over RX.
   virtual task send_uart_rx_data(int size = -1, bit random = 0);
     uart_default_seq send_rx_seq;
-    `uvm_create_on(send_rx_seq, p_sequencer.uart_sequencer_h);
+    `uvm_create_on(send_rx_seq, p_sequencer.uart_sequencer_hs[uart_idx]);
     if (size == -1) size = uart_rx_data.size();
     for (int i = 0; i < size; i++) begin
       byte rx_data = random ? $urandom : uart_rx_data[i];

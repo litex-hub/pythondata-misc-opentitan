@@ -16,6 +16,14 @@ filesets:
       - lowrisc:dv:otbn_model_agent
     files:
       - otbn_env_pkg.sv
+      - otbn_loop_if.sv
+      - otbn_alu_bignum_if.sv
+      - otbn_mac_bignum_if.sv
+      - otbn_rf_base_if.sv
+      - otbn_insn_cnt_if.sv
+      - otbn_controller_if.sv
+      - otbn_trace_item.sv: {is_include_file: true}
+      - otbn_trace_monitor.sv: {is_include_file: true}
       - otbn_env_cfg.sv: {is_include_file: true}
       - otbn_env_cov.sv: {is_include_file: true}
       - otbn_virtual_sequencer.sv: {is_include_file: true}
@@ -26,6 +34,8 @@ filesets:
       - seq_lib/otbn_base_vseq.sv: {is_include_file: true}
       - seq_lib/otbn_common_vseq.sv: {is_include_file: true}
       - seq_lib/otbn_multi_vseq.sv: {is_include_file: true}
+      - seq_lib/otbn_reset_vseq.sv: {is_include_file: true}
+      - seq_lib/otbn_sequential_vseq.sv: {is_include_file: true}
       - seq_lib/otbn_single_vseq.sv: {is_include_file: true}
       - seq_lib/otbn_smoke_vseq.sv: {is_include_file: true}
     file_type: systemVerilogSource

@@ -22,7 +22,8 @@ class sram_ctrl_env extends cip_base_env #(
     super.build_phase(phase);
 
     // Get the OTP clk/rst interface
-    if (!uvm_config_db#(virtual clk_rst_if)::get(this, "", "otp_clk_rst_vif", cfg.otp_clk_rst_vif)) begin
+    if (!uvm_config_db#(virtual clk_rst_if)::get(this, "", "otp_clk_rst_vif",
+        cfg.otp_clk_rst_vif)) begin
       `uvm_fatal(`gfn, "failed to get otp_clk_rst_if from uvm_config_db")
     end
     cfg.otp_clk_rst_vif.set_freq_mhz(cfg.otp_freq_mhz);
@@ -32,9 +33,14 @@ class sram_ctrl_env extends cip_base_env #(
       `uvm_fatal(`gfn, "failed to get lc_vif from uvm_config_db")
     end
 
+    // Get the SRAM execution interface
+    if (!uvm_config_db#(virtual sram_ctrl_exec_if)::get(this, "", "exec_vif", cfg.exec_vif)) begin
+      `uvm_fatal(`gfn, "failed to get exec_vif from uvm_config_db")
+    end
+
     // Get the mem_bkdr interface
-    if (!uvm_config_db#(mem_bkdr_vif)::get(this, "", "mem_bkdr_vif", cfg.mem_bkdr_vif)) begin
-      `uvm_fatal(`gfn, "failed to get mem_bkdr_vif from uvm_config_db")
+    if (!uvm_config_db#(mem_bkdr_util)::get(this, "", "mem_bkdr_util", cfg.mem_bkdr_util_h)) begin
+      `uvm_fatal(`gfn, "failed to get mem_bkdr_util from uvm_config_db")
     end
 
     // Build the TLUL SRAM agent
@@ -50,9 +56,7 @@ class sram_ctrl_env extends cip_base_env #(
       this, "m_kdi_agent", "cfg", cfg.m_kdi_cfg);
     cfg.m_kdi_cfg.en_cov = cfg.en_cov;
 
-    if (cfg.zero_delays) begin
-      cfg.set_sram_zero_delays();
-    end
+    cfg.cfg_sram_zero_delays(cfg.zero_delays);
   endfunction
 
   function void connect_phase(uvm_phase phase);

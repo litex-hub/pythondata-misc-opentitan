@@ -9,6 +9,9 @@ package alert_pkg;
   localparam int unsigned      NAlerts   = alert_handler_reg_pkg::NAlerts;   // maximum 252
   localparam int unsigned      EscCntDw  = alert_handler_reg_pkg::EscCntDw;  // maximum 32
   localparam int unsigned      AccuCntDw = alert_handler_reg_pkg::AccuCntDw; // maximum 32
+  localparam int unsigned      NLpg      = alert_handler_reg_pkg::NLpg;
+  localparam int unsigned      NLpgWidth = alert_handler_reg_pkg::NLpgWidth;
+  localparam logic [NAlerts-1:0][NLpgWidth-1:0] LpgMap = alert_handler_reg_pkg::LpgMap;
   // enable async transitions for specific RX/TX pairs
   localparam bit [NAlerts-1:0] AsyncOn   = alert_handler_reg_pkg::AsyncOn;
 
@@ -25,7 +28,7 @@ package alert_pkg;
   // do not change the phase encoding
   typedef enum logic [2:0] {Idle = 3'b000, Timeout = 3'b001, Terminal = 3'b011,
                             Phase0 = 3'b100, Phase1 = 3'b101, Phase2 = 3'b110,
-                            Phase3 = 3'b111} cstate_e;
+                            Phase3 = 3'b111, FsmError = 3'b010} cstate_e;
 
   // These LFSR parameters have been generated with
   // $ util/design/gen-lfsr-seed.py --width 32 --seed 2700182644
@@ -48,6 +51,15 @@ package alert_pkg;
     cstate_e [N_CLASSES-1:0]                class_esc_state; // current escalation protocol state
   } alert_crashdump_t;
 
+  // Default for dangling connection
+  parameter alert_crashdump_t ALERT_CRASHDUMP_DEFAULT = '{
+    alert_cause: '0,
+    loc_alert_cause: '0,
+    class_accum_cnt: '0,
+    class_esc_cnt: '0,
+    class_esc_state: '0
+  };
+
   // breakout wrapper structs
   typedef struct packed {
     // alerts
@@ -62,9 +74,13 @@ package alert_pkg;
   } hw2reg_wrap_t;
 
   typedef struct packed {
+    // aggregated shadow reg errors (trigger internal alerts)
+    logic                                              shadowed_err_update;
+    logic                                              shadowed_err_storage;
     // ping config
-    logic                                              config_locked;      // locked -> ping enabled
+    logic                                              ping_enable;        // ping timer enable
     logic [PING_CNT_DW-1:0]                            ping_timeout_cyc;   // ping timeout config
+    logic [NAlerts-1:0]                                alert_ping_en;      // ping enable for alerts
     // alert config
     logic [N_LOC_ALERT-1:0]                            loc_alert_en;       // alert enable
     logic [N_LOC_ALERT-1:0][CLASS_DW-1:0]              loc_alert_class;    // alert class config
@@ -78,6 +94,8 @@ package alert_pkg;
     logic [N_CLASSES-1:0][N_PHASES-1:0][EscCntDw-1:0]  class_phase_cyc;    // length of phases 0..3
     logic [N_CLASSES-1:0][N_ESC_SEV-1:0]               class_esc_en;       // esc signal enables
     logic [N_CLASSES-1:0][N_ESC_SEV-1:0][PHASE_DW-1:0] class_esc_map;      // esc signal/phase map
+    // determines when to latch the crashdump output.
+    logic [N_CLASSES-1:0][PHASE_DW-1:0]                class_crashdump_phase;
   } reg2hw_wrap_t;
 
 endpackage : alert_pkg

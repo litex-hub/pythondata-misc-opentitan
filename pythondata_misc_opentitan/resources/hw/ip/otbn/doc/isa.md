@@ -61,6 +61,9 @@ Memory loads are represented as `DMEM.load_u32(addr)`, `DMEM.load_u256(addr)`.
 Memory stores are represented as `DMEM.store_u32(addr, value)` and `DMEM.store_u256(addr, value)`.
 In all cases, memory values are interpreted as unsigned integers and, as for register accesses, the instruction descriptions are written to ensure that any value stored to memory is representable.
 
+Some instructions can stall for one or more cycles (those instructions that access memory, CSRs or WSRs).
+To represent this precisely in the pseudo-code, and the simulator reference model, such instructions execute a `yield` statement to stall the processor for a cycle.
+
 There are a few other helper functions, defined here to avoid having to inline their bodies into each instruction.
 ```python3
 def from_2s_complement(n: int) -> int:
@@ -100,6 +103,23 @@ def extract_quarter_word(value: int, qwsel: int) -> int:
     assert 0 <= qwsel <= 3
     return (value >> (qwsel * 64)) & ((1 << 64) - 1)
 ```
+
+# Errors
+
+OTBN can detect various errors when it is operating.
+For details about OTBN's approach to error handling, see the [Errors section]({{< relref ".#design-details-errors" >}}) of the Technical Specification.
+The instruction descriptions below describe any software errors that executing the instruction can cause.
+These errors are listed explicitly and also appear in the pseudo-code description, where the code sets a bit in the `ERR_BITS` register with a call to `state.stop_at_end_of_cycle()`.
+
+Other errors are possible at runtime.
+Specifically, any instruction that reads from a GPR or WDR might detect a register integrity error.
+In this case, OTBN will set the `REG_INTG_VIOLATION` bit.
+Similarly, an instruction that loads from memory might detect a DMEM integrity error.
+In this case, OTBN will set the `DMEM_INTG_VIOLATION` bit.
+
+TODO:
+Specify interactions between these fatal errors and any other errors.
+In particular, how do they interact with instructions that could cause other errors as well?
 
 <!-- Documentation for the instructions in the ISA. Generated from ../data/insns.yml. -->
 # Base Instruction Subset

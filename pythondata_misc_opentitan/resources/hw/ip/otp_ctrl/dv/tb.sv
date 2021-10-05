@@ -9,10 +9,26 @@ module tb;
   import otp_ctrl_env_pkg::*;
   import otp_ctrl_test_pkg::*;
   import otp_ctrl_reg_pkg::*;
+  import mem_bkdr_util_pkg::mem_bkdr_util;
 
   // macro includes
   `include "uvm_macros.svh"
   `include "dv_macros.svh"
+
+  // TB base test ENV_T & CFG_T specification
+  //
+  // Specify the parameters for the otp_ctrl_base_test
+  // This will invoke the UVM registry and link this test type to
+  // the name 'otp_ctrl_base_test' as a test name passed by UVM_TESTNAME
+  //
+  // This is done explicitly only for the prim_pkg::ImplGeneric implementation
+  // since partner base tests inherit from otp_ctrl_base_test#(CFG_T, ENV_T) and
+  // specify directly (CFG_T, ENV_T) via the class extension and use a different
+  // UVM_TESTNAME
+  if (`PRIM_DEFAULT_IMPL==prim_pkg::ImplGeneric) begin : gen_spec_base_test_params
+    typedef otp_ctrl_base_test #(.CFG_T(otp_ctrl_env_cfg),
+                                 .ENV_T(otp_ctrl_env)) otp_ctrl_base_test_t;
+  end
 
   wire clk, rst_n;
   wire devmode;
@@ -26,8 +42,7 @@ module tb;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
   wire intr_otp_operation_done, intr_otp_error;
 
-  //TODO: use push-pull agent once support
-  wire otp_ctrl_pkg::otp_ast_req_t        ast_req;
+  wire otp_ctrl_pkg::otp_ast_req_t ast_req;
 
   // interfaces
   clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
@@ -36,11 +51,9 @@ module tb;
 
   // lc_otp interfaces
   push_pull_if #(.HostDataWidth(LC_PROG_DATA_SIZE), .DeviceDataWidth(1))
-                 lc_prog_if(.clk(clk), .rst_n(rst_n));
-  push_pull_if #(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)) lc_token_if(.clk(clk), .rst_n(rst_n));
-
+               lc_prog_if(.clk(clk), .rst_n(rst_n));
   push_pull_if #(.DeviceDataWidth(SRAM_DATA_SIZE))
-                 sram_if[NumSramKeyReqSlots](.clk(clk), .rst_n(rst_n));
+               sram_if[NumSramKeyReqSlots](.clk(clk), .rst_n(rst_n));
   push_pull_if #(.DeviceDataWidth(OTBN_DATA_SIZE)) otbn_if(.clk(clk), .rst_n(rst_n));
   push_pull_if #(.DeviceDataWidth(FLASH_DATA_SIZE)) flash_addr_if(.clk(clk), .rst_n(rst_n));
   push_pull_if #(.DeviceDataWidth(FLASH_DATA_SIZE)) flash_data_if(.clk(clk), .rst_n(rst_n));
@@ -56,6 +69,14 @@ module tb;
 
   assign otp_ctrl_if.lc_prog_req = lc_prog_if.req;
   assign otp_ctrl_if.lc_prog_err = lc_prog_if.d_data;
+  // This signal probes design's alert request to avoid additional logic for triggering alert and
+  // disable assertions.
+  // Alert checkings are done independently in otp_ctrl's scb.
+  // The correctness of this probed signal is checked in otp_ctrl's scb as well.
+  assign otp_ctrl_if.alert_reqs = dut.alerts[0] | dut.alerts[1];
+
+  // leave this unconnected for now.
+  wire otp_ext_voltage_h;
 
   // dut
   otp_ctrl dut (
@@ -66,9 +87,12 @@ module tb;
     .rst_edn_ni                 (edn_rst_n  ),
     .edn_o                      (edn_if.req ),
     .edn_i                      ({edn_if.ack, edn_if.d_data}),
-
-    .tl_i                       (tl_if.h2d  ),
-    .tl_o                       (tl_if.d2h  ),
+    // bus interfaces
+    .core_tl_i                  (tl_if.h2d  ),
+    .core_tl_o                  (tl_if.d2h  ),
+    // TODO: add second TL interface
+    .prim_tl_i                  ('0         ),
+    .prim_tl_o                  ('0         ),
     // interrupt
     .intr_otp_operation_done_o  (intr_otp_operation_done),
     .intr_otp_error_o           (intr_otp_error),
@@ -78,14 +102,15 @@ module tb;
     // ast
     .otp_ast_pwr_seq_o          (ast_req),
     .otp_ast_pwr_seq_h_i        (otp_ctrl_if.otp_ast_pwr_seq_h_i),
+    .otp_alert_o                (otp_ctrl_if.otp_alert_o),
     // pwrmgr
     .pwr_otp_i                  (otp_ctrl_if.pwr_otp_init_i),
     .pwr_otp_o                  ({otp_ctrl_if.pwr_otp_done_o, otp_ctrl_if.pwr_otp_idle_o}),
     // lc
+    .lc_otp_vendor_test_o       (otp_ctrl_if.otp_vendor_test_status_o),
+    .lc_otp_vendor_test_i       (otp_ctrl_if.otp_vendor_test_ctrl_i),
     .lc_otp_program_i           ({lc_prog_if.req, lc_prog_if.h_data}),
     .lc_otp_program_o           ({lc_prog_if.d_data, lc_prog_if.ack}),
-    .lc_otp_token_i             ({lc_token_if.req, lc_token_if.h_data}),
-    .lc_otp_token_o             ({lc_token_if.ack, lc_token_if.d_data}),
     .lc_creator_seed_sw_rw_en_i (otp_ctrl_if.lc_creator_seed_sw_rw_en_i),
     .lc_seed_hw_rd_en_i         (otp_ctrl_if.lc_seed_hw_rd_en_i),
     .lc_dft_en_i                (otp_ctrl_if.lc_dft_en_i),
@@ -104,7 +129,17 @@ module tb;
     .otbn_otp_key_i             (otbn_req),
     .otbn_otp_key_o             (otbn_rsp),
 
-    .otp_hw_cfg_o               (otp_ctrl_if.otp_hw_cfg_o)
+    .otp_hw_cfg_o               (otp_ctrl_if.otp_hw_cfg_o),
+    .otp_ext_voltage_h_io       (otp_ext_voltage_h),
+
+    //scan
+    .scan_en_i                  (otp_ctrl_if.scan_en_i),
+    .scan_rst_ni                (otp_ctrl_if.scan_rst_ni),
+    .scanmode_i                 (otp_ctrl_if.scanmode_i),
+
+    // Test-related GPIO output
+    .cio_test_o                 (),
+    .cio_test_en_o              ()
   );
 
   for (genvar i = 0; i < NumSramKeyReqSlots; i++) begin : gen_sram_pull_if
@@ -126,26 +161,67 @@ module tb;
   assign flash_data_if.d_data = {flash_rsp.key, flash_rsp.seed_valid};
   assign flash_addr_if.d_data = {flash_rsp.key, flash_rsp.seed_valid};
 
-  // bind mem_bkdr_if
-  `define OTP_CTRL_MEM_HIER \
-      dut.u_otp.gen_generic.u_impl_generic.u_prim_ram_1p_adv.u_mem.gen_generic.u_impl_generic
-
   assign interrupts[OtpOperationDone] = intr_otp_operation_done;
   assign interrupts[OtpErr]           = intr_otp_error;
 
-  bind `OTP_CTRL_MEM_HIER mem_bkdr_if #(.MEM_ECC(1)) mem_bkdr_if();
+  // Instantitate the memory backdoor util instance only for OS implementation
+  // Proprietary IP will instantiate their own backdoor util
+
+  if (`PRIM_DEFAULT_IMPL == prim_pkg::ImplGeneric) begin : gen_impl_generic
+    `define MEM_MODULE_PATH \
+        tb.dut.u_otp.gen_generic.u_impl_generic.u_prim_ram_1p_adv
+
+    `define MEM_ARRAY_PATH \
+        `MEM_MODULE_PATH.u_mem.gen_generic.u_impl_generic.mem
+
+    initial begin : mem_bkdr_util_gen
+      mem_bkdr_util m_mem_bkdr_util;
+      m_mem_bkdr_util = new(.name("mem_bkdr_util"),
+                            .path(`DV_STRINGIFY(`MEM_ARRAY_PATH)),
+                            .depth($size(`MEM_ARRAY_PATH)),
+                            .n_bits($bits(`MEM_ARRAY_PATH)),
+                            .err_detection_scheme(mem_bkdr_util_pkg::EccHamming_22_16));
+
+      uvm_config_db#(mem_bkdr_util)::set(null, "*.env", "mem_bkdr_util", m_mem_bkdr_util);
+    end : mem_bkdr_util_gen
+
+    `undef MEM_ARRAY_PATH
+    `undef MEM_MODULE_PATH
+  end : gen_impl_generic
 
   initial begin
-    // these SVA checks the lc_escalate_en is either Off or On, we will use more than these 2 values.
-    // If it's not Off, it should be On
-    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.CheckTransients_A);
-    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.CheckTransients0_A);
-    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.CheckTransients1_A);
+    // These SVA checks the lc_escalate_en is either Off or On, we will use more than these
+    // 2 values.
+    // If it's not Off, it should be On.
+    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.PrimLcSyncCheckTransients_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.PrimLcSyncCheckTransients0_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_escalate_en.PrimLcSyncCheckTransients1_A);
+
+    // These SVA checks the lc_sync_seed_hw_rd_en is either Off or On, we will use more than these
+    // 2 values.
+    // If it's not On, it should be Off.
+    $assertoff(0, tb.dut.u_prim_lc_sync_seed_hw_rd_en.PrimLcSyncCheckTransients_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_seed_hw_rd_en.PrimLcSyncCheckTransients0_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_seed_hw_rd_en.PrimLcSyncCheckTransients1_A);
+
+    // These SVA checks the lc_check_byp_en is either Off or On, we will use more than these
+    // 2 values.
+    // If it's not On, it should be Off.
+    $assertoff(0, tb.dut.u_prim_lc_sync_check_byp_en.PrimLcSyncCheckTransients_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_check_byp_en.PrimLcSyncCheckTransients0_A);
+    $assertoff(0, tb.dut.u_prim_lc_sync_check_byp_en.PrimLcSyncCheckTransients1_A);
+
+    // DV forced otp_cmd_i to reach invalid state, thus violate the assertions
+    $assertoff(0, tb.dut.gen_partitions[3].gen_buffered.u_part_buf.OtpErrorState_A);
+    $assertoff(0, tb.dut.gen_partitions[4].gen_buffered.u_part_buf.OtpErrorState_A);
+    $assertoff(0, tb.dut.gen_partitions[5].gen_buffered.u_part_buf.OtpErrorState_A);
+    $assertoff(0, tb.dut.gen_partitions[6].gen_buffered.u_part_buf.OtpErrorState_A);
 
     // drive clk and rst_n from clk_if
     clk_rst_if.set_active();
     uvm_config_db#(virtual clk_rst_if)::set(null, "*.env", "clk_rst_vif", clk_rst_if);
-    uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent*", "vif", tl_if);
+    uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent_otp_ctrl_core_reg_block*",
+                                       "vif", tl_if);
     uvm_config_db#(virtual push_pull_if#(.DeviceDataWidth(OTBN_DATA_SIZE)))::set(null,
                    "*env.m_otbn_pull_agent*", "vif", otbn_if);
     uvm_config_db#(virtual push_pull_if#(.DeviceDataWidth(FLASH_DATA_SIZE)))::set(null,
@@ -154,18 +230,13 @@ module tb;
                    "*env.m_flash_addr_pull_agent*", "vif", flash_addr_if);
     uvm_config_db#(virtual push_pull_if#(.HostDataWidth(LC_PROG_DATA_SIZE), .DeviceDataWidth(1)))::
                    set(null, "*env.m_lc_prog_pull_agent*", "vif", lc_prog_if);
-    uvm_config_db#(virtual push_pull_if#(.HostDataWidth(lc_ctrl_state_pkg::LcTokenWidth)))::
-                   set(null, "*env.m_lc_token_pull_agent*", "vif", lc_token_if);
 
     uvm_config_db#(intr_vif)::set(null, "*.env", "intr_vif", intr_if);
     uvm_config_db#(devmode_vif)::set(null, "*.env", "devmode_vif", devmode_if);
-    uvm_config_db#(mem_bkdr_vif)::set(null, "*.env", "mem_bkdr_vif",
-                                      `OTP_CTRL_MEM_HIER.mem_bkdr_if);
 
     uvm_config_db#(virtual otp_ctrl_if)::set(null, "*.env", "otp_ctrl_vif", otp_ctrl_if);
     $timeformat(-12, 0, " ps", 12);
     run_test();
   end
 
-  `undef OTP_CTRL_MEM_HIER
 endmodule

@@ -156,7 +156,8 @@ instance `<number>`.
 Signal                  | Direction        | Type                      | Description
 ------------------------|------------------|----------------           |---------------
 `crashdump_o`           | `output`         | packed `struct`           | This is a collection of alert handler state registers that can be latched by hardware debugging circuitry, if needed.
-`entropy_i`             | `input`          | `logic`                   | Entropy input bit for LFSRtimer (can be connected to TRNG, otherwise tie off to `1'b0` if unused).
+`otp_edn_o`             | `output`         | `otp_edn_req_t`           | Entropy request to the entropy distribution network for LFSR reseeding and ephemeral key derivation.
+`otp_edn_i`             | `input`          | `otp_edn_rsp_t`           | Entropy acknowledgment to the entropy distribution network for LFSR reseeding and ephemeral key derivation.
 `alert_tx_i[<number>]`  | `input`          | packed `alert_tx_t` array | Incoming alert or ping response(s), differentially encoded. Index range: `[NAlerts-1:0]`
 `alert_rx_o[<number>]`  | `output`         | packed `alert_rx_t` array | Outgoing alert acknowledgment and ping requests, differentially encoded. Index range: `[NAlerts-1:0]`
 `esc_tx_o[<sev>]`       | `output`         | packed `esc_tx_t` array   | Escalation or ping request, differentially encoded. Index corresponds to severity level, and ranges from 0 to 3.
@@ -173,13 +174,13 @@ that all alert senders are always active and have not been the target of an
 attack. Note that low power states are not considered at this time, but could
 affect the signaling and testing of alerts.
 
-The `crashdump_o` struct outputs a collection of CSRs and alert handler state bits that can be latched by hardware debugging circuitry:
+The `crashdump_o` struct outputs a snapshot of CSRs and alert handler state bits that can be read by hardware debugging circuitry:
 
 ```systemverilog
   typedef struct packed {
     // alerts
     logic    [NAlerts-1:0] alert_cause;     // alert cause bits
-    logic    [3:0]         loc_alert_cause; // local alert cause bits
+    logic    [6:0]         loc_alert_cause; // local alert cause bits
     // class state
     logic    [3:0][15:0]   class_accum_cnt; // current accumulator value
     logic    [3:0][31:0]   class_esc_cnt;   // current escalation counter value
@@ -190,6 +191,9 @@ The `crashdump_o` struct outputs a collection of CSRs and alert handler state bi
 This can be useful for extracting more information about possible failures or bugs without having to use the tile-link bus interface (which may become unresponsive under certain circumstances).
 It is recommended for the top level to store this information in an always-on location.
 
+Note that the crashdump state is continuously output via `crashdump_o` until the latching trigger condition is true for the first time (see {{< regref CLASSA_CRASHDUMP_TRIGGER_SHADOWED >}}).
+After that, the `crashdump_o` is held constant and the alert handler has to be reset in order to re-arm the crashdump latching mechanism.
+This is done so that it is possible to capture the true alert cause before spurious alert events start to pop up due to escalation countermeasures with excessive side effects (like life cycle scrapping for example).
 
 ## Design Details
 
@@ -405,46 +409,38 @@ staggered level changes appear at most 1 cycle apart from each other.
 
 ### LFSR Timer
 
-The `ping_req_i` inputs of all signaling modules (`prim_alert_receiver`, `prim_esc_sender`) instantiated within the alert handler are connected to a central ping timer that determines the random amount of wait cycles between ping requests.
-Further, this ping timer also randomly selects a particular line to be pinged.
+The `ping_req_i` inputs of all signaling modules (`prim_alert_receiver`, `prim_esc_sender`) instantiated within the alert handler are connected to a central ping timer that alternatingly pings either an alert line or an escalation line after waiting for a pseudo-random amount of clock cycles.
+Further, this ping timer also randomly selects a particular alert line to be pinged (escalation senders are always pinged in-order due to the [ping monitoring mechanism]({{< relref "#monitoring-of-pings-at-the-escalation-receiver-side" >}}) on the escalation side).
 That should make it more difficult to predict the next ping occurrence based on past observations.
 
-The ping timer is implemented using an
-[LFSR-based PRNG of Galois type]({{< relref "hw/ip/prim/doc/prim_lfsr.md" >}}). In order
-to increase the entropy of the pseudo random sequence, 1 random bit from the
-TRNG is XOR'ed into the LFSR state every time a new random number is drawn
-(which happens every few 10k cycles). The LFSR is 32bits wide, but only 24bits
-of its state are actually being used to generate the random timer count and
-select the alert/escalation line to be pinged. I.e., the 32bits first go through
-a fixed permutation function, and then bits `[23:16]` are used to determine which
-peripheral to ping. The random cycle count is created by splitting bits `[15:0]`
-and concatenating them as follows:
+The ping timer is implemented using an [LFSR-based PRNG of Galois type]({{< relref "hw/ip/prim/doc/prim_lfsr.md" >}}).
+This ping timer is reseeded with fresh entropy from EDN roughly every 500k cycles which corresponds to around 16 ping operations on average.
+The LFSR is 32bits wide, but only 24bits of its state are actually being used to generate the random timer count and select the alert line to be pinged.
+I.e., the 32bits first go through a fixed permutation function, and then bits `[23:16]` are used to determine which alert line to ping.
+The random cycle count is created by OR'ing bits `[15:0]` with the constant `3'b100` as follows:
 
 ```
-cycle_cnt = {permuted[15:2], 8'b01, permuted[1:0]}
+cycle_cnt = permuted[15:0] | 3'b100;
 ```
 
-This constant DC offset introduces a minimum ping spacing of 4 cycles (1 cycle +
-margin) to ensure that the handshake protocols of the sender receiver pairs work.
+This constant DC offset introduces a minimum ping spacing of 4 cycles (1 cycle + margin) to ensure that the handshake protocols of the sender/receiver pairs work.
 
-After selecting one of the peripherals to ping, the LFSR timer waits until
-either the corresponding `*_ping_ok[<number>]`  signal is asserted, or until the
-programmable ping timeout value is reached. In both cases, the LFSR timer
-proceeds with the next ping, but in the second case it will additionally raise a
-"pingfail" alert. The ping enable signal remains asserted during the time where
-the LFSR counter waits.
+After selecting one of the peripherals to ping, the LFSR timer waits until either the corresponding `*_ping_ok[<number>]`  signal is asserted, or until the programmable ping timeout value is reached.
+In both cases, the LFSR timer proceeds with the next ping, but in the second case it will additionally raise a "pingfail" alert.
+The ping enable signal remains asserted during the time where the LFSR counter waits.
 
-The timeout value is a function of the ratios between the alert handler clock
-and peripheral clocks present in the system, and can be programmed at startup
-time via the register {{< regref "PING_TIMEOUT_CYC" >}}. Note that this register is locked in
-together with the alert enable and disable configuration.
+The timeout value is a function of the ratios between the alert handler clock and peripheral clocks present in the system, and can be programmed at startup time via the register {{< regref "PING_TIMEOUT_CYC" >}}.
 
-The ping timer starts as soon as the initial configuration phase is over and the
-registers have been locked in.
+Note that the ping timer directly flags a "pingfail" alert if a spurious "ping ok" message comes in that has not been requested.
 
-Note that the ping timer directly flags a "pingfail" alert if a spurious "ping
-ok" message comes in that has not been requested.
 
+As described in the programmers guide below, the ping timer has to be enabled explicitly.
+Only alerts that have been *enabled and locked* will be pinged in order to avoid spurious alerts.
+Escalation channels are always enabled, and hence will always be pinged once this mechanism has been turned on.
+
+In addition to the ping timer mechanism described above, the escalation receivers contain monitoring  counters that monitor the liveness of the alert handler (described in more detail in [this section]({{< relref "#monitoring-of-pings-at-the-escalation-receiver-side" >}})).
+This mechanism requires that the maximum wait time between escalation receiver pings is bounded.
+To that end, escalation senders are pinged in-order every second ping operation (i.e., the wait time is randomized, but the selection of the escalation line is not).
 
 ### Alert Receiving
 
@@ -718,6 +714,7 @@ Further, any differential signal mismatch on both the `esc_tx_i.esc_p/n` and `es
 Mismatches on `esc_rx_i.resp_p/n` can be directly detected at the sender.
 Mismatches on the `esc_tx_i.esc_p/n` line will be signaled back to the sender by setting both the positive and negative response wires to the same value - and that value is being toggled each cycle.
 This implicitly triggers a signal integrity alert on the sender side.
+In addition to that, a signal integrity error on the `esc_tx_i.esc_p/n` lines will lead to assertion of the `esc_req_o` output, since it cannot be guaranteed that the back signalling mechanism always works when the sender / receiver pair is being tampered with.
 
 This back-signaling mechanism can be leveraged to fast-track escalation and use
 another countermeasure in case it is detected that a particular escalation
@@ -737,7 +734,7 @@ Some signal integrity failure cases are illustrated in the wave diagram below:
     { name: 'esc_rx_i.resp_n', wave: '1....|.01010',  node: '.......d' },
     { name: 'esc_tx_i.esc_p',  wave: '0....|1.....',  node: '......c..' },
     { name: 'esc_tx_i.esc_n',  wave: '1....|......' },
-    { name: 'esc_req_o',       wave: '0....|......'},
+    { name: 'esc_req_o',       wave: '0....|1.....'},
   ],
   edge: [
    'a~>b',
@@ -803,6 +800,42 @@ An ongoing ping sequence will be aborted immediately.
 Another thing to note is that the ping and escalation response sequences have to start _exactly_ one cycle after either a ping or escalation event has been signalled.
 Otherwise the escalation sender will assert `integ_fail_o` immediately.
 
+### Monitoring of Pings at the Escalation Receiver Side
+
+Escalation receivers contain a mechanism to monitor the liveness of the alert handler itself.
+In particular, the receivers passively monitor the ping requests sent out by the alert handler using a timeout counter.
+If ping requests are absent for too long, the corresponding escalation action will be automatically asserted until reset.
+
+The monitoring mechanism builds on top of the following properties of the alert handler system:
+1. the ping mechanism can only be enabled, but not disabled.
+This allows us to start the timeout counter once the first ping request arrives at a particular escalation receiver.
+
+2. the escalation receivers are in the same clock/reset domain as the alert handler.
+This ensures that we are seeing the same clock frequency, and the mechanism is properly reset together with the alert handler logic.
+
+3. the maximum cycle count between subsequent pings on the same escalation line is bounded, even though the wait counts are randomized.
+This allows us to compute a safe and fixed timeout threshold based on design constants.
+
+### Hardening Against Glitch Attacks
+
+In addition to the differential alert and escalation signalling scheme, the internal state machines and counters are hardened against glitch attacks as described bellow:
+
+1. Ping Timer:
+  - The FSM is sparsely encoded.
+  - The LFSR and the counter are duplicated.
+  - If the FSM or counter are glitched into an invalid state, all internal ping fail alerts will be permanently asserted.
+
+2. Escalation Timers:
+  - The escalation timer FSMs are sparsely encoded.
+  - The escalation timer counters are duplicated.
+  - The escalation accumulators are duplicated.
+  - If one of these FSMs, counters or accumulators are glitched into an invalid state, all escalation actions will be triggered and the affected FSM goes into a terminal `FsmError` state.
+
+3. CSRs (**TODO: this is TBD and not implemented yet**):
+  - Critical configuration CSRs are shadowed.
+  - The shadow CSRs can trigger additional internal alerts for CSR storage and update failures.
+    These internal alerts are fed back into the alert classifier in the same manner as the ping and integrity failure alerts.
+
 # Programmers Guide
 
 
@@ -823,10 +856,16 @@ the security settings process) should do the following:
 1. For each alert and each local alert:
 
     - Determine if alert is enabled (should only be false if alert is known to
-      be faulty). Set {{< regref "ALERT_EN.EN_A0" >}} and {{< regref "LOC_ALERT_EN.EN_LA0" >}} accordingly.
+      be faulty).
+      Set {{< regref "ALERT_EN.EN_A0" >}} and {{< regref "LOC_ALERT_EN.EN_LA0" >}} accordingly.
 
     - Determine which class (A..D) the alert is associated with. Set
       {{< regref "ALERT_CLASS.CLASS_A" >}} and {{< regref "LOC_ALERT_CLASS.CLASS_LA" >}} accordingly.
+
+    - Optionally lock each alert configuration by writing 0 to {{< regref "ALERT_EN_REGWEN.EN0" >}} or {{< regref "LOC_ALERT_EN_REGWEN.EN0" >}}.
+      Note however that only **locked and enabled** alerts are going to be pinged using the ping mechanism.
+      This ensures that spurious ping failures cannot occur when previously enabled alerts are being disabled again (before locking).
+
 
 2. Set the ping timeout value {{< regref "PING_TIMEOUT_CYC" >}}. This value is dependent on
    the clock ratios present in the system.
@@ -864,11 +903,12 @@ the security settings process) should do the following:
           program it via the {{< regref "CLASSA_CTRL.E0_MAP" >}} values if it needs to be
           changed from the default mapping (0->0, 1->1, 2->2, 3->3).
 
-4. After initial configuration at startup, lock the alert enable and escalation
-config registers by writing 1 to {{< regref "REGWEN" >}}. This protects the registers from being
-altered later on, and activates the ping mechanism for the enabled alerts and
-escalation signals.
+    - Optionally lock the class configuration by writing 0 to {{< regref "CLASSA_CTRL.REGWEN" >}}.
 
+4. After initial configuration at startup, enable the ping timer mechanism by writing 1 to {{< regref "PING_TIMER_EN" >}}.
+It is also recommended to lock the ping timer configuration by clearing {{< regref "PING_TIMER_REGWEN" >}}.
+Note that only **locked and enabled** alerts are going to be pinged using the ping mechanism.
+This ensures that spurious ping failures cannot occur when previously enabled alerts are being disabled again (before locking).
 
 ## Interrupt Handling
 
@@ -900,10 +940,10 @@ the following steps:
 the interrupt as follows:
 
     - Resetting the accumulation register for the class by writing {{< regref "CLASSA_CLR" >}}.
-      This also aborts escalation protocol if it has been triggered. If for some
+      This also aborts the escalation protocol if it has been triggered. If for some
       reason it is desired to never allow the accumulator or escalation to be
-      cleared, software can initialize the {{< regref "CLASSA_REGWEN" >}} register to zero.
-      If {{< regref "CLASSA_REGWEN" >}} is already false when an alert interrupt is detected
+      cleared, software can initialize the {{< regref "CLASSA_CLR_REGWEN" >}} register to zero.
+      If {{< regref "CLASSA_CLR_REGWEN" >}} is already false when an alert interrupt is detected
       (either due to software control or hardware trigger via
       {{< regref "CLASSA_CTRL.LOCK" >}}), then the accumulation counter can not be cleared and
       this step has no effect.
@@ -981,25 +1021,3 @@ added in the future.
   from the peripheral IPs which can pause ping testing IFF this low-power mode
   has been enabled during initial configuration.
 
-- Support for LFSR cross checking. This feature adds a second redundant LFSR to
-  enable continuous comparison of the timer states. If they are not consistent
-  (e.g. due to a glitch attack), a local alert will be raised. One idea would be
-  to operate a Galois and Fibonacci implementation in parallel, since under
-  certain circumstances they are guaranteed to produce the same sequence - yet
-  with a differently wired logic and hence different response to glitching
-  attacks. This needs some further theoretical work in order to validate whether
-  this can work (there may be restrictions on the polynomials that can be used,
-  and the initial states of the two LFSRs need to be correctly computed).
-
-- Monitoring of the pings in order to make sure that every peripheral has been
-  pinged during a certain time window. Since a full histogram approach would be
-  expensive and is not really needed, the idea is to add a bank of set regs (one
-  for each peripheral) which are set whenever a peripheral has successfully been
-  pinged. Every now and then, these registers need to be checked. They could be
-  exposed to SW in a similar manner as the cause / interrupt state bits such
-  that SW can do the checking. HW could check these registers after a certain
-  amount of correctly executed pings, and raise a local alert if not all
-  peripherals have been exercised. Note however that since we have an entropy
-  input in the LFSR timer, there is no way to guarantee a safe #pings threshold
-  in this case. I.e., there is always a small probability of triggering false
-  positives which have to be handled in SW.

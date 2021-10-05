@@ -36,6 +36,9 @@ ci/scripts/check-licence-headers.sh $tgt_branch
 echo -e "\n### Check executable bits"
 ci/scripts/exec-check.sh
 
+echo -e "\n### Check for non-ASCII characters in source code"
+ci/scripts/check-ascii.sh
+
 echo -e "\n### Run Python lint (flake8)"
 ci/scripts/python-lint.sh $tgt_branch || {
     echo "(ignoring python lint errors)"
@@ -52,6 +55,10 @@ ci/scripts/clang-format.sh $tgt_branch
 
 echo -e "\n### Check formatting on header guards"
 ci/scripts/include-guard.sh $tgt_branch
+
+echo -e "\n### Check formatting of files on allow list with Verible"
+# This script is allowed to fail for now
+ci/scripts/verible-format.sh || true
 
 echo -e "\n### Style-Lint RTL Verilog source files with Verible"
 ci/scripts/verible-lint.sh rtl
