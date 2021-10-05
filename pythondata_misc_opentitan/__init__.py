@@ -4,45 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post5939"
-version_tuple = (0, 0, 5939)
+version_str = "0.0.post8134"
+version_tuple = (0, 0, 8134)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post5939")
+    pversion = V("0.0.post8134")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post5844"
-data_version_tuple = (0, 0, 5844)
+data_version_str = "0.0.post8029"
+data_version_tuple = (0, 0, 8029)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post5844")
+    pdata_version = V("0.0.post8029")
 except ImportError:
     pass
-data_git_hash = "dcee03a96bea3246a99de80c03055312015843ca"
-data_git_describe = "v0.0-5844-gdcee03a96"
+data_git_hash = "45cb5d38bc86d0147801dc3a81130ba29be4ad9c"
+data_git_describe = "v0.0-8029-g45cb5d38b"
 data_git_msg = """\
-commit dcee03a96bea3246a99de80c03055312015843ca
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Apr 16 14:52:24 2021 -0700
+commit 45cb5d38bc86d0147801dc3a81130ba29be4ad9c
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Oct 5 18:23:33 2021 +0100
 
-    [dv/dv_macros] Fix DV_PRINT_ARR_CONTENTS
+    [otbn] Disable writing to CTRL.software_errs_fatal in CSR tests
     
-    For array `arr` with a single value 42, DV_PRINT_ARR_CONTENTS
-    should print `arr[0] = 42 (0x2a)`; it currently prints
-    `arr[0] = 0x42[0x2a]`.
+    Writes don't work currently as the field is unimplemented.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Fixes #8525
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post95"
-tool_version_tuple = (0, 0, 95)
+tool_version_str = "0.0.post105"
+tool_version_tuple = (0, 0, 105)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post95")
+    ptool_version = V("0.0.post105")
 except ImportError:
     pass
 
