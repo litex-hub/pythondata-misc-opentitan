@@ -4,45 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8134"
-version_tuple = (0, 0, 8134)
+version_str = "0.0.post8144"
+version_tuple = (0, 0, 8144)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8134")
+    pversion = V("0.0.post8144")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8029"
-data_version_tuple = (0, 0, 8029)
+data_version_str = "0.0.post8036"
+data_version_tuple = (0, 0, 8036)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8029")
+    pdata_version = V("0.0.post8036")
 except ImportError:
     pass
-data_git_hash = "45cb5d38bc86d0147801dc3a81130ba29be4ad9c"
-data_git_describe = "v0.0-8029-g45cb5d38b"
+data_git_hash = "037bfc2050f481b4d5e673d2cc008ceb3fc013e0"
+data_git_describe = "v0.0-8036-g037bfc205"
 data_git_msg = """\
-commit 45cb5d38bc86d0147801dc3a81130ba29be4ad9c
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Oct 5 18:23:33 2021 +0100
+commit 037bfc2050f481b4d5e673d2cc008ceb3fc013e0
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Oct 5 10:13:58 2021 -0700
 
-    [otbn] Disable writing to CTRL.software_errs_fatal in CSR tests
+    [dv/full_chip] Create pwrmgr testutils
     
-    Writes don't work currently as the field is unimplemented.
+    There are many tests that need to trigger wakeups from different IPs,
+    so this abstracts one of the common pwrmgr operation.
     
-    Fixes #8525
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post105"
-tool_version_tuple = (0, 0, 105)
+tool_version_str = "0.0.post108"
+tool_version_tuple = (0, 0, 108)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post105")
+    ptool_version = V("0.0.post108")
 except ImportError:
     pass
 
