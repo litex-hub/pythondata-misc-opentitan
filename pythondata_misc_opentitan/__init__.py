@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8144"
-version_tuple = (0, 0, 8144)
+version_str = "0.0.post8145"
+version_tuple = (0, 0, 8145)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8144")
+    pversion = V("0.0.post8145")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8036"
-data_version_tuple = (0, 0, 8036)
+data_version_str = "0.0.post8037"
+data_version_tuple = (0, 0, 8037)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8036")
+    pdata_version = V("0.0.post8037")
 except ImportError:
     pass
-data_git_hash = "037bfc2050f481b4d5e673d2cc008ceb3fc013e0"
-data_git_describe = "v0.0-8036-g037bfc205"
+data_git_hash = "0e52c6a93de00f717e46262a1e9be8cd302918c8"
+data_git_describe = "v0.0-8037-g0e52c6a93"
 data_git_msg = """\
-commit 037bfc2050f481b4d5e673d2cc008ceb3fc013e0
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Oct 5 10:13:58 2021 -0700
+commit 0e52c6a93de00f717e46262a1e9be8cd302918c8
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Sep 15 17:00:20 2021 -0700
 
-    [dv/full_chip] Create pwrmgr testutils
+    [spi_device] TPM pre-dv
     
-    There are many tests that need to trigger wakeups from different IPs,
-    so this abstracts one of the common pwrmgr operation.
+    This commit scaffolds the TPM over SPI pre-dv tests.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
