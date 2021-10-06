@@ -18,18 +18,11 @@ filesets:
       - lowrisc:prim:flop
     files:
       - rtl/prim_mubi_pkg.sv
-      - rtl/prim_mubi4_sender.sv
-      - rtl/prim_mubi4_sync.sv
-      - rtl/prim_mubi4_dec.sv
-      - rtl/prim_mubi8_sender.sv
-      - rtl/prim_mubi8_sync.sv
-      - rtl/prim_mubi8_dec.sv
-      - rtl/prim_mubi12_sender.sv
-      - rtl/prim_mubi12_sync.sv
-      - rtl/prim_mubi12_dec.sv
-      - rtl/prim_mubi16_sender.sv
-      - rtl/prim_mubi16_sync.sv
-      - rtl/prim_mubi16_dec.sv
+% for n in range(1, n_max_nibbles+1):
+      - rtl/prim_mubi${4*n}_sender.sv
+      - rtl/prim_mubi${4*n}_sync.sv
+      - rtl/prim_mubi${4*n}_dec.sv
+% endfor
     file_type: systemVerilogSource
 
 targets:
