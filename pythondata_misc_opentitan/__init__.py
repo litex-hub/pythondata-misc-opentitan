@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8147"
-version_tuple = (0, 0, 8147)
+version_str = "0.0.post8150"
+version_tuple = (0, 0, 8150)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8147")
+    pversion = V("0.0.post8150")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8039"
-data_version_tuple = (0, 0, 8039)
+data_version_str = "0.0.post8042"
+data_version_tuple = (0, 0, 8042)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8039")
+    pdata_version = V("0.0.post8042")
 except ImportError:
     pass
-data_git_hash = "81f262b7a76716d92a63502bb8da3d51a2d50411"
-data_git_describe = "v0.0-8039-g81f262b7a"
+data_git_hash = "e3315cc32be531d7bbbf2a44dfd7f2af286bd559"
+data_git_describe = "v0.0-8042-ge3315cc32"
 data_git_msg = """\
-commit 81f262b7a76716d92a63502bb8da3d51a2d50411
-Author: Eitan Shapira <eitanshapira89@gmail.com>
-Date:   Wed Oct 6 16:09:34 2021 +0300
+commit e3315cc32be531d7bbbf2a44dfd7f2af286bd559
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Oct 5 16:18:17 2021 -0700
 
-    [flash_ctrl/dv] Make bank erase to be selectable by default
+    [prim_mubi] Add decoder module similar to prim_lc_dec
     
-    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
