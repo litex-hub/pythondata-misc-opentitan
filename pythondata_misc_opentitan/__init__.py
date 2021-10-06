@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8145"
-version_tuple = (0, 0, 8145)
+version_str = "0.0.post8147"
+version_tuple = (0, 0, 8147)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8145")
+    pversion = V("0.0.post8147")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8037"
-data_version_tuple = (0, 0, 8037)
+data_version_str = "0.0.post8039"
+data_version_tuple = (0, 0, 8039)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8037")
+    pdata_version = V("0.0.post8039")
 except ImportError:
     pass
-data_git_hash = "0e52c6a93de00f717e46262a1e9be8cd302918c8"
-data_git_describe = "v0.0-8037-g0e52c6a93"
+data_git_hash = "81f262b7a76716d92a63502bb8da3d51a2d50411"
+data_git_describe = "v0.0-8039-g81f262b7a"
 data_git_msg = """\
-commit 0e52c6a93de00f717e46262a1e9be8cd302918c8
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Sep 15 17:00:20 2021 -0700
+commit 81f262b7a76716d92a63502bb8da3d51a2d50411
+Author: Eitan Shapira <eitanshapira89@gmail.com>
+Date:   Wed Oct 6 16:09:34 2021 +0300
 
-    [spi_device] TPM pre-dv
+    [flash_ctrl/dv] Make bank erase to be selectable by default
     
-    This commit scaffolds the TPM over SPI pre-dv tests.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
 
 """
 
