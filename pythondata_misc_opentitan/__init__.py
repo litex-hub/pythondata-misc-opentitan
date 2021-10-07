@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8166"
-version_tuple = (0, 0, 8166)
+version_str = "0.0.post8169"
+version_tuple = (0, 0, 8169)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8166")
+    pversion = V("0.0.post8169")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8054"
-data_version_tuple = (0, 0, 8054)
+data_version_str = "0.0.post8057"
+data_version_tuple = (0, 0, 8057)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8054")
+    pdata_version = V("0.0.post8057")
 except ImportError:
     pass
-data_git_hash = "eb29bdb3aeacbf693df70c0063c869b044237f13"
-data_git_describe = "v0.0-8054-geb29bdb3a"
+data_git_hash = "b3d673d9ae9f12083d3020fe9d605d8c3712f019"
+data_git_describe = "v0.0-8057-gb3d673d9a"
 data_git_msg = """\
-commit eb29bdb3aeacbf693df70c0063c869b044237f13
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Sep 29 11:30:07 2021 +0100
+commit b3d673d9ae9f12083d3020fe9d605d8c3712f019
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Oct 5 10:51:08 2021 -0700
 
-    [otbn] Prevent RF integrity error when there is a call stack error
+    [edn/csrng/hjson] recov_alert_sts description cleanup
     
-    When a call stack pop causes an underflow both integrity and data bits
-    are invalid so the integrity error has no meaning.
+    Changes made to be consistent in the language used for the alert status register.
     
-    Fixes #8354
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
