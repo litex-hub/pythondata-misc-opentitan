@@ -4,57 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8170"
-version_tuple = (0, 0, 8170)
+version_str = "0.0.post8174"
+version_tuple = (0, 0, 8174)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8170")
+    pversion = V("0.0.post8174")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8058"
-data_version_tuple = (0, 0, 8058)
+data_version_str = "0.0.post8062"
+data_version_tuple = (0, 0, 8062)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8058")
+    pdata_version = V("0.0.post8062")
 except ImportError:
     pass
-data_git_hash = "aee499c3e167096c6baecf8f9e989d75e94125ff"
-data_git_describe = "v0.0-8058-gaee499c3e"
+data_git_hash = "fc115292a65bd8a2f8bc60ea1efb6004c9b007a0"
+data_git_describe = "v0.0-8062-gfc115292a"
 data_git_msg = """\
-commit aee499c3e167096c6baecf8f9e989d75e94125ff
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 1 16:38:11 2021 +0100
+commit fc115292a65bd8a2f8bc60ea1efb6004c9b007a0
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Oct 1 16:41:30 2021 -0700
 
-    [otbn,dv] Sort out timing for done/status signals in ISS
+    [ast] Ast lint fixes and waiver file update
     
-    Now that otbn_core_model exposes a STATUS register, we can use it to
-    derive the "done" signal. Using the status register directly, rather
-    than reconstructing it from the done signal, models the OTBN block
-    more closely and actually simplifies a load of tracking DV
-    code (mainly because the two things that we're comparing Just Match,
-    so we don't need to convert between the two views of the world).
-    
-    Unfortunately, we can't get rid of the "done" signal entirely, because
-    otbn.sv can choose to instantiate the model instead of the RTL to
-    represent the core. The timing isn't *quite* right here, because the
-    core flops STATUS but not its done_o output. But this shouldn't matter
-    for the chip-level sims where we use the model like this.
-    
-    We *do* check that the RTL's done signal is as predicted in the UVM
-    and verilator testbenches.
-    
-    This patch also sorts out the timing of the start of execution in the
-    UVM testbench: the ISS was probing the wrong start signal, so started
-    a cycle late. This didn't matter too much, because it and the design
-    were both waiting on the EDN, which took more than one cycle.
-    
-    Finally, we fix the assertion that checks the model and RTL have
-    matching STATUS. This was broken before (using "rst_n", rather than
-    "!rst_n"), which is why we didn't notice the off-by-one at the start.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
