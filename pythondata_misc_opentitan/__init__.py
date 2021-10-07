@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8165"
-version_tuple = (0, 0, 8165)
+version_str = "0.0.post8166"
+version_tuple = (0, 0, 8166)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8165")
+    pversion = V("0.0.post8166")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8053"
-data_version_tuple = (0, 0, 8053)
+data_version_str = "0.0.post8054"
+data_version_tuple = (0, 0, 8054)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8053")
+    pdata_version = V("0.0.post8054")
 except ImportError:
     pass
-data_git_hash = "bb7c48f3cd8c857d0dead658232f738236f66364"
-data_git_describe = "v0.0-8053-gbb7c48f3c"
+data_git_hash = "eb29bdb3aeacbf693df70c0063c869b044237f13"
+data_git_describe = "v0.0-8054-geb29bdb3a"
 data_git_msg = """\
-commit bb7c48f3cd8c857d0dead658232f738236f66364
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Oct 6 11:32:14 2021 +0100
+commit eb29bdb3aeacbf693df70c0063c869b044237f13
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Sep 29 11:30:07 2021 +0100
 
-    [otbn,dv] Proper Connection of EDN_IF to OTBN
+    [otbn] Prevent RF integrity error when there is a call stack error
     
-    In this commit an EDN interface is connected at the block level
-    testbench of OTBN. Also incoming RND data packages are now arranged
-    in a way that the first package would be at the bottom 32b of RND
-    register.
+    When a call stack pop causes an underflow both integrity and data bits
+    are invalid so the integrity error has no meaning.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Fixes #8354
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
