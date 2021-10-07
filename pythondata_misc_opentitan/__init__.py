@@ -4,54 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8163"
-version_tuple = (0, 0, 8163)
+version_str = "0.0.post8165"
+version_tuple = (0, 0, 8165)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8163")
+    pversion = V("0.0.post8165")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8051"
-data_version_tuple = (0, 0, 8051)
+data_version_str = "0.0.post8053"
+data_version_tuple = (0, 0, 8053)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8051")
+    pdata_version = V("0.0.post8053")
 except ImportError:
     pass
-data_git_hash = "c720ac8dc602381144a67106995f974fa6cc75f5"
-data_git_describe = "v0.0-8051-gc720ac8dc"
+data_git_hash = "bb7c48f3cd8c857d0dead658232f738236f66364"
+data_git_describe = "v0.0-8053-gbb7c48f3c"
 data_git_msg = """\
-commit c720ac8dc602381144a67106995f974fa6cc75f5
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Mar 3 15:34:53 2021 +0000
+commit bb7c48f3cd8c857d0dead658232f738236f66364
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Oct 6 11:32:14 2021 +0100
 
-    [rv_plic] Produce top_earlgrey instance of rv_plic with ipgen
+    [otbn,dv] Proper Connection of EDN_IF to OTBN
     
-    This rather large commit makes rv_plic an IP template, and then uses
-    ipgen to instantiate the block with the right parametrization for
-    top_earlgrey.
+    In this commit an EDN interface is connected at the block level
+    testbench of OTBN. Also incoming RND data packages are now arranged
+    in a way that the first package would be at the bottom 32b of RND
+    register.
     
-    In contrast to the previous approach, `hw/top_earlgrey/ip_autogen`
-    now contains a full copy of rv_plic under a unique FuseSoC core
-    name, `lowrisc:opentitan:top_earlgrey_rv_plic`.
-    
-    Unfortunately, doing so requires a fair amount of reshuffling, which
-    cannot be easily split into individual commits while keeping the whole
-    tree building. Here's what was done:
-    
-    * Move `ip/rv_plic` to `ip_templates/rv_plic`.
-    * Remove the `reg_rv_plic.py` tooling, which is now replaced by ipgen.
-    * Change `topgen.py` to generate the toplevel-specific instance of
-      `rv_plic` through ipgen.
-    * Adjust references in the documentation as necessary.
-    * Adjust the software build as necessary.
-    * The FPV testbench is now only run for the Earl Grey-instantiated IP
-      block, there is no more "generic" testbench. Update all references
-      pointing to the testbench.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
