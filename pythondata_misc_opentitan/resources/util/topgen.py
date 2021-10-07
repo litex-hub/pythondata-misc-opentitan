@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 import hjson
+from ipgen import (IpBlockRenderer, IpConfig, IpDescriptionOnlyRenderer,
+                   IpTemplate, TemplateRenderError)
 from mako import exceptions
 from mako.template import Template
 
@@ -54,6 +56,40 @@ GENCMD = ("// util/topgen.py -t hw/top_{topname}/data/top_{topname}.hjson\n"
 SRCTREE_TOP = Path(__file__).parent.parent.resolve()
 
 TOPGEN_TEMPLATE_PATH = Path(__file__).parent / 'topgen/templates'
+
+# List of IP templates which use ipgen to instantiate the template.
+# TODO: Remove once all IP templates use ipgen.
+IPS_USING_IPGEN = [
+    'rv_plic',
+]
+
+
+def ipgen_render(template_name: str, topname: str, params: Dict,
+                 out_path: Path):
+    """ Render an IP template for a specific toplevel using ipgen.
+
+    The generated IP block is placed in the 'ip_autogen' directory of the
+    toplevel.
+
+    Aborts the program execution in case of an error.
+    """
+    instance_name = f'top_{topname}_{template_name}'
+    ip_template = IpTemplate.from_template_path(
+        SRCTREE_TOP / 'hw/ip_templates' / template_name)
+
+    try:
+        ip_config = IpConfig(ip_template.params, instance_name, params)
+    except ValueError as e:
+        log.error(f"Unable to render IP template {template_name!r}: {str(e)}")
+        sys.exit(1)
+
+    try:
+        renderer = IpBlockRenderer(ip_template, ip_config)
+        renderer.render(out_path / 'ip_autogen' / template_name,
+                        overwrite_output_dir=True)
+    except TemplateRenderError as e:
+        log.error(e.verbose_str())
+        sys.exit(1)
 
 
 def clang_format(outfile: Path) -> None:
@@ -229,75 +265,19 @@ def generate_alert_handler(top, out_path):
 
 def generate_plic(top, out_path):
     topname = top["name"]
+    params = {}
+
     # Count number of interrupts
     # Interrupt source 0 is tied to 0 to conform RISC-V PLIC spec.
     # So, total number of interrupts are the number of entries in the list + 1
-    src = sum([x["width"] if "width" in x else 1
-               for x in top["interrupt"]]) + 1
+    params['src'] = sum([x["width"] if "width" in x else 1
+                        for x in top["interrupt"]]) + 1
 
     # Target and priority: Currently fixed
-    target = int(top["num_cores"], 0) if "num_cores" in top else 1
-    prio = 3
+    params['target'] = int(top["num_cores"], 0) if "num_cores" in top else 1
+    params['prio'] = 3
 
-    # Define target path
-    #   rtl: rv_plic.sv & rv_plic_reg_pkg.sv & rv_plic_reg_top.sv
-    #   data: rv_plic.hjson
-    rtl_path = out_path / 'ip/rv_plic/rtl/autogen'
-    rtl_path.mkdir(parents=True, exist_ok=True)
-    doc_path = out_path / 'ip/rv_plic/data/autogen'
-    doc_path.mkdir(parents=True, exist_ok=True)
-    hjson_path = out_path / 'ip/rv_plic/data/autogen'
-    hjson_path.mkdir(parents=True, exist_ok=True)
-
-    # Generating IP top module script is not generalized yet.
-    # So, topgen reads template files from rv_plic directory directly.
-    # Next, if the ip top gen tool is placed in util/ we can import the library.
-    tpl_path = Path(__file__).resolve().parent / '../hw/ip/rv_plic/data'
-    hjson_tpl_path = tpl_path / 'rv_plic.hjson.tpl'
-    rtl_tpl_path = tpl_path / 'rv_plic.sv.tpl'
-
-    # Generate Register Package and RTLs
-    out = StringIO()
-    with hjson_tpl_path.open(mode='r', encoding='UTF-8') as fin:
-        hjson_tpl = Template(fin.read())
-        try:
-            out = hjson_tpl.render(src=src, target=target, prio=prio)
-        except:  # noqa: E722
-            log.error(exceptions.text_error_template().render())
-        log.info("RV_PLIC hjson: %s" % out)
-
-    if out == "":
-        log.error("Cannot generate interrupt controller config file")
-        return
-
-    hjson_gen_path = hjson_path / "rv_plic.hjson"
-    gencmd = (
-        "// util/topgen.py -t hw/top_{topname}/data/top_{topname}.hjson --plic-only "
-        "-o hw/top_{topname}/\n\n".format(topname=topname))
-    with hjson_gen_path.open(mode='w', encoding='UTF-8') as fout:
-        fout.write(genhdr + gencmd + out)
-
-    # Generate register RTLs (currently using shell execute)
-    # TODO: More secure way to generate RTL
-    gen_rtl.gen_rtl(IpBlock.from_text(out, [], str(hjson_gen_path)),
-                    str(rtl_path))
-
-    # Generate RV_PLIC Top Module
-    with rtl_tpl_path.open(mode='r', encoding='UTF-8') as fin:
-        rtl_tpl = Template(fin.read())
-        try:
-            out = rtl_tpl.render(src=src, target=target, prio=prio)
-        except:  # noqa: E722
-            log.error(exceptions.text_error_template().render())
-        log.info("RV_PLIC RTL: %s" % out)
-
-    if out == "":
-        log.error("Cannot generate interrupt controller RTL")
-        return
-
-    rtl_gen_path = rtl_path / "rv_plic.sv"
-    with rtl_gen_path.open(mode='w', encoding='UTF-8') as fout:
-        fout.write(genhdr + gencmd + out)
+    ipgen_render('rv_plic', topname, params, out_path)
 
 
 def generate_pinmux(top, out_path):
@@ -817,12 +797,17 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
         # the output path.  For modules not generated before, it may exist in a
         # pre-defined area already.
         log.info("Appending {}".format(ip))
-        if ip == 'clkmgr' or (pass_idx > 0):
-            ip_hjson = Path(out_path) / "ip/{}/data/autogen/{}.hjson".format(
-                ip, ip)
+        if ip in IPS_USING_IPGEN:
+            ip_relpath = 'ip_autogen'
+            desc_file_relpath = 'data'
         else:
-            ip_hjson = hjson_dir.parent / "ip/{}/data/autogen/{}.hjson".format(
-                ip, ip)
+            ip_relpath = 'ip'
+            desc_file_relpath = 'data/autogen'
+
+        if ip == 'clkmgr' or (pass_idx > 0):
+            ip_hjson = Path(out_path) / ip_relpath / ip / desc_file_relpath / f"{ip}.hjson"
+        else:
+            ip_hjson = hjson_dir.parent / ip_relpath / ip / desc_file_relpath / f"{ip}.hjson"
         ips.append(ip_hjson)
 
     for ip in top_only_list:
@@ -833,26 +818,52 @@ def _process_top(topcfg, args, cfg_path, out_path, pass_idx):
     # load Hjson and pass validate from reggen
     try:
         ip_objs = []
-        for x in ips:
+        for ip_desc_file in ips:
+            ip_name = ip_desc_file.stem
             # Skip if it is not in the module list
-            if x.stem not in [ip["type"] for ip in topcfg["module"]]:
+            if ip_name not in [ip["type"] for ip in topcfg["module"]]:
                 log.info("Skip module %s as it isn't in the top module list" %
-                         x.stem)
+                         ip_name)
                 continue
 
             # The auto-generated hjson might not yet exist. It will be created
             # later, see generate_{ip_name}() calls below. For the initial
-            # validation, use the template in hw/ip/{ip_name}/data .
-            if x.stem in generated_list and not x.is_file():
-                hjson_file = ip_dir / "{}/data/{}.hjson".format(x.stem, x.stem)
-                log.info(
-                    "Auto-generated hjson %s does not yet exist. " % str(x) +
-                    "Falling back to template %s for initial validation." %
-                    str(hjson_file))
-            else:
-                hjson_file = x
+            # validation, use the Hjson file with default values.
+            # TODO: All of this is a rather ugly hack that we need to get rid
+            # of as soon as we don't arbitrarily template IP description Hjson
+            # files any more.
+            if ip_name in generated_list and not ip_desc_file.is_file():
+                if ip_name in IPS_USING_IPGEN:
+                    log.info(
+                        "To-be-auto-generated Hjson %s does not yet exist. "
+                        "Falling back to the default configuration of template "
+                        "%s for initial validation." %
+                        (ip_desc_file, ip_name))
 
-            ip_objs.append(IpBlock.from_path(str(hjson_file), []))
+                    tpl_path = SRCTREE_TOP / 'hw/ip_templates' / ip_name
+                    ip_template = IpTemplate.from_template_path(tpl_path)
+                    ip_config = IpConfig(ip_template.params,
+                                         f'top_{topname}_{ip_name}')
+
+                    ip_desc = IpDescriptionOnlyRenderer(
+                        ip_template, ip_config).render()
+                    s = 'default description of IP template {}'.format(ip_name)
+                    ip_objs.append(IpBlock.from_text(ip_desc, [], s))
+                else:
+                    # TODO: Remove this block as soon as all IP templates use
+                    # ipgen.
+                    template_hjson_file = ip_dir / "{}/data/{}.hjson".format(
+                        ip_name, ip_name)
+                    log.info(
+                        "To-be-auto-generated Hjson %s does not yet exist. "
+                        "Falling back to Hjson description file %s shipped "
+                        "with the IP template for initial validation." %
+                        (ip_desc_file, template_hjson_file))
+
+                    ip_objs.append(
+                        IpBlock.from_path(str(template_hjson_file), []))
+            else:
+                ip_objs.append(IpBlock.from_path(str(ip_desc_file), []))
 
     except ValueError:
         raise SystemExit(sys.exc_info()[1])
