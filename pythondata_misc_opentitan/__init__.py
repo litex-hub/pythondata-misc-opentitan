@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8175"
-version_tuple = (0, 0, 8175)
+version_str = "0.0.post8177"
+version_tuple = (0, 0, 8177)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8175")
+    pversion = V("0.0.post8177")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8063"
-data_version_tuple = (0, 0, 8063)
+data_version_str = "0.0.post8065"
+data_version_tuple = (0, 0, 8065)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8063")
+    pdata_version = V("0.0.post8065")
 except ImportError:
     pass
-data_git_hash = "b46a08d07671c9d6c020e54fb44424f1611c43a0"
-data_git_describe = "v0.0-8063-gb46a08d07"
+data_git_hash = "9e18b46e0a96355c3c163629c8a90b70b805f24e"
+data_git_describe = "v0.0-8065-g9e18b46e0"
 data_git_msg = """\
-commit b46a08d07671c9d6c020e54fb44424f1611c43a0
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Sun Oct 3 10:30:11 2021 -0700
+commit 9e18b46e0a96355c3c163629c8a90b70b805f24e
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Fri Oct 8 12:09:28 2021 +0100
 
-    [util] Splice for prod ROM
+    Use pycryptodome from upstream
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    A new versin of pycryptodome has been released which includes support
+    for cSHAKE.
+    
+    Release notes: https://www.pycryptodome.org/en/latest/src/changelog.html#october-2021
+    
+    Fixes #6694
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
