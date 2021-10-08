@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8174"
-version_tuple = (0, 0, 8174)
+version_str = "0.0.post8175"
+version_tuple = (0, 0, 8175)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8174")
+    pversion = V("0.0.post8175")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8062"
-data_version_tuple = (0, 0, 8062)
+data_version_str = "0.0.post8063"
+data_version_tuple = (0, 0, 8063)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8062")
+    pdata_version = V("0.0.post8063")
 except ImportError:
     pass
-data_git_hash = "fc115292a65bd8a2f8bc60ea1efb6004c9b007a0"
-data_git_describe = "v0.0-8062-gfc115292a"
+data_git_hash = "b46a08d07671c9d6c020e54fb44424f1611c43a0"
+data_git_describe = "v0.0-8063-gb46a08d07"
 data_git_msg = """\
-commit fc115292a65bd8a2f8bc60ea1efb6004c9b007a0
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Oct 1 16:41:30 2021 -0700
+commit b46a08d07671c9d6c020e54fb44424f1611c43a0
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Sun Oct 3 10:30:11 2021 -0700
 
-    [ast] Ast lint fixes and waiver file update
+    [util] Splice for prod ROM
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
