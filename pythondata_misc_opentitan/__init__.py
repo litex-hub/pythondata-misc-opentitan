@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8184"
-version_tuple = (0, 0, 8184)
+version_str = "0.0.post8188"
+version_tuple = (0, 0, 8188)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8184")
+    pversion = V("0.0.post8188")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8072"
-data_version_tuple = (0, 0, 8072)
+data_version_str = "0.0.post8076"
+data_version_tuple = (0, 0, 8076)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8072")
+    pdata_version = V("0.0.post8076")
 except ImportError:
     pass
-data_git_hash = "9c9742a8f4fa229fe12892068b83fdd56a1ff5f9"
-data_git_describe = "v0.0-8072-g9c9742a8f"
+data_git_hash = "9abebb87612201148ab07e754df8802ed2b0ff66"
+data_git_describe = "v0.0-8076-g9abebb876"
 data_git_msg = """\
-commit 9c9742a8f4fa229fe12892068b83fdd56a1ff5f9
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Oct 1 07:36:29 2021 -0700
+commit 9abebb87612201148ab07e754df8802ed2b0ff66
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 7 10:34:11 2021 -0700
 
-    [dv/clkmgr] Fix frequency measurement test
+    [clkmgr] Update measurement errors to request alerts only once
     
-    Compute the correct expectation.
-    Improve randomization for thresholds.
-    On each test round set at most one clock measurement to fail so the
-    shared alert expectation functionality can handle the test.
+    - previously alerts were requested until software explicitly cleared, but
+      this was deemed unacceptable behavior.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    - Fixes #8556
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
