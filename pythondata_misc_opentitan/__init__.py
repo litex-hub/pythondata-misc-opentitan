@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8183"
-version_tuple = (0, 0, 8183)
+version_str = "0.0.post8184"
+version_tuple = (0, 0, 8184)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8183")
+    pversion = V("0.0.post8184")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8071"
-data_version_tuple = (0, 0, 8071)
+data_version_str = "0.0.post8072"
+data_version_tuple = (0, 0, 8072)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8071")
+    pdata_version = V("0.0.post8072")
 except ImportError:
     pass
-data_git_hash = "9e78b5edd198756bb6b55369b843ed7553a8bd1d"
-data_git_describe = "v0.0-8071-g9e78b5edd"
+data_git_hash = "9c9742a8f4fa229fe12892068b83fdd56a1ff5f9"
+data_git_describe = "v0.0-8072-g9c9742a8f"
 data_git_msg = """\
-commit 9e78b5edd198756bb6b55369b843ed7553a8bd1d
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Tue Aug 17 20:01:56 2021 -0700
+commit 9c9742a8f4fa229fe12892068b83fdd56a1ff5f9
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Oct 1 07:36:29 2021 -0700
 
-    [dv/cdc] CDC simulation model
+    [dv/clkmgr] Fix frequency measurement test
     
-    This PR adds an initial draft of a CDC simulation model.
+    Compute the correct expectation.
+    Improve randomization for thresholds.
+    On each test round set at most one clock measurement to fail so the
+    shared alert expectation functionality can handle the test.
     
-    This module should be instantiated inside of CDC synchronization
-    primitives, and is used to inject random data delays into the
-    synchronizers to more accurately model real CDC delays.
-    
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
