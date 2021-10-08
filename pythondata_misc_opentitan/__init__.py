@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8188"
-version_tuple = (0, 0, 8188)
+version_str = "0.0.post8191"
+version_tuple = (0, 0, 8191)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8188")
+    pversion = V("0.0.post8191")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8076"
-data_version_tuple = (0, 0, 8076)
+data_version_str = "0.0.post8079"
+data_version_tuple = (0, 0, 8079)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8076")
+    pdata_version = V("0.0.post8079")
 except ImportError:
     pass
-data_git_hash = "9abebb87612201148ab07e754df8802ed2b0ff66"
-data_git_describe = "v0.0-8076-g9abebb876"
+data_git_hash = "054b24698a73be23a3695ea5f60633ed12d8e72c"
+data_git_describe = "v0.0-8079-g054b24698"
 data_git_msg = """\
-commit 9abebb87612201148ab07e754df8802ed2b0ff66
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Oct 7 10:34:11 2021 -0700
+commit 054b24698a73be23a3695ea5f60633ed12d8e72c
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Oct 7 05:41:09 2021 +0000
 
-    [clkmgr] Update measurement errors to request alerts only once
+    [dif/usbdev] Add const qualifier to device handle.
     
-    - previously alerts were requested until software explicitly cleared, but
-      this was deemed unacceptable behavior.
+    It is typical for the first argument of every DIF to be a pointer to the
+    device handle struct. These should be marked const, since DIFs should
+    not modify them.
     
-    - Fixes #8556
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
