@@ -4,42 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8181"
-version_tuple = (0, 0, 8181)
+version_str = "0.0.post8183"
+version_tuple = (0, 0, 8183)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8181")
+    pversion = V("0.0.post8183")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8069"
-data_version_tuple = (0, 0, 8069)
+data_version_str = "0.0.post8071"
+data_version_tuple = (0, 0, 8071)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8069")
+    pdata_version = V("0.0.post8071")
 except ImportError:
     pass
-data_git_hash = "49bbe18f00acd0d96fb074469ae294180ecdf364"
-data_git_describe = "v0.0-8069-g49bbe18f0"
+data_git_hash = "9e78b5edd198756bb6b55369b843ed7553a8bd1d"
+data_git_describe = "v0.0-8071-g9e78b5edd"
 data_git_msg = """\
-commit 49bbe18f00acd0d96fb074469ae294180ecdf364
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 7 00:17:46 2021 +0000
+commit 9e78b5edd198756bb6b55369b843ed7553a8bd1d
+Author: Udi Jonnalagadda <udij@google.com>
+Date:   Tue Aug 17 20:01:56 2021 -0700
 
-    [dif/kmac] Integrate autogen'd DIF artifacts into src tree.
+    [dv/cdc] CDC simulation model
     
-    This commit partially addresses #8142. Specifically it:
-    1. deprecates existing (manually implemented) **KMAC**
-       specific DIF return codes and toggle types,
-    2. integrates the auto-generated **KMAC** DIFs into meson build
-       targets,
-    3. refactors all existing source code to make use of the new shared DIF
-       types and error codes, and
-    4. embeds the MMIO base address for the IP directly into the IP's DIF
-       context handle struct (i.e., `dif_kmac_t`).
+    This PR adds an initial draft of a CDC simulation model.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This module should be instantiated inside of CDC synchronization
+    primitives, and is used to inject random data delays into the
+    synchronizers to more accurately model real CDC delays.
+    
+    Signed-off-by: Udi Jonnalagadda <udij@google.com>
 
 """
 
