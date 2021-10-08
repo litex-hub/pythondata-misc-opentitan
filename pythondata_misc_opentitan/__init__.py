@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8178"
-version_tuple = (0, 0, 8178)
+version_str = "0.0.post8181"
+version_tuple = (0, 0, 8181)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8178")
+    pversion = V("0.0.post8181")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8066"
-data_version_tuple = (0, 0, 8066)
+data_version_str = "0.0.post8069"
+data_version_tuple = (0, 0, 8069)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8066")
+    pdata_version = V("0.0.post8069")
 except ImportError:
     pass
-data_git_hash = "b106151c112f62def7c9bba0234f0bdb6638afea"
-data_git_describe = "v0.0-8066-gb106151c1"
+data_git_hash = "49bbe18f00acd0d96fb074469ae294180ecdf364"
+data_git_describe = "v0.0-8069-g49bbe18f0"
 data_git_msg = """\
-commit b106151c112f62def7c9bba0234f0bdb6638afea
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Oct 8 09:48:48 2021 +0100
+commit 49bbe18f00acd0d96fb074469ae294180ecdf364
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Oct 7 00:17:46 2021 +0000
 
-    [otbn] Update comment to describe generic functionality
+    [dif/kmac] Integrate autogen'd DIF artifacts into src tree.
     
-    This fixes the wording of a comment to show that the function it
-    documents works for any OTBN application, not just RSA.
+    This commit partially addresses #8142. Specifically it:
+    1. deprecates existing (manually implemented) **KMAC**
+       specific DIF return codes and toggle types,
+    2. integrates the auto-generated **KMAC** DIFs into meson build
+       targets,
+    3. refactors all existing source code to make use of the new shared DIF
+       types and error codes, and
+    4. embeds the MMIO base address for the IP directly into the IP's DIF
+       context handle struct (i.e., `dif_kmac_t`).
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
