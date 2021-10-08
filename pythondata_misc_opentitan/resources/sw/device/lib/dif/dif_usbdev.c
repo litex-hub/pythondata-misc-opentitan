@@ -229,7 +229,7 @@ static bool is_valid_irq(dif_usbdev_irq_t irq) {
  */
 OT_WARN_UNUSED_RESULT
 static dif_usbdev_result_t endpoint_functionality_enable(
-    dif_usbdev_t *usbdev, uint32_t reg_offset, uint8_t endpoint,
+    const dif_usbdev_t *usbdev, uint32_t reg_offset, uint8_t endpoint,
     dif_usbdev_toggle_t new_state) {
   if (usbdev == NULL || !is_valid_endpoint(endpoint) ||
       !is_valid_toggle(new_state)) {
@@ -261,34 +261,43 @@ static uint32_t get_buffer_addr(uint8_t buffer_id, size_t offset) {
  * USBDEV DIF library functions.
  */
 
-dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
+dif_usbdev_result_t dif_usbdev_init(mmio_region_t base_addr,
                                     dif_usbdev_t *usbdev) {
-  if (usbdev == NULL || config == NULL) {
+  if (usbdev == NULL) {
     return kDifUsbdevBadArg;
   }
 
-  // Check enum fields
-  if (!is_valid_toggle(config->differential_rx) ||
-      !is_valid_toggle(config->differential_tx) ||
-      !is_valid_toggle(config->single_bit_eop) ||
-      !is_valid_power_sense_override(config->power_sense_override) ||
-      !is_valid_toggle(config->pin_flip) ||
-      !is_valid_toggle(config->clock_sync_signals)) {
+  usbdev->base_addr = base_addr;
+
+  return kDifUsbdevOK;
+}
+
+dif_usbdev_result_t dif_usbdev_configure(const dif_usbdev_t *usbdev,
+                                         dif_usbdev_buffer_pool_t *buffer_pool,
+                                         dif_usbdev_config_t config) {
+  if (usbdev == NULL || buffer_pool == NULL) {
     return kDifUsbdevBadArg;
   }
 
-  // Store base address
-  usbdev->base_addr = config->base_addr;
-
-  // Initialize the free buffer pool
-  if (!buffer_pool_init(&usbdev->buffer_pool)) {
+  // Configure the free buffer pool.
+  if (!buffer_pool_init(buffer_pool)) {
     return kDifUsbdevError;
+  }
+
+  // Check enum fields.
+  if (!is_valid_toggle(config.differential_rx) ||
+      !is_valid_toggle(config.differential_tx) ||
+      !is_valid_toggle(config.single_bit_eop) ||
+      !is_valid_power_sense_override(config.power_sense_override) ||
+      !is_valid_toggle(config.pin_flip) ||
+      !is_valid_toggle(config.clock_sync_signals)) {
+    return kDifUsbdevBadArg;
   }
 
   // Determine the value of the PHY_CONFIG register.
   uint32_t phy_config_val = 0;
 
-  if (config->differential_rx == kDifUsbdevToggleEnable) {
+  if (config.differential_rx == kDifUsbdevToggleEnable) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
         (bitfield_field32_t){
@@ -298,7 +307,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
         1);
   }
 
-  if (config->differential_tx == kDifUsbdevToggleEnable) {
+  if (config.differential_tx == kDifUsbdevToggleEnable) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
         (bitfield_field32_t){
@@ -308,7 +317,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
         1);
   }
 
-  if (config->single_bit_eop == kDifUsbdevToggleEnable) {
+  if (config.single_bit_eop == kDifUsbdevToggleEnable) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
         (bitfield_field32_t){
@@ -318,7 +327,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
         1);
   }
 
-  if (config->power_sense_override == kDifUsbdevPowerSenseOverridePresent) {
+  if (config.power_sense_override == kDifUsbdevPowerSenseOverridePresent) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
         (bitfield_field32_t){
@@ -333,7 +342,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
             .index = USBDEV_PHY_CONFIG_OVERRIDE_PWR_SENSE_VAL_BIT,
         },
         1);
-  } else if (config->power_sense_override ==
+  } else if (config.power_sense_override ==
              kDifUsbdevPowerSenseOverrideNotPresent) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
@@ -344,7 +353,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
         1);
   }
 
-  if (config->pin_flip == kDifUsbdevToggleEnable) {
+  if (config.pin_flip == kDifUsbdevToggleEnable) {
     phy_config_val =
         bitfield_field32_write(phy_config_val,
                                (bitfield_field32_t){
@@ -354,7 +363,7 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
                                1);
   }
 
-  if (config->clock_sync_signals == kDifUsbdevToggleDisable) {
+  if (config.clock_sync_signals == kDifUsbdevToggleDisable) {
     phy_config_val = bitfield_field32_write(
         phy_config_val,
         (bitfield_field32_t){
@@ -371,17 +380,18 @@ dif_usbdev_result_t dif_usbdev_init(dif_usbdev_config_t *config,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_fill_available_fifo(dif_usbdev_t *usbdev) {
-  if (usbdev == NULL) {
+dif_usbdev_result_t dif_usbdev_fill_available_fifo(
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_pool_t *buffer_pool) {
+  if (usbdev == NULL || buffer_pool == NULL) {
     return kDifUsbdevBadArg;
   }
 
   // Remove buffers from the pool and write them to the AV FIFO until it is full
   while (!mmio_region_get_bit32(usbdev->base_addr, USBDEV_USBSTAT_REG_OFFSET,
                                 USBDEV_USBSTAT_AV_FULL_BIT) &&
-         !buffer_pool_is_empty(&usbdev->buffer_pool)) {
+         !buffer_pool_is_empty(buffer_pool)) {
     uint8_t buffer_id;
-    if (!buffer_pool_remove(&usbdev->buffer_pool, &buffer_id)) {
+    if (!buffer_pool_remove(buffer_pool, &buffer_id)) {
       return kDifUsbdevError;
     }
     mmio_region_write_only_set_field32(usbdev->base_addr,
@@ -393,24 +403,27 @@ dif_usbdev_result_t dif_usbdev_fill_available_fifo(dif_usbdev_t *usbdev) {
 }
 
 dif_usbdev_result_t dif_usbdev_endpoint_setup_enable(
-    dif_usbdev_t *usbdev, uint8_t endpoint, dif_usbdev_toggle_t new_state) {
+    const dif_usbdev_t *usbdev, uint8_t endpoint,
+    dif_usbdev_toggle_t new_state) {
   return endpoint_functionality_enable(usbdev, USBDEV_RXENABLE_SETUP_REG_OFFSET,
                                        endpoint, new_state);
 }
 
 dif_usbdev_result_t dif_usbdev_endpoint_out_enable(
-    dif_usbdev_t *usbdev, uint8_t endpoint, dif_usbdev_toggle_t new_state) {
+    const dif_usbdev_t *usbdev, uint8_t endpoint,
+    dif_usbdev_toggle_t new_state) {
   return endpoint_functionality_enable(usbdev, USBDEV_RXENABLE_OUT_REG_OFFSET,
                                        endpoint, new_state);
 }
 
 dif_usbdev_result_t dif_usbdev_endpoint_stall_enable(
-    dif_usbdev_t *usbdev, uint8_t endpoint, dif_usbdev_toggle_t new_state) {
+    const dif_usbdev_t *usbdev, uint8_t endpoint,
+    dif_usbdev_toggle_t new_state) {
   return endpoint_functionality_enable(usbdev, USBDEV_STALL_REG_OFFSET,
                                        endpoint, new_state);
 }
 
-dif_usbdev_result_t dif_usbdev_endpoint_stall_get(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_endpoint_stall_get(const dif_usbdev_t *usbdev,
                                                   uint8_t endpoint,
                                                   bool *state) {
   if (usbdev == NULL || state == NULL || !is_valid_endpoint(endpoint)) {
@@ -424,12 +437,13 @@ dif_usbdev_result_t dif_usbdev_endpoint_stall_get(dif_usbdev_t *usbdev,
 }
 
 dif_usbdev_result_t dif_usbdev_endpoint_iso_enable(
-    dif_usbdev_t *usbdev, uint8_t endpoint, dif_usbdev_toggle_t new_state) {
+    const dif_usbdev_t *usbdev, uint8_t endpoint,
+    dif_usbdev_toggle_t new_state) {
   return endpoint_functionality_enable(usbdev, USBDEV_ISO_REG_OFFSET, endpoint,
                                        new_state);
 }
 
-dif_usbdev_result_t dif_usbdev_interface_enable(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_interface_enable(const dif_usbdev_t *usbdev,
                                                 dif_usbdev_toggle_t new_state) {
   if (usbdev == NULL || !is_valid_toggle(new_state)) {
     return kDifUsbdevBadArg;
@@ -448,7 +462,7 @@ dif_usbdev_result_t dif_usbdev_interface_enable(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_recv_result_t dif_usbdev_recv(dif_usbdev_t *usbdev,
+dif_usbdev_recv_result_t dif_usbdev_recv(const dif_usbdev_t *usbdev,
                                          dif_usbdev_rx_packet_info_t *info,
                                          dif_usbdev_buffer_t *buffer) {
   if (usbdev == NULL || info == NULL || buffer == NULL) {
@@ -482,17 +496,18 @@ dif_usbdev_recv_result_t dif_usbdev_recv(dif_usbdev_t *usbdev,
 }
 
 dif_usbdev_buffer_request_result_t dif_usbdev_buffer_request(
-    dif_usbdev_t *usbdev, dif_usbdev_buffer_t *buffer) {
-  if (usbdev == NULL || buffer == NULL) {
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_pool_t *buffer_pool,
+    dif_usbdev_buffer_t *buffer) {
+  if (usbdev == NULL || buffer_pool == NULL || buffer == NULL) {
     return kDifUsbdevBufferRequestResultBadArg;
   }
 
-  if (buffer_pool_is_empty(&usbdev->buffer_pool)) {
+  if (buffer_pool_is_empty(buffer_pool)) {
     return kDifUsbdevBufferRequestResultNoBuffers;
   }
 
   uint8_t buffer_id;
-  if (!buffer_pool_remove(&usbdev->buffer_pool, &buffer_id)) {
+  if (!buffer_pool_remove(buffer_pool, &buffer_id)) {
     return kDifUsbdevBufferRequestResultError;
   }
 
@@ -506,9 +521,10 @@ dif_usbdev_buffer_request_result_t dif_usbdev_buffer_request(
   return kDifUsbdevBufferRequestResultOK;
 }
 
-dif_usbdev_result_t dif_usbdev_buffer_return(dif_usbdev_t *usbdev,
-                                             dif_usbdev_buffer_t *buffer) {
-  if (usbdev == NULL || buffer == NULL) {
+dif_usbdev_result_t dif_usbdev_buffer_return(
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_pool_t *buffer_pool,
+    dif_usbdev_buffer_t *buffer) {
+  if (usbdev == NULL || buffer_pool == NULL || buffer == NULL) {
     return kDifUsbdevBadArg;
   }
 
@@ -516,7 +532,7 @@ dif_usbdev_result_t dif_usbdev_buffer_return(dif_usbdev_t *usbdev,
     case kDifUsbdevBufferTypeRead:
     case kDifUsbdevBufferTypeWrite:
       // Return the buffer to the free buffer pool
-      if (!buffer_pool_add(&usbdev->buffer_pool, buffer->id)) {
+      if (!buffer_pool_add(buffer_pool, buffer->id)) {
         return kDifUsbdevError;
       }
       // Mark the buffer as stale
@@ -528,9 +544,10 @@ dif_usbdev_result_t dif_usbdev_buffer_return(dif_usbdev_t *usbdev,
 }
 
 dif_usbdev_buffer_read_result_t dif_usbdev_buffer_read(
-    dif_usbdev_t *usbdev, dif_usbdev_buffer_t *buffer, uint8_t *dst,
-    size_t dst_len, size_t *bytes_written) {
-  if (usbdev == NULL || buffer == NULL ||
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_pool_t *buffer_pool,
+    dif_usbdev_buffer_t *buffer, uint8_t *dst, size_t dst_len,
+    size_t *bytes_written) {
+  if (usbdev == NULL || buffer_pool == NULL || buffer == NULL ||
       buffer->type != kDifUsbdevBufferTypeRead || dst == NULL) {
     return kDifUsbdevBufferReadResultBadArg;
   }
@@ -558,7 +575,7 @@ dif_usbdev_buffer_read_result_t dif_usbdev_buffer_read(
   }
 
   // Return the buffer to the free buffer pool
-  if (!buffer_pool_add(&usbdev->buffer_pool, buffer->id)) {
+  if (!buffer_pool_add(buffer_pool, buffer->id)) {
     return kDifUsbdevBufferReadResultError;
   }
   // Mark the buffer as stale
@@ -567,7 +584,7 @@ dif_usbdev_buffer_read_result_t dif_usbdev_buffer_read(
 }
 
 dif_usbdev_buffer_write_result_t dif_usbdev_buffer_write(
-    dif_usbdev_t *usbdev, dif_usbdev_buffer_t *buffer, uint8_t *src,
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_t *buffer, uint8_t *src,
     size_t src_len, size_t *bytes_written) {
   if (usbdev == NULL || buffer == NULL ||
       buffer->type != kDifUsbdevBufferTypeWrite || src == NULL) {
@@ -599,7 +616,8 @@ dif_usbdev_buffer_write_result_t dif_usbdev_buffer_write(
   return kDifUsbdevBufferWriteResultOK;
 }
 
-dif_usbdev_result_t dif_usbdev_send(dif_usbdev_t *usbdev, uint8_t endpoint,
+dif_usbdev_result_t dif_usbdev_send(const dif_usbdev_t *usbdev,
+                                    uint8_t endpoint,
                                     dif_usbdev_buffer_t *buffer) {
   if (usbdev == NULL || !is_valid_endpoint(endpoint) || buffer == NULL ||
       buffer->type != kDifUsbdevBufferTypeWrite) {
@@ -633,10 +651,11 @@ dif_usbdev_result_t dif_usbdev_send(dif_usbdev_t *usbdev, uint8_t endpoint,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_get_tx_status(dif_usbdev_t *usbdev,
-                                             uint8_t endpoint,
-                                             dif_usbdev_tx_status_t *status) {
-  if (usbdev == NULL || status == NULL || !is_valid_endpoint(endpoint)) {
+dif_usbdev_result_t dif_usbdev_get_tx_status(
+    const dif_usbdev_t *usbdev, dif_usbdev_buffer_pool_t *buffer_pool,
+    uint8_t endpoint, dif_usbdev_tx_status_t *status) {
+  if (usbdev == NULL || buffer_pool == NULL || status == NULL ||
+      !is_valid_endpoint(endpoint)) {
     return kDifUsbdevBadArg;
   }
 
@@ -668,7 +687,7 @@ dif_usbdev_result_t dif_usbdev_get_tx_status(dif_usbdev_t *usbdev,
     mmio_region_write_only_set_bit32(
         usbdev->base_addr, USBDEV_IN_SENT_REG_OFFSET, endpoint_bit_index);
     // Return the buffer back to the free buffer pool
-    if (!buffer_pool_add(&usbdev->buffer_pool, buffer)) {
+    if (!buffer_pool_add(buffer_pool, buffer)) {
       return kDifUsbdevError;
     }
     *status = kDifUsbdevTxStatusSent;
@@ -682,7 +701,7 @@ dif_usbdev_result_t dif_usbdev_get_tx_status(dif_usbdev_t *usbdev,
     mmio_region_write_only_set_bit32(usbdev->base_addr, config_in_reg_offset,
                                      USBDEV_CONFIGIN_0_PEND_0_BIT);
     // Return the buffer back to the free buffer pool
-    if (!buffer_pool_add(&usbdev->buffer_pool, buffer)) {
+    if (!buffer_pool_add(buffer_pool, buffer)) {
       return kDifUsbdevError;
     }
     *status = kDifUsbdevTxStatusCancelled;
@@ -694,7 +713,8 @@ dif_usbdev_result_t dif_usbdev_get_tx_status(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_address_set(dif_usbdev_t *usbdev, uint8_t addr) {
+dif_usbdev_result_t dif_usbdev_address_set(const dif_usbdev_t *usbdev,
+                                           uint8_t addr) {
   if (usbdev == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -706,7 +726,7 @@ dif_usbdev_result_t dif_usbdev_address_set(dif_usbdev_t *usbdev, uint8_t addr) {
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_address_get(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_address_get(const dif_usbdev_t *usbdev,
                                            uint8_t *addr) {
   if (usbdev == NULL || addr == NULL) {
     return kDifUsbdevBadArg;
@@ -720,7 +740,7 @@ dif_usbdev_result_t dif_usbdev_address_get(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_status_get_frame(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_status_get_frame(const dif_usbdev_t *usbdev,
                                                 uint16_t *frame_index) {
   if (usbdev == NULL || frame_index == NULL) {
     return kDifUsbdevBadArg;
@@ -734,7 +754,7 @@ dif_usbdev_result_t dif_usbdev_status_get_frame(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_status_get_host_lost(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_status_get_host_lost(const dif_usbdev_t *usbdev,
                                                     bool *host_lost) {
   if (usbdev == NULL || host_lost == NULL) {
     return kDifUsbdevBadArg;
@@ -748,7 +768,7 @@ dif_usbdev_result_t dif_usbdev_status_get_host_lost(dif_usbdev_t *usbdev,
 }
 
 dif_usbdev_result_t dif_usbdev_status_get_link_state(
-    dif_usbdev_t *usbdev, dif_usbdev_link_state_t *link_state) {
+    const dif_usbdev_t *usbdev, dif_usbdev_link_state_t *link_state) {
   if (usbdev == NULL || link_state == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -780,7 +800,7 @@ dif_usbdev_result_t dif_usbdev_status_get_link_state(
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_status_get_sense(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_status_get_sense(const dif_usbdev_t *usbdev,
                                                 bool *sense) {
   if (usbdev == NULL || sense == NULL) {
     return kDifUsbdevBadArg;
@@ -793,7 +813,7 @@ dif_usbdev_result_t dif_usbdev_status_get_sense(dif_usbdev_t *usbdev,
 }
 
 dif_usbdev_result_t dif_usbdev_status_get_available_fifo_depth(
-    dif_usbdev_t *usbdev, uint8_t *depth) {
+    const dif_usbdev_t *usbdev, uint8_t *depth) {
   if (usbdev == NULL || depth == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -807,7 +827,7 @@ dif_usbdev_result_t dif_usbdev_status_get_available_fifo_depth(
 }
 
 dif_usbdev_result_t dif_usbdev_status_get_available_fifo_full(
-    dif_usbdev_t *usbdev, bool *is_full) {
+    const dif_usbdev_t *usbdev, bool *is_full) {
   if (usbdev == NULL || is_full == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -818,8 +838,8 @@ dif_usbdev_result_t dif_usbdev_status_get_available_fifo_full(
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_depth(dif_usbdev_t *usbdev,
-                                                        uint8_t *depth) {
+dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_depth(
+    const dif_usbdev_t *usbdev, uint8_t *depth) {
   if (usbdev == NULL || depth == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -832,8 +852,8 @@ dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_depth(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_empty(dif_usbdev_t *usbdev,
-                                                        bool *is_full) {
+dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_empty(
+    const dif_usbdev_t *usbdev, bool *is_full) {
   if (usbdev == NULL || is_full == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -844,7 +864,7 @@ dif_usbdev_result_t dif_usbdev_status_get_rx_fifo_empty(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_enable(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_enable(const dif_usbdev_t *usbdev,
                                           dif_usbdev_irq_t irq,
                                           dif_usbdev_toggle_t state) {
   if (usbdev == NULL || !is_valid_irq(irq) || !is_valid_toggle(state)) {
@@ -864,7 +884,7 @@ dif_usbdev_result_t dif_usbdev_irq_enable(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_get(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_get(const dif_usbdev_t *usbdev,
                                        dif_usbdev_irq_t irq, bool *state) {
   if (usbdev == NULL || state == NULL || !is_valid_irq(irq)) {
     return kDifUsbdevBadArg;
@@ -876,7 +896,7 @@ dif_usbdev_result_t dif_usbdev_irq_get(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_clear(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_clear(const dif_usbdev_t *usbdev,
                                          dif_usbdev_irq_t irq) {
   if (usbdev == NULL || !is_valid_irq(irq)) {
     return kDifUsbdevBadArg;
@@ -888,7 +908,7 @@ dif_usbdev_result_t dif_usbdev_irq_clear(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_clear_all(dif_usbdev_t *usbdev) {
+dif_usbdev_result_t dif_usbdev_irq_clear_all(const dif_usbdev_t *usbdev) {
   if (usbdev == NULL) {
     return kDifUsbdevBadArg;
   }
@@ -899,7 +919,7 @@ dif_usbdev_result_t dif_usbdev_irq_clear_all(dif_usbdev_t *usbdev) {
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_disable_all(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_disable_all(const dif_usbdev_t *usbdev,
                                                uint32_t *cur_config) {
   if (usbdev == NULL) {
     return kDifUsbdevBadArg;
@@ -915,7 +935,7 @@ dif_usbdev_result_t dif_usbdev_irq_disable_all(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_restore(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_restore(const dif_usbdev_t *usbdev,
                                            uint32_t new_config) {
   if (usbdev == NULL) {
     return kDifUsbdevBadArg;
@@ -927,7 +947,7 @@ dif_usbdev_result_t dif_usbdev_irq_restore(dif_usbdev_t *usbdev,
   return kDifUsbdevOK;
 }
 
-dif_usbdev_result_t dif_usbdev_irq_test(dif_usbdev_t *usbdev,
+dif_usbdev_result_t dif_usbdev_irq_test(const dif_usbdev_t *usbdev,
                                         dif_usbdev_irq_t irq) {
   if (usbdev == NULL || !is_valid_irq(irq)) {
     return kDifUsbdevBadArg;
