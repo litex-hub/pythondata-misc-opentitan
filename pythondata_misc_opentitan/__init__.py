@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8191"
-version_tuple = (0, 0, 8191)
+version_str = "0.0.post8193"
+version_tuple = (0, 0, 8193)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8191")
+    pversion = V("0.0.post8193")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8079"
-data_version_tuple = (0, 0, 8079)
+data_version_str = "0.0.post8081"
+data_version_tuple = (0, 0, 8081)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8079")
+    pdata_version = V("0.0.post8081")
 except ImportError:
     pass
-data_git_hash = "054b24698a73be23a3695ea5f60633ed12d8e72c"
-data_git_describe = "v0.0-8079-g054b24698"
+data_git_hash = "ae48437a36306e22e5d0e7b2c08eeccbc1ae0d3e"
+data_git_describe = "v0.0-8081-gae48437a3"
 data_git_msg = """\
-commit 054b24698a73be23a3695ea5f60633ed12d8e72c
+commit ae48437a36306e22e5d0e7b2c08eeccbc1ae0d3e
 Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 7 05:41:09 2021 +0000
+Date:   Thu Oct 7 06:42:41 2021 +0000
 
-    [dif/usbdev] Add const qualifier to device handle.
+    [dif/usbdev] Integrate autogen'd DIF artifacts into src tree.
     
-    It is typical for the first argument of every DIF to be a pointer to the
-    device handle struct. These should be marked const, since DIFs should
-    not modify them.
+    This commit partially addresses #8142. Specifically it:
+    1. deprecates existing (manually implemented) **USB Device**
+       specific DIF return codes and toggle types,
+    2. integrates the auto-generated **USB Device** DIFs into meson build
+       targets, and.
+    3. refactors all existing source code to make use of the new shared DIF
+       types and error codes.
     
     Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
