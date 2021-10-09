@@ -4,40 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8193"
-version_tuple = (0, 0, 8193)
+version_str = "0.0.post8194"
+version_tuple = (0, 0, 8194)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8193")
+    pversion = V("0.0.post8194")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8081"
-data_version_tuple = (0, 0, 8081)
+data_version_str = "0.0.post8082"
+data_version_tuple = (0, 0, 8082)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8081")
+    pdata_version = V("0.0.post8082")
 except ImportError:
     pass
-data_git_hash = "ae48437a36306e22e5d0e7b2c08eeccbc1ae0d3e"
-data_git_describe = "v0.0-8081-gae48437a3"
+data_git_hash = "8fafdc2a3f3d533ddcd7f725475475301cdebf62"
+data_git_describe = "v0.0-8082-g8fafdc2a3"
 data_git_msg = """\
-commit ae48437a36306e22e5d0e7b2c08eeccbc1ae0d3e
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 7 06:42:41 2021 +0000
+commit 8fafdc2a3f3d533ddcd7f725475475301cdebf62
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Oct 7 00:50:40 2021 -0700
 
-    [dif/usbdev] Integrate autogen'd DIF artifacts into src tree.
+    [chip,dv,sw] Add SW timeout functionality
     
-    This commit partially addresses #8142. Specifically it:
-    1. deprecates existing (manually implemented) **USB Device**
-       specific DIF return codes and toggle types,
-    2. integrates the auto-generated **USB Device** DIFs into meson build
-       targets, and.
-    3. refactors all existing source code to make use of the new shared DIF
-       types and error codes.
+    This commit adds 2 inlined functions in `ibex.h` to support a timeout
+    detection capability. The timeout is set in microseconds.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    In addition, it adds a convenience macro that spins on an external
+    expression, throwing an error and aborting immediately if the timeout
+    occurred waiting for that expression to be true.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
