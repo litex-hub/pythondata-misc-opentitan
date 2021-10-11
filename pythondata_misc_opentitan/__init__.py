@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8194"
-version_tuple = (0, 0, 8194)
+version_str = "0.0.post8195"
+version_tuple = (0, 0, 8195)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8194")
+    pversion = V("0.0.post8195")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8082"
-data_version_tuple = (0, 0, 8082)
+data_version_str = "0.0.post8083"
+data_version_tuple = (0, 0, 8083)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8082")
+    pdata_version = V("0.0.post8083")
 except ImportError:
     pass
-data_git_hash = "8fafdc2a3f3d533ddcd7f725475475301cdebf62"
-data_git_describe = "v0.0-8082-g8fafdc2a3"
+data_git_hash = "bf944b6b36b4c4e6ab89c6748754951a786dcb91"
+data_git_describe = "v0.0-8083-gbf944b6b3"
 data_git_msg = """\
-commit 8fafdc2a3f3d533ddcd7f725475475301cdebf62
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Oct 7 00:50:40 2021 -0700
+commit bf944b6b36b4c4e6ab89c6748754951a786dcb91
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 7 13:34:29 2021 +0100
 
-    [chip,dv,sw] Add SW timeout functionality
+    [otbn,dv] Move decision about stats collection to start()
     
-    This commit adds 2 inlined functions in `ibex.h` to support a timeout
-    detection capability. The timeout is set in microseconds.
+    This tidies up some downstream logic (especially with an upcoming
+    refactoring) because we can collect statistics iff the self.stats
+    object is not None. Much easier than wiring through a flag.
     
-    In addition, it adds a convenience macro that spins on an external
-    expression, throwing an error and aborting immediately if the timeout
-    occurred waiting for that expression to be true.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
