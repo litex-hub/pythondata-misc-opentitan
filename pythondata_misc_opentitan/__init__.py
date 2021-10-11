@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8199"
-version_tuple = (0, 0, 8199)
+version_str = "0.0.post8200"
+version_tuple = (0, 0, 8200)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8199")
+    pversion = V("0.0.post8200")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8087"
-data_version_tuple = (0, 0, 8087)
+data_version_str = "0.0.post8088"
+data_version_tuple = (0, 0, 8088)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8087")
+    pdata_version = V("0.0.post8088")
 except ImportError:
     pass
-data_git_hash = "ec41b22863383ac23f2834089c002d5fca009f75"
-data_git_describe = "v0.0-8087-gec41b2286"
+data_git_hash = "901edd1099bcf1583e504a5e60103363854b6ba7"
+data_git_describe = "v0.0-8088-g901edd109"
 data_git_msg = """\
-commit ec41b22863383ac23f2834089c002d5fca009f75
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Oct 11 10:56:08 2021 +0100
+commit 901edd1099bcf1583e504a5e60103363854b6ba7
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Oct 8 12:19:25 2021 -0700
 
-    [otbn,dv] Add utility functions to otbn_env_cfg for IMEM access
+    [dv/pwrmgr] Consolidate reset tests
     
-    These do the (de)scrambling required to do reads and writes. We don't
-    yet do the DMEM side (because we haven't got a use case for it yet).
+    Merge conditional and unconditional escalation and main power glitch
+    reset tests.
+    Also fixes trivial formattter issues.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
