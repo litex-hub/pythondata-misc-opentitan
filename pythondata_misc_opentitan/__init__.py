@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8202"
-version_tuple = (0, 0, 8202)
+version_str = "0.0.post8204"
+version_tuple = (0, 0, 8204)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8202")
+    pversion = V("0.0.post8204")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8090"
-data_version_tuple = (0, 0, 8090)
+data_version_str = "0.0.post8092"
+data_version_tuple = (0, 0, 8092)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8090")
+    pdata_version = V("0.0.post8092")
 except ImportError:
     pass
-data_git_hash = "5038993e18395fc472ae02c103aa74b8b0e220d2"
-data_git_describe = "v0.0-8090-g5038993e1"
+data_git_hash = "16049df3f36306b8d02f640f7e96223223202bd8"
+data_git_describe = "v0.0-8092-g16049df3f"
 data_git_msg = """\
-commit 5038993e18395fc472ae02c103aa74b8b0e220d2
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Thu Sep 30 06:32:20 2021 -0700
+commit 16049df3f36306b8d02f640f7e96223223202bd8
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Oct 4 16:29:55 2021 -0700
 
-    [opentitantool] Refactor IO options for commonality
+    [alert_handler/doc] Update documentation with LPG feature
     
-    1. Place UART and SPI bus parameters into their own structs.  Add
-    `create` functions which apply the requested parameters when creating
-    the requested IO interface.
-    2. Use the Params structs in the `console` and `spi` commands.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
