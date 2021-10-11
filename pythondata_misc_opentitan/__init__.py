@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8197"
-version_tuple = (0, 0, 8197)
+version_str = "0.0.post8199"
+version_tuple = (0, 0, 8199)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8197")
+    pversion = V("0.0.post8199")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8085"
-data_version_tuple = (0, 0, 8085)
+data_version_str = "0.0.post8087"
+data_version_tuple = (0, 0, 8087)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8085")
+    pdata_version = V("0.0.post8087")
 except ImportError:
     pass
-data_git_hash = "a43f4fa31ccf4805fcab307366f7a7b31da9a551"
-data_git_describe = "v0.0-8085-ga43f4fa31"
+data_git_hash = "ec41b22863383ac23f2834089c002d5fca009f75"
+data_git_describe = "v0.0-8087-gec41b2286"
 data_git_msg = """\
-commit a43f4fa31ccf4805fcab307366f7a7b31da9a551
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Oct 8 14:42:28 2021 -0700
+commit ec41b22863383ac23f2834089c002d5fca009f75
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Oct 11 10:56:08 2021 +0100
 
-    [sw/rom_ext] Sign ROM_EXT images with test keys
+    [otbn,dv] Add utility functions to otbn_env_cfg for IMEM access
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    These do the (de)scrambling required to do reads and writes. We don't
+    yet do the DMEM side (because we haven't got a use case for it yet).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
