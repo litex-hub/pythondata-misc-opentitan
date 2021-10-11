@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8196"
-version_tuple = (0, 0, 8196)
+version_str = "0.0.post8197"
+version_tuple = (0, 0, 8197)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8196")
+    pversion = V("0.0.post8197")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8084"
-data_version_tuple = (0, 0, 8084)
+data_version_str = "0.0.post8085"
+data_version_tuple = (0, 0, 8085)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8084")
+    pdata_version = V("0.0.post8085")
 except ImportError:
     pass
-data_git_hash = "5733445f8032d616b1179591c37c2264f6b217ec"
-data_git_describe = "v0.0-8084-g5733445f8"
+data_git_hash = "a43f4fa31ccf4805fcab307366f7a7b31da9a551"
+data_git_describe = "v0.0-8085-ga43f4fa31"
 data_git_msg = """\
-commit 5733445f8032d616b1179591c37c2264f6b217ec
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Wed Oct 6 11:17:28 2021 -0700
+commit a43f4fa31ccf4805fcab307366f7a7b31da9a551
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Oct 8 14:42:28 2021 -0700
 
-    [pwm, rtl] PWM D2 checklist update
+    [sw/rom_ext] Sign ROM_EXT images with test keys
     
-      - Update the D2 checklist for PWM module
-      - Update pwm.prj.hjson file to D2 design stage
-    
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
