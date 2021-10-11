@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8200"
-version_tuple = (0, 0, 8200)
+version_str = "0.0.post8202"
+version_tuple = (0, 0, 8202)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8200")
+    pversion = V("0.0.post8202")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8088"
-data_version_tuple = (0, 0, 8088)
+data_version_str = "0.0.post8090"
+data_version_tuple = (0, 0, 8090)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8088")
+    pdata_version = V("0.0.post8090")
 except ImportError:
     pass
-data_git_hash = "901edd1099bcf1583e504a5e60103363854b6ba7"
-data_git_describe = "v0.0-8088-g901edd109"
+data_git_hash = "5038993e18395fc472ae02c103aa74b8b0e220d2"
+data_git_describe = "v0.0-8090-g5038993e1"
 data_git_msg = """\
-commit 901edd1099bcf1583e504a5e60103363854b6ba7
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Oct 8 12:19:25 2021 -0700
+commit 5038993e18395fc472ae02c103aa74b8b0e220d2
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Sep 30 06:32:20 2021 -0700
 
-    [dv/pwrmgr] Consolidate reset tests
+    [opentitantool] Refactor IO options for commonality
     
-    Merge conditional and unconditional escalation and main power glitch
-    reset tests.
-    Also fixes trivial formattter issues.
+    1. Place UART and SPI bus parameters into their own structs.  Add
+    `create` functions which apply the requested parameters when creating
+    the requested IO interface.
+    2. Use the Params structs in the `console` and `spi` commands.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
