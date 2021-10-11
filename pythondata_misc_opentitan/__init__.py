@@ -4,37 +4,56 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8208"
-version_tuple = (0, 0, 8208)
+version_str = "0.0.post8211"
+version_tuple = (0, 0, 8211)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8208")
+    pversion = V("0.0.post8211")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8096"
-data_version_tuple = (0, 0, 8096)
+data_version_str = "0.0.post8099"
+data_version_tuple = (0, 0, 8099)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8096")
+    pdata_version = V("0.0.post8099")
 except ImportError:
     pass
-data_git_hash = "d0ae0ebb12ad4a3e29985913802606704360c6ac"
-data_git_describe = "v0.0-8096-gd0ae0ebb1"
+data_git_hash = "32c28ca951013f2e866f444f771316ead4249a76"
+data_git_describe = "v0.0-8099-g32c28ca95"
 data_git_msg = """\
-commit d0ae0ebb12ad4a3e29985913802606704360c6ac
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Sep 30 00:08:30 2021 -0700
+commit 32c28ca951013f2e866f444f771316ead4249a76
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Oct 8 14:50:09 2021 -0700
 
-    [dv/shadow_reg] Fix aes shadow reg failure
+    [reggen] Add mubi support into hjson
     
-    This PR fixes aes shadow reg failure:
-    1). AES ctrl shadow reg write needs to update its write value before
-    predicting the shadow reg.
-    2). AES added a few more field in shadow reg.
+    - This primarily ensures reset values are consistent
+    - Fixes #8521
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [reggen] Report error when bit fields are re-used
+    
+    - Fixes #7566
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    Update used bits check
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [reggen] Relocate mubi script
+    
+    - Add to `util/design` area so that it can be directly referenced
+      by fields.py
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    address comments
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
