@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8195"
-version_tuple = (0, 0, 8195)
+version_str = "0.0.post8196"
+version_tuple = (0, 0, 8196)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8195")
+    pversion = V("0.0.post8196")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8083"
-data_version_tuple = (0, 0, 8083)
+data_version_str = "0.0.post8084"
+data_version_tuple = (0, 0, 8084)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8083")
+    pdata_version = V("0.0.post8084")
 except ImportError:
     pass
-data_git_hash = "bf944b6b36b4c4e6ab89c6748754951a786dcb91"
-data_git_describe = "v0.0-8083-gbf944b6b3"
+data_git_hash = "5733445f8032d616b1179591c37c2264f6b217ec"
+data_git_describe = "v0.0-8084-g5733445f8"
 data_git_msg = """\
-commit bf944b6b36b4c4e6ab89c6748754951a786dcb91
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Oct 7 13:34:29 2021 +0100
+commit 5733445f8032d616b1179591c37c2264f6b217ec
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Wed Oct 6 11:17:28 2021 -0700
 
-    [otbn,dv] Move decision about stats collection to start()
+    [pwm, rtl] PWM D2 checklist update
     
-    This tidies up some downstream logic (especially with an upcoming
-    refactoring) because we can collect statistics iff the self.stats
-    object is not None. Much easier than wiring through a flag.
+      - Update the D2 checklist for PWM module
+      - Update pwm.prj.hjson file to D2 design stage
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
