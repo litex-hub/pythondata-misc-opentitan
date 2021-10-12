@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8232"
-version_tuple = (0, 0, 8232)
+version_str = "0.0.post8233"
+version_tuple = (0, 0, 8233)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8232")
+    pversion = V("0.0.post8233")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8120"
-data_version_tuple = (0, 0, 8120)
+data_version_str = "0.0.post8121"
+data_version_tuple = (0, 0, 8121)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8120")
+    pdata_version = V("0.0.post8121")
 except ImportError:
     pass
-data_git_hash = "72535bce8c7ead635c8e90ab6911ae7681a4f6ea"
-data_git_describe = "v0.0-8120-g72535bce8"
+data_git_hash = "52dac1e6cf8aedc8f8df3b0fe948081cde1262a8"
+data_git_describe = "v0.0-8121-g52dac1e6c"
 data_git_msg = """\
-commit 72535bce8c7ead635c8e90ab6911ae7681a4f6ea
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Oct 11 12:10:02 2021 -0700
+commit 52dac1e6cf8aedc8f8df3b0fe948081cde1262a8
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Tue Sep 21 08:11:22 2021 -0700
 
-    [alert_handler/top] Lint fixes and lc_tx_t to mubi4_t conversions
+    [opentitantool] Primitive bootstrap implementation
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    1. Implement the primitive bootstrap protocol used by the opentitan boot_rom.
+    2. Add a bootstrap command to the opentitantool CLI.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
