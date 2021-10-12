@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8218"
-version_tuple = (0, 0, 8218)
+version_str = "0.0.post8221"
+version_tuple = (0, 0, 8221)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8218")
+    pversion = V("0.0.post8221")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8106"
-data_version_tuple = (0, 0, 8106)
+data_version_str = "0.0.post8109"
+data_version_tuple = (0, 0, 8109)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8106")
+    pdata_version = V("0.0.post8109")
 except ImportError:
     pass
-data_git_hash = "6e4471149f57a94946b8d8412a49f90c76184b87"
-data_git_describe = "v0.0-8106-g6e4471149"
+data_git_hash = "ea0407514aef8b9fb6efe8b16330b32c6df05372"
+data_git_describe = "v0.0-8109-gea0407514"
 data_git_msg = """\
-commit 6e4471149f57a94946b8d8412a49f90c76184b87
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Mon Oct 11 12:07:33 2021 -0700
+commit ea0407514aef8b9fb6efe8b16330b32c6df05372
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Oct 11 11:22:00 2021 -0700
 
-    [sw/rom] Remove generic otbn modexp subroutine.
+    [lc_ctrl] Convert mutex into mubi8 type
     
-    Leave only modexp_65537 to save on flash space.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
