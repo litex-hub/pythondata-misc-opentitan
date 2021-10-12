@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8225"
-version_tuple = (0, 0, 8225)
+version_str = "0.0.post8226"
+version_tuple = (0, 0, 8226)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8225")
+    pversion = V("0.0.post8226")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8113"
-data_version_tuple = (0, 0, 8113)
+data_version_str = "0.0.post8114"
+data_version_tuple = (0, 0, 8114)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8113")
+    pdata_version = V("0.0.post8114")
 except ImportError:
     pass
-data_git_hash = "4b3d232ee42c5f24511c89c5eefecc113e9a3ee3"
-data_git_describe = "v0.0-8113-g4b3d232ee"
+data_git_hash = "cd060f6286952190237cda16b5bccdad02db0e0a"
+data_git_describe = "v0.0-8114-gcd060f628"
 data_git_msg = """\
-commit 4b3d232ee42c5f24511c89c5eefecc113e9a3ee3
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Tue Oct 12 07:47:11 2021 -0700
+commit cd060f6286952190237cda16b5bccdad02db0e0a
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Oct 11 22:20:35 2021 -0700
 
-    [entropy_src/dv] push_pull_agent cfg.zero_delays
+    [sram_ctrl/dv] Fix regression failure
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    mask should be applied to both actual data and expected data
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
