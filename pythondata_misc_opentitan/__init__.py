@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8221"
-version_tuple = (0, 0, 8221)
+version_str = "0.0.post8225"
+version_tuple = (0, 0, 8225)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8221")
+    pversion = V("0.0.post8225")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8109"
-data_version_tuple = (0, 0, 8109)
+data_version_str = "0.0.post8113"
+data_version_tuple = (0, 0, 8113)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8109")
+    pdata_version = V("0.0.post8113")
 except ImportError:
     pass
-data_git_hash = "ea0407514aef8b9fb6efe8b16330b32c6df05372"
-data_git_describe = "v0.0-8109-gea0407514"
+data_git_hash = "4b3d232ee42c5f24511c89c5eefecc113e9a3ee3"
+data_git_describe = "v0.0-8113-g4b3d232ee"
 data_git_msg = """\
-commit ea0407514aef8b9fb6efe8b16330b32c6df05372
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Oct 11 11:22:00 2021 -0700
+commit 4b3d232ee42c5f24511c89c5eefecc113e9a3ee3
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Tue Oct 12 07:47:11 2021 -0700
 
-    [lc_ctrl] Convert mutex into mubi8 type
+    [entropy_src/dv] push_pull_agent cfg.zero_delays
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
