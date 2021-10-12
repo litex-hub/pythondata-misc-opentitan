@@ -4,33 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8216"
-version_tuple = (0, 0, 8216)
+version_str = "0.0.post8217"
+version_tuple = (0, 0, 8217)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8216")
+    pversion = V("0.0.post8217")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8104"
-data_version_tuple = (0, 0, 8104)
+data_version_str = "0.0.post8105"
+data_version_tuple = (0, 0, 8105)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8104")
+    pdata_version = V("0.0.post8105")
 except ImportError:
     pass
-data_git_hash = "f139f833c0feeec10c053ec53510aca6137a5232"
-data_git_describe = "v0.0-8104-gf139f833c"
+data_git_hash = "faddce146d4bcfd7079134d2adcdae05ccfe40cf"
+data_git_describe = "v0.0-8105-gfaddce146"
 data_git_msg = """\
-commit f139f833c0feeec10c053ec53510aca6137a5232
+commit faddce146d4bcfd7079134d2adcdae05ccfe40cf
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Oct 11 18:05:26 2021 +0100
+Date:   Fri Oct 8 11:37:08 2021 +0100
 
-    [otbn,dv] Weaken a compatibility check between stall and exec lines
+    [otbn,dv] Allow trace entries from stalls in ISS wrapper
     
-    This is needed to handle the trace output that you get if you inject
-    an IMEM error while an instruction is stalled.
+    This lets us gets rid of some hacks in ISSWrapper::start(). Now, STALL
+    lines can have some associated updates (in practice, these are always
+    to external registers), which get reflected in the model immediately
+    but are merged together with the next execute line to be checked
+    against the RTL.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
