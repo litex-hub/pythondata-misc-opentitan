@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8217"
-version_tuple = (0, 0, 8217)
+version_str = "0.0.post8218"
+version_tuple = (0, 0, 8218)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8217")
+    pversion = V("0.0.post8218")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8105"
-data_version_tuple = (0, 0, 8105)
+data_version_str = "0.0.post8106"
+data_version_tuple = (0, 0, 8106)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8105")
+    pdata_version = V("0.0.post8106")
 except ImportError:
     pass
-data_git_hash = "faddce146d4bcfd7079134d2adcdae05ccfe40cf"
-data_git_describe = "v0.0-8105-gfaddce146"
+data_git_hash = "6e4471149f57a94946b8d8412a49f90c76184b87"
+data_git_describe = "v0.0-8106-g6e4471149"
 data_git_msg = """\
-commit faddce146d4bcfd7079134d2adcdae05ccfe40cf
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 8 11:37:08 2021 +0100
+commit 6e4471149f57a94946b8d8412a49f90c76184b87
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Mon Oct 11 12:07:33 2021 -0700
 
-    [otbn,dv] Allow trace entries from stalls in ISS wrapper
+    [sw/rom] Remove generic otbn modexp subroutine.
     
-    This lets us gets rid of some hacks in ISSWrapper::start(). Now, STALL
-    lines can have some associated updates (in practice, these are always
-    to external registers), which get reflected in the model immediately
-    but are merged together with the next execute line to be checked
-    against the RTL.
+    Leave only modexp_65537 to save on flash space.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
