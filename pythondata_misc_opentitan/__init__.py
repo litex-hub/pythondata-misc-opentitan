@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8214"
-version_tuple = (0, 0, 8214)
+version_str = "0.0.post8216"
+version_tuple = (0, 0, 8216)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8214")
+    pversion = V("0.0.post8216")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8102"
-data_version_tuple = (0, 0, 8102)
+data_version_str = "0.0.post8104"
+data_version_tuple = (0, 0, 8104)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8102")
+    pdata_version = V("0.0.post8104")
 except ImportError:
     pass
-data_git_hash = "366c41832947783734e8026757903c7188e2d79a"
-data_git_describe = "v0.0-8102-g366c41832"
+data_git_hash = "f139f833c0feeec10c053ec53510aca6137a5232"
+data_git_describe = "v0.0-8104-gf139f833c"
 data_git_msg = """\
-commit 366c41832947783734e8026757903c7188e2d79a
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Fri Oct 8 09:37:21 2021 +0100
+commit f139f833c0feeec10c053ec53510aca6137a5232
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Oct 11 18:05:26 2021 +0100
 
-    [rstmgr] Add missing dependency on alert_handler_component
+    [otbn,dv] Weaken a compatibility check between stall and exec lines
     
-    `rstmgr.sv` uses `alert_pkg`. The package containing this file needs to
-    be listed as dependency.
+    This is needed to handle the trace output that you get if you inject
+    an IMEM error while an instruction is stalled.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
