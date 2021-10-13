@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8238"
-version_tuple = (0, 0, 8238)
+version_str = "0.0.post8245"
+version_tuple = (0, 0, 8245)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8238")
+    pversion = V("0.0.post8245")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8126"
-data_version_tuple = (0, 0, 8126)
+data_version_str = "0.0.post8133"
+data_version_tuple = (0, 0, 8133)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8126")
+    pdata_version = V("0.0.post8133")
 except ImportError:
     pass
-data_git_hash = "2428d66c0c389435b31bf06e190931454efb00dd"
-data_git_describe = "v0.0-8126-g2428d66c0"
+data_git_hash = "0c91929d95ff5a84d8336555e681debc564f0eef"
+data_git_describe = "v0.0-8133-g0c91929d9"
 data_git_msg = """\
-commit 2428d66c0c389435b31bf06e190931454efb00dd
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Oct 13 14:02:50 2021 +0100
+commit 0c91929d95ff5a84d8336555e681debc564f0eef
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Oct 5 17:50:26 2021 -0700
 
-    [otbn,dv] Remove unused static set_rnd_data in otbn_model.cc
+    [sw/aes-testutils] Add aes testutils
     
-    This has been unused since 5480504 (which switched to passing 32 bits
-    at a time).
+    Added these to make aes_idle.c test in PR #8451 a bit more
+    streamlined.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
