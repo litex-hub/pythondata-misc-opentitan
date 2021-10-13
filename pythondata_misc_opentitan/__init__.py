@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8237"
-version_tuple = (0, 0, 8237)
+version_str = "0.0.post8238"
+version_tuple = (0, 0, 8238)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8237")
+    pversion = V("0.0.post8238")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8125"
-data_version_tuple = (0, 0, 8125)
+data_version_str = "0.0.post8126"
+data_version_tuple = (0, 0, 8126)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8125")
+    pdata_version = V("0.0.post8126")
 except ImportError:
     pass
-data_git_hash = "b7b55724be513e0a91b22262d39bce279b98f8b0"
-data_git_describe = "v0.0-8125-gb7b55724b"
+data_git_hash = "2428d66c0c389435b31bf06e190931454efb00dd"
+data_git_describe = "v0.0-8126-g2428d66c0"
 data_git_msg = """\
-commit b7b55724be513e0a91b22262d39bce279b98f8b0
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Tue Oct 12 11:44:58 2021 -0700
+commit 2428d66c0c389435b31bf06e190931454efb00dd
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Oct 13 14:02:50 2021 +0100
 
-    [csrng/doc] fix app command flags table
+    [otbn,dv] Remove unused static set_rnd_data in otbn_model.cc
     
-    The markdown tags were in the wrong spot for row 3 of the flag0/clen table.
+    This has been unused since 5480504 (which switched to passing 32 bits
+    at a time).
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
