@@ -4,35 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8245"
-version_tuple = (0, 0, 8245)
+version_str = "0.0.post8248"
+version_tuple = (0, 0, 8248)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8245")
+    pversion = V("0.0.post8248")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8133"
-data_version_tuple = (0, 0, 8133)
+data_version_str = "0.0.post8136"
+data_version_tuple = (0, 0, 8136)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8133")
+    pdata_version = V("0.0.post8136")
 except ImportError:
     pass
-data_git_hash = "0c91929d95ff5a84d8336555e681debc564f0eef"
-data_git_describe = "v0.0-8133-g0c91929d9"
+data_git_hash = "e56b147144d2d9c2a412e7a52d90cd39f4a9274a"
+data_git_describe = "v0.0-8136-ge56b14714"
 data_git_msg = """\
-commit 0c91929d95ff5a84d8336555e681debc564f0eef
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Oct 5 17:50:26 2021 -0700
+commit e56b147144d2d9c2a412e7a52d90cd39f4a9274a
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 6 19:01:01 2021 +0000
 
-    [sw/aes-testutils] Add aes testutils
+    [hw/aon_timer] Make IRQ and signal names consistent.
     
-    Added these to make aes_idle.c test in PR #8451 a bit more
-    streamlined.
+    This fixes #8533.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Every IP that can raise IRQs has an `interrupt_list` field in its HJSON
+    file that lists the names (in snake case) and brief descriptions (in a
+    full sentence/phrase) of each interrupt it produces.
+    
+    Additionally, for IPs that raise IRQs, their HJSON usually defines the
+    following three registers: INTR_STATE, INTR_ENABLE, and INTR_TEST.
+    Typically, the bit fields within each of those three registers map 1:1
+    with the interrupts listed above in the `interrupt_list` field, and
+    **_therefore their names match_**.
+    
+    However, in the aon_timer, the `wdog_timer_bark` interrupt was also
+    referred to as `wdog_timer_expired`. This fixes this naming
+    irregularity.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
