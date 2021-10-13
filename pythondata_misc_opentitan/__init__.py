@@ -4,34 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8254"
-version_tuple = (0, 0, 8254)
+version_str = "0.0.post8255"
+version_tuple = (0, 0, 8255)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8254")
+    pversion = V("0.0.post8255")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8142"
-data_version_tuple = (0, 0, 8142)
+data_version_str = "0.0.post8143"
+data_version_tuple = (0, 0, 8143)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8142")
+    pdata_version = V("0.0.post8143")
 except ImportError:
     pass
-data_git_hash = "8eb6722441aec661e6ce74ea430ee4573ed6ff05"
-data_git_describe = "v0.0-8142-g8eb672244"
+data_git_hash = "937d707e7b1a666bf2a06bbc2c774553d140497a"
+data_git_describe = "v0.0-8143-g937d707e7"
 data_git_msg = """\
-commit 8eb6722441aec661e6ce74ea430ee4573ed6ff05
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Oct 13 12:53:16 2021 -0700
+commit 937d707e7b1a666bf2a06bbc2c774553d140497a
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 12 16:19:13 2021 -0700
 
-    [dv/clkmgr] Disable common tests for measurement CSR
+    [dv] Fix shadow reg backdoor path and enable csr_reset sequence
     
-    These can trigger other CSR updates which the common tests can't predict.
+    Thanks Tim Chen for finding the backdoor path issue that we deposit
+    backdoor value into a net rather a storage
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    1. This PR removed committed path as we only need the default path and
+    shadow path
+    2. Fixed default path to a real storage register
+    3. Enhance csr_wr seq to backdoor write all the paths for csr_reset seq
+    4. Enhance csr_reset seq to also do backdoor read check to ensure we
+    don't deposit value to a net
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
