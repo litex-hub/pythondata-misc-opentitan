@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8236"
-version_tuple = (0, 0, 8236)
+version_str = "0.0.post8237"
+version_tuple = (0, 0, 8237)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8236")
+    pversion = V("0.0.post8237")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8124"
-data_version_tuple = (0, 0, 8124)
+data_version_str = "0.0.post8125"
+data_version_tuple = (0, 0, 8125)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8124")
+    pdata_version = V("0.0.post8125")
 except ImportError:
     pass
-data_git_hash = "52512e8023f26a6ee65661641c47e3fd33b1949f"
-data_git_describe = "v0.0-8124-g52512e802"
+data_git_hash = "b7b55724be513e0a91b22262d39bce279b98f8b0"
+data_git_describe = "v0.0-8125-gb7b55724b"
 data_git_msg = """\
-commit 52512e8023f26a6ee65661641c47e3fd33b1949f
-Author: {Pascal Nasahl} <nasahl@google.com>
-Date:   Mon Oct 11 17:33:38 2021 +0000
+commit b7b55724be513e0a91b22262d39bce279b98f8b0
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Oct 12 11:44:58 2021 -0700
 
-    [aes/pre_syn] Added missing keymgr_pkg file for Yosys synthesis
+    [csrng/doc] fix app command flags table
     
-    Signed-off-by: {Pascal Nasahl} <nasahl@google.com>
+    The markdown tags were in the wrong spot for row 3 of the flag0/clen table.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
