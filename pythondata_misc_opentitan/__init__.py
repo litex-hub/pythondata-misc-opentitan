@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8251"
-version_tuple = (0, 0, 8251)
+version_str = "0.0.post8254"
+version_tuple = (0, 0, 8254)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8251")
+    pversion = V("0.0.post8254")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8139"
-data_version_tuple = (0, 0, 8139)
+data_version_str = "0.0.post8142"
+data_version_tuple = (0, 0, 8142)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8139")
+    pdata_version = V("0.0.post8142")
 except ImportError:
     pass
-data_git_hash = "158a22b3aa48d579db1aded266d77e69609a4e4c"
-data_git_describe = "v0.0-8139-g158a22b3a"
+data_git_hash = "8eb6722441aec661e6ce74ea430ee4573ed6ff05"
+data_git_describe = "v0.0-8142-g8eb672244"
 data_git_msg = """\
-commit 158a22b3aa48d579db1aded266d77e69609a4e4c
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Oct 13 00:37:52 2021 -0700
+commit 8eb6722441aec661e6ce74ea430ee4573ed6ff05
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Oct 13 12:53:16 2021 -0700
 
-    [util, dvsim] Remove CLOUDSDK_PYTHON override
+    [dv/clkmgr] Disable common tests for measurement CSR
     
-    This override of Python version to invoke `gsutil` is no longer needed.
+    These can trigger other CSR updates which the common tests can't predict.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
