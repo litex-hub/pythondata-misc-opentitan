@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8249"
-version_tuple = (0, 0, 8249)
+version_str = "0.0.post8251"
+version_tuple = (0, 0, 8251)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8249")
+    pversion = V("0.0.post8251")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8137"
-data_version_tuple = (0, 0, 8137)
+data_version_str = "0.0.post8139"
+data_version_tuple = (0, 0, 8139)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8137")
+    pdata_version = V("0.0.post8139")
 except ImportError:
     pass
-data_git_hash = "febdee3ea9134ebfbaf12fe276cdf6e747129ee1"
-data_git_describe = "v0.0-8137-gfebdee3ea"
+data_git_hash = "158a22b3aa48d579db1aded266d77e69609a4e4c"
+data_git_describe = "v0.0-8139-g158a22b3a"
 data_git_msg = """\
-commit febdee3ea9134ebfbaf12fe276cdf6e747129ee1
+commit 158a22b3aa48d579db1aded266d77e69609a4e4c
 Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Oct 5 17:45:09 2021 -0700
+Date:   Wed Oct 13 00:37:52 2021 -0700
 
-    [sw/clkmgr_testutils] Add clkmgr testutils
+    [util, dvsim] Remove CLOUDSDK_PYTHON override
     
-    Added these to make `aes_idle.c` test in PR #8451 a bit more
-    streamlined. These utils will be needed in other idle tests.
+    This override of Python version to invoke `gsutil` is no longer needed.
     
     Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
