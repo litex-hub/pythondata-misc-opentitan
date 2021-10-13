@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8235"
-version_tuple = (0, 0, 8235)
+version_str = "0.0.post8236"
+version_tuple = (0, 0, 8236)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8235")
+    pversion = V("0.0.post8236")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8123"
-data_version_tuple = (0, 0, 8123)
+data_version_str = "0.0.post8124"
+data_version_tuple = (0, 0, 8124)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8123")
+    pdata_version = V("0.0.post8124")
 except ImportError:
     pass
-data_git_hash = "6c7ce7683b3a1ad82496db7cfd67f174164b6502"
-data_git_describe = "v0.0-8123-g6c7ce7683"
+data_git_hash = "52512e8023f26a6ee65661641c47e3fd33b1949f"
+data_git_describe = "v0.0-8124-g52512e802"
 data_git_msg = """\
-commit 6c7ce7683b3a1ad82496db7cfd67f174164b6502
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Oct 12 12:43:06 2021 -0700
+commit 52512e8023f26a6ee65661641c47e3fd33b1949f
+Author: {Pascal Nasahl} <nasahl@google.com>
+Date:   Mon Oct 11 17:33:38 2021 +0000
 
-    [ spi_host, rtl ] Fix CSAAT behavior
+    [aes/pre_syn] Added missing keymgr_pkg file for Yosys synthesis
     
-    When ending a segment forces SPI HOST FSM to look at CSAAT for the
-    currently running segment, not one that is potentially pending at
-    the FSM inputs.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: {Pascal Nasahl} <nasahl@google.com>
 
 """
 
