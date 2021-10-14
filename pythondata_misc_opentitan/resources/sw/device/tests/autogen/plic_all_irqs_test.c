@@ -40,7 +40,6 @@
 #include "sw/device/lib/testing/test_framework/test_main.h"
 #include "sw/device/lib/testing/test_framework/test_status.h"
 #include "sw/device/tests/plic_all_irqs_test_helper.h"
-#include "alert_handler_regs.h"  // Generated.
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
 // static dif_adc_ctrl_t adc_ctrl_aon;
@@ -144,7 +143,7 @@ static volatile dif_usbdev_irq_t usbdev_irq_serviced;
 void handler_irq_external(void) {
   // Find which interrupt fired at PLIC by claiming it.
   dif_rv_plic_irq_id_t plic_irq_id;
-  CHECK(dif_rv_plic_irq_claim(&plic, kHart, &plic_irq_id) == kDifRvPlicOk);
+  CHECK_DIF_OK(dif_rv_plic_irq_claim(&plic, kHart, &plic_irq_id));
 
   // Check if it is the right peripheral.
   top_earlgrey_plic_peripheral_t peripheral = (top_earlgrey_plic_peripheral_t)
@@ -251,22 +250,17 @@ void handler_irq_external(void) {
   }
 
   // Complete the IRQ at PLIC.
-  CHECK(dif_rv_plic_irq_complete(&plic, kHart, plic_irq_id) == kDifRvPlicOk);
+  CHECK_DIF_OK(dif_rv_plic_irq_complete(&plic, kHart, plic_irq_id));
 }
 
 /**
  * Initializes the handles to all peripherals.
  */
 static void peripherals_init(void) {
-  dif_alert_handler_params_t alert_handler_params = {
-      .alert_count = ALERT_HANDLER_PARAM_N_ALERTS,
-      .escalation_signal_count = ALERT_HANDLER_PARAM_N_ESC_SEV};
-
   // PERIPHERAL_INIT(adc_ctrl, adc_ctrl_aon,
   // TOP_EARLGREY_ADC_CTRL_AON_BASE_ADDR);
-  PERIPHERAL_INIT_WITH_PARAMS(alert_handler, alert_handler_params,
-                              alert_handler,
-                              TOP_EARLGREY_ALERT_HANDLER_BASE_ADDR);
+  PERIPHERAL_INIT(alert_handler, alert_handler,
+                  TOP_EARLGREY_ALERT_HANDLER_BASE_ADDR);
   // PERIPHERAL_INIT(aon_timer, aon_timer_aon,
   // TOP_EARLGREY_AON_TIMER_AON_BASE_ADDR);
   PERIPHERAL_INIT(csrng, csrng, TOP_EARLGREY_CSRNG_BASE_ADDR);
@@ -300,8 +294,7 @@ static void peripherals_init(void) {
 
   mmio_region_t base_addr =
       mmio_region_from_addr(TOP_EARLGREY_RV_PLIC_BASE_ADDR);
-  CHECK(dif_rv_plic_init((dif_rv_plic_params_t){.base_addr = base_addr},
-                         &plic) == kDifRvPlicOk);
+  CHECK_DIF_OK(dif_rv_plic_init(base_addr, &plic));
 }
 
 /**
