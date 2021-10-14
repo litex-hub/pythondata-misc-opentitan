@@ -4,35 +4,47 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8273"
-version_tuple = (0, 0, 8273)
+version_str = "0.0.post8279"
+version_tuple = (0, 0, 8279)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8273")
+    pversion = V("0.0.post8279")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8161"
-data_version_tuple = (0, 0, 8161)
+data_version_str = "0.0.post8167"
+data_version_tuple = (0, 0, 8167)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8161")
+    pdata_version = V("0.0.post8167")
 except ImportError:
     pass
-data_git_hash = "f6b50a0b96157d6c4d16d694151cb7a1493e4c56"
-data_git_describe = "v0.0-8161-gf6b50a0b9"
+data_git_hash = "936db9a03080ca0a42ac56a094c1eb90e11bfd50"
+data_git_describe = "v0.0-8167-g936db9a03"
 data_git_msg = """\
-commit f6b50a0b96157d6c4d16d694151cb7a1493e4c56
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Oct 14 08:37:26 2021 -0700
+commit 936db9a03080ca0a42ac56a094c1eb90e11bfd50
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 13 19:55:11 2021 +0000
 
-    [dv/clkmgr] Enable threshold writes
+    [dif/alert_handler] Remove need to pass in HW params.
     
-    Block writes to the measurement enable CSR fields, but allow writes
-    to the threshold fields.
+    This partially addresses #8409, with respect to the Alert Handler.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Templated IPs (which have the `templated` attribute in the `<toplevel>.hjson`
+    file) **_may_** have DIFs that require extra bits of information related to
+    the specific toplevel instantiation of said IP for DIF arg-checking purposes.
+    This toplevel instantiation specific information was most recently
+    encapsulated in the `dif_<ip>_params_t` struct, which was manually defined
+    in the Alert Handler's DIF header file, and passed in as an argument to
+    various DIFs. However, the information contained in this struct is
+    already automatically generated in the `alert_handler_regs.h` header
+    file. To reduce usage complexity, the `dif_alert_handler_params_t`
+    struct was deprecated, and the required parameter information is used
+    directly from the `alert_handler_regs.h` header file throughout the
+    various Alert Handler DIFs that require this information.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
