@@ -4,52 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8259"
-version_tuple = (0, 0, 8259)
+version_str = "0.0.post8264"
+version_tuple = (0, 0, 8264)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8259")
+    pversion = V("0.0.post8264")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8147"
-data_version_tuple = (0, 0, 8147)
+data_version_str = "0.0.post8152"
+data_version_tuple = (0, 0, 8152)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8147")
+    pdata_version = V("0.0.post8152")
 except ImportError:
     pass
-data_git_hash = "22af1e8d98b1a1753af0e34ef37ed333fc082c4a"
-data_git_describe = "v0.0-8147-g22af1e8d9"
+data_git_hash = "e10832013c8f4e4969732f4e96831c9e39c7b82c"
+data_git_describe = "v0.0-8152-ge10832013"
 data_git_msg = """\
-commit 22af1e8d98b1a1753af0e34ef37ed333fc082c4a
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Oct 13 15:46:39 2021 +0100
+commit e10832013c8f4e4969732f4e96831c9e39c7b82c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Oct 13 17:40:24 2021 -0700
 
-    [otbn,dv] Sample RTL signals on first cycle of instruction
+    [chip/testplan] Add alert ping output
     
-    We sample various internal RTL signals in order to do coverage
-    collection. These are supposed to be "the value of the state just
-    before the instruction ran". Most of the time, this is the same as
-    "the value of the state just before the last cycle of running the
-    instruction", but that's not quite always true.
+    This PR addes a testplan entry about alert handler ping timeout.
     
-    In particular, consider the following instruction:
-    
-      BN.LID x1, 0(x0)
-    
-    This reads from the call stack (x1) in order to get a destination
-    address. With the current RTL implementation, the call stack pop
-    happens on the first cycle which means that the previous code was
-    sampling too late and saw an empty call stack. We wouldn't have
-    noticed, except that the checks on "lockl_x1_uflow" in otbn_env_cov
-    were failing (because we thought we should have seen a call stack
-    underflow and the RTL disagreed).
-    
-    Fixes #8587.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
