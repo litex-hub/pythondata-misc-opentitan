@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8282"
-version_tuple = (0, 0, 8282)
+version_str = "0.0.post8283"
+version_tuple = (0, 0, 8283)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8282")
+    pversion = V("0.0.post8283")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8170"
-data_version_tuple = (0, 0, 8170)
+data_version_str = "0.0.post8171"
+data_version_tuple = (0, 0, 8171)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8170")
+    pdata_version = V("0.0.post8171")
 except ImportError:
     pass
-data_git_hash = "126c22a6d4e5da97c25c26429c6529bac68671c6"
-data_git_describe = "v0.0-8170-g126c22a6d"
+data_git_hash = "87e842f353fc02b7fafc91fe720dfa3dbb020597"
+data_git_describe = "v0.0-8171-g87e842f35"
 data_git_msg = """\
-commit 126c22a6d4e5da97c25c26429c6529bac68671c6
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Sep 30 15:51:46 2021 -0700
+commit 87e842f353fc02b7fafc91fe720dfa3dbb020597
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Wed Oct 13 16:22:47 2021 -0700
 
-    [top] Convert to mubi usage in some areas
+    [spi_host, rtl] SPI_HOST RTL update to fix issue #8643
     
-    - Convert to mubi usage for tlul interface
+      - Update the cmd_end_o logic to fix the issue #8643
+      - Spit the cmd_end_o to last_read_o and last_write_o to handle read and write separately
+      - Fixes #8643
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [dv] corresponding dv changes
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
