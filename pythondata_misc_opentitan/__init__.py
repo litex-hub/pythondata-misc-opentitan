@@ -4,42 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8255"
-version_tuple = (0, 0, 8255)
+version_str = "0.0.post8258"
+version_tuple = (0, 0, 8258)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8255")
+    pversion = V("0.0.post8258")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8143"
-data_version_tuple = (0, 0, 8143)
+data_version_str = "0.0.post8146"
+data_version_tuple = (0, 0, 8146)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8143")
+    pdata_version = V("0.0.post8146")
 except ImportError:
     pass
-data_git_hash = "937d707e7b1a666bf2a06bbc2c774553d140497a"
-data_git_describe = "v0.0-8143-g937d707e7"
+data_git_hash = "4a8e2ce55209660d86d89f4cb054165a362292b8"
+data_git_describe = "v0.0-8146-g4a8e2ce55"
 data_git_msg = """\
-commit 937d707e7b1a666bf2a06bbc2c774553d140497a
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Oct 12 16:19:13 2021 -0700
+commit 4a8e2ce55209660d86d89f4cb054165a362292b8
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 6 00:19:34 2021 +0000
 
-    [dv] Fix shadow reg backdoor path and enable csr_reset sequence
+    [dif/aon_timer] Integrate autogen'd IRQ DIFs into test code.
     
-    Thanks Tim Chen for finding the backdoor path issue that we deposit
-    backdoor value into a net rather a storage
+    This commit partially addresses #8142. Specifically it:
+    1. deprecates existing (manually implemented) **Always-On Timer** IRQ DIFs,
+    2. integrates the auto-generated **Always-On Timer** IRQ DIFs into meson build
+       targets, and
+    3. refactors all existing source code to make use of the new auto-genenerated
+       **Always-On Timer** IRQ DIFs, and supporting shared DIF typedefs and
+       error codes.
     
-    1. This PR removed committed path as we only need the default path and
-    shadow path
-    2. Fixed default path to a real storage register
-    3. Enhance csr_wr seq to backdoor write all the paths for csr_reset seq
-    4. Enhance csr_reset seq to also do backdoor read check to ensure we
-    don't deposit value to a net
+    This continues the long-term goal of auto-generating all IRQ DIFs across
+    all IPs, as described in #8142.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
