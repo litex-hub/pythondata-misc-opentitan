@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8287"
-version_tuple = (0, 0, 8287)
+version_str = "0.0.post8292"
+version_tuple = (0, 0, 8292)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8287")
+    pversion = V("0.0.post8292")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8175"
-data_version_tuple = (0, 0, 8175)
+data_version_str = "0.0.post8180"
+data_version_tuple = (0, 0, 8180)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8175")
+    pdata_version = V("0.0.post8180")
 except ImportError:
     pass
-data_git_hash = "e2175e2e3538235dc1de4447f6d53cd8fccc8c63"
-data_git_describe = "v0.0-8175-ge2175e2e3"
+data_git_hash = "417e26e950fd095e81f9b330e4c4895f286176d8"
+data_git_describe = "v0.0-8180-g417e26e95"
 data_git_msg = """\
-commit e2175e2e3538235dc1de4447f6d53cd8fccc8c63
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Oct 14 14:03:21 2021 +0100
+commit 417e26e950fd095e81f9b330e4c4895f286176d8
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Mon Oct 4 17:52:55 2021 +0100
 
-    [otbn] Pick values for CMD register with large Hamming distance
+    [otbn, sw] Add software errors fatal mode testing to smoke test
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
