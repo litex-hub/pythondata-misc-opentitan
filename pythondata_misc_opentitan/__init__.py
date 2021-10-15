@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8306"
-version_tuple = (0, 0, 8306)
+version_str = "0.0.post8308"
+version_tuple = (0, 0, 8308)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8306")
+    pversion = V("0.0.post8308")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8194"
-data_version_tuple = (0, 0, 8194)
+data_version_str = "0.0.post8196"
+data_version_tuple = (0, 0, 8196)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8194")
+    pdata_version = V("0.0.post8196")
 except ImportError:
     pass
-data_git_hash = "055ac9ddf5952084b4eb50ff0b4f7cf246a6d53c"
-data_git_describe = "v0.0-8194-g055ac9ddf"
+data_git_hash = "d7f00ea49fe2eea5bebf6d1e579f9f5b582d3438"
+data_git_describe = "v0.0-8196-gd7f00ea49"
 data_git_msg = """\
-commit 055ac9ddf5952084b4eb50ff0b4f7cf246a6d53c
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 14 23:14:11 2021 +0000
+commit d7f00ea49fe2eea5bebf6d1e579f9f5b582d3438
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 14 14:52:00 2021 -0700
 
-    [dif/clkmgr] Moved HW config checks to static asserts.
+    [rstmgr/pwrmgr] Allow software to directly request device reset
     
-    Some HW configuration checks were done unnecessarily within a DIF vs. as
-    a static_assert. This fixes that mistake, as pointed out in #8661.
+    - Fixes #8285
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw] Add a simple software test case
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [top] Auto generate
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
