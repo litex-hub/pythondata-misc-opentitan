@@ -4,42 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8308"
-version_tuple = (0, 0, 8308)
+version_str = "0.0.post8311"
+version_tuple = (0, 0, 8311)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8308")
+    pversion = V("0.0.post8311")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8196"
-data_version_tuple = (0, 0, 8196)
+data_version_str = "0.0.post8199"
+data_version_tuple = (0, 0, 8199)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8196")
+    pdata_version = V("0.0.post8199")
 except ImportError:
     pass
-data_git_hash = "d7f00ea49fe2eea5bebf6d1e579f9f5b582d3438"
-data_git_describe = "v0.0-8196-gd7f00ea49"
+data_git_hash = "727f1312ea6602e586ff0b34029dd674c22e7ab6"
+data_git_describe = "v0.0-8199-g727f1312e"
 data_git_msg = """\
-commit d7f00ea49fe2eea5bebf6d1e579f9f5b582d3438
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Oct 14 14:52:00 2021 -0700
+commit 727f1312ea6602e586ff0b34029dd674c22e7ab6
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Oct 13 09:43:09 2021 -0700
 
-    [rstmgr/pwrmgr] Allow software to directly request device reset
+    [opentitantool] Support bitstream loading on the CW310 board
     
-    - Fixes #8285
+    1. Add an fpga_program function to the Transport trait.
+    2. Add the bitstream programming procedure to the CW310 backend.
+    3. Add a CLI command to program the bitstream.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [sw] Add a simple software test case
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [top] Auto generate
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
