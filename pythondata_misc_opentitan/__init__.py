@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8305"
-version_tuple = (0, 0, 8305)
+version_str = "0.0.post8306"
+version_tuple = (0, 0, 8306)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8305")
+    pversion = V("0.0.post8306")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8193"
-data_version_tuple = (0, 0, 8193)
+data_version_str = "0.0.post8194"
+data_version_tuple = (0, 0, 8194)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8193")
+    pdata_version = V("0.0.post8194")
 except ImportError:
     pass
-data_git_hash = "18dc61a53ea9d46a34fabee933067b243812e783"
-data_git_describe = "v0.0-8193-g18dc61a53"
+data_git_hash = "055ac9ddf5952084b4eb50ff0b4f7cf246a6d53c"
+data_git_describe = "v0.0-8194-g055ac9ddf"
 data_git_msg = """\
-commit 18dc61a53ea9d46a34fabee933067b243812e783
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Oct 14 10:39:58 2021 -0700
+commit 055ac9ddf5952084b4eb50ff0b4f7cf246a6d53c
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Oct 14 23:14:11 2021 +0000
 
-    [hw/rom] Increase ROM size to 32kB.
+    [dif/clkmgr] Moved HW config checks to static asserts.
     
-    Increase mask ROM to 32kB to allow the mask ROM development to continue
-    before we start size optimizations.
+    Some HW configuration checks were done unnecessarily within a DIF vs. as
+    a static_assert. This fixes that mistake, as pointed out in #8661.
     
-    Even though the mask ROM size may potentially fit within 16kB, it is
-    safer to preallocate additional space while we iterate over countermeasures
-    and final feature set.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
