@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8303"
-version_tuple = (0, 0, 8303)
+version_str = "0.0.post8305"
+version_tuple = (0, 0, 8305)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8303")
+    pversion = V("0.0.post8305")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8191"
-data_version_tuple = (0, 0, 8191)
+data_version_str = "0.0.post8193"
+data_version_tuple = (0, 0, 8193)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8191")
+    pdata_version = V("0.0.post8193")
 except ImportError:
     pass
-data_git_hash = "9f7e6d7246903d9095e99c540f39d21d4b93c7d6"
-data_git_describe = "v0.0-8191-g9f7e6d724"
+data_git_hash = "18dc61a53ea9d46a34fabee933067b243812e783"
+data_git_describe = "v0.0-8193-g18dc61a53"
 data_git_msg = """\
-commit 9f7e6d7246903d9095e99c540f39d21d4b93c7d6
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 14 10:42:44 2021 -0700
+commit 18dc61a53ea9d46a34fabee933067b243812e783
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Oct 14 10:39:58 2021 -0700
 
-    [fpv] FPV testbench rename
+    [hw/rom] Increase ROM size to 32kB.
     
-    This PR updates the batch script and use the _tb name for DUT names.
+    Increase mask ROM to 32kB to allow the mask ROM development to continue
+    before we start size optimizations.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Even though the mask ROM size may potentially fit within 16kB, it is
+    safer to preallocate additional space while we iterate over countermeasures
+    and final feature set.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
