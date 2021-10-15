@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8299"
-version_tuple = (0, 0, 8299)
+version_str = "0.0.post8303"
+version_tuple = (0, 0, 8303)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8299")
+    pversion = V("0.0.post8303")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8187"
-data_version_tuple = (0, 0, 8187)
+data_version_str = "0.0.post8191"
+data_version_tuple = (0, 0, 8191)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8187")
+    pdata_version = V("0.0.post8191")
 except ImportError:
     pass
-data_git_hash = "2db51d2441bb2c9e643774432c0ae45f6b09e33d"
-data_git_describe = "v0.0-8187-g2db51d244"
+data_git_hash = "9f7e6d7246903d9095e99c540f39d21d4b93c7d6"
+data_git_describe = "v0.0-8191-g9f7e6d724"
 data_git_msg = """\
-commit 2db51d2441bb2c9e643774432c0ae45f6b09e33d
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Oct 14 07:21:01 2021 -0700
+commit 9f7e6d7246903d9095e99c540f39d21d4b93c7d6
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Oct 14 10:42:44 2021 -0700
 
-    [entropy_src/rtl] fix rng bit mode
+    [fpv] FPV testbench rename
     
-    RNG bit mode is a diagnostic mode that needed a bug fix.
+    This PR updates the batch script and use the _tb name for DUT names.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
