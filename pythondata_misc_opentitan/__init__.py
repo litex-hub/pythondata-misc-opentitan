@@ -4,42 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8295"
-version_tuple = (0, 0, 8295)
+version_str = "0.0.post8298"
+version_tuple = (0, 0, 8298)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8295")
+    pversion = V("0.0.post8298")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8183"
-data_version_tuple = (0, 0, 8183)
+data_version_str = "0.0.post8186"
+data_version_tuple = (0, 0, 8186)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8183")
+    pdata_version = V("0.0.post8186")
 except ImportError:
     pass
-data_git_hash = "6cc78111c39bd27939cc562169ed0eeefb534036"
-data_git_describe = "v0.0-8183-g6cc78111c"
+data_git_hash = "b9bc4878f97b9258435b106f840db27488fe0374"
+data_git_describe = "v0.0-8186-gb9bc4878f"
 data_git_msg = """\
-commit 6cc78111c39bd27939cc562169ed0eeefb534036
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Tue Sep 28 16:45:05 2021 -0700
+commit b9bc4878f97b9258435b106f840db27488fe0374
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Oct 13 15:54:02 2021 -0700
 
-    [sw/dif] Add FW override support to entropy src.
+    [csrng] Mubi updates
     
-    The entropy src allows the firmware to disconnect the raw entropy from
-    the pre-conditioner block at the output of the health checks. This
-    allows firmware to access raw entropy.
+    - Use mubi instead of custom defined types.
     
-    The firmware can also write data into the pre-conditioner block to
-    provide firmware-controlled entropy at the output of the entropy src.
-    
-    This functionality can be useful to implement KAT tests of the
-    pre-conditioner block.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
