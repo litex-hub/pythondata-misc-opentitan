@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8284"
-version_tuple = (0, 0, 8284)
+version_str = "0.0.post8287"
+version_tuple = (0, 0, 8287)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8284")
+    pversion = V("0.0.post8287")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8172"
-data_version_tuple = (0, 0, 8172)
+data_version_str = "0.0.post8175"
+data_version_tuple = (0, 0, 8175)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8172")
+    pdata_version = V("0.0.post8175")
 except ImportError:
     pass
-data_git_hash = "37162df4922631a361f17a5f88a9b0b9b194a81e"
-data_git_describe = "v0.0-8172-g37162df49"
+data_git_hash = "e2175e2e3538235dc1de4447f6d53cd8fccc8c63"
+data_git_describe = "v0.0-8175-ge2175e2e3"
 data_git_msg = """\
-commit 37162df4922631a361f17a5f88a9b0b9b194a81e
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 14 14:20:32 2021 -0700
+commit e2175e2e3538235dc1de4447f6d53cd8fccc8c63
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 14 14:03:21 2021 +0100
 
-    Fix CI failure
+    [otbn] Pick values for CMD register with large Hamming distance
     
-    Looks like we didn't check CI result before merging #8672
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
