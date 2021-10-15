@@ -4,36 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8283"
-version_tuple = (0, 0, 8283)
+version_str = "0.0.post8284"
+version_tuple = (0, 0, 8284)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8283")
+    pversion = V("0.0.post8284")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8171"
-data_version_tuple = (0, 0, 8171)
+data_version_str = "0.0.post8172"
+data_version_tuple = (0, 0, 8172)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8171")
+    pdata_version = V("0.0.post8172")
 except ImportError:
     pass
-data_git_hash = "87e842f353fc02b7fafc91fe720dfa3dbb020597"
-data_git_describe = "v0.0-8171-g87e842f35"
+data_git_hash = "37162df4922631a361f17a5f88a9b0b9b194a81e"
+data_git_describe = "v0.0-8172-g37162df49"
 data_git_msg = """\
-commit 87e842f353fc02b7fafc91fe720dfa3dbb020597
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Wed Oct 13 16:22:47 2021 -0700
+commit 37162df4922631a361f17a5f88a9b0b9b194a81e
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 14 14:20:32 2021 -0700
 
-    [spi_host, rtl] SPI_HOST RTL update to fix issue #8643
+    Fix CI failure
     
-      - Update the cmd_end_o logic to fix the issue #8643
-      - Spit the cmd_end_o to last_read_o and last_write_o to handle read and write separately
-      - Fixes #8643
-    
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Looks like we didn't check CI result before merging #8672
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
