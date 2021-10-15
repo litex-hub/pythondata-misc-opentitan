@@ -4,57 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8294"
-version_tuple = (0, 0, 8294)
+version_str = "0.0.post8295"
+version_tuple = (0, 0, 8295)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8294")
+    pversion = V("0.0.post8295")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8182"
-data_version_tuple = (0, 0, 8182)
+data_version_str = "0.0.post8183"
+data_version_tuple = (0, 0, 8183)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8182")
+    pdata_version = V("0.0.post8183")
 except ImportError:
     pass
-data_git_hash = "d88e5c3daefc64d094ca4407e002a3499ad8cf6f"
-data_git_describe = "v0.0-8182-gd88e5c3da"
+data_git_hash = "6cc78111c39bd27939cc562169ed0eeefb534036"
+data_git_describe = "v0.0-8183-g6cc78111c"
 data_git_msg = """\
-commit d88e5c3daefc64d094ca4407e002a3499ad8cf6f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 1 16:38:11 2021 +0100
+commit 6cc78111c39bd27939cc562169ed0eeefb534036
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Tue Sep 28 16:45:05 2021 -0700
 
-    [otbn,dv] Sort out timing for done/status signals in ISS
+    [sw/dif] Add FW override support to entropy src.
     
-    Now that otbn_core_model exposes a STATUS register, we can use it to
-    derive the "done" signal. Using the status register directly, rather
-    than reconstructing it from the done signal, models the OTBN block
-    more closely and actually simplifies a load of tracking DV
-    code (mainly because the two things that we're comparing Just Match,
-    so we don't need to convert between the two views of the world).
+    The entropy src allows the firmware to disconnect the raw entropy from
+    the pre-conditioner block at the output of the health checks. This
+    allows firmware to access raw entropy.
     
-    Unfortunately, we can't get rid of the "done" signal entirely, because
-    otbn.sv can choose to instantiate the model instead of the RTL to
-    represent the core. The timing isn't *quite* right here, because the
-    core flops STATUS but not its done_o output. But this shouldn't matter
-    for the chip-level sims where we use the model like this.
+    The firmware can also write data into the pre-conditioner block to
+    provide firmware-controlled entropy at the output of the entropy src.
     
-    We *do* check that the RTL's done signal is as predicted in the UVM
-    and verilator testbenches.
+    This functionality can be useful to implement KAT tests of the
+    pre-conditioner block.
     
-    This patch also sorts out the timing of the start of execution in the
-    UVM testbench: the ISS was probing the wrong start signal, so started
-    a cycle late. This didn't matter too much, because it and the design
-    were both waiting on the EDN, which took more than one cycle.
-    
-    Finally, we fix the assertion that checks the model and RTL have
-    matching STATUS. This was broken before (using "rst_n", rather than
-    "!rst_n"), which is why we didn't notice the off-by-one at the start.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
