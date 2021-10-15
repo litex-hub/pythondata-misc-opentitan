@@ -126,11 +126,13 @@ module otbn_controller
   output logic [31:0] insn_cnt_o,
   input  logic        bus_intg_violation_i,
   input  logic        illegal_bus_access_i,
-  input  logic        lifecycle_escalation_i
+  input  logic        lifecycle_escalation_i,
+  input  logic        software_errs_fatal_i
 );
-  otbn_state_e state_q, state_d, state_raw;
+  otbn_state_e state_q, state_d;
 
   logic err;
+  logic software_err;
   logic fatal_err;
   logic done_complete;
   logic executing;
@@ -259,9 +261,9 @@ module otbn_controller
   assign next_insn_addr = next_insn_addr_wide[ImemAddrWidth-1:0];
 
   always_comb begin
-    // `state_raw` and `insn_fetch_req_valid_raw` are the values of `state_d` and
-    // `insn_fetch_req_valid_o` before any errors are considered.
-    state_raw                = state_q;
+    state_d                  = state_q;
+    // `insn_fetch_req_valid_raw` is the value `insn_fetch_req_valid_o` before any errors are
+    // considered.
     insn_fetch_req_valid_raw = 1'b0;
     insn_fetch_req_addr_o    = '0;
 
@@ -270,7 +272,7 @@ module otbn_controller
     unique case (state_q)
       OtbnStateHalt: begin
         if (start_i) begin
-          state_raw = OtbnStateRun;
+          state_d = OtbnStateRun;
 
           insn_fetch_req_addr_o    = '0;
           insn_fetch_req_valid_raw = 1'b1;
@@ -280,12 +282,12 @@ module otbn_controller
         insn_fetch_req_valid_raw = 1'b1;
 
         if (done_complete) begin
-          state_raw                = OtbnStateHalt;
+          state_d                  = OtbnStateHalt;
           insn_fetch_req_valid_raw = 1'b0;
         end else begin
           // When stalling refetch the same instruction to keep decode inputs constant
           if (stall) begin
-            state_raw             = OtbnStateStall;
+            state_d               = OtbnStateStall;
             insn_fetch_req_addr_o = insn_addr_i;
           end else begin
             if (branch_taken) begin
@@ -303,7 +305,7 @@ module otbn_controller
 
         // When stalling refetch the same instruction to keep decode inputs constant
         if (stall) begin
-          state_raw             = OtbnStateStall;
+          state_d               = OtbnStateStall;
           insn_fetch_req_addr_o = insn_addr_i;
         end else begin
           if (loop_jump) begin
@@ -312,24 +314,32 @@ module otbn_controller
             insn_fetch_req_addr_o = next_insn_addr;
           end
 
-          state_raw = OtbnStateRun;
+          state_d = OtbnStateRun;
         end
       end
       OtbnStateLocked: begin
         insn_fetch_req_valid_raw = 1'b0;
-        state_raw = OtbnStateLocked;
+        state_d                  = OtbnStateLocked;
       end
       default: ;
     endcase
+
+    // On any error immediately halt, either going to OtbnStateLocked or OtbnStateHalt depending on
+    // whether it was a fatal error.
+    if (fatal_err) begin
+      state_d = OtbnStateLocked;
+    end else if (err) begin
+      state_d = OtbnStateHalt;
+    end
+
+    // Regardless of what happens above enforce staying in OtnbStateLocked.
+    if (state_q == OtbnStateLocked) begin
+      state_d = OtbnStateLocked;
+    end
   end
 
   // Anything that moves us or keeps us in the stall state should cause `stall` to be asserted
   `ASSERT(StallIfNextStateStall, insn_valid_i & (state_d == OtbnStateStall) |-> stall)
-
-  // On any error immediately halt and suppress any Imem request.
-  assign state_d = fatal_err ? OtbnStateLocked :
-                   err       ? OtbnStateHalt   :
-                               state_raw;
 
   assign insn_fetch_req_valid_o = err ? 1'b0 : insn_fetch_req_valid_raw;
 
@@ -353,8 +363,7 @@ module otbn_controller
   // or illegal WSR/CSR referenced).
   assign illegal_insn_static = insn_illegal_i | ispr_err;
 
-  // TODO: Implement fatal error on software error mode
-  assign err_bits_o.fatal_software       = 1'b0;
+  assign err_bits_o.fatal_software       = software_err & software_errs_fatal_i;
   assign err_bits_o.lifecycle_escalation = lifecycle_escalation_i;
   assign err_bits_o.illegal_bus_access   = illegal_bus_access_i;
   assign err_bits_o.bus_intg_violation   = bus_intg_violation_i;
@@ -367,7 +376,12 @@ module otbn_controller
   assign err_bits_o.call_stack           = rf_base_call_stack_err_i;
   assign err_bits_o.bad_insn_addr        = imem_addr_err;
 
-  assign err = |err_bits_o;
+  assign software_err = |{err_bits_o.illegal_insn,
+                          err_bits_o.bad_data_addr,
+                          err_bits_o.loop,
+                          err_bits_o.call_stack,
+                          err_bits_o.bad_insn_addr};
+
   assign fatal_err = |{err_bits_o.fatal_software,
                        err_bits_o.lifecycle_escalation,
                        err_bits_o.illegal_bus_access,
@@ -375,6 +389,8 @@ module otbn_controller
                        err_bits_o.reg_intg_violation,
                        err_bits_o.dmem_intg_violation,
                        err_bits_o.imem_intg_violation};
+
+  assign err = software_err | fatal_err;
 
   // Instructions must not execute if there is an error
   assign insn_executing = insn_valid_i & ~err;
