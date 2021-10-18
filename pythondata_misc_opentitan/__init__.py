@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8321"
-version_tuple = (0, 0, 8321)
+version_str = "0.0.post8322"
+version_tuple = (0, 0, 8322)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8321")
+    pversion = V("0.0.post8322")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8209"
-data_version_tuple = (0, 0, 8209)
+data_version_str = "0.0.post8210"
+data_version_tuple = (0, 0, 8210)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8209")
+    pdata_version = V("0.0.post8210")
 except ImportError:
     pass
-data_git_hash = "aca55394ac35f608dc63f02dfca63f3c08c2d0e8"
-data_git_describe = "v0.0-8209-gaca55394a"
+data_git_hash = "e3e8c86ef84da603da1d5d9f08b2f568392df166"
+data_git_describe = "v0.0-8210-ge3e8c86ef"
 data_git_msg = """\
-commit aca55394ac35f608dc63f02dfca63f3c08c2d0e8
+commit e3e8c86ef84da603da1d5d9f08b2f568392df166
 Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Sat Oct 16 02:22:01 2021 -0700
+Date:   Sat Oct 16 02:29:08 2021 -0700
 
-    [dv_macros.svh] minor cleanup
+    [chip,cov] Fix coverage hierarchy files
     
     Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
