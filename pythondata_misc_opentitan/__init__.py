@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8313"
-version_tuple = (0, 0, 8313)
+version_str = "0.0.post8314"
+version_tuple = (0, 0, 8314)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8313")
+    pversion = V("0.0.post8314")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8201"
-data_version_tuple = (0, 0, 8201)
+data_version_str = "0.0.post8202"
+data_version_tuple = (0, 0, 8202)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8201")
+    pdata_version = V("0.0.post8202")
 except ImportError:
     pass
-data_git_hash = "59ce35158fe4ea004c7c5cc355b41c3fb12b7b1f"
-data_git_describe = "v0.0-8201-g59ce35158"
+data_git_hash = "e7d413442ad91ad81d631a2b30eb74a2935c7abe"
+data_git_describe = "v0.0-8202-ge7d413442"
 data_git_msg = """\
-commit 59ce35158fe4ea004c7c5cc355b41c3fb12b7b1f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Sep 29 12:05:18 2021 +0100
+commit e7d413442ad91ad81d631a2b30eb74a2935c7abe
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Oct 18 12:19:52 2021 +0100
 
-    [otbn,dv] Allow the testbench to trigger IMEM errors in ISS
+    [ci] Increase timeout for Verilator test
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    We have regularly been getting timeouts in the "Execute tests
+    on the Verilated system (excl. slow tests)" test recently. Increase the
+    timeout from 1 to 2 hours.
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
