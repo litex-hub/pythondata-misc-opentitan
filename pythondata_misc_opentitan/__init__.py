@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8322"
-version_tuple = (0, 0, 8322)
+version_str = "0.0.post8323"
+version_tuple = (0, 0, 8323)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8322")
+    pversion = V("0.0.post8323")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8210"
-data_version_tuple = (0, 0, 8210)
+data_version_str = "0.0.post8211"
+data_version_tuple = (0, 0, 8211)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8210")
+    pdata_version = V("0.0.post8211")
 except ImportError:
     pass
-data_git_hash = "e3e8c86ef84da603da1d5d9f08b2f568392df166"
-data_git_describe = "v0.0-8210-ge3e8c86ef"
+data_git_hash = "9ab2ce8455ea4817f1e6278e02b3f56f3f495693"
+data_git_describe = "v0.0-8211-g9ab2ce845"
 data_git_msg = """\
-commit e3e8c86ef84da603da1d5d9f08b2f568392df166
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Sat Oct 16 02:29:08 2021 -0700
+commit 9ab2ce8455ea4817f1e6278e02b3f56f3f495693
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 18 12:14:09 2021 -0700
 
-    [chip,cov] Fix coverage hierarchy files
+    [fpv] alert template corefile update
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    This PR updates the core file name for alert_handler related FPV
+    targets.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
