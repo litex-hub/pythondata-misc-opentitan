@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8314"
-version_tuple = (0, 0, 8314)
+version_str = "0.0.post8321"
+version_tuple = (0, 0, 8321)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8314")
+    pversion = V("0.0.post8321")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8202"
-data_version_tuple = (0, 0, 8202)
+data_version_str = "0.0.post8209"
+data_version_tuple = (0, 0, 8209)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8202")
+    pdata_version = V("0.0.post8209")
 except ImportError:
     pass
-data_git_hash = "e7d413442ad91ad81d631a2b30eb74a2935c7abe"
-data_git_describe = "v0.0-8202-ge7d413442"
+data_git_hash = "aca55394ac35f608dc63f02dfca63f3c08c2d0e8"
+data_git_describe = "v0.0-8209-gaca55394a"
 data_git_msg = """\
-commit e7d413442ad91ad81d631a2b30eb74a2935c7abe
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Oct 18 12:19:52 2021 +0100
+commit aca55394ac35f608dc63f02dfca63f3c08c2d0e8
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Sat Oct 16 02:22:01 2021 -0700
 
-    [ci] Increase timeout for Verilator test
+    [dv_macros.svh] minor cleanup
     
-    We have regularly been getting timeouts in the "Execute tests
-    on the Verilated system (excl. slow tests)" test recently. Increase the
-    timeout from 1 to 2 hours.
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
