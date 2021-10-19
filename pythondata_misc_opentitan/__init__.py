@@ -4,39 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8334"
-version_tuple = (0, 0, 8334)
+version_str = "0.0.post8336"
+version_tuple = (0, 0, 8336)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8334")
+    pversion = V("0.0.post8336")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8222"
-data_version_tuple = (0, 0, 8222)
+data_version_str = "0.0.post8224"
+data_version_tuple = (0, 0, 8224)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8222")
+    pdata_version = V("0.0.post8224")
 except ImportError:
     pass
-data_git_hash = "3cf9984c1fd7129f082b7d686d2bc17a27f61ab7"
-data_git_describe = "v0.0-8222-g3cf9984c1"
+data_git_hash = "c7585e793a8500811c2dfa2bfdab6975db75bb4f"
+data_git_describe = "v0.0-8224-gc7585e793"
 data_git_msg = """\
-commit 3cf9984c1fd7129f082b7d686d2bc17a27f61ab7
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Mon Oct 18 10:38:45 2021 +0100
+commit c7585e793a8500811c2dfa2bfdab6975db75bb4f
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Oct 19 12:12:19 2021 +0100
 
-    [otbn,dv] Pick up extreme offset addresses for bne and be commands.
+    [otbn,dv] Use clocking block to spot instruction execution
     
-    Following additions/ changes have been made in this commit:
-    1. Added a new variable called mode to assign equal weightage to all
-    possible address ranges.
-    2. Edited the randomization logic to pick up offset address.
+    This fixes a problem caused by us switching to spotting STATUS changes
+    on the negedge of the clock (in commit bfe59f0a8).
     
-    Fixes #8078
+    The problem is triggered when executing a final ECALL instruction or
+    similar. The model immediately reports that STATUS gets cleared, which
+    is spotted on the next negedge of the clock. With some schedulings
+    from the simulator, we only see the ECALL instruction on the following
+    posedge, by which time the scoreboard thinks we've stopped execution.
+    This causes the check on line 290 of otbn_scoreboard.sv to explode.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Note that there's work afoot to flop the STATUS register. This problem
+    will go away anyway when that lands, but it seems cleaner to use a
+    clocking block to get rid of the race.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
