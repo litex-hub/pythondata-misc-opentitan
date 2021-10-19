@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8325"
-version_tuple = (0, 0, 8325)
+version_str = "0.0.post8331"
+version_tuple = (0, 0, 8331)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8325")
+    pversion = V("0.0.post8331")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8213"
-data_version_tuple = (0, 0, 8213)
+data_version_str = "0.0.post8219"
+data_version_tuple = (0, 0, 8219)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8213")
+    pdata_version = V("0.0.post8219")
 except ImportError:
     pass
-data_git_hash = "e041a961b1e8c3f57b19bd84ca1c44af215b4591"
-data_git_describe = "v0.0-8213-ge041a961b"
+data_git_hash = "c9887c25978451831fe91bd0c00050dadceb4335"
+data_git_describe = "v0.0-8219-gc9887c259"
 data_git_msg = """\
-commit e041a961b1e8c3f57b19bd84ca1c44af215b4591
+commit c9887c25978451831fe91bd0c00050dadceb4335
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 18 14:23:59 2021 -0700
+Date:   Mon Oct 18 12:35:37 2021 -0700
 
-    [fpv/lint] Add lint target to secded modules
+    [fpv] Add formal target to alert related FPV testbench
     
-    This PR adds secded modules to FPV lint so we can check them in CI.
+    This PR adds a formal target to the alert_handler related FPV testbench
+    and their templates.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
