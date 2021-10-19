@@ -4,46 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8336"
-version_tuple = (0, 0, 8336)
+version_str = "0.0.post8339"
+version_tuple = (0, 0, 8339)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8336")
+    pversion = V("0.0.post8339")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8224"
-data_version_tuple = (0, 0, 8224)
+data_version_str = "0.0.post8227"
+data_version_tuple = (0, 0, 8227)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8224")
+    pdata_version = V("0.0.post8227")
 except ImportError:
     pass
-data_git_hash = "c7585e793a8500811c2dfa2bfdab6975db75bb4f"
-data_git_describe = "v0.0-8224-gc7585e793"
+data_git_hash = "102a025741e5371077259cd4052aebd31f0e4074"
+data_git_describe = "v0.0-8227-g102a02574"
 data_git_msg = """\
-commit c7585e793a8500811c2dfa2bfdab6975db75bb4f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Oct 19 12:12:19 2021 +0100
+commit 102a025741e5371077259cd4052aebd31f0e4074
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Oct 15 14:23:43 2021 +0100
 
-    [otbn,dv] Use clocking block to spot instruction execution
+    [sw] Add ECDSA/P-256 sign wrapper
     
-    This fixes a problem caused by us switching to spotting STATUS changes
-    on the negedge of the clock (in commit bfe59f0a8).
-    
-    The problem is triggered when executing a final ECALL instruction or
-    similar. The model immediately reports that STATUS gets cleared, which
-    is spotted on the next negedge of the clock. With some schedulings
-    from the simulator, we only see the ECALL instruction on the following
-    posedge, by which time the scoreboard thinks we've stopped execution.
-    This causes the check on line 290 of otbn_scoreboard.sv to explode.
-    
-    Note that there's work afoot to flop the STATUS register. This problem
-    will go away anyway when that lands, but it seems cleaner to use a
-    clocking block to get rid of the race.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
