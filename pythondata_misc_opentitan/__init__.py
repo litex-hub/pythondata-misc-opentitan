@@ -4,38 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8332"
-version_tuple = (0, 0, 8332)
+version_str = "0.0.post8334"
+version_tuple = (0, 0, 8334)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8332")
+    pversion = V("0.0.post8334")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8220"
-data_version_tuple = (0, 0, 8220)
+data_version_str = "0.0.post8222"
+data_version_tuple = (0, 0, 8222)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8220")
+    pdata_version = V("0.0.post8222")
 except ImportError:
     pass
-data_git_hash = "777ecae1d5476c5004920b756e99173d0ae28e6a"
-data_git_describe = "v0.0-8220-g777ecae1d"
+data_git_hash = "3cf9984c1fd7129f082b7d686d2bc17a27f61ab7"
+data_git_describe = "v0.0-8222-g3cf9984c1"
 data_git_msg = """\
-commit 777ecae1d5476c5004920b756e99173d0ae28e6a
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Oct 18 18:28:29 2021 -0700
+commit 3cf9984c1fd7129f082b7d686d2bc17a27f61ab7
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Mon Oct 18 10:38:45 2021 +0100
 
-    [chip,dv] Fix SW GPIO smoketest failure
+    [otbn,dv] Pick up extreme offset addresses for bne and be commands.
     
-    The test was failing in regr with a NOA error. Made the following fixes:
-    - Enhanced sw_test_status_if.sv to have a notion of SW test iterations
-    (test vseq can reboot the chip multiple times)
-    - Fixed accidental byte swap in gpio smoke vseq
-    - Other associated fixes
+    Following additions/ changes have been made in this commit:
+    1. Added a new variable called mode to assign equal weightage to all
+    possible address ranges.
+    2. Edited the randomization logic to pick up offset address.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Fixes #8078
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
