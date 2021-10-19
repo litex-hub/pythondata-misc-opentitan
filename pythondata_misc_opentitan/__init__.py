@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8331"
-version_tuple = (0, 0, 8331)
+version_str = "0.0.post8332"
+version_tuple = (0, 0, 8332)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8331")
+    pversion = V("0.0.post8332")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8219"
-data_version_tuple = (0, 0, 8219)
+data_version_str = "0.0.post8220"
+data_version_tuple = (0, 0, 8220)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8219")
+    pdata_version = V("0.0.post8220")
 except ImportError:
     pass
-data_git_hash = "c9887c25978451831fe91bd0c00050dadceb4335"
-data_git_describe = "v0.0-8219-gc9887c259"
+data_git_hash = "777ecae1d5476c5004920b756e99173d0ae28e6a"
+data_git_describe = "v0.0-8220-g777ecae1d"
 data_git_msg = """\
-commit c9887c25978451831fe91bd0c00050dadceb4335
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 18 12:35:37 2021 -0700
+commit 777ecae1d5476c5004920b756e99173d0ae28e6a
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Oct 18 18:28:29 2021 -0700
 
-    [fpv] Add formal target to alert related FPV testbench
+    [chip,dv] Fix SW GPIO smoketest failure
     
-    This PR adds a formal target to the alert_handler related FPV testbench
-    and their templates.
+    The test was failing in regr with a NOA error. Made the following fixes:
+    - Enhanced sw_test_status_if.sv to have a notion of SW test iterations
+    (test vseq can reboot the chip multiple times)
+    - Fixed accidental byte swap in gpio smoke vseq
+    - Other associated fixes
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
