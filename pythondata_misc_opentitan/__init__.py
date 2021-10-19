@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8323"
-version_tuple = (0, 0, 8323)
+version_str = "0.0.post8325"
+version_tuple = (0, 0, 8325)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8323")
+    pversion = V("0.0.post8325")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8211"
-data_version_tuple = (0, 0, 8211)
+data_version_str = "0.0.post8213"
+data_version_tuple = (0, 0, 8213)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8211")
+    pdata_version = V("0.0.post8213")
 except ImportError:
     pass
-data_git_hash = "9ab2ce8455ea4817f1e6278e02b3f56f3f495693"
-data_git_describe = "v0.0-8211-g9ab2ce845"
+data_git_hash = "e041a961b1e8c3f57b19bd84ca1c44af215b4591"
+data_git_describe = "v0.0-8213-ge041a961b"
 data_git_msg = """\
-commit 9ab2ce8455ea4817f1e6278e02b3f56f3f495693
+commit e041a961b1e8c3f57b19bd84ca1c44af215b4591
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 18 12:14:09 2021 -0700
+Date:   Mon Oct 18 14:23:59 2021 -0700
 
-    [fpv] alert template corefile update
+    [fpv/lint] Add lint target to secded modules
     
-    This PR updates the core file name for alert_handler related FPV
-    targets.
+    This PR adds secded modules to FPV lint so we can check them in CI.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
