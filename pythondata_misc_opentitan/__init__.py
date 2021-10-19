@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8339"
-version_tuple = (0, 0, 8339)
+version_str = "0.0.post8340"
+version_tuple = (0, 0, 8340)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8339")
+    pversion = V("0.0.post8340")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8227"
-data_version_tuple = (0, 0, 8227)
+data_version_str = "0.0.post8228"
+data_version_tuple = (0, 0, 8228)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8227")
+    pdata_version = V("0.0.post8228")
 except ImportError:
     pass
-data_git_hash = "102a025741e5371077259cd4052aebd31f0e4074"
-data_git_describe = "v0.0-8227-g102a02574"
+data_git_hash = "5ae54af6cc94093eccd2ade1a54b831cf7d5a096"
+data_git_describe = "v0.0-8228-g5ae54af6c"
 data_git_msg = """\
-commit 102a025741e5371077259cd4052aebd31f0e4074
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Oct 15 14:23:43 2021 +0100
+commit 5ae54af6cc94093eccd2ade1a54b831cf7d5a096
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Oct 18 19:58:05 2021 -0700
 
-    [sw] Add ECDSA/P-256 sign wrapper
+    [chip,dv] Fix coremark test for DV
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    The SW test status interface expects transition to pass or fail state
+    from the test state. Otherwise it throws an error. This PR fixes that.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
