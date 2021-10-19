@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8340"
-version_tuple = (0, 0, 8340)
+version_str = "0.0.post8342"
+version_tuple = (0, 0, 8342)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8340")
+    pversion = V("0.0.post8342")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8228"
-data_version_tuple = (0, 0, 8228)
+data_version_str = "0.0.post8230"
+data_version_tuple = (0, 0, 8230)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8228")
+    pdata_version = V("0.0.post8230")
 except ImportError:
     pass
-data_git_hash = "5ae54af6cc94093eccd2ade1a54b831cf7d5a096"
-data_git_describe = "v0.0-8228-g5ae54af6c"
+data_git_hash = "61644b942f77ddb5f98714091562b4d769b1ee01"
+data_git_describe = "v0.0-8230-g61644b942"
 data_git_msg = """\
-commit 5ae54af6cc94093eccd2ade1a54b831cf7d5a096
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Oct 18 19:58:05 2021 -0700
+commit 61644b942f77ddb5f98714091562b4d769b1ee01
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Oct 16 15:34:36 2021 -0700
 
-    [chip,dv] Fix coremark test for DV
+    [ spi_host ] AUTOGEN
     
-    The SW test status interface expects transition to pass or fail state
-    from the test state. Otherwise it throws an error. This PR fixes that.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
