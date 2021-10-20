@@ -4,33 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8348"
-version_tuple = (0, 0, 8348)
+version_str = "0.0.post8351"
+version_tuple = (0, 0, 8351)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8348")
+    pversion = V("0.0.post8351")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8236"
-data_version_tuple = (0, 0, 8236)
+data_version_str = "0.0.post8239"
+data_version_tuple = (0, 0, 8239)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8236")
+    pdata_version = V("0.0.post8239")
 except ImportError:
     pass
-data_git_hash = "f4a349acd425db032e280dba193a627ca0c5fe65"
-data_git_describe = "v0.0-8236-gf4a349acd"
+data_git_hash = "1b6cc1e09710abc88e0a7a6e67a106d508e28cf2"
+data_git_describe = "v0.0-8239-g1b6cc1e09"
 data_git_msg = """\
-commit f4a349acd425db032e280dba193a627ca0c5fe65
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Oct 5 14:17:34 2021 -0700
+commit 1b6cc1e09710abc88e0a7a6e67a106d508e28cf2
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Oct 19 05:43:05 2021 +0000
 
-    [dv] Split sec_cm_testplan into multiple testplans
+    [dif/rv_timer] Integrate autogen'd DIF artifacts into src tree.
     
-    Addressed Sri's comment in #8481
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit partially addresses #8142. Specifically it:
+    1. deprecates existing (manually implemented) **RV Timer**
+       specific DIF return codes, toggle types, and params,
+    2. integrates the auto-generated **RV Timer** DIFs into meson build
+       targets,
+    3. refactors all existing source code to make use of the new shared DIF
+       types and error codes, and
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
