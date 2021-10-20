@@ -4,40 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8351"
-version_tuple = (0, 0, 8351)
+version_str = "0.0.post8356"
+version_tuple = (0, 0, 8356)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8351")
+    pversion = V("0.0.post8356")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8239"
-data_version_tuple = (0, 0, 8239)
+data_version_str = "0.0.post8244"
+data_version_tuple = (0, 0, 8244)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8239")
+    pdata_version = V("0.0.post8244")
 except ImportError:
     pass
-data_git_hash = "1b6cc1e09710abc88e0a7a6e67a106d508e28cf2"
-data_git_describe = "v0.0-8239-g1b6cc1e09"
+data_git_hash = "6386c757419ca1cdf24004a1bc830931a827850b"
+data_git_describe = "v0.0-8244-g6386c7574"
 data_git_msg = """\
-commit 1b6cc1e09710abc88e0a7a6e67a106d508e28cf2
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Oct 19 05:43:05 2021 +0000
+commit 6386c757419ca1cdf24004a1bc830931a827850b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Oct 15 15:14:14 2021 +0100
 
-    [dif/rv_timer] Integrate autogen'd DIF artifacts into src tree.
+    [otbn] Flop STATUS register
     
-    This commit partially addresses #8142. Specifically it:
-    1. deprecates existing (manually implemented) **RV Timer**
-       specific DIF return codes, toggle types, and params,
-    2. integrates the auto-generated **RV Timer** DIFs into meson build
-       targets,
-    3. refactors all existing source code to make use of the new shared DIF
-       types and error codes, and
+    This ensures that the STATUS register switches from IDLE to
+    BUSY_EXECUTE at the start of an operation on the same cycle as we zero
+    out INSN_CNT.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    The STATUS change is also delayed by a cycle at the other end of the
+    run. Thus we rename the derived "done" signal in the model from
+    done_r_o to done_rr_o, showing that it's now delayed by two cycles.
+    
+    The only other change is to add an expected stall cycle to the count
+    in stats_test.py, since there really is one extra stalled cycle that
+    we count.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
