@@ -4,41 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8347"
-version_tuple = (0, 0, 8347)
+version_str = "0.0.post8348"
+version_tuple = (0, 0, 8348)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8347")
+    pversion = V("0.0.post8348")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8235"
-data_version_tuple = (0, 0, 8235)
+data_version_str = "0.0.post8236"
+data_version_tuple = (0, 0, 8236)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8235")
+    pdata_version = V("0.0.post8236")
 except ImportError:
     pass
-data_git_hash = "0604a5dd0aea440737605f24fa89093bcc410900"
-data_git_describe = "v0.0-8235-g0604a5dd0"
+data_git_hash = "f4a349acd425db032e280dba193a627ca0c5fe65"
+data_git_describe = "v0.0-8236-gf4a349acd"
 data_git_msg = """\
-commit 0604a5dd0aea440737605f24fa89093bcc410900
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Sat Oct 16 00:25:58 2021 +0000
+commit f4a349acd425db032e280dba193a627ca0c5fe65
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 5 14:17:34 2021 -0700
 
-    [dif] Prepare templates for rv_timer modifications.
+    [dv] Split sec_cm_testplan into multiple testplans
     
-    To adapt the templates to auto-generate the RV timer IRQ DIFs, the
-    template functions must be adapted to be more generic (in terms of
-    passing in the register offset macro/variable with the address).
-    Additionally, the "params_list" from the RV timer's HJSON will need to
-    be parsed, to exract the number of HARTs/timers, so that capability is
-    added to the make_new_dif.py tool.
-    
-    This partially addresses #8142.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Addressed Sri's comment in #8481
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
