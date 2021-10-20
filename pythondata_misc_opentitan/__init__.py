@@ -4,54 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8345"
-version_tuple = (0, 0, 8345)
+version_str = "0.0.post8347"
+version_tuple = (0, 0, 8347)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8345")
+    pversion = V("0.0.post8347")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8233"
-data_version_tuple = (0, 0, 8233)
+data_version_str = "0.0.post8235"
+data_version_tuple = (0, 0, 8235)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8233")
+    pdata_version = V("0.0.post8235")
 except ImportError:
     pass
-data_git_hash = "e2de5d92977826085545844d155c36d2259edbaa"
-data_git_describe = "v0.0-8233-ge2de5d929"
+data_git_hash = "0604a5dd0aea440737605f24fa89093bcc410900"
+data_git_describe = "v0.0-8235-g0604a5dd0"
 data_git_msg = """\
-commit e2de5d92977826085545844d155c36d2259edbaa
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Oct 15 14:44:32 2021 -0700
+commit 0604a5dd0aea440737605f24fa89093bcc410900
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Sat Oct 16 00:25:58 2021 +0000
 
-    [ spi_host rtl ] Prepare to move entire SPI_HOST IP the peripheral clock domain
+    [dif] Prepare templates for rv_timer modifications.
     
-    This is the first of two commits which aim to standardize the CDC strategy for SPI_HOST
+    To adapt the templates to auto-generate the RV timer IRQ DIFs, the
+    template functions must be adapted to be more generic (in terms of
+    passing in the register offset macro/variable with the address).
+    Additionally, the "params_list" from the RV timer's HJSON will need to
+    be parsed, to exract the number of HARTs/timers, so that capability is
+    added to the make_new_dif.py tool.
     
-    In this first commit:
+    This partially addresses #8142.
     
-    - An explicit tlul_async_fifo is created inside spi_host.sv. This FIFO will eventually move
-      to the TLUL fabric or the register interface.  However putting it inside the IP for now
-      allows for testing of changes to other blocks without changing the interface, which would
-      disrupt DV testing.
-    
-    - The command_cdc has been removed in favor of a shallow synchronous FIFO in
-      spi_host_command_queue.
-    
-    - spi_host_data_cdc with its async fifos have also been removed in favor
-      of spi_host_data_fifos, in which the fifos are synchronous
-    
-    Pending until next commit:
-    
-    - Migration of TLUL fifo to some automated system (TLUL fabric? Regtool?)
-    - Removal of "Core" clocks & resets
-    - Change COMMAND register to hw_ext
-    - DV Interface updates to change clocks
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
