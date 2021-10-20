@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8362"
-version_tuple = (0, 0, 8362)
+version_str = "0.0.post8363"
+version_tuple = (0, 0, 8363)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8362")
+    pversion = V("0.0.post8363")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8250"
-data_version_tuple = (0, 0, 8250)
+data_version_str = "0.0.post8251"
+data_version_tuple = (0, 0, 8251)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8250")
+    pdata_version = V("0.0.post8251")
 except ImportError:
     pass
-data_git_hash = "72c3314692fb3ba4440c9bdc03919645689798fb"
-data_git_describe = "v0.0-8250-g72c331469"
+data_git_hash = "2b90842733363f8d07b32ccb7b71b9c72bc81466"
+data_git_describe = "v0.0-8251-g2b9084273"
 data_git_msg = """\
-commit 72c3314692fb3ba4440c9bdc03919645689798fb
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Oct 20 17:13:55 2021 +0100
+commit 2b90842733363f8d07b32ccb7b71b9c72bc81466
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 20 19:28:49 2021 +0000
 
-    [otbn,dv] Correct an assertion in BadBranch generator
+    [dif/rv-timer] Fix autogen DIFs dependency architecture.
     
-    We mis-counted the number of branches!
+    This fixes #8755 for the rv_timer, to fix a CI failure, since #8756 was
+    merged after #8733, without updating the rv-timer autogen DIFs. (CI
+    tests passed for #8756, before #8733 was merged.)
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
