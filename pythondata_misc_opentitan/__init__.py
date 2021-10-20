@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8360"
-version_tuple = (0, 0, 8360)
+version_str = "0.0.post8362"
+version_tuple = (0, 0, 8362)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8360")
+    pversion = V("0.0.post8362")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8248"
-data_version_tuple = (0, 0, 8248)
+data_version_str = "0.0.post8250"
+data_version_tuple = (0, 0, 8250)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8248")
+    pdata_version = V("0.0.post8250")
 except ImportError:
     pass
-data_git_hash = "f0f3426ba5a49d728bb623e428130941028c88cb"
-data_git_describe = "v0.0-8248-gf0f3426ba"
+data_git_hash = "72c3314692fb3ba4440c9bdc03919645689798fb"
+data_git_describe = "v0.0-8250-g72c331469"
 data_git_msg = """\
-commit f0f3426ba5a49d728bb623e428130941028c88cb
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 20 00:22:51 2021 +0000
+commit 72c3314692fb3ba4440c9bdc03919645689798fb
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Oct 20 17:13:55 2021 +0100
 
-    [dif/rv_timer] Prepare for `dif_rv_timer_init()` autogen.
+    [otbn,dv] Correct an assertion in BadBranch generator
     
-    The RV Timer `dif_rv_timer_init()` function contained reset logic that was
-    inconsistent with other IP's DIF APIs. In order to auto-generate the
-    `dif_<ip>_init()` function across all IPs (as stated in #8409), this reset
-    logic must be separated into a separate DIF/DIF invocation.
+    We mis-counted the number of branches!
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
