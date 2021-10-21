@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8388"
-version_tuple = (0, 0, 8388)
+version_str = "0.0.post8390"
+version_tuple = (0, 0, 8390)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8388")
+    pversion = V("0.0.post8390")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8276"
-data_version_tuple = (0, 0, 8276)
+data_version_str = "0.0.post8278"
+data_version_tuple = (0, 0, 8278)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8276")
+    pdata_version = V("0.0.post8278")
 except ImportError:
     pass
-data_git_hash = "c87bb33f4cf7fa177244dfb635c3ddc2e72a0ff7"
-data_git_describe = "v0.0-8276-gc87bb33f4"
+data_git_hash = "70d5970891eb24c69185c4e6675e811f3c3ec477"
+data_git_describe = "v0.0-8278-g70d597089"
 data_git_msg = """\
-commit c87bb33f4cf7fa177244dfb635c3ddc2e72a0ff7
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Oct 16 10:27:45 2021 -0700
+commit 70d5970891eb24c69185c4e6675e811f3c3ec477
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Oct 13 14:38:58 2021 -0700
 
-    [spi_host top_earlgrey rtl] Remove secondary core clock
+    [csrng/dv] Input random entropy_src data
     
-    - Removes async tlul fifo from spi_host.sv
-    - Identifies all "core" clocks and resets as the same as the bus clock
-    - Modifies top_earlgrey xbar_peri to place the two spi_host instances on
-      their appropriate clock domains
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
