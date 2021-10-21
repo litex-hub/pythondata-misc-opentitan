@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8366"
-version_tuple = (0, 0, 8366)
+version_str = "0.0.post8367"
+version_tuple = (0, 0, 8367)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8366")
+    pversion = V("0.0.post8367")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8254"
-data_version_tuple = (0, 0, 8254)
+data_version_str = "0.0.post8255"
+data_version_tuple = (0, 0, 8255)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8254")
+    pdata_version = V("0.0.post8255")
 except ImportError:
     pass
-data_git_hash = "b8ddad8f47513e994d13765d4232bf2616c393a0"
-data_git_describe = "v0.0-8254-gb8ddad8f4"
+data_git_hash = "ddea231c278fc3d7dbc3625c43ad6b995730bfc9"
+data_git_describe = "v0.0-8255-gddea231c2"
 data_git_msg = """\
-commit b8ddad8f47513e994d13765d4232bf2616c393a0
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 20 10:25:54 2021 -0400
+commit ddea231c278fc3d7dbc3625c43ad6b995730bfc9
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Oct 15 14:42:15 2021 -0700
 
-    [sw/silicon_creator] Move length checks from manifest to boot_policy
+    [sw/rom] Add rom_ext sec_mmio initialization
     
-    Minimum and maximum allowed lengths for ROM_EXT and first owner boot
-    stage images will be different. This change adds individual constants
-    for both stages and moves related checks from manifest.h to mask ROM and
-    ROM_EXT boot policy implementations.
+    sec_mmio initialization for the ROM_EXT clears the current check count
+    expectation and resets all entries in the expectation table that were
+    not used by the ROM. This is to ensure that an attacker is not able to
+    recreate the state of the expectation table after injecting a reset
+    fault.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
