@@ -4,47 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8373"
-version_tuple = (0, 0, 8373)
+version_str = "0.0.post8374"
+version_tuple = (0, 0, 8374)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8373")
+    pversion = V("0.0.post8374")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8261"
-data_version_tuple = (0, 0, 8261)
+data_version_str = "0.0.post8262"
+data_version_tuple = (0, 0, 8262)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8261")
+    pdata_version = V("0.0.post8262")
 except ImportError:
     pass
-data_git_hash = "37c78bd29b25851f78178d632e078d6ee4ae9d15"
-data_git_describe = "v0.0-8261-g37c78bd29"
+data_git_hash = "5feafbe44e8fc9e19c280a5b1183dac67ac90cea"
+data_git_describe = "v0.0-8262-g5feafbe44"
 data_git_msg = """\
-commit 37c78bd29b25851f78178d632e078d6ee4ae9d15
-Author: Vladimir Rozic <vrozic@lowrisc.org>
-Date:   Mon Oct 4 13:17:49 2021 +0100
+commit 5feafbe44e8fc9e19c280a5b1183dac67ac90cea
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 20 17:17:52 2021 -0400
 
-    [otbn] Added RTL for internal secure wipe
+    [sw/silicon_creator] Fix typo in bootstrap module enum name
     
-    At the end of the OTBN operation the internal state is wiped by
-    randomizing (using URNG data) and zeroing:
-      -Wide Data registers
-      -General purpose registers
-      -The accumulator register
-      -The modulus
-    
-    Call and loop stack pointers are reset.
-    Flags are set to zero.
-    
-    This operation can be switched on/off via parameter SecWipeEn
-    at otbn_core.sv (default SecWipeEn = 1'b0)
-    
-    Added internal secure wipe.
-    
-    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
