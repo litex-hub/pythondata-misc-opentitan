@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8375"
-version_tuple = (0, 0, 8375)
+version_str = "0.0.post8379"
+version_tuple = (0, 0, 8379)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8375")
+    pversion = V("0.0.post8379")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8263"
-data_version_tuple = (0, 0, 8263)
+data_version_str = "0.0.post8267"
+data_version_tuple = (0, 0, 8267)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8263")
+    pdata_version = V("0.0.post8267")
 except ImportError:
     pass
-data_git_hash = "ca82314d866d4f0e41243081d30c958ed6a4dad8"
-data_git_describe = "v0.0-8263-gca82314d8"
+data_git_hash = "d726f959ed37eadc2fc4a6a8747350a8c66157a6"
+data_git_describe = "v0.0-8267-gd726f959e"
 data_git_msg = """\
-commit ca82314d866d4f0e41243081d30c958ed6a4dad8
-Author: Tomasz Gorochowik <tgorochowik@antmicro.com>
-Date:   Tue Oct 19 13:54:46 2021 +0200
+commit d726f959ed37eadc2fc4a6a8747350a8c66157a6
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Oct 20 17:50:53 2021 +0100
 
-    Setup verible-linter github action
+    [otbn,dv] Add otbn_imem_err to the "core" regression
     
-    Signed-off-by: Tomasz Gorochowik <tgorochowik@antmicro.com>
+    These sequences are the intended to be the ones that run code and we
+    forgot to add otbn_imem_err when defining it.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
