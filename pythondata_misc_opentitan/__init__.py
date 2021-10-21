@@ -4,41 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8386"
-version_tuple = (0, 0, 8386)
+version_str = "0.0.post8388"
+version_tuple = (0, 0, 8388)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8386")
+    pversion = V("0.0.post8388")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8274"
-data_version_tuple = (0, 0, 8274)
+data_version_str = "0.0.post8276"
+data_version_tuple = (0, 0, 8276)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8274")
+    pdata_version = V("0.0.post8276")
 except ImportError:
     pass
-data_git_hash = "464b736079ba91c6fe52cef12f2772ce576c1302"
-data_git_describe = "v0.0-8274-g464b73607"
+data_git_hash = "c87bb33f4cf7fa177244dfb635c3ddc2e72a0ff7"
+data_git_describe = "v0.0-8276-gc87bb33f4"
 data_git_msg = """\
-commit 464b736079ba91c6fe52cef12f2772ce576c1302
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Oct 20 17:10:23 2021 +0100
+commit c87bb33f4cf7fa177244dfb635c3ddc2e72a0ff7
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Oct 16 10:27:45 2021 -0700
 
-    [otbn,dv] Maybe use IRQ to detect end instead of polling STATUS
+    [spi_host top_earlgrey rtl] Remove secondary core clock
     
-    Configuring this goes in two steps: firstly, you have to write to the
-    enable register. There's an enable_interrupts_pct knob that sequences
-    that care can get from the environment config to spot that it is
-    needed.
+    - Removes async tlul fifo from spi_host.sv
+    - Identifies all "core" clocks and resets as the same as the bus clock
+    - Modifies top_earlgrey xbar_peri to place the two spi_host instances on
+      their appropriate clock domains
     
-    Then the run_otbn() task in the base class chooses whether to use
-    interrupts or polling, based on whether interrupts are enabled (if
-    not, it will poll!) and poll_despite_interrupts_pct.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
