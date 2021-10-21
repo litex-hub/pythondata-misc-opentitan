@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8395"
-version_tuple = (0, 0, 8395)
+version_str = "0.0.post8398"
+version_tuple = (0, 0, 8398)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8395")
+    pversion = V("0.0.post8398")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8283"
-data_version_tuple = (0, 0, 8283)
+data_version_str = "0.0.post8286"
+data_version_tuple = (0, 0, 8286)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8283")
+    pdata_version = V("0.0.post8286")
 except ImportError:
     pass
-data_git_hash = "dab021e1b7932ae2b9f7ea0f1930807c24eb2cf2"
-data_git_describe = "v0.0-8283-gdab021e1b"
+data_git_hash = "d88e2dd0bcff264e3c7c42f2939efcb62d15577b"
+data_git_describe = "v0.0-8286-gd88e2dd0b"
 data_git_msg = """\
-commit dab021e1b7932ae2b9f7ea0f1930807c24eb2cf2
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Oct 20 17:12:45 2021 -0700
+commit d88e2dd0bcff264e3c7c42f2939efcb62d15577b
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Oct 8 13:35:39 2021 -0700
 
-    [dv] Update kmac_app_monitor to remove glitch of ok_to_end
+    [dv/full chip] Update chip testplan
     
-    The update doesn't change any functionality but this will remove 0 delay
-    glich of ok_to_end
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
