@@ -4,38 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8367"
-version_tuple = (0, 0, 8367)
+version_str = "0.0.post8368"
+version_tuple = (0, 0, 8368)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8367")
+    pversion = V("0.0.post8368")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8255"
-data_version_tuple = (0, 0, 8255)
+data_version_str = "0.0.post8256"
+data_version_tuple = (0, 0, 8256)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8255")
+    pdata_version = V("0.0.post8256")
 except ImportError:
     pass
-data_git_hash = "ddea231c278fc3d7dbc3625c43ad6b995730bfc9"
-data_git_describe = "v0.0-8255-gddea231c2"
+data_git_hash = "13b4afba9b7f04445d061e446e7201762395c5fa"
+data_git_describe = "v0.0-8256-g13b4afba9"
 data_git_msg = """\
-commit ddea231c278fc3d7dbc3625c43ad6b995730bfc9
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Oct 15 14:42:15 2021 -0700
+commit 13b4afba9b7f04445d061e446e7201762395c5fa
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 20 00:54:23 2021 +0000
 
-    [sw/rom] Add rom_ext sec_mmio initialization
+    [dif] Autogen all `dif_<ip>_init()` DIFs for all IPs.
     
-    sec_mmio initialization for the ROM_EXT clears the current check count
-    expectation and resets all entries in the expectation table that were
-    not used by the ROM. This is to ensure that an attacker is not able to
-    recreate the state of the expectation table after injecting a reset
-    fault.
+    This is the last task that fixes #8409.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    This commit:
+    1. updates the DIF autogen templates to auto-generate the
+       `dif_<ip>_init()` DIF and corresponding unit tests for all IPs,
+    2. re-auto-generates all IP's (autogen'd) DIFs, and
+    3. deprecates all manually defined `dif_<ip>_init()` DIFs and unit
+       tests.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
