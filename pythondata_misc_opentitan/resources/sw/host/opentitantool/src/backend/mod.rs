@@ -3,12 +3,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use anyhow::Result;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use thiserror::Error;
 
-use opentitanlib::transport::{EmptyTransport, Transport};
-use opentitanlib::app::TransportWrapper;
 use opentitanlib::app::conf::ConfigurationFile;
+use opentitanlib::app::TransportWrapper;
+use opentitanlib::transport::{EmptyTransport, Transport};
 use opentitanlib::util::parse_int::ParseInt;
 
 pub mod cw310;
@@ -33,7 +34,7 @@ pub struct BackendOpts {
     verilator_opts: verilator::VerilatorOpts,
 
     #[structopt(long, help = "Configuration files")]
-    conf: Option<String>,
+    conf: Option<PathBuf>,
 }
 
 #[derive(Error, Debug)]
@@ -52,7 +53,7 @@ pub fn create(args: &BackendOpts) -> Result<TransportWrapper> {
         _ => Err(Error::UnknownInterface(args.interface.clone()).into()),
     }?);
     for conf_file in &args.conf {
-        process_config_file(&mut env, &conf_file)?
+        process_config_file(&mut env, conf_file)?
     }
     Ok(env)
 }
@@ -61,13 +62,16 @@ pub fn create_empty_transport() -> Result<Box<dyn Transport>> {
     Ok(Box::new(EmptyTransport))
 }
 
-fn process_config_file(env: &mut TransportWrapper, conf_file: &str) -> Result<()> {
-    let conf_data = std::fs::read_to_string(conf_file)
-        .expect("Unable to read configuration file");
-    let res: ConfigurationFile = serde_json::from_str(&conf_data)
-        .expect("Unable to parse configuration file");
+fn process_config_file(env: &mut TransportWrapper, conf_file: &Path) -> Result<()> {
+    log::debug!("Reading config file {:?}", conf_file);
+    let conf_data = std::fs::read_to_string(conf_file).expect("Unable to read configuration file");
+    let res: ConfigurationFile =
+        serde_json::from_str(&conf_data).expect("Unable to parse configuration file");
+
+    let subdir = conf_file.parent().unwrap_or_else(|| Path::new(""));
     for included_conf_file in &res.includes {
-        process_config_file(env, &included_conf_file)?
+        let path = subdir.join(included_conf_file);
+        process_config_file(env, &path)?
     }
-    Ok(())
+    env.add_configuration_file(res)
 }

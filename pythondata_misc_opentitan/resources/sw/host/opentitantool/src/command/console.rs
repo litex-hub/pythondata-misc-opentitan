@@ -15,8 +15,8 @@ use std::os::unix::io::AsRawFd;
 use std::time::{Duration, Instant};
 use structopt::StructOpt;
 
-use opentitanlib::app::TransportWrapper;
 use opentitanlib::app::command::CommandDispatch;
+use opentitanlib::app::TransportWrapper;
 use opentitanlib::io::uart::{Uart, UartParams};
 use opentitanlib::transport::Capability;
 use opentitanlib::util::file;
@@ -179,11 +179,8 @@ impl InnerConsole {
     // Maintain a buffer for the exit regexes to match against.
     fn append_buffer(&mut self, data: &[u8]) {
         self.buffer.push_str(&String::from_utf8_lossy(data));
-        if self.buffer.len() > InnerConsole::BUFFER_LEN {
-            let (_, end) = self
-                .buffer
-                .split_at(self.buffer.len() - InnerConsole::BUFFER_LEN);
-            self.buffer = end.to_string();
+        while self.buffer.len() > InnerConsole::BUFFER_LEN {
+            self.buffer.remove(0);
         }
     }
 
