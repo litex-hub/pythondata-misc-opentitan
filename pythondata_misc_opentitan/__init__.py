@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8364"
-version_tuple = (0, 0, 8364)
+version_str = "0.0.post8366"
+version_tuple = (0, 0, 8366)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8364")
+    pversion = V("0.0.post8366")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8252"
-data_version_tuple = (0, 0, 8252)
+data_version_str = "0.0.post8254"
+data_version_tuple = (0, 0, 8254)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8252")
+    pdata_version = V("0.0.post8254")
 except ImportError:
     pass
-data_git_hash = "20c2a9d955739eb101650d38be12207c4809eb46"
-data_git_describe = "v0.0-8252-g20c2a9d95"
+data_git_hash = "b8ddad8f47513e994d13765d4232bf2616c393a0"
+data_git_describe = "v0.0-8254-gb8ddad8f4"
 data_git_msg = """\
-commit 20c2a9d955739eb101650d38be12207c4809eb46
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Oct 20 11:22:23 2021 -0700
+commit b8ddad8f47513e994d13765d4232bf2616c393a0
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 20 10:25:54 2021 -0400
 
-    [doc/alert_handler] update register naming
+    [sw/silicon_creator] Move length checks from manifest to boot_policy
     
-    This PR fixes some register namings in alert_handler so the doc can link
-    to the correct register.
+    Minimum and maximum allowed lengths for ROM_EXT and first owner boot
+    stage images will be different. This change adds individual constants
+    for both stages and moves related checks from manifest.h to mask ROM and
+    ROM_EXT boot policy implementations.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
