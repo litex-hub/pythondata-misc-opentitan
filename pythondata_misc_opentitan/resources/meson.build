@@ -210,6 +210,7 @@ gen_hw_hdr = generator(
 
 # TODO: Considering moving these into hw/ip directories.
 TOPNAME='top_earlgrey'
+hw_ip_adc_ctrl_reg_h = gen_hw_hdr.process('hw/ip/adc_ctrl/data/adc_ctrl.hjson')
 hw_ip_aes_reg_h = gen_hw_hdr.process('hw/ip/aes/data/aes.hjson')
 hw_ip_alert_handler_reg_h = gen_hw_hdr.process('hw/' + TOPNAME + '/ip_autogen/alert_handler/data/alert_handler.hjson')
 hw_ip_aon_timer_reg_h = gen_hw_hdr.process('hw/ip/aon_timer/data/aon_timer.hjson')
@@ -225,6 +226,7 @@ hw_ip_lc_ctrl_reg_h = gen_hw_hdr.process('hw/ip/lc_ctrl/data/lc_ctrl.hjson')
 hw_ip_otbn_reg_h = gen_hw_hdr.process('hw/ip/otbn/data/otbn.hjson')
 hw_ip_otp_ctrl_reg_h = gen_hw_hdr.process('hw/ip/otp_ctrl/data/otp_ctrl.hjson')
 hw_ip_spi_device_reg_h = gen_hw_hdr.process('hw/ip/spi_device/data/spi_device.hjson')
+hw_ip_spi_host_reg_h = gen_hw_hdr.process('hw/ip/spi_host/data/spi_host.hjson')
 hw_ip_sram_ctrl_reg_h = gen_hw_hdr.process('hw/ip/sram_ctrl/data/sram_ctrl.hjson')
 hw_ip_entropy_src_reg_h = gen_hw_hdr.process('hw/ip/entropy_src/data/entropy_src.hjson')
 hw_ip_csrng_reg_h = gen_hw_hdr.process('hw/ip/csrng/data/csrng.hjson')
