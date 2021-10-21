@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8384"
-version_tuple = (0, 0, 8384)
+version_str = "0.0.post8386"
+version_tuple = (0, 0, 8386)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8384")
+    pversion = V("0.0.post8386")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8272"
-data_version_tuple = (0, 0, 8272)
+data_version_str = "0.0.post8274"
+data_version_tuple = (0, 0, 8274)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8272")
+    pdata_version = V("0.0.post8274")
 except ImportError:
     pass
-data_git_hash = "45faebcae0fcbf5c34d2d8fbc49869d95af60bb8"
-data_git_describe = "v0.0-8272-g45faebcae"
+data_git_hash = "464b736079ba91c6fe52cef12f2772ce576c1302"
+data_git_describe = "v0.0-8274-g464b73607"
 data_git_msg = """\
-commit 45faebcae0fcbf5c34d2d8fbc49869d95af60bb8
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Oct 20 16:13:41 2021 -0700
+commit 464b736079ba91c6fe52cef12f2772ce576c1302
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Oct 20 17:10:23 2021 +0100
 
-    [opentitantool] Run `cargo fmt`
+    [otbn,dv] Maybe use IRQ to detect end instead of polling STATUS
     
-    1. Apply standard formatting via `cargo fmt`.
+    Configuring this goes in two steps: firstly, you have to write to the
+    enable register. There's an enable_interrupts_pct knob that sequences
+    that care can get from the environment config to spot that it is
+    needed.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Then the run_otbn() task in the base class chooses whether to use
+    interrupts or polling, based on whether interrupts are enabled (if
+    not, it will poll!) and poll_despite_interrupts_pct.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
