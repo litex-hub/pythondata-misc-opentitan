@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8390"
-version_tuple = (0, 0, 8390)
+version_str = "0.0.post8391"
+version_tuple = (0, 0, 8391)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8390")
+    pversion = V("0.0.post8391")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8278"
-data_version_tuple = (0, 0, 8278)
+data_version_str = "0.0.post8279"
+data_version_tuple = (0, 0, 8279)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8278")
+    pdata_version = V("0.0.post8279")
 except ImportError:
     pass
-data_git_hash = "70d5970891eb24c69185c4e6675e811f3c3ec477"
-data_git_describe = "v0.0-8278-g70d597089"
+data_git_hash = "0d9c43a552498ee2bbfbbe80e3f767066e572223"
+data_git_describe = "v0.0-8279-g0d9c43a55"
 data_git_msg = """\
-commit 70d5970891eb24c69185c4e6675e811f3c3ec477
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Oct 13 14:38:58 2021 -0700
+commit 0d9c43a552498ee2bbfbbe80e3f767066e572223
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 20 21:13:29 2021 +0000
 
-    [csrng/dv] Input random entropy_src data
+    [dif/sysrst_ctrl] Auto-generate portion of DIFs.
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Currently, the DIF library for the System Reset Control IP is
+    unimplemented. This begins the implementation of this DIF library by
+    first checking in the auto-generated DIFs (init and IRQ DIFs).
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
