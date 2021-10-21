@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8363"
-version_tuple = (0, 0, 8363)
+version_str = "0.0.post8364"
+version_tuple = (0, 0, 8364)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8363")
+    pversion = V("0.0.post8364")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8251"
-data_version_tuple = (0, 0, 8251)
+data_version_str = "0.0.post8252"
+data_version_tuple = (0, 0, 8252)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8251")
+    pdata_version = V("0.0.post8252")
 except ImportError:
     pass
-data_git_hash = "2b90842733363f8d07b32ccb7b71b9c72bc81466"
-data_git_describe = "v0.0-8251-g2b9084273"
+data_git_hash = "20c2a9d955739eb101650d38be12207c4809eb46"
+data_git_describe = "v0.0-8252-g20c2a9d95"
 data_git_msg = """\
-commit 2b90842733363f8d07b32ccb7b71b9c72bc81466
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 20 19:28:49 2021 +0000
+commit 20c2a9d955739eb101650d38be12207c4809eb46
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Oct 20 11:22:23 2021 -0700
 
-    [dif/rv-timer] Fix autogen DIFs dependency architecture.
+    [doc/alert_handler] update register naming
     
-    This fixes #8755 for the rv_timer, to fix a CI failure, since #8756 was
-    merged after #8733, without updating the rv-timer autogen DIFs. (CI
-    tests passed for #8756, before #8733 was merged.)
+    This PR fixes some register namings in alert_handler so the doc can link
+    to the correct register.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
