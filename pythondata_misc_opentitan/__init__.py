@@ -4,41 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8368"
-version_tuple = (0, 0, 8368)
+version_str = "0.0.post8369"
+version_tuple = (0, 0, 8369)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8368")
+    pversion = V("0.0.post8369")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8256"
-data_version_tuple = (0, 0, 8256)
+data_version_str = "0.0.post8257"
+data_version_tuple = (0, 0, 8257)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8256")
+    pdata_version = V("0.0.post8257")
 except ImportError:
     pass
-data_git_hash = "13b4afba9b7f04445d061e446e7201762395c5fa"
-data_git_describe = "v0.0-8256-g13b4afba9"
+data_git_hash = "bf7faa427a5adf377a4245ad4689be831021934a"
+data_git_describe = "v0.0-8257-gbf7faa427"
 data_git_msg = """\
-commit 13b4afba9b7f04445d061e446e7201762395c5fa
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 20 00:54:23 2021 +0000
+commit bf7faa427a5adf377a4245ad4689be831021934a
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Oct 19 22:22:19 2021 -0700
 
-    [dif] Autogen all `dif_<ip>_init()` DIFs for all IPs.
+    [dvsim] Enabling glob-style patterns for -i switch
     
-    This is the last task that fixes #8409.
+    This commit enables the user to pass glob-style patterns instead of
+    fully resolved test/regression names to `-i|--items` switch.
     
-    This commit:
-    1. updates the DIF autogen templates to auto-generate the
-       `dif_<ip>_init()` DIF and corresponding unit tests for all IPs,
-    2. re-auto-generates all IP's (autogen'd) DIFs, and
-    3. deprecates all manually defined `dif_<ip>_init()` DIFs and unit
-       tests.
+    The following are some examples:
+    - Run all CSR tests: `-i *csr*`
+    - Run all sleep tests: `-i chip_sw_sleep*`
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    As before, it matches the input patterns with the list of available
+    regrssions first. For example, `-i *smoke*` will add all tests enabled
+    for the smoke regressions AND then, it will add all tests containing the
+    pattern `*smoke*` in the name that are not added to the smoke
+    regression. If multiple regressions match the input patterns, and there
+    is an overlap of tests, then the subsequent regressions are dropped with
+    a warning message. If an input pattern does not match any available
+    regression or test name, then a warning is thrown.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
