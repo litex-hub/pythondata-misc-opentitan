@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8398"
-version_tuple = (0, 0, 8398)
+version_str = "0.0.post8400"
+version_tuple = (0, 0, 8400)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8398")
+    pversion = V("0.0.post8400")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8286"
-data_version_tuple = (0, 0, 8286)
+data_version_str = "0.0.post8288"
+data_version_tuple = (0, 0, 8288)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8286")
+    pdata_version = V("0.0.post8288")
 except ImportError:
     pass
-data_git_hash = "d88e2dd0bcff264e3c7c42f2939efcb62d15577b"
-data_git_describe = "v0.0-8286-gd88e2dd0b"
+data_git_hash = "67385097d2fc388fa6e8fc82599c25e5d56b70c4"
+data_git_describe = "v0.0-8288-g67385097d"
 data_git_msg = """\
-commit d88e2dd0bcff264e3c7c42f2939efcb62d15577b
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Oct 8 13:35:39 2021 -0700
+commit 67385097d2fc388fa6e8fc82599c25e5d56b70c4
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 20 21:00:03 2021 +0000
 
-    [dv/full chip] Update chip testplan
+    [dif/pattgen] Auto-generate portion of DIFs.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Currently, the DIF library for the PATTGEN is unimplemented. This begins
+    the implementation of this DIF library by first checking in the
+    auto-generated DIFs (init and IRQ DIFs).
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
