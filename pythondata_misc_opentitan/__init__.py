@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8404"
-version_tuple = (0, 0, 8404)
+version_str = "0.0.post8405"
+version_tuple = (0, 0, 8405)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8404")
+    pversion = V("0.0.post8405")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8292"
-data_version_tuple = (0, 0, 8292)
+data_version_str = "0.0.post8293"
+data_version_tuple = (0, 0, 8293)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8292")
+    pdata_version = V("0.0.post8293")
 except ImportError:
     pass
-data_git_hash = "68e725548787e1ed52332a3b5ac9c5c37dac75be"
-data_git_describe = "v0.0-8292-g68e725548"
+data_git_hash = "25212a9d2acc9b5fba26275b9bdeaea6ac306a21"
+data_git_describe = "v0.0-8293-g25212a9d2"
 data_git_msg = """\
-commit 68e725548787e1ed52332a3b5ac9c5c37dac75be
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Oct 22 00:37:16 2021 +0000
+commit 25212a9d2acc9b5fba26275b9bdeaea6ac306a21
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Wed Sep 29 15:39:10 2021 +0100
 
-    [dv,sw] Use `*_irq_acknowledge_all()` in PLIC test.
+    [sw, tests] Introduce Retention SRAM scrambling chip level test
     
-    This commit replaces the manual MMIO writes to the IRQ state registers
-    to clear all interrupts for a specific IP with the newly added DIF
-    equivalent in the `plic_all_irqs_test.c`.
+    - Routines have been written in a way that they can be used for
+      both RAMs, by passing the correct handle. HOWEVER, Main RAM
+      cannot be handled the same way as the Retention RAM, as
+      scrambling would destroy the system configuration including
+      the C runtime.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
