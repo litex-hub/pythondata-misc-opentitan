@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8410"
-version_tuple = (0, 0, 8410)
+version_str = "0.0.post8411"
+version_tuple = (0, 0, 8411)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8410")
+    pversion = V("0.0.post8411")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8298"
-data_version_tuple = (0, 0, 8298)
+data_version_str = "0.0.post8299"
+data_version_tuple = (0, 0, 8299)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8298")
+    pdata_version = V("0.0.post8299")
 except ImportError:
     pass
-data_git_hash = "e780525312581e2a6813a26e36c272a114a12118"
-data_git_describe = "v0.0-8298-ge78052531"
+data_git_hash = "e22f87e96487471b7c4117c133ab60069d767cef"
+data_git_describe = "v0.0-8299-ge22f87e96"
 data_git_msg = """\
-commit e780525312581e2a6813a26e36c272a114a12118
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Thu Oct 21 13:47:54 2021 +0100
+commit e22f87e96487471b7c4117c133ab60069d767cef
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Oct 22 01:02:34 2021 +0000
 
-    [mask_rom] Enable flash execution after signature verification
+    [dif] Fix typos in autogen'd DIF comments.
     
-    Rather than enabling flash execution immediately wait until
-    signature verfication is complete.
+    This commit fixes the autogen DIF templates to remove typos in generated
+    code comments as requested in the review comments of #8775 and #8780.
     
-    Placed before the `sec_mmio` expectation checks so that the
-    expectation checks are sandwiched between the flash execution enable
-    and the ePMP region unlock.
-    
-    Updates #7834
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
