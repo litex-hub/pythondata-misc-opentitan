@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8411"
-version_tuple = (0, 0, 8411)
+version_str = "0.0.post8412"
+version_tuple = (0, 0, 8412)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8411")
+    pversion = V("0.0.post8412")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8299"
-data_version_tuple = (0, 0, 8299)
+data_version_str = "0.0.post8300"
+data_version_tuple = (0, 0, 8300)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8299")
+    pdata_version = V("0.0.post8300")
 except ImportError:
     pass
-data_git_hash = "e22f87e96487471b7c4117c133ab60069d767cef"
-data_git_describe = "v0.0-8299-ge22f87e96"
+data_git_hash = "fec1499e66dc6d513d24373305a4761042200f6c"
+data_git_describe = "v0.0-8300-gfec1499e6"
 data_git_msg = """\
-commit e22f87e96487471b7c4117c133ab60069d767cef
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Oct 22 01:02:34 2021 +0000
+commit fec1499e66dc6d513d24373305a4761042200f6c
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Oct 22 15:23:29 2021 +0100
 
-    [dif] Fix typos in autogen'd DIF comments.
+    [rom_ctrl,dv] Fully disable the scoreboard for CSR tests
     
-    This commit fixes the autogen DIF templates to remove typos in generated
-    code comments as requested in the review comments of #8775 and #8780.
+    We were previously seeing occasional failures in tests like
+    rom_ctrl_csr_hw_reset. The problem is that the test does a few memory
+    transactions and then ends. But rom_ctrl might not have finished its
+    work!
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    The scoreboard is "disabled" by setting en_scb = 0 in the base
+    environment, but we don't actually disable it: everything is still
+    connected up and running. Thus the scoreboard itself needs to know to
+    drain and ignore all analysis fifos and not do any checking.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
