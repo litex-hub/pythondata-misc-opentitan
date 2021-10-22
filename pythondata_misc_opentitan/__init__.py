@@ -4,38 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8405"
-version_tuple = (0, 0, 8405)
+version_str = "0.0.post8406"
+version_tuple = (0, 0, 8406)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8405")
+    pversion = V("0.0.post8406")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8293"
-data_version_tuple = (0, 0, 8293)
+data_version_str = "0.0.post8294"
+data_version_tuple = (0, 0, 8294)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8293")
+    pdata_version = V("0.0.post8294")
 except ImportError:
     pass
-data_git_hash = "25212a9d2acc9b5fba26275b9bdeaea6ac306a21"
-data_git_describe = "v0.0-8293-g25212a9d2"
+data_git_hash = "b76772206fdb7839b4ee0f586de309826611b8f5"
+data_git_describe = "v0.0-8294-gb76772206"
 data_git_msg = """\
-commit 25212a9d2acc9b5fba26275b9bdeaea6ac306a21
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Wed Sep 29 15:39:10 2021 +0100
+commit b76772206fdb7839b4ee0f586de309826611b8f5
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 21 16:33:16 2021 +0100
 
-    [sw, tests] Introduce Retention SRAM scrambling chip level test
+    [spi_device,lint] Remove double-import of parameters
     
-    - Routines have been written in a way that they can be used for
-      both RAMs, by passing the correct handle. HOWEVER, Main RAM
-      cannot be handled the same way as the Retention RAM, as
-      scrambling would destroy the system configuration including
-      the C runtime.
+    In spid_status, we're already importing spi_device_pkg::* into the
+    module's scope, so this line was shadowing CmdInfoIdxW (with itself!)
+    and Verilator spat out a warning.
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    In spi_passthrough, we were importing spi_device_pkg, which exports
+    NumCmdInfo, shadowed by the NumCmdInfo parameter. We then instantiate
+    it (in spi_device.sv), setting the parameter to the thing it's
+    shadowing. Get rid of the parameter entirely.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
