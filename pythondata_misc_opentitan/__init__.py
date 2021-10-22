@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8400"
-version_tuple = (0, 0, 8400)
+version_str = "0.0.post8401"
+version_tuple = (0, 0, 8401)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8400")
+    pversion = V("0.0.post8401")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8288"
-data_version_tuple = (0, 0, 8288)
+data_version_str = "0.0.post8289"
+data_version_tuple = (0, 0, 8289)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8288")
+    pdata_version = V("0.0.post8289")
 except ImportError:
     pass
-data_git_hash = "67385097d2fc388fa6e8fc82599c25e5d56b70c4"
-data_git_describe = "v0.0-8288-g67385097d"
+data_git_hash = "a538a01fe666f073e38b7252353163fd35702e48"
+data_git_describe = "v0.0-8289-ga538a01fe"
 data_git_msg = """\
-commit 67385097d2fc388fa6e8fc82599c25e5d56b70c4
+commit a538a01fe666f073e38b7252353163fd35702e48
 Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 20 21:00:03 2021 +0000
+Date:   Thu Oct 21 23:23:34 2021 +0000
 
-    [dif/pattgen] Auto-generate portion of DIFs.
+    [dif/clkmgr] Fix broken unit tests.
     
-    Currently, the DIF library for the PATTGEN is unimplemented. This begins
-    the implementation of this DIF library by first checking in the
-    auto-generated DIFs (init and IRQ DIFs).
+    The clkmgr DIF unit tests were stale since the DIF *_params_t struct
+    deprecation that took place as a result of #8409 and the meson build
+    target was not correct so the stale unit tests were not causing a build
+    failure. This change fixes that.
     
     Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
