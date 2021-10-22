@@ -4,42 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8412"
-version_tuple = (0, 0, 8412)
+version_str = "0.0.post8413"
+version_tuple = (0, 0, 8413)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8412")
+    pversion = V("0.0.post8413")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8300"
-data_version_tuple = (0, 0, 8300)
+data_version_str = "0.0.post8301"
+data_version_tuple = (0, 0, 8301)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8300")
+    pdata_version = V("0.0.post8301")
 except ImportError:
     pass
-data_git_hash = "fec1499e66dc6d513d24373305a4761042200f6c"
-data_git_describe = "v0.0-8300-gfec1499e6"
+data_git_hash = "4a394963938cae7a7d6eecc33992c465d9c43cb1"
+data_git_describe = "v0.0-8301-g4a3949639"
 data_git_msg = """\
-commit fec1499e66dc6d513d24373305a4761042200f6c
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 22 15:23:29 2021 +0100
+commit 4a394963938cae7a7d6eecc33992c465d9c43cb1
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Fri Oct 22 14:02:05 2021 +0100
 
-    [rom_ctrl,dv] Fully disable the scoreboard for CSR tests
+    [mask_rom] Use named offsets when configuring entropy source
     
-    We were previously seeing occasional failures in tests like
-    rom_ctrl_csr_hw_reset. The problem is that the test does a few memory
-    transactions and then ends. But rom_ctrl might not have finished its
-    work!
+    Explicitly set the individual fields in the `entropy_src.CONF`
+    register. This makes it easier to determine which fields are being
+    set and makes the code more robust against future interface changes.
     
-    The scoreboard is "disabled" by setting en_scb = 0 in the base
-    environment, but we don't actually disable it: everything is still
-    connected up and running. Thus the scoreboard itself needs to know to
-    drain and ignore all analysis fifos and not do any checking.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
