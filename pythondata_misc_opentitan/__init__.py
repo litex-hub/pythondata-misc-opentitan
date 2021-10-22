@@ -4,37 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8401"
-version_tuple = (0, 0, 8401)
+version_str = "0.0.post8402"
+version_tuple = (0, 0, 8402)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8401")
+    pversion = V("0.0.post8402")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8289"
-data_version_tuple = (0, 0, 8289)
+data_version_str = "0.0.post8290"
+data_version_tuple = (0, 0, 8290)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8289")
+    pdata_version = V("0.0.post8290")
 except ImportError:
     pass
-data_git_hash = "a538a01fe666f073e38b7252353163fd35702e48"
-data_git_describe = "v0.0-8289-ga538a01fe"
+data_git_hash = "e956f7755eeb6fd12d04e6b8f0a40e25c47824ab"
+data_git_describe = "v0.0-8290-ge956f7755"
 data_git_msg = """\
-commit a538a01fe666f073e38b7252353163fd35702e48
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 21 23:23:34 2021 +0000
+commit e956f7755eeb6fd12d04e6b8f0a40e25c47824ab
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 21 17:19:52 2021 -0700
 
-    [dif/clkmgr] Fix broken unit tests.
+    [top/dv] Update testplan to add chip_sw_uart_rand_baudrate
     
-    The clkmgr DIF unit tests were stale since the DIF *_params_t struct
-    deprecation that took place as a result of #8409 and the meson build
-    target was not correct so the stale unit tests were not causing a build
-    failure. This change fixes that.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This will fix the unmapped test issue
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
