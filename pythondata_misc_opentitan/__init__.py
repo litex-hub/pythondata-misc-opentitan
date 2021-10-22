@@ -4,33 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8402"
-version_tuple = (0, 0, 8402)
+version_str = "0.0.post8404"
+version_tuple = (0, 0, 8404)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8402")
+    pversion = V("0.0.post8404")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8290"
-data_version_tuple = (0, 0, 8290)
+data_version_str = "0.0.post8292"
+data_version_tuple = (0, 0, 8292)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8290")
+    pdata_version = V("0.0.post8292")
 except ImportError:
     pass
-data_git_hash = "e956f7755eeb6fd12d04e6b8f0a40e25c47824ab"
-data_git_describe = "v0.0-8290-ge956f7755"
+data_git_hash = "68e725548787e1ed52332a3b5ac9c5c37dac75be"
+data_git_describe = "v0.0-8292-g68e725548"
 data_git_msg = """\
-commit e956f7755eeb6fd12d04e6b8f0a40e25c47824ab
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 21 17:19:52 2021 -0700
+commit 68e725548787e1ed52332a3b5ac9c5c37dac75be
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Oct 22 00:37:16 2021 +0000
 
-    [top/dv] Update testplan to add chip_sw_uart_rand_baudrate
+    [dv,sw] Use `*_irq_acknowledge_all()` in PLIC test.
     
-    This will fix the unmapped test issue
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit replaces the manual MMIO writes to the IRQ state registers
+    to clear all interrupts for a specific IP with the newly added DIF
+    equivalent in the `plic_all_irqs_test.c`.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
