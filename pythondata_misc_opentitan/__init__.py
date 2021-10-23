@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8413"
-version_tuple = (0, 0, 8413)
+version_str = "0.0.post8414"
+version_tuple = (0, 0, 8414)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8413")
+    pversion = V("0.0.post8414")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8301"
-data_version_tuple = (0, 0, 8301)
+data_version_str = "0.0.post8302"
+data_version_tuple = (0, 0, 8302)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8301")
+    pdata_version = V("0.0.post8302")
 except ImportError:
     pass
-data_git_hash = "4a394963938cae7a7d6eecc33992c465d9c43cb1"
-data_git_describe = "v0.0-8301-g4a3949639"
+data_git_hash = "adf65e9308ff21c14643560955cc823c260a00bf"
+data_git_describe = "v0.0-8302-gadf65e930"
 data_git_msg = """\
-commit 4a394963938cae7a7d6eecc33992c465d9c43cb1
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Fri Oct 22 14:02:05 2021 +0100
+commit adf65e9308ff21c14643560955cc823c260a00bf
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Oct 21 14:24:04 2021 -0700
 
-    [mask_rom] Use named offsets when configuring entropy source
+    [dv/format] Clean verible format issues
     
-    Explicitly set the individual fields in the `entropy_src.CONF`
-    register. This makes it easier to determine which fields are being
-    set and makes the code more robust against future interface changes.
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
