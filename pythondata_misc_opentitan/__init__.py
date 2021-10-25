@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8435"
-version_tuple = (0, 0, 8435)
+version_str = "0.0.post8439"
+version_tuple = (0, 0, 8439)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8435")
+    pversion = V("0.0.post8439")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8323"
-data_version_tuple = (0, 0, 8323)
+data_version_str = "0.0.post8327"
+data_version_tuple = (0, 0, 8327)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8323")
+    pdata_version = V("0.0.post8327")
 except ImportError:
     pass
-data_git_hash = "b9fcaae85ab87bf1cc90708018d3678380b409c1"
-data_git_describe = "v0.0-8323-gb9fcaae85"
+data_git_hash = "71bf7aad9531669f0cfafc923938775ae34d0562"
+data_git_describe = "v0.0-8327-g71bf7aad9"
 data_git_msg = """\
-commit b9fcaae85ab87bf1cc90708018d3678380b409c1
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 25 11:26:54 2021 -0700
+commit 71bf7aad9531669f0cfafc923938775ae34d0562
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Oct 22 06:40:20 2021 -0700
 
-    [conn] Update spi_host clk
+    [entropy_src/rtl] lint cleanup after mubi updates
     
-    With PR #8709, the clk_core_i is removed from SPI_HOST.
-    So update the connectivity test to reflect the change.
+    Removed unneeded signals after MuBi updates were made.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
