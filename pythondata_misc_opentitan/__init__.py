@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8429"
-version_tuple = (0, 0, 8429)
+version_str = "0.0.post8430"
+version_tuple = (0, 0, 8430)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8429")
+    pversion = V("0.0.post8430")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8317"
-data_version_tuple = (0, 0, 8317)
+data_version_str = "0.0.post8318"
+data_version_tuple = (0, 0, 8318)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8317")
+    pdata_version = V("0.0.post8318")
 except ImportError:
     pass
-data_git_hash = "957b7de0ffaa0bef5d6614b123f5671cac5aa4b6"
-data_git_describe = "v0.0-8317-g957b7de0f"
+data_git_hash = "3ce4fc88d20b34fb47291d2ea75c075b83847d95"
+data_git_describe = "v0.0-8318-g3ce4fc88d"
 data_git_msg = """\
-commit 957b7de0ffaa0bef5d6614b123f5671cac5aa4b6
-Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Oct 21 16:01:29 2021 +0100
+commit 3ce4fc88d20b34fb47291d2ea75c075b83847d95
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Oct 19 08:33:26 2021 -0700
 
-    [sw] Adjust build logic in ECDSA-P256 for crypto library.
+    [dv/base_monitor] Cleaned up base monitor
     
-    Move some universal definitions to the top-level crypto library build
-    file, and rename variables for better readability.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
