@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8423"
-version_tuple = (0, 0, 8423)
+version_str = "0.0.post8429"
+version_tuple = (0, 0, 8429)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8423")
+    pversion = V("0.0.post8429")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8311"
-data_version_tuple = (0, 0, 8311)
+data_version_str = "0.0.post8317"
+data_version_tuple = (0, 0, 8317)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8311")
+    pdata_version = V("0.0.post8317")
 except ImportError:
     pass
-data_git_hash = "241a82c665d1823ac70f8a63a6943a2cd8dd8ac9"
-data_git_describe = "v0.0-8311-g241a82c66"
+data_git_hash = "957b7de0ffaa0bef5d6614b123f5671cac5aa4b6"
+data_git_describe = "v0.0-8317-g957b7de0f"
 data_git_msg = """\
-commit 241a82c665d1823ac70f8a63a6943a2cd8dd8ac9
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Sep 23 16:32:54 2021 -0700
+commit 957b7de0ffaa0bef5d6614b123f5671cac5aa4b6
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Oct 21 16:01:29 2021 +0100
 
-    [fpv] prim_counter_fpv
+    [sw] Adjust build logic in ECDSA-P256 for crypto library.
     
-    1).Set up an initial FPV testbench on prim_counter.
-    2).Move around some assertions in design to avoid conditional disable
-    assertions in FPV.
+    Move some universal definitions to the top-level crypto library build
+    file, and rename variables for better readability.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
