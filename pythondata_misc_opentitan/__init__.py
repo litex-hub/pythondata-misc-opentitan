@@ -4,30 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8414"
-version_tuple = (0, 0, 8414)
+version_str = "0.0.post8416"
+version_tuple = (0, 0, 8416)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8414")
+    pversion = V("0.0.post8416")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8302"
-data_version_tuple = (0, 0, 8302)
+data_version_str = "0.0.post8304"
+data_version_tuple = (0, 0, 8304)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8302")
+    pdata_version = V("0.0.post8304")
 except ImportError:
     pass
-data_git_hash = "adf65e9308ff21c14643560955cc823c260a00bf"
-data_git_describe = "v0.0-8302-gadf65e930"
+data_git_hash = "0b7c9ff08778237f7028e4e7cb116b6e0c06c860"
+data_git_describe = "v0.0-8304-g0b7c9ff08"
 data_git_msg = """\
-commit adf65e9308ff21c14643560955cc823c260a00bf
+commit 0b7c9ff08778237f7028e4e7cb116b6e0c06c860
 Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Oct 21 14:24:04 2021 -0700
+Date:   Wed Oct 20 11:57:09 2021 -0700
 
-    [dv/format] Clean verible format issues
+    [dv/full_chip] Expand aon_timer testutils
+    
+    Add utility function to set a watchdog.
+    Change aon_timer smoketest to use the testutils.
     
     Signed-off-by: Guillermo Maturana <maturana@google.com>
 
