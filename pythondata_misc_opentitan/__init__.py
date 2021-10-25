@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8416"
-version_tuple = (0, 0, 8416)
+version_str = "0.0.post8417"
+version_tuple = (0, 0, 8417)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8416")
+    pversion = V("0.0.post8417")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8304"
-data_version_tuple = (0, 0, 8304)
+data_version_str = "0.0.post8305"
+data_version_tuple = (0, 0, 8305)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8304")
+    pdata_version = V("0.0.post8305")
 except ImportError:
     pass
-data_git_hash = "0b7c9ff08778237f7028e4e7cb116b6e0c06c860"
-data_git_describe = "v0.0-8304-g0b7c9ff08"
+data_git_hash = "0046b1e5f3044fe926016f93896f4888b8cae210"
+data_git_describe = "v0.0-8305-g0046b1e5f"
 data_git_msg = """\
-commit 0b7c9ff08778237f7028e4e7cb116b6e0c06c860
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Oct 20 11:57:09 2021 -0700
+commit 0046b1e5f3044fe926016f93896f4888b8cae210
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 21 15:38:29 2021 -0700
 
-    [dv/full_chip] Expand aon_timer testutils
+    [dv] Fix scb multi-ral
     
-    Add utility function to set a watchdog.
-    Change aon_timer smoketest to use the testutils.
+    2 places still use `ral` rather than `ral_models[name]`
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
