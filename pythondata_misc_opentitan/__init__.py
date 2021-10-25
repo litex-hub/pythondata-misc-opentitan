@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8431"
-version_tuple = (0, 0, 8431)
+version_str = "0.0.post8435"
+version_tuple = (0, 0, 8435)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8431")
+    pversion = V("0.0.post8435")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8319"
-data_version_tuple = (0, 0, 8319)
+data_version_str = "0.0.post8323"
+data_version_tuple = (0, 0, 8323)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8319")
+    pdata_version = V("0.0.post8323")
 except ImportError:
     pass
-data_git_hash = "59b043ec86407b8d6d9499cb1a2d1695f6601d59"
-data_git_describe = "v0.0-8319-g59b043ec8"
+data_git_hash = "b9fcaae85ab87bf1cc90708018d3678380b409c1"
+data_git_describe = "v0.0-8323-gb9fcaae85"
 data_git_msg = """\
-commit 59b043ec86407b8d6d9499cb1a2d1695f6601d59
-Author: alex sapozhnikov <alex.sapozhnikov@wdc.com>
-Date:   Wed Oct 6 21:21:42 2021 -0700
+commit b9fcaae85ab87bf1cc90708018d3678380b409c1
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 25 11:26:54 2021 -0700
 
-    [pattgen/dv] Improve stimulus to achieve near full functional coverage
+    [conn] Update spi_host clk
     
-    Signed-off-by: alex sapozhnikov <alex.sapozhnikov@wdc.com>
+    With PR #8709, the clk_core_i is removed from SPI_HOST.
+    So update the connectivity test to reflect the change.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
