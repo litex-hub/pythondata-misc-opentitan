@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8418"
-version_tuple = (0, 0, 8418)
+version_str = "0.0.post8419"
+version_tuple = (0, 0, 8419)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8418")
+    pversion = V("0.0.post8419")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8306"
-data_version_tuple = (0, 0, 8306)
+data_version_str = "0.0.post8307"
+data_version_tuple = (0, 0, 8307)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8306")
+    pdata_version = V("0.0.post8307")
 except ImportError:
     pass
-data_git_hash = "b19dec1b90e724341fbd24f2646d96d1e968407f"
-data_git_describe = "v0.0-8306-gb19dec1b9"
+data_git_hash = "3e25bcd12336f774069a2b2d037d864da007c3cc"
+data_git_describe = "v0.0-8307-g3e25bcd12"
 data_git_msg = """\
-commit b19dec1b90e724341fbd24f2646d96d1e968407f
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Oct 22 16:16:37 2021 +0200
+commit 3e25bcd12336f774069a2b2d037d864da007c3cc
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Mon Oct 25 12:05:36 2021 +0100
 
-    [aes/pre_syn] Re-enable Yosys synthesis
+    [otbn] Suppress bad_insn_addr error on other software errors
     
-    This commit causes `prim_sec_anchor_*` primitives to be replaced by
-    the corresponding Xilinx primitives before calling Yosys.
+    Fixes #8645
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
