@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8430"
-version_tuple = (0, 0, 8430)
+version_str = "0.0.post8431"
+version_tuple = (0, 0, 8431)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8430")
+    pversion = V("0.0.post8431")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8318"
-data_version_tuple = (0, 0, 8318)
+data_version_str = "0.0.post8319"
+data_version_tuple = (0, 0, 8319)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8318")
+    pdata_version = V("0.0.post8319")
 except ImportError:
     pass
-data_git_hash = "3ce4fc88d20b34fb47291d2ea75c075b83847d95"
-data_git_describe = "v0.0-8318-g3ce4fc88d"
+data_git_hash = "59b043ec86407b8d6d9499cb1a2d1695f6601d59"
+data_git_describe = "v0.0-8319-g59b043ec8"
 data_git_msg = """\
-commit 3ce4fc88d20b34fb47291d2ea75c075b83847d95
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Oct 19 08:33:26 2021 -0700
+commit 59b043ec86407b8d6d9499cb1a2d1695f6601d59
+Author: alex sapozhnikov <alex.sapozhnikov@wdc.com>
+Date:   Wed Oct 6 21:21:42 2021 -0700
 
-    [dv/base_monitor] Cleaned up base monitor
+    [pattgen/dv] Improve stimulus to achieve near full functional coverage
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Signed-off-by: alex sapozhnikov <alex.sapozhnikov@wdc.com>
 
 """
 
