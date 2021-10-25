@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8417"
-version_tuple = (0, 0, 8417)
+version_str = "0.0.post8418"
+version_tuple = (0, 0, 8418)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8417")
+    pversion = V("0.0.post8418")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8305"
-data_version_tuple = (0, 0, 8305)
+data_version_str = "0.0.post8306"
+data_version_tuple = (0, 0, 8306)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8305")
+    pdata_version = V("0.0.post8306")
 except ImportError:
     pass
-data_git_hash = "0046b1e5f3044fe926016f93896f4888b8cae210"
-data_git_describe = "v0.0-8305-g0046b1e5f"
+data_git_hash = "b19dec1b90e724341fbd24f2646d96d1e968407f"
+data_git_describe = "v0.0-8306-gb19dec1b9"
 data_git_msg = """\
-commit 0046b1e5f3044fe926016f93896f4888b8cae210
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 21 15:38:29 2021 -0700
+commit b19dec1b90e724341fbd24f2646d96d1e968407f
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Oct 22 16:16:37 2021 +0200
 
-    [dv] Fix scb multi-ral
+    [aes/pre_syn] Re-enable Yosys synthesis
     
-    2 places still use `ral` rather than `ral_models[name]`
+    This commit causes `prim_sec_anchor_*` primitives to be replaced by
+    the corresponding Xilinx primitives before calling Yosys.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
