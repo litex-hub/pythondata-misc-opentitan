@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8439"
-version_tuple = (0, 0, 8439)
+version_str = "0.0.post8440"
+version_tuple = (0, 0, 8440)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8439")
+    pversion = V("0.0.post8440")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8327"
-data_version_tuple = (0, 0, 8327)
+data_version_str = "0.0.post8328"
+data_version_tuple = (0, 0, 8328)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8327")
+    pdata_version = V("0.0.post8328")
 except ImportError:
     pass
-data_git_hash = "71bf7aad9531669f0cfafc923938775ae34d0562"
-data_git_describe = "v0.0-8327-g71bf7aad9"
+data_git_hash = "116abc28855890a28010dc1a386dcbf270850083"
+data_git_describe = "v0.0-8328-g116abc288"
 data_git_msg = """\
-commit 71bf7aad9531669f0cfafc923938775ae34d0562
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Oct 22 06:40:20 2021 -0700
+commit 116abc28855890a28010dc1a386dcbf270850083
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Oct 22 13:44:43 2021 -0700
 
-    [entropy_src/rtl] lint cleanup after mubi updates
+    [spi_host] shift in correct bit
     
-    Removed unneeded signals after MuBi updates were made.
+    In Single mode, we should be shifting in sd_i[1] (nee MISO).
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
