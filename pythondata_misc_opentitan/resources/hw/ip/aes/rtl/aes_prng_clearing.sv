@@ -4,9 +4,9 @@
 //
 // AES low-bandwidth pseudo-random number generator for register clearing
 //
-// This module uses an LFSR connected to a PRINCE S-Box and PRESENT permutation to generate
-// pseudo-random data for the AES module for clearing registers. The LFSR can be reseeded
-// using an external interface.
+// This module uses an LFSR followed by an aligned permutation, a non-linear layer (PRINCE S-Boxes)
+// and another permutation to generate pseudo-random data for the AES module for clearing
+// registers (secure wipe). The LFSR can be reseeded using an external interface.
 
 `include "prim_assert.sv"
 
@@ -43,50 +43,88 @@ module aes_prng_clearing import aes_pkg::*;
   logic             seed_en;
   logic [Width-1:0] seed;
   logic             lfsr_en;
-  logic [Width-1:0] lfsr_state, lfsr_state_scrambled;
-
-  // The data requests are fed from the LFSR, reseed requests have the highest priority.
-  assign data_ack_o = reseed_req_i ? 1'b0 : data_req_i;
-
-  // Upsizing of entropy input to correct width for LFSR reseeding.
-  prim_packer_fifo #(
-    .InW  ( EntropyWidth ),
-    .OutW ( Width        )
-  ) u_prim_packer_fifo (
-    .clk_i    ( clk_i         ),
-    .rst_ni   ( rst_ni        ),
-    .clr_i    ( 1'b0          ), // Not needed.
-    .wvalid_i ( entropy_ack_i ),
-    .wdata_i  ( entropy_i     ),
-    .wready_o (               ), // Not needed, we're always ready to sink data at this point.
-    .rvalid_o ( seed_valid    ),
-    .rdata_o  ( seed          ),
-    .rready_i ( 1'b1          ), // We're always ready to receive the packed output word.
-    .depth_o  (               )  // Not needed.
-  );
+  logic [Width-1:0] lfsr_state;
 
   // In the current SCA setup, we don't have sufficient resources to implement the infrastructure
   // required for PRNG reseeding (CSRNG, EDN, etc.). Therefore, we skip any reseeding requests if
   // the SecSkipPRNGReseeding parameter is set. Performing the reseeding without proper entropy
   // provided from CSRNG would result in quickly repeating, fully deterministic PRNG output,
   // which prevents meaningful SCA resistance evaluations.
-
-  // Stop requesting entropy once the desired amount is available.
-  assign entropy_req_o = SecSkipPRNGReseeding ? 1'b0         : reseed_req_i & ~seed_valid;
-  assign reseed_ack_o  = SecSkipPRNGReseeding ? reseed_req_i : seed_valid;
+  if (SecSkipPRNGReseeding) begin : gen_skip_prng_reseeding
+    // Create a lint error to reduce the risk of accidentally enabling this feature.
+    logic sec_skip_prng_reseeding;
+    assign sec_skip_prng_reseeding = SecSkipPRNGReseeding;
+  end
 
   // LFSR control
   assign lfsr_en = data_req_i & data_ack_o;
   assign seed_en = SecSkipPRNGReseeding ? 1'b0 : seed_valid;
 
+  // The data requests are fed from the LFSR, reseed requests have the highest priority.
+  assign data_ack_o = reseed_req_i ? 1'b0 : data_req_i;
+
+  // Width adaption for reseeding interface. We get EntropyWidth bits at a time.
+  if (Width/2 == EntropyWidth) begin : gen_buffer
+    // We buffer the first EntropyWidth bits.
+    logic [EntropyWidth-1:0] buffer_d, buffer_q;
+    logic                    buffer_valid_d, buffer_valid_q;
+
+    // Stop requesting entropy once we have reseeded the LFSR.
+    assign entropy_req_o = SecSkipPRNGReseeding ? 1'b0         : reseed_req_i;
+    assign reseed_ack_o  = SecSkipPRNGReseeding ? reseed_req_i : seed_valid;
+
+    // Buffer
+    assign buffer_valid_d = entropy_req_o && entropy_ack_i ? ~buffer_valid_q : buffer_valid_q;
+
+    // Only update the buffer upon receiving the first EntropyWidth bits.
+    assign buffer_d = entropy_req_o && entropy_ack_i && !buffer_valid_q ? entropy_i : buffer_q;
+
+    always_ff @(posedge clk_i or negedge rst_ni) begin : reg_buffer
+      if (!rst_ni) begin
+        buffer_q       <= '0;
+        buffer_valid_q <= 1'b0;
+      end else begin
+        buffer_q       <= buffer_d;
+        buffer_valid_q <= buffer_valid_d;
+      end
+    end
+
+    assign seed       = {buffer_q, entropy_i};
+    assign seed_valid = buffer_valid_q & entropy_req_o & entropy_ack_i;
+
+  end else begin : gen_packer
+    // Upsizing of entropy input to correct width for LFSR reseeding.
+
+    // Stop requesting entropy once the desired amount is available.
+    assign entropy_req_o = SecSkipPRNGReseeding ? 1'b0         : reseed_req_i & ~seed_valid;
+    assign reseed_ack_o  = SecSkipPRNGReseeding ? reseed_req_i : seed_valid;
+
+    prim_packer_fifo #(
+      .InW  ( EntropyWidth ),
+      .OutW ( Width        )
+    ) u_prim_packer_fifo (
+      .clk_i    ( clk_i         ),
+      .rst_ni   ( rst_ni        ),
+      .clr_i    ( 1'b0          ), // Not needed.
+      .wvalid_i ( entropy_ack_i ),
+      .wdata_i  ( entropy_i     ),
+      .wready_o (               ), // Not needed, we're always ready to sink data at this point.
+      .rvalid_o ( seed_valid    ),
+      .rdata_o  ( seed          ),
+      .rready_i ( 1'b1          ), // We're always ready to receive the packed output word.
+      .depth_o  (               )  // Not needed.
+    );
+  end
+
   // LFSR instance
   prim_lfsr #(
-    .LfsrType    ( "GAL_XOR"       ),
-    .LfsrDw      ( Width           ),
-    .StateOutDw  ( Width           ),
-    .DefaultSeed ( RndCnstLfsrSeed ),
-    .StatePermEn ( 1'b1            ),
-    .StatePerm   ( RndCnstLfsrPerm )
+    .LfsrType     ( "GAL_XOR"       ),
+    .LfsrDw       ( Width           ),
+    .StateOutDw   ( Width           ),
+    .DefaultSeed  ( RndCnstLfsrSeed ),
+    .StatePermEn  ( 1'b1            ),
+    .StatePerm    ( RndCnstLfsrPerm ),
+    .NonLinearOut ( 1'b1            )
   ) u_lfsr (
     .clk_i     ( clk_i      ),
     .rst_ni    ( rst_ni     ),
@@ -96,15 +134,12 @@ module aes_prng_clearing import aes_pkg::*;
     .entropy_i (         '0 ),
     .state_o   ( lfsr_state )
   );
+  assign data_o[0] = lfsr_state;
 
-  // "Scramble" the LFSR state to break linear shift patterns.
-  assign lfsr_state_scrambled = prim_cipher_pkg::sbox4_64bit(lfsr_state,
-      prim_cipher_pkg::PRINCE_SBOX4);
-  assign data_o[0]            = lfsr_state_scrambled;
   // A seperate permutation is applied to obtain the pseudo-random data for clearing the second
   // share of registers (e.g. key registers or state registers in case masking is enabled).
   for (genvar i = 0; i < Width; i++) begin : gen_share_perm
-    assign data_o[1][i] = lfsr_state_scrambled[RndCnstSharePerm[i]];
+    assign data_o[1][i] = lfsr_state[RndCnstSharePerm[i]];
   end
 
   // Width must be 64.
