@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8457"
-version_tuple = (0, 0, 8457)
+version_str = "0.0.post8458"
+version_tuple = (0, 0, 8458)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8457")
+    pversion = V("0.0.post8458")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8345"
-data_version_tuple = (0, 0, 8345)
+data_version_str = "0.0.post8346"
+data_version_tuple = (0, 0, 8346)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8345")
+    pdata_version = V("0.0.post8346")
 except ImportError:
     pass
-data_git_hash = "05924908e0905aeff28bee5afdc880d89b48a784"
-data_git_describe = "v0.0-8345-g05924908e"
+data_git_hash = "334ef68cba70f2aa4bba0145dd80285198f4eb3f"
+data_git_describe = "v0.0-8346-g334ef68cb"
 data_git_msg = """\
-commit 05924908e0905aeff28bee5afdc880d89b48a784
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Oct 15 16:16:17 2021 -0700
+commit 334ef68cba70f2aa4bba0145dd80285198f4eb3f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Oct 25 14:36:02 2021 -0700
 
-    [opentitantool] Add hook for bootstrapping code on emulators
+    [alert_handler] Minor lint fix
     
-    When running an OpenTitan emulator, we might want to use OpenTitan
-    tool to "flash" a new firmware image.  We would not want to do so by
-    SPI transactions like the real chips, except when testing the read
-    only bootloader code.  Instead, we want to reach into special support
-    from the emulation system itself, to be able to replace the entire
-    content of the emulated flash storage.
-    
-    This CL adds a generic method to the Transport trait for specialized
-    operations like that.
-    
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
