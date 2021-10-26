@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8458"
-version_tuple = (0, 0, 8458)
+version_str = "0.0.post8459"
+version_tuple = (0, 0, 8459)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8458")
+    pversion = V("0.0.post8459")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8346"
-data_version_tuple = (0, 0, 8346)
+data_version_str = "0.0.post8347"
+data_version_tuple = (0, 0, 8347)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8346")
+    pdata_version = V("0.0.post8347")
 except ImportError:
     pass
-data_git_hash = "334ef68cba70f2aa4bba0145dd80285198f4eb3f"
-data_git_describe = "v0.0-8346-g334ef68cb"
+data_git_hash = "a5bc6b3f3c45969247aa7dc5ba5ded0715994186"
+data_git_describe = "v0.0-8347-ga5bc6b3f3"
 data_git_msg = """\
-commit 334ef68cba70f2aa4bba0145dd80285198f4eb3f
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Oct 25 14:36:02 2021 -0700
+commit a5bc6b3f3c45969247aa7dc5ba5ded0715994186
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 25 17:33:24 2021 -0700
 
-    [alert_handler] Minor lint fix
+    [dv/alert_init] Handle reset during alert_init
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This PR handles the scenario where reset is issued during alert_init.
+    We make the `wait_alert_init_done` to be a non-blocking task and use a
+    fork join_any to handle this scenario.
+    Thanks @weicaiyang for helping debugging this issue in uart seq.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
