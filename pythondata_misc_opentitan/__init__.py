@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8455"
-version_tuple = (0, 0, 8455)
+version_str = "0.0.post8456"
+version_tuple = (0, 0, 8456)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8455")
+    pversion = V("0.0.post8456")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8343"
-data_version_tuple = (0, 0, 8343)
+data_version_str = "0.0.post8344"
+data_version_tuple = (0, 0, 8344)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8343")
+    pdata_version = V("0.0.post8344")
 except ImportError:
     pass
-data_git_hash = "7857ffea4cb85a76bd820a41a721fb9ecb33ac70"
-data_git_describe = "v0.0-8343-g7857ffea4"
+data_git_hash = "d8ba072b3f239cb505c07cb058b97120d26d473f"
+data_git_describe = "v0.0-8344-gd8ba072b3"
 data_git_msg = """\
-commit 7857ffea4cb85a76bd820a41a721fb9ecb33ac70
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Oct 25 16:13:45 2021 +0200
+commit d8ba072b3f239cb505c07cb058b97120d26d473f
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Oct 25 17:58:44 2021 +0100
 
-    [aes/rtl] Cause lint errors if Sec parameters get non-default values
+    [verible] Rename rule file
     
-    We want to avoid that the features controlled by these parameters get
-    accidentally enabled in the final design.
+    Upstream suggests naming rule files with a suffix `.rules.verible_lint`.
+    We didn't follow this rule so far, but named both waivers and rule files
+    with the (custom) extension `.vbl`. Follow upstream naming to simplify
+    some tooling.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Fixes #8850
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
