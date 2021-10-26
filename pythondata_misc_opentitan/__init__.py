@@ -4,39 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8456"
-version_tuple = (0, 0, 8456)
+version_str = "0.0.post8457"
+version_tuple = (0, 0, 8457)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8456")
+    pversion = V("0.0.post8457")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8344"
-data_version_tuple = (0, 0, 8344)
+data_version_str = "0.0.post8345"
+data_version_tuple = (0, 0, 8345)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8344")
+    pdata_version = V("0.0.post8345")
 except ImportError:
     pass
-data_git_hash = "d8ba072b3f239cb505c07cb058b97120d26d473f"
-data_git_describe = "v0.0-8344-gd8ba072b3"
+data_git_hash = "05924908e0905aeff28bee5afdc880d89b48a784"
+data_git_describe = "v0.0-8345-g05924908e"
 data_git_msg = """\
-commit d8ba072b3f239cb505c07cb058b97120d26d473f
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Mon Oct 25 17:58:44 2021 +0100
+commit 05924908e0905aeff28bee5afdc880d89b48a784
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Oct 15 16:16:17 2021 -0700
 
-    [verible] Rename rule file
+    [opentitantool] Add hook for bootstrapping code on emulators
     
-    Upstream suggests naming rule files with a suffix `.rules.verible_lint`.
-    We didn't follow this rule so far, but named both waivers and rule files
-    with the (custom) extension `.vbl`. Follow upstream naming to simplify
-    some tooling.
+    When running an OpenTitan emulator, we might want to use OpenTitan
+    tool to "flash" a new firmware image.  We would not want to do so by
+    SPI transactions like the real chips, except when testing the read
+    only bootloader code.  Instead, we want to reach into special support
+    from the emulation system itself, to be able to replace the entire
+    content of the emulated flash storage.
     
-    Fixes #8850
+    This CL adds a generic method to the Transport trait for specialized
+    operations like that.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
 
 """
 
