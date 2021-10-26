@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8446"
-version_tuple = (0, 0, 8446)
+version_str = "0.0.post8449"
+version_tuple = (0, 0, 8449)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8446")
+    pversion = V("0.0.post8449")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8334"
-data_version_tuple = (0, 0, 8334)
+data_version_str = "0.0.post8337"
+data_version_tuple = (0, 0, 8337)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8334")
+    pdata_version = V("0.0.post8337")
 except ImportError:
     pass
-data_git_hash = "fa9ed4b0125c8b5dc0eca8f3d092ba14d310c548"
-data_git_describe = "v0.0-8334-gfa9ed4b01"
+data_git_hash = "00589e0551f74f98910535f9e211e5dee6cb381c"
+data_git_describe = "v0.0-8337-g00589e055"
 data_git_msg = """\
-commit fa9ed4b0125c8b5dc0eca8f3d092ba14d310c548
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 21 17:27:39 2021 -0700
+commit 00589e0551f74f98910535f9e211e5dee6cb381c
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Oct 25 18:27:11 2021 +0100
 
-    [dv/chip_level] Disable signal integrity check
+    [sw] Set up licensing for RSA-3072.
     
-    Because of lpg and alert init are not fully supported in top-level
-    environment with alert_esc_agent, we will disable the alert's signal
-    integrity check.
-    This should have minimal impact because prim_receiver's assertions can
-    still check signal integrity error.
-    This also fixes issue #8715
+    Copy the dcrypto license into lib/crypto and exempt rsa_3072.s from the
+    automated license check.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
