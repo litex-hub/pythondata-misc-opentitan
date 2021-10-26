@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8449"
-version_tuple = (0, 0, 8449)
+version_str = "0.0.post8450"
+version_tuple = (0, 0, 8450)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8449")
+    pversion = V("0.0.post8450")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8337"
-data_version_tuple = (0, 0, 8337)
+data_version_str = "0.0.post8338"
+data_version_tuple = (0, 0, 8338)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8337")
+    pdata_version = V("0.0.post8338")
 except ImportError:
     pass
-data_git_hash = "00589e0551f74f98910535f9e211e5dee6cb381c"
-data_git_describe = "v0.0-8337-g00589e055"
+data_git_hash = "4100db3899c8a6b26bcf377f825b5725af8c8091"
+data_git_describe = "v0.0-8338-g4100db389"
 data_git_msg = """\
-commit 00589e0551f74f98910535f9e211e5dee6cb381c
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Oct 25 18:27:11 2021 +0100
+commit 4100db3899c8a6b26bcf377f825b5725af8c8091
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 21 16:45:02 2021 +0100
 
-    [sw] Set up licensing for RSA-3072.
+    [pwrmgr,lint] Fix some width mismatches in pwrmgr_pkg
     
-    Copy the dcrypto license into lib/crypto and exempt rsa_3072.s from the
-    automated license check.
+    These are all of the form "wide0 = wide1 + narrow" where wide* are
+    integers and narrow is an enum value that's just a couple of bits
+    wide. Make the widening to int explicit to silence the Verilator
+    warning.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
