@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8472"
-version_tuple = (0, 0, 8472)
+version_str = "0.0.post8473"
+version_tuple = (0, 0, 8473)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8472")
+    pversion = V("0.0.post8473")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8360"
-data_version_tuple = (0, 0, 8360)
+data_version_str = "0.0.post8361"
+data_version_tuple = (0, 0, 8361)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8360")
+    pdata_version = V("0.0.post8361")
 except ImportError:
     pass
-data_git_hash = "f18f37367b31af0bd51227c0879be604d129064b"
-data_git_describe = "v0.0-8360-gf18f37367"
+data_git_hash = "f0ec0dfbca422de353da798eaaab06d5cbfaab81"
+data_git_describe = "v0.0-8361-gf0ec0dfbc"
 data_git_msg = """\
-commit f18f37367b31af0bd51227c0879be604d129064b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Oct 26 14:59:32 2021 +0100
+commit f0ec0dfbca422de353da798eaaab06d5cbfaab81
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Tue Oct 26 10:09:29 2021 +0100
 
-    [otbn,dv] Modify bigla test to work with 2kiB DMEM window
+    [otbn, dv] Picks signed base addresses while executing JALR
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    An if block is added to check if the 32nd bit of base address is 1. If
+    it is set, it means the base address is a negative address and it is
+    converted into signed integer.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
