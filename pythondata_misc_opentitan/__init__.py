@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8473"
-version_tuple = (0, 0, 8473)
+version_str = "0.0.post8475"
+version_tuple = (0, 0, 8475)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8473")
+    pversion = V("0.0.post8475")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8361"
-data_version_tuple = (0, 0, 8361)
+data_version_str = "0.0.post8363"
+data_version_tuple = (0, 0, 8363)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8361")
+    pdata_version = V("0.0.post8363")
 except ImportError:
     pass
-data_git_hash = "f0ec0dfbca422de353da798eaaab06d5cbfaab81"
-data_git_describe = "v0.0-8361-gf0ec0dfbc"
+data_git_hash = "b51084435ad3a7de7a7719899172ec597d130698"
+data_git_describe = "v0.0-8363-gb51084435"
 data_git_msg = """\
-commit f0ec0dfbca422de353da798eaaab06d5cbfaab81
+commit b51084435ad3a7de7a7719899172ec597d130698
 Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Tue Oct 26 10:09:29 2021 +0100
+Date:   Thu Oct 21 17:47:33 2021 +0100
 
-    [otbn, dv] Picks signed base addresses while executing JALR
+    [otbn, dv] Generate instructions with bad CSR / WSR addresses.
     
-    An if block is added to check if the 32nd bit of base address is 1. If
-    it is set, it means the base address is a negative address and it is
-    converted into signed integer.
+    Following additions/ modifications are done in this commit:
+    1.bad_ispr.py: A new snippet generator that picks up instructions only
+    related to CSR/ WSR registers and replaces the good register address
+    with bad address.
+    2.known_mem.py: A method called pick_bad_addr is added to pick an
+    address from the gaps in known memory.
     
     Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
