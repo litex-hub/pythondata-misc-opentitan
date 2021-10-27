@@ -4,41 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8470"
-version_tuple = (0, 0, 8470)
+version_str = "0.0.post8472"
+version_tuple = (0, 0, 8472)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8470")
+    pversion = V("0.0.post8472")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8358"
-data_version_tuple = (0, 0, 8358)
+data_version_str = "0.0.post8360"
+data_version_tuple = (0, 0, 8360)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8358")
+    pdata_version = V("0.0.post8360")
 except ImportError:
     pass
-data_git_hash = "a24806411534f332cbfe7aac37f7b3fd7672ac01"
-data_git_describe = "v0.0-8358-ga24806411"
+data_git_hash = "f18f37367b31af0bd51227c0879be604d129064b"
+data_git_describe = "v0.0-8360-gf18f37367"
 data_git_msg = """\
-commit a24806411534f332cbfe7aac37f7b3fd7672ac01
+commit f18f37367b31af0bd51227c0879be604d129064b
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Oct 26 17:43:55 2021 +0100
+Date:   Tue Oct 26 14:59:32 2021 +0100
 
-    [otbn,sw] Use weak symbols to shrink data in rsa_verify_3072_test
-    
-    The code in rsa_verify_3072.s expects various input and output arrays.
-    The code in rsa_verify_3072_test.s wants to initialise these arrays
-    with known values. To do that, it was declaring another copy of each
-    array (with the known values) and copying the values across.
-    
-    Rather than doing that, use weak symbols and per-data sections in
-    rsa_verify_3072.s and then override them in the test file.
-    
-    Something like this is needed if you want to get the total externally
-    visible data down below 2kb.
+    [otbn,dv] Modify bigla test to work with 2kiB DMEM window
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
