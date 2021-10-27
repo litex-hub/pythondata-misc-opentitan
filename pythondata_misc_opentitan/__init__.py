@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8485"
-version_tuple = (0, 0, 8485)
+version_str = "0.0.post8486"
+version_tuple = (0, 0, 8486)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8485")
+    pversion = V("0.0.post8486")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8373"
-data_version_tuple = (0, 0, 8373)
+data_version_str = "0.0.post8374"
+data_version_tuple = (0, 0, 8374)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8373")
+    pdata_version = V("0.0.post8374")
 except ImportError:
     pass
-data_git_hash = "d55b8c632ccb3a371ac05b5928de5f1f0b2e43b9"
-data_git_describe = "v0.0-8373-gd55b8c632"
+data_git_hash = "aa8026b10cf6c5a06ce61ac66834b16248848f7a"
+data_git_describe = "v0.0-8374-gaa8026b10"
 data_git_msg = """\
-commit d55b8c632ccb3a371ac05b5928de5f1f0b2e43b9
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Mon Oct 4 13:16:23 2021 -0400
+commit aa8026b10cf6c5a06ce61ac66834b16248848f7a
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Oct 27 16:13:06 2021 +0000
 
-    [lib] Make hardened.h polyglot
+    [spi_device] Default reset value for TPM_CAP
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    SPI_DEVICE TPM_CAP is read-only register to SW. The value is assigned
+    from parameter values. The reset value now represents the correct
+    parameter values.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
