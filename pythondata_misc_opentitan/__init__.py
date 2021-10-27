@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8465"
-version_tuple = (0, 0, 8465)
+version_str = "0.0.post8466"
+version_tuple = (0, 0, 8466)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8465")
+    pversion = V("0.0.post8466")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8353"
-data_version_tuple = (0, 0, 8353)
+data_version_str = "0.0.post8354"
+data_version_tuple = (0, 0, 8354)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8353")
+    pdata_version = V("0.0.post8354")
 except ImportError:
     pass
-data_git_hash = "0b03e6a6ada95c9d3fc04d50a01a35a59d3d4e40"
-data_git_describe = "v0.0-8353-g0b03e6a6a"
+data_git_hash = "ed0abd253128063bc86a3ded500b7f2ada3a7910"
+data_git_describe = "v0.0-8354-ged0abd253"
 data_git_msg = """\
-commit 0b03e6a6ada95c9d3fc04d50a01a35a59d3d4e40
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Tue Oct 26 11:05:23 2021 -0700
+commit ed0abd253128063bc86a3ded500b7f2ada3a7910
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Oct 26 03:24:23 2021 +0000
 
-    [test/ci] Disable Silicon Creator tests
+    [dif] Add overwrite safety check to `util/make_new_dif.py`
     
-    The current silicon creator tests don't support ROM_EXT signature
-    verification. This commit disables the tests from CI and from
-    systemtest until lowrisc/opentitan#8902 is resolved.
+    If `util/make_new_dif.py` is run initially to auto-generate a DIF header
+    and checklist boilerplate code/markdown (respectively), and accidentally
+    run again shortly after manualy modifying the boilerplate code (before
+    the modifications are checked-in to the repo), the modifications would
+    be overwritten. This commit adds a check to prevent such a mistake from
+    happening, partially addressing an action item in #8142.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
