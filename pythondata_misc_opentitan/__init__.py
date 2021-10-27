@@ -4,36 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8478"
-version_tuple = (0, 0, 8478)
+version_str = "0.0.post8479"
+version_tuple = (0, 0, 8479)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8478")
+    pversion = V("0.0.post8479")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8366"
-data_version_tuple = (0, 0, 8366)
+data_version_str = "0.0.post8367"
+data_version_tuple = (0, 0, 8367)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8366")
+    pdata_version = V("0.0.post8367")
 except ImportError:
     pass
-data_git_hash = "76cb99e40384216db61c87ab40d0aa66829ca9db"
-data_git_describe = "v0.0-8366-g76cb99e40"
+data_git_hash = "5adfa4eea91d66503220e29dd3b4e92faba83871"
+data_git_describe = "v0.0-8367-g5adfa4eea"
 data_git_msg = """\
-commit 76cb99e40384216db61c87ab40d0aa66829ca9db
+commit 5adfa4eea91d66503220e29dd3b4e92faba83871
 Author: Timothy Chen <timothytim@google.com>
-Date:   Sat Oct 16 00:29:45 2021 -0700
+Date:   Wed Oct 20 12:57:50 2021 -0700
 
-    [sram_ctrl] Various fixes
+    [util, top] Correct top level ast reset mapping
     
-    - Address issues listed in #8706
-    - Swap the order of sram_byte and rsp_gen
-    - Add read qualification to integrity data
-    - Add outstanding transaction handling
-    - Retain workarounds for #7461, that will be addressed separately.
+    - Also fix a minor issue in `merge.py` that added
+      unnecessary domains to resets.
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
