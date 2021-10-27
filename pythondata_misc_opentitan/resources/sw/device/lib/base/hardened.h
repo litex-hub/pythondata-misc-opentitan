@@ -14,6 +14,10 @@
  * @brief Data Types for use in Hardened Code.
  */
 
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
 /**
  * This is a boolean type for use in hardened contexts.
  *
@@ -194,5 +198,287 @@ inline uint32_t launder32(uint32_t val) {
   asm("" : "+r"(val));
   return val;
 }
+
+/**
+ * Launders the pointer-sized value `val`.
+ *
+ * See `launder32()` for detailed semantics.
+ *
+ * @param val A 32-bit integer to launder.
+ * @return A 32-bit integer which will happen to have the same value as `val` at
+ *         runtime.
+ */
+inline uintptr_t launderw(uintptr_t val) {
+  asm("" : "+r"(val));
+  return val;
+}
+
+/**
+ * Creates a reordering barrier for `val`.
+ *
+ * `barrier32()` takes an argument and discards it, while introducing an
+ * "impure" dependency on that value. This forces the compiler to schedule
+ * instructions such that the intermediate `val` actually appears in a
+ * register. Because it is impure, `barrier32()` operations will not be
+ * reordered past each other or MMIO operations, although they can be reordered
+ * past functions if LTO inlines them.
+ *
+ * Most compilers will try to reorder arithmetic operations in such a way
+ * that they form large basic blocks, since modern microarchitectures can
+ * take advantage of instruction-level parallelism. Unfortunately, this means
+ * that instructions that we want to interleave with other instructions are
+ * likely to get separated; this includes static interleavings,
+ * loop-invariant code motion, and some kinds of unroll-and-jam.
+ *
+ * For example, given
+ *
+ * ```
+ * uint32_t product = 5;
+ *
+ * foo();
+ * product *= product;
+ * foo();
+ * product *= product;
+ * foo();
+ * product *= product;
+ * ```
+ *
+ * A compiler will likely reorder this as
+ *
+ * ```
+ * uint32_t product = 5;
+ *
+ * foo();
+ * foo();
+ * foo();
+ * product *= product;
+ * product *= product;
+ * product *= product;
+ * ```
+ *
+ * The compiler is further entitled to constant-propagate `product`.
+ * `barrier32()` can be used to avoid this:
+ *
+ * ```
+ * // NB: the initial value of `product` is laundered to prevent
+ * // constant propagation, but only because it is a compile-time
+ * // constant. Laundering the intermediates would also work.
+ * uint32_t product = launder32(5);
+ * barrier32(product);
+ *
+ * barrier32(foo());
+ * product *= product;
+ * barrier32(product);
+ *
+ * barrier32(foo());
+ * product *= product;
+ * barrier32(product);
+ *
+ * barrier32(foo());
+ * product *= product;
+ * barrier32(product);
+ * ```
+ *
+ * Note that we must place barriers on the result of the function calls,
+ * too, so that the compiler believes that there is a potential dependency
+ * between the return value of the function, and the followup value of
+ * `product`.
+ *
+ * This is also useful for avoiding loop reordering:
+ *
+ * ```
+ * for (int i = 0; i != n - 1; i = (i + kPrime) % n) {
+ *   barrier32(i);
+ *
+ *   // Stuff.
+ * }
+ * ```
+ *
+ * A sufficiently intelligent compiler might notice that it can linearize this
+ * loop; however, the barriers in each loop iteration force a particular order
+ * is observed.
+ *
+ * @param val A value to create a barrier for.
+ */
+inline void barrier32(uint32_t val) { asm volatile("" ::"r"(val)); }
+
+/**
+ * Creates a reordering barrier for `val`.
+ *
+ * See `barrier32()` for detailed semantics.
+ *
+ * @param val A value to create a barrier for.
+ */
+inline void barrierw(uintptr_t val) { asm volatile("" ::"r"(val)); }
+
+/**
+ * A constant-time, 32-bit boolean value.
+ *
+ * Values of this type MUST be either all zero bits or all one bits,
+ * representing `false` and `true` respectively.
+ *
+ * Although it is possible to convert an existing `bool` into a `ct_bool32_t` by
+ * writing `-((ct_bool32_t) my_bool)`, we recommend against it
+ */
+typedef uint32_t ct_bool32_t;
+
+// The formulae below are taken from Hacker's Delight, Chapter 2.
+// Although the book does not define them as being constant-time, they are
+// branchless; branchless code is always constant-time.
+//
+// Proofs and references to HD are provided only in the 32-bit versions.
+//
+// Warren Jr., Henry S. (2013). Hacker's Delight (2 ed.).
+//   Addison Wesley - Pearson Education, Inc. ISBN 978-0-321-84268-8.
+
+/**
+ * Performs constant-time signed comparison to zero.
+ *
+ * Returns whether `a < 0`, as a constant-time boolean.
+ * In other words, this checks if `a` is negative, i.e., it's sign bit is set.
+ *
+ * @return `a < 0`.
+ */
+inline ct_bool32_t ct_sltz32(int32_t a) {
+  // Proof. `a` is negative iff its MSB is set;
+  // arithmetic-right-shifting by bits(a)-1 smears the sign bit across all
+  // of `a`.
+  return (uint32_t)(a >> (sizeof(a) * 8 - 1));
+}
+
+/**
+ * Performs constant-time unsigned ascending comparison.
+ *
+ * Returns `a < b` as a constant-time boolean.
+ *
+ * @return `a < b`.
+ */
+inline ct_bool32_t ct_sltu32(uint32_t a, uint32_t b) {
+  // Proof. See Hacker's Delight page 23.
+  return ct_sltz32((a & ~b) | ((a ^ ~b) & (a - b)));
+}
+
+/**
+ * Performs constant-time zero equality.
+ *
+ * Returns `a == 0` as a constant-time boolean.
+ *
+ * @return `a == 0`.
+ */
+inline ct_bool32_t ct_seqz32(uint32_t a) {
+  // Proof. See Hacker's Delight page 23.
+  // HD gives this formula: `a == b := ~(a-b | b-a)`.
+  //
+  // Setting `b` to zero gives us
+  //   ~(a | -a) -> ~a & ~-a -> ~a & (a - 1)
+  // via identities on page 16.
+  //
+  // This forumula is also given on page 11 for a different purpose.
+  return ct_sltz32(~a & (a - 1));
+}
+
+/**
+ * Performs constant-time equality.
+ *
+ * Returns `a == b` as a constant-time boolean.
+ *
+ * @return `a == b`.
+ */
+inline ct_bool32_t ct_seq32(uint32_t a, uint32_t b) {
+  // Proof. a ^ b == 0 -> a ^ a ^ b == a ^ 0 -> b == a.
+  return ct_seqz32(a ^ b);
+}
+
+/**
+ * Performs a constant-time select.
+ *
+ * Returns `a` if `c` is true; otherwise, returns `b`.
+ *
+ * This function should be used with one of the comparison functions above; do
+ * NOT create `c` using an `if` or `?:` operation.
+ *
+ * @param c The condition to test.
+ * @param a The value to return on true.
+ * @param b The value to return on false.
+ * @return `c ? a : b`.
+ */
+inline uint32_t ct_cmov32(ct_bool32_t c, uint32_t a, uint32_t b) {
+  // Proof. See Hacker's Delight page 46. HD gives this as a branchless swap;
+  // branchless select is a special case of that.
+
+  // `c` must be laundered because LLVM has a strength reduction pass for this
+  // exact pattern, but lacking a cmov instruction, it will almost certainly
+  // select a branch instruction here.
+  return (launder32(c) & a) | (launder32(~c) & b);
+}
+
+/**
+ * A constant-time, pointer-sized boolean value.
+ *
+ * Values of this type MUST be either all zero bits or all one bits.
+ */
+typedef uintptr_t ct_boolw_t;
+
+/**
+ * Performs constant-time signed comparison to zero.
+ *
+ * Returns whether `a < 0`, as a constant-time boolean.
+ * In other words, this checks if `a` is negative, i.e., it's sign bit is set.
+ *
+ * @return `a < 0`.
+ */
+inline ct_boolw_t ct_sltzw(intptr_t a) {
+  return (uintptr_t)(a >> (sizeof(a) * 8 - 1));
+}
+
+/**
+ * Performs constant-time unsigned ascending comparison.
+ *
+ * Returns `a < b` as a constant-time boolean.
+ *
+ * @return `a < b`.
+ */
+inline ct_boolw_t ct_sltuw(uintptr_t a, uintptr_t b) {
+  return ct_sltzw((a & ~b) | ((a ^ ~b) & (a - b)));
+}
+
+/**
+ * Performs constant-time zero equality.
+ *
+ * Returns `a == 0` as a constant-time boolean.
+ *
+ * @return `a == 0`.
+ */
+inline ct_boolw_t ct_seqzw(uintptr_t a) { return ct_sltzw(~a & (a - 1)); }
+
+/**
+ * Performs constant-time equality.
+ *
+ * Returns `a == b` as a constant-time boolean.
+ *
+ * @return `a == b`.
+ */
+inline ct_boolw_t ct_seqw(uintptr_t a, uintptr_t b) { return ct_seqzw(a ^ b); }
+
+/**
+ * Performs a constant-time select.
+ *
+ * Returns `a` if `c` is true; otherwise, returns `b`.
+ *
+ * This function should be used with one of the comparison functions above; do
+ * NOT create `c` using an `if` or `?:` operation.
+ *
+ * @param c The condition to test.
+ * @param a The value to return on true.
+ * @param b The value to return on false.
+ * @return `c ? a : b`.
+ */
+inline uintptr_t ct_cmovw(ct_boolw_t c, uintptr_t a, uintptr_t b) {
+  return (launderw(c) & a) | (launderw(~c) & b);
+}
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
 
 #endif  // OPENTITAN_SW_DEVICE_LIB_BASE_HARDENED_H_
