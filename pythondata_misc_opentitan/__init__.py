@@ -4,39 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8467"
-version_tuple = (0, 0, 8467)
+version_str = "0.0.post8470"
+version_tuple = (0, 0, 8470)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8467")
+    pversion = V("0.0.post8470")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8355"
-data_version_tuple = (0, 0, 8355)
+data_version_str = "0.0.post8358"
+data_version_tuple = (0, 0, 8358)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8355")
+    pdata_version = V("0.0.post8358")
 except ImportError:
     pass
-data_git_hash = "51ffaeecec6fb0655bf51f9492b9754fe42707a5"
-data_git_describe = "v0.0-8355-g51ffaeece"
+data_git_hash = "a24806411534f332cbfe7aac37f7b3fd7672ac01"
+data_git_describe = "v0.0-8358-ga24806411"
 data_git_msg = """\
-commit 51ffaeecec6fb0655bf51f9492b9754fe42707a5
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Oct 26 01:52:28 2021 +0000
+commit a24806411534f332cbfe7aac37f7b3fd7672ac01
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Oct 26 17:43:55 2021 +0100
 
-    [dif] Add alert autogen support to `make_new_dif.py`.
+    [otbn,sw] Use weak symbols to shrink data in rsa_verify_3072_test
     
-    This commit adds support for parsing alert information from an IP's
-    HJSON to support autogenerating `dif_<ip>_alert_force()` DIFs in the
-    future.
+    The code in rsa_verify_3072.s expects various input and output arrays.
+    The code in rsa_verify_3072_test.s wants to initialise these arrays
+    with known values. To do that, it was declaring another copy of each
+    array (with the known values) and copying the values across.
     
-    This partially addresses the longer term goal in #8879 of
-    auto-generating all alert test DIFs.
+    Rather than doing that, use weak symbols and per-data sections in
+    rsa_verify_3072.s and then override them in the test file.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Something like this is needed if you want to get the total externally
+    visible data down below 2kb.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
