@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8463"
-version_tuple = (0, 0, 8463)
+version_str = "0.0.post8465"
+version_tuple = (0, 0, 8465)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8463")
+    pversion = V("0.0.post8465")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8351"
-data_version_tuple = (0, 0, 8351)
+data_version_str = "0.0.post8353"
+data_version_tuple = (0, 0, 8353)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8351")
+    pdata_version = V("0.0.post8353")
 except ImportError:
     pass
-data_git_hash = "c858b582d5aaa604afa2548ae0016adc321fc9c5"
-data_git_describe = "v0.0-8351-gc858b582d"
+data_git_hash = "0b03e6a6ada95c9d3fc04d50a01a35a59d3d4e40"
+data_git_describe = "v0.0-8353-g0b03e6a6a"
 data_git_msg = """\
-commit c858b582d5aaa604afa2548ae0016adc321fc9c5
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Oct 23 01:35:25 2021 -0700
+commit 0b03e6a6ada95c9d3fc04d50a01a35a59d3d4e40
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Tue Oct 26 11:05:23 2021 -0700
 
-    [ spi_host, rtl ] AUTOGEN
+    [test/ci] Disable Silicon Creator tests
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    The current silicon creator tests don't support ROM_EXT signature
+    verification. This commit disables the tests from CI and from
+    systemtest until lowrisc/opentitan#8902 is resolved.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
