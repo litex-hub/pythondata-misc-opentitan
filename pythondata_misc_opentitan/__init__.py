@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8481"
-version_tuple = (0, 0, 8481)
+version_str = "0.0.post8485"
+version_tuple = (0, 0, 8485)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8481")
+    pversion = V("0.0.post8485")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8369"
-data_version_tuple = (0, 0, 8369)
+data_version_str = "0.0.post8373"
+data_version_tuple = (0, 0, 8373)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8369")
+    pdata_version = V("0.0.post8373")
 except ImportError:
     pass
-data_git_hash = "0836ef34d6ab6912702683d68fe2c81cc147ade2"
-data_git_describe = "v0.0-8369-g0836ef34d"
+data_git_hash = "d55b8c632ccb3a371ac05b5928de5f1f0b2e43b9"
+data_git_describe = "v0.0-8373-gd55b8c632"
 data_git_msg = """\
-commit 0836ef34d6ab6912702683d68fe2c81cc147ade2
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Oct 26 17:14:54 2021 -0700
+commit d55b8c632ccb3a371ac05b5928de5f1f0b2e43b9
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Mon Oct 4 13:16:23 2021 -0400
 
-    [doc/sw] Add specific example to build documentation
+    [lib] Make hardened.h polyglot
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
