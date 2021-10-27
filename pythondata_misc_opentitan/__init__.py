@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8466"
-version_tuple = (0, 0, 8466)
+version_str = "0.0.post8467"
+version_tuple = (0, 0, 8467)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8466")
+    pversion = V("0.0.post8467")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8354"
-data_version_tuple = (0, 0, 8354)
+data_version_str = "0.0.post8355"
+data_version_tuple = (0, 0, 8355)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8354")
+    pdata_version = V("0.0.post8355")
 except ImportError:
     pass
-data_git_hash = "ed0abd253128063bc86a3ded500b7f2ada3a7910"
-data_git_describe = "v0.0-8354-ged0abd253"
+data_git_hash = "51ffaeecec6fb0655bf51f9492b9754fe42707a5"
+data_git_describe = "v0.0-8355-g51ffaeece"
 data_git_msg = """\
-commit ed0abd253128063bc86a3ded500b7f2ada3a7910
+commit 51ffaeecec6fb0655bf51f9492b9754fe42707a5
 Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Oct 26 03:24:23 2021 +0000
+Date:   Tue Oct 26 01:52:28 2021 +0000
 
-    [dif] Add overwrite safety check to `util/make_new_dif.py`
+    [dif] Add alert autogen support to `make_new_dif.py`.
     
-    If `util/make_new_dif.py` is run initially to auto-generate a DIF header
-    and checklist boilerplate code/markdown (respectively), and accidentally
-    run again shortly after manualy modifying the boilerplate code (before
-    the modifications are checked-in to the repo), the modifications would
-    be overwritten. This commit adds a check to prevent such a mistake from
-    happening, partially addressing an action item in #8142.
+    This commit adds support for parsing alert information from an IP's
+    HJSON to support autogenerating `dif_<ip>_alert_force()` DIFs in the
+    future.
+    
+    This partially addresses the longer term goal in #8879 of
+    auto-generating all alert test DIFs.
     
     Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
