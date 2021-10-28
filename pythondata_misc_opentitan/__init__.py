@@ -4,34 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8494"
-version_tuple = (0, 0, 8494)
+version_str = "0.0.post8500"
+version_tuple = (0, 0, 8500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8494")
+    pversion = V("0.0.post8500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8382"
-data_version_tuple = (0, 0, 8382)
+data_version_str = "0.0.post8388"
+data_version_tuple = (0, 0, 8388)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8382")
+    pdata_version = V("0.0.post8388")
 except ImportError:
     pass
-data_git_hash = "316e177f937ca202fc9a05f30e22831f288d9708"
-data_git_describe = "v0.0-8382-g316e177f9"
+data_git_hash = "255c02843e7ded785130b86b76af0daa3a800158"
+data_git_describe = "v0.0-8388-g255c02843"
 data_git_msg = """\
-commit 316e177f937ca202fc9a05f30e22831f288d9708
-Author: Jon Flatley <jflat@google.com>
-Date:   Wed Aug 4 14:00:24 2021 -0400
+commit 255c02843e7ded785130b86b76af0daa3a800158
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Oct 25 16:20:35 2021 +0100
 
-    [sw/silicon_creator] Add program/erase to flash_ctrl
+    [otbn,dv] Fix timeout when we inject an IMEM error early in a run
     
-    Adds program and erase functionality to the mask rom flash_ctrl driver.
+    Before commit a85aae3, we only signalled an expected alert when we saw
+    a change to STATUS. That didn't work once we'd flopped the STATUS
+    register because it changed at the same time as the alert going out.
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Unfortunately, there's also a problem with the "fix" in that commit.
+    It changed to sending the "expect an alert now" signal as soon as we
+    injected an error. However, if we inject an IMEM error just after
+    starting OTBN then it might be a while before we get URND data and
+    start trying to fetch stuff (and see that IMEM is invalid). In that
+    case, it's a while before we see the alert.
+    
+    Calling set_exp_alert has two effects. Firstly, it allows an alert to
+    come in without causing an error. Secondly, it sets a timeout,
+    requiring an alert to come in by then in order to avoid an error.
+    Here, we set max_delay to some large number of cycles (10k) to
+    essentially disable the second of these effects. However, our ISS will
+    stop soon afterwards, so we can tighten things up again by requiring
+    that an alert goes out at most 10 cycles after that happens.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
