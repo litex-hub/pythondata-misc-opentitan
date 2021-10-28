@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8508"
-version_tuple = (0, 0, 8508)
+version_str = "0.0.post8509"
+version_tuple = (0, 0, 8509)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8508")
+    pversion = V("0.0.post8509")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8396"
-data_version_tuple = (0, 0, 8396)
+data_version_str = "0.0.post8397"
+data_version_tuple = (0, 0, 8397)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8396")
+    pdata_version = V("0.0.post8397")
 except ImportError:
     pass
-data_git_hash = "09c120f36c06ea5309e6666e75fbbacd71edd41a"
-data_git_describe = "v0.0-8396-g09c120f36"
+data_git_hash = "1233a53fc455094fc33d6cbd938a372094ffb3dd"
+data_git_describe = "v0.0-8397-g1233a53fc"
 data_git_msg = """\
-commit 09c120f36c06ea5309e6666e75fbbacd71edd41a
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Oct 21 14:09:35 2021 -0700
+commit 1233a53fc455094fc33d6cbd938a372094ffb3dd
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Oct 27 21:58:42 2021 +0000
 
-    [top/ast] Add misc input pad
+    [spi_device] Add TCG PTP TPM spec link
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    The original link in the TPM tech spec points to TPM overall spec not
+    the HW interfaced spec. This commit to add the TCG PTP TPM profile spec
+    section 7 (SPI).
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
