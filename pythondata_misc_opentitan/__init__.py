@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8493"
-version_tuple = (0, 0, 8493)
+version_str = "0.0.post8494"
+version_tuple = (0, 0, 8494)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8493")
+    pversion = V("0.0.post8494")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8381"
-data_version_tuple = (0, 0, 8381)
+data_version_str = "0.0.post8382"
+data_version_tuple = (0, 0, 8382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8381")
+    pdata_version = V("0.0.post8382")
 except ImportError:
     pass
-data_git_hash = "04d3ddb1a5a67a12b318c64e10b7c794fa78d988"
-data_git_describe = "v0.0-8381-g04d3ddb1a"
+data_git_hash = "316e177f937ca202fc9a05f30e22831f288d9708"
+data_git_describe = "v0.0-8382-g316e177f9"
 data_git_msg = """\
-commit 04d3ddb1a5a67a12b318c64e10b7c794fa78d988
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Oct 27 20:57:59 2021 +0100
+commit 316e177f937ca202fc9a05f30e22831f288d9708
+Author: Jon Flatley <jflat@google.com>
+Date:   Wed Aug 4 14:00:24 2021 -0400
 
-    Remove double-import SV packages
+    [sw/silicon_creator] Add program/erase to flash_ctrl
     
-    Import a package only once in each SystemVerilog file. No functional
-    change intended.
+    Adds program and erase functionality to the mask rom flash_ctrl driver.
     
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
