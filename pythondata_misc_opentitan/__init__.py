@@ -4,49 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8488"
-version_tuple = (0, 0, 8488)
+version_str = "0.0.post8493"
+version_tuple = (0, 0, 8493)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8488")
+    pversion = V("0.0.post8493")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8376"
-data_version_tuple = (0, 0, 8376)
+data_version_str = "0.0.post8381"
+data_version_tuple = (0, 0, 8381)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8376")
+    pdata_version = V("0.0.post8381")
 except ImportError:
     pass
-data_git_hash = "5e04deddd4b79a925fe031b8f212beafd7b2132a"
-data_git_describe = "v0.0-8376-g5e04deddd"
+data_git_hash = "04d3ddb1a5a67a12b318c64e10b7c794fa78d988"
+data_git_describe = "v0.0-8381-g04d3ddb1a"
 data_git_msg = """\
-commit 5e04deddd4b79a925fe031b8f212beafd7b2132a
+commit 04d3ddb1a5a67a12b318c64e10b7c794fa78d988
 Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Oct 27 22:55:59 2021 +0100
+Date:   Wed Oct 27 20:57:59 2021 +0100
 
-    Revert "[ spi_host ] Flag non-allowed write events as errors"
+    Remove double-import SV packages
     
-    This reverts commit 3193d73abd2f41dca02f376d70c0e070d7cfcec9.
-    
-    This commit broke private CI:
-    
-    ```
-    * `UVM_ERROR (csr_utils_pkg.sv:466) [csr_utils::csr_rd_check] Check failed obs == exp (* [*] vs * [*]) Regname: chip_reg_block.spi_host*.error_status` has 1 failures:
-        * Test chip_csr_rw has 1 failures.
-            * 0.chip_csr_rw.1\
-              Line 130, in log /azp/agent/_work/1/s/scratch/HEAD/chip_earlgrey_asic-sim-vcs/0.chip_csr_rw/out/run.log
-    
-                    UVM_ERROR @ 1081370000 ps: (csr_utils_pkg.sv:466) [csr_utils::csr_rd_check] Check failed obs == exp (8 [0x8] vs 0 [0x0]) Regname: chip_reg_block.spi_host1.error_status
-                    UVM_INFO @ 1081370000 ps: (uvm_report_server.svh:901) [UVM/REPORT/SERVER]
-                    --- UVM Report Summary ---
-    
-                    Quit count reached!
-    ```
-    
-    The PR itself was green, so probably a mid-air collision.
+    Import a package only once in each SystemVerilog file. No functional
+    change intended.
     
     Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
