@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8486"
-version_tuple = (0, 0, 8486)
+version_str = "0.0.post8487"
+version_tuple = (0, 0, 8487)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8486")
+    pversion = V("0.0.post8487")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8374"
-data_version_tuple = (0, 0, 8374)
+data_version_str = "0.0.post8375"
+data_version_tuple = (0, 0, 8375)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8374")
+    pdata_version = V("0.0.post8375")
 except ImportError:
     pass
-data_git_hash = "aa8026b10cf6c5a06ce61ac66834b16248848f7a"
-data_git_describe = "v0.0-8374-gaa8026b10"
+data_git_hash = "351ff1a4dfb698171f0c4d684c2309d75961318e"
+data_git_describe = "v0.0-8375-g351ff1a4d"
 data_git_msg = """\
-commit aa8026b10cf6c5a06ce61ac66834b16248848f7a
+commit 351ff1a4dfb698171f0c4d684c2309d75961318e
 Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Oct 27 16:13:06 2021 +0000
+Date:   Wed Oct 27 20:50:19 2021 +0000
 
-    [spi_device] Default reset value for TPM_CAP
+    [spi_device] CmdInfo to have valid field
     
-    SPI_DEVICE TPM_CAP is read-only register to SW. The value is assigned
-    from parameter values. The reset value now represents the correct
-    parameter values.
+    Previous command info list does not have the entry valid field. So the
+    HW logic always assumes the info config is valid. It means from the SW
+    point of view, SW shall program entire lists regardless of its use.
+    
+    This PR introduces valid field in the command info entry and HW only
+    use valid entries.
     
     Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
