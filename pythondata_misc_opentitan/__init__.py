@@ -4,33 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8514"
-version_tuple = (0, 0, 8514)
+version_str = "0.0.post8515"
+version_tuple = (0, 0, 8515)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8514")
+    pversion = V("0.0.post8515")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8402"
-data_version_tuple = (0, 0, 8402)
+data_version_str = "0.0.post8403"
+data_version_tuple = (0, 0, 8403)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8402")
+    pdata_version = V("0.0.post8403")
 except ImportError:
     pass
-data_git_hash = "0edab912c4fadd61d76ee5ed13fa8c0d46c4024a"
-data_git_describe = "v0.0-8402-g0edab912c"
+data_git_hash = "419ccddfc52dee678d9964c3aa6d41d0dc9017d0"
+data_git_describe = "v0.0-8403-g419ccddfc"
 data_git_msg = """\
-commit 0edab912c4fadd61d76ee5ed13fa8c0d46c4024a
+commit 419ccddfc52dee678d9964c3aa6d41d0dc9017d0
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Oct 26 12:54:11 2021 +0100
+Date:   Thu Oct 28 16:50:30 2021 +0100
 
-    [otbn,doc] Document the bus-accessible part of DMEM
+    [prim] Tweak prim_sync_reqack_data assertion so it can be disabled
     
-    This doesn't yet change the implementation, nor does it change DV or
-    tooling code.
+    When we run $assertoff(), it stops any new assertion sequences from
+    being started. However, this part of the previous assertion:
+    
+        $stable(data_o) [*2]
+    
+    consumed time. If we inject a reset on the DST side that causes the
+    value to change in the last cycle of the window, an $assertoff won't
+    save us because the assertion that started on the previous cycle will
+    still run to completion.
+    
+    Unfold the $stable(..) calls into comparisons between $past() and
+    present and change the assertion so that it doesn't consume time,
+    allowing it to be disabled at any point.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
