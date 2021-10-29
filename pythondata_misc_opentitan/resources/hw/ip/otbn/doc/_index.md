@@ -500,6 +500,12 @@ These accesses are ignored if OTBN is busy.
 A host processor can check whether OTBN is busy by reading the {{< regref "STATUS">}} register.
 All memory accesses through the register interface must be word-aligned 32b word accesses.
 
+While DMEM is 4kiB, only the first 2kiB (at addresses `0x0` to `0x7ff`) is visible through the register interface.
+This is to allow OTBN applications to store sensitive information in the other half, making it harder for that information to leak back to Ibex.
+
+Each memory write through the register interface updates a checksum.
+See the [Memory Load Integrity]({{< relref "#mem-load-integrity" >}}) section for more details.
+
 ### Random Numbers
 
 OTBN is connected to the [Entropy Distribution Network (EDN)]({{< relref "hw/ip/edn/doc" >}}) which can provide random numbers via the `RND` and `URND` CSRs and WSRs.
@@ -843,6 +849,31 @@ The Integrity Protection Code is checked on every memory read, even though the c
 A further check must be performed when the data is consumed.
 Detected integrity violations in the data memory raise a fatal `imem_error`.
 
+### Memory Load Integrity {#mem-load-integrity}
+
+As well as the integrity protection discussed above for the memories and bus interface, OTBN has a second layer of integrity checking to allow a host processor to ensure that a program has been loaded correctly.
+This is visible through the {{< regref "LOAD_CHECKSUM" >}} register.
+The register exposes a cumulative CRC checksum which is updated on every write to either memory.
+
+This is intended as a light-weight way to implement a more efficient "write and read back" check.
+It isn't a cryptographically secure MAC, so cannot spot an attacker who can completely control the bus.
+However, in this case the attacker would be equally able to control responses from OTBN, so any such check could be subverted.
+
+The CRC used is the 32-bit CRC-32-IEEE checksum.
+This standard choice of generating polynomial makes it compatible with other tooling, such as the POSIX cksum utility [[POSIX18]({{< relref "#ref-posix-cksum">}})].
+The stream over which the checksum is computed is the stream of writes that have been seen since the last write to {{< regref "LOAD_CHECKSUM" >}}.
+Each write is treated as a 48b value, `{imem, idx, wdata}`.
+Here, `imem` is a single bit flag which is one for writes to IMEM and zero for writes to DMEM.
+The `idx` value is the index of the word within the memory, zero extended from 10b to 15b.
+Finally, `wdata` is the 32b word that was written.
+
+The host processor can also write to the register.
+Typically, this will be to clear the value to `32'hffffffff`, the traditional starting value for a 32-bit CRC.
+
+To use this functionality, the host processor should set {{< regref "LOAD_CHECKSUM" >}} to a known value (traditionally, `32'hffffffff`).
+Next, it should write the program to be loaded to OTBN's IMEM and DMEM over the bus.
+Finally, it should read back the value of {{< regref "LOAD_CHECKSUM" >}} and compare it with an expected value.
+
 ### Secure Wipe {#design-details-secure-wipe}
 
 Applications running on OTBN may store sensitive data in the internal registers or the memory.
@@ -912,15 +943,17 @@ The section [Writing OTBN applications]({{< ref "#writing-otbn-applications" >}}
 
 The high-level sequence by which the host processor should use OTBN is as follows.
 
+1. Optional: Initialise {{< regref "LOAD_CHECKSUM" >}}.
 1. Write the OTBN application binary to {{< regref "IMEM" >}}, starting at address 0.
-2. Optional: Write constants and input arguments, as mandated by the calling convention of the loaded application, to {{< regref "DMEM" >}}.
-3. Start the operation on OTBN by [issuing the `EXECUTE` command](#design-details-commands).
+1. Optional: Write constants and input arguments, as mandated by the calling convention of the loaded application, to the half of DMEM accessible through the {{< regref "DMEM" >}} window.
+1. Optional: Read back {{< regref "LOAD_CHECKSUM" >}} and perform an integrity check.
+1. Start the operation on OTBN by [issuing the `EXECUTE` command](#design-details-commands).
    Now neither data nor instruction memory may be accessed from the host CPU.
    After it has been started the OTBN application runs to completion without further interaction with the host.
-4. Wait for the operation to complete (see below).
+1. Wait for the operation to complete (see below).
    As soon as the OTBN operation has completed the data and instruction memories can be accessed again from the host CPU.
-5. Check if the operation was successful by reading the {{< regref "ERR_BITS" >}} register.
-6. Optional: Retrieve results by reading {{< regref "DMEM" >}}, as mandated by the calling convention of the loaded application.
+1. Check if the operation was successful by reading the {{< regref "ERR_BITS" >}} register.
+1. Optional: Retrieve results by reading {{< regref "DMEM" >}}, as mandated by the calling convention of the loaded application.
 
 OTBN applications are run to completion.
 The host CPU can determine if an application has completed by either polling {{< regref "STATUS">}} or listening for an interrupt.
@@ -970,7 +1003,7 @@ Other tools from the RV32 toolchain can be used directly, such as objcopy.
 
 ## Passing of data between the host CPU and OTBN {#writing-otbn-applications-datapassing}
 
-Passing data between the host CPU and OTBN is done through the data memory (DMEM).
+Passing data between the host CPU and OTBN is done through the first 2kiB of data memory (DMEM).
 No standard or required calling convention exists, every application is free to pass data in and out of OTBN in whatever format it finds convenient.
 All data passing must be done when OTBN [is idle](#design-details-operational-states); otherwise both the instruction and the data memory are inaccessible from the host CPU.
 
@@ -985,7 +1018,7 @@ Once OTBN has executed the {{< otbnInsnRef "ECALL" >}} instruction, the followin
 - The {{< regref "ERR_BITS" >}} register is set to 0, indicating a successful operation.
 - The current operation is marked as complete by setting {{< regref "INTR_STATE.done" >}} and clearing {{< regref "STATUS" >}}.
 
-The DMEM can be used to pass data back to the host processor, e.g. a "return value" or an "exit code".
+The first 2kiB of DMEM can be used to pass data back to the host processor, e.g. a "return value" or an "exit code".
 Refer to the section [Passing of data between the host CPU and OTBN]({{<relref "#writing-otbn-applications-datapassing" >}}) for more information.
 
 ## Using hardware loops
@@ -1270,3 +1303,5 @@ Code snippets giving examples of 256x256 and 384x384 multiplies can be found in 
 # References
 
 <a name="ref-chen08">[CHEN08]</a> L. Chen, "Hsiao-Code Check Matrices and Recursively Balanced Matrices," arXiv:0803.1217 [cs], Mar. 2008 [Online]. Available: http://arxiv.org/abs/0803.1217
+
+<a name="ref-posix-cksum">[POSIX18]</a> The Open Group, "cksum" manual. Available: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cksum.html
