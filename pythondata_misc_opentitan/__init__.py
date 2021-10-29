@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8516"
-version_tuple = (0, 0, 8516)
+version_str = "0.0.post8530"
+version_tuple = (0, 0, 8530)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8516")
+    pversion = V("0.0.post8530")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8404"
-data_version_tuple = (0, 0, 8404)
+data_version_str = "0.0.post8418"
+data_version_tuple = (0, 0, 8418)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8404")
+    pdata_version = V("0.0.post8418")
 except ImportError:
     pass
-data_git_hash = "8712cd84e9e14ef83de91f08730f540d4185e2be"
-data_git_describe = "v0.0-8404-g8712cd84e"
+data_git_hash = "6ea17364f2dc9507e9b671f76f038ea7d953a76d"
+data_git_describe = "v0.0-8418-g6ea17364f"
 data_git_msg = """\
-commit 8712cd84e9e14ef83de91f08730f540d4185e2be
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Fri Oct 22 11:54:51 2021 -0700
+commit 6ea17364f2dc9507e9b671f76f038ea7d953a76d
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Oct 25 15:36:32 2021 +0100
 
-    [entropy_src/dv] Support single-bit rng mode
+    [otbn,dv] Avoid writing to STATUS in csr_hw_reset test
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
