@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8536"
-version_tuple = (0, 0, 8536)
+version_str = "0.0.post8538"
+version_tuple = (0, 0, 8538)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8536")
+    pversion = V("0.0.post8538")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8424"
-data_version_tuple = (0, 0, 8424)
+data_version_str = "0.0.post8426"
+data_version_tuple = (0, 0, 8426)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8424")
+    pdata_version = V("0.0.post8426")
 except ImportError:
     pass
-data_git_hash = "dd81b3f8953683318424af1903f53bc3a8687d53"
-data_git_describe = "v0.0-8424-gdd81b3f89"
+data_git_hash = "ec466390bb137c9defceb13322d85642526eb732"
+data_git_describe = "v0.0-8426-gec466390b"
 data_git_msg = """\
-commit dd81b3f8953683318424af1903f53bc3a8687d53
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Oct 21 17:17:12 2021 +0100
+commit ec466390bb137c9defceb13322d85642526eb732
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Oct 28 00:27:26 2021 +0000
 
-    [spi_device,lint] Waive width mismatch warning
+    [util] Use pathlib throughout `util/check_dif_statuses.py`.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This commit deprecates the use of the `os.path` module in favor of the
+    `pathlib` module which is more consistently used acrossed `util`
+    tooling.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
