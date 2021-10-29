@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8511"
-version_tuple = (0, 0, 8511)
+version_str = "0.0.post8512"
+version_tuple = (0, 0, 8512)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8511")
+    pversion = V("0.0.post8512")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8399"
-data_version_tuple = (0, 0, 8399)
+data_version_str = "0.0.post8400"
+data_version_tuple = (0, 0, 8400)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8399")
+    pdata_version = V("0.0.post8400")
 except ImportError:
     pass
-data_git_hash = "475a6e16c8440d13e15935c505741f298a03b6cb"
-data_git_describe = "v0.0-8399-g475a6e16c"
+data_git_hash = "39ac4e2ecdd6e0a33a70e4ada24831a0d6d3aba8"
+data_git_describe = "v0.0-8400-g39ac4e2ec"
 data_git_msg = """\
-commit 475a6e16c8440d13e15935c505741f298a03b6cb
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Oct 27 12:31:39 2021 -0700
+commit 39ac4e2ecdd6e0a33a70e4ada24831a0d6d3aba8
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Oct 28 15:18:49 2021 -0700
 
-    [dv/full_chip] Add rstmgr utils to help reset tests
+    [dv/alert_check] Fix tl_intg_err regression failure
     
-    Add pre_reset and post_reset functions to prepare and check the rstmgr state.
-    Add code to deal with the rstmgr cpu_info functionality, similar to alert_info.
-    Add unit tests for the cpu_inf functionality.
-    Change a couple pwrmgr tests to use these utilities.
+    Alert auto response sequence should be triggered after dut_init is done,
+    otherwise init process might count as signal integrity errors in
+    alert_receiver_driver.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
