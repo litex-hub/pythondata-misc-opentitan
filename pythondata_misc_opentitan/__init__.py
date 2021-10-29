@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8534"
-version_tuple = (0, 0, 8534)
+version_str = "0.0.post8535"
+version_tuple = (0, 0, 8535)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8534")
+    pversion = V("0.0.post8535")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8422"
-data_version_tuple = (0, 0, 8422)
+data_version_str = "0.0.post8423"
+data_version_tuple = (0, 0, 8423)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8422")
+    pdata_version = V("0.0.post8423")
 except ImportError:
     pass
-data_git_hash = "01d73683f6dac212c9b86f6b593254f20021186d"
-data_git_describe = "v0.0-8422-g01d73683f"
+data_git_hash = "6e82bc60d2ce21b21ca79612707f57f22499fc43"
+data_git_describe = "v0.0-8423-g6e82bc60d"
 data_git_msg = """\
-commit 01d73683f6dac212c9b86f6b593254f20021186d
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Oct 20 12:51:22 2021 +0100
+commit 6e82bc60d2ce21b21ca79612707f57f22499fc43
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Wed Oct 27 21:25:59 2021 +0100
 
-    [sw] Add C wrappers for RSA-3072 operations.
+    [doc] Document Continuous Integration System
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Fixes #8326
+    
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
