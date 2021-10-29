@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8509"
-version_tuple = (0, 0, 8509)
+version_str = "0.0.post8511"
+version_tuple = (0, 0, 8511)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8509")
+    pversion = V("0.0.post8511")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8397"
-data_version_tuple = (0, 0, 8397)
+data_version_str = "0.0.post8399"
+data_version_tuple = (0, 0, 8399)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8397")
+    pdata_version = V("0.0.post8399")
 except ImportError:
     pass
-data_git_hash = "1233a53fc455094fc33d6cbd938a372094ffb3dd"
-data_git_describe = "v0.0-8397-g1233a53fc"
+data_git_hash = "475a6e16c8440d13e15935c505741f298a03b6cb"
+data_git_describe = "v0.0-8399-g475a6e16c"
 data_git_msg = """\
-commit 1233a53fc455094fc33d6cbd938a372094ffb3dd
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Oct 27 21:58:42 2021 +0000
+commit 475a6e16c8440d13e15935c505741f298a03b6cb
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Oct 27 12:31:39 2021 -0700
 
-    [spi_device] Add TCG PTP TPM spec link
+    [dv/full_chip] Add rstmgr utils to help reset tests
     
-    The original link in the TPM tech spec points to TPM overall spec not
-    the HW interfaced spec. This commit to add the TCG PTP TPM profile spec
-    section 7 (SPI).
+    Add pre_reset and post_reset functions to prepare and check the rstmgr state.
+    Add code to deal with the rstmgr cpu_info functionality, similar to alert_info.
+    Add unit tests for the cpu_inf functionality.
+    Change a couple pwrmgr tests to use these utilities.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
