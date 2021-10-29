@@ -4,34 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8531"
-version_tuple = (0, 0, 8531)
+version_str = "0.0.post8534"
+version_tuple = (0, 0, 8534)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8531")
+    pversion = V("0.0.post8534")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8419"
-data_version_tuple = (0, 0, 8419)
+data_version_str = "0.0.post8422"
+data_version_tuple = (0, 0, 8422)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8419")
+    pdata_version = V("0.0.post8422")
 except ImportError:
     pass
-data_git_hash = "135a6c4e1fd679e521503be004bd83308de0a8a7"
-data_git_describe = "v0.0-8419-g135a6c4e1"
+data_git_hash = "01d73683f6dac212c9b86f6b593254f20021186d"
+data_git_describe = "v0.0-8422-g01d73683f"
 data_git_msg = """\
-commit 135a6c4e1fd679e521503be004bd83308de0a8a7
+commit 01d73683f6dac212c9b86f6b593254f20021186d
 Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Oct 26 11:09:07 2021 +0100
+Date:   Wed Oct 20 12:51:22 2021 +0100
 
-    [sw] Clarify bounds for Barrett multiplication in ECDSA-P256.
-    
-    The Barrett implementation can accept one operand that is greater than
-    the modulus, which allows us to not reduce the digest modulo n before
-    calling p256_sign.
+    [sw] Add C wrappers for RSA-3072 operations.
     
     Signed-off-by: Jade Philipoom <jadep@google.com>
 
