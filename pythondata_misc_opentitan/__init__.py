@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8512"
-version_tuple = (0, 0, 8512)
+version_str = "0.0.post8514"
+version_tuple = (0, 0, 8514)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8512")
+    pversion = V("0.0.post8514")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8400"
-data_version_tuple = (0, 0, 8400)
+data_version_str = "0.0.post8402"
+data_version_tuple = (0, 0, 8402)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8400")
+    pdata_version = V("0.0.post8402")
 except ImportError:
     pass
-data_git_hash = "39ac4e2ecdd6e0a33a70e4ada24831a0d6d3aba8"
-data_git_describe = "v0.0-8400-g39ac4e2ec"
+data_git_hash = "0edab912c4fadd61d76ee5ed13fa8c0d46c4024a"
+data_git_describe = "v0.0-8402-g0edab912c"
 data_git_msg = """\
-commit 39ac4e2ecdd6e0a33a70e4ada24831a0d6d3aba8
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 28 15:18:49 2021 -0700
+commit 0edab912c4fadd61d76ee5ed13fa8c0d46c4024a
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Oct 26 12:54:11 2021 +0100
 
-    [dv/alert_check] Fix tl_intg_err regression failure
+    [otbn,doc] Document the bus-accessible part of DMEM
     
-    Alert auto response sequence should be triggered after dut_init is done,
-    otherwise init process might count as signal integrity errors in
-    alert_receiver_driver.
+    This doesn't yet change the implementation, nor does it change DV or
+    tooling code.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
