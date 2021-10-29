@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8535"
-version_tuple = (0, 0, 8535)
+version_str = "0.0.post8536"
+version_tuple = (0, 0, 8536)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8535")
+    pversion = V("0.0.post8536")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8423"
-data_version_tuple = (0, 0, 8423)
+data_version_str = "0.0.post8424"
+data_version_tuple = (0, 0, 8424)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8423")
+    pdata_version = V("0.0.post8424")
 except ImportError:
     pass
-data_git_hash = "6e82bc60d2ce21b21ca79612707f57f22499fc43"
-data_git_describe = "v0.0-8423-g6e82bc60d"
+data_git_hash = "dd81b3f8953683318424af1903f53bc3a8687d53"
+data_git_describe = "v0.0-8424-gdd81b3f89"
 data_git_msg = """\
-commit 6e82bc60d2ce21b21ca79612707f57f22499fc43
-Author: Philipp Wagner <phw@lowrisc.org>
-Date:   Wed Oct 27 21:25:59 2021 +0100
+commit dd81b3f8953683318424af1903f53bc3a8687d53
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 21 17:17:12 2021 +0100
 
-    [doc] Document Continuous Integration System
+    [spi_device,lint] Waive width mismatch warning
     
-    Fixes #8326
-    
-    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
