@@ -203,7 +203,7 @@ class IpDescriptionOnlyRenderer(IpTemplateRendererBase):
             with open(hjson_path, 'r') as f:
                 return f.read()
         except FileNotFoundError:
-            raise FileNotFoundError(
+            raise TemplateRenderError(
                 "Neither a IP description template at {}, "
                 "nor an IP description at {} exist!".format(
                     hjson_tpl_path, hjson_path))
@@ -261,7 +261,12 @@ class IpBlockRenderer(IpTemplateRendererBase):
             # Generate register interface through reggen.
             hjson_path = (output_dir_staging / 'data' /
                           (self.ip_template.name + '.hjson'))
+            if not hjson_path.exists():
+                raise TemplateRenderError(
+                    "Invalid template: The IP description file "
+                    f"{str(hjson_path)!r} does not exist.")
             rtl_path = output_dir_staging / 'rtl'
+            rtl_path.mkdir(exist_ok=True)
             # TODO: Pass on template parameters to reggen? Or enable the user
             # to set a different set of parameters in the renderer?
             reggen.gen_rtl.gen_rtl(IpBlock.from_path(str(hjson_path), []),
