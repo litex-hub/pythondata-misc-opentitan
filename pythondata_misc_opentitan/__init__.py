@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8538"
-version_tuple = (0, 0, 8538)
+version_str = "0.0.post8539"
+version_tuple = (0, 0, 8539)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8538")
+    pversion = V("0.0.post8539")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8426"
-data_version_tuple = (0, 0, 8426)
+data_version_str = "0.0.post8427"
+data_version_tuple = (0, 0, 8427)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8426")
+    pdata_version = V("0.0.post8427")
 except ImportError:
     pass
-data_git_hash = "ec466390bb137c9defceb13322d85642526eb732"
-data_git_describe = "v0.0-8426-gec466390b"
+data_git_hash = "814c6158da551068264a5b163f7e4b993d4b9c33"
+data_git_describe = "v0.0-8427-g814c6158d"
 data_git_msg = """\
-commit ec466390bb137c9defceb13322d85642526eb732
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Oct 28 00:27:26 2021 +0000
+commit 814c6158da551068264a5b163f7e4b993d4b9c33
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 21 15:07:16 2021 -0700
 
-    [util] Use pathlib throughout `util/check_dif_statuses.py`.
+    [top] Add missing sensor_ctrl test plan item.
     
-    This commit deprecates the use of the `os.path` module in favor of the
-    `pathlib` module which is more consistently used acrossed `util`
-    tooling.
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Update hw/top_earlgrey/data/chip_testplan.hjson
+    
+    Co-authored-by: Srikrishna Iyer <46467186+sriyerg@users.noreply.github.com>
 
 """
 
