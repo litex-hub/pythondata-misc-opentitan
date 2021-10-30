@@ -4,36 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8539"
-version_tuple = (0, 0, 8539)
+version_str = "0.0.post8540"
+version_tuple = (0, 0, 8540)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8539")
+    pversion = V("0.0.post8540")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8427"
-data_version_tuple = (0, 0, 8427)
+data_version_str = "0.0.post8428"
+data_version_tuple = (0, 0, 8428)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8427")
+    pdata_version = V("0.0.post8428")
 except ImportError:
     pass
-data_git_hash = "814c6158da551068264a5b163f7e4b993d4b9c33"
-data_git_describe = "v0.0-8427-g814c6158d"
+data_git_hash = "258511537aa2df03daf36fbe1c0c5b7dca5e3fa6"
+data_git_describe = "v0.0-8428-g258511537"
 data_git_msg = """\
-commit 814c6158da551068264a5b163f7e4b993d4b9c33
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Oct 21 15:07:16 2021 -0700
+commit 258511537aa2df03daf36fbe1c0c5b7dca5e3fa6
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Oct 29 16:54:54 2021 +0100
 
-    [top] Add missing sensor_ctrl test plan item.
+    [otbn,dv] Run Python model with -u
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This disables buffering at the block level for stdout and stderr in
+    the Python subprocess. Without this argument, it seems that Python
+    3.6, at least, buffers sys.stderr at the block level if it doesn't
+    point at a console. When run under dvsim, it points at the run.log
+    file.
     
-    Update hw/top_earlgrey/data/chip_testplan.hjson
+    With this fixed, you can add debug prints to the model with something
+    like
     
-    Co-authored-by: Srikrishna Iyer <46467186+sriyerg@users.noreply.github.com>
+        print('my message', file=sys.stderr)
+    
+    and have it appear in the log output. Without the flag, you need to
+    follow with a sys.stderr.flush() to be sure to see the result.
+    
+    This isn't a problem with recent versions of Python: it seems that
+    they changed the default behaviour at some point.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
