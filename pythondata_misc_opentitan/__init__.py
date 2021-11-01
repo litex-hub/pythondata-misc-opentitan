@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8555"
-version_tuple = (0, 0, 8555)
+version_str = "0.0.post8557"
+version_tuple = (0, 0, 8557)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8555")
+    pversion = V("0.0.post8557")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8443"
-data_version_tuple = (0, 0, 8443)
+data_version_str = "0.0.post8445"
+data_version_tuple = (0, 0, 8445)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8443")
+    pdata_version = V("0.0.post8445")
 except ImportError:
     pass
-data_git_hash = "9b32cd1b3d815cf31294065984d63f486661a1d4"
-data_git_describe = "v0.0-8443-g9b32cd1b3"
+data_git_hash = "db602db1f2063ded0b94dfd3d653615bf2898982"
+data_git_describe = "v0.0-8445-gdb602db1f"
 data_git_msg = """\
-commit 9b32cd1b3d815cf31294065984d63f486661a1d4
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Oct 29 14:44:24 2021 -0700
+commit db602db1f2063ded0b94dfd3d653615bf2898982
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Nov 1 16:42:29 2021 -0400
 
-    [otp_ctrl] Convert HW_CFG EN chicken bits to mubi8 types
+    [sw/silicon_creator] Fix comment typo in sigverify_mod_exp_ibex.c
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
