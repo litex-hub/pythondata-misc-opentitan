@@ -4,49 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8540"
-version_tuple = (0, 0, 8540)
+version_str = "0.0.post8542"
+version_tuple = (0, 0, 8542)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8540")
+    pversion = V("0.0.post8542")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8428"
-data_version_tuple = (0, 0, 8428)
+data_version_str = "0.0.post8430"
+data_version_tuple = (0, 0, 8430)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8428")
+    pdata_version = V("0.0.post8430")
 except ImportError:
     pass
-data_git_hash = "258511537aa2df03daf36fbe1c0c5b7dca5e3fa6"
-data_git_describe = "v0.0-8428-g258511537"
+data_git_hash = "10eb39442fdaa80e5ff5c46edfb4d9aa7ea9474d"
+data_git_describe = "v0.0-8430-g10eb39442"
 data_git_msg = """\
-commit 258511537aa2df03daf36fbe1c0c5b7dca5e3fa6
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 29 16:54:54 2021 +0100
+commit 10eb39442fdaa80e5ff5c46edfb4d9aa7ea9474d
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Oct 26 14:28:49 2021 +0100
 
-    [otbn,dv] Run Python model with -u
+    [dif] Implement the AES OFB and CFB modes on the DIF API
     
-    This disables buffering at the block level for stdout and stderr in
-    the Python subprocess. Without this argument, it seems that Python
-    3.6, at least, buffers sys.stderr at the block level if it doesn't
-    point at a console. When run under dvsim, it points at the run.log
-    file.
-    
-    With this fixed, you can add debug prints to the model with something
-    like
-    
-        print('my message', file=sys.stderr)
-    
-    and have it appear in the log output. Without the flag, you need to
-    follow with a sys.stderr.flush() to be sure to see the result.
-    
-    This isn't a problem with recent versions of Python: it seems that
-    they changed the default behaviour at some point.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
