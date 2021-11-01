@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8551"
-version_tuple = (0, 0, 8551)
+version_str = "0.0.post8554"
+version_tuple = (0, 0, 8554)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8551")
+    pversion = V("0.0.post8554")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8439"
-data_version_tuple = (0, 0, 8439)
+data_version_str = "0.0.post8442"
+data_version_tuple = (0, 0, 8442)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8439")
+    pdata_version = V("0.0.post8442")
 except ImportError:
     pass
-data_git_hash = "5b85441f5611bffbf60eb524491321bce2096478"
-data_git_describe = "v0.0-8439-g5b85441f5"
+data_git_hash = "14910ab11fef319ba5cbf6369d6d5938cb76b29c"
+data_git_describe = "v0.0-8442-g14910ab11"
 data_git_msg = """\
-commit 5b85441f5611bffbf60eb524491321bce2096478
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Oct 21 16:50:42 2021 -0700
+commit 14910ab11fef319ba5cbf6369d6d5938cb76b29c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Nov 1 10:23:58 2021 -0700
 
-    [edn] Convert to mubi usage.
+    [dv/clkmgr rstmgr] Fix post_apply_reset issue
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR fixes the regression error where tl_integrity error failed on
+    both clkmgr and rstmgr.
+    The reason is that `post_apply_reset` task did not call super task.
+    This PR also removes dut_init in cip_base_vseq as there is nothing to
+    override.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
