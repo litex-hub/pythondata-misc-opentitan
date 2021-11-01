@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8549"
-version_tuple = (0, 0, 8549)
+version_str = "0.0.post8551"
+version_tuple = (0, 0, 8551)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8549")
+    pversion = V("0.0.post8551")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8437"
-data_version_tuple = (0, 0, 8437)
+data_version_str = "0.0.post8439"
+data_version_tuple = (0, 0, 8439)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8437")
+    pdata_version = V("0.0.post8439")
 except ImportError:
     pass
-data_git_hash = "2f8d20428eea7ea4bcbd530e9cccfccdc7e9292c"
-data_git_describe = "v0.0-8437-g2f8d20428"
+data_git_hash = "5b85441f5611bffbf60eb524491321bce2096478"
+data_git_describe = "v0.0-8439-g5b85441f5"
 data_git_msg = """\
-commit 2f8d20428eea7ea4bcbd530e9cccfccdc7e9292c
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Oct 29 11:49:36 2021 -0700
+commit 5b85441f5611bffbf60eb524491321bce2096478
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 21 16:50:42 2021 -0700
 
-    [sram_ctrl] Connect second bus integ failure
+    [edn] Convert to mubi usage.
     
-    Fix #8970
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
