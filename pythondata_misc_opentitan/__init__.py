@@ -4,45 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8561"
-version_tuple = (0, 0, 8561)
+version_str = "0.0.post8566"
+version_tuple = (0, 0, 8566)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8561")
+    pversion = V("0.0.post8566")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8449"
-data_version_tuple = (0, 0, 8449)
+data_version_str = "0.0.post8454"
+data_version_tuple = (0, 0, 8454)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8449")
+    pdata_version = V("0.0.post8454")
 except ImportError:
     pass
-data_git_hash = "3cb62ec91052a7c493771266bf856532cb0e2d5a"
-data_git_describe = "v0.0-8449-g3cb62ec91"
+data_git_hash = "3eed80ec7ff241e51508ac9434f1bf48eea3da14"
+data_git_describe = "v0.0-8454-g3eed80ec7"
 data_git_msg = """\
-commit 3cb62ec91052a7c493771266bf856532cb0e2d5a
-Author: Todd Broch <tbroch@rivosinc.com>
-Date:   Mon Nov 1 11:09:15 2021 -0700
+commit 3eed80ec7ff241e51508ac9434f1bf48eea3da14
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 1 11:36:47 2021 -0700
 
-    [dvsim] Modify resolve_branch to handle branch names with forward slash.
+    [dv] change kmac_sideload_if to a common sideload if
     
-    Branch names can include forward slashes (`/`).  Details of allowable
-    branch naming conventions can be found here:
-    * `man git check-ref-format`
-    
-    This CL replaces `/` with `-` when creating necessary temp file
-    names.
-    
-    Signed-off-by: Todd Broch <tbroch@rivosinc.com>
-    
-    TEST=manual,
-    ```
-    ci/scripts/verible-lint.sh rtl
-    ```
-    Passes even if branch name contains `/`
+    Also changed to a parameterized interface so that it can be resued for
+    otbn
+    Addressed #8944
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
