@@ -327,6 +327,8 @@ module spid_upload
 
         if (addrcnt == '0) begin
           st_d = StPayload;
+
+          addrfifo_wvalid = 1'b 1;
         end
       end
 
@@ -522,7 +524,8 @@ module spid_upload
   prim_sram_arbiter #(
     .N      (NumSramIntf),
     .SramDw (SramDw),
-    .SramAw (SramAw)
+    .SramAw (SramAw),
+    .EnMask (1'b 1)
   ) u_arbiter (
     .clk_i,
     .rst_ni,
