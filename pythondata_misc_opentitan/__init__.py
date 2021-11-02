@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8566"
-version_tuple = (0, 0, 8566)
+version_str = "0.0.post8568"
+version_tuple = (0, 0, 8568)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8566")
+    pversion = V("0.0.post8568")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8454"
-data_version_tuple = (0, 0, 8454)
+data_version_str = "0.0.post8456"
+data_version_tuple = (0, 0, 8456)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8454")
+    pdata_version = V("0.0.post8456")
 except ImportError:
     pass
-data_git_hash = "3eed80ec7ff241e51508ac9434f1bf48eea3da14"
-data_git_describe = "v0.0-8454-g3eed80ec7"
+data_git_hash = "0d0f7aed6f4dbd1f00c229fc41ce0f999ac18de7"
+data_git_describe = "v0.0-8456-g0d0f7aed6"
 data_git_msg = """\
-commit 3eed80ec7ff241e51508ac9434f1bf48eea3da14
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 1 11:36:47 2021 -0700
+commit 0d0f7aed6f4dbd1f00c229fc41ce0f999ac18de7
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Oct 21 18:28:49 2021 +0000
 
-    [dv] change kmac_sideload_if to a common sideload if
+    [spi_device] Add Upload TB
     
-    Also changed to a parameterized interface so that it can be resued for
-    otbn
-    Addressed #8944
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit implements a TB runs simple upload function. It uploads a
+    couple of commands and checks the content inside the SRAM.
+    
+    - Command only
+    - Command and Address
+    - Command and Payload
+    - Command / Address / Payload
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
