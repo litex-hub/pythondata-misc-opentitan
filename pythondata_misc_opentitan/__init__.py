@@ -4,40 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8568"
-version_tuple = (0, 0, 8568)
+version_str = "0.0.post8569"
+version_tuple = (0, 0, 8569)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8568")
+    pversion = V("0.0.post8569")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8456"
-data_version_tuple = (0, 0, 8456)
+data_version_str = "0.0.post8457"
+data_version_tuple = (0, 0, 8457)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8456")
+    pdata_version = V("0.0.post8457")
 except ImportError:
     pass
-data_git_hash = "0d0f7aed6f4dbd1f00c229fc41ce0f999ac18de7"
-data_git_describe = "v0.0-8456-g0d0f7aed6"
+data_git_hash = "3f2a1c1223d3ca969b726d0ca982e936c5a42e4b"
+data_git_describe = "v0.0-8457-g3f2a1c122"
 data_git_msg = """\
-commit 0d0f7aed6f4dbd1f00c229fc41ce0f999ac18de7
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Oct 21 18:28:49 2021 +0000
+commit 3f2a1c1223d3ca969b726d0ca982e936c5a42e4b
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Oct 27 14:13:42 2021 -0700
 
-    [spi_device] Add Upload TB
+    [clkmgr, pwrmgr] Add clock handshaking for usb
     
-    This commit implements a TB runs simple upload function. It uploads a
-    couple of commands and checks the content inside the SRAM.
+    Since usb clocks can be turned on/off outside of normal
+    low power routines, it creates some corner cases depending
+    on how it is used.
     
-    - Command only
-    - Command and Address
-    - Command and Payload
-    - Command / Address / Payload
+    This PR fixes [sw, dif pwrmgr smoketest] Deadlock when disabling USB clock in active power #6504 by handshaking usb oscillator disables.
+    Specifically, before the usb oscillator can be disabled, it must
+    first request downstream gating to assert. Only when this is done,
+    can the usb oscillator be turned off. This ensures there is no
+    low power entry / exit confusion.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Note this is not the ideal fix, but this is done to minimize the amount of disruption
+    on the overall design and eventually dv.
+    
+    Some changes in DV code are required by the clkmgr change.
+    
+    RTL changes by tjaychen, DV changes by matutem.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
