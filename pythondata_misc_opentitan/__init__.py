@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8575"
-version_tuple = (0, 0, 8575)
+version_str = "0.0.post8579"
+version_tuple = (0, 0, 8579)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8575")
+    pversion = V("0.0.post8579")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8463"
-data_version_tuple = (0, 0, 8463)
+data_version_str = "0.0.post8467"
+data_version_tuple = (0, 0, 8467)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8463")
+    pdata_version = V("0.0.post8467")
 except ImportError:
     pass
-data_git_hash = "1b73f8090033839b73de6b5954702137d723948e"
-data_git_describe = "v0.0-8463-g1b73f8090"
+data_git_hash = "5a51d3afa553aceb4dad22407a61089833ba55e9"
+data_git_describe = "v0.0-8467-g5a51d3afa"
 data_git_msg = """\
-commit 1b73f8090033839b73de6b5954702137d723948e
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Nov 1 23:16:50 2021 +0000
+commit 5a51d3afa553aceb4dad22407a61089833ba55e9
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 2 15:13:18 2021 -0700
 
-    [sw/testing] Make `CHECK_BUFFER` consistent with other `CHECK*` macros.
+    [all] updated assert rtl ifdef
     
-    The `CHECK_BUFFER(...)` macro in `sw/device/lib/testing/check.h` has a
-    slightly different format than other `CHECK*(...)` macros. Specifically
-    it does not set the test status directly, and does not support printing
-    a user-supplied error message. The result tests having to call the
-    `CHECK_BUFFER(...)` macro followed by the `CHECK(...)` macro in test
-    code.
-    
-    This commit makes the `CHECK_BUFFER(...)` macro look more like the
-    `CHECK(...)` macro, thereby fixing #9002.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
