@@ -4,36 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8573"
-version_tuple = (0, 0, 8573)
+version_str = "0.0.post8575"
+version_tuple = (0, 0, 8575)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8573")
+    pversion = V("0.0.post8575")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8461"
-data_version_tuple = (0, 0, 8461)
+data_version_str = "0.0.post8463"
+data_version_tuple = (0, 0, 8463)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8461")
+    pdata_version = V("0.0.post8463")
 except ImportError:
     pass
-data_git_hash = "0d25f96ef96dc33247f25b7ffb93e18f752c5299"
-data_git_describe = "v0.0-8461-g0d25f96ef"
+data_git_hash = "1b73f8090033839b73de6b5954702137d723948e"
+data_git_describe = "v0.0-8463-g1b73f8090"
 data_git_msg = """\
-commit 0d25f96ef96dc33247f25b7ffb93e18f752c5299
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 28 14:38:23 2021 -0700
+commit 1b73f8090033839b73de6b5954702137d723948e
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Nov 1 23:16:50 2021 +0000
 
-    [dv/alert_handler] Add checking for crashdump_o output
+    [sw/testing] Make `CHECK_BUFFER` consistent with other `CHECK*` macros.
     
-    This PR supports checking in scb regarding the crashdumo_o output.
-    To avoid a cycle-accurate model, I left a TODO to see how to check
-    esc_cnt and alert_accum_count.
+    The `CHECK_BUFFER(...)` macro in `sw/device/lib/testing/check.h` has a
+    slightly different format than other `CHECK*(...)` macros. Specifically
+    it does not set the test status directly, and does not support printing
+    a user-supplied error message. The result tests having to call the
+    `CHECK_BUFFER(...)` macro followed by the `CHECK(...)` macro in test
+    code.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This commit makes the `CHECK_BUFFER(...)` macro look more like the
+    `CHECK(...)` macro, thereby fixing #9002.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
