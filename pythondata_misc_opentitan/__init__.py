@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8582"
-version_tuple = (0, 0, 8582)
+version_str = "0.0.post8583"
+version_tuple = (0, 0, 8583)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8582")
+    pversion = V("0.0.post8583")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8470"
-data_version_tuple = (0, 0, 8470)
+data_version_str = "0.0.post8471"
+data_version_tuple = (0, 0, 8471)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8470")
+    pdata_version = V("0.0.post8471")
 except ImportError:
     pass
-data_git_hash = "4607d1c63afab73e716671f129c32bf98e69ff9a"
-data_git_describe = "v0.0-8470-g4607d1c63"
+data_git_hash = "9036ea3133d98b8eac80473aa2460dbb7b83e8b0"
+data_git_describe = "v0.0-8471-g9036ea313"
 data_git_msg = """\
-commit 4607d1c63afab73e716671f129c32bf98e69ff9a
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Nov 2 16:31:23 2021 -0700
+commit 9036ea3133d98b8eac80473aa2460dbb7b83e8b0
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Nov 4 14:08:53 2021 +0000
 
-    [dv] Fix rstmgr intg test
+    [sw] Fix clkmgr smoketest
     
-    1. Added super.post_apply_reset as Cindy did in #8997
-    2. Added associated err_code for intg error in cfg
+    The test aims to toggle all gateable and hintable clocks from disabled
+    to enabled and back or vice versa. The state being checked for the
+    toggle wasn't updated so everything just got disabled.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
