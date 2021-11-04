@@ -4,33 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8586"
-version_tuple = (0, 0, 8586)
+version_str = "0.0.post8587"
+version_tuple = (0, 0, 8587)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8586")
+    pversion = V("0.0.post8587")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8474"
-data_version_tuple = (0, 0, 8474)
+data_version_str = "0.0.post8475"
+data_version_tuple = (0, 0, 8475)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8474")
+    pdata_version = V("0.0.post8475")
 except ImportError:
     pass
-data_git_hash = "9c931d3aa8fc76df7c8d99c7a190c0c86409d915"
-data_git_describe = "v0.0-8474-g9c931d3aa"
+data_git_hash = "6f4052e5b34a61a057736741334347693dd45ded"
+data_git_describe = "v0.0-8475-g6f4052e5b"
 data_git_msg = """\
-commit 9c931d3aa8fc76df7c8d99c7a190c0c86409d915
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Aug 31 13:42:54 2021 -0700
+commit 6f4052e5b34a61a057736741334347693dd45ded
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Oct 15 18:28:03 2021 -0700
 
-    [top/dv] Update RV_DM chip-level testplan
+    [sw] silicon owner bare metal example
     
-    Updated testplan as we discussed in the meeting
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit adds the sw/device/silicon_owner folder with a bare_metal
+    executable which can be used to smoketest the ROM and ROM_EXT secure
+    boot sequence.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
