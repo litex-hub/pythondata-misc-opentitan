@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8584"
-version_tuple = (0, 0, 8584)
+version_str = "0.0.post8585"
+version_tuple = (0, 0, 8585)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8584")
+    pversion = V("0.0.post8585")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8472"
-data_version_tuple = (0, 0, 8472)
+data_version_str = "0.0.post8473"
+data_version_tuple = (0, 0, 8473)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8472")
+    pdata_version = V("0.0.post8473")
 except ImportError:
     pass
-data_git_hash = "e4bfe80f68668e88f9023a2a359d50cc0060655f"
-data_git_describe = "v0.0-8472-ge4bfe80f6"
+data_git_hash = "b423419ab18fc194dfecd13e8ccfc7899e981645"
+data_git_describe = "v0.0-8473-gb423419ab"
 data_git_msg = """\
-commit e4bfe80f68668e88f9023a2a359d50cc0060655f
-Author: Jacob Levy <jacob.levy@opentitan.org>
-Date:   Sun Oct 24 11:12:47 2021 +0300
+commit b423419ab18fc194dfecd13e8ccfc7899e981645
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Oct 29 00:21:29 2021 -0700
 
-    [ast] Update review comments
+    [chip testplan] Make SRAM exec test comprehensive
     
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    Mandates the need to test execution enablement in all 8 scenarios
+    resulting from HW_CFG[IFETCH} bit in OTP controller, HW_DEBUG_EN LC
+    state and the execution enable CSR value, for both main and retention
+    SRAMs.
+    
+    This is captured as one testpoint since the SW test portion will more or
+    less remain the same. It could be split into 4 tests which each variant
+    creating the right scenario via backdoor from the testbench side (TBD).
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
