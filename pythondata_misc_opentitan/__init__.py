@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8583"
-version_tuple = (0, 0, 8583)
+version_str = "0.0.post8584"
+version_tuple = (0, 0, 8584)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8583")
+    pversion = V("0.0.post8584")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8471"
-data_version_tuple = (0, 0, 8471)
+data_version_str = "0.0.post8472"
+data_version_tuple = (0, 0, 8472)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8471")
+    pdata_version = V("0.0.post8472")
 except ImportError:
     pass
-data_git_hash = "9036ea3133d98b8eac80473aa2460dbb7b83e8b0"
-data_git_describe = "v0.0-8471-g9036ea313"
+data_git_hash = "e4bfe80f68668e88f9023a2a359d50cc0060655f"
+data_git_describe = "v0.0-8472-ge4bfe80f6"
 data_git_msg = """\
-commit 9036ea3133d98b8eac80473aa2460dbb7b83e8b0
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Thu Nov 4 14:08:53 2021 +0000
+commit e4bfe80f68668e88f9023a2a359d50cc0060655f
+Author: Jacob Levy <jacob.levy@opentitan.org>
+Date:   Sun Oct 24 11:12:47 2021 +0300
 
-    [sw] Fix clkmgr smoketest
+    [ast] Update review comments
     
-    The test aims to toggle all gateable and hintable clocks from disabled
-    to enabled and back or vice versa. The state being checked for the
-    toggle wasn't updated so everything just got disabled.
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
 
 """
 
