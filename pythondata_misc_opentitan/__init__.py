@@ -4,41 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8585"
-version_tuple = (0, 0, 8585)
+version_str = "0.0.post8586"
+version_tuple = (0, 0, 8586)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8585")
+    pversion = V("0.0.post8586")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8473"
-data_version_tuple = (0, 0, 8473)
+data_version_str = "0.0.post8474"
+data_version_tuple = (0, 0, 8474)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8473")
+    pdata_version = V("0.0.post8474")
 except ImportError:
     pass
-data_git_hash = "b423419ab18fc194dfecd13e8ccfc7899e981645"
-data_git_describe = "v0.0-8473-gb423419ab"
+data_git_hash = "9c931d3aa8fc76df7c8d99c7a190c0c86409d915"
+data_git_describe = "v0.0-8474-g9c931d3aa"
 data_git_msg = """\
-commit b423419ab18fc194dfecd13e8ccfc7899e981645
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Oct 29 00:21:29 2021 -0700
+commit 9c931d3aa8fc76df7c8d99c7a190c0c86409d915
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Aug 31 13:42:54 2021 -0700
 
-    [chip testplan] Make SRAM exec test comprehensive
+    [top/dv] Update RV_DM chip-level testplan
     
-    Mandates the need to test execution enablement in all 8 scenarios
-    resulting from HW_CFG[IFETCH} bit in OTP controller, HW_DEBUG_EN LC
-    state and the execution enable CSR value, for both main and retention
-    SRAMs.
-    
-    This is captured as one testpoint since the SW test portion will more or
-    less remain the same. It could be split into 4 tests which each variant
-    creating the right scenario via backdoor from the testbench side (TBD).
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Updated testplan as we discussed in the meeting
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
