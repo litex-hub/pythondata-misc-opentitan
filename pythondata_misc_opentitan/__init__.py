@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8611"
-version_tuple = (0, 0, 8611)
+version_str = "0.0.post8613"
+version_tuple = (0, 0, 8613)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8611")
+    pversion = V("0.0.post8613")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8499"
-data_version_tuple = (0, 0, 8499)
+data_version_str = "0.0.post8501"
+data_version_tuple = (0, 0, 8501)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8499")
+    pdata_version = V("0.0.post8501")
 except ImportError:
     pass
-data_git_hash = "ae4a31f9fa20ee80875cb9582678c93f449d5102"
-data_git_describe = "v0.0-8499-gae4a31f9f"
+data_git_hash = "fbf2edc1dadaabd93df8c84e9748e0f524dd2326"
+data_git_describe = "v0.0-8501-gfbf2edc1d"
 data_git_msg = """\
-commit ae4a31f9fa20ee80875cb9582678c93f449d5102
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Nov 3 15:13:48 2021 -0700
+commit fbf2edc1dadaabd93df8c84e9748e0f524dd2326
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Sep 27 15:31:08 2021 -0700
 
-    [edn/rtl] prim counter replacing standard counter
+    [dv] Test security countermeasures
     
-    A counter used to track long generate commands has been replaced with the hardened version.
+    Only support testing prim_count and enable this test in keymgr
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Also reduce timeout for spinwait of op_status in keymgr
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
