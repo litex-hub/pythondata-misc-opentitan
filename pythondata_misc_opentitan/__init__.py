@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8608"
-version_tuple = (0, 0, 8608)
+version_str = "0.0.post8609"
+version_tuple = (0, 0, 8609)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8608")
+    pversion = V("0.0.post8609")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8496"
-data_version_tuple = (0, 0, 8496)
+data_version_str = "0.0.post8497"
+data_version_tuple = (0, 0, 8497)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8496")
+    pdata_version = V("0.0.post8497")
 except ImportError:
     pass
-data_git_hash = "3d156ce35e0ba559b5246c96286c0568cfa559c0"
-data_git_describe = "v0.0-8496-g3d156ce35"
+data_git_hash = "2c275eba7be688e9a3d9716b8b91d56e35ce1298"
+data_git_describe = "v0.0-8497-g2c275eba7"
 data_git_msg = """\
-commit 3d156ce35e0ba559b5246c96286c0568cfa559c0
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Nov 3 03:11:04 2021 +0000
+commit 2c275eba7be688e9a3d9716b8b91d56e35ce1298
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Nov 4 11:35:54 2021 -0700
 
-    [doc] Update DIF dev and style guide.
+    [syn/aes/otbn] Minor fixes to fix block level synthesis
     
-    After auto-generating a portion of the DIFs, as described in #8142, this
-    commit cleans up the DIF developement and style guide on the website to
-    match what is now implemented.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
