@@ -4,36 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8587"
-version_tuple = (0, 0, 8587)
+version_str = "0.0.post8594"
+version_tuple = (0, 0, 8594)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8587")
+    pversion = V("0.0.post8594")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8475"
-data_version_tuple = (0, 0, 8475)
+data_version_str = "0.0.post8482"
+data_version_tuple = (0, 0, 8482)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8475")
+    pdata_version = V("0.0.post8482")
 except ImportError:
     pass
-data_git_hash = "6f4052e5b34a61a057736741334347693dd45ded"
-data_git_describe = "v0.0-8475-g6f4052e5b"
+data_git_hash = "1a84e2dc27cf027cd26bdbcea31c5f79aa0f7d65"
+data_git_describe = "v0.0-8482-g1a84e2dc2"
 data_git_msg = """\
-commit 6f4052e5b34a61a057736741334347693dd45ded
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Oct 15 18:28:03 2021 -0700
+commit 1a84e2dc27cf027cd26bdbcea31c5f79aa0f7d65
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Nov 4 06:47:41 2021 +0000
 
-    [sw] silicon owner bare metal example
+    [ottf] Added test status reporting and teardown logic.
     
-    This commit adds the sw/device/silicon_owner folder with a bare_metal
-    executable which can be used to smoketest the ROM and ROM_EXT secure
-    boot sequence.
+    When an on-device test completes, the OTTF now reports the test result
+    over the same interface as the existing test_main.{h,c} framework to
+    automatically terminate the test. This was accomplished by wrapping the
+    test_main() test entry point function in a wrapper function that is the
+    entry point to the FreeRTOS task the test runs in. The wrapper function
+    is used to report the test status. Additionally by using a wrapper
+    function, we can maintain the exact same function prototype used for
+    existing on-device test to minimize overhead migrating chip-level tests
+    to the OTTF.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
