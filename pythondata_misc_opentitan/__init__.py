@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8617"
-version_tuple = (0, 0, 8617)
+version_str = "0.0.post8618"
+version_tuple = (0, 0, 8618)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8617")
+    pversion = V("0.0.post8618")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8505"
-data_version_tuple = (0, 0, 8505)
+data_version_str = "0.0.post8506"
+data_version_tuple = (0, 0, 8506)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8505")
+    pdata_version = V("0.0.post8506")
 except ImportError:
     pass
-data_git_hash = "a6260f0f11647bc7895183e58da9c7d52705df20"
-data_git_describe = "v0.0-8505-ga6260f0f1"
+data_git_hash = "8316200f4533b9edf692fd94f59ad13312f06944"
+data_git_describe = "v0.0-8506-g8316200f4"
 data_git_msg = """\
-commit a6260f0f11647bc7895183e58da9c7d52705df20
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Nov 4 15:59:35 2021 -0700
+commit 8316200f4533b9edf692fd94f59ad13312f06944
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Nov 5 19:58:07 2021 -0700
 
-    [doc] Add D2S and V2S milestones to documentation
+    [csrng / edn] Add required assertions from prim_count testing
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
