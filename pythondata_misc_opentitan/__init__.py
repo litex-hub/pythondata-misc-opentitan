@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8621"
-version_tuple = (0, 0, 8621)
+version_str = "0.0.post8622"
+version_tuple = (0, 0, 8622)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8621")
+    pversion = V("0.0.post8622")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8509"
-data_version_tuple = (0, 0, 8509)
+data_version_str = "0.0.post8510"
+data_version_tuple = (0, 0, 8510)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8509")
+    pdata_version = V("0.0.post8510")
 except ImportError:
     pass
-data_git_hash = "8be44c91f64b8ade77966ac786b70d31051fd6b3"
-data_git_describe = "v0.0-8509-g8be44c91f"
+data_git_hash = "c26089ae313a0627c44ef77c4ad0e3f35f213a87"
+data_git_describe = "v0.0-8510-gc26089ae3"
 data_git_msg = """\
-commit 8be44c91f64b8ade77966ac786b70d31051fd6b3
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Oct 20 16:50:56 2021 -0700
+commit c26089ae313a0627c44ef77c4ad0e3f35f213a87
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Nov 2 13:32:28 2021 -0700
 
-    [clkmgr, ast] Update external clock switch support
+    [csrng/rtl] sw port data attack check added
     
-    Support external clock switch based on most recent Nuvoton request
-    Fixes #8657
+    For the software port only, the returned genbits will have a repeated data check before genbits are returned to the register interface.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [clkmgr] Address some cdc issues on step_down_req/ack
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [clkmgr, top] rebase updates for external clock switch support
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
