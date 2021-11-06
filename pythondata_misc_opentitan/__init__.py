@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8613"
-version_tuple = (0, 0, 8613)
+version_str = "0.0.post8617"
+version_tuple = (0, 0, 8617)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8613")
+    pversion = V("0.0.post8617")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8501"
-data_version_tuple = (0, 0, 8501)
+data_version_str = "0.0.post8505"
+data_version_tuple = (0, 0, 8505)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8501")
+    pdata_version = V("0.0.post8505")
 except ImportError:
     pass
-data_git_hash = "fbf2edc1dadaabd93df8c84e9748e0f524dd2326"
-data_git_describe = "v0.0-8501-gfbf2edc1d"
+data_git_hash = "a6260f0f11647bc7895183e58da9c7d52705df20"
+data_git_describe = "v0.0-8505-ga6260f0f1"
 data_git_msg = """\
-commit fbf2edc1dadaabd93df8c84e9748e0f524dd2326
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Sep 27 15:31:08 2021 -0700
+commit a6260f0f11647bc7895183e58da9c7d52705df20
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Nov 4 15:59:35 2021 -0700
 
-    [dv] Test security countermeasures
+    [doc] Add D2S and V2S milestones to documentation
     
-    Only support testing prim_count and enable this test in keymgr
-    
-    Also reduce timeout for spinwait of op_status in keymgr
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
