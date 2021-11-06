@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8619"
-version_tuple = (0, 0, 8619)
+version_str = "0.0.post8621"
+version_tuple = (0, 0, 8621)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8619")
+    pversion = V("0.0.post8621")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8507"
-data_version_tuple = (0, 0, 8507)
+data_version_str = "0.0.post8509"
+data_version_tuple = (0, 0, 8509)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8507")
+    pdata_version = V("0.0.post8509")
 except ImportError:
     pass
-data_git_hash = "7dd8ba4dc8e5d77f3b77b4ba16af57b0a4804591"
-data_git_describe = "v0.0-8507-g7dd8ba4dc"
+data_git_hash = "8be44c91f64b8ade77966ac786b70d31051fd6b3"
+data_git_describe = "v0.0-8509-g8be44c91f"
 data_git_msg = """\
-commit 7dd8ba4dc8e5d77f3b77b4ba16af57b0a4804591
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Nov 5 17:14:34 2021 -0700
+commit 8be44c91f64b8ade77966ac786b70d31051fd6b3
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Oct 20 16:50:56 2021 -0700
 
-    [fpv/secded] Fix FPV auto-gen script
+    [clkmgr, ast] Update external clock switch support
     
-    In previous PR where we renamed the FPV testbench to `_tb` suffix. I
-    manually changed the FPV files, but did not change the template.
-    This PR updates the FPV template for gen_secded.py
+    Support external clock switch based on most recent Nuvoton request
+    Fixes #8657
     
-    Thanks Tim for finding the issue.
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    [clkmgr] Address some cdc issues on step_down_req/ack
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [clkmgr, top] rebase updates for external clock switch support
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
