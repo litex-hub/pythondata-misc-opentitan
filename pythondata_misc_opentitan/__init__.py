@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8633"
-version_tuple = (0, 0, 8633)
+version_str = "0.0.post8634"
+version_tuple = (0, 0, 8634)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8633")
+    pversion = V("0.0.post8634")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8521"
-data_version_tuple = (0, 0, 8521)
+data_version_str = "0.0.post8522"
+data_version_tuple = (0, 0, 8522)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8521")
+    pdata_version = V("0.0.post8522")
 except ImportError:
     pass
-data_git_hash = "125cbc61defa6566c625ea6794b8a7e8e3bb4bf9"
-data_git_describe = "v0.0-8521-g125cbc61d"
+data_git_hash = "af4c9e7168d15a164b473b5f4d0a377791facf7d"
+data_git_describe = "v0.0-8522-gaf4c9e716"
 data_git_msg = """\
-commit 125cbc61defa6566c625ea6794b8a7e8e3bb4bf9
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Nov 5 14:42:21 2021 -0700
+commit af4c9e7168d15a164b473b5f4d0a377791facf7d
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Nov 3 02:15:05 2021 +0000
 
-    [top/dv] Fix spi device failure
+    [bazel] add rules for new targets and fix unittest
     
-    When the interrupt keeps firing, PC can not go back to the main program,
-    Changed to disable the interrupt in interrupt routine instead of in the
-    main program
+    building with bazel I came across a few issues
+    * remove an included header that's only implemented for riscv targets
+    from the dif_aes_unittest
+    * added a freestanding library
+    * ran buildifier which caught a late change I missed on my last bazel
+    commit
+    * included stdint in a couple header files that use it.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
