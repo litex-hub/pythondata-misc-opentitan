@@ -4,48 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8623"
-version_tuple = (0, 0, 8623)
+version_str = "0.0.post8625"
+version_tuple = (0, 0, 8625)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8623")
+    pversion = V("0.0.post8625")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8511"
-data_version_tuple = (0, 0, 8511)
+data_version_str = "0.0.post8513"
+data_version_tuple = (0, 0, 8513)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8511")
+    pdata_version = V("0.0.post8513")
 except ImportError:
     pass
-data_git_hash = "40f72477995d57ef4e53b1568271e6414fd9d786"
-data_git_describe = "v0.0-8511-g40f724779"
+data_git_hash = "0f60351bd8a440e5db031cf20f6d31d099700380"
+data_git_describe = "v0.0-8513-g0f60351bd"
 data_git_msg = """\
-commit 40f72477995d57ef4e53b1568271e6414fd9d786
-Author: Udi Jonnalagadda <udij@google.com>
-Date:   Tue Jun 22 15:19:20 2021 -0700
+commit 0f60351bd8a440e5db031cf20f6d31d099700380
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Nov 5 12:51:14 2021 -0700
 
-    [dv/sram] Enable multi-ral
+    [util] Add generic ecc encode function for re-use
     
-    This PR enables full multi-ral functionality in the SRAM testbench, and
-    to that end does a couple of related things:
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    - Adds a custom reg model for the memory primitive, this is needed since
-      different parameterizations of the TB will be reused at the
-      chip-level.
-    - General updates to the scoreboard and rest of the environment to make
-      use of the built-in TL arrays in the base env_cfg classes, and remove
-      the explicitly defined tl_agent initially used for the memory
-      interface.
-    - Remove the `mem_tl_errors` test as we can now rely on the automated
-      test suite.
-    - Parameterize the entire SRAM testbench accordingly to allow reuse at
-      the chip-level.
+    [util] secded_gen fixes
     
-    Signed-off-by: Udi Jonnalagadda <udij@google.com>
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
