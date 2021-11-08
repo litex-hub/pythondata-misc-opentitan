@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8625"
-version_tuple = (0, 0, 8625)
+version_str = "0.0.post8628"
+version_tuple = (0, 0, 8628)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8625")
+    pversion = V("0.0.post8628")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8513"
-data_version_tuple = (0, 0, 8513)
+data_version_str = "0.0.post8516"
+data_version_tuple = (0, 0, 8516)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8513")
+    pdata_version = V("0.0.post8516")
 except ImportError:
     pass
-data_git_hash = "0f60351bd8a440e5db031cf20f6d31d099700380"
-data_git_describe = "v0.0-8513-g0f60351bd"
+data_git_hash = "647cddb3f8fe956099158f7daf5363ca1a0dc68a"
+data_git_describe = "v0.0-8516-g647cddb3f"
 data_git_msg = """\
-commit 0f60351bd8a440e5db031cf20f6d31d099700380
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Nov 5 12:51:14 2021 -0700
+commit 647cddb3f8fe956099158f7daf5363ca1a0dc68a
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Nov 4 11:08:45 2021 -0700
 
-    [util] Add generic ecc encode function for re-use
+    [sw, cleanup] Move `ARRAYSIZE` to `macros.h`.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Fixes #9037.
     
-    [util] secded_gen fixes
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
