@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8628"
-version_tuple = (0, 0, 8628)
+version_str = "0.0.post8633"
+version_tuple = (0, 0, 8633)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8628")
+    pversion = V("0.0.post8633")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8516"
-data_version_tuple = (0, 0, 8516)
+data_version_str = "0.0.post8521"
+data_version_tuple = (0, 0, 8521)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8516")
+    pdata_version = V("0.0.post8521")
 except ImportError:
     pass
-data_git_hash = "647cddb3f8fe956099158f7daf5363ca1a0dc68a"
-data_git_describe = "v0.0-8516-g647cddb3f"
+data_git_hash = "125cbc61defa6566c625ea6794b8a7e8e3bb4bf9"
+data_git_describe = "v0.0-8521-g125cbc61d"
 data_git_msg = """\
-commit 647cddb3f8fe956099158f7daf5363ca1a0dc68a
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Thu Nov 4 11:08:45 2021 -0700
+commit 125cbc61defa6566c625ea6794b8a7e8e3bb4bf9
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Nov 5 14:42:21 2021 -0700
 
-    [sw, cleanup] Move `ARRAYSIZE` to `macros.h`.
+    [top/dv] Fix spi device failure
     
-    Fixes #9037.
+    When the interrupt keeps firing, PC can not go back to the main program,
+    Changed to disable the interrupt in interrupt routine instead of in the
+    main program
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
