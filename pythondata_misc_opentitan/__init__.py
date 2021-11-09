@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8638"
-version_tuple = (0, 0, 8638)
+version_str = "0.0.post8639"
+version_tuple = (0, 0, 8639)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8638")
+    pversion = V("0.0.post8639")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8526"
-data_version_tuple = (0, 0, 8526)
+data_version_str = "0.0.post8527"
+data_version_tuple = (0, 0, 8527)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8526")
+    pdata_version = V("0.0.post8527")
 except ImportError:
     pass
-data_git_hash = "10f8597cd0e7fcdfd0124210e99a9ccc55af8429"
-data_git_describe = "v0.0-8526-g10f8597cd"
+data_git_hash = "ac4e5d561cfc8f64e78fe4cf47e79f3cf73403a6"
+data_git_describe = "v0.0-8527-gac4e5d561"
 data_git_msg = """\
-commit 10f8597cd0e7fcdfd0124210e99a9ccc55af8429
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 8 14:03:03 2021 -0800
+commit ac4e5d561cfc8f64e78fe4cf47e79f3cf73403a6
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Fri Oct 29 12:56:22 2021 +0100
 
-    [prim] Fix DC sythesis error
+    [doc, sram_ctrl] Fix incorrect table values
     
-    DC doesn't allow hierachy path reference, like
-    `assign PRIM_HIER_.unused_assert_connected = 1'b1;`
+    In `prim_mubi_pkg.sv` and `multibits.h` `MuBi4True` value is 0xA,
+    whilst in the SRAM documentation it was set as 0x5, which corresponds
+    to `MuBi4False` of the above.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    closes #8917
+    
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
