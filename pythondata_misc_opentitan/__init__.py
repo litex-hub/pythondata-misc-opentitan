@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8634"
-version_tuple = (0, 0, 8634)
+version_str = "0.0.post8635"
+version_tuple = (0, 0, 8635)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8634")
+    pversion = V("0.0.post8635")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8522"
-data_version_tuple = (0, 0, 8522)
+data_version_str = "0.0.post8523"
+data_version_tuple = (0, 0, 8523)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8522")
+    pdata_version = V("0.0.post8523")
 except ImportError:
     pass
-data_git_hash = "af4c9e7168d15a164b473b5f4d0a377791facf7d"
-data_git_describe = "v0.0-8522-gaf4c9e716"
+data_git_hash = "882cce06a528974ce72e6c893f726be2febed0aa"
+data_git_describe = "v0.0-8523-g882cce06a"
 data_git_msg = """\
-commit af4c9e7168d15a164b473b5f4d0a377791facf7d
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Nov 3 02:15:05 2021 +0000
+commit 882cce06a528974ce72e6c893f726be2febed0aa
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Nov 5 06:59:29 2021 +0000
 
-    [bazel] add rules for new targets and fix unittest
+    [sw/testing] Fix comment typos in `check.h`.
     
-    building with bazel I came across a few issues
-    * remove an included header that's only implemented for riscv targets
-    from the dif_aes_unittest
-    * added a freestanding library
-    * ran buildifier which caught a late change I missed on my last bazel
-    commit
-    * included stdint in a couple header files that use it.
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
