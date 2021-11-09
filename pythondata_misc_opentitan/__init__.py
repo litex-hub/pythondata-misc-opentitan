@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8639"
-version_tuple = (0, 0, 8639)
+version_str = "0.0.post8640"
+version_tuple = (0, 0, 8640)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8639")
+    pversion = V("0.0.post8640")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8527"
-data_version_tuple = (0, 0, 8527)
+data_version_str = "0.0.post8528"
+data_version_tuple = (0, 0, 8528)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8527")
+    pdata_version = V("0.0.post8528")
 except ImportError:
     pass
-data_git_hash = "ac4e5d561cfc8f64e78fe4cf47e79f3cf73403a6"
-data_git_describe = "v0.0-8527-gac4e5d561"
+data_git_hash = "31d5baad1cf10b5497b8541c28ed3384f2842f6e"
+data_git_describe = "v0.0-8528-g31d5baad1"
 data_git_msg = """\
-commit ac4e5d561cfc8f64e78fe4cf47e79f3cf73403a6
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Fri Oct 29 12:56:22 2021 +0100
+commit 31d5baad1cf10b5497b8541c28ed3384f2842f6e
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Tue Nov 9 13:27:07 2021 +0000
 
-    [doc, sram_ctrl] Fix incorrect table values
+    [CODEOWNERS] Add organization prefix to teams
     
-    In `prim_mubi_pkg.sv` and `multibits.h` `MuBi4True` value is 0xA,
-    whilst in the SRAM documentation it was set as 0x5, which corresponds
-    to `MuBi4False` of the above.
+    Teams need to prefixed with the organization name to be assigned as
+    reviewers.
     
-    closes #8917
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
