@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8640"
-version_tuple = (0, 0, 8640)
+version_str = "0.0.post8642"
+version_tuple = (0, 0, 8642)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8640")
+    pversion = V("0.0.post8642")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8528"
-data_version_tuple = (0, 0, 8528)
+data_version_str = "0.0.post8530"
+data_version_tuple = (0, 0, 8530)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8528")
+    pdata_version = V("0.0.post8530")
 except ImportError:
     pass
-data_git_hash = "31d5baad1cf10b5497b8541c28ed3384f2842f6e"
-data_git_describe = "v0.0-8528-g31d5baad1"
+data_git_hash = "1cb418519a274fdd873e6e6da260ceb1889f08b5"
+data_git_describe = "v0.0-8530-g1cb418519"
 data_git_msg = """\
-commit 31d5baad1cf10b5497b8541c28ed3384f2842f6e
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Tue Nov 9 13:27:07 2021 +0000
+commit 1cb418519a274fdd873e6e6da260ceb1889f08b5
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Nov 3 13:17:28 2021 -0700
 
-    [CODEOWNERS] Add organization prefix to teams
+    [syn] Minor scripting alignment with CDC flow
     
-    Teams need to prefixed with the organization name to be assigned as
-    reviewers.
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
