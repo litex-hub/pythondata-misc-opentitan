@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8652"
-version_tuple = (0, 0, 8652)
+version_str = "0.0.post8653"
+version_tuple = (0, 0, 8653)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8652")
+    pversion = V("0.0.post8653")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8540"
-data_version_tuple = (0, 0, 8540)
+data_version_str = "0.0.post8541"
+data_version_tuple = (0, 0, 8541)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8540")
+    pdata_version = V("0.0.post8541")
 except ImportError:
     pass
-data_git_hash = "6e61902d4be9ab56295112b411c4fe91a316b102"
-data_git_describe = "v0.0-8540-g6e61902d4"
+data_git_hash = "261a12b15f8ec711aa4e14512787b11e3c08531e"
+data_git_describe = "v0.0-8541-g261a12b15"
 data_git_msg = """\
-commit 6e61902d4be9ab56295112b411c4fe91a316b102
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Nov 8 16:42:52 2021 -0800
+commit 261a12b15f8ec711aa4e14512787b11e3c08531e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Nov 5 11:27:26 2021 -0400
 
-    [prim] Add time-out functionality to prim_clock_meas
+    [sw/silicon_creator] Add info page layout table to flash_ctrl.h
     
-    prim_clock_meas can now also detect if a clock has stopped.
-    
-    This is done for 2 reasons:
-    
-    1. clkmgr needs to have both clock presence and accuracy detection.
-       The former was missed in a previous PR.
-    
-    2. The same module will be re-used for #8658, which needs a time-out
-       mechanism.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
