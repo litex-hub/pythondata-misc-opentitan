@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8642"
-version_tuple = (0, 0, 8642)
+version_str = "0.0.post8649"
+version_tuple = (0, 0, 8649)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8642")
+    pversion = V("0.0.post8649")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8530"
-data_version_tuple = (0, 0, 8530)
+data_version_str = "0.0.post8537"
+data_version_tuple = (0, 0, 8537)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8530")
+    pdata_version = V("0.0.post8537")
 except ImportError:
     pass
-data_git_hash = "1cb418519a274fdd873e6e6da260ceb1889f08b5"
-data_git_describe = "v0.0-8530-g1cb418519"
+data_git_hash = "9f7d8ccc6ab98c080e62c79e191dbed759490920"
+data_git_describe = "v0.0-8537-g9f7d8ccc6"
 data_git_msg = """\
-commit 1cb418519a274fdd873e6e6da260ceb1889f08b5
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Nov 3 13:17:28 2021 -0700
+commit 9f7d8ccc6ab98c080e62c79e191dbed759490920
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Nov 5 23:17:56 2021 -0700
 
-    [syn] Minor scripting alignment with CDC flow
+    [dv/pwrmgr] Enhance wakeup test
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Randomize enabling wake_info capture.
+    Fix handling enables portion of `control` CSR.
+    Fix control coverage.
+    Enable the test in the testplan.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
