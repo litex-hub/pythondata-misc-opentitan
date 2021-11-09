@@ -4,36 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8651"
-version_tuple = (0, 0, 8651)
+version_str = "0.0.post8652"
+version_tuple = (0, 0, 8652)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8651")
+    pversion = V("0.0.post8652")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8539"
-data_version_tuple = (0, 0, 8539)
+data_version_str = "0.0.post8540"
+data_version_tuple = (0, 0, 8540)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8539")
+    pdata_version = V("0.0.post8540")
 except ImportError:
     pass
-data_git_hash = "89df3eb3a3736ac08410758631ed1ca10884db1b"
-data_git_describe = "v0.0-8539-g89df3eb3a"
+data_git_hash = "6e61902d4be9ab56295112b411c4fe91a316b102"
+data_git_describe = "v0.0-8540-g6e61902d4"
 data_git_msg = """\
-commit 89df3eb3a3736ac08410758631ed1ca10884db1b
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Nov 5 06:32:48 2021 +0000
+commit 6e61902d4be9ab56295112b411c4fe91a316b102
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 8 16:42:52 2021 -0800
 
-    [dif/rom_ctrl] Add DIF header and implementation.
+    [prim] Add time-out functionality to prim_clock_meas
     
-    This completes the header and implementation of all ROM Controller DIFs.
-    At this time, the ROM Controller is a very simple IP, so there are only
-    three DIFs.
+    prim_clock_meas can now also detect if a clock has stopped.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This is done for 2 reasons:
+    
+    1. clkmgr needs to have both clock presence and accuracy detection.
+       The former was missed in a previous PR.
+    
+    2. The same module will be re-used for #8658, which needs a time-out
+       mechanism.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
