@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8635"
-version_tuple = (0, 0, 8635)
+version_str = "0.0.post8638"
+version_tuple = (0, 0, 8638)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8635")
+    pversion = V("0.0.post8638")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8523"
-data_version_tuple = (0, 0, 8523)
+data_version_str = "0.0.post8526"
+data_version_tuple = (0, 0, 8526)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8523")
+    pdata_version = V("0.0.post8526")
 except ImportError:
     pass
-data_git_hash = "882cce06a528974ce72e6c893f726be2febed0aa"
-data_git_describe = "v0.0-8523-g882cce06a"
+data_git_hash = "10f8597cd0e7fcdfd0124210e99a9ccc55af8429"
+data_git_describe = "v0.0-8526-g10f8597cd"
 data_git_msg = """\
-commit 882cce06a528974ce72e6c893f726be2febed0aa
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Nov 5 06:59:29 2021 +0000
+commit 10f8597cd0e7fcdfd0124210e99a9ccc55af8429
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 8 14:03:03 2021 -0800
 
-    [sw/testing] Fix comment typos in `check.h`.
+    [prim] Fix DC sythesis error
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    DC doesn't allow hierachy path reference, like
+    `assign PRIM_HIER_.unused_assert_connected = 1'b1;`
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
