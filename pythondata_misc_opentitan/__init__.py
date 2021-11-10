@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8669"
-version_tuple = (0, 0, 8669)
+version_str = "0.0.post8670"
+version_tuple = (0, 0, 8670)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8669")
+    pversion = V("0.0.post8670")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8557"
-data_version_tuple = (0, 0, 8557)
+data_version_str = "0.0.post8558"
+data_version_tuple = (0, 0, 8558)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8557")
+    pdata_version = V("0.0.post8558")
 except ImportError:
     pass
-data_git_hash = "759917d35e9a9be5f00542613846a8d94b98f14a"
-data_git_describe = "v0.0-8557-g759917d35"
+data_git_hash = "23f6f5da78fcab7cd7e3c9111fd43ae661916931"
+data_git_describe = "v0.0-8558-g23f6f5da7"
 data_git_msg = """\
-commit 759917d35e9a9be5f00542613846a8d94b98f14a
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Nov 3 11:10:15 2021 -0700
+commit 23f6f5da78fcab7cd7e3c9111fd43ae661916931
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Nov 9 13:51:47 2021 -0800
 
-    [edn/dv] Added genbits test/sequence, randomized genbits
+    [prim] Remove extra semicolon
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
