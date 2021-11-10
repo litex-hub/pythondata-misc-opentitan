@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8662"
-version_tuple = (0, 0, 8662)
+version_str = "0.0.post8663"
+version_tuple = (0, 0, 8663)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8662")
+    pversion = V("0.0.post8663")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8550"
-data_version_tuple = (0, 0, 8550)
+data_version_str = "0.0.post8551"
+data_version_tuple = (0, 0, 8551)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8550")
+    pdata_version = V("0.0.post8551")
 except ImportError:
     pass
-data_git_hash = "8e5c0aec13ab9a6faed5903d335cb64da8ca0d68"
-data_git_describe = "v0.0-8550-g8e5c0aec1"
+data_git_hash = "42b3e66d7ca3aee8e748c20e4c7bc1cdd523b413"
+data_git_describe = "v0.0-8551-g42b3e66d7"
 data_git_msg = """\
-commit 8e5c0aec13ab9a6faed5903d335cb64da8ca0d68
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Fri Oct 22 17:12:22 2021 +0100
+commit 42b3e66d7ca3aee8e748c20e4c7bc1cdd523b413
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Oct 29 11:27:50 2021 +0100
 
-    [sw, tests] Introduce "chip_sw_sram_execution" Main SRAM test
+    [sw/silicon_creator] Separate OTBN error codes in mask ROM.
     
-    The test is described here:
-    https://docs.opentitan.org/hw/top_earlgrey/doc/dv/
+    In order to make the crypto library more portable, we change the error
+    types in the mask ROM OTBN driver to be OTBN-specific errors instead of
+    generic ROM errors, and then use those error codes in the crypto library
+    as well.
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
