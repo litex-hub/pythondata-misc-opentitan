@@ -4,32 +4,58 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8653"
-version_tuple = (0, 0, 8653)
+version_str = "0.0.post8654"
+version_tuple = (0, 0, 8654)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8653")
+    pversion = V("0.0.post8654")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8541"
-data_version_tuple = (0, 0, 8541)
+data_version_str = "0.0.post8542"
+data_version_tuple = (0, 0, 8542)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8541")
+    pdata_version = V("0.0.post8542")
 except ImportError:
     pass
-data_git_hash = "261a12b15f8ec711aa4e14512787b11e3c08531e"
-data_git_describe = "v0.0-8541-g261a12b15"
+data_git_hash = "feaf322edd8a0f7f6a032cbb6b7537005fd613d7"
+data_git_describe = "v0.0-8542-gfeaf322ed"
 data_git_msg = """\
-commit 261a12b15f8ec711aa4e14512787b11e3c08531e
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Nov 5 11:27:26 2021 -0400
+commit feaf322edd8a0f7f6a032cbb6b7537005fd613d7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 2 13:49:43 2021 -0700
 
-    [sw/silicon_creator] Add info page layout table to flash_ctrl.h
+    [flash_ctrl] Add plain text integrity in flash
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    - Fixes https://github.com/lowRISC/opentitan/issues/8984
+    - Takes the spare storage bits of flash and store a de-scrambled
+      integrity. This allows flash to emulate the behavior of end-to-end
+      storage despite its need for ECC reliability checks.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [sw, util] Add support for flash image generation
+    
+    - only supports the plain text ECC at the moment
+    - scrambled will be added in the future
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [test] update verilator CI test pathing
+    
+    flash now uses vmem instead of elf
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [flash_ctrl] python updates per comments
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [flash_ctrl] fix typo
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
