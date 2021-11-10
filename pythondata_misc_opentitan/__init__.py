@@ -4,58 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8654"
-version_tuple = (0, 0, 8654)
+version_str = "0.0.post8656"
+version_tuple = (0, 0, 8656)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8654")
+    pversion = V("0.0.post8656")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8542"
-data_version_tuple = (0, 0, 8542)
+data_version_str = "0.0.post8544"
+data_version_tuple = (0, 0, 8544)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8542")
+    pdata_version = V("0.0.post8544")
 except ImportError:
     pass
-data_git_hash = "feaf322edd8a0f7f6a032cbb6b7537005fd613d7"
-data_git_describe = "v0.0-8542-gfeaf322ed"
+data_git_hash = "edf6e915ba3b0f20d551754493b0f8426250833e"
+data_git_describe = "v0.0-8544-gedf6e915b"
 data_git_msg = """\
-commit feaf322edd8a0f7f6a032cbb6b7537005fd613d7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 2 13:49:43 2021 -0700
+commit edf6e915ba3b0f20d551754493b0f8426250833e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 9 11:26:01 2021 -0800
 
-    [flash_ctrl] Add plain text integrity in flash
+    [dv/alert_handler] fix alert ping timeout seq regression error
     
-    - Fixes https://github.com/lowRISC/opentitan/issues/8984
-    - Takes the spare storage bits of flash and store a de-scrambled
-      integrity. This allows flash to emulate the behavior of end-to-end
-      storage despite its need for ECC reliability checks.
+    This PR fixes the timeout issue in nightly regression regarding
+    alert_handler_ping_timeout_vseq.
+    The issue is that we locked the ping_en register via regwen before
+    enabling the ping_en csr.
+    The solution is to move the order of regwen write task.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR also sets the min number of alert_en to be NUM_ALERTS-4 to avoid
+    this sequence running too long.
     
-    [sw, util] Add support for flash image generation
-    
-    - only supports the plain text ECC at the moment
-    - scrambled will be added in the future
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [test] update verilator CI test pathing
-    
-    flash now uses vmem instead of elf
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [flash_ctrl] python updates per comments
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    [flash_ctrl] fix typo
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
