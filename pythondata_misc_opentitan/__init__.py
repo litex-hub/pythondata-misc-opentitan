@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8658"
-version_tuple = (0, 0, 8658)
+version_str = "0.0.post8659"
+version_tuple = (0, 0, 8659)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8658")
+    pversion = V("0.0.post8659")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8546"
-data_version_tuple = (0, 0, 8546)
+data_version_str = "0.0.post8547"
+data_version_tuple = (0, 0, 8547)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8546")
+    pdata_version = V("0.0.post8547")
 except ImportError:
     pass
-data_git_hash = "f4d5e9a468455e620eef481a3147c9a98216ba91"
-data_git_describe = "v0.0-8546-gf4d5e9a46"
+data_git_hash = "19b727d437dd893125cf08f68a79f819b2b664a7"
+data_git_describe = "v0.0-8547-g19b727d43"
 data_git_msg = """\
-commit f4d5e9a468455e620eef481a3147c9a98216ba91
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 9 13:41:04 2021 -0800
+commit 19b727d437dd893125cf08f68a79f819b2b664a7
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Tue Nov 9 11:48:06 2021 +0000
 
-    [top, all] update connects for mubi
+    [hw, hjson] SRAM Controller use `multibits.h` in register desc
     
-    - scanmode and flash_bist_enable from ast have been converted to mubi types
-    - this commit just does the matching changes on the open source side
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
