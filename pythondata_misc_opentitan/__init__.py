@@ -4,30 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8659"
-version_tuple = (0, 0, 8659)
+version_str = "0.0.post8662"
+version_tuple = (0, 0, 8662)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8659")
+    pversion = V("0.0.post8662")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8547"
-data_version_tuple = (0, 0, 8547)
+data_version_str = "0.0.post8550"
+data_version_tuple = (0, 0, 8550)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8547")
+    pdata_version = V("0.0.post8550")
 except ImportError:
     pass
-data_git_hash = "19b727d437dd893125cf08f68a79f819b2b664a7"
-data_git_describe = "v0.0-8547-g19b727d43"
+data_git_hash = "8e5c0aec13ab9a6faed5903d335cb64da8ca0d68"
+data_git_describe = "v0.0-8550-g8e5c0aec1"
 data_git_msg = """\
-commit 19b727d437dd893125cf08f68a79f819b2b664a7
+commit 8e5c0aec13ab9a6faed5903d335cb64da8ca0d68
 Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Tue Nov 9 11:48:06 2021 +0000
+Date:   Fri Oct 22 17:12:22 2021 +0100
 
-    [hw, hjson] SRAM Controller use `multibits.h` in register desc
+    [sw, tests] Introduce "chip_sw_sram_execution" Main SRAM test
+    
+    The test is described here:
+    https://docs.opentitan.org/hw/top_earlgrey/doc/dv/
     
     Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
