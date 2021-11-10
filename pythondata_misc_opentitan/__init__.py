@@ -4,37 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8663"
-version_tuple = (0, 0, 8663)
+version_str = "0.0.post8664"
+version_tuple = (0, 0, 8664)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8663")
+    pversion = V("0.0.post8664")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8551"
-data_version_tuple = (0, 0, 8551)
+data_version_str = "0.0.post8552"
+data_version_tuple = (0, 0, 8552)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8551")
+    pdata_version = V("0.0.post8552")
 except ImportError:
     pass
-data_git_hash = "42b3e66d7ca3aee8e748c20e4c7bc1cdd523b413"
-data_git_describe = "v0.0-8551-g42b3e66d7"
+data_git_hash = "d4777ca3e80f843df41b6fb8a6836d4734721611"
+data_git_describe = "v0.0-8552-gd4777ca3e"
 data_git_msg = """\
-commit 42b3e66d7ca3aee8e748c20e4c7bc1cdd523b413
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Oct 29 11:27:50 2021 +0100
+commit d4777ca3e80f843df41b6fb8a6836d4734721611
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Nov 9 14:30:05 2021 -0800
 
-    [sw/silicon_creator] Separate OTBN error codes in mask ROM.
+    [chip,dv] Refactor CSR exclusion method
     
-    In order to make the crypto library more portable, we change the error
-    types in the mask ROM OTBN driver to be OTBN-specific errors instead of
-    generic ROM errors, and then use those error codes in the crypto library
-    as well.
+    - Minor refactor of `csr_excl_item`
+      - fixed minor bugs that existed in original code
+      - split `has_excl` to cleanly separate the task of retrieving the
+      associative array index from `exclusions` data structure into a
+      separate local task.
+      - cleaned up method doc comments
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    - Added support for tmporarily disable exclusions in effect (request
+    from @NigelScales)
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
