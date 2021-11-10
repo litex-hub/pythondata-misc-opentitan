@@ -4,41 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8656"
-version_tuple = (0, 0, 8656)
+version_str = "0.0.post8657"
+version_tuple = (0, 0, 8657)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8656")
+    pversion = V("0.0.post8657")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8544"
-data_version_tuple = (0, 0, 8544)
+data_version_str = "0.0.post8545"
+data_version_tuple = (0, 0, 8545)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8544")
+    pdata_version = V("0.0.post8545")
 except ImportError:
     pass
-data_git_hash = "edf6e915ba3b0f20d551754493b0f8426250833e"
-data_git_describe = "v0.0-8544-gedf6e915b"
+data_git_hash = "7c3a3cf66f98addd676933b8cc26e90cd46fd9a4"
+data_git_describe = "v0.0-8545-g7c3a3cf66"
 data_git_msg = """\
-commit edf6e915ba3b0f20d551754493b0f8426250833e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 9 11:26:01 2021 -0800
+commit 7c3a3cf66f98addd676933b8cc26e90cd46fd9a4
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Nov 4 09:24:14 2021 -0700
 
-    [dv/alert_handler] fix alert ping timeout seq regression error
+    [sw/mask_rom] Move keys inside the mask_rom folder
     
-    This PR fixes the timeout issue in nightly regression regarding
-    alert_handler_ping_timeout_vseq.
-    The issue is that we locked the ping_en register via regwen before
-    enabling the ping_en csr.
-    The solution is to move the order of regwen write task.
+    This comming implement the following changes:
     
-    This PR also sets the min number of alert_en to be NUM_ALERTS-4 to avoid
-    this sequence running too long.
+    * Move ROM public keys inside the sw/device/silicon_creator/mask_rom/keys folder.
+    * Split keys into header files to simplify auditing.
+    * Update the key policies to TEST, as the device boots by default in RMA
+      mode in the repository.
+    * Change the key names from fpga_key to test_key.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
