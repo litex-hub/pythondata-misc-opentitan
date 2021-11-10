@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8666"
-version_tuple = (0, 0, 8666)
+version_str = "0.0.post8669"
+version_tuple = (0, 0, 8669)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8666")
+    pversion = V("0.0.post8669")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8554"
-data_version_tuple = (0, 0, 8554)
+data_version_str = "0.0.post8557"
+data_version_tuple = (0, 0, 8557)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8554")
+    pdata_version = V("0.0.post8557")
 except ImportError:
     pass
-data_git_hash = "f6213e36670bd1a526f331f47845f0b6fb97554a"
-data_git_describe = "v0.0-8554-gf6213e366"
+data_git_hash = "759917d35e9a9be5f00542613846a8d94b98f14a"
+data_git_describe = "v0.0-8557-g759917d35"
 data_git_msg = """\
-commit f6213e36670bd1a526f331f47845f0b6fb97554a
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Nov 10 00:16:34 2021 +0000
+commit 759917d35e9a9be5f00542613846a8d94b98f14a
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Nov 3 11:10:15 2021 -0700
 
-    [spi_device] Add write mask to RxFifo
+    [edn/dv] Added genbits test/sequence, randomized genbits
     
-    In the issue #9119, I decide to revise the design to support BitMask in
-    the Generic mode.
-    
-    When Generic mode (a.k.a FwMode) was implemented, DPSRAM supported
-    full-word only. After introducing the Flash / Passthrough mode, the
-    DPSRAM is replaced to Bit-wise mask enabled DPSRAM.
-    
-    As discussed in #9119, the RXF does "Read-Modify-Write" to support
-    partial write. With bit-wise mask, the RXF FSM becomes much simpler by
-    eliminating RMW operations.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
