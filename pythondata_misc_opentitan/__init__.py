@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8657"
-version_tuple = (0, 0, 8657)
+version_str = "0.0.post8658"
+version_tuple = (0, 0, 8658)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8657")
+    pversion = V("0.0.post8658")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8545"
-data_version_tuple = (0, 0, 8545)
+data_version_str = "0.0.post8546"
+data_version_tuple = (0, 0, 8546)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8545")
+    pdata_version = V("0.0.post8546")
 except ImportError:
     pass
-data_git_hash = "7c3a3cf66f98addd676933b8cc26e90cd46fd9a4"
-data_git_describe = "v0.0-8545-g7c3a3cf66"
+data_git_hash = "f4d5e9a468455e620eef481a3147c9a98216ba91"
+data_git_describe = "v0.0-8546-gf4d5e9a46"
 data_git_msg = """\
-commit 7c3a3cf66f98addd676933b8cc26e90cd46fd9a4
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Nov 4 09:24:14 2021 -0700
+commit f4d5e9a468455e620eef481a3147c9a98216ba91
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 9 13:41:04 2021 -0800
 
-    [sw/mask_rom] Move keys inside the mask_rom folder
+    [top, all] update connects for mubi
     
-    This comming implement the following changes:
+    - scanmode and flash_bist_enable from ast have been converted to mubi types
+    - this commit just does the matching changes on the open source side
     
-    * Move ROM public keys inside the sw/device/silicon_creator/mask_rom/keys folder.
-    * Split keys into header files to simplify auditing.
-    * Update the key policies to TEST, as the device boots by default in RMA
-      mode in the repository.
-    * Change the key names from fpga_key to test_key.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
