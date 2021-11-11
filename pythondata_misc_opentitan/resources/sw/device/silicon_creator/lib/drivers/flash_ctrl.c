@@ -87,15 +87,19 @@ static rom_error_t transaction_start(transaction_params_t params) {
   // Set the address.
   abs_mmio_write32(kBase + FLASH_CTRL_ADDR_REG_OFFSET, params.addr);
   // Configure flash_ctrl and start the transaction.
+  const bool is_info =
+      bitfield_bit32_read(params.partition, FLASH_CTRL_PARTITION_BIT_IS_INFO);
+  const uint32_t info_type = bitfield_field32_read(
+      params.partition, FLASH_CTRL_PARTITION_FIELD_INFO_TYPE);
+  const bool bank_erase = params.erase_type == kFlashCtrlEraseTypeBank;
   uint32_t reg = bitfield_bit32_write(0, FLASH_CTRL_CONTROL_START_BIT, true);
   reg =
       bitfield_field32_write(reg, FLASH_CTRL_CONTROL_OP_FIELD, params.op_type);
-  reg = bitfield_bit32_write(reg, FLASH_CTRL_CONTROL_PARTITION_SEL_BIT,
-                             params.partition != kFlashCtrlPartitionData);
-  reg = bitfield_field32_write(reg, FLASH_CTRL_CONTROL_INFO_SEL_FIELD,
-                               (uint32_t)params.partition >> 1);
-  reg = bitfield_bit32_write(reg, FLASH_CTRL_CONTROL_ERASE_SEL_BIT,
-                             params.erase_type == kFlashCtrlEraseTypeBank);
+  reg =
+      bitfield_bit32_write(reg, FLASH_CTRL_CONTROL_PARTITION_SEL_BIT, is_info);
+  reg =
+      bitfield_field32_write(reg, FLASH_CTRL_CONTROL_INFO_SEL_FIELD, info_type);
+  reg = bitfield_bit32_write(reg, FLASH_CTRL_CONTROL_ERASE_SEL_BIT, bank_erase);
   // TODO(#3353): Remove -1 when flash_ctrl is updated.
   reg = bitfield_field32_write(reg, FLASH_CTRL_CONTROL_NUM_FIELD,
                                params.word_count - 1);
@@ -109,11 +113,11 @@ static rom_error_t transaction_start(transaction_params_t params) {
  * Large reads may create back pressure.
  *
  * @param word_count Number of words to read from the FIFO.
- * @param[out] data_out Output buffer.
+ * @param[out] data Output buffer.
  */
-static void fifo_read(size_t word_count, uint32_t *data_out) {
+static void fifo_read(size_t word_count, uint32_t *data) {
   for (size_t i = 0; i < word_count; ++i) {
-    data_out[i] = abs_mmio_read32(kBase + FLASH_CTRL_RD_FIFO_REG_OFFSET);
+    data[i] = abs_mmio_read32(kBase + FLASH_CTRL_RD_FIFO_REG_OFFSET);
   }
 }
 
@@ -125,7 +129,7 @@ static void fifo_read(size_t word_count, uint32_t *data_out) {
  * @param word_count Number of words to write to the FIFO.
  * @param data Input buffer.
  */
-static void fifo_write(const uint32_t *data, size_t word_count) {
+static void fifo_write(size_t word_count, const uint32_t *data) {
   for (size_t i = 0; i < word_count; ++i) {
     abs_mmio_write32(kBase + FLASH_CTRL_PROG_FIFO_REG_OFFSET, data[i]);
   }
@@ -134,9 +138,10 @@ static void fifo_write(const uint32_t *data, size_t word_count) {
 /**
  * Blocks until the current flash transaction is complete.
  *
+ * @param error Error code to return in case of a flash controller error.
  * @return The result of the operation.
  */
-static rom_error_t wait_for_done(void) {
+static rom_error_t wait_for_done(rom_error_t error) {
   uint32_t op_status;
   do {
     op_status = abs_mmio_read32(kBase + FLASH_CTRL_OP_STATUS_REG_OFFSET);
@@ -144,9 +149,72 @@ static rom_error_t wait_for_done(void) {
   abs_mmio_write32(kBase + FLASH_CTRL_OP_STATUS_REG_OFFSET, 0u);
 
   if (bitfield_bit32_read(op_status, FLASH_CTRL_OP_STATUS_ERR_BIT)) {
-    return kErrorFlashCtrlInternal;
+    return error;
   }
   return kErrorOk;
+}
+
+/**
+ * Writes data to the given partition.
+ *
+ * @param addr Full byte address to write to.
+ * @param partition The partition to write to.
+ * @param word_count Number of bus words to write.
+ * @param data Data to write.
+ * @param error Error code to return in case of a flash controller error.
+ * @return Result of the operation.
+ */
+static rom_error_t write(uint32_t addr, flash_ctrl_partition_t partition,
+                         uint32_t word_count, const uint32_t *data,
+                         rom_error_t error) {
+  enum {
+    kWindowWordCount =
+        FLASH_CTRL_PARAM_REG_BUS_PGM_RES_BYTES / sizeof(uint32_t),
+  };
+
+  // Find the number of words that can be written in the first window.
+  uint32_t window_word_count =
+      kWindowWordCount - ((addr / sizeof(uint32_t)) % kWindowWordCount);
+  while (word_count > 0) {
+    // Program operations can't cross window boundaries.
+    window_word_count =
+        word_count < window_word_count ? word_count : window_word_count;
+
+    RETURN_IF_ERROR(transaction_start((transaction_params_t){
+        .addr = addr,
+        .op_type = FLASH_CTRL_CONTROL_OP_VALUE_PROG,
+        .partition = partition,
+        .word_count = window_word_count,
+        // Does not apply to program transactions.
+        .erase_type = kFlashCtrlEraseTypePage,
+    }));
+
+    fifo_write(window_word_count, data);
+    RETURN_IF_ERROR(wait_for_done(error));
+
+    addr += window_word_count * sizeof(uint32_t);
+    data += window_word_count;
+    word_count -= window_word_count;
+    window_word_count = kWindowWordCount;
+  }
+
+  return kErrorOk;
+}
+
+/**
+ * Returns the base address of an information page.
+ *
+ * @param info_page An information page.
+ * @return Base address of the given page.
+ */
+static uint32_t info_page_addr(flash_ctrl_info_page_t info_page) {
+  const uint32_t bank_index =
+      bitfield_bit32_read(info_page, FLASH_CTRL_INFO_PAGE_BIT_BANK);
+  const uint32_t page_index =
+      bitfield_field32_read(info_page, FLASH_CTRL_INFO_PAGE_FIELD_INDEX);
+  return TOP_EARLGREY_FLASH_CTRL_MEM_BASE_ADDR +
+         bank_index * FLASH_CTRL_PARAM_BYTES_PER_BANK +
+         page_index * FLASH_CTRL_PARAM_BYTES_PER_PAGE;
 }
 
 void flash_ctrl_init(void) {
@@ -172,8 +240,26 @@ void flash_ctrl_status_get(flash_ctrl_status_t *status) {
       bitfield_bit32_read(fc_status, FLASH_CTRL_STATUS_INIT_WIP_BIT);
 }
 
-rom_error_t flash_ctrl_read(uint32_t addr, uint32_t word_count,
-                            flash_ctrl_partition_t partition, uint32_t *data) {
+rom_error_t flash_ctrl_data_read(uint32_t addr, uint32_t word_count,
+                                 uint32_t *data) {
+  RETURN_IF_ERROR(transaction_start((transaction_params_t){
+      .addr = addr,
+      .op_type = FLASH_CTRL_CONTROL_OP_VALUE_READ,
+      .partition = kFlashCtrlPartitionData,
+      .word_count = word_count,
+      // Does not apply to read transactions.
+      .erase_type = kFlashCtrlEraseTypePage,
+  }));
+  fifo_read(word_count, data);
+  return wait_for_done(kErrorFlashCtrlDataRead);
+}
+
+rom_error_t flash_ctrl_info_read(flash_ctrl_info_page_t info_page,
+                                 uint32_t offset, uint32_t word_count,
+                                 uint32_t *data) {
+  const uint32_t addr = info_page_addr(info_page) + offset;
+  const flash_ctrl_partition_t partition =
+      bitfield_field32_read(info_page, FLASH_CTRL_INFO_PAGE_FIELD_PARTITION);
   RETURN_IF_ERROR(transaction_start((transaction_params_t){
       .addr = addr,
       .op_type = FLASH_CTRL_CONTROL_OP_VALUE_READ,
@@ -183,48 +269,42 @@ rom_error_t flash_ctrl_read(uint32_t addr, uint32_t word_count,
       .erase_type = kFlashCtrlEraseTypePage,
   }));
   fifo_read(word_count, data);
-  return wait_for_done();
+  return wait_for_done(kErrorFlashCtrlInfoRead);
 }
 
-rom_error_t flash_ctrl_prog(uint32_t addr, uint32_t word_count,
-                            flash_ctrl_partition_t partition,
-                            const uint32_t *data) {
-  enum {
-    kWindowWordCount =
-        FLASH_CTRL_PARAM_REG_BUS_PGM_RES_BYTES / sizeof(uint32_t),
-  };
-
-  // Find the number of words that can be written in the first window.
-  uint32_t window_word_count =
-      kWindowWordCount - ((addr / sizeof(uint32_t)) % kWindowWordCount);
-  while (word_count > 0) {
-    // Program operations can't cross window boundaries.
-    window_word_count =
-        word_count < window_word_count ? word_count : window_word_count;
-
-    RETURN_IF_ERROR(transaction_start((transaction_params_t){
-        .addr = addr,
-        .op_type = FLASH_CTRL_CONTROL_OP_VALUE_PROG,
-        .partition = partition,
-        .word_count = window_word_count,
-        // Does not apply to program transactions.
-        .erase_type = kFlashCtrlEraseTypePage,
-    }));
-
-    fifo_write(data, window_word_count);
-    RETURN_IF_ERROR(wait_for_done());
-
-    addr += window_word_count * sizeof(uint32_t);
-    data += window_word_count;
-    word_count -= window_word_count;
-    window_word_count = kWindowWordCount;
-  }
-
-  return kErrorOk;
+rom_error_t flash_ctrl_data_write(uint32_t addr, uint32_t word_count,
+                                  const uint32_t *data) {
+  return write(addr, kFlashCtrlPartitionData, word_count, data,
+               kErrorFlashCtrlDataWrite);
 }
 
-rom_error_t flash_ctrl_erase(uint32_t addr, flash_ctrl_partition_t partition,
-                             flash_ctrl_erase_type_t erase_type) {
+rom_error_t flash_ctrl_info_write(flash_ctrl_info_page_t info_page,
+                                  uint32_t offset, uint32_t word_count,
+                                  const uint32_t *data) {
+  const uint32_t addr = info_page_addr(info_page) + offset;
+  const flash_ctrl_partition_t partition =
+      bitfield_field32_read(info_page, FLASH_CTRL_INFO_PAGE_FIELD_PARTITION);
+  return write(addr, partition, word_count, data, kErrorFlashCtrlInfoWrite);
+}
+
+rom_error_t flash_ctrl_data_erase(uint32_t addr,
+                                  flash_ctrl_erase_type_t erase_type) {
+  RETURN_IF_ERROR(transaction_start((transaction_params_t){
+      .addr = addr,
+      .op_type = FLASH_CTRL_CONTROL_OP_VALUE_ERASE,
+      .erase_type = erase_type,
+      .partition = kFlashCtrlPartitionData,
+      // Does not apply to erase transactions.
+      .word_count = 1,
+  }));
+  return wait_for_done(kErrorFlashCtrlDataErase);
+}
+
+rom_error_t flash_ctrl_info_erase(flash_ctrl_info_page_t info_page,
+                                  flash_ctrl_erase_type_t erase_type) {
+  const uint32_t addr = info_page_addr(info_page);
+  const flash_ctrl_partition_t partition =
+      bitfield_field32_read(info_page, FLASH_CTRL_INFO_PAGE_FIELD_PARTITION);
   RETURN_IF_ERROR(transaction_start((transaction_params_t){
       .addr = addr,
       .op_type = FLASH_CTRL_CONTROL_OP_VALUE_ERASE,
@@ -233,8 +313,7 @@ rom_error_t flash_ctrl_erase(uint32_t addr, flash_ctrl_partition_t partition,
       // Does not apply to erase transactions.
       .word_count = 1,
   }));
-
-  return wait_for_done();
+  return wait_for_done(kErrorFlashCtrlInfoErase);
 }
 
 void flash_ctrl_exec_set(flash_ctrl_exec_t enable) {
