@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8680"
-version_tuple = (0, 0, 8680)
+version_str = "0.0.post8685"
+version_tuple = (0, 0, 8685)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8680")
+    pversion = V("0.0.post8685")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8568"
-data_version_tuple = (0, 0, 8568)
+data_version_str = "0.0.post8573"
+data_version_tuple = (0, 0, 8573)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8568")
+    pdata_version = V("0.0.post8573")
 except ImportError:
     pass
-data_git_hash = "44caf3b591ce164fad50dea6f22f769f65c399ca"
-data_git_describe = "v0.0-8568-g44caf3b59"
+data_git_hash = "0c9b95ebdd57e1424346a1c8d70b416dba7015e9"
+data_git_describe = "v0.0-8573-g0c9b95ebd"
 data_git_msg = """\
-commit 44caf3b591ce164fad50dea6f22f769f65c399ca
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Nov 8 17:57:20 2021 -0500
+commit 0c9b95ebdd57e1424346a1c8d70b416dba7015e9
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Nov 10 15:57:11 2021 +0000
 
-    [sw/silicon_creator] Remove is_busy() from flash_ctrl driver
+    [prim] Add missing include to prim_xilinx_pad_wrapper
     
-    Since all operations are blocking, we don't need to check if the flash
-    controller is busy before starting a new operation.
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
