@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8675"
-version_tuple = (0, 0, 8675)
+version_str = "0.0.post8676"
+version_tuple = (0, 0, 8676)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8675")
+    pversion = V("0.0.post8676")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8563"
-data_version_tuple = (0, 0, 8563)
+data_version_str = "0.0.post8564"
+data_version_tuple = (0, 0, 8564)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8563")
+    pdata_version = V("0.0.post8564")
 except ImportError:
     pass
-data_git_hash = "69cb0a249e40399c89dabdd8c44db77612ec63f5"
-data_git_describe = "v0.0-8563-g69cb0a249"
+data_git_hash = "8630bcbbb59325eea9a52e364ac1dfdce7804758"
+data_git_describe = "v0.0-8564-g8630bcbbb"
 data_git_msg = """\
-commit 69cb0a249e40399c89dabdd8c44db77612ec63f5
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Nov 10 00:08:44 2021 -0800
+commit 8630bcbbb59325eea9a52e364ac1dfdce7804758
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Nov 10 13:24:16 2021 +0000
 
-    [keymgr/dv] Fix shadow_reg_update_error_with_csr_rw
+    [doc] Add OTBN style guide.
     
-    Don't do operation in shadow_reg_errors_with_csr_rw, as the
-    csr_rw_seq runs in parallel and issueing an operation affects CSR access.
+    Fixes #3314
+    Fixes #3607
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Adds a starting point for an OTBN-specific assembly style guide based on
+    existing OTBN code and discussions on previous issues.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
