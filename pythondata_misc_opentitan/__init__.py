@@ -4,39 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8686"
-version_tuple = (0, 0, 8686)
+version_str = "0.0.post8687"
+version_tuple = (0, 0, 8687)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8686")
+    pversion = V("0.0.post8687")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8574"
-data_version_tuple = (0, 0, 8574)
+data_version_str = "0.0.post8575"
+data_version_tuple = (0, 0, 8575)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8574")
+    pdata_version = V("0.0.post8575")
 except ImportError:
     pass
-data_git_hash = "c4f342b9349ba033a5f22fba9349999299a1b2bf"
-data_git_describe = "v0.0-8574-gc4f342b93"
+data_git_hash = "7ac1efb06d902d95595317c9ca68d8a80c6531dd"
+data_git_describe = "v0.0-8575-g7ac1efb06"
 data_git_msg = """\
-commit c4f342b9349ba033a5f22fba9349999299a1b2bf
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 9 16:54:16 2021 -0800
+commit 7ac1efb06d902d95595317c9ca68d8a80c6531dd
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Sep 22 16:08:28 2021 +0000
 
-    [top] Move spi_host* in memory map
+    [bazel] Rules for hello_world binary for riscv
     
-    - Fixes #8748
-    - This reduces the amount of asynchronous latency when accessing
-      the spi_host modules.
-    - Note, ideally there should be another xbar that is "hi_speed" xbar,
-      but that is overkill for only 2 peripherals.  Just tack it onto the
-      main xbar.
+    fixes to enable stricter builds:
+    * ibex.h uses stdint, and should include it
+    * ISO C does not allow extra semicolons
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    use .bazelrc to keep bazel from running in a legacy mode
+    add -std=c11 option for c compilation
+    
+    add and modify rules for bazel to build hello-world binary
+    and it's dependencies
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
