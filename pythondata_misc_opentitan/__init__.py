@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8685"
-version_tuple = (0, 0, 8685)
+version_str = "0.0.post8686"
+version_tuple = (0, 0, 8686)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8685")
+    pversion = V("0.0.post8686")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8573"
-data_version_tuple = (0, 0, 8573)
+data_version_str = "0.0.post8574"
+data_version_tuple = (0, 0, 8574)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8573")
+    pdata_version = V("0.0.post8574")
 except ImportError:
     pass
-data_git_hash = "0c9b95ebdd57e1424346a1c8d70b416dba7015e9"
-data_git_describe = "v0.0-8573-g0c9b95ebd"
+data_git_hash = "c4f342b9349ba033a5f22fba9349999299a1b2bf"
+data_git_describe = "v0.0-8574-gc4f342b93"
 data_git_msg = """\
-commit 0c9b95ebdd57e1424346a1c8d70b416dba7015e9
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Nov 10 15:57:11 2021 +0000
+commit c4f342b9349ba033a5f22fba9349999299a1b2bf
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 9 16:54:16 2021 -0800
 
-    [prim] Add missing include to prim_xilinx_pad_wrapper
+    [top] Move spi_host* in memory map
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    - Fixes #8748
+    - This reduces the amount of asynchronous latency when accessing
+      the spi_host modules.
+    - Note, ideally there should be another xbar that is "hi_speed" xbar,
+      but that is overkill for only 2 peripherals.  Just tack it onto the
+      main xbar.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
