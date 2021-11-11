@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8676"
-version_tuple = (0, 0, 8676)
+version_str = "0.0.post8677"
+version_tuple = (0, 0, 8677)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8676")
+    pversion = V("0.0.post8677")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8564"
-data_version_tuple = (0, 0, 8564)
+data_version_str = "0.0.post8565"
+data_version_tuple = (0, 0, 8565)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8564")
+    pdata_version = V("0.0.post8565")
 except ImportError:
     pass
-data_git_hash = "8630bcbbb59325eea9a52e364ac1dfdce7804758"
-data_git_describe = "v0.0-8564-g8630bcbbb"
+data_git_hash = "3653c65fa582c2104d2bf7295e6637a37b96b432"
+data_git_describe = "v0.0-8565-g3653c65fa"
 data_git_msg = """\
-commit 8630bcbbb59325eea9a52e364ac1dfdce7804758
+commit 3653c65fa582c2104d2bf7295e6637a37b96b432
 Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Nov 10 13:24:16 2021 +0000
+Date:   Tue Nov 9 11:46:05 2021 +0000
 
-    [doc] Add OTBN style guide.
+    [sw/crypto] Clarify bounds assumptions for Montgomery R^2.
     
-    Fixes #3314
-    Fixes #3607
+    The Ibex implementation, on closer inspection, doesn't actually require
+    R / 2 < M, so the comment is rephrased to not state that it does. The
+    OTBN implementation is greatly simplified by the assumption that R / 2
+    < M, so it is modified to assume so and justify the assumption by citing
+    FIPS.
     
-    Adds a starting point for an OTBN-specific assembly style guide based on
-    existing OTBN code and discussions on previous issues.
+    This commit also includes a minor adjustment to the R^2 loop, making it
+    a loop instead of a loopi so as not to consume the loop stack
+    unnecessarily.
     
     Signed-off-by: Jade Philipoom <jadep@google.com>
 
