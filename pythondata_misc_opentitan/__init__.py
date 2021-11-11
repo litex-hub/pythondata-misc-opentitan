@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8670"
-version_tuple = (0, 0, 8670)
+version_str = "0.0.post8673"
+version_tuple = (0, 0, 8673)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8670")
+    pversion = V("0.0.post8673")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8558"
-data_version_tuple = (0, 0, 8558)
+data_version_str = "0.0.post8561"
+data_version_tuple = (0, 0, 8561)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8558")
+    pdata_version = V("0.0.post8561")
 except ImportError:
     pass
-data_git_hash = "23f6f5da78fcab7cd7e3c9111fd43ae661916931"
-data_git_describe = "v0.0-8558-g23f6f5da7"
+data_git_hash = "928a45f94807a9ccdc3fe01a08e7cc808ff1e2e5"
+data_git_describe = "v0.0-8561-g928a45f94"
 data_git_msg = """\
-commit 23f6f5da78fcab7cd7e3c9111fd43ae661916931
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Nov 9 13:51:47 2021 -0800
+commit 928a45f94807a9ccdc3fe01a08e7cc808ff1e2e5
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Nov 8 14:32:13 2021 -0500
 
-    [prim] Remove extra semicolon
+    [sw/silicon_creator] Add individual error codes for data and info read, write, and erase operations
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
