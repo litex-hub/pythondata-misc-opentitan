@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8678"
-version_tuple = (0, 0, 8678)
+version_str = "0.0.post8680"
+version_tuple = (0, 0, 8680)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8678")
+    pversion = V("0.0.post8680")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8566"
-data_version_tuple = (0, 0, 8566)
+data_version_str = "0.0.post8568"
+data_version_tuple = (0, 0, 8568)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8566")
+    pdata_version = V("0.0.post8568")
 except ImportError:
     pass
-data_git_hash = "4a807ec827b0e8c6c8a931ae596602485750361f"
-data_git_describe = "v0.0-8566-g4a807ec82"
+data_git_hash = "44caf3b591ce164fad50dea6f22f769f65c399ca"
+data_git_describe = "v0.0-8568-g44caf3b59"
 data_git_msg = """\
-commit 4a807ec827b0e8c6c8a931ae596602485750361f
-Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Nov 11 10:20:03 2021 +0000
+commit 44caf3b591ce164fad50dea6f22f769f65c399ca
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Nov 8 17:57:20 2021 -0500
 
-    [sw/silicon_creator] Minor fixups for mask ROM OTBN driver.
+    [sw/silicon_creator] Remove is_busy() from flash_ctrl driver
     
-    Follow-up to #8966
+    Since all operations are blocking, we don't need to check if the flash
+    controller is busy before starting a new operation.
     
-    Adjusts the return type and comment for `otbn_execute()` to reflect that
-    it no longer has any path to return errors. Also fix the error code for
-    OTBN internal errors.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
