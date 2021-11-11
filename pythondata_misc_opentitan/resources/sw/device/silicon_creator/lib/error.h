@@ -98,7 +98,6 @@ enum module_ {
   X(kErrorFlashCtrlInfoWrite,         ERROR_(4, kModuleFlashCtrl, kInternal)), \
   X(kErrorFlashCtrlDataErase,         ERROR_(5, kModuleFlashCtrl, kInternal)), \
   X(kErrorFlashCtrlInfoErase,         ERROR_(6, kModuleFlashCtrl, kInternal)), \
-  X(kErrorFlashCtrlBusy,              ERROR_(7, kModuleFlashCtrl, kUnavailable)), \
   X(kErrorSecMmioRegFileSize,         ERROR_(0, kModuleSecMmio, kResourceExhausted)), \
   X(kErrorSecMmioReadFault,           ERROR_(1, kModuleSecMmio, kInternal)), \
   X(kErrorSecMmioWriteFault,          ERROR_(2, kModuleSecMmio, kInternal)), \
@@ -119,7 +118,7 @@ enum module_ {
   X(kErrorBootstrapUnknown,           ERROR_(7, kModuleBootstrap, kInternal)), \
   X(kErrorLogBadFormatSpecifier,      ERROR_(1, kModuleLog, kInternal)), \
   X(kErrorBootDataNotFound,           ERROR_(1, kModuleBootData, kInternal)), \
-  X(kErrorBootDataFlash,              ERROR_(2, kModuleBootData, kInternal)), \
+  X(kErrorBootDataWriteCheck,         ERROR_(2, kModuleBootData, kInternal)), \
   X(kErrorUnknown, 0xFFFFFFFF)
 // clang-format on
 
