@@ -4,40 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8677"
-version_tuple = (0, 0, 8677)
+version_str = "0.0.post8678"
+version_tuple = (0, 0, 8678)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8677")
+    pversion = V("0.0.post8678")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8565"
-data_version_tuple = (0, 0, 8565)
+data_version_str = "0.0.post8566"
+data_version_tuple = (0, 0, 8566)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8565")
+    pdata_version = V("0.0.post8566")
 except ImportError:
     pass
-data_git_hash = "3653c65fa582c2104d2bf7295e6637a37b96b432"
-data_git_describe = "v0.0-8565-g3653c65fa"
+data_git_hash = "4a807ec827b0e8c6c8a931ae596602485750361f"
+data_git_describe = "v0.0-8566-g4a807ec82"
 data_git_msg = """\
-commit 3653c65fa582c2104d2bf7295e6637a37b96b432
+commit 4a807ec827b0e8c6c8a931ae596602485750361f
 Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Nov 9 11:46:05 2021 +0000
+Date:   Thu Nov 11 10:20:03 2021 +0000
 
-    [sw/crypto] Clarify bounds assumptions for Montgomery R^2.
+    [sw/silicon_creator] Minor fixups for mask ROM OTBN driver.
     
-    The Ibex implementation, on closer inspection, doesn't actually require
-    R / 2 < M, so the comment is rephrased to not state that it does. The
-    OTBN implementation is greatly simplified by the assumption that R / 2
-    < M, so it is modified to assume so and justify the assumption by citing
-    FIPS.
+    Follow-up to #8966
     
-    This commit also includes a minor adjustment to the R^2 loop, making it
-    a loop instead of a loopi so as not to consume the loop stack
-    unnecessarily.
+    Adjusts the return type and comment for `otbn_execute()` to reflect that
+    it no longer has any path to return errors. Also fix the error code for
+    OTBN internal errors.
     
     Signed-off-by: Jade Philipoom <jadep@google.com>
 
