@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8702"
-version_tuple = (0, 0, 8702)
+version_str = "0.0.post8705"
+version_tuple = (0, 0, 8705)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8702")
+    pversion = V("0.0.post8705")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8590"
-data_version_tuple = (0, 0, 8590)
+data_version_str = "0.0.post8593"
+data_version_tuple = (0, 0, 8593)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8590")
+    pdata_version = V("0.0.post8593")
 except ImportError:
     pass
-data_git_hash = "ae2a883831dba118c816455cbc0f2adf3c117fd8"
-data_git_describe = "v0.0-8590-gae2a88383"
+data_git_hash = "1ac30bea3b2502e46137e30794349e5452618bf2"
+data_git_describe = "v0.0-8593-g1ac30bea3"
 data_git_msg = """\
-commit ae2a883831dba118c816455cbc0f2adf3c117fd8
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Nov 10 19:38:05 2021 +0000
+commit 1ac30bea3b2502e46137e30794349e5452618bf2
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Nov 11 16:33:13 2021 -0800
 
-    [dif unittests] fix mixed signedness warning
+    [sw, cleanup, opentitantool] Minor code formatting cleanups
     
-    Two of our unit-tests compare signed ints with unsigned ints and throw a
-    warning when built. This fixes it to silence the error.
+    1. Run `cargo clippy`.  Heed its advice.
+    2. Run `cargo fmt`.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
