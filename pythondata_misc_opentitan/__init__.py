@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8707"
-version_tuple = (0, 0, 8707)
+version_str = "0.0.post8709"
+version_tuple = (0, 0, 8709)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8707")
+    pversion = V("0.0.post8709")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8595"
-data_version_tuple = (0, 0, 8595)
+data_version_str = "0.0.post8597"
+data_version_tuple = (0, 0, 8597)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8595")
+    pdata_version = V("0.0.post8597")
 except ImportError:
     pass
-data_git_hash = "7f2bdc9f34f693e906379a073cf1fe5f5d349729"
-data_git_describe = "v0.0-8595-g7f2bdc9f3"
+data_git_hash = "fe2779ee5413a14815112c1e8ae78378dc07e54b"
+data_git_describe = "v0.0-8597-gfe2779ee5"
 data_git_msg = """\
-commit 7f2bdc9f34f693e906379a073cf1fe5f5d349729
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Sat Nov 6 08:22:24 2021 -0700
+commit fe2779ee5413a14815112c1e8ae78378dc07e54b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Oct 21 17:04:54 2021 +0100
 
-    [entropy_src/rtl] health test counters hardening
+    [rstmgr] Fix width of counter in rstmgr_cnsty_chk
     
-    There are a number of critical health test counters that are to be replaced with a hardened version.
-    Errors detected by the prim_count block will forward to fatal_err without gating.
+    The definition of CntWidth wasn't correct for all values of
+    MaxSyncDelay. In particular, it wouldn't work properly for a
+    MaxSyncDelay of 3 (where representing the next value takes another
+    bit).
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Also, add an explicit cast to avoid a width mismatch warning. Now that
+    we've got the widths right, we could alternatively slice MaxSyncDelay.
+    But this seems slightly safer (and we've just got it wrong once!).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
