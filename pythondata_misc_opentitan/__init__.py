@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8688"
-version_tuple = (0, 0, 8688)
+version_str = "0.0.post8690"
+version_tuple = (0, 0, 8690)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8688")
+    pversion = V("0.0.post8690")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8576"
-data_version_tuple = (0, 0, 8576)
+data_version_str = "0.0.post8578"
+data_version_tuple = (0, 0, 8578)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8576")
+    pdata_version = V("0.0.post8578")
 except ImportError:
     pass
-data_git_hash = "e477810cb99c34d7670230fc5bccb71cfe4ef806"
-data_git_describe = "v0.0-8576-ge477810cb"
+data_git_hash = "198acd66883a3f0811ff8554f61d069367f1efc6"
+data_git_describe = "v0.0-8578-g198acd668"
 data_git_msg = """\
-commit e477810cb99c34d7670230fc5bccb71cfe4ef806
+commit 198acd66883a3f0811ff8554f61d069367f1efc6
 Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Nov 11 10:49:12 2021 -0800
+Date:   Thu Nov 11 14:37:31 2021 -0800
 
-    [flash_ctrl] Address documentation issues
+    [hmac] wipe key instead of xor
     
-    - Fixes #9107
-    - Fixes #9109
-    - Addresses documentation portion of #9108
-    - Addresses documentation portion of #9170
-    - Also update the documentation on interface IOs, as the previous text has become completely out of date when the flash_ctrl / flash_phy were merged into one module.
+    - fixes #8506
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
