@@ -4,39 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8697"
-version_tuple = (0, 0, 8697)
+version_str = "0.0.post8698"
+version_tuple = (0, 0, 8698)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8697")
+    pversion = V("0.0.post8698")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8585"
-data_version_tuple = (0, 0, 8585)
+data_version_str = "0.0.post8586"
+data_version_tuple = (0, 0, 8586)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8585")
+    pdata_version = V("0.0.post8586")
 except ImportError:
     pass
-data_git_hash = "40e87bc3ca98090b9bafd87968995ff414de77f7"
-data_git_describe = "v0.0-8585-g40e87bc3c"
+data_git_hash = "c2775af586fa74121a218d5c68620dcedf1041eb"
+data_git_describe = "v0.0-8586-gc2775af58"
 data_git_msg = """\
-commit 40e87bc3ca98090b9bafd87968995ff414de77f7
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Mon Oct 25 13:07:00 2021 +0100
+commit c2775af586fa74121a218d5c68620dcedf1041eb
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Nov 10 11:25:51 2021 +0000
 
-    [dv] Support Multiple EDN Interfaces in OpenTitan
+    [util] Move some generic parsing code to util
     
-    This commit includes changes in CIP to support multiple EDN IFs with
-    setting NUM_EDN parameter in *env_pkg.sv and num_edn in *env_cfg.sv
-    Also includes changes in:
-    - OTBN testbench to allow connecting two EDN interfaces
-    - In order to support EDN IF changes, DV enviroments of:
-      - AES, Key Manager, KMAC, OTP Controller, Alert Handler
+    This is used in the OTBN code to convert dictionaries parsed from YAML
+    or hjson into proper objects. This patch moves the code to a new
+    util/serialize directory and teaches the OTBN code that was using it
+    how to find the new version.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    The idea is that this might be useful for tightening up parsing in
+    e.g. reggen and topgen and will hopefully also be useful for future
+    tooling.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
