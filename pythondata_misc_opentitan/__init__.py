@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8693"
-version_tuple = (0, 0, 8693)
+version_str = "0.0.post8695"
+version_tuple = (0, 0, 8695)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8693")
+    pversion = V("0.0.post8695")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8581"
-data_version_tuple = (0, 0, 8581)
+data_version_str = "0.0.post8583"
+data_version_tuple = (0, 0, 8583)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8581")
+    pdata_version = V("0.0.post8583")
 except ImportError:
     pass
-data_git_hash = "88563757235dfc552e6a4bd03551d0b5c6156b9c"
-data_git_describe = "v0.0-8581-g885637572"
+data_git_hash = "dd3a05bc5abc9dd2874896f171d12c6eaf1576f3"
+data_git_describe = "v0.0-8583-gdd3a05bc5"
 data_git_msg = """\
-commit 88563757235dfc552e6a4bd03551d0b5c6156b9c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Nov 11 12:11:39 2021 -0800
+commit dd3a05bc5abc9dd2874896f171d12c6eaf1576f3
+Author: Vladimir Rozic <vrozic@lowrisc.org>
+Date:   Thu Nov 11 12:11:46 2021 +0000
 
-    [dv/alert_handler] Fix crashdump with reset
+    [otbn] Updated uRNG in OTBN
     
-    This PR fixes a race condition between crashdump change and reset.
+    Replaced OTBN's LFSR-based PRNG with xoshiro256pp.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
 
 """
 
