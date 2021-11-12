@@ -4,39 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8698"
-version_tuple = (0, 0, 8698)
+version_str = "0.0.post8701"
+version_tuple = (0, 0, 8701)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8698")
+    pversion = V("0.0.post8701")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8586"
-data_version_tuple = (0, 0, 8586)
+data_version_str = "0.0.post8589"
+data_version_tuple = (0, 0, 8589)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8586")
+    pdata_version = V("0.0.post8589")
 except ImportError:
     pass
-data_git_hash = "c2775af586fa74121a218d5c68620dcedf1041eb"
-data_git_describe = "v0.0-8586-gc2775af58"
+data_git_hash = "f7562c70e677380b1970c4d92627963b0fcf9c77"
+data_git_describe = "v0.0-8589-gf7562c70e"
 data_git_msg = """\
-commit c2775af586fa74121a218d5c68620dcedf1041eb
+commit f7562c70e677380b1970c4d92627963b0fcf9c77
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Nov 10 11:25:51 2021 +0000
+Date:   Fri Nov 12 09:57:24 2021 +0000
 
-    [util] Move some generic parsing code to util
-    
-    This is used in the OTBN code to convert dictionaries parsed from YAML
-    or hjson into proper objects. This patch moves the code to a new
-    util/serialize directory and teaches the OTBN code that was using it
-    how to find the new version.
-    
-    The idea is that this might be useful for tightening up parsing in
-    e.g. reggen and topgen and will hopefully also be useful for future
-    tooling.
+    [ipgen] Plumb TemplateParams through correctly
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
