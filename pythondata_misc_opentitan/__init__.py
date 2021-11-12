@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8706"
-version_tuple = (0, 0, 8706)
+version_str = "0.0.post8707"
+version_tuple = (0, 0, 8707)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8706")
+    pversion = V("0.0.post8707")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8594"
-data_version_tuple = (0, 0, 8594)
+data_version_str = "0.0.post8595"
+data_version_tuple = (0, 0, 8595)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8594")
+    pdata_version = V("0.0.post8595")
 except ImportError:
     pass
-data_git_hash = "0310540ed5e4e25c3b695db326027726ff5b434f"
-data_git_describe = "v0.0-8594-g0310540ed"
+data_git_hash = "7f2bdc9f34f693e906379a073cf1fe5f5d349729"
+data_git_describe = "v0.0-8595-g7f2bdc9f3"
 data_git_msg = """\
-commit 0310540ed5e4e25c3b695db326027726ff5b434f
-Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Nov 4 09:50:04 2021 +0000
+commit 7f2bdc9f34f693e906379a073cf1fe5f5d349729
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Sat Nov 6 08:22:24 2021 -0700
 
-    [sw] Add message encoding to RSA-3072 interface.
+    [entropy_src/rtl] health test counters hardening
     
-    This will allow us to implement a more typical verification interface,
-    and easily run test vectors that haven't pre-encoded the message.
+    There are a number of critical health test counters that are to be replaced with a hardened version.
+    Errors detected by the prim_count block will forward to fatal_err without gating.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
