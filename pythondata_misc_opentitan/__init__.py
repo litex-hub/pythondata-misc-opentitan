@@ -4,42 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8687"
-version_tuple = (0, 0, 8687)
+version_str = "0.0.post8688"
+version_tuple = (0, 0, 8688)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8687")
+    pversion = V("0.0.post8688")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8575"
-data_version_tuple = (0, 0, 8575)
+data_version_str = "0.0.post8576"
+data_version_tuple = (0, 0, 8576)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8575")
+    pdata_version = V("0.0.post8576")
 except ImportError:
     pass
-data_git_hash = "7ac1efb06d902d95595317c9ca68d8a80c6531dd"
-data_git_describe = "v0.0-8575-g7ac1efb06"
+data_git_hash = "e477810cb99c34d7670230fc5bccb71cfe4ef806"
+data_git_describe = "v0.0-8576-ge477810cb"
 data_git_msg = """\
-commit 7ac1efb06d902d95595317c9ca68d8a80c6531dd
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Sep 22 16:08:28 2021 +0000
+commit e477810cb99c34d7670230fc5bccb71cfe4ef806
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Nov 11 10:49:12 2021 -0800
 
-    [bazel] Rules for hello_world binary for riscv
+    [flash_ctrl] Address documentation issues
     
-    fixes to enable stricter builds:
-    * ibex.h uses stdint, and should include it
-    * ISO C does not allow extra semicolons
+    - Fixes #9107
+    - Fixes #9109
+    - Addresses documentation portion of #9108
+    - Addresses documentation portion of #9170
+    - Also update the documentation on interface IOs, as the previous text has become completely out of date when the flash_ctrl / flash_phy were merged into one module.
     
-    use .bazelrc to keep bazel from running in a legacy mode
-    add -std=c11 option for c compilation
-    
-    add and modify rules for bazel to build hello-world binary
-    and it's dependencies
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
