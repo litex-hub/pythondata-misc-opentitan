@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8691"
-version_tuple = (0, 0, 8691)
+version_str = "0.0.post8693"
+version_tuple = (0, 0, 8693)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8691")
+    pversion = V("0.0.post8693")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8579"
-data_version_tuple = (0, 0, 8579)
+data_version_str = "0.0.post8581"
+data_version_tuple = (0, 0, 8581)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8579")
+    pdata_version = V("0.0.post8581")
 except ImportError:
     pass
-data_git_hash = "cdcb4e08f78703de0b2f7753040042071772c634"
-data_git_describe = "v0.0-8579-gcdcb4e08f"
+data_git_hash = "88563757235dfc552e6a4bd03551d0b5c6156b9c"
+data_git_describe = "v0.0-8581-g885637572"
 data_git_msg = """\
-commit cdcb4e08f78703de0b2f7753040042071772c634
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Nov 11 10:01:23 2021 -0800
+commit 88563757235dfc552e6a4bd03551d0b5c6156b9c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Nov 11 12:11:39 2021 -0800
 
-    [util] Add missing file
+    [dv/alert_handler] Fix crashdump with reset
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR fixes a race condition between crashdump change and reset.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
