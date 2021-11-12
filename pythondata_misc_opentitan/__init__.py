@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8690"
-version_tuple = (0, 0, 8690)
+version_str = "0.0.post8691"
+version_tuple = (0, 0, 8691)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8690")
+    pversion = V("0.0.post8691")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8578"
-data_version_tuple = (0, 0, 8578)
+data_version_str = "0.0.post8579"
+data_version_tuple = (0, 0, 8579)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8578")
+    pdata_version = V("0.0.post8579")
 except ImportError:
     pass
-data_git_hash = "198acd66883a3f0811ff8554f61d069367f1efc6"
-data_git_describe = "v0.0-8578-g198acd668"
+data_git_hash = "cdcb4e08f78703de0b2f7753040042071772c634"
+data_git_describe = "v0.0-8579-gcdcb4e08f"
 data_git_msg = """\
-commit 198acd66883a3f0811ff8554f61d069367f1efc6
+commit cdcb4e08f78703de0b2f7753040042071772c634
 Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Nov 11 14:37:31 2021 -0800
+Date:   Thu Nov 11 10:01:23 2021 -0800
 
-    [hmac] wipe key instead of xor
-    
-    - fixes #8506
+    [util] Add missing file
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
