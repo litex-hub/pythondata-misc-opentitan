@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8701"
-version_tuple = (0, 0, 8701)
+version_str = "0.0.post8702"
+version_tuple = (0, 0, 8702)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8701")
+    pversion = V("0.0.post8702")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8589"
-data_version_tuple = (0, 0, 8589)
+data_version_str = "0.0.post8590"
+data_version_tuple = (0, 0, 8590)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8589")
+    pdata_version = V("0.0.post8590")
 except ImportError:
     pass
-data_git_hash = "f7562c70e677380b1970c4d92627963b0fcf9c77"
-data_git_describe = "v0.0-8589-gf7562c70e"
+data_git_hash = "ae2a883831dba118c816455cbc0f2adf3c117fd8"
+data_git_describe = "v0.0-8590-gae2a88383"
 data_git_msg = """\
-commit f7562c70e677380b1970c4d92627963b0fcf9c77
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Nov 12 09:57:24 2021 +0000
+commit ae2a883831dba118c816455cbc0f2adf3c117fd8
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Nov 10 19:38:05 2021 +0000
 
-    [ipgen] Plumb TemplateParams through correctly
+    [dif unittests] fix mixed signedness warning
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Two of our unit-tests compare signed ints with unsigned ints and throw a
+    warning when built. This fixes it to silence the error.
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
