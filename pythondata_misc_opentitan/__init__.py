@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8711"
-version_tuple = (0, 0, 8711)
+version_str = "0.0.post8712"
+version_tuple = (0, 0, 8712)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8711")
+    pversion = V("0.0.post8712")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8599"
-data_version_tuple = (0, 0, 8599)
+data_version_str = "0.0.post8600"
+data_version_tuple = (0, 0, 8600)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8599")
+    pdata_version = V("0.0.post8600")
 except ImportError:
     pass
-data_git_hash = "12810ea9f4a1a9cc5b1d0c1b9fce7ef4d8df4bef"
-data_git_describe = "v0.0-8599-g12810ea9f"
+data_git_hash = "4c0e61fd2ee6cbca3fb59e0c542409b53aeac606"
+data_git_describe = "v0.0-8600-g4c0e61fd2"
 data_git_msg = """\
-commit 12810ea9f4a1a9cc5b1d0c1b9fce7ef4d8df4bef
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Nov 11 16:56:37 2021 -0800
+commit 4c0e61fd2ee6cbca3fb59e0c542409b53aeac606
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Nov 11 14:32:53 2021 -0800
 
-    [dv/alert] Fix alert init
+    [util] Add alternate hjson paths for reggen_only modules
     
-    Before alert_init finish, there might be another reset happen.
-    Previous code only handled the monitor part, this PR fixes the driver
-    part as well.
-    This PR also create a separate thread for alert_init from reset_thread.
+    - Fixes #8207
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
