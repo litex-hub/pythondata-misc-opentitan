@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8709"
-version_tuple = (0, 0, 8709)
+version_str = "0.0.post8710"
+version_tuple = (0, 0, 8710)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8709")
+    pversion = V("0.0.post8710")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8597"
-data_version_tuple = (0, 0, 8597)
+data_version_str = "0.0.post8598"
+data_version_tuple = (0, 0, 8598)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8597")
+    pdata_version = V("0.0.post8598")
 except ImportError:
     pass
-data_git_hash = "fe2779ee5413a14815112c1e8ae78378dc07e54b"
-data_git_describe = "v0.0-8597-gfe2779ee5"
+data_git_hash = "1469f93bfd75eaeb35b87c734b2cdd01fa19ac21"
+data_git_describe = "v0.0-8598-g1469f93bf"
 data_git_msg = """\
-commit fe2779ee5413a14815112c1e8ae78378dc07e54b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Oct 21 17:04:54 2021 +0100
+commit 1469f93bfd75eaeb35b87c734b2cdd01fa19ac21
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Nov 11 05:00:21 2021 -0800
 
-    [rstmgr] Fix width of counter in rstmgr_cnsty_chk
+    [entropy_src/rtl] repcnt health tests fail pulses
     
-    The definition of CntWidth wasn't correct for all values of
-    MaxSyncDelay. In particular, it wouldn't work properly for a
-    MaxSyncDelay of 3 (where representing the next value takes another
-    bit).
+    When rep count health tests fails, the signal is on solid.
+    To properly predict counter values, the fail signal needs to be a pulse.
     
-    Also, add an explicit cast to avoid a width mismatch warning. Now that
-    we've got the widths right, we could alternatively slice MaxSyncDelay.
-    But this seems slightly safer (and we've just got it wrong once!).
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
