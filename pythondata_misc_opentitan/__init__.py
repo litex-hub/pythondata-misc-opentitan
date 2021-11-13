@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8710"
-version_tuple = (0, 0, 8710)
+version_str = "0.0.post8711"
+version_tuple = (0, 0, 8711)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8710")
+    pversion = V("0.0.post8711")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8598"
-data_version_tuple = (0, 0, 8598)
+data_version_str = "0.0.post8599"
+data_version_tuple = (0, 0, 8599)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8598")
+    pdata_version = V("0.0.post8599")
 except ImportError:
     pass
-data_git_hash = "1469f93bfd75eaeb35b87c734b2cdd01fa19ac21"
-data_git_describe = "v0.0-8598-g1469f93bf"
+data_git_hash = "12810ea9f4a1a9cc5b1d0c1b9fce7ef4d8df4bef"
+data_git_describe = "v0.0-8599-g12810ea9f"
 data_git_msg = """\
-commit 1469f93bfd75eaeb35b87c734b2cdd01fa19ac21
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Nov 11 05:00:21 2021 -0800
+commit 12810ea9f4a1a9cc5b1d0c1b9fce7ef4d8df4bef
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Nov 11 16:56:37 2021 -0800
 
-    [entropy_src/rtl] repcnt health tests fail pulses
+    [dv/alert] Fix alert init
     
-    When rep count health tests fails, the signal is on solid.
-    To properly predict counter values, the fail signal needs to be a pulse.
+    Before alert_init finish, there might be another reset happen.
+    Previous code only handled the monitor part, this PR fixes the driver
+    part as well.
+    This PR also create a separate thread for alert_init from reset_thread.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
