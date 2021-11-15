@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8714"
-version_tuple = (0, 0, 8714)
+version_str = "0.0.post8716"
+version_tuple = (0, 0, 8716)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8714")
+    pversion = V("0.0.post8716")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8602"
-data_version_tuple = (0, 0, 8602)
+data_version_str = "0.0.post8604"
+data_version_tuple = (0, 0, 8604)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8602")
+    pdata_version = V("0.0.post8604")
 except ImportError:
     pass
-data_git_hash = "855baf0e43b2f8f10602feb3e7ea25debeb742ef"
-data_git_describe = "v0.0-8602-g855baf0e4"
+data_git_hash = "1c5b13c2fb07dbb5956f771443a372c46f6f1ac5"
+data_git_describe = "v0.0-8604-g1c5b13c2f"
 data_git_msg = """\
-commit 855baf0e43b2f8f10602feb3e7ea25debeb742ef
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Nov 12 13:11:56 2021 -0800
+commit 1c5b13c2fb07dbb5956f771443a372c46f6f1ac5
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Nov 12 16:39:57 2021 -0800
 
-    [ci] re-enable entropy and pwrmgr smoke tests
+    [dv/flash_ctrl] Add shadow_reg tests
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR adds the auto generated shadow reg tests for flash_ctrl.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
