@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8713"
-version_tuple = (0, 0, 8713)
+version_str = "0.0.post8714"
+version_tuple = (0, 0, 8714)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8713")
+    pversion = V("0.0.post8714")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8601"
-data_version_tuple = (0, 0, 8601)
+data_version_str = "0.0.post8602"
+data_version_tuple = (0, 0, 8602)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8601")
+    pdata_version = V("0.0.post8602")
 except ImportError:
     pass
-data_git_hash = "8872015a077af8abc279852f40e0a4f2c1b84c06"
-data_git_describe = "v0.0-8601-g8872015a0"
+data_git_hash = "855baf0e43b2f8f10602feb3e7ea25debeb742ef"
+data_git_describe = "v0.0-8602-g855baf0e4"
 data_git_msg = """\
-commit 8872015a077af8abc279852f40e0a4f2c1b84c06
-Author: Luís Marques <luismarques@lowrisc.org>
-Date:   Sun Nov 14 22:28:36 2021 +0000
+commit 855baf0e43b2f8f10602feb3e7ea25debeb742ef
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Nov 12 13:11:56 2021 -0800
 
-    [sw] Fix inline functions without linking location
+    [ci] re-enable entropy and pwrmgr smoke tests
     
-    When creating builds with optimizations disabled (`-O0`) or with just
-    inlining disabled (e.g. `-fno-inline`) there would be linking errors
-    due to inline functions missing the corresponding extern declaration
-    and thus not having linking locations. This fixes such errors, by
-    adding the missing declarations and library dependencies. It also
-    improves the consistency of those declarations, e.g. by adding the
-    usual explanatory comment where it was missing.
-    
-    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
