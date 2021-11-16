@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8718"
-version_tuple = (0, 0, 8718)
+version_str = "0.0.post8720"
+version_tuple = (0, 0, 8720)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8718")
+    pversion = V("0.0.post8720")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8606"
-data_version_tuple = (0, 0, 8606)
+data_version_str = "0.0.post8608"
+data_version_tuple = (0, 0, 8608)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8606")
+    pdata_version = V("0.0.post8608")
 except ImportError:
     pass
-data_git_hash = "20dc84342da47ab62bcdd0991817e38237823d28"
-data_git_describe = "v0.0-8606-g20dc84342"
+data_git_hash = "4c51f91c905e67c3754d1354f2d2b18dadc95598"
+data_git_describe = "v0.0-8608-g4c51f91c9"
 data_git_msg = """\
-commit 20dc84342da47ab62bcdd0991817e38237823d28
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Nov 15 12:28:34 2021 -0800
+commit 4c51f91c905e67c3754d1354f2d2b18dadc95598
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Nov 15 17:29:57 2021 +0000
 
-    [spi_host/doc] Correct register references
+    [spi_device] Add INTERCEPT_EN CSR
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This commit adds INTERCEPT_EN CSR to SPI_DEVICE.
+    The CSR allows SW to assume the Passthrough SPI selectively. If assumed,
+    the command is processed internally and returned to the host system.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
