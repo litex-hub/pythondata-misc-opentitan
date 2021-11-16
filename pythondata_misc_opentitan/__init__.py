@@ -4,40 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8724"
-version_tuple = (0, 0, 8724)
+version_str = "0.0.post8726"
+version_tuple = (0, 0, 8726)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8724")
+    pversion = V("0.0.post8726")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8612"
-data_version_tuple = (0, 0, 8612)
+data_version_str = "0.0.post8614"
+data_version_tuple = (0, 0, 8614)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8612")
+    pdata_version = V("0.0.post8614")
 except ImportError:
     pass
-data_git_hash = "eca0e5ab490a4d35d71e68967f51fae5e4f1a6f8"
-data_git_describe = "v0.0-8612-geca0e5ab4"
+data_git_hash = "1330f8548ed014a3ef5ff9a051bf11a78c5b520b"
+data_git_describe = "v0.0-8614-g1330f8548"
 data_git_msg = """\
-commit eca0e5ab490a4d35d71e68967f51fae5e4f1a6f8
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 29 10:51:59 2021 +0100
+commit 1330f8548ed014a3ef5ff9a051bf11a78c5b520b
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Wed Nov 10 07:52:20 2021 -0800
 
-    [dv] Slightly generalise run_stress_all_with_rand_reset_vseq
+    [fpga] Update slice to work with 32kB ROM
     
-    This task was originally designed for running stress sequences,
-    selected by plusarg. More recently, we taught it to take an optional
-    sequence argument, which would be used instead of the stress sequence.
+    The 32kB ROM configuration uses 4-bit RAM cells which were previously
+    not supported by the slice scripts. This commit adds the following
+    changes:
     
-    Tidy things up a bit, moving the generic stuff that takes a sequence
-    to a new task (run_seq_with_rand_reset_vseq) and putting the plusargs
-    handling in a wrapper task.
+    * Update the Vivado rom.mmi generation script to support 4bit wide
+      address ranges.
+    * Update the gen_vivado_mem_image.py to support swapping of byte
+      nibbles. This is needed in order to match the expected bit order in
+      the updatemem command.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
