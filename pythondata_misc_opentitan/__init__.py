@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8721"
-version_tuple = (0, 0, 8721)
+version_str = "0.0.post8722"
+version_tuple = (0, 0, 8722)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8721")
+    pversion = V("0.0.post8722")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8609"
-data_version_tuple = (0, 0, 8609)
+data_version_str = "0.0.post8610"
+data_version_tuple = (0, 0, 8610)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8609")
+    pdata_version = V("0.0.post8610")
 except ImportError:
     pass
-data_git_hash = "1c2294a871357e9374a6aa036cfb3e02cd525e4a"
-data_git_describe = "v0.0-8609-g1c2294a87"
+data_git_hash = "3ab2d2557de984053698378b50e753d9f39d015f"
+data_git_describe = "v0.0-8610-g3ab2d2557"
 data_git_msg = """\
-commit 1c2294a871357e9374a6aa036cfb3e02cd525e4a
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Nov 15 15:03:54 2021 -0800
+commit 3ab2d2557de984053698378b50e753d9f39d015f
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Nov 15 16:56:06 2021 +0000
 
-    [ast] Add inline wavejson for waveform images
+    [doc] Update OTBN style guide.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Add some advice on inline data, and update the variable-time example to
+    show good practice with regard to the OTBN loop stack.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
