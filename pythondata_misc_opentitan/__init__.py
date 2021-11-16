@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8726"
-version_tuple = (0, 0, 8726)
+version_str = "0.0.post8732"
+version_tuple = (0, 0, 8732)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8726")
+    pversion = V("0.0.post8732")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8614"
-data_version_tuple = (0, 0, 8614)
+data_version_str = "0.0.post8620"
+data_version_tuple = (0, 0, 8620)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8614")
+    pdata_version = V("0.0.post8620")
 except ImportError:
     pass
-data_git_hash = "1330f8548ed014a3ef5ff9a051bf11a78c5b520b"
-data_git_describe = "v0.0-8614-g1330f8548"
+data_git_hash = "393e28e41487fa9896e6f366a632229a5a1568da"
+data_git_describe = "v0.0-8620-g393e28e41"
 data_git_msg = """\
-commit 1330f8548ed014a3ef5ff9a051bf11a78c5b520b
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Nov 10 07:52:20 2021 -0800
+commit 393e28e41487fa9896e6f366a632229a5a1568da
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Nov 16 16:24:40 2021 +0000
 
-    [fpga] Update slice to work with 32kB ROM
+    [ci] Simplify check-generated.sh; allow it to catch multiple errors
     
-    The 32kB ROM configuration uses 4-bit RAM cells which were previously
-    not supported by the slice scripts. This commit adds the following
-    changes:
-    
-    * Update the Vivado rom.mmi generation script to support 4bit wide
-      address ranges.
-    * Update the gen_vivado_mem_image.py to support swapping of byte
-      nibbles. This is needed in order to match the expected bit order in
-      the updatemem command.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
