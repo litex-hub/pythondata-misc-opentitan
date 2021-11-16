@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8716"
-version_tuple = (0, 0, 8716)
+version_str = "0.0.post8718"
+version_tuple = (0, 0, 8718)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8716")
+    pversion = V("0.0.post8718")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8604"
-data_version_tuple = (0, 0, 8604)
+data_version_str = "0.0.post8606"
+data_version_tuple = (0, 0, 8606)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8604")
+    pdata_version = V("0.0.post8606")
 except ImportError:
     pass
-data_git_hash = "1c5b13c2fb07dbb5956f771443a372c46f6f1ac5"
-data_git_describe = "v0.0-8604-g1c5b13c2f"
+data_git_hash = "20dc84342da47ab62bcdd0991817e38237823d28"
+data_git_describe = "v0.0-8606-g20dc84342"
 data_git_msg = """\
-commit 1c5b13c2fb07dbb5956f771443a372c46f6f1ac5
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Nov 12 16:39:57 2021 -0800
+commit 20dc84342da47ab62bcdd0991817e38237823d28
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Nov 15 12:28:34 2021 -0800
 
-    [dv/flash_ctrl] Add shadow_reg tests
+    [spi_host/doc] Correct register references
     
-    This PR adds the auto generated shadow reg tests for flash_ctrl.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
