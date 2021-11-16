@@ -4,38 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8723"
-version_tuple = (0, 0, 8723)
+version_str = "0.0.post8724"
+version_tuple = (0, 0, 8724)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8723")
+    pversion = V("0.0.post8724")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8611"
-data_version_tuple = (0, 0, 8611)
+data_version_str = "0.0.post8612"
+data_version_tuple = (0, 0, 8612)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8611")
+    pdata_version = V("0.0.post8612")
 except ImportError:
     pass
-data_git_hash = "2238c51f8fe92556213a061d19a8c233fe5c666e"
-data_git_describe = "v0.0-8611-g2238c51f8"
+data_git_hash = "eca0e5ab490a4d35d71e68967f51fae5e4f1a6f8"
+data_git_describe = "v0.0-8612-geca0e5ab4"
 data_git_msg = """\
-commit 2238c51f8fe92556213a061d19a8c233fe5c666e
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Fri Nov 12 17:01:48 2021 +0000
+commit eca0e5ab490a4d35d71e68967f51fae5e4f1a6f8
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Oct 29 10:51:59 2021 +0100
 
-    [sw, tests] Main SRAM exec minor refactor
+    [dv] Slightly generalise run_stress_all_with_rand_reset_vseq
     
-    - Cosmetic changes (kRam..Bytes => kRam..Addr, function comments from
-      `/* text */` => `/** text */`)
-    - Minor bug fix (addresses are inclusive, so the check whether the
-      instruction buffer resides within Main SRAM must include the
-      `kRamStartAddr`)
+    This task was originally designed for running stress sequences,
+    selected by plusarg. More recently, we taught it to take an optional
+    sequence argument, which would be used instead of the stress sequence.
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Tidy things up a bit, moving the generic stuff that takes a sequence
+    to a new task (run_seq_with_rand_reset_vseq) and putting the plusargs
+    handling in a wrapper task.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
