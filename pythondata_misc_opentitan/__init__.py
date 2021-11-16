@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8734"
-version_tuple = (0, 0, 8734)
+version_str = "0.0.post8735"
+version_tuple = (0, 0, 8735)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8734")
+    pversion = V("0.0.post8735")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8622"
-data_version_tuple = (0, 0, 8622)
+data_version_str = "0.0.post8623"
+data_version_tuple = (0, 0, 8623)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8622")
+    pdata_version = V("0.0.post8623")
 except ImportError:
     pass
-data_git_hash = "cb1c9d002eff37909bb870d704246f804d2364c6"
-data_git_describe = "v0.0-8622-gcb1c9d002"
+data_git_hash = "7e5b0deb1c24089adeed5396eca473f60449d45c"
+data_git_describe = "v0.0-8623-g7e5b0deb1"
 data_git_msg = """\
-commit cb1c9d002eff37909bb870d704246f804d2364c6
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Nov 15 17:18:25 2021 -0800
+commit 7e5b0deb1c24089adeed5396eca473f60449d45c
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Nov 16 10:19:32 2021 -0800
 
-    [chip dv] Add support for tiled RAM instances
+    [doc] Minor dev stages cleanup
     
-    - Adds support for attaching multiple mem backdoor util instances for
-    multiply-tiled RAMs in the design.
-    - Number of tiles for main / ret SRAM is a runtime setting that is set
-    to 1 in the open source testbench with a generic model.
-    - Extended class can set it to whatever the correct value is for that
-    environment.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
