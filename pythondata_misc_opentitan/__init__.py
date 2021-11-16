@@ -4,45 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8738"
-version_tuple = (0, 0, 8738)
+version_str = "0.0.post8740"
+version_tuple = (0, 0, 8740)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8738")
+    pversion = V("0.0.post8740")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8626"
-data_version_tuple = (0, 0, 8626)
+data_version_str = "0.0.post8628"
+data_version_tuple = (0, 0, 8628)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8626")
+    pdata_version = V("0.0.post8628")
 except ImportError:
     pass
-data_git_hash = "84291ebf7c2a740ffdd4954de05431facbd63369"
-data_git_describe = "v0.0-8626-g84291ebf7"
+data_git_hash = "c366ef897e9b66e01d166e7f0743173981b9e565"
+data_git_describe = "v0.0-8628-gc366ef897"
 data_git_msg = """\
-commit 84291ebf7c2a740ffdd4954de05431facbd63369
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Sat Nov 13 00:53:30 2021 +0000
+commit c366ef897e9b66e01d166e7f0743173981b9e565
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Oct 25 14:39:48 2021 +0200
 
-    [sw/ottf] Restructure meson build targets for OTTF.
+    [aes/lint] Waive Verilator lint warnings related to split_var
     
-    For testing the OTTF, a single meson build target was constructed with
-    an example test built in. This refactors the build targets to build the
-    OTTF as a library that is linked with tests that are also defined as
-    libraries. This makes building test binaries that use the OTTF similar
-    to those that use the existing test_main.c test framework.
+    Verilator 4.210 - 4.214 erroneously generates some UNOPTFLAT warnings
+    despite split_var. This will most likely be resolved in Verilator 4.215.
     
-    Additionally, two example OTTF tests (one bare-metal and one concurrency)
-    are added to provided examples of how to write on-device tests using the
-    OTTF.
+    See also Verilator/Verilator#3177.
     
-    This partially addresses a larger effort of refactoring the on-device
-    test framework, as described in #8015.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
