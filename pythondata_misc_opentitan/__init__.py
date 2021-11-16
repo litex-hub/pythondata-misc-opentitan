@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8720"
-version_tuple = (0, 0, 8720)
+version_str = "0.0.post8721"
+version_tuple = (0, 0, 8721)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8720")
+    pversion = V("0.0.post8721")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8608"
-data_version_tuple = (0, 0, 8608)
+data_version_str = "0.0.post8609"
+data_version_tuple = (0, 0, 8609)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8608")
+    pdata_version = V("0.0.post8609")
 except ImportError:
     pass
-data_git_hash = "4c51f91c905e67c3754d1354f2d2b18dadc95598"
-data_git_describe = "v0.0-8608-g4c51f91c9"
+data_git_hash = "1c2294a871357e9374a6aa036cfb3e02cd525e4a"
+data_git_describe = "v0.0-8609-g1c2294a87"
 data_git_msg = """\
-commit 4c51f91c905e67c3754d1354f2d2b18dadc95598
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Nov 15 17:29:57 2021 +0000
+commit 1c2294a871357e9374a6aa036cfb3e02cd525e4a
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Nov 15 15:03:54 2021 -0800
 
-    [spi_device] Add INTERCEPT_EN CSR
+    [ast] Add inline wavejson for waveform images
     
-    This commit adds INTERCEPT_EN CSR to SPI_DEVICE.
-    The CSR allows SW to assume the Passthrough SPI selectively. If assumed,
-    the command is processed internally and returned to the host system.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
