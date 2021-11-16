@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8740"
-version_tuple = (0, 0, 8740)
+version_str = "0.0.post8741"
+version_tuple = (0, 0, 8741)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8740")
+    pversion = V("0.0.post8741")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8628"
-data_version_tuple = (0, 0, 8628)
+data_version_str = "0.0.post8629"
+data_version_tuple = (0, 0, 8629)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8628")
+    pdata_version = V("0.0.post8629")
 except ImportError:
     pass
-data_git_hash = "c366ef897e9b66e01d166e7f0743173981b9e565"
-data_git_describe = "v0.0-8628-gc366ef897"
+data_git_hash = "859d51788975ee7c166b17539562803ab4dd375b"
+data_git_describe = "v0.0-8629-g859d51788"
 data_git_msg = """\
-commit c366ef897e9b66e01d166e7f0743173981b9e565
+commit 859d51788975ee7c166b17539562803ab4dd375b
 Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Oct 25 14:39:48 2021 +0200
+Date:   Tue Oct 26 14:27:48 2021 +0200
 
-    [aes/lint] Waive Verilator lint warnings related to split_var
+    [prim] Add option to not clear the packer FIFO upon read
     
-    Verilator 4.210 - 4.214 erroneously generates some UNOPTFLAT warnings
-    despite split_var. This will most likely be resolved in Verilator 4.215.
+    There are cases where leaving around the data just read doesn't hurt but
+    instead outputting a deterministic value after read should be avoided.
+    For example, if the packer FIFO is used to feed pseudo-random data into
+    an LFSR, having the packer output such a deterministic value most of the
+    time is bad as it may simplify an attack trying to load the LFSR with
+    deterministic instead of random values.
     
-    See also Verilator/Verilator#3177.
+    For this reason, this commit adds a new parameter to the packer FIFO
+    primitive to control this behavior on a per-case basis and disables the
+    clearing when used to feed LFSRs or inside prim_edn_req.
     
     Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
