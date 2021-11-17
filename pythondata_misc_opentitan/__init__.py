@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8746"
-version_tuple = (0, 0, 8746)
+version_str = "0.0.post8748"
+version_tuple = (0, 0, 8748)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8746")
+    pversion = V("0.0.post8748")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8634"
-data_version_tuple = (0, 0, 8634)
+data_version_str = "0.0.post8636"
+data_version_tuple = (0, 0, 8636)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8634")
+    pdata_version = V("0.0.post8636")
 except ImportError:
     pass
-data_git_hash = "a601c7a6ca50b8e53800ba89c3f13b17d3271db0"
-data_git_describe = "v0.0-8634-ga601c7a6c"
+data_git_hash = "e7c2907b55cee05315ecb315386350c7bcae30d2"
+data_git_describe = "v0.0-8636-ge7c2907b5"
 data_git_msg = """\
-commit a601c7a6ca50b8e53800ba89c3f13b17d3271db0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Nov 11 09:28:22 2021 -0800
+commit e7c2907b55cee05315ecb315386350c7bcae30d2
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 15 17:01:10 2021 -0800
 
-    [fpv] Fix compile warning regarding types
+    [dv] Update cip to support instr_type better
     
-    The output type of prim_mubi_sync is an array of mubis, so we change the
-    output signal to an array of size 1.
+    1. Fix finish_item calling item.randomize(sth), which invokes
+    post_randomize again
+    2. instr_type is part of a_user. Removed the replicated variable and
+    added set/get_instr_type functions
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
