@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8757"
-version_tuple = (0, 0, 8757)
+version_str = "0.0.post8758"
+version_tuple = (0, 0, 8758)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8757")
+    pversion = V("0.0.post8758")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8645"
-data_version_tuple = (0, 0, 8645)
+data_version_str = "0.0.post8646"
+data_version_tuple = (0, 0, 8646)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8645")
+    pdata_version = V("0.0.post8646")
 except ImportError:
     pass
-data_git_hash = "8bf33eadba36c7b9b469c393f1089a9c701d9317"
-data_git_describe = "v0.0-8645-g8bf33eadb"
+data_git_hash = "050d7b361bfdbf3bf435ccde6f39dede216f3e4f"
+data_git_describe = "v0.0-8646-g050d7b361"
 data_git_msg = """\
-commit 8bf33eadba36c7b9b469c393f1089a9c701d9317
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Nov 16 22:34:31 2021 +0000
+commit 050d7b361bfdbf3bf435ccde6f39dede216f3e4f
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Fri Oct 29 15:13:56 2021 +0100
 
-    [spi_device] Mailbox intercept logic.
+    [dif] Implement function dif_csrng_stop
     
-    Mailbox is processed in readcmd submodule. If the received address falls
-    into the mailbox region, the logic raises the intercept signal to assume
-    the SPI and return data internally regardless of spi Flash or
-    Passthrough mode.
+    Fixes #7837
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
