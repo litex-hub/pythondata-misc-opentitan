@@ -4,36 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8753"
-version_tuple = (0, 0, 8753)
+version_str = "0.0.post8754"
+version_tuple = (0, 0, 8754)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8753")
+    pversion = V("0.0.post8754")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8641"
-data_version_tuple = (0, 0, 8641)
+data_version_str = "0.0.post8642"
+data_version_tuple = (0, 0, 8642)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8641")
+    pdata_version = V("0.0.post8642")
 except ImportError:
     pass
-data_git_hash = "6a2713ba38efc0f0026858aa93076f53a8ab9bbc"
-data_git_describe = "v0.0-8641-g6a2713ba3"
+data_git_hash = "496276004c4215299ac4d03af5516344ce3c5b25"
+data_git_describe = "v0.0-8642-g496276004"
 data_git_msg = """\
-commit 6a2713ba38efc0f0026858aa93076f53a8ab9bbc
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 16 15:06:34 2021 -0800
+commit 496276004c4215299ac4d03af5516344ce3c5b25
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Nov 15 16:58:28 2021 +0000
 
-    [dv/alert] Support LPG in alert_sender/receiver pair
+    [dv] Fix shape calculations for replicated ECC
     
-    This PR supports LPG in prim_alert testbench by randomly issue
-    init_trigger_i in alert_receiver side when alert handshake is on-going.
-    This PR implements part of the TODO in issue #8814.
+    data_width is supposed to be the width of a word in bits, not counting
+    any ECC bits. The computation that was there before wasn't quite
+    right because it didn't allow for the possibility of multiple
+    subwords. We use this structure for OTBN, where we have 256-bit words,
+    split into eight 32-bit subwords where each is protected with the
+    Ecc_39_32 scheme.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Also bump up the maximum bytes per word (we need more!) and add
+    read256() and write256() functions.
+    
+    Finally, fix the instantiations of imem_util and dmem_util in the OTBN
+    testbench (I'd misunderstood what the n_bits argument did).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
