@@ -4,45 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8754"
-version_tuple = (0, 0, 8754)
+version_str = "0.0.post8757"
+version_tuple = (0, 0, 8757)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8754")
+    pversion = V("0.0.post8757")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8642"
-data_version_tuple = (0, 0, 8642)
+data_version_str = "0.0.post8645"
+data_version_tuple = (0, 0, 8645)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8642")
+    pdata_version = V("0.0.post8645")
 except ImportError:
     pass
-data_git_hash = "496276004c4215299ac4d03af5516344ce3c5b25"
-data_git_describe = "v0.0-8642-g496276004"
+data_git_hash = "8bf33eadba36c7b9b469c393f1089a9c701d9317"
+data_git_describe = "v0.0-8645-g8bf33eadb"
 data_git_msg = """\
-commit 496276004c4215299ac4d03af5516344ce3c5b25
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Nov 15 16:58:28 2021 +0000
+commit 8bf33eadba36c7b9b469c393f1089a9c701d9317
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Nov 16 22:34:31 2021 +0000
 
-    [dv] Fix shape calculations for replicated ECC
+    [spi_device] Mailbox intercept logic.
     
-    data_width is supposed to be the width of a word in bits, not counting
-    any ECC bits. The computation that was there before wasn't quite
-    right because it didn't allow for the possibility of multiple
-    subwords. We use this structure for OTBN, where we have 256-bit words,
-    split into eight 32-bit subwords where each is protected with the
-    Ecc_39_32 scheme.
+    Mailbox is processed in readcmd submodule. If the received address falls
+    into the mailbox region, the logic raises the intercept signal to assume
+    the SPI and return data internally regardless of spi Flash or
+    Passthrough mode.
     
-    Also bump up the maximum bytes per word (we need more!) and add
-    read256() and write256() functions.
-    
-    Finally, fix the instantiations of imem_util and dmem_util in the OTBN
-    testbench (I'd misunderstood what the n_bits argument did).
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
