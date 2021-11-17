@@ -4,43 +4,53 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8741"
-version_tuple = (0, 0, 8741)
+version_str = "0.0.post8744"
+version_tuple = (0, 0, 8744)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8741")
+    pversion = V("0.0.post8744")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8629"
-data_version_tuple = (0, 0, 8629)
+data_version_str = "0.0.post8632"
+data_version_tuple = (0, 0, 8632)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8629")
+    pdata_version = V("0.0.post8632")
 except ImportError:
     pass
-data_git_hash = "859d51788975ee7c166b17539562803ab4dd375b"
-data_git_describe = "v0.0-8629-g859d51788"
+data_git_hash = "e10dfaf312614ae9ebcdfb8c79840de4cf45be7e"
+data_git_describe = "v0.0-8632-ge10dfaf31"
 data_git_msg = """\
-commit 859d51788975ee7c166b17539562803ab4dd375b
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Oct 26 14:27:48 2021 +0200
+commit e10dfaf312614ae9ebcdfb8c79840de4cf45be7e
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Nov 9 17:28:56 2021 +0000
 
-    [prim] Add option to not clear the packer FIFO upon read
+    [otbn,dv] Teach otbn_model to pass validity bits to and from the ISS
     
-    There are cases where leaving around the data just read doesn't hurt but
-    instead outputting a deterministic value after read should be avoided.
-    For example, if the packer FIFO is used to feed pseudo-random data into
-    an LFSR, having the packer output such a deterministic value most of the
-    time is bad as it may simplify an attack trying to load the LFSR with
-    deterministic instead of random values.
+    The binary file format has changed and now consists of 5 bytes for
+    each 32-bit word. The first byte is a "validity byte", which should
+    have value 0 (for invalid) or 1 (for valid). The other 4 bytes are a
+    little-endian encoded 32-bit word.
     
-    For this reason, this commit adds a new parameter to the packer FIFO
-    primitive to control this behavior on a per-case basis and disables the
-    clearing when used to feed LFSRs or inside prim_edn_req.
+    The first change in otbn_model is to use Ecc32MemArea's new
+    ReadWithIntegrity method to get the integrity bits as well as the raw
+    data. We then pass this to the ISS in the new format. In the other
+    direction (reading data from the ISS), we have to parse the new format
+    and also need to tweak our correctness check.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Note that there's a temporary hack (with TODO message) here, which
+    will go away once we've implemented integrity bits properly on the ISS
+    side.
+    
+    On the ISS side, the only work is to read and write the new file
+    format (with struct format string "<BI") and fix up the various bits
+    of packing logic. There's a corresponding hack (also with TODO
+    message), reminding us to handle validity bits properly when loading
+    DMEM.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
