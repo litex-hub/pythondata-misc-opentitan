@@ -4,35 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8748"
-version_tuple = (0, 0, 8748)
+version_str = "0.0.post8749"
+version_tuple = (0, 0, 8749)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8748")
+    pversion = V("0.0.post8749")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8636"
-data_version_tuple = (0, 0, 8636)
+data_version_str = "0.0.post8637"
+data_version_tuple = (0, 0, 8637)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8636")
+    pdata_version = V("0.0.post8637")
 except ImportError:
     pass
-data_git_hash = "e7c2907b55cee05315ecb315386350c7bcae30d2"
-data_git_describe = "v0.0-8636-ge7c2907b5"
+data_git_hash = "c2ae2ea26d14b7df8f12edc6c1aa97f1a0797e80"
+data_git_describe = "v0.0-8637-gc2ae2ea26"
 data_git_msg = """\
-commit e7c2907b55cee05315ecb315386350c7bcae30d2
+commit c2ae2ea26d14b7df8f12edc6c1aa97f1a0797e80
 Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 15 17:01:10 2021 -0800
+Date:   Mon Nov 15 17:45:15 2021 -0800
 
-    [dv] Update cip to support instr_type better
+    [sram/dv] update scb and seq for exec test and tl_err test
     
-    1. Fix finish_item calling item.randomize(sth), which invokes
-    post_randomize again
-    2. instr_type is part of a_user. Removed the replicated variable and
-    added set/get_instr_type functions
+    1. simplify seq to randomize mubi and lc_tx variables
+    2. update scb to fix tl_err test
     
     Signed-off-by: Weicai Yang <weicai@google.com>
 
