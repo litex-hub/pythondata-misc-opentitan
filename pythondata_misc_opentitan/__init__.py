@@ -4,35 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8749"
-version_tuple = (0, 0, 8749)
+version_str = "0.0.post8751"
+version_tuple = (0, 0, 8751)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8749")
+    pversion = V("0.0.post8751")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8637"
-data_version_tuple = (0, 0, 8637)
+data_version_str = "0.0.post8639"
+data_version_tuple = (0, 0, 8639)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8637")
+    pdata_version = V("0.0.post8639")
 except ImportError:
     pass
-data_git_hash = "c2ae2ea26d14b7df8f12edc6c1aa97f1a0797e80"
-data_git_describe = "v0.0-8637-gc2ae2ea26"
+data_git_hash = "0beb25531c1bbf75a269608f225c4c4a49b3caf8"
+data_git_describe = "v0.0-8639-g0beb25531"
 data_git_msg = """\
-commit c2ae2ea26d14b7df8f12edc6c1aa97f1a0797e80
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 15 17:45:15 2021 -0800
+commit 0beb25531c1bbf75a269608f225c4c4a49b3caf8
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Nov 16 20:22:35 2021 +0000
 
-    [sram/dv] update scb and seq for exec test and tl_err test
+    [otbn,rtl] Weaken assertion about imem_addr_o
     
-    1. simplify seq to randomize mubi and lc_tx variables
-    2. update scb to fix tl_err test
+    The core can sometimes send X on this signal, but it doesn't matter
+    because imem_req_o is false.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    To see this happen, run:
+    
+        util/dvsim/dvsim.py hw/ip/otbn/dv/uvm/otbn_sim_cfg.hjson \
+            -i otbn_multi_err --fixed-seed 3982135834
+    
+    this is running the "jalr-0" test, which does a
+    
+        jalr x0, x1, 0
+    
+    with an empty callstack. I think the X's in the uninitialised call
+    stack are appearing as the next address to load. Of course, this
+    doesn't matter because we're also spotting the error and squashing the
+    request.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
