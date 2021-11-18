@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8766"
-version_tuple = (0, 0, 8766)
+version_str = "0.0.post8768"
+version_tuple = (0, 0, 8768)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8766")
+    pversion = V("0.0.post8768")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8654"
-data_version_tuple = (0, 0, 8654)
+data_version_str = "0.0.post8656"
+data_version_tuple = (0, 0, 8656)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8654")
+    pdata_version = V("0.0.post8656")
 except ImportError:
     pass
-data_git_hash = "fa484ab1a2ab9a7e9818c96cf01b9929e64cc5fd"
-data_git_describe = "v0.0-8654-gfa484ab1a"
+data_git_hash = "ce3374c2ab0e9c35a48170508c23c2c3403e2147"
+data_git_describe = "v0.0-8656-gce3374c2a"
 data_git_msg = """\
-commit fa484ab1a2ab9a7e9818c96cf01b9929e64cc5fd
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Nov 17 13:27:24 2021 -0800
+commit ce3374c2ab0e9c35a48170508c23c2c3403e2147
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Nov 12 01:54:12 2021 +0000
 
-    [dv/alert_esc_agent] support lpg in alert_esc_agent
+    [sw/ottf] Add malloc failure and stack overflow hooks.
     
-    This PR supports lpg in alert_esc_agent. In alert_handler testbench, if
-    lpg is enabled and alert triggered from the alert sender side,
-    alert_handler testbench needs to ignore the alert.
+    The OTTF uses FreeRTOS to enable running concurrent tasks within a test.
+    When a new task is created, memory for the TCB and stack are allocated
+    using FreeRTOS's malloc implementation. Currently the size of the heap
+    is fixed to 0x800u bytes. This commit adds FreeRTOS hooks that display
+    a useful message to test developers and abort the test when FreeRTOS
+    detects a malloc failure or stack overflow.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
