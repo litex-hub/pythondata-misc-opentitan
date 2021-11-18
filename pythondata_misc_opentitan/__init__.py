@@ -4,34 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8758"
-version_tuple = (0, 0, 8758)
+version_str = "0.0.post8760"
+version_tuple = (0, 0, 8760)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8758")
+    pversion = V("0.0.post8760")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8646"
-data_version_tuple = (0, 0, 8646)
+data_version_str = "0.0.post8648"
+data_version_tuple = (0, 0, 8648)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8646")
+    pdata_version = V("0.0.post8648")
 except ImportError:
     pass
-data_git_hash = "050d7b361bfdbf3bf435ccde6f39dede216f3e4f"
-data_git_describe = "v0.0-8646-g050d7b361"
+data_git_hash = "5aaad4e1c47c92290582d566c76a3d54c6c0fa50"
+data_git_describe = "v0.0-8648-g5aaad4e1c"
 data_git_msg = """\
-commit 050d7b361bfdbf3bf435ccde6f39dede216f3e4f
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Oct 29 15:13:56 2021 +0100
+commit 5aaad4e1c47c92290582d566c76a3d54c6c0fa50
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Nov 16 23:45:28 2021 -0800
 
-    [dif] Implement function dif_csrng_stop
+    [cleanup] Remove mubi4_e and replace it with mubi4_t
     
-    Fixes #7837
-    
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    also do the same for mubi8/16
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
