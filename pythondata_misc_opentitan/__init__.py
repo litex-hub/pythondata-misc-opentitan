@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8763"
-version_tuple = (0, 0, 8763)
+version_str = "0.0.post8766"
+version_tuple = (0, 0, 8766)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8763")
+    pversion = V("0.0.post8766")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8651"
-data_version_tuple = (0, 0, 8651)
+data_version_str = "0.0.post8654"
+data_version_tuple = (0, 0, 8654)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8651")
+    pdata_version = V("0.0.post8654")
 except ImportError:
     pass
-data_git_hash = "0949f76ef5fea1045b8a25326f9d771004829ee8"
-data_git_describe = "v0.0-8651-g0949f76ef"
+data_git_hash = "fa484ab1a2ab9a7e9818c96cf01b9929e64cc5fd"
+data_git_describe = "v0.0-8654-gfa484ab1a"
 data_git_msg = """\
-commit 0949f76ef5fea1045b8a25326f9d771004829ee8
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Nov 17 09:44:32 2021 -0800
+commit fa484ab1a2ab9a7e9818c96cf01b9929e64cc5fd
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Nov 17 13:27:24 2021 -0800
 
-    [dv/rstmgr] Add sw_rst test to the testplan
+    [dv/alert_esc_agent] support lpg in alert_esc_agent
     
-    This test was developed some time ago but was not registered with the
-    testplan.
-    This also fixes randomization of rstmgr_por_stretcher test.
+    This PR supports lpg in alert_esc_agent. In alert_handler testbench, if
+    lpg is enabled and alert triggered from the alert sender side,
+    alert_handler testbench needs to ignore the alert.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
