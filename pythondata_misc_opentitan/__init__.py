@@ -4,47 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8762"
-version_tuple = (0, 0, 8762)
+version_str = "0.0.post8763"
+version_tuple = (0, 0, 8763)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8762")
+    pversion = V("0.0.post8763")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8650"
-data_version_tuple = (0, 0, 8650)
+data_version_str = "0.0.post8651"
+data_version_tuple = (0, 0, 8651)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8650")
+    pdata_version = V("0.0.post8651")
 except ImportError:
     pass
-data_git_hash = "0e0c1a99f5a45584017d42bc8cba0aa376745908"
-data_git_describe = "v0.0-8650-g0e0c1a99f"
+data_git_hash = "0949f76ef5fea1045b8a25326f9d771004829ee8"
+data_git_describe = "v0.0-8651-g0949f76ef"
 data_git_msg = """\
-commit 0e0c1a99f5a45584017d42bc8cba0aa376745908
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Nov 17 22:10:34 2021 +0000
+commit 0949f76ef5fea1045b8a25326f9d771004829ee8
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Nov 17 09:44:32 2021 -0800
 
-    [kmac] Use Empty signal from FIFO
+    [dv/rstmgr] Add sw_rst test to the testplan
     
-    The issue has been discussed in #9202
+    This test was developed some time ago but was not registered with the
+    testplan.
+    This also fixes randomization of rstmgr_por_stretcher test.
     
-    KMAC MsgFIFO sees the FIFO depth to calculate the empty status of SYNC
-    FIFO. When the logic writes data and the receiver acked the read data at
-    the same time and the FIFO has been empty already, the empty status
-    won't be de-asserted as the `depth` wont be increased.
-    
-    The issue is that SW will not get the fifo empty event due to the
-    behavior described above if the receiver logic is faster than the SW.
-    
-    This commit revises the msgfifo logic to see the `rvalid` as an
-    inversion of the empty status. The scenario above will lower the `empty`
-    signal with the fix.
-    
-    Co-Authored-by: Cindy Chen <chencindy@opentitan.org>
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
