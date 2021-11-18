@@ -4,33 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8760"
-version_tuple = (0, 0, 8760)
+version_str = "0.0.post8761"
+version_tuple = (0, 0, 8761)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8760")
+    pversion = V("0.0.post8761")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8648"
-data_version_tuple = (0, 0, 8648)
+data_version_str = "0.0.post8649"
+data_version_tuple = (0, 0, 8649)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8648")
+    pdata_version = V("0.0.post8649")
 except ImportError:
     pass
-data_git_hash = "5aaad4e1c47c92290582d566c76a3d54c6c0fa50"
-data_git_describe = "v0.0-8648-g5aaad4e1c"
+data_git_hash = "085cef5b6b2b7dc2044cb4679623999871d561c3"
+data_git_describe = "v0.0-8649-g085cef5b6"
 data_git_msg = """\
-commit 5aaad4e1c47c92290582d566c76a3d54c6c0fa50
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Nov 16 23:45:28 2021 -0800
+commit 085cef5b6b2b7dc2044cb4679623999871d561c3
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Nov 17 17:24:09 2021 +0000
 
-    [cleanup] Remove mubi4_e and replace it with mubi4_t
+    [prim] Fix prim_packer_fifo when ClearOnRead is false
     
-    also do the same for mubi8/16
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    When we take the first part of an output word, we need to zero the
+    existing contents.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
