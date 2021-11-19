@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8769"
-version_tuple = (0, 0, 8769)
+version_str = "0.0.post8770"
+version_tuple = (0, 0, 8770)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8769")
+    pversion = V("0.0.post8770")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8657"
-data_version_tuple = (0, 0, 8657)
+data_version_str = "0.0.post8658"
+data_version_tuple = (0, 0, 8658)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8657")
+    pdata_version = V("0.0.post8658")
 except ImportError:
     pass
-data_git_hash = "b0cad3827b4fd804372f36aa331e6480f4c830b5"
-data_git_describe = "v0.0-8657-gb0cad3827"
+data_git_hash = "2a78a93ac3226c2ba8343c863023f036eda8f179"
+data_git_describe = "v0.0-8658-g2a78a93ac"
 data_git_msg = """\
-commit b0cad3827b4fd804372f36aa331e6480f4c830b5
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Nov 18 17:39:33 2021 +0000
+commit 2a78a93ac3226c2ba8343c863023f036eda8f179
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Nov 18 15:59:59 2021 -0800
 
-    [spi_device] Add Locality related section in TPM
+    [dv] Fix intg_err test
     
-    This commit revises the SPI_DEVICE TPM spec to explain how
-    TPM_ACCESS_x.activeLocality and received Locality affects the return
-    value of the Return-by-HW registers.
+    This addressed the regression failures in all the intg_err test which is
+    due to the update from #9243
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
