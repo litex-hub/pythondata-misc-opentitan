@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8780"
-version_tuple = (0, 0, 8780)
+version_str = "0.0.post8782"
+version_tuple = (0, 0, 8782)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8780")
+    pversion = V("0.0.post8782")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8668"
-data_version_tuple = (0, 0, 8668)
+data_version_str = "0.0.post8670"
+data_version_tuple = (0, 0, 8670)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8668")
+    pdata_version = V("0.0.post8670")
 except ImportError:
     pass
-data_git_hash = "839dcdc719634e951e372255e5046595d2afa4e2"
-data_git_describe = "v0.0-8668-g839dcdc71"
+data_git_hash = "0913134fcc8b1759bbbb4af569f008e4b3c471d5"
+data_git_describe = "v0.0-8670-g0913134fc"
 data_git_msg = """\
-commit 839dcdc719634e951e372255e5046595d2afa4e2
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Nov 19 09:28:43 2021 -0500
+commit 0913134fcc8b1759bbbb4af569f008e4b3c471d5
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Nov 19 06:25:07 2021 -0800
 
-    [sw/silicon_creator] Minor fixes in sec_mmio_unittest.cc
+    [entropy/rtl] added count pkg to fix lint errors
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    The prim_count package needs to be added to the core file to fix lint errors.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
