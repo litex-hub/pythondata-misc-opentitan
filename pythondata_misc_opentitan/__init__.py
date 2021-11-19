@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8782"
-version_tuple = (0, 0, 8782)
+version_str = "0.0.post8784"
+version_tuple = (0, 0, 8784)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8782")
+    pversion = V("0.0.post8784")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8670"
-data_version_tuple = (0, 0, 8670)
+data_version_str = "0.0.post8672"
+data_version_tuple = (0, 0, 8672)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8670")
+    pdata_version = V("0.0.post8672")
 except ImportError:
     pass
-data_git_hash = "0913134fcc8b1759bbbb4af569f008e4b3c471d5"
-data_git_describe = "v0.0-8670-g0913134fc"
+data_git_hash = "74d7e11098b51183c948a263fa8db6f7c489fe4c"
+data_git_describe = "v0.0-8672-g74d7e1109"
 data_git_msg = """\
-commit 0913134fcc8b1759bbbb4af569f008e4b3c471d5
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Nov 19 06:25:07 2021 -0800
+commit 74d7e11098b51183c948a263fa8db6f7c489fe4c
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Nov 16 18:25:49 2021 +0000
 
-    [entropy/rtl] added count pkg to fix lint errors
+    [sw] Clean up the mtvec loading code
     
-    The prim_count package needs to be added to the core file to fix lint errors.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
