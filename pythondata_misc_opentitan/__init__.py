@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8779"
-version_tuple = (0, 0, 8779)
+version_str = "0.0.post8780"
+version_tuple = (0, 0, 8780)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8779")
+    pversion = V("0.0.post8780")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8667"
-data_version_tuple = (0, 0, 8667)
+data_version_str = "0.0.post8668"
+data_version_tuple = (0, 0, 8668)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8667")
+    pdata_version = V("0.0.post8668")
 except ImportError:
     pass
-data_git_hash = "b1a874a946c157442ab010ae42abdfe5ef6d6ad4"
-data_git_describe = "v0.0-8667-gb1a874a94"
+data_git_hash = "839dcdc719634e951e372255e5046595d2afa4e2"
+data_git_describe = "v0.0-8668-g839dcdc71"
 data_git_msg = """\
-commit b1a874a946c157442ab010ae42abdfe5ef6d6ad4
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Nov 17 15:13:53 2021 +0000
+commit 839dcdc719634e951e372255e5046595d2afa4e2
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Nov 19 09:28:43 2021 -0500
 
-    [sw,crypto] Use Mako template for test vectors.
+    [sw/silicon_creator] Minor fixes in sec_mmio_unittest.cc
     
-    Switch to using a Mako template for generating RSA test vector C header.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
