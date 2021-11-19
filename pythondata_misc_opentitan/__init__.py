@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8771"
-version_tuple = (0, 0, 8771)
+version_str = "0.0.post8774"
+version_tuple = (0, 0, 8774)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8771")
+    pversion = V("0.0.post8774")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8659"
-data_version_tuple = (0, 0, 8659)
+data_version_str = "0.0.post8662"
+data_version_tuple = (0, 0, 8662)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8659")
+    pdata_version = V("0.0.post8662")
 except ImportError:
     pass
-data_git_hash = "eecccf35aa9a8d94bc6acb4ebd876e08bffcdf86"
-data_git_describe = "v0.0-8659-geecccf35a"
+data_git_hash = "06d51db034c5a1792300bba57289c99701a73458"
+data_git_describe = "v0.0-8662-g06d51db03"
 data_git_msg = """\
-commit eecccf35aa9a8d94bc6acb4ebd876e08bffcdf86
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Nov 19 12:01:51 2021 +0000
+commit 06d51db034c5a1792300bba57289c99701a73458
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Nov 18 10:30:31 2021 -0500
 
-    Revert "[kmac] Use Empty signal from FIFO"
+    [sw/silicon_creator] Migrate boot_data_functest to silicon_creator flash_ctrl driver
     
-    This reverts commit 0e0c1a99f5a45584017d42bc8cba0aa376745908.
-    
-    The change appears to have broken the CW310 CI tests
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
