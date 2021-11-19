@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8768"
-version_tuple = (0, 0, 8768)
+version_str = "0.0.post8769"
+version_tuple = (0, 0, 8769)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8768")
+    pversion = V("0.0.post8769")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8656"
-data_version_tuple = (0, 0, 8656)
+data_version_str = "0.0.post8657"
+data_version_tuple = (0, 0, 8657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8656")
+    pdata_version = V("0.0.post8657")
 except ImportError:
     pass
-data_git_hash = "ce3374c2ab0e9c35a48170508c23c2c3403e2147"
-data_git_describe = "v0.0-8656-gce3374c2a"
+data_git_hash = "b0cad3827b4fd804372f36aa331e6480f4c830b5"
+data_git_describe = "v0.0-8657-gb0cad3827"
 data_git_msg = """\
-commit ce3374c2ab0e9c35a48170508c23c2c3403e2147
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Nov 12 01:54:12 2021 +0000
+commit b0cad3827b4fd804372f36aa331e6480f4c830b5
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Nov 18 17:39:33 2021 +0000
 
-    [sw/ottf] Add malloc failure and stack overflow hooks.
+    [spi_device] Add Locality related section in TPM
     
-    The OTTF uses FreeRTOS to enable running concurrent tasks within a test.
-    When a new task is created, memory for the TCB and stack are allocated
-    using FreeRTOS's malloc implementation. Currently the size of the heap
-    is fixed to 0x800u bytes. This commit adds FreeRTOS hooks that display
-    a useful message to test developers and abort the test when FreeRTOS
-    detects a malloc failure or stack overflow.
+    This commit revises the SPI_DEVICE TPM spec to explain how
+    TPM_ACCESS_x.activeLocality and received Locality affects the return
+    value of the Return-by-HW registers.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
