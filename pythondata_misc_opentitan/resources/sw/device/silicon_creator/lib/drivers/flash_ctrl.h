@@ -5,6 +5,7 @@
 #define OPENTITAN_SW_DEVICE_SILICON_CREATOR_LIB_DRIVERS_FLASH_CTRL_H_
 
 #include "sw/device/lib/base/bitfield.h"
+#include "sw/device/lib/base/hardened.h"
 #include "sw/device/lib/base/multibits.h"
 #include "sw/device/silicon_creator/lib/error.h"
 
@@ -99,15 +100,6 @@ typedef enum flash_crtl_partition {
   X(kFlashCtrlInfoPageOwnerReserved1,     INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo0, 7)), \
   X(kFlashCtrlInfoPageOwnerReserved2,     INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo0, 8)), \
   X(kFlashCtrlInfoPageOwnerReserved3,     INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo0, 9)), \
-  /*
-   * Bank 0 information partition type 1 pages.
-   */ \
-  X(kFlashCtrlInfoPageBank0Type1Page0,    INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo1, 0)), \
-  /**
-   * Bank 0 information parititon type 2 pages.
-   */ \
-  X(kFlashCtrlInfoPageBank0Type2Page0,    INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo2, 0)), \
-  X(kFlashCtrlInfoPageBank0Type2Page1,    INFO_PAGE_(kFlashCtrlBank0, kFlashCtrlPartitionInfo2, 1)), \
   /**
    * Bank 1 information partition type 0 pages.
    */ \
@@ -121,15 +113,6 @@ typedef enum flash_crtl_partition {
   X(kFlashCtrlInfoPageBootServices,       INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo0, 7)), \
   X(kFlashCtrlInfoPageOwnerCerificate0,   INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo0, 8)), \
   X(kFlashCtrlInfoPageOwnerCerificate1,   INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo0, 9)), \
-  /*
-   * Bank 1 information partition type 1 pages.
-   */ \
-  X(kFlashCtrlInfoPageBank1Type1Page0,    INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo1, 0)), \
-  /**
-   * Bank 1 information parititon type 2 pages.
-   */ \
-  X(kFlashCtrlInfoPageBank1Type2Page0,    INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo2, 0)), \
-  X(kFlashCtrlInfoPageBank1Type2Page1,    INFO_PAGE_(kFlashCtrlBank1, kFlashCtrlPartitionInfo2, 1)),
 // clang-format on
 
 /**
@@ -300,6 +283,36 @@ rom_error_t flash_ctrl_data_erase(uint32_t addr,
  */
 rom_error_t flash_ctrl_info_erase(flash_ctrl_info_page_t info_page,
                                   flash_ctrl_erase_type_t erase_type);
+
+/**
+ * A struct for specifying access permissions.
+ */
+typedef struct flash_ctrl_mp {
+  /**
+   * Read.
+   */
+  hardened_bool_t read;
+  /**
+   * Write.
+   */
+  hardened_bool_t write;
+  /**
+   * Erase.
+   */
+  hardened_bool_t erase;
+} flash_ctrl_mp_t;
+
+/**
+ * Sets access permissions for an info page.
+ *
+ * A permission is enabled only if the corresponding field in `perms` is
+ * `kHardenedBoolTrue`.
+ *
+ * @param info_page An information page.
+ * @param perms New permissions.
+ */
+void flash_ctrl_info_mp_set(flash_ctrl_info_page_t info_page,
+                            flash_ctrl_mp_t perms);
 
 typedef enum flash_ctrl_exec {
   kFlashCtrlExecDisable = kMultiBitBool4False,
