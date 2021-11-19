@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8774"
-version_tuple = (0, 0, 8774)
+version_str = "0.0.post8779"
+version_tuple = (0, 0, 8779)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8774")
+    pversion = V("0.0.post8779")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8662"
-data_version_tuple = (0, 0, 8662)
+data_version_str = "0.0.post8667"
+data_version_tuple = (0, 0, 8667)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8662")
+    pdata_version = V("0.0.post8667")
 except ImportError:
     pass
-data_git_hash = "06d51db034c5a1792300bba57289c99701a73458"
-data_git_describe = "v0.0-8662-g06d51db03"
+data_git_hash = "b1a874a946c157442ab010ae42abdfe5ef6d6ad4"
+data_git_describe = "v0.0-8667-gb1a874a94"
 data_git_msg = """\
-commit 06d51db034c5a1792300bba57289c99701a73458
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Nov 18 10:30:31 2021 -0500
+commit b1a874a946c157442ab010ae42abdfe5ef6d6ad4
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Nov 17 15:13:53 2021 +0000
 
-    [sw/silicon_creator] Migrate boot_data_functest to silicon_creator flash_ctrl driver
+    [sw,crypto] Use Mako template for test vectors.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Switch to using a Mako template for generating RSA test vector C header.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
