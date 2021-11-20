@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8799"
-version_tuple = (0, 0, 8799)
+version_str = "0.0.post8800"
+version_tuple = (0, 0, 8800)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8799")
+    pversion = V("0.0.post8800")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8687"
-data_version_tuple = (0, 0, 8687)
+data_version_str = "0.0.post8688"
+data_version_tuple = (0, 0, 8688)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8687")
+    pdata_version = V("0.0.post8688")
 except ImportError:
     pass
-data_git_hash = "41fc13b60c68eced9eda18b69b3de53db45a8143"
-data_git_describe = "v0.0-8687-g41fc13b60"
+data_git_hash = "802b8278acc101ed33b1c683ff6cabffea18de95"
+data_git_describe = "v0.0-8688-g802b8278a"
 data_git_msg = """\
-commit 41fc13b60c68eced9eda18b69b3de53db45a8143
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Nov 19 15:53:33 2021 -0800
+commit 802b8278acc101ed33b1c683ff6cabffea18de95
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Nov 19 06:39:47 2021 -0800
 
-    [ci] Fix CI failure
+    [entropy_src/doc] align otp input names
     
-    mubi*_e is removed in one PR while the other PR added a new update which
-    still used it
+    The hjson refers to internal names, not the actual input names related to otp efuses.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
