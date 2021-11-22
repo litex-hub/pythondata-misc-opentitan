@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8804"
-version_tuple = (0, 0, 8804)
+version_str = "0.0.post8805"
+version_tuple = (0, 0, 8805)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8804")
+    pversion = V("0.0.post8805")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8692"
-data_version_tuple = (0, 0, 8692)
+data_version_str = "0.0.post8693"
+data_version_tuple = (0, 0, 8693)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8692")
+    pdata_version = V("0.0.post8693")
 except ImportError:
     pass
-data_git_hash = "fcb74e9fbd286875debe7f6c5a84932120655d80"
-data_git_describe = "v0.0-8692-gfcb74e9fb"
+data_git_hash = "cc80879227cf914cb313599c380916113f812bfa"
+data_git_describe = "v0.0-8693-gcc8087922"
 data_git_msg = """\
-commit fcb74e9fbd286875debe7f6c5a84932120655d80
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Nov 18 15:49:04 2021 +0000
+commit cc80879227cf914cb313599c380916113f812bfa
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Nov 19 13:28:49 2021 +0000
 
-    [otbn,doc] Document what happens if URND LFSR gets stuck
+    [sw/otbn] Move crypto assembly files into new folder.
     
-    As well as adding to the documentation, this adds a new generic
-    "internal state is corrupt" bit to ERR_BITS and FATAL_ALERT_CAUSE and
-    wires everything up in the RTL. This is driven to zero for ERR_BITS in
-    the controller and for FATAL_ALERT_CAUSE in otbn.sv.
+    OTBN crypto assembly files are a bit of a different category than the
+    other small example programs in code-snippets; move these to their own,
+    new folder under sw/otbn/crypto.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
