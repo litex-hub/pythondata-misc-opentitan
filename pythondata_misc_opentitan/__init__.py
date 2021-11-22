@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8806"
-version_tuple = (0, 0, 8806)
+version_str = "0.0.post8813"
+version_tuple = (0, 0, 8813)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8806")
+    pversion = V("0.0.post8813")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8694"
-data_version_tuple = (0, 0, 8694)
+data_version_str = "0.0.post8701"
+data_version_tuple = (0, 0, 8701)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8694")
+    pdata_version = V("0.0.post8701")
 except ImportError:
     pass
-data_git_hash = "d8cc3a18e6bdbe4ffe160bd92e0d750cf6853c61"
-data_git_describe = "v0.0-8694-gd8cc3a18e"
+data_git_hash = "bd51d1852e1da8ee8d3687be196bcb0bd3421b12"
+data_git_describe = "v0.0-8701-gbd51d1852"
 data_git_msg = """\
-commit d8cc3a18e6bdbe4ffe160bd92e0d750cf6853c61
-Author: Eitan Shapira <eitanshapira89@gmail.com>
-Date:   Wed Nov 17 12:02:55 2021 +0200
+commit bd51d1852e1da8ee8d3687be196bcb0bd3421b12
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Nov 19 21:14:43 2021 +0000
 
-    [flash_ctrl/dv] Checking fix of bug #8934 and small addition to seq_cfg
+    [sw/ottf] Fix typos in example OTTF test names.
     
-    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
+    OTTF example test names accidentally had the word "lib" tacked on the
+    end.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
