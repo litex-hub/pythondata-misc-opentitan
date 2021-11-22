@@ -20,15 +20,30 @@ start:
  * RSA encryption
  */
 rsa_encrypt:
+  jal      x1, zero_work_buf
   jal      x1, modload
   jal      x1, modexp_65537
+  jal      x1, cp_work_buf
   ecall
 
 
 /**
+ * Zero the contents of work_buf
+ *
+ * clobbered registers: x3, w0
+ */
+zero_work_buf:
+  la     x3, work_buf
+  bn.xor w0, w0, w0
+  /* The buffer is 512 bytes long, which needs sixteen 256b words. */
+  loopi 16, 1
+    bn.sid x0, 0(x3++)
+  ret
+
+/**
  * Copy the contents of work_buf onto inout
  *
- * clobbered registers: x3, x4
+ * clobbered registers: x3, x4, w0
  */
 cp_work_buf:
   la  x3, work_buf
@@ -80,16 +95,8 @@ dptr_exp:
 dptr_out:
   .word work_buf
 
+/* (End of fixed-layout section) */
 
-/* Freely available DMEM space. */
-
-m0d:
-  /* filled by modload */
-  .zero 512
-
-RR:
-  /* filled by modload */
-  .zero 512
 
 /* Modulus (n) */
 .globl modulus
@@ -101,12 +108,21 @@ modulus:
 exp:
   .zero 512
 
-/* input data */
+/* input/output data */
 .globl inout
 inout:
   .zero 512
 
-/* output data */
-.globl work_buf
+
+.section .scratchpad
+m0d:
+  /* filled by modload */
+  .zero 512
+
+RR:
+  /* filled by modload */
+  .zero 512
+
+/* working data */
 work_buf:
   .zero 512
