@@ -4,40 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8818"
-version_tuple = (0, 0, 8818)
+version_str = "0.0.post8820"
+version_tuple = (0, 0, 8820)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8818")
+    pversion = V("0.0.post8820")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8706"
-data_version_tuple = (0, 0, 8706)
+data_version_str = "0.0.post8708"
+data_version_tuple = (0, 0, 8708)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8706")
+    pdata_version = V("0.0.post8708")
 except ImportError:
     pass
-data_git_hash = "686deb7fd40e73798fd434dbbde05b02840e7c78"
-data_git_describe = "v0.0-8706-g686deb7fd"
+data_git_hash = "4f66423b1910df210908adb23507055f27ec6eae"
+data_git_describe = "v0.0-8708-g4f66423b1"
 data_git_msg = """\
-commit 686deb7fd40e73798fd434dbbde05b02840e7c78
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Nov 22 16:35:37 2021 +0000
+commit 4f66423b1910df210908adb23507055f27ec6eae
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Nov 18 18:03:12 2021 +0000
 
-    [rom_ctrl] Update checklist to match current status
+    [spi_device] Revise Block Diagram
     
-    Everything is done for D2 except the planning/implementation of
-    FI hardening and countermeasures.
+    This commit updates the SPI_DEVICE HWIP block diagram.
     
-    The LINT_PASS item includes a review of lint waivers. There's exactly
-    one such waiver, which silences AscentLint about a signal that's
-    intentionally driven to a constant, one cycle after reset (the world's
-    simplest FSM!)
+    The IP has been updated to support Flash mode, Passthrough mode, and TPM
+    mode. The block diagram hasn't been updated to represent the changes.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
