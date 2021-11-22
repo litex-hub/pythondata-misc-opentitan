@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8801"
-version_tuple = (0, 0, 8801)
+version_str = "0.0.post8804"
+version_tuple = (0, 0, 8804)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8801")
+    pversion = V("0.0.post8804")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8689"
-data_version_tuple = (0, 0, 8689)
+data_version_str = "0.0.post8692"
+data_version_tuple = (0, 0, 8692)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8689")
+    pdata_version = V("0.0.post8692")
 except ImportError:
     pass
-data_git_hash = "485d3e87fbd9389ab9e5e68ec9fe63e84090f6f6"
-data_git_describe = "v0.0-8689-g485d3e87f"
+data_git_hash = "fcb74e9fbd286875debe7f6c5a84932120655d80"
+data_git_describe = "v0.0-8692-gfcb74e9fb"
 data_git_msg = """\
-commit 485d3e87fbd9389ab9e5e68ec9fe63e84090f6f6
-Author: alex sapozhnikov <alex.sapozhnikov@wdc.com>
-Date:   Thu Nov 11 12:15:59 2021 -0800
+commit fcb74e9fbd286875debe7f6c5a84932120655d80
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Nov 18 15:49:04 2021 +0000
 
-    [pattgen/dv]updated pattgen with action items from v1 review
+    [otbn,doc] Document what happens if URND LFSR gets stuck
     
-    Signed-off-by: alex sapozhnikov <alex.sapozhnikov@wdc.com>
+    As well as adding to the documentation, this adds a new generic
+    "internal state is corrupt" bit to ERR_BITS and FATAL_ALERT_CAUSE and
+    wires everything up in the RTL. This is driven to zero for ERR_BITS in
+    the controller and for FATAL_ALERT_CAUSE in otbn.sv.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
