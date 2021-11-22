@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8800"
-version_tuple = (0, 0, 8800)
+version_str = "0.0.post8801"
+version_tuple = (0, 0, 8801)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8800")
+    pversion = V("0.0.post8801")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8688"
-data_version_tuple = (0, 0, 8688)
+data_version_str = "0.0.post8689"
+data_version_tuple = (0, 0, 8689)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8688")
+    pdata_version = V("0.0.post8689")
 except ImportError:
     pass
-data_git_hash = "802b8278acc101ed33b1c683ff6cabffea18de95"
-data_git_describe = "v0.0-8688-g802b8278a"
+data_git_hash = "485d3e87fbd9389ab9e5e68ec9fe63e84090f6f6"
+data_git_describe = "v0.0-8689-g485d3e87f"
 data_git_msg = """\
-commit 802b8278acc101ed33b1c683ff6cabffea18de95
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Nov 19 06:39:47 2021 -0800
+commit 485d3e87fbd9389ab9e5e68ec9fe63e84090f6f6
+Author: alex sapozhnikov <alex.sapozhnikov@wdc.com>
+Date:   Thu Nov 11 12:15:59 2021 -0800
 
-    [entropy_src/doc] align otp input names
+    [pattgen/dv]updated pattgen with action items from v1 review
     
-    The hjson refers to internal names, not the actual input names related to otp efuses.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: alex sapozhnikov <alex.sapozhnikov@wdc.com>
 
 """
 
