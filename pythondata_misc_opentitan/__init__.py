@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8824"
-version_tuple = (0, 0, 8824)
+version_str = "0.0.post8827"
+version_tuple = (0, 0, 8827)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8824")
+    pversion = V("0.0.post8827")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8712"
-data_version_tuple = (0, 0, 8712)
+data_version_str = "0.0.post8715"
+data_version_tuple = (0, 0, 8715)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8712")
+    pdata_version = V("0.0.post8715")
 except ImportError:
     pass
-data_git_hash = "41b2628d1ad68a7c80073e00ddd5889278b38686"
-data_git_describe = "v0.0-8712-g41b2628d1"
+data_git_hash = "9535680488dc26f85db16e033a223437af4bfac2"
+data_git_describe = "v0.0-8715-g953568048"
 data_git_msg = """\
-commit 41b2628d1ad68a7c80073e00ddd5889278b38686
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Nov 11 16:32:51 2021 -0800
+commit 9535680488dc26f85db16e033a223437af4bfac2
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Oct 26 13:12:31 2021 +0100
 
-    [pwrmgr] Make rom_ctrl check signals multi-bit
+    [otbn,rtl] Narrow bus-visible DMEM to 2KiB
     
-    - This fixes #8981 but only addresses the issue on pwrmgr side.
-    - rom_ctrl may be further enhanced.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
