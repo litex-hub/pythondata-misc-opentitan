@@ -4,33 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8830"
-version_tuple = (0, 0, 8830)
+version_str = "0.0.post8832"
+version_tuple = (0, 0, 8832)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8830")
+    pversion = V("0.0.post8832")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8718"
-data_version_tuple = (0, 0, 8718)
+data_version_str = "0.0.post8720"
+data_version_tuple = (0, 0, 8720)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8718")
+    pdata_version = V("0.0.post8720")
 except ImportError:
     pass
-data_git_hash = "f975e54dd1fd411b2eb0bcf9eea473d9c453c264"
-data_git_describe = "v0.0-8718-gf975e54dd"
+data_git_hash = "fbccf8ef6d0c53bca5701e59eb6b5d3283393180"
+data_git_describe = "v0.0-8720-gfbccf8ef6"
 data_git_msg = """\
-commit f975e54dd1fd411b2eb0bcf9eea473d9c453c264
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Nov 18 13:23:37 2021 +0000
+commit fbccf8ef6d0c53bca5701e59eb6b5d3283393180
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Nov 19 00:33:59 2021 +0000
 
-    [sca] Use the function dif_edn_stop on the sca module
+    [spi_device] Connect SPI Flash Upload interrupts
     
-    FIX #5465
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    This commit connects the interrupts in SPI Device Flash mode.
+    
+    - cmdfifo_not_empty: Event occurs when SPI Flash device receives a
+      command byte and the matched command information entry's upload bit is
+      set.
+    - payload_not_empty: If the received command has payload field, the
+      upload module stores the incoming payload into DPSRAM Payload buffer.
+      It then updates the payload size when SPI transaction is completed.
+      The logic reports this event when the payload size is non-zero.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
