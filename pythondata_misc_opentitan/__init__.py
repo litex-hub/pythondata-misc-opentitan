@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8823"
-version_tuple = (0, 0, 8823)
+version_str = "0.0.post8824"
+version_tuple = (0, 0, 8824)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8823")
+    pversion = V("0.0.post8824")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8711"
-data_version_tuple = (0, 0, 8711)
+data_version_str = "0.0.post8712"
+data_version_tuple = (0, 0, 8712)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8711")
+    pdata_version = V("0.0.post8712")
 except ImportError:
     pass
-data_git_hash = "0e46b8a18740f38245b443726be059f4c05b896c"
-data_git_describe = "v0.0-8711-g0e46b8a18"
+data_git_hash = "41b2628d1ad68a7c80073e00ddd5889278b38686"
+data_git_describe = "v0.0-8712-g41b2628d1"
 data_git_msg = """\
-commit 0e46b8a18740f38245b443726be059f4c05b896c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Nov 19 15:20:06 2021 -0800
+commit 41b2628d1ad68a7c80073e00ddd5889278b38686
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Nov 11 16:32:51 2021 -0800
 
-    [dv/alert_handler] Randomize mubi input
+    [pwrmgr] Make rom_ctrl check signals multi-bit
     
-    This PR randomize mubi-related input in alert_handler testbench
-    regarding lpg. To randomize mubi enum type, we also disabled some
-    assertions.
+    - This fixes #8981 but only addresses the issue on pwrmgr side.
+    - rom_ctrl may be further enhanced.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
