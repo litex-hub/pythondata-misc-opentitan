@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8842"
-version_tuple = (0, 0, 8842)
+version_str = "0.0.post8843"
+version_tuple = (0, 0, 8843)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8842")
+    pversion = V("0.0.post8843")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8730"
-data_version_tuple = (0, 0, 8730)
+data_version_str = "0.0.post8731"
+data_version_tuple = (0, 0, 8731)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8730")
+    pdata_version = V("0.0.post8731")
 except ImportError:
     pass
-data_git_hash = "1b1ac41011c16cfe29aef49e47ac3ea22c808e36"
-data_git_describe = "v0.0-8730-g1b1ac4101"
+data_git_hash = "7a4fc2933ca3b54a2942c2b727adcdd415baec79"
+data_git_describe = "v0.0-8731-g7a4fc2933"
 data_git_msg = """\
-commit 1b1ac41011c16cfe29aef49e47ac3ea22c808e36
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Nov 22 17:20:48 2021 -0800
+commit 7a4fc2933ca3b54a2942c2b727adcdd415baec79
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Nov 23 00:58:19 2021 +0000
 
-    [dv/chip_lc_trans] Fix small typos in lc_transition_test
+    [sw/ottf] Rename OTTF exception handlers.
     
-    This PR fixes two small typos:
-    1). The test_exit_token is in secret0 not secret9 partition.
-    2). Avoid extra apply_reset and otp_backdoor_write.
+    This commit adds the suffix `_handler` to each default exception
+    handling function that is invoked by the main OTTF exception handler.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Additionally, this commit makes the main OTTF exection handler a strong
+    symbol, since test developers that use the OTTF should override the
+    appropriate OTTF exception handler function for the functionality they
+    are trying to test.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
