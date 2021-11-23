@@ -4,53 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8833"
-version_tuple = (0, 0, 8833)
+version_str = "0.0.post8834"
+version_tuple = (0, 0, 8834)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8833")
+    pversion = V("0.0.post8834")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8721"
-data_version_tuple = (0, 0, 8721)
+data_version_str = "0.0.post8722"
+data_version_tuple = (0, 0, 8722)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8721")
+    pdata_version = V("0.0.post8722")
 except ImportError:
     pass
-data_git_hash = "201acb720e5d518623f08de532f28d3b8dac552c"
-data_git_describe = "v0.0-8721-g201acb720"
+data_git_hash = "537937aec1255816352bf0f0806068dc9a61cc9d"
+data_git_describe = "v0.0-8722-g537937aec"
 data_git_msg = """\
-commit 201acb720e5d518623f08de532f28d3b8dac552c
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Tue Nov 9 17:01:51 2021 +0000
+commit 537937aec1255816352bf0f0806068dc9a61cc9d
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Mon Nov 22 15:42:23 2021 +0000
 
-    [sw, tests] Refactor sram_ctrl scramble test and test utils
+    [flash_ctrl] Adding Interface at Environment,fix analog inputs
     
-    The main purpose of this change is to make the test util more
-    generic. It also includes some suggestions from the other PRs, such as
-    avoiding dependencies on top_earlgrey in test utils.
-    
-    - Renamed test utils API to match accepted style
-      `sram_ctrl_testutils_<...>`.
-    
-    - Testutils are more generic, they operate on the passed in address
-      instead of top_earlgrey addresses calculated inside the util.
-    
-    - Init functions have been removed from test utils.
-    
-    - Unnecessary data structures have been removed from test utils.
-    
-    - Test has been simplified to only perform a single check at the start
-      of RAM, as opposed to former the start and the end of RAM. If
-      required, we can always add the end of RAM check later.
-    
-    In a nutshell, the test util API was simplified and some of this
-    complexity was moved to the test instead.
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
