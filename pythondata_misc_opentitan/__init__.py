@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8834"
-version_tuple = (0, 0, 8834)
+version_str = "0.0.post8842"
+version_tuple = (0, 0, 8842)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8834")
+    pversion = V("0.0.post8842")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8722"
-data_version_tuple = (0, 0, 8722)
+data_version_str = "0.0.post8730"
+data_version_tuple = (0, 0, 8730)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8722")
+    pdata_version = V("0.0.post8730")
 except ImportError:
     pass
-data_git_hash = "537937aec1255816352bf0f0806068dc9a61cc9d"
-data_git_describe = "v0.0-8722-g537937aec"
+data_git_hash = "1b1ac41011c16cfe29aef49e47ac3ea22c808e36"
+data_git_describe = "v0.0-8730-g1b1ac4101"
 data_git_msg = """\
-commit 537937aec1255816352bf0f0806068dc9a61cc9d
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Mon Nov 22 15:42:23 2021 +0000
+commit 1b1ac41011c16cfe29aef49e47ac3ea22c808e36
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Nov 22 17:20:48 2021 -0800
 
-    [flash_ctrl] Adding Interface at Environment,fix analog inputs
+    [dv/chip_lc_trans] Fix small typos in lc_transition_test
     
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    This PR fixes two small typos:
+    1). The test_exit_token is in secret0 not secret9 partition.
+    2). Avoid extra apply_reset and otp_backdoor_write.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
