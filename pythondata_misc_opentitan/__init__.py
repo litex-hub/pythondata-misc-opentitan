@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8827"
-version_tuple = (0, 0, 8827)
+version_str = "0.0.post8830"
+version_tuple = (0, 0, 8830)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8827")
+    pversion = V("0.0.post8830")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8715"
-data_version_tuple = (0, 0, 8715)
+data_version_str = "0.0.post8718"
+data_version_tuple = (0, 0, 8718)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8715")
+    pdata_version = V("0.0.post8718")
 except ImportError:
     pass
-data_git_hash = "9535680488dc26f85db16e033a223437af4bfac2"
-data_git_describe = "v0.0-8715-g953568048"
+data_git_hash = "f975e54dd1fd411b2eb0bcf9eea473d9c453c264"
+data_git_describe = "v0.0-8718-gf975e54dd"
 data_git_msg = """\
-commit 9535680488dc26f85db16e033a223437af4bfac2
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Oct 26 13:12:31 2021 +0100
+commit f975e54dd1fd411b2eb0bcf9eea473d9c453c264
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Nov 18 13:23:37 2021 +0000
 
-    [otbn,rtl] Narrow bus-visible DMEM to 2KiB
+    [sca] Use the function dif_edn_stop on the sca module
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    FIX #5465
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
