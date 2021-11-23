@@ -4,40 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8843"
-version_tuple = (0, 0, 8843)
+version_str = "0.0.post8846"
+version_tuple = (0, 0, 8846)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8843")
+    pversion = V("0.0.post8846")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8731"
-data_version_tuple = (0, 0, 8731)
+data_version_str = "0.0.post8734"
+data_version_tuple = (0, 0, 8734)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8731")
+    pdata_version = V("0.0.post8734")
 except ImportError:
     pass
-data_git_hash = "7a4fc2933ca3b54a2942c2b727adcdd415baec79"
-data_git_describe = "v0.0-8731-g7a4fc2933"
+data_git_hash = "36030de58ba1c3f7f9afff96de15ff5723003ef7"
+data_git_describe = "v0.0-8734-g36030de58"
 data_git_msg = """\
-commit 7a4fc2933ca3b54a2942c2b727adcdd415baec79
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Nov 23 00:58:19 2021 +0000
+commit 36030de58ba1c3f7f9afff96de15ff5723003ef7
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 23 11:35:05 2021 -0800
 
-    [sw/ottf] Rename OTTF exception handlers.
+    [dv/aon_timer] rever temp fix regression error
     
-    This commit adds the suffix `_handler` to each default exception
-    handling function that is invoked by the main OTTF exception handler.
+    Reverts #6823
     
-    Additionally, this commit makes the main OTTF exection handler a strong
-    symbol, since test developers that use the OTTF should override the
-    appropriate OTTF exception handler function for the functionality they
-    are trying to test.
+    Per Tom's comment on issue #6821, we are going to revert this temp fix and see if we can reproduce the assertion error.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
