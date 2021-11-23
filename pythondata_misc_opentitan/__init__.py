@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8822"
-version_tuple = (0, 0, 8822)
+version_str = "0.0.post8823"
+version_tuple = (0, 0, 8823)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8822")
+    pversion = V("0.0.post8823")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8710"
-data_version_tuple = (0, 0, 8710)
+data_version_str = "0.0.post8711"
+data_version_tuple = (0, 0, 8711)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8710")
+    pdata_version = V("0.0.post8711")
 except ImportError:
     pass
-data_git_hash = "f080eec9b152f08cfd5b7ffb900eb29972de11c5"
-data_git_describe = "v0.0-8710-gf080eec9b"
+data_git_hash = "0e46b8a18740f38245b443726be059f4c05b896c"
+data_git_describe = "v0.0-8711-g0e46b8a18"
 data_git_msg = """\
-commit f080eec9b152f08cfd5b7ffb900eb29972de11c5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Nov 10 17:47:09 2021 -0800
+commit 0e46b8a18740f38245b443726be059f4c05b896c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Nov 19 15:20:06 2021 -0800
 
-    [pwrmgr] Enhance pwrmgr escalation network check
+    [dv/alert_handler] Randomize mubi input
     
-    - Added timeout check to escalation network clock/resets
-    - Fixes #8658
+    This PR randomize mubi-related input in alert_handler testbench
+    regarding lpg. To randomize mubi enum type, we also disabled some
+    assertions.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
