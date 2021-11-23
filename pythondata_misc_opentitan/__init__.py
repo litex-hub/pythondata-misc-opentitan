@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8820"
-version_tuple = (0, 0, 8820)
+version_str = "0.0.post8822"
+version_tuple = (0, 0, 8822)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8820")
+    pversion = V("0.0.post8822")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8708"
-data_version_tuple = (0, 0, 8708)
+data_version_str = "0.0.post8710"
+data_version_tuple = (0, 0, 8710)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8708")
+    pdata_version = V("0.0.post8710")
 except ImportError:
     pass
-data_git_hash = "4f66423b1910df210908adb23507055f27ec6eae"
-data_git_describe = "v0.0-8708-g4f66423b1"
+data_git_hash = "f080eec9b152f08cfd5b7ffb900eb29972de11c5"
+data_git_describe = "v0.0-8710-gf080eec9b"
 data_git_msg = """\
-commit 4f66423b1910df210908adb23507055f27ec6eae
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Nov 18 18:03:12 2021 +0000
+commit f080eec9b152f08cfd5b7ffb900eb29972de11c5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Nov 10 17:47:09 2021 -0800
 
-    [spi_device] Revise Block Diagram
+    [pwrmgr] Enhance pwrmgr escalation network check
     
-    This commit updates the SPI_DEVICE HWIP block diagram.
+    - Added timeout check to escalation network clock/resets
+    - Fixes #8658
     
-    The IP has been updated to support Flash mode, Passthrough mode, and TPM
-    mode. The block diagram hasn't been updated to represent the changes.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
