@@ -4,42 +4,53 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8832"
-version_tuple = (0, 0, 8832)
+version_str = "0.0.post8833"
+version_tuple = (0, 0, 8833)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8832")
+    pversion = V("0.0.post8833")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8720"
-data_version_tuple = (0, 0, 8720)
+data_version_str = "0.0.post8721"
+data_version_tuple = (0, 0, 8721)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8720")
+    pdata_version = V("0.0.post8721")
 except ImportError:
     pass
-data_git_hash = "fbccf8ef6d0c53bca5701e59eb6b5d3283393180"
-data_git_describe = "v0.0-8720-gfbccf8ef6"
+data_git_hash = "201acb720e5d518623f08de532f28d3b8dac552c"
+data_git_describe = "v0.0-8721-g201acb720"
 data_git_msg = """\
-commit fbccf8ef6d0c53bca5701e59eb6b5d3283393180
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Nov 19 00:33:59 2021 +0000
+commit 201acb720e5d518623f08de532f28d3b8dac552c
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Tue Nov 9 17:01:51 2021 +0000
 
-    [spi_device] Connect SPI Flash Upload interrupts
+    [sw, tests] Refactor sram_ctrl scramble test and test utils
     
-    This commit connects the interrupts in SPI Device Flash mode.
+    The main purpose of this change is to make the test util more
+    generic. It also includes some suggestions from the other PRs, such as
+    avoiding dependencies on top_earlgrey in test utils.
     
-    - cmdfifo_not_empty: Event occurs when SPI Flash device receives a
-      command byte and the matched command information entry's upload bit is
-      set.
-    - payload_not_empty: If the received command has payload field, the
-      upload module stores the incoming payload into DPSRAM Payload buffer.
-      It then updates the payload size when SPI transaction is completed.
-      The logic reports this event when the payload size is non-zero.
+    - Renamed test utils API to match accepted style
+      `sram_ctrl_testutils_<...>`.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    - Testutils are more generic, they operate on the passed in address
+      instead of top_earlgrey addresses calculated inside the util.
+    
+    - Init functions have been removed from test utils.
+    
+    - Unnecessary data structures have been removed from test utils.
+    
+    - Test has been simplified to only perform a single check at the start
+      of RAM, as opposed to former the start and the end of RAM. If
+      required, we can always add the end of RAM check later.
+    
+    In a nutshell, the test util API was simplified and some of this
+    complexity was moved to the test instead.
+    
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
