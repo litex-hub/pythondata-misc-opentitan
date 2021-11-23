@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8846"
-version_tuple = (0, 0, 8846)
+version_str = "0.0.post8847"
+version_tuple = (0, 0, 8847)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8846")
+    pversion = V("0.0.post8847")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8734"
-data_version_tuple = (0, 0, 8734)
+data_version_str = "0.0.post8735"
+data_version_tuple = (0, 0, 8735)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8734")
+    pdata_version = V("0.0.post8735")
 except ImportError:
     pass
-data_git_hash = "36030de58ba1c3f7f9afff96de15ff5723003ef7"
-data_git_describe = "v0.0-8734-g36030de58"
+data_git_hash = "8bc0d84851b34c08a67728929532c9f8740dc471"
+data_git_describe = "v0.0-8735-g8bc0d8485"
 data_git_msg = """\
-commit 36030de58ba1c3f7f9afff96de15ff5723003ef7
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 23 11:35:05 2021 -0800
+commit 8bc0d84851b34c08a67728929532c9f8740dc471
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Wed Nov 3 19:10:59 2021 -0700
 
-    [dv/aon_timer] rever temp fix regression error
+    [opentitantool] Support bootstrap protocol of legacy chips
     
-    Reverts #6823
+    Implement the bootstrapping protocol used by previous generations of
+    Google Titan chips.
     
-    Per Tom's comment on issue #6821, we are going to revert this temp fix and see if we can reproduce the assertion error.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
 
 """
 
