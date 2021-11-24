@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8848"
-version_tuple = (0, 0, 8848)
+version_str = "0.0.post8849"
+version_tuple = (0, 0, 8849)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8848")
+    pversion = V("0.0.post8849")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8736"
-data_version_tuple = (0, 0, 8736)
+data_version_str = "0.0.post8737"
+data_version_tuple = (0, 0, 8737)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8736")
+    pdata_version = V("0.0.post8737")
 except ImportError:
     pass
-data_git_hash = "2527f074c9a708b6a743774a9e9baa5ee85817de"
-data_git_describe = "v0.0-8736-g2527f074c"
+data_git_hash = "76169d8b09eca887925d328d9d8cd22bbac610ab"
+data_git_describe = "v0.0-8737-g76169d8b0"
 data_git_msg = """\
-commit 2527f074c9a708b6a743774a9e9baa5ee85817de
-Author: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
-Date:   Mon Nov 22 10:25:15 2021 +0000
+commit 76169d8b09eca887925d328d9d8cd22bbac610ab
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 22 16:16:47 2021 -0800
 
-    [spi_device/testplan] Testplan with TPM testpoints
+    [keymgr/dv] Disable assertion data stable check
     
-    Signed-off-by: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
+    Addressed #9324
+    Disabled the assertion when it's in StDisabled/StInvalid, LC is off or
+    SW/HW input is invalid
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
