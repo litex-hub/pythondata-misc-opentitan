@@ -4,43 +4,56 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8859"
-version_tuple = (0, 0, 8859)
+version_str = "0.0.post8860"
+version_tuple = (0, 0, 8860)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8859")
+    pversion = V("0.0.post8860")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8747"
-data_version_tuple = (0, 0, 8747)
+data_version_str = "0.0.post8748"
+data_version_tuple = (0, 0, 8748)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8747")
+    pdata_version = V("0.0.post8748")
 except ImportError:
     pass
-data_git_hash = "a9aec87b1fdd7426082e032b47e5e6760aa3de8f"
-data_git_describe = "v0.0-8747-ga9aec87b1"
+data_git_hash = "399af406069a3123f13380368bef66db0f17a62a"
+data_git_describe = "v0.0-8748-g399af4060"
 data_git_msg = """\
-commit a9aec87b1fdd7426082e032b47e5e6760aa3de8f
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Nov 23 17:35:22 2021 -0800
+commit 399af406069a3123f13380368bef66db0f17a62a
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Mon Nov 1 18:15:09 2021 +0000
 
-    [ spi_host, rtl ] Properly handle back-to-back segments
+    [bazel] Rules to build the boot-rom.
     
-    Issue #9285 uncovers a bug whereby back-to-back segments are not being properly handled in the rtl.
+    * Adding resources to stamp the bootrom
+    * Fulfilling and tweaking boot-rom dependencies for bazel
+     * scramble_image.py
+     * rom_chip_info.py
+      * take version input as a file not a command-line arg
+    * added autogen for hw/ip/rv_core_ibex/data
+    * Added a rule to autogen chip_info
+    * Added a rule to build ibex_peri.c in sw/device/lib
+    * added a shell script to list details of workspace for a boot-rom stamp
     
-    The issue is that when processing back to back segments, the FSM needs to carefully choose which copy
-    of the segment parameters to look at.  For anything initializing states for the following segment the
-    FSM needs to look at the new incoming segment parameters.  For finalizing processing of the previous segment
-    (e.g., flushing data out of the shift register) the FSM needs to look at the previous parameters.
+    Tested:
+    ```
+    build/lowrisc_dv_chip_verilator_sim_0.1/sim-verilator/Vchip_sim_tb
+    --meminit=rom,bazel-out/k8-fastbuild-ST-b8775c98f59c/bin/sw/device/boot_rom/boot_rom_verilator.scr.40.vmem
+    --meminit=flash,bazel-out/k8-fastbuild-ST-b8775c98f59c/bin/sw/device/examples/hello_world/hello_world_verilator.elf
+    --meminit=otp,build-bin/sw/device/otp_img/otp_img_sim_verilator.vmem
+    ```
+    outputs:
+    ```
+    I00001 boot_rom.c:70] Boot ROM initialisation has completed, jump into
+    flash!
+    ```
+    to uart0.log
     
-    This commit manages this subtlety.
-    
-    Fixes #9285 (with patch to test bench in @rasmus-madsen's offline TB, see issue for patch)
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
