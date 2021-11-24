@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8853"
-version_tuple = (0, 0, 8853)
+version_str = "0.0.post8854"
+version_tuple = (0, 0, 8854)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8853")
+    pversion = V("0.0.post8854")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8741"
-data_version_tuple = (0, 0, 8741)
+data_version_str = "0.0.post8742"
+data_version_tuple = (0, 0, 8742)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8741")
+    pdata_version = V("0.0.post8742")
 except ImportError:
     pass
-data_git_hash = "a6e6c8f1f097e56bf682b6f9966596eba76d0718"
-data_git_describe = "v0.0-8741-ga6e6c8f1f"
+data_git_hash = "a76b48d46098bf07904fbc1f8cf47d2cd4160cdc"
+data_git_describe = "v0.0-8742-ga76b48d46"
 data_git_msg = """\
-commit a6e6c8f1f097e56bf682b6f9966596eba76d0718
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Nov 15 16:39:23 2021 +0000
+commit a76b48d46098bf07904fbc1f8cf47d2cd4160cdc
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Tue Nov 23 14:41:44 2021 +0000
 
-    [sw/otbn] Create a static check for OTBN loops.
+    [sw/silicon_creator] Minor cleanups to shutdown code.
     
-    Checks for common mistakes that can cause LOOP errors or loop stack
-    issues.
+    Follow up addressing comments on PR #8289.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
