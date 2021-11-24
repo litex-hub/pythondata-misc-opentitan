@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8854"
-version_tuple = (0, 0, 8854)
+version_str = "0.0.post8855"
+version_tuple = (0, 0, 8855)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8854")
+    pversion = V("0.0.post8855")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8742"
-data_version_tuple = (0, 0, 8742)
+data_version_str = "0.0.post8743"
+data_version_tuple = (0, 0, 8743)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8742")
+    pdata_version = V("0.0.post8743")
 except ImportError:
     pass
-data_git_hash = "a76b48d46098bf07904fbc1f8cf47d2cd4160cdc"
-data_git_describe = "v0.0-8742-ga76b48d46"
+data_git_hash = "78fa36721e3dc9e46ec8836dc55d938306117979"
+data_git_describe = "v0.0-8743-g78fa36721"
 data_git_msg = """\
-commit a76b48d46098bf07904fbc1f8cf47d2cd4160cdc
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Tue Nov 23 14:41:44 2021 +0000
+commit 78fa36721e3dc9e46ec8836dc55d938306117979
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Nov 19 20:33:38 2021 +0000
 
-    [sw/silicon_creator] Minor cleanups to shutdown code.
+    [sw/test_rom] Skip SRAM request for new key and LFSR init in test ROM.
     
-    Follow up addressing comments on PR #8289.
+    The test `boot_rom` initialization code was requesting and new SRAM
+    scrambing key and re-initializing SRAM to pseudorandom values in the
+    ROM init asm. This wastes sim cycles as this is not production mask ROM,
+    and is used solely for testing.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    This commit removes this extra initialization, addressing a task in #9163.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
