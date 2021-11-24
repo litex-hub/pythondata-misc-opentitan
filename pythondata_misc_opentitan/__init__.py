@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8857"
-version_tuple = (0, 0, 8857)
+version_str = "0.0.post8858"
+version_tuple = (0, 0, 8858)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8857")
+    pversion = V("0.0.post8858")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8745"
-data_version_tuple = (0, 0, 8745)
+data_version_str = "0.0.post8746"
+data_version_tuple = (0, 0, 8746)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8745")
+    pdata_version = V("0.0.post8746")
 except ImportError:
     pass
-data_git_hash = "c6030a4ad3230fbe093e5ce8012e2b25ae52343f"
-data_git_describe = "v0.0-8745-gc6030a4ad"
+data_git_hash = "6c83a36a39b09fd7cc87110cee0dd71c84b88f1e"
+data_git_describe = "v0.0-8746-g6c83a36a3"
 data_git_msg = """\
-commit c6030a4ad3230fbe093e5ce8012e2b25ae52343f
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Nov 23 16:52:18 2021 +0000
+commit 6c83a36a39b09fd7cc87110cee0dd71c84b88f1e
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Nov 23 17:52:04 2021 -0800
 
-    [sw/silicon_creator] Separate mask ROM specific RSA subroutines.
+    [sram/dv] Configure main sram Exec=1, ret sram Exec=0
     
-    Create a separate interface for RSA-3072 that has only the subroutines
-    mask ROM needs, and write a separate C wrapper for that interface.
+    To align with #8973, only main sram supports instruction fetch
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
