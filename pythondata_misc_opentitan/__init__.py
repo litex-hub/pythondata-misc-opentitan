@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8849"
-version_tuple = (0, 0, 8849)
+version_str = "0.0.post8850"
+version_tuple = (0, 0, 8850)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8849")
+    pversion = V("0.0.post8850")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8737"
-data_version_tuple = (0, 0, 8737)
+data_version_str = "0.0.post8738"
+data_version_tuple = (0, 0, 8738)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8737")
+    pdata_version = V("0.0.post8738")
 except ImportError:
     pass
-data_git_hash = "76169d8b09eca887925d328d9d8cd22bbac610ab"
-data_git_describe = "v0.0-8737-g76169d8b0"
+data_git_hash = "42406d3b9be7659c31f07f1f9fbaaa7b2726fd7c"
+data_git_describe = "v0.0-8738-g42406d3b9"
 data_git_msg = """\
-commit 76169d8b09eca887925d328d9d8cd22bbac610ab
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 22 16:16:47 2021 -0800
+commit 42406d3b9be7659c31f07f1f9fbaaa7b2726fd7c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 23 11:04:46 2021 -0800
 
-    [keymgr/dv] Disable assertion data stable check
+    [flash_ctrl] Officially move flash_ctrl to D2.
     
-    Addressed #9324
-    Disabled the assertion when it's in StDisabled/StInvalid, LC is off or
-    SW/HW input is invalid
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - Previous PR forgot to change the actual design stage
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
