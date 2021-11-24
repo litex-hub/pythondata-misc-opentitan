@@ -4,34 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8858"
-version_tuple = (0, 0, 8858)
+version_str = "0.0.post8859"
+version_tuple = (0, 0, 8859)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8858")
+    pversion = V("0.0.post8859")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8746"
-data_version_tuple = (0, 0, 8746)
+data_version_str = "0.0.post8747"
+data_version_tuple = (0, 0, 8747)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8746")
+    pdata_version = V("0.0.post8747")
 except ImportError:
     pass
-data_git_hash = "6c83a36a39b09fd7cc87110cee0dd71c84b88f1e"
-data_git_describe = "v0.0-8746-g6c83a36a3"
+data_git_hash = "a9aec87b1fdd7426082e032b47e5e6760aa3de8f"
+data_git_describe = "v0.0-8747-ga9aec87b1"
 data_git_msg = """\
-commit 6c83a36a39b09fd7cc87110cee0dd71c84b88f1e
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Nov 23 17:52:04 2021 -0800
+commit a9aec87b1fdd7426082e032b47e5e6760aa3de8f
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Nov 23 17:35:22 2021 -0800
 
-    [sram/dv] Configure main sram Exec=1, ret sram Exec=0
+    [ spi_host, rtl ] Properly handle back-to-back segments
     
-    To align with #8973, only main sram supports instruction fetch
+    Issue #9285 uncovers a bug whereby back-to-back segments are not being properly handled in the rtl.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    The issue is that when processing back to back segments, the FSM needs to carefully choose which copy
+    of the segment parameters to look at.  For anything initializing states for the following segment the
+    FSM needs to look at the new incoming segment parameters.  For finalizing processing of the previous segment
+    (e.g., flushing data out of the shift register) the FSM needs to look at the previous parameters.
+    
+    This commit manages this subtlety.
+    
+    Fixes #9285 (with patch to test bench in @rasmus-madsen's offline TB, see issue for patch)
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
