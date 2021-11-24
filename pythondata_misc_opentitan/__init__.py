@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8855"
-version_tuple = (0, 0, 8855)
+version_str = "0.0.post8857"
+version_tuple = (0, 0, 8857)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8855")
+    pversion = V("0.0.post8857")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8743"
-data_version_tuple = (0, 0, 8743)
+data_version_str = "0.0.post8745"
+data_version_tuple = (0, 0, 8745)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8743")
+    pdata_version = V("0.0.post8745")
 except ImportError:
     pass
-data_git_hash = "78fa36721e3dc9e46ec8836dc55d938306117979"
-data_git_describe = "v0.0-8743-g78fa36721"
+data_git_hash = "c6030a4ad3230fbe093e5ce8012e2b25ae52343f"
+data_git_describe = "v0.0-8745-gc6030a4ad"
 data_git_msg = """\
-commit 78fa36721e3dc9e46ec8836dc55d938306117979
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Nov 19 20:33:38 2021 +0000
+commit c6030a4ad3230fbe093e5ce8012e2b25ae52343f
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Nov 23 16:52:18 2021 +0000
 
-    [sw/test_rom] Skip SRAM request for new key and LFSR init in test ROM.
+    [sw/silicon_creator] Separate mask ROM specific RSA subroutines.
     
-    The test `boot_rom` initialization code was requesting and new SRAM
-    scrambing key and re-initializing SRAM to pseudorandom values in the
-    ROM init asm. This wastes sim cycles as this is not production mask ROM,
-    and is used solely for testing.
+    Create a separate interface for RSA-3072 that has only the subroutines
+    mask ROM needs, and write a separate C wrapper for that interface.
     
-    This commit removes this extra initialization, addressing a task in #9163.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
