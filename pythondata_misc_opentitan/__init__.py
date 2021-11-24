@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8850"
-version_tuple = (0, 0, 8850)
+version_str = "0.0.post8851"
+version_tuple = (0, 0, 8851)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8850")
+    pversion = V("0.0.post8851")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8738"
-data_version_tuple = (0, 0, 8738)
+data_version_str = "0.0.post8739"
+data_version_tuple = (0, 0, 8739)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8738")
+    pdata_version = V("0.0.post8739")
 except ImportError:
     pass
-data_git_hash = "42406d3b9be7659c31f07f1f9fbaaa7b2726fd7c"
-data_git_describe = "v0.0-8738-g42406d3b9"
+data_git_hash = "36cbccbefa66530bfb94d219b1749e3b31f8331d"
+data_git_describe = "v0.0-8739-g36cbccbef"
 data_git_msg = """\
-commit 42406d3b9be7659c31f07f1f9fbaaa7b2726fd7c
+commit 36cbccbefa66530bfb94d219b1749e3b31f8331d
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 23 11:04:46 2021 -0800
+Date:   Tue Nov 23 13:35:12 2021 -0800
 
-    [flash_ctrl] Officially move flash_ctrl to D2.
+    [top] Fix pinmux reset assignment
     
-    - Previous PR forgot to change the actual design stage
+    Pinmux was assigned the wrong root reset and as a result was
+    still held in reset with the strap signal was received.
+    
+    This means pinmux does not actually perform the strapping function
+    since all its logic is held in reset.
+    
+    Fixes #9365
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
