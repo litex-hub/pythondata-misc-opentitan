@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8847"
-version_tuple = (0, 0, 8847)
+version_str = "0.0.post8848"
+version_tuple = (0, 0, 8848)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8847")
+    pversion = V("0.0.post8848")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8735"
-data_version_tuple = (0, 0, 8735)
+data_version_str = "0.0.post8736"
+data_version_tuple = (0, 0, 8736)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8735")
+    pdata_version = V("0.0.post8736")
 except ImportError:
     pass
-data_git_hash = "8bc0d84851b34c08a67728929532c9f8740dc471"
-data_git_describe = "v0.0-8735-g8bc0d8485"
+data_git_hash = "2527f074c9a708b6a743774a9e9baa5ee85817de"
+data_git_describe = "v0.0-8736-g2527f074c"
 data_git_msg = """\
-commit 8bc0d84851b34c08a67728929532c9f8740dc471
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Wed Nov 3 19:10:59 2021 -0700
+commit 2527f074c9a708b6a743774a9e9baa5ee85817de
+Author: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
+Date:   Mon Nov 22 10:25:15 2021 +0000
 
-    [opentitantool] Support bootstrap protocol of legacy chips
+    [spi_device/testplan] Testplan with TPM testpoints
     
-    Implement the bootstrapping protocol used by previous generations of
-    Google Titan chips.
-    
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Signed-off-by: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
 
 """
 
