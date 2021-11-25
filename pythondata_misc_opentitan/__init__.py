@@ -4,34 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8862"
-version_tuple = (0, 0, 8862)
+version_str = "0.0.post8863"
+version_tuple = (0, 0, 8863)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8862")
+    pversion = V("0.0.post8863")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8750"
-data_version_tuple = (0, 0, 8750)
+data_version_str = "0.0.post8751"
+data_version_tuple = (0, 0, 8751)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8750")
+    pdata_version = V("0.0.post8751")
 except ImportError:
     pass
-data_git_hash = "bb1d4754e787a043021e06c3e169665aef9d1943"
-data_git_describe = "v0.0-8750-gbb1d4754e"
+data_git_hash = "515307e08511df8545bea5596a3df525fd3c546a"
+data_git_describe = "v0.0-8751-g515307e08"
 data_git_msg = """\
-commit bb1d4754e787a043021e06c3e169665aef9d1943
+commit 515307e08511df8545bea5596a3df525fd3c546a
 Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Oct 27 01:26:19 2021 +0100
+Date:   Fri Nov 19 14:05:41 2021 +0000
 
-    [otbn,dv] Fully Implementing URND PRNG
+    [prim] Fix prim_ram_1p_scr Dependencies
     
-    This commit includes necessary additions inside the OTBN environment
-    for enabling URND seed processing from EDN and modelling PRNG inside
-    wsr.py
+    This commit includes addition of necessary primitives to the
+    `.core` file prim_ram_1p_scr and removing prim:all dependency.
     
     Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
