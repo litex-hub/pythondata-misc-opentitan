@@ -4,56 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8860"
-version_tuple = (0, 0, 8860)
+version_str = "0.0.post8861"
+version_tuple = (0, 0, 8861)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8860")
+    pversion = V("0.0.post8861")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8748"
-data_version_tuple = (0, 0, 8748)
+data_version_str = "0.0.post8749"
+data_version_tuple = (0, 0, 8749)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8748")
+    pdata_version = V("0.0.post8749")
 except ImportError:
     pass
-data_git_hash = "399af406069a3123f13380368bef66db0f17a62a"
-data_git_describe = "v0.0-8748-g399af4060"
+data_git_hash = "62ea9c4319395963d158b39e5a0c07a12c414357"
+data_git_describe = "v0.0-8749-g62ea9c431"
 data_git_msg = """\
-commit 399af406069a3123f13380368bef66db0f17a62a
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Nov 1 18:15:09 2021 +0000
+commit 62ea9c4319395963d158b39e5a0c07a12c414357
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Nov 24 14:23:16 2021 -0800
 
-    [bazel] Rules to build the boot-rom.
+    [chip, dv] Randomize SRAM
     
-    * Adding resources to stamp the bootrom
-    * Fulfilling and tweaking boot-rom dependencies for bazel
-     * scramble_image.py
-     * rom_chip_info.py
-      * take version input as a file not a command-line arg
-    * added autogen for hw/ip/rv_core_ibex/data
-    * Added a rule to autogen chip_info
-    * Added a rule to build ibex_peri.c in sw/device/lib
-    * added a shell script to list details of workspace for a boot-rom stamp
+    Fixes private CI.
+    Unconditionally initialize the SRAM with garbage data on reset for chip
+    level SW based tests.
     
-    Tested:
-    ```
-    build/lowrisc_dv_chip_verilator_sim_0.1/sim-verilator/Vchip_sim_tb
-    --meminit=rom,bazel-out/k8-fastbuild-ST-b8775c98f59c/bin/sw/device/boot_rom/boot_rom_verilator.scr.40.vmem
-    --meminit=flash,bazel-out/k8-fastbuild-ST-b8775c98f59c/bin/sw/device/examples/hello_world/hello_world_verilator.elf
-    --meminit=otp,build-bin/sw/device/otp_img/otp_img_sim_verilator.vmem
-    ```
-    outputs:
-    ```
-    I00001 boot_rom.c:70] Boot ROM initialisation has completed, jump into
-    flash!
-    ```
-    to uart0.log
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
