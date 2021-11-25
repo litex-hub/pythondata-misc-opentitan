@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8861"
-version_tuple = (0, 0, 8861)
+version_str = "0.0.post8862"
+version_tuple = (0, 0, 8862)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8861")
+    pversion = V("0.0.post8862")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8749"
-data_version_tuple = (0, 0, 8749)
+data_version_str = "0.0.post8750"
+data_version_tuple = (0, 0, 8750)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8749")
+    pdata_version = V("0.0.post8750")
 except ImportError:
     pass
-data_git_hash = "62ea9c4319395963d158b39e5a0c07a12c414357"
-data_git_describe = "v0.0-8749-g62ea9c431"
+data_git_hash = "bb1d4754e787a043021e06c3e169665aef9d1943"
+data_git_describe = "v0.0-8750-gbb1d4754e"
 data_git_msg = """\
-commit 62ea9c4319395963d158b39e5a0c07a12c414357
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Nov 24 14:23:16 2021 -0800
+commit bb1d4754e787a043021e06c3e169665aef9d1943
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Oct 27 01:26:19 2021 +0100
 
-    [chip, dv] Randomize SRAM
+    [otbn,dv] Fully Implementing URND PRNG
     
-    Fixes private CI.
-    Unconditionally initialize the SRAM with garbage data on reset for chip
-    level SW based tests.
+    This commit includes necessary additions inside the OTBN environment
+    for enabling URND seed processing from EDN and modelling PRNG inside
+    wsr.py
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
