@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8863"
-version_tuple = (0, 0, 8863)
+version_str = "0.0.post8867"
+version_tuple = (0, 0, 8867)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8863")
+    pversion = V("0.0.post8867")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8751"
-data_version_tuple = (0, 0, 8751)
+data_version_str = "0.0.post8755"
+data_version_tuple = (0, 0, 8755)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8751")
+    pdata_version = V("0.0.post8755")
 except ImportError:
     pass
-data_git_hash = "515307e08511df8545bea5596a3df525fd3c546a"
-data_git_describe = "v0.0-8751-g515307e08"
+data_git_hash = "6e7187bf8872e91c99e06e96ab224f06b58af8e0"
+data_git_describe = "v0.0-8755-g6e7187bf8"
 data_git_msg = """\
-commit 515307e08511df8545bea5596a3df525fd3c546a
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Fri Nov 19 14:05:41 2021 +0000
+commit 6e7187bf8872e91c99e06e96ab224f06b58af8e0
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Wed Nov 24 11:02:56 2021 +0000
 
-    [prim] Fix prim_ram_1p_scr Dependencies
+    [sw,tests] Remove the duplicate kmac smoke test
     
-    This commit includes addition of necessary primitives to the
-    `.core` file prim_ram_1p_scr and removing prim:all dependency.
+    FIX #9363
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
