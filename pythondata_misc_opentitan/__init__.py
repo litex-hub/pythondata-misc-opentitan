@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8867"
-version_tuple = (0, 0, 8867)
+version_str = "0.0.post8869"
+version_tuple = (0, 0, 8869)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8867")
+    pversion = V("0.0.post8869")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8755"
-data_version_tuple = (0, 0, 8755)
+data_version_str = "0.0.post8757"
+data_version_tuple = (0, 0, 8757)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8755")
+    pdata_version = V("0.0.post8757")
 except ImportError:
     pass
-data_git_hash = "6e7187bf8872e91c99e06e96ab224f06b58af8e0"
-data_git_describe = "v0.0-8755-g6e7187bf8"
+data_git_hash = "4ca1caa9823a5009900de7f6845a2b543eab2f1b"
+data_git_describe = "v0.0-8757-g4ca1caa98"
 data_git_msg = """\
-commit 6e7187bf8872e91c99e06e96ab224f06b58af8e0
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed Nov 24 11:02:56 2021 +0000
+commit 4ca1caa9823a5009900de7f6845a2b543eab2f1b
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Nov 23 10:56:01 2021 +0000
 
-    [sw,tests] Remove the duplicate kmac smoke test
+    [otbn, rtl] Implement key sideload
     
-    FIX #9363
+    Fixes #8692
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
