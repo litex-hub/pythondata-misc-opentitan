@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8869"
-version_tuple = (0, 0, 8869)
+version_str = "0.0.post8870"
+version_tuple = (0, 0, 8870)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8869")
+    pversion = V("0.0.post8870")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8757"
-data_version_tuple = (0, 0, 8757)
+data_version_str = "0.0.post8758"
+data_version_tuple = (0, 0, 8758)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8757")
+    pdata_version = V("0.0.post8758")
 except ImportError:
     pass
-data_git_hash = "4ca1caa9823a5009900de7f6845a2b543eab2f1b"
-data_git_describe = "v0.0-8757-g4ca1caa98"
+data_git_hash = "3a672eb36aee5942d0912a15d15055b1d21c33d6"
+data_git_describe = "v0.0-8758-g3a672eb36"
 data_git_msg = """\
-commit 4ca1caa9823a5009900de7f6845a2b543eab2f1b
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Nov 23 10:56:01 2021 +0000
+commit 3a672eb36aee5942d0912a15d15055b1d21c33d6
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Fri Nov 26 14:17:14 2021 +0000
 
-    [otbn, rtl] Implement key sideload
+    [otbn,dv] Bug-fix: First insn uses faulty URND
     
-    Fixes #8692
+    The bug was happening when the first executed
+    instruction tried to use URND. Since first step
+    did not resulted with a change in _value it was
+    generating a None assingment as a value.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
