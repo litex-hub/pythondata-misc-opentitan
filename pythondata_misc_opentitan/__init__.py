@@ -4,46 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8876"
-version_tuple = (0, 0, 8876)
+version_str = "0.0.post8877"
+version_tuple = (0, 0, 8877)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8876")
+    pversion = V("0.0.post8877")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8764"
-data_version_tuple = (0, 0, 8764)
+data_version_str = "0.0.post8765"
+data_version_tuple = (0, 0, 8765)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8764")
+    pdata_version = V("0.0.post8765")
 except ImportError:
     pass
-data_git_hash = "cc4e9fa2b1ed3384df7152b2698ba029452b734b"
-data_git_describe = "v0.0-8764-gcc4e9fa2b"
+data_git_hash = "028e3fbb9d3120943810c35e136905cc31077c6a"
+data_git_describe = "v0.0-8765-g028e3fbb9"
 data_git_msg = """\
-commit cc4e9fa2b1ed3384df7152b2698ba029452b734b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Oct 22 16:41:51 2021 +0100
+commit 028e3fbb9d3120943810c35e136905cc31077c6a
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Nov 23 18:36:24 2021 +0000
 
-    [otbn,python] Wrap code to 79 columns
+    [spi_device] Add prefix to the interrupts
     
-    Our Python style guide claims that we wrap code at 79 columns but our
-    flake8 configuration is set to allow 100 (presumably because it's too
-    much work to squeeze existing code into shape!).
+    This commit adds mode or distinguishable prefixes to the existing
+    interrupts. `generic_` prefix is added to pre-existed interrupts.
+    `upload_` and `readbuf_` prefixes are added to the flash/passthrough
+    related interrupts.
     
-    I wrote the OTBN Python code intending it to stay at 79. Put in a
-    local .flake8 file to set the expected width correctly and then (lots
-    of lines...) re-format comments and break strings to get everything
-    sorted.
-    
-    This stricter formatting won't be checked by CI (which runs at
-    top-level, so won't see the new .flake8 config file) but it *will* be
-    checked by people's text editors if they've got the usual Python
-    setup.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
