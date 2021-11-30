@@ -4,39 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8896"
-version_tuple = (0, 0, 8896)
+version_str = "0.0.post8900"
+version_tuple = (0, 0, 8900)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8896")
+    pversion = V("0.0.post8900")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8784"
-data_version_tuple = (0, 0, 8784)
+data_version_str = "0.0.post8788"
+data_version_tuple = (0, 0, 8788)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8784")
+    pdata_version = V("0.0.post8788")
 except ImportError:
     pass
-data_git_hash = "3a1b09f6cb48b4fccd8cc58f8a0d94b49a4cd8fc"
-data_git_describe = "v0.0-8784-g3a1b09f6c"
+data_git_hash = "13ed3e95572168f7db0e3178d06a72e72ee5a745"
+data_git_describe = "v0.0-8788-g13ed3e955"
 data_git_msg = """\
-commit 3a1b09f6cb48b4fccd8cc58f8a0d94b49a4cd8fc
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Nov 26 11:13:09 2021 +0000
+commit 13ed3e95572168f7db0e3178d06a72e72ee5a745
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 29 17:51:57 2021 -0800
 
-    [rom_ctrl] Correctly wire up fatal alerts from bus integrity errors
+    [flash_ctrl] First step fix for flash ECC
     
-    Way back in April (da74794), I fixed up the connections so that
-    FATAL_ALERT_CAUSE would reflect a bus integrity error even when it
-    didn't come from the register interface. Unfortunately, I didn't make
-    the corresponding change in the trigger for the alert itself. Oops.
+    - Should address #9397
+    - Merge the separate flash data / metadata memories back into one
+    - Update the backdoor path to use the full 76_68 ECC scheme
+    - Update flash backdoor load to create the extra 4-bits of integrity
+      ECC for the purposes of backdoor load.
+    - The flash routine is responsible for the 4-bit integrity ECC, while
+      the mem_bkdr_util routine is responsible for the 8-bit reliability
+      ECC
     
-    Caught by Prajwala debugging failures in the tl_intg_err tests. Nice!
+    - In the future, the same routine that creates the 4-bit integrity
+      ECC will also be responsible for scramble, the final backdoor load
+      will only be aware of the 8-bit reliability ECC.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
