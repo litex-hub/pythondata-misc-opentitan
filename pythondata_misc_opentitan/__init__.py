@@ -4,41 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8911"
-version_tuple = (0, 0, 8911)
+version_str = "0.0.post8913"
+version_tuple = (0, 0, 8913)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8911")
+    pversion = V("0.0.post8913")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8799"
-data_version_tuple = (0, 0, 8799)
+data_version_str = "0.0.post8801"
+data_version_tuple = (0, 0, 8801)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8799")
+    pdata_version = V("0.0.post8801")
 except ImportError:
     pass
-data_git_hash = "a847073fb8c333cbf1c240d25794517f1562c0af"
-data_git_describe = "v0.0-8799-ga847073fb"
+data_git_hash = "fffa53a98af538c5a402e06de84243dfe7769610"
+data_git_describe = "v0.0-8801-gfffa53a98"
 data_git_msg = """\
-commit a847073fb8c333cbf1c240d25794517f1562c0af
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Nov 22 19:42:42 2021 +0000
+commit fffa53a98af538c5a402e06de84243dfe7769610
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Nov 29 15:43:13 2021 -0800
 
-    [sw/ottf] Decouple OTTF ISRs into separate lib.
+    [dv/clkmgr] Fix clkmgr_extclk test
     
-    Previously, all default ISRs were contained in the single OTTF build
-    target. This made using the default OTTF ISRs in a standalone bare metal
-    test application that does not make use of the OTTF impossible.
+    Update the test for updates in the RTL.
     
-    This commit isolates the OTTF default ISRs into a separate library, so
-    they can be used similar to the existing `sw/device/lib/handler.<c,h>`
-    ISRs, since those will be deprecated in the near future when all
-    chip-level tests migrate to the OTTF.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
