@@ -4,45 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8900"
-version_tuple = (0, 0, 8900)
+version_str = "0.0.post8908"
+version_tuple = (0, 0, 8908)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8900")
+    pversion = V("0.0.post8908")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8788"
-data_version_tuple = (0, 0, 8788)
+data_version_str = "0.0.post8796"
+data_version_tuple = (0, 0, 8796)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8788")
+    pdata_version = V("0.0.post8796")
 except ImportError:
     pass
-data_git_hash = "13ed3e95572168f7db0e3178d06a72e72ee5a745"
-data_git_describe = "v0.0-8788-g13ed3e955"
+data_git_hash = "86e2378caaf4d8f0363357d405d1c946f0f92e49"
+data_git_describe = "v0.0-8796-g86e2378ca"
 data_git_msg = """\
-commit 13ed3e95572168f7db0e3178d06a72e72ee5a745
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Nov 29 17:51:57 2021 -0800
+commit 86e2378caaf4d8f0363357d405d1c946f0f92e49
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Nov 24 17:11:45 2021 -0800
 
-    [flash_ctrl] First step fix for flash ECC
+    [sram/dv] Fix mem data check
     
-    - Should address #9397
-    - Merge the separate flash data / metadata memories back into one
-    - Update the backdoor path to use the full 76_68 ECC scheme
-    - Update flash backdoor load to create the extra 4-bits of integrity
-      ECC for the purposes of backdoor load.
-    - The flash routine is responsible for the 4-bit integrity ECC, while
-      the mem_bkdr_util routine is responsible for the 8-bit reliability
-      ECC
+    1. Fixed data check in mem model didn't work
+    2. Move updating exp mem write value after data phase is done, as the
+    2nd address may finish before the data phase of the 1st item when it
+    supports 2+ outstanding items
+    3. Avoid frontdoor checking read value if the location hasn't been
+    written (check against backdoor will be still applied)
+    4. Add knob for seq to initialize the mem and do it during sram_ctrl_init
     
-    - In the future, the same routine that creates the 4-bit integrity
-      ECC will also be responsible for scramble, the final backdoor load
-      will only be aware of the 8-bit reliability ECC.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
