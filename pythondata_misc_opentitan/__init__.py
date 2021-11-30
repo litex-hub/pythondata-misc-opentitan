@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8885"
-version_tuple = (0, 0, 8885)
+version_str = "0.0.post8888"
+version_tuple = (0, 0, 8888)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8885")
+    pversion = V("0.0.post8888")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8773"
-data_version_tuple = (0, 0, 8773)
+data_version_str = "0.0.post8776"
+data_version_tuple = (0, 0, 8776)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8773")
+    pdata_version = V("0.0.post8776")
 except ImportError:
     pass
-data_git_hash = "57751de32b7bbe2271c2e8acb54a90ad72309aea"
-data_git_describe = "v0.0-8773-g57751de32"
+data_git_hash = "4d875cf4acae78db035a275d9080c2e8b84fe7a7"
+data_git_describe = "v0.0-8776-g4d875cf4a"
 data_git_msg = """\
-commit 57751de32b7bbe2271c2e8acb54a90ad72309aea
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Nov 29 20:09:51 2021 -0800
+commit 4d875cf4acae78db035a275d9080c2e8b84fe7a7
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Fri Nov 12 16:29:01 2021 +0000
 
-    [dv/top] Disable ast assertion in stub_cpu mode
+    [sw, tests] Introduce retention SRAM execution test
     
-    Rand write csr `clkexl_sel` would cause this assertion to fail in
-    top-level. Disable this assertion only in cpu_stub mode.
+    This test makes sure that execution from SRAM is disabled.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
