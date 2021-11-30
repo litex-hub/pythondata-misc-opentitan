@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8908"
-version_tuple = (0, 0, 8908)
+version_str = "0.0.post8909"
+version_tuple = (0, 0, 8909)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8908")
+    pversion = V("0.0.post8909")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8796"
-data_version_tuple = (0, 0, 8796)
+data_version_str = "0.0.post8797"
+data_version_tuple = (0, 0, 8797)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8796")
+    pdata_version = V("0.0.post8797")
 except ImportError:
     pass
-data_git_hash = "86e2378caaf4d8f0363357d405d1c946f0f92e49"
-data_git_describe = "v0.0-8796-g86e2378ca"
+data_git_hash = "ba63d1e6ad6702cfb661f8fd8233d9bfb5f692ea"
+data_git_describe = "v0.0-8797-gba63d1e6a"
 data_git_msg = """\
-commit 86e2378caaf4d8f0363357d405d1c946f0f92e49
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Nov 24 17:11:45 2021 -0800
+commit ba63d1e6ad6702cfb661f8fd8233d9bfb5f692ea
+Author: kosta-kojdic <kosta.kojdic@ensilica.com>
+Date:   Tue Nov 30 13:08:00 2021 +0000
 
-    [sram/dv] Fix mem data check
+    CSB Selection Implemented
     
-    1. Fixed data check in mem model didn't work
-    2. Move updating exp mem write value after data phase is done, as the
-    2nd address may finish before the data phase of the 1st item when it
-    supports 2+ outstanding items
-    3. Avoid frontdoor checking read value if the location hasn't been
-    written (check against backdoor will be still applied)
-    4. Add knob for seq to initialize the mem and do it during sram_ctrl_init
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: kosta-kojdic <kosta.kojdic@ensilica.com>
 
 """
 
