@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8892"
-version_tuple = (0, 0, 8892)
+version_str = "0.0.post8896"
+version_tuple = (0, 0, 8896)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8892")
+    pversion = V("0.0.post8896")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8780"
-data_version_tuple = (0, 0, 8780)
+data_version_str = "0.0.post8784"
+data_version_tuple = (0, 0, 8784)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8780")
+    pdata_version = V("0.0.post8784")
 except ImportError:
     pass
-data_git_hash = "051133de722181cdcaa8d4e62daf9ec1dc043c9d"
-data_git_describe = "v0.0-8780-g051133de7"
+data_git_hash = "3a1b09f6cb48b4fccd8cc58f8a0d94b49a4cd8fc"
+data_git_describe = "v0.0-8784-g3a1b09f6c"
 data_git_msg = """\
-commit 051133de722181cdcaa8d4e62daf9ec1dc043c9d
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Nov 24 12:09:10 2021 +0000
+commit 3a1b09f6cb48b4fccd8cc58f8a0d94b49a4cd8fc
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Nov 26 11:13:09 2021 +0000
 
-    [otbn,dv] Modelling EDN Request
+    [rom_ctrl] Correctly wire up fatal alerts from bus integrity errors
     
-    This commit includes changes in OTBN DV environment to support
-    modelling EDN requests by RND or URND.
+    Way back in April (da74794), I fixed up the connections so that
+    FATAL_ALERT_CAUSE would reflect a bus integrity error even when it
+    didn't come from the register interface. Unfortunately, I didn't make
+    the corresponding change in the trigger for the alert itself. Oops.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Caught by Prajwala debugging failures in the tl_intg_err tests. Nice!
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
