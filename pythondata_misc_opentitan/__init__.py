@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8884"
-version_tuple = (0, 0, 8884)
+version_str = "0.0.post8885"
+version_tuple = (0, 0, 8885)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8884")
+    pversion = V("0.0.post8885")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8772"
-data_version_tuple = (0, 0, 8772)
+data_version_str = "0.0.post8773"
+data_version_tuple = (0, 0, 8773)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8772")
+    pdata_version = V("0.0.post8773")
 except ImportError:
     pass
-data_git_hash = "01234f94e2cf1ef42f3e2e79e940b4ae5b199ecc"
-data_git_describe = "v0.0-8772-g01234f94e"
+data_git_hash = "57751de32b7bbe2271c2e8acb54a90ad72309aea"
+data_git_describe = "v0.0-8773-g57751de32"
 data_git_msg = """\
-commit 01234f94e2cf1ef42f3e2e79e940b4ae5b199ecc
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Nov 19 13:25:57 2021 -0800
+commit 57751de32b7bbe2271c2e8acb54a90ad72309aea
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Nov 29 20:09:51 2021 -0800
 
-    [lc_ctrl] Make the life cycle state CSR multibit
+    [dv/top] Disable ast assertion in stub_cpu mode
     
-    This repeats the 5bit life cycle enum and the 2bit
-    provisioning state enum in order to make these CSRs
-    multibit (they will span almost the entire 32bit).
+    Rand write csr `clkexl_sel` would cause this assertion to fail in
+    top-level. Disable this assertion only in cpu_stub mode.
     
-    This change has been requested as part of ROM code hardening.
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
