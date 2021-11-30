@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8888"
-version_tuple = (0, 0, 8888)
+version_str = "0.0.post8890"
+version_tuple = (0, 0, 8890)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8888")
+    pversion = V("0.0.post8890")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8776"
-data_version_tuple = (0, 0, 8776)
+data_version_str = "0.0.post8778"
+data_version_tuple = (0, 0, 8778)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8776")
+    pdata_version = V("0.0.post8778")
 except ImportError:
     pass
-data_git_hash = "4d875cf4acae78db035a275d9080c2e8b84fe7a7"
-data_git_describe = "v0.0-8776-g4d875cf4a"
+data_git_hash = "f23cf6c309ac37c3270d27c5960e38bf60973ea4"
+data_git_describe = "v0.0-8778-gf23cf6c30"
 data_git_msg = """\
-commit 4d875cf4acae78db035a275d9080c2e8b84fe7a7
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Fri Nov 12 16:29:01 2021 +0000
+commit f23cf6c309ac37c3270d27c5960e38bf60973ea4
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Nov 26 10:47:16 2021 +0000
 
-    [sw, tests] Introduce retention SRAM execution test
+    [rom_ctrl] Mark rom_ctrl as D2
     
-    This test makes sure that execution from SRAM is disabled.
+    All checklist items are done.
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
