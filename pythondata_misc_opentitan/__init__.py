@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8934"
-version_tuple = (0, 0, 8934)
+version_str = "0.0.post8936"
+version_tuple = (0, 0, 8936)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8934")
+    pversion = V("0.0.post8936")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8822"
-data_version_tuple = (0, 0, 8822)
+data_version_str = "0.0.post8824"
+data_version_tuple = (0, 0, 8824)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8822")
+    pdata_version = V("0.0.post8824")
 except ImportError:
     pass
-data_git_hash = "6193adbcacd4b45e85c1f1a160004cc364b71558"
-data_git_describe = "v0.0-8822-g6193adbca"
+data_git_hash = "eac39e6f1ec17b897388cbf48bb6c0235fcee138"
+data_git_describe = "v0.0-8824-geac39e6f1"
 data_git_msg = """\
-commit 6193adbcacd4b45e85c1f1a160004cc364b71558
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Nov 23 01:01:29 2021 +0000
+commit eac39e6f1ec17b897388cbf48bb6c0235fcee138
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 22 17:36:11 2021 -0800
 
-    [spi_device] Connect watermark to interrupt source
+    [clkmgr] Change external clock switch qualifying condition
     
-    This commit connects the watermark event to the interrupt source.
+    - Fixes #9294
+    - Now software is able to request external clock during TEST_UNLOCKED,
+      DEV and RMA states.
     
-    watermark event occurs in SCK domain. The logic registers the comb
-    signal at SCK then pulse sync the signal into the bus clock domain
-    (sck_).
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
