@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8923"
-version_tuple = (0, 0, 8923)
+version_str = "0.0.post8928"
+version_tuple = (0, 0, 8928)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8923")
+    pversion = V("0.0.post8928")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8811"
-data_version_tuple = (0, 0, 8811)
+data_version_str = "0.0.post8816"
+data_version_tuple = (0, 0, 8816)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8811")
+    pdata_version = V("0.0.post8816")
 except ImportError:
     pass
-data_git_hash = "40b607b776d7b10cfc2899cc0d724d00dc0c91a2"
-data_git_describe = "v0.0-8811-g40b607b77"
+data_git_hash = "d9881e47c0acd1195b184d55e010be27e086ab20"
+data_git_describe = "v0.0-8816-gd9881e47c"
 data_git_msg = """\
-commit 40b607b776d7b10cfc2899cc0d724d00dc0c91a2
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Mon Nov 29 12:48:19 2021 +0000
+commit d9881e47c0acd1195b184d55e010be27e086ab20
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Nov 23 17:30:20 2021 -0800
 
-    [dv] Fix for rom_ctrl_tl_intg_err regression failure
+    [chip, dv] Move OTP image generation to DVSim
     
-    Following fixes have been made in this commit:
-    1. reset is done after run_tl_intg_err_vseq task finishes for both ral
-    models. Earlier, reset was asserted after the shortest task ended.
-    2. tl_access in issue_tl_access_w_intg_err is made to run on respective
-    ral model's sequencer. Earlier it was running only on default sequencer
+    There are a few updates in this commit.
+    1. The initial OTP image generation was handled by meson build.
+    Unfortulately, that prevents us from modifying the OTP image generation
+    in the extended closed source env which has a different OTP memory
+    layout than our generic model. The OTP generation step for DV is done
+    via DVSim (added to chip_sim_cfg.hjson as a `pre_run_cmd`)
+    2. All available OTP image flavors (for LC state RAW, DEV and RMA) are
+    constructed by default.
+    3. The chip_env_cfg now has supprt for choosing which of these flavors
+    to pick via a plusarg.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
