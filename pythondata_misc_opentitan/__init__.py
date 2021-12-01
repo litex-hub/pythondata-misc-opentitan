@@ -4,43 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8928"
-version_tuple = (0, 0, 8928)
+version_str = "0.0.post8934"
+version_tuple = (0, 0, 8934)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8928")
+    pversion = V("0.0.post8934")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8816"
-data_version_tuple = (0, 0, 8816)
+data_version_str = "0.0.post8822"
+data_version_tuple = (0, 0, 8822)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8816")
+    pdata_version = V("0.0.post8822")
 except ImportError:
     pass
-data_git_hash = "d9881e47c0acd1195b184d55e010be27e086ab20"
-data_git_describe = "v0.0-8816-gd9881e47c"
+data_git_hash = "6193adbcacd4b45e85c1f1a160004cc364b71558"
+data_git_describe = "v0.0-8822-g6193adbca"
 data_git_msg = """\
-commit d9881e47c0acd1195b184d55e010be27e086ab20
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Nov 23 17:30:20 2021 -0800
+commit 6193adbcacd4b45e85c1f1a160004cc364b71558
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Nov 23 01:01:29 2021 +0000
 
-    [chip, dv] Move OTP image generation to DVSim
+    [spi_device] Connect watermark to interrupt source
     
-    There are a few updates in this commit.
-    1. The initial OTP image generation was handled by meson build.
-    Unfortulately, that prevents us from modifying the OTP image generation
-    in the extended closed source env which has a different OTP memory
-    layout than our generic model. The OTP generation step for DV is done
-    via DVSim (added to chip_sim_cfg.hjson as a `pre_run_cmd`)
-    2. All available OTP image flavors (for LC state RAW, DEV and RMA) are
-    constructed by default.
-    3. The chip_env_cfg now has supprt for choosing which of these flavors
-    to pick via a plusarg.
+    This commit connects the watermark event to the interrupt source.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    watermark event occurs in SCK domain. The logic registers the comb
+    signal at SCK then pulse sync the signal into the bus clock domain
+    (sck_).
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
