@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8918"
-version_tuple = (0, 0, 8918)
+version_str = "0.0.post8919"
+version_tuple = (0, 0, 8919)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8918")
+    pversion = V("0.0.post8919")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8806"
-data_version_tuple = (0, 0, 8806)
+data_version_str = "0.0.post8807"
+data_version_tuple = (0, 0, 8807)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8806")
+    pdata_version = V("0.0.post8807")
 except ImportError:
     pass
-data_git_hash = "d2c31411b881704bf640b7160e7973e700cb6b7b"
-data_git_describe = "v0.0-8806-gd2c31411b"
+data_git_hash = "bca0862cc61c3f7f50782d76b9f16809cb2e0d74"
+data_git_describe = "v0.0-8807-gbca0862cc"
 data_git_msg = """\
-commit d2c31411b881704bf640b7160e7973e700cb6b7b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Nov 29 18:41:03 2021 -0800
+commit bca0862cc61c3f7f50782d76b9f16809cb2e0d74
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 30 14:17:52 2021 -0800
 
-    [rv_core_ibex] Fix recov_alert behavior
+    [dv/otp_ctrl] Fix otp regression failure
     
-    - Fixes #9415
-    - Make software alerts mubi types and make recoverable error self clearing
+    Fix otp_ctrl's regression failure on otp_init_test.
+    We inject ECC uncorrectable error on vendor_test_partition.
+    In design, this ECC uncorrectable error won't trigger alert.
+    This PR aligns the behavior on DV side.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
