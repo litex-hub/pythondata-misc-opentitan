@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8936"
-version_tuple = (0, 0, 8936)
+version_str = "0.0.post8937"
+version_tuple = (0, 0, 8937)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8936")
+    pversion = V("0.0.post8937")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8824"
-data_version_tuple = (0, 0, 8824)
+data_version_str = "0.0.post8825"
+data_version_tuple = (0, 0, 8825)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8824")
+    pdata_version = V("0.0.post8825")
 except ImportError:
     pass
-data_git_hash = "eac39e6f1ec17b897388cbf48bb6c0235fcee138"
-data_git_describe = "v0.0-8824-geac39e6f1"
+data_git_hash = "2e0a17b3b60bc40565ebc6d9a2564f604f0c6564"
+data_git_describe = "v0.0-8825-g2e0a17b3b"
 data_git_msg = """\
-commit eac39e6f1ec17b897388cbf48bb6c0235fcee138
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Nov 22 17:36:11 2021 -0800
+commit 2e0a17b3b60bc40565ebc6d9a2564f604f0c6564
+Author: Dror Kabely <dror.kabely@opentitan.org>
+Date:   Wed Dec 1 13:59:41 2021 +0200
 
-    [clkmgr] Change external clock switch qualifying condition
+    [dv/otp_ctrl] added post_pwr_otp_init to callback and base vseq
     
-    - Fixes #9294
-    - Now software is able to request external clock during TEST_UNLOCKED,
-      DEV and RMA states.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Dror Kabely <dror.kabely@opentitan.org>
 
 """
 
