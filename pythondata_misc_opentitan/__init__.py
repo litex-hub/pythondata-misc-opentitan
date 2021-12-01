@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8919"
-version_tuple = (0, 0, 8919)
+version_str = "0.0.post8921"
+version_tuple = (0, 0, 8921)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8919")
+    pversion = V("0.0.post8921")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8807"
-data_version_tuple = (0, 0, 8807)
+data_version_str = "0.0.post8809"
+data_version_tuple = (0, 0, 8809)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8807")
+    pdata_version = V("0.0.post8809")
 except ImportError:
     pass
-data_git_hash = "bca0862cc61c3f7f50782d76b9f16809cb2e0d74"
-data_git_describe = "v0.0-8807-gbca0862cc"
+data_git_hash = "a81a99c5491f11e4ba06958b45ce246f0b0687b4"
+data_git_describe = "v0.0-8809-ga81a99c54"
 data_git_msg = """\
-commit bca0862cc61c3f7f50782d76b9f16809cb2e0d74
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 30 14:17:52 2021 -0800
+commit a81a99c5491f11e4ba06958b45ce246f0b0687b4
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 22 16:57:11 2021 -0800
 
-    [dv/otp_ctrl] Fix otp regression failure
+    [adc_ctrl] Make handshake more robust
     
-    Fix otp_ctrl's regression failure on otp_init_test.
-    We inject ECC uncorrectable error on vendor_test_partition.
-    In design, this ECC uncorrectable error won't trigger alert.
-    This PR aligns the behavior on DV side.
+    - Fixes #9312
+    - Ensure valid is dropped before moving to ensure we don't accidentally
+      sample the same value multiple times.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
