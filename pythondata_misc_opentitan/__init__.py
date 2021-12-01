@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8913"
-version_tuple = (0, 0, 8913)
+version_str = "0.0.post8918"
+version_tuple = (0, 0, 8918)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8913")
+    pversion = V("0.0.post8918")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8801"
-data_version_tuple = (0, 0, 8801)
+data_version_str = "0.0.post8806"
+data_version_tuple = (0, 0, 8806)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8801")
+    pdata_version = V("0.0.post8806")
 except ImportError:
     pass
-data_git_hash = "fffa53a98af538c5a402e06de84243dfe7769610"
-data_git_describe = "v0.0-8801-gfffa53a98"
+data_git_hash = "d2c31411b881704bf640b7160e7973e700cb6b7b"
+data_git_describe = "v0.0-8806-gd2c31411b"
 data_git_msg = """\
-commit fffa53a98af538c5a402e06de84243dfe7769610
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Nov 29 15:43:13 2021 -0800
+commit d2c31411b881704bf640b7160e7973e700cb6b7b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 29 18:41:03 2021 -0800
 
-    [dv/clkmgr] Fix clkmgr_extclk test
+    [rv_core_ibex] Fix recov_alert behavior
     
-    Update the test for updates in the RTL.
+    - Fixes #9415
+    - Make software alerts mubi types and make recoverable error self clearing
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
