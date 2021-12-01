@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8937"
-version_tuple = (0, 0, 8937)
+version_str = "0.0.post8939"
+version_tuple = (0, 0, 8939)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8937")
+    pversion = V("0.0.post8939")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8825"
-data_version_tuple = (0, 0, 8825)
+data_version_str = "0.0.post8827"
+data_version_tuple = (0, 0, 8827)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8825")
+    pdata_version = V("0.0.post8827")
 except ImportError:
     pass
-data_git_hash = "2e0a17b3b60bc40565ebc6d9a2564f604f0c6564"
-data_git_describe = "v0.0-8825-g2e0a17b3b"
+data_git_hash = "62ecce1a869eba33d65b112bab37258328adda55"
+data_git_describe = "v0.0-8827-g62ecce1a8"
 data_git_msg = """\
-commit 2e0a17b3b60bc40565ebc6d9a2564f604f0c6564
-Author: Dror Kabely <dror.kabely@opentitan.org>
-Date:   Wed Dec 1 13:59:41 2021 +0200
+commit 62ecce1a869eba33d65b112bab37258328adda55
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Nov 23 16:54:36 2021 +0000
 
-    [dv/otp_ctrl] added post_pwr_otp_init to callback and base vseq
+    [spi_device] Connect Readbuf Flip interrupt
     
-    Signed-off-by: Dror Kabely <dror.kabely@opentitan.org>
+    This commit connects the readbuf flip event into the interrupt line.
+    The flip event may be high for multiple SCK cycles. The logic converts
+    the signal into single cycle pulse to use prim_pulse_sync.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
