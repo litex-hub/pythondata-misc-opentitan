@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8956"
-version_tuple = (0, 0, 8956)
+version_str = "0.0.post8957"
+version_tuple = (0, 0, 8957)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8956")
+    pversion = V("0.0.post8957")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8844"
-data_version_tuple = (0, 0, 8844)
+data_version_str = "0.0.post8845"
+data_version_tuple = (0, 0, 8845)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8844")
+    pdata_version = V("0.0.post8845")
 except ImportError:
     pass
-data_git_hash = "d8b96e18a6b7c8f794bbf782667ec0b5fd6b9819"
-data_git_describe = "v0.0-8844-gd8b96e18a"
+data_git_hash = "c1bd139dc158a06af943b4f93130a9ffeccc381e"
+data_git_describe = "v0.0-8845-gc1bd139dc"
 data_git_msg = """\
-commit d8b96e18a6b7c8f794bbf782667ec0b5fd6b9819
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Nov 30 15:13:57 2021 -0500
+commit c1bd139dc158a06af943b4f93130a9ffeccc381e
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Dec 1 17:42:09 2021 +0000
 
-    [sw/silicon_creator] Use flash_ctrl_info_mp_set() in boot_data and update functest
+    [bazel] add entries for bazel to CODEOWNERS
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Assign codeownership for
+    * BUILD
+    * WORKSPACE
+    * *.bzl
+    * .bazelrc
+    files to drewmacrae and cfrantz to help automate reviewing.
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
