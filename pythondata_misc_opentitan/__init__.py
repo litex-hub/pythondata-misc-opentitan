@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8970"
-version_tuple = (0, 0, 8970)
+version_str = "0.0.post8973"
+version_tuple = (0, 0, 8973)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8970")
+    pversion = V("0.0.post8973")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8858"
-data_version_tuple = (0, 0, 8858)
+data_version_str = "0.0.post8861"
+data_version_tuple = (0, 0, 8861)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8858")
+    pdata_version = V("0.0.post8861")
 except ImportError:
     pass
-data_git_hash = "e752910da4375ee7b1d297a3e3833a70d6ccdb1b"
-data_git_describe = "v0.0-8858-ge752910da"
+data_git_hash = "a8347d0e91a7ed00e2d85f7c6f9f1ffe2e3ab356"
+data_git_describe = "v0.0-8861-ga8347d0e9"
 data_git_msg = """\
-commit e752910da4375ee7b1d297a3e3833a70d6ccdb1b
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Dec 1 17:23:34 2021 -0800
+commit a8347d0e91a7ed00e2d85f7c6f9f1ffe2e3ab356
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Dec 1 16:29:34 2021 -0500
 
-    [dv/alert_esc_agent] Add alert_esc lpg coverage
+    [sw/silicon_creator] Integrate boot_data to boot_policy, update unittest
     
-    Add coverage on alert and ping's lpg.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
