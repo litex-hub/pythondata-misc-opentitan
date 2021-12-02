@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8941"
-version_tuple = (0, 0, 8941)
+version_str = "0.0.post8946"
+version_tuple = (0, 0, 8946)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8941")
+    pversion = V("0.0.post8946")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8829"
-data_version_tuple = (0, 0, 8829)
+data_version_str = "0.0.post8834"
+data_version_tuple = (0, 0, 8834)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8829")
+    pdata_version = V("0.0.post8834")
 except ImportError:
     pass
-data_git_hash = "c5f2c32f4a0841bbc013e9076534c6cbbd5fe037"
-data_git_describe = "v0.0-8829-gc5f2c32f4"
+data_git_hash = "7a82fe9e23420b6f1442b8e7f92cdc3ac2f33eb8"
+data_git_describe = "v0.0-8834-g7a82fe9e2"
 data_git_msg = """\
-commit c5f2c32f4a0841bbc013e9076534c6cbbd5fe037
+commit 7a82fe9e23420b6f1442b8e7f92cdc3ac2f33eb8
 Author: kosta-kojdic <kosta.kojdic@ensilica.com>
-Date:   Tue Nov 30 11:10:36 2021 +0000
+Date:   Wed Dec 1 13:03:58 2021 +0000
 
-    End of lile lines
+    Host driver capability of driving less than a byte
     
     Signed-off-by: kosta-kojdic <kosta.kojdic@ensilica.com>
 
