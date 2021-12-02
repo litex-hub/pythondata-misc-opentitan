@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8940"
-version_tuple = (0, 0, 8940)
+version_str = "0.0.post8941"
+version_tuple = (0, 0, 8941)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8940")
+    pversion = V("0.0.post8941")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8828"
-data_version_tuple = (0, 0, 8828)
+data_version_str = "0.0.post8829"
+data_version_tuple = (0, 0, 8829)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8828")
+    pdata_version = V("0.0.post8829")
 except ImportError:
     pass
-data_git_hash = "0fd56dd5658005d576a0440a268de6028818244e"
-data_git_describe = "v0.0-8828-g0fd56dd56"
+data_git_hash = "c5f2c32f4a0841bbc013e9076534c6cbbd5fe037"
+data_git_describe = "v0.0-8829-gc5f2c32f4"
 data_git_msg = """\
-commit 0fd56dd5658005d576a0440a268de6028818244e
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Nov 30 12:54:12 2021 -0800
+commit c5f2c32f4a0841bbc013e9076534c6cbbd5fe037
+Author: kosta-kojdic <kosta.kojdic@ensilica.com>
+Date:   Tue Nov 30 11:10:36 2021 +0000
 
-    [lc_ctrl] Correct invalid state error indication
+    End of lile lines
     
-    Fixes #9431
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: kosta-kojdic <kosta.kojdic@ensilica.com>
 
 """
 
