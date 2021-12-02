@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8946"
-version_tuple = (0, 0, 8946)
+version_str = "0.0.post8947"
+version_tuple = (0, 0, 8947)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8946")
+    pversion = V("0.0.post8947")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8834"
-data_version_tuple = (0, 0, 8834)
+data_version_str = "0.0.post8835"
+data_version_tuple = (0, 0, 8835)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8834")
+    pdata_version = V("0.0.post8835")
 except ImportError:
     pass
-data_git_hash = "7a82fe9e23420b6f1442b8e7f92cdc3ac2f33eb8"
-data_git_describe = "v0.0-8834-g7a82fe9e2"
+data_git_hash = "1d43766387b8fd976c0d6d665298b885ccb1b68c"
+data_git_describe = "v0.0-8835-g1d4376638"
 data_git_msg = """\
-commit 7a82fe9e23420b6f1442b8e7f92cdc3ac2f33eb8
-Author: kosta-kojdic <kosta.kojdic@ensilica.com>
-Date:   Wed Dec 1 13:03:58 2021 +0000
+commit 1d43766387b8fd976c0d6d665298b885ccb1b68c
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Wed Nov 3 12:38:35 2021 +0000
 
-    Host driver capability of driving less than a byte
+    [flash_ctrl] Modification of testplan according to comments in pull request
     
-    Signed-off-by: kosta-kojdic <kosta.kojdic@ensilica.com>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
