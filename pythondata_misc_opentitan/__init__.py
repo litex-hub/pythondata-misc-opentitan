@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8969"
-version_tuple = (0, 0, 8969)
+version_str = "0.0.post8970"
+version_tuple = (0, 0, 8970)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8969")
+    pversion = V("0.0.post8970")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8857"
-data_version_tuple = (0, 0, 8857)
+data_version_str = "0.0.post8858"
+data_version_tuple = (0, 0, 8858)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8857")
+    pdata_version = V("0.0.post8858")
 except ImportError:
     pass
-data_git_hash = "39a1822e6ce3ecd9af443525e41ed258d9225264"
-data_git_describe = "v0.0-8857-g39a1822e6"
+data_git_hash = "e752910da4375ee7b1d297a3e3833a70d6ccdb1b"
+data_git_describe = "v0.0-8858-ge752910da"
 data_git_msg = """\
-commit 39a1822e6ce3ecd9af443525e41ed258d9225264
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Nov 23 22:33:18 2021 +0000
+commit e752910da4375ee7b1d297a3e3833a70d6ccdb1b
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Dec 1 17:23:34 2021 -0800
 
-    [ottf,mask_rom] Migrate all mask ROM func tests to OTTF.
+    [dv/alert_esc_agent] Add alert_esc lpg coverage
     
-    This commit migrates all mask ROM func tests to the OTTF, from the old
-    (soon to be deprecated) on-device test framework.
+    Add coverage on alert and ping's lpg.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
