@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8963"
-version_tuple = (0, 0, 8963)
+version_str = "0.0.post8967"
+version_tuple = (0, 0, 8967)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8963")
+    pversion = V("0.0.post8967")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8851"
-data_version_tuple = (0, 0, 8851)
+data_version_str = "0.0.post8855"
+data_version_tuple = (0, 0, 8855)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8851")
+    pdata_version = V("0.0.post8855")
 except ImportError:
     pass
-data_git_hash = "ddd38eef81257a44436cc84458954f60c1313243"
-data_git_describe = "v0.0-8851-gddd38eef8"
+data_git_hash = "34ba5e45f9af7d8ca6c9bdae8bd11eeeeb669d6c"
+data_git_describe = "v0.0-8855-g34ba5e45f"
 data_git_msg = """\
-commit ddd38eef81257a44436cc84458954f60c1313243
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Dec 2 10:31:02 2021 -0500
+commit 34ba5e45f9af7d8ca6c9bdae8bd11eeeeb669d6c
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Nov 16 14:01:13 2021 -0800
 
-    [sw/silicon_creator] Add lifecycle_state_name_get()
+    [secded/fpv] Add new ECC code FPV testbenches
     
-    Values of the life cycle states were updated in #9319. This change adds
-    a utility function for getting human-readable state names using the new
-    state values.
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
