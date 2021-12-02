@@ -4,39 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8957"
-version_tuple = (0, 0, 8957)
+version_str = "0.0.post8961"
+version_tuple = (0, 0, 8961)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8957")
+    pversion = V("0.0.post8961")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8845"
-data_version_tuple = (0, 0, 8845)
+data_version_str = "0.0.post8849"
+data_version_tuple = (0, 0, 8849)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8845")
+    pdata_version = V("0.0.post8849")
 except ImportError:
     pass
-data_git_hash = "c1bd139dc158a06af943b4f93130a9ffeccc381e"
-data_git_describe = "v0.0-8845-gc1bd139dc"
+data_git_hash = "974d70489a48b51fd3ac570044e32bbebad8f5be"
+data_git_describe = "v0.0-8849-g974d70489"
 data_git_msg = """\
-commit c1bd139dc158a06af943b4f93130a9ffeccc381e
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Dec 1 17:42:09 2021 +0000
+commit 974d70489a48b51fd3ac570044e32bbebad8f5be
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sun Nov 7 15:15:26 2021 -0800
 
-    [bazel] add entries for bazel to CODEOWNERS
+    [spi_host] Cleanup AscentLint errors, add waivers
     
-    Assign codeownership for
-    * BUILD
-    * WORKSPACE
-    * *.bzl
-    * .bazelrc
-    files to drewmacrae and cfrantz to help automate reviewing.
+    - Remove an ASSERT that was being flagged as a null assertion.
+    - Request waivers for ascent lint rule CALC_NEXT_STATE for certain FSM state
+      transitions, in which the SPI_HOST FSM uses signals to ensure that idle state
+      transitions are performed consistently.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
