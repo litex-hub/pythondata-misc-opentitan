@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8961"
-version_tuple = (0, 0, 8961)
+version_str = "0.0.post8963"
+version_tuple = (0, 0, 8963)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8961")
+    pversion = V("0.0.post8963")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8849"
-data_version_tuple = (0, 0, 8849)
+data_version_str = "0.0.post8851"
+data_version_tuple = (0, 0, 8851)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8849")
+    pdata_version = V("0.0.post8851")
 except ImportError:
     pass
-data_git_hash = "974d70489a48b51fd3ac570044e32bbebad8f5be"
-data_git_describe = "v0.0-8849-g974d70489"
+data_git_hash = "ddd38eef81257a44436cc84458954f60c1313243"
+data_git_describe = "v0.0-8851-gddd38eef8"
 data_git_msg = """\
-commit 974d70489a48b51fd3ac570044e32bbebad8f5be
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sun Nov 7 15:15:26 2021 -0800
+commit ddd38eef81257a44436cc84458954f60c1313243
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Dec 2 10:31:02 2021 -0500
 
-    [spi_host] Cleanup AscentLint errors, add waivers
+    [sw/silicon_creator] Add lifecycle_state_name_get()
     
-    - Remove an ASSERT that was being flagged as a null assertion.
-    - Request waivers for ascent lint rule CALC_NEXT_STATE for certain FSM state
-      transitions, in which the SPI_HOST FSM uses signals to ensure that idle state
-      transitions are performed consistently.
+    Values of the life cycle states were updated in #9319. This change adds
+    a utility function for getting human-readable state names using the new
+    state values.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
