@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8967"
-version_tuple = (0, 0, 8967)
+version_str = "0.0.post8969"
+version_tuple = (0, 0, 8969)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8967")
+    pversion = V("0.0.post8969")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8855"
-data_version_tuple = (0, 0, 8855)
+data_version_str = "0.0.post8857"
+data_version_tuple = (0, 0, 8857)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8855")
+    pdata_version = V("0.0.post8857")
 except ImportError:
     pass
-data_git_hash = "34ba5e45f9af7d8ca6c9bdae8bd11eeeeb669d6c"
-data_git_describe = "v0.0-8855-g34ba5e45f"
+data_git_hash = "39a1822e6ce3ecd9af443525e41ed258d9225264"
+data_git_describe = "v0.0-8857-g39a1822e6"
 data_git_msg = """\
-commit 34ba5e45f9af7d8ca6c9bdae8bd11eeeeb669d6c
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Nov 16 14:01:13 2021 -0800
+commit 39a1822e6ce3ecd9af443525e41ed258d9225264
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Nov 23 22:33:18 2021 +0000
 
-    [secded/fpv] Add new ECC code FPV testbenches
+    [ottf,mask_rom] Migrate all mask ROM func tests to OTTF.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This commit migrates all mask ROM func tests to the OTTF, from the old
+    (soon to be deprecated) on-device test framework.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
