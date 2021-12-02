@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8952"
-version_tuple = (0, 0, 8952)
+version_str = "0.0.post8953"
+version_tuple = (0, 0, 8953)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8952")
+    pversion = V("0.0.post8953")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8840"
-data_version_tuple = (0, 0, 8840)
+data_version_str = "0.0.post8841"
+data_version_tuple = (0, 0, 8841)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8840")
+    pdata_version = V("0.0.post8841")
 except ImportError:
     pass
-data_git_hash = "c6213a373d5da9d798903560e94f43f937b4e36f"
-data_git_describe = "v0.0-8840-gc6213a373"
+data_git_hash = "e3370ba2a7720aba763040013856c374d8395b4b"
+data_git_describe = "v0.0-8841-ge3370ba2a"
 data_git_msg = """\
-commit c6213a373d5da9d798903560e94f43f937b4e36f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Dec 1 15:01:30 2021 +0000
+commit e3370ba2a7720aba763040013856c374d8395b4b
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Wed Nov 24 10:09:52 2021 +0000
 
-    [rom_ctrl] Check TL command integrity in ROM adapter
+    [rom_ctrl, dv] Fix for rom_ctrl_tl_errors regression failures
     
-    This fixes the rom_ctrl_tl_intg_err test (where we weren't previously
-    spotting malformed TL commands sent to the ROM).
+    Following changes are made in this commit:
+    1. cip_base_vseq__tl_errors: Dafault sequencer has been removed in
+    create_tl_access_error_case as it introduced unwanted bugs by running on
+    default sequencer.
+    tl_write_ro_mem_err is made to run on corresponding RAL model's
+    sequencer
+    2. rom_ctrl_scoreboard: If an invalid address is picked, the scoreboard
+    is taught not to generate errors.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
