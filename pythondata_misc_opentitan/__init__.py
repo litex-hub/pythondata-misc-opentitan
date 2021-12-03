@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8981"
-version_tuple = (0, 0, 8981)
+version_str = "0.0.post8983"
+version_tuple = (0, 0, 8983)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8981")
+    pversion = V("0.0.post8983")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8869"
-data_version_tuple = (0, 0, 8869)
+data_version_str = "0.0.post8871"
+data_version_tuple = (0, 0, 8871)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8869")
+    pdata_version = V("0.0.post8871")
 except ImportError:
     pass
-data_git_hash = "d5c2d7f97e302b9341587da70483f66bfe41cec2"
-data_git_describe = "v0.0-8869-gd5c2d7f97"
+data_git_hash = "8adc6a53f743f670cb100890722dfa14803912ba"
+data_git_describe = "v0.0-8871-g8adc6a53f"
 data_git_msg = """\
-commit d5c2d7f97e302b9341587da70483f66bfe41cec2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Dec 2 17:10:00 2021 -0800
+commit 8adc6a53f743f670cb100890722dfa14803912ba
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Fri Dec 3 07:16:07 2021 -0800
 
-    [edn / csrng / entropy_src] swap to dv streamlined sparse_fsm
+    [sideload] fixed sideload if
     
-    - no functional changes
-    - part of #9447 for these blocks
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
