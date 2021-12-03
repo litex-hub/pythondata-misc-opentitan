@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8990"
-version_tuple = (0, 0, 8990)
+version_str = "0.0.post8994"
+version_tuple = (0, 0, 8994)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8990")
+    pversion = V("0.0.post8994")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8878"
-data_version_tuple = (0, 0, 8878)
+data_version_str = "0.0.post8882"
+data_version_tuple = (0, 0, 8882)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8878")
+    pdata_version = V("0.0.post8882")
 except ImportError:
     pass
-data_git_hash = "d9d2faa7b33f8bb45931778792d930b13f421f9d"
-data_git_describe = "v0.0-8878-gd9d2faa7b"
+data_git_hash = "dba483318b746674f0681170520bd2d7a3e4483b"
+data_git_describe = "v0.0-8882-gdba483318"
 data_git_msg = """\
-commit d9d2faa7b33f8bb45931778792d930b13f421f9d
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Nov 3 13:18:04 2021 -0700
+commit dba483318b746674f0681170520bd2d7a3e4483b
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Dec 2 16:09:28 2021 -0800
 
-    [syn/cdc] Tune SDC file to fix all SDC warnings/errors in CDC
+    [spi_device/dv] Update testplan for FW mode
     
-    This introduces some more flexibility to the SDC file so that we can
-    reuse it for open-source-only CDC runs where the hookup paths have
-    different hierarchical names.
+    Remove mem_ecc and mode as not needed
+    Update tx/rx_async_fifo_reset
     
-    Also, there are a few constraints that CDC does not understand, and we
-    introduce a variable to exclude them conditionally for CDC flows.
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
