@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8979"
-version_tuple = (0, 0, 8979)
+version_str = "0.0.post8981"
+version_tuple = (0, 0, 8981)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8979")
+    pversion = V("0.0.post8981")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8867"
-data_version_tuple = (0, 0, 8867)
+data_version_str = "0.0.post8869"
+data_version_tuple = (0, 0, 8869)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8867")
+    pdata_version = V("0.0.post8869")
 except ImportError:
     pass
-data_git_hash = "3f2e231e8da7b8cc5b309c080ca61d4fe3dcbc8c"
-data_git_describe = "v0.0-8867-g3f2e231e8"
+data_git_hash = "d5c2d7f97e302b9341587da70483f66bfe41cec2"
+data_git_describe = "v0.0-8869-gd5c2d7f97"
 data_git_msg = """\
-commit 3f2e231e8da7b8cc5b309c080ca61d4fe3dcbc8c
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu Dec 2 21:56:00 2021 +0000
+commit d5c2d7f97e302b9341587da70483f66bfe41cec2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Dec 2 17:10:00 2021 -0800
 
-    [bazel] build without -Wpedantic
+    [edn / csrng / entropy_src] swap to dv streamlined sparse_fsm
     
-    If we disable to all_warnings feature for bazel_embedded we can silence
-    the variadic macro warnings and some others that result from building
-    with -Wpedantic and -std=c11.
+    - no functional changes
+    - part of #9447 for these blocks
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
