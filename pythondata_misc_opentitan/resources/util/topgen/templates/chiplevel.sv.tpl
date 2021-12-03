@@ -551,8 +551,6 @@ module chip_${top["name"]}_${target["name"]} (
   tlul_pkg::tl_h2d_t base_ast_bus;
   tlul_pkg::tl_d2h_t ast_base_bus;
 
-  assign ast_base_pwr.main_pok = ast_pwst.main_pok;
-
   // synchronization clocks / rests
   clkmgr_pkg::clkmgr_out_t clkmgr_aon_clocks;
   rstmgr_pkg::rstmgr_out_t rstmgr_aon_resets;
@@ -677,6 +675,8 @@ module chip_${top["name"]}_${target["name"]} (
 
 % if target["name"] == "asic":
 
+  assign ast_base_pwr.main_pok = ast_pwst.main_pok;
+
   logic [ast_pkg::UsbCalibWidth-1:0] usb_io_pu_cal;
 
   // external clock comes in at a fixed position
@@ -706,6 +706,8 @@ module chip_${top["name"]}_${target["name"]} (
   // TODO: Hook this up when FPGA pads are updated
   assign ext_clk = '0;
   assign pad2ast = '0;
+
+  assign ast_base_pwr.main_pok = base_ast_pwr.main_pd_n;
 
   logic clk_main, clk_usb_48mhz, clk_aon, rst_n;
   clkgen_xil7series # (
@@ -1134,23 +1136,6 @@ module chip_${top["name"]}_${target["name"]} (
   //////////////////////
   // Top-level design //
   //////////////////////
-  pwrmgr_pkg::pwr_ast_rsp_t ast_base_pwr;
-  ast_pkg::ast_alert_req_t ast_base_alerts;
-  ast_pkg::ast_status_t ast_base_status;
-
-  assign ast_base_pwr.slow_clk_val = 1'b1;
-  assign ast_base_pwr.core_clk_val = 1'b1;
-  assign ast_base_pwr.io_clk_val   = 1'b1;
-  assign ast_base_pwr.usb_clk_val  = 1'b1;
-  assign ast_base_pwr.main_pok     = 1'b1;
-
-  ast_pkg::ast_dif_t silent_alert = '{
-                                       p: 1'b0,
-                                       n: 1'b1
-                                     };
-
-  assign ast_base_alerts.alerts = {ast_pkg::NumAlerts{silent_alert}};
-  assign ast_base_status.io_pok = {ast_pkg::NumIoRails{1'b1}};
 
   // the rst_ni pin only goes to AST
   // the rest of the logic generates reset based on the 'pok' signal.
