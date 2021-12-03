@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8975"
-version_tuple = (0, 0, 8975)
+version_str = "0.0.post8976"
+version_tuple = (0, 0, 8976)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8975")
+    pversion = V("0.0.post8976")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8863"
-data_version_tuple = (0, 0, 8863)
+data_version_str = "0.0.post8864"
+data_version_tuple = (0, 0, 8864)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8863")
+    pdata_version = V("0.0.post8864")
 except ImportError:
     pass
-data_git_hash = "caeb0b7ea2966dadbaa60357e045ff64d68e8c72"
-data_git_describe = "v0.0-8863-gcaeb0b7ea"
+data_git_hash = "4e9df5489bae93f95969dd6f6859ddad8e28d1e3"
+data_git_describe = "v0.0-8864-g4e9df5489"
 data_git_msg = """\
-commit caeb0b7ea2966dadbaa60357e045ff64d68e8c72
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 30 17:47:10 2021 -0800
+commit 4e9df5489bae93f95969dd6f6859ddad8e28d1e3
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Dec 2 16:47:20 2021 -0800
 
-    [flash_ctrl] Various documentation update
+    [reggen] Add tentative list of assets and cm types
     
-    - fixes #9205
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
