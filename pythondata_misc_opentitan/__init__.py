@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8994"
-version_tuple = (0, 0, 8994)
+version_str = "0.0.post8995"
+version_tuple = (0, 0, 8995)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8994")
+    pversion = V("0.0.post8995")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8882"
-data_version_tuple = (0, 0, 8882)
+data_version_str = "0.0.post8883"
+data_version_tuple = (0, 0, 8883)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8882")
+    pdata_version = V("0.0.post8883")
 except ImportError:
     pass
-data_git_hash = "dba483318b746674f0681170520bd2d7a3e4483b"
-data_git_describe = "v0.0-8882-gdba483318"
+data_git_hash = "9cb3da85f2a1c8c84e38913b6febac9d40b49446"
+data_git_describe = "v0.0-8883-g9cb3da85f"
 data_git_msg = """\
-commit dba483318b746674f0681170520bd2d7a3e4483b
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Dec 2 16:09:28 2021 -0800
+commit 9cb3da85f2a1c8c84e38913b6febac9d40b49446
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Nov 30 20:06:05 2021 -0800
 
-    [spi_device/dv] Update testplan for FW mode
+    [dv/pwrmgr] Add lowpower wakeup race test
     
-    Remove mem_ecc and mode as not needed
-    Update tx/rx_async_fifo_reset
+    Add ignore_bins directive for no reset case.
+    Add sw_rst_req_i to interface in order to trigger sw resets.
+    Enhance reset_cg for sw_rst and improve crosses.
+    Fix sampling of wakeup_status in interface.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
