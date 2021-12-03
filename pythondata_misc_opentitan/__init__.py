@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8983"
-version_tuple = (0, 0, 8983)
+version_str = "0.0.post8987"
+version_tuple = (0, 0, 8987)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8983")
+    pversion = V("0.0.post8987")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8871"
-data_version_tuple = (0, 0, 8871)
+data_version_str = "0.0.post8875"
+data_version_tuple = (0, 0, 8875)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8871")
+    pdata_version = V("0.0.post8875")
 except ImportError:
     pass
-data_git_hash = "8adc6a53f743f670cb100890722dfa14803912ba"
-data_git_describe = "v0.0-8871-g8adc6a53f"
+data_git_hash = "3fdc7395d36a3c3b07614b5ea6e1a54794b4952e"
+data_git_describe = "v0.0-8875-g3fdc7395d"
 data_git_msg = """\
-commit 8adc6a53f743f670cb100890722dfa14803912ba
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Fri Dec 3 07:16:07 2021 -0800
+commit 3fdc7395d36a3c3b07614b5ea6e1a54794b4952e
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Dec 3 06:46:24 2021 -0800
 
-    [sideload] fixed sideload if
+    [entropy_src/doc] uninstantiate command update
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    The documentation has been updated to restrict the clen of an uninstantiate command to be zero.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
