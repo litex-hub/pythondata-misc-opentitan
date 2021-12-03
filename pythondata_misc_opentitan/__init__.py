@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8978"
-version_tuple = (0, 0, 8978)
+version_str = "0.0.post8979"
+version_tuple = (0, 0, 8979)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8978")
+    pversion = V("0.0.post8979")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8866"
-data_version_tuple = (0, 0, 8866)
+data_version_str = "0.0.post8867"
+data_version_tuple = (0, 0, 8867)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8866")
+    pdata_version = V("0.0.post8867")
 except ImportError:
     pass
-data_git_hash = "76e0cfa48f9a7e63093a949e19c20ed4baca805f"
-data_git_describe = "v0.0-8866-g76e0cfa48"
+data_git_hash = "3f2e231e8da7b8cc5b309c080ca61d4fe3dcbc8c"
+data_git_describe = "v0.0-8867-g3f2e231e8"
 data_git_msg = """\
-commit 76e0cfa48f9a7e63093a949e19c20ed4baca805f
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Dec 2 15:28:25 2021 -0800
+commit 3f2e231e8da7b8cc5b309c080ca61d4fe3dcbc8c
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Thu Dec 2 21:56:00 2021 +0000
 
-    [syn] Fix SDC constraint
+    [bazel] build without -Wpedantic
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    If we disable to all_warnings feature for bazel_embedded we can silence
+    the variadic macro warnings and some others that result from building
+    with -Wpedantic and -std=c11.
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
