@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8973"
-version_tuple = (0, 0, 8973)
+version_str = "0.0.post8975"
+version_tuple = (0, 0, 8975)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8973")
+    pversion = V("0.0.post8975")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8861"
-data_version_tuple = (0, 0, 8861)
+data_version_str = "0.0.post8863"
+data_version_tuple = (0, 0, 8863)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8861")
+    pdata_version = V("0.0.post8863")
 except ImportError:
     pass
-data_git_hash = "a8347d0e91a7ed00e2d85f7c6f9f1ffe2e3ab356"
-data_git_describe = "v0.0-8861-ga8347d0e9"
+data_git_hash = "caeb0b7ea2966dadbaa60357e045ff64d68e8c72"
+data_git_describe = "v0.0-8863-gcaeb0b7ea"
 data_git_msg = """\
-commit a8347d0e91a7ed00e2d85f7c6f9f1ffe2e3ab356
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Dec 1 16:29:34 2021 -0500
+commit caeb0b7ea2966dadbaa60357e045ff64d68e8c72
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Nov 30 17:47:10 2021 -0800
 
-    [sw/silicon_creator] Integrate boot_data to boot_policy, update unittest
+    [flash_ctrl] Various documentation update
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    - fixes #9205
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
