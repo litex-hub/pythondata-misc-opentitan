@@ -4,35 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8995"
-version_tuple = (0, 0, 8995)
+version_str = "0.0.post8996"
+version_tuple = (0, 0, 8996)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8995")
+    pversion = V("0.0.post8996")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8883"
-data_version_tuple = (0, 0, 8883)
+data_version_str = "0.0.post8884"
+data_version_tuple = (0, 0, 8884)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8883")
+    pdata_version = V("0.0.post8884")
 except ImportError:
     pass
-data_git_hash = "9cb3da85f2a1c8c84e38913b6febac9d40b49446"
-data_git_describe = "v0.0-8883-g9cb3da85f"
+data_git_hash = "778cad7e1e6c248ff21f0301ec30253c00d62196"
+data_git_describe = "v0.0-8884-g778cad7e1"
 data_git_msg = """\
-commit 9cb3da85f2a1c8c84e38913b6febac9d40b49446
+commit 778cad7e1e6c248ff21f0301ec30253c00d62196
 Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Nov 30 20:06:05 2021 -0800
+Date:   Wed Dec 1 12:55:06 2021 -0800
 
-    [dv/pwrmgr] Add lowpower wakeup race test
-    
-    Add ignore_bins directive for no reset case.
-    Add sw_rst_req_i to interface in order to trigger sw resets.
-    Enhance reset_cg for sw_rst and improve crosses.
-    Fix sampling of wakeup_status in interface.
+    [dv/lc_tx_t] Simplify mubi4 and lc_tx_t randomization
     
     Signed-off-by: Guillermo Maturana <maturana@google.com>
 
