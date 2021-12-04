@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9000"
-version_tuple = (0, 0, 9000)
+version_str = "0.0.post9004"
+version_tuple = (0, 0, 9004)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9000")
+    pversion = V("0.0.post9004")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8888"
-data_version_tuple = (0, 0, 8888)
+data_version_str = "0.0.post8892"
+data_version_tuple = (0, 0, 8892)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8888")
+    pdata_version = V("0.0.post8892")
 except ImportError:
     pass
-data_git_hash = "ad7f46d67644239ab81d6572d87554e5d3eacc40"
-data_git_describe = "v0.0-8888-gad7f46d67"
+data_git_hash = "af8e8d99f5241befe1ee1d3c6e173218e3fa81a5"
+data_git_describe = "v0.0-8892-gaf8e8d99f"
 data_git_msg = """\
-commit ad7f46d67644239ab81d6572d87554e5d3eacc40
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Sep 30 09:15:08 2021 -0700
+commit af8e8d99f5241befe1ee1d3c6e173218e3fa81a5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Dec 2 21:11:58 2021 -0800
 
-    [doc] Set up PLL when getting started with CW310
+    [flash_ctrl] Correctly handle over-write / over-read scenarios.
     
-    If the --set-pll-defaults argument is missing, the new user will have
-    no clock.
+    - Partially addresses #9496
+    - The fix at the moment is incomplete.  On software over-reads
+      we should really error back.  However, our DV does not currently
+      support excluding windows from automated tests.  Until that happens
+      make the failure a silent failure, but at least ensure the system
+      does not hang.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
