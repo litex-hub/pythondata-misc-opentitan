@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9004"
-version_tuple = (0, 0, 9004)
+version_str = "0.0.post9005"
+version_tuple = (0, 0, 9005)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9004")
+    pversion = V("0.0.post9005")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8892"
-data_version_tuple = (0, 0, 8892)
+data_version_str = "0.0.post8893"
+data_version_tuple = (0, 0, 8893)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8892")
+    pdata_version = V("0.0.post8893")
 except ImportError:
     pass
-data_git_hash = "af8e8d99f5241befe1ee1d3c6e173218e3fa81a5"
-data_git_describe = "v0.0-8892-gaf8e8d99f"
+data_git_hash = "67744911c3dd563b7e16f22c81d4c9010e51defe"
+data_git_describe = "v0.0-8893-g67744911c"
 data_git_msg = """\
-commit af8e8d99f5241befe1ee1d3c6e173218e3fa81a5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Dec 2 21:11:58 2021 -0800
+commit 67744911c3dd563b7e16f22c81d4c9010e51defe
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Dec 3 14:13:14 2021 -0800
 
-    [flash_ctrl] Correctly handle over-write / over-read scenarios.
+    [dv/pwrmgr] Remove unnecessary "rand" attribute
     
-    - Partially addresses #9496
-    - The fix at the moment is incomplete.  On software over-reads
-      we should really error back.  However, our DV does not currently
-      support excluding windows from automated tests.  Until that happens
-      make the failure a silent failure, but at least ensure the system
-      does not hang.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
