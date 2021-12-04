@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post8996"
-version_tuple = (0, 0, 8996)
+version_str = "0.0.post9000"
+version_tuple = (0, 0, 9000)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post8996")
+    pversion = V("0.0.post9000")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8884"
-data_version_tuple = (0, 0, 8884)
+data_version_str = "0.0.post8888"
+data_version_tuple = (0, 0, 8888)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8884")
+    pdata_version = V("0.0.post8888")
 except ImportError:
     pass
-data_git_hash = "778cad7e1e6c248ff21f0301ec30253c00d62196"
-data_git_describe = "v0.0-8884-g778cad7e1"
+data_git_hash = "ad7f46d67644239ab81d6572d87554e5d3eacc40"
+data_git_describe = "v0.0-8888-gad7f46d67"
 data_git_msg = """\
-commit 778cad7e1e6c248ff21f0301ec30253c00d62196
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Dec 1 12:55:06 2021 -0800
+commit ad7f46d67644239ab81d6572d87554e5d3eacc40
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Sep 30 09:15:08 2021 -0700
 
-    [dv/lc_tx_t] Simplify mubi4 and lc_tx_t randomization
+    [doc] Set up PLL when getting started with CW310
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    If the --set-pll-defaults argument is missing, the new user will have
+    no clock.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
