@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9005"
-version_tuple = (0, 0, 9005)
+version_str = "0.0.post9006"
+version_tuple = (0, 0, 9006)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9005")
+    pversion = V("0.0.post9006")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8893"
-data_version_tuple = (0, 0, 8893)
+data_version_str = "0.0.post8894"
+data_version_tuple = (0, 0, 8894)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8893")
+    pdata_version = V("0.0.post8894")
 except ImportError:
     pass
-data_git_hash = "67744911c3dd563b7e16f22c81d4c9010e51defe"
-data_git_describe = "v0.0-8893-g67744911c"
+data_git_hash = "f6eebeee722ce608ad4500f8b13239c4c849235e"
+data_git_describe = "v0.0-8894-gf6eebeee7"
 data_git_msg = """\
-commit 67744911c3dd563b7e16f22c81d4c9010e51defe
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Dec 3 14:13:14 2021 -0800
+commit f6eebeee722ce608ad4500f8b13239c4c849235e
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Dec 2 15:36:44 2021 -0800
 
-    [dv/pwrmgr] Remove unnecessary "rand" attribute
+    [sram/dv] Fix access_during_key_req
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    1. updated seq and scb to avoid timing precise check
+    2. moved mem_init to scb
+    3. disabled intg check if we only request key update without init
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
