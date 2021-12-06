@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9006"
-version_tuple = (0, 0, 9006)
+version_str = "0.0.post9007"
+version_tuple = (0, 0, 9007)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9006")
+    pversion = V("0.0.post9007")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post8894"
-data_version_tuple = (0, 0, 8894)
+data_version_str = "0.0.post8895"
+data_version_tuple = (0, 0, 8895)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post8894")
+    pdata_version = V("0.0.post8895")
 except ImportError:
     pass
-data_git_hash = "f6eebeee722ce608ad4500f8b13239c4c849235e"
-data_git_describe = "v0.0-8894-gf6eebeee7"
+data_git_hash = "09912c369722c240313288cbb8fff07be237652b"
+data_git_describe = "v0.0-8895-g09912c369"
 data_git_msg = """\
-commit f6eebeee722ce608ad4500f8b13239c4c849235e
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Dec 2 15:36:44 2021 -0800
+commit 09912c369722c240313288cbb8fff07be237652b
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Nov 16 22:14:19 2021 +0100
 
-    [sram/dv] Fix access_during_key_req
+    [es/csrng/edn] Don't clear packer FIFOs upon read
     
-    1. updated seq and scb to avoid timing precise check
-    2. moved mem_init to scb
-    3. disabled intg check if we only request key update without init
+    Previously, all packer FIFOs in the entropy complex where by default
+    cleared to zero upon read. However, as this may simplify attacks trying
+    to manipulate the random number distribution it should better be
+    avoided. Leaving around the previous random data on the bus/wires after
+    the read is preferred over outputting a deterministic value in this
+    case.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
