@@ -10,9 +10,7 @@ package otbn_model_pkg;
   import otbn_pkg::WLEN;
 
   import "DPI-C" context function chandle otbn_model_init(string mem_scope,
-                                                          string design_scope,
-                                                          int unsigned imem_words,
-                                                          int unsigned dmem_words);
+                                                          string design_scope);
 
   import "DPI-C" function void otbn_model_destroy(chandle model);
 
@@ -28,6 +26,10 @@ package otbn_model_pkg;
     void edn_model_urnd_cdc_done(chandle model);
 
   import "DPI-C" function
+    void otbn_model_set_keymgr_value(chandle model, logic [383:0] key0,
+                                     logic [383:0] key1, bit valid);
+
+  import "DPI-C" function
     void edn_model_rnd_cdc_done(chandle model);
 
   import "DPI-C" context function
@@ -40,7 +42,13 @@ package otbn_model_pkg;
                                  inout bit [31:0] err_bits,
                                  inout bit [31:0] stop_pc);
 
-  import "DPI-C" context function int otbn_model_invalidate_imem(chandle model);
+  import "DPI-C" function int otbn_model_invalidate_imem(chandle model);
+
+  import "DPI-C" function int otbn_model_step_crc(chandle          model,
+                                                  bit [47:0]       item,
+                                                  inout bit [31:0] state);
+
+  import "DPI-C" context function int otbn_model_invalidate_dmem(chandle model);
 
   import "DPI-C" function void otbn_model_reset(chandle model);
 

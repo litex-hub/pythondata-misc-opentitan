@@ -1,33 +1,9 @@
-diff --git a/sw/device/boot_rom/rom_crt.S b/sw/device/boot_rom/rom_crt.S
-index e4b14eb84..d595aa757 100644
---- a/sw/device/boot_rom/rom_crt.S
-+++ b/sw/device/boot_rom/rom_crt.S
-@@ -81,19 +81,6 @@ _reset_start:
- _start:
-   .globl _start
-
--  // Enable entropy complex - this is not the full enable
--  li   a0, TOP_EARLGREY_ENTROPY_SRC_BASE_ADDR
--  li   t0, 0x55505a
--  sw   t0, ENTROPY_SRC_CONF_REG_OFFSET(a0)
--
--  li   a0, TOP_EARLGREY_CSRNG_BASE_ADDR
--  li   t0, 0xaaa
--  sw   t0, CSRNG_CTRL_REG_OFFSET(a0)
--
--  li   a0, TOP_EARLGREY_EDN0_BASE_ADDR
--  li   t0, 0x55aa
--  sw   t0, EDN_CTRL_REG_OFFSET(a0)
--
-   // Zero out the `.bss` segment.
-   la   a0, _bss_start
-   la   a1, _bss_end
 diff --git a/sw/device/lib/pinmux.c b/sw/device/lib/pinmux.c
 index 8861f54ba..8442bb896 100644
 --- a/sw/device/lib/pinmux.c
 +++ b/sw/device/lib/pinmux.c
 @@ -60,24 +60,4 @@ void pinmux_init(void) {
-   reg_offset = kTopEarlgreyPinmuxMioOutIoc11 << 2;
+   reg_offset = kTopEarlgreyPinmuxMioOutIoc4 << 2;
    mask = PINMUX_MIO_OUTSEL_0_OUT_0_MASK;
    mmio_region_write32(reg32, reg_offset, reg_value & mask);
 -
@@ -51,6 +27,30 @@ index 8861f54ba..8442bb896 100644
 -  mask = PINMUX_MIO_OUTSEL_0_OUT_0_MASK;
 -  mmio_region_write32(reg32, reg_offset, reg_value & mask);
  }
+diff --git a/sw/device/lib/testing/test_rom/test_rom_start.S b/sw/device/lib/testing/test_rom/test_rom_start.S
+index e4b14eb84..d595aa757 100644
+--- a/sw/device/lib/testing/test_rom/test_rom_start.S
++++ b/sw/device/lib/testing/test_rom/test_rom_start.S
+@@ -81,19 +81,6 @@ _reset_start:
+ _start:
+   .globl _start
+
+-  // Enable entropy complex - this is not the full enable
+-  li   a0, TOP_EARLGREY_ENTROPY_SRC_BASE_ADDR
+-  li   t0, 0x55505a
+-  sw   t0, ENTROPY_SRC_CONF_REG_OFFSET(a0)
+-
+-  li   a0, TOP_EARLGREY_CSRNG_BASE_ADDR
+-  li   t0, 0xaaa
+-  sw   t0, CSRNG_CTRL_REG_OFFSET(a0)
+-
+-  li   a0, TOP_EARLGREY_EDN0_BASE_ADDR
+-  li   t0, 0x55aa
+-  sw   t0, EDN_CTRL_REG_OFFSET(a0)
+-
+   // Zero out the `.bss` segment.
+   la   a0, _bss_start
+   la   a1, _bss_end
 diff --git a/sw/device/sca/aes_serial.c b/sw/device/sca/aes_serial.c
 index 5dc1286af..1e2dced96 100644
 --- a/sw/device/sca/aes_serial.c
@@ -75,7 +75,7 @@ index 5dc1286af..1e2dced96 100644
      simple_serial_process_packet();
    }
 diff --git a/sw/device/sca/lib/meson.build b/sw/device/sca/lib/meson.build
-index a6ce4d8af..8a107194c 100644
+index c4a65f7e0..3f6ee67f1 100644
 --- a/sw/device/sca/lib/meson.build
 +++ b/sw/device/sca/lib/meson.build
 @@ -17,8 +17,6 @@ sw_sca_lib_sca  = declare_dependency(
@@ -85,10 +85,10 @@ index a6ce4d8af..8a107194c 100644
 -      sw_lib_dif_csrng,
 -      sw_lib_dif_edn,
        sw_lib_irq,
-       sw_lib_irq_handlers,
+       sw_lib_testing_ottf_isrs,
        sw_lib_mmio,
 diff --git a/sw/device/sca/lib/sca.c b/sw/device/sca/lib/sca.c
-index 0336455da..a46911701 100644
+index 3c0c86f26..7354aa9cb 100644
 --- a/sw/device/sca/lib/sca.c
 +++ b/sw/device/sca/lib/sca.c
 @@ -7,8 +7,6 @@
@@ -154,9 +154,9 @@ index 0336455da..a46911701 100644
 -}
 -
  /**
-  * Timer IRQ handler.
+  * Override default Timer ISR.
   *
-@@ -172,20 +143,6 @@ void handler_irq_timer(void) {
+@@ -172,20 +143,6 @@ void ottf_timer_isr(void) {
   * @param disable Set of peripherals to disable.
   */
  void sca_disable_peripherals(sca_peripherals_t disable) {
@@ -205,7 +205,7 @@ index 0336455da..a46911701 100644
  }
 
 diff --git a/sw/device/tests/aes_smoketest.c b/sw/device/tests/aes_smoketest.c
-index 1a5fef16c..214e08151 100644
+index ab6596ff5..2b6ee4a9a 100644
 --- a/sw/device/tests/aes_smoketest.c
 +++ b/sw/device/tests/aes_smoketest.c
 @@ -7,7 +7,6 @@
@@ -213,7 +213,7 @@ index 1a5fef16c..214e08151 100644
  #include "sw/device/lib/runtime/log.h"
  #include "sw/device/lib/testing/check.h"
 -#include "sw/device/lib/testing/entropy_testutils.h"
- #include "sw/device/lib/testing/test_framework/test_main.h"
+ #include "sw/device/lib/testing/test_framework/ottf.h"
 
  #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 @@ -66,9 +65,6 @@ bool test_main(void) {
@@ -227,10 +227,10 @@ index 1a5fef16c..214e08151 100644
    CHECK_DIF_OK(
        dif_aes_init(mmio_region_from_addr(TOP_EARLGREY_AES_BASE_ADDR), &aes));
 diff --git a/sw/device/tests/meson.build b/sw/device/tests/meson.build
-index 74989d684..3e52c00c6 100644
+index 4ad73f695..f87b0779c 100644
 --- a/sw/device/tests/meson.build
 +++ b/sw/device/tests/meson.build
-@@ -261,7 +261,6 @@ aes_smoketest_lib = declare_dependency(
+@@ -245,7 +245,6 @@ aes_smoketest_lib = declare_dependency(
        sw_lib_dif_aes,
        sw_lib_mmio,
        sw_lib_runtime_log,

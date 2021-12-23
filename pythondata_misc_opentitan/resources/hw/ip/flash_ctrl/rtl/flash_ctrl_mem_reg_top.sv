@@ -24,25 +24,9 @@ module flash_ctrl_mem_reg_top (
 
 
 
-  // incoming payload check
-  logic intg_err;
-  tlul_cmd_intg_chk u_chk (
-    .tl_i(tl_i),
-    .err_o(intg_err)
-  );
-
-  logic intg_err_q;
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      intg_err_q <= '0;
-    end else if (intg_err) begin
-      intg_err_q <= 1'b1;
-    end
-  end
-
-  // integrity error output is permanent and should be used for alert generation
-  // register errors are transactional
-  assign intg_err_o = intg_err_q | intg_err;
+  // Since there are no registers in this block, commands are routed through to windows which
+  // can report their own integrity errors.
+  assign intg_err_o = 1'b0;
 
   // outgoing integrity generation
   tlul_pkg::tl_d2h_t tl_o_pre;
@@ -54,43 +38,8 @@ module flash_ctrl_mem_reg_top (
     .tl_o(tl_o)
   );
 
-  tlul_pkg::tl_h2d_t tl_socket_h2d [0];
-  tlul_pkg::tl_d2h_t tl_socket_d2h [0];
-
-  logic [0:0] reg_steer;
-
-  // socket_1n connection
-
-  // Create Socket_1n
-  tlul_socket_1n #(
-    .N          (0),
-    .HReqPass   (1'b1),
-    .HRspPass   (1'b1),
-    .DReqPass   ({0{1'b1}}),
-    .DRspPass   ({0{1'b1}}),
-    .HReqDepth  (4'h0),
-    .HRspDepth  (4'h0),
-    .DReqDepth  ({0{4'h0}}),
-    .DRspDepth  ({0{4'h0}})
-  ) u_socket (
-    .clk_i  (clk_i),
-    .rst_ni (rst_ni),
-    .tl_h_i (tl_i),
-    .tl_h_o (tl_o_pre),
-    .tl_d_o (tl_socket_h2d),
-    .tl_d_i (tl_socket_d2h),
-    .dev_select_i (reg_steer)
-  );
-
-  // Create steering logic
-  always_comb begin
-    reg_steer = -1;       // Default set to register
-
-    // TODO: Can below codes be unique case () inside ?
-    if (intg_err) begin
-      reg_steer = -1;
-    end
-  end
+  assign tl_reg_h2d = tl_i;
+  assign tl_o_pre   = tl_reg_d2h;
 
   // Unused signal tieoff
   // devmode_i is not used if there are no registers

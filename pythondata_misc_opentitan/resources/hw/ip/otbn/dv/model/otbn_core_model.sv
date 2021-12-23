@@ -15,12 +15,8 @@ module otbn_core_model
   import otbn_pkg::*;
   import otbn_model_pkg::*;
   import edn_pkg::*;
+  import keymgr_pkg::otbn_key_req_t;
 #(
-  // Size of the instruction memory, in bytes
-  parameter int ImemSizeByte = 4096,
-  // Size of the data memory, in bytes
-  parameter int DmemSizeByte = 4096,
-
   // The scope that contains the instruction and data memory (for DPI)
   parameter string MemScope = "",
 
@@ -49,20 +45,17 @@ module otbn_core_model
   output bit [7:0]       status_o,   // STATUS register
   output bit [31:0]      insn_cnt_o, // INSN_CNT register
 
-  input logic            invalidate_imem_i, // Trash contents of IMEM (causing integrity errors)
+  input keymgr_pkg::otbn_key_req_t keymgr_key_i,
 
   output bit             done_rr_o,
 
   output bit             err_o // something went wrong
 );
 
-  localparam int ImemSizeWords = ImemSizeByte / 4;
-  localparam int DmemSizeWords = DmemSizeByte / (WLEN / 8);
-
   // Create and destroy an object through which we can talk to the ISS.
   chandle model_handle;
   initial begin
-    model_handle = otbn_model_init(MemScope, DesignScope, ImemSizeWords, DmemSizeWords);
+    model_handle = otbn_model_init(MemScope, DesignScope);
     assert(model_handle != null);
   end
   final begin
@@ -90,8 +83,6 @@ module otbn_core_model
   bit [31:0] raw_err_bits_d, raw_err_bits_q;
   bit [31:0] stop_pc_d, stop_pc_q;
   bit rnd_req_start_d, rnd_req_start_q;
-
-  bit failed_invalidate_imem;
 
   bit unused_raw_err_bits;
   logic unused_edn_rsp_fips;
@@ -162,13 +153,7 @@ module otbn_core_model
       rnd_req_start_q <= 0;
       raw_err_bits_q <= 0;
       stop_pc_q <= 0;
-      failed_invalidate_imem <= 0;
     end else begin
-      if (invalidate_imem_i) begin
-        if (otbn_model_invalidate_imem(model_handle) != 0) begin
-          failed_invalidate_imem <= 1'b1;
-        end
-      end
       if (edn_urnd_cdc_done_i) begin
         edn_model_urnd_cdc_done(model_handle);
       end
@@ -196,6 +181,19 @@ module otbn_core_model
     end
   end
 
+  always_ff @(posedge clk_i or posedge rst_ni)
+  begin
+    if (rst_ni) begin
+      if (!$stable(keymgr_key_i) || $rose(rst_ni)) begin
+        otbn_model_set_keymgr_value(model_handle, keymgr_key_i.key[0], keymgr_key_i.key[1],
+                                    keymgr_key_i.valid);
+      end
+    end
+  end
+  // Assertion to ensure that keymgr key valid is never unknown.
+  `ASSERT_KNOWN(KeyValidIsKnownChk_A, keymgr_key_i.valid)
+  // Assertion to ensure that keymgr key values are never unknown if valid is high.
+  `ASSERT_KNOWN_IF(KeyIsKnownChk_A, keymgr_key_i.valid, {keymgr_key_i.key[0], keymgr_key_i.key[1]})
   assign unused_raw_err_bits = ^raw_err_bits_q[31:$bits(err_bits_t)];
   assign unused_edn_rsp_fips = edn_rnd_i.edn_fips & edn_urnd_i.edn_fips;
 
@@ -233,7 +231,7 @@ module otbn_core_model
       );
   end
 
-  assign err_o = failed_step | failed_cmp | failed_invalidate_imem;
+  assign err_o = failed_step | failed_cmp;
 
   // Derive a "done" signal. This should trigger for a single cycle when OTBN finishes its work.
   // It's analogous to the done_o signal on otbn_core, but this signal is delayed by a single cycle

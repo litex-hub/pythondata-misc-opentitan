@@ -84,7 +84,7 @@ module otp_ctrl_core_reg_top (
   tlul_pkg::tl_h2d_t tl_socket_h2d [2];
   tlul_pkg::tl_d2h_t tl_socket_d2h [2];
 
-  logic [1:0] reg_steer;
+  logic [0:0] reg_steer;
 
   // socket_1n connection
   assign tl_reg_h2d = tl_socket_h2d[1];
@@ -95,15 +95,16 @@ module otp_ctrl_core_reg_top (
 
   // Create Socket_1n
   tlul_socket_1n #(
-    .N          (2),
-    .HReqPass   (1'b1),
-    .HRspPass   (1'b1),
-    .DReqPass   ({2{1'b1}}),
-    .DRspPass   ({2{1'b1}}),
-    .HReqDepth  (4'h0),
-    .HRspDepth  (4'h0),
-    .DReqDepth  ({2{4'h0}}),
-    .DRspDepth  ({2{4'h0}})
+    .N            (2),
+    .HReqPass     (1'b1),
+    .HRspPass     (1'b1),
+    .DReqPass     ({2{1'b1}}),
+    .DRspPass     ({2{1'b1}}),
+    .HReqDepth    (4'h0),
+    .HRspDepth    (4'h0),
+    .DReqDepth    ({2{4'h0}}),
+    .DRspDepth    ({2{4'h0}}),
+    .ExplicitErrs (1'b0)
   ) u_socket (
     .clk_i  (clk_i),
     .rst_ni (rst_ni),
@@ -116,12 +117,17 @@ module otp_ctrl_core_reg_top (
 
   // Create steering logic
   always_comb begin
-    reg_steer = 1;       // Default set to register
+    unique case (tl_i.a_address[AW-1:0]) inside
+      [4096:6143]: begin
+        reg_steer = 0;
+      end
+      default: begin
+        // Default set to register
+        reg_steer = 1;
+      end
+    endcase
 
-    // TODO: Can below codes be unique case () inside ?
-    if (tl_i.a_address[AW-1:0] >= 4096 && tl_i.a_address[AW-1:0] < 6144) begin
-      reg_steer = 0;
-    end
+    // Override this in case of an integrity error
     if (intg_err) begin
       reg_steer = 1;
     end

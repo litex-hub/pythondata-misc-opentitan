@@ -92,6 +92,9 @@ interface pwrmgr_if (
   logic intr_enable;
   always_comb intr_enable = `PATH_TO_DUT.reg2hw.intr_enable.q;
 
+  logic intr_status;
+  always_comb intr_status = `PATH_TO_DUT.reg2hw.intr_state.q;
+
   // Used to disable assertions once with the first power glitch.
   bit internal_assertion_disabled;
 
@@ -190,6 +193,7 @@ interface pwrmgr_if (
     pwr_cpu = pwrmgr_pkg::PWR_CPU_DEFAULT;
     wakeups_i = pwrmgr_pkg::WAKEUPS_DEFAULT;
     rstreqs_i = pwrmgr_pkg::RSTREQS_DEFAULT;
+    sw_rst_req_i = prim_mubi_pkg::MuBi4False;
     rom_ctrl = rom_ctrl_pkg::PWRMGR_DATA_DEFAULT;
     esc_rst_tx = prim_esc_pkg::ESC_TX_DEFAULT;
   end

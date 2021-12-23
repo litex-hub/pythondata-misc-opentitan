@@ -21,10 +21,21 @@ class pwrmgr_base_vseq extends cip_base_vseq #(
   localparam int MaxCyclesBeforeEnable = 6;
 
   // Random wakeups and resets.
-  rand wakeups_t         wakeups;
-  rand wakeups_t         wakeups_en;
-  rand resets_t          resets;
-  rand resets_t          resets_en;
+  rand wakeups_t wakeups;
+  rand wakeups_t wakeups_en;
+  rand resets_t  resets;
+  rand resets_t  resets_en;
+  rand bit       power_glitch_reset;
+  rand bit       escalation_reset;
+
+  rand bit       en_intr;
+
+  // TODO(maturana) Enable escalation resets once there is support for driving them.
+  constraint escalation_reset_c {escalation_reset == 1'b0;}
+  constraint resets_en_c {
+    solve resets, power_glitch_reset, escalation_reset before resets_en;
+    |{resets_en & resets, power_glitch_reset, escalation_reset} == 1'b1;
+  }
 
   rand bit               disable_wakeup_capture;
 
@@ -76,6 +87,9 @@ class pwrmgr_base_vseq extends cip_base_vseq #(
     cycles_before_usb_clk_en inside {[0 : MaxCyclesBeforeEnable]};
   }
   constraint cycles_before_main_pok_c {cycles_before_main_pok inside {[2 : MaxCyclesBeforeEnable]};}
+
+  // This is used to trigger a software reset, as per rstmgr's `reset_req` CSR.
+  prim_mubi_pkg::mubi4_t sw_rst_from_rstmgr = prim_mubi_pkg::MuBi4False;
 
   bit do_pwrmgr_init = 1'b1;
   // This static variable is incremented in each pre_start and decremented in each post_start.
@@ -171,6 +185,29 @@ class pwrmgr_base_vseq extends cip_base_vseq #(
               cfg.slow_clk_rst_vif.clk_period_ps
               ), UVM_MEDIUM)
     control_assertions(0);
+  endtask
+
+  virtual task setup_interrupt(bit enable);
+    csr_wr(.ptr(ral.intr_enable.wakeup), .value(enable));
+    `uvm_info(`gfn, $sformatf("Wakeup interrupt is %0sabled", enable ? "en" : "dis"), UVM_MEDIUM)
+  endtask
+
+  // May check intr_state.wakeup CSR against expected, and regardless, it checks that the
+  // interrupt output matches intr_state && intr_enable. The first check is disabled if
+  // check_expected is off, which is used when a reset and an interrupt come in close
+  // temporal proximity.
+  virtual task check_and_clear_interrupt(bit expected, bit check_expected = 1'b1);
+    bit enable;
+    `uvm_info(`gfn, "Checking and clearing interrupt", UVM_MEDIUM)
+    if (check_expected) begin
+      csr_rd_check(.ptr(ral.intr_state.wakeup), .compare_value(expected),
+                   .err_msg("interrupt mismatch"));
+    end else begin
+      csr_rd(.ptr(ral.intr_state.wakeup), .value(expected));
+    end
+    csr_rd(.ptr(ral.intr_enable.wakeup), .value(enable));
+    `DV_CHECK_EQ(cfg.pwrmgr_vif.intr_wakeup, expected && enable)
+    csr_wr(.ptr(ral.intr_state.wakeup), .value(1'b1));
   endtask
 
   local function void raise_objection(string label);

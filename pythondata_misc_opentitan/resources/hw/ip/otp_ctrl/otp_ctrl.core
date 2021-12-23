@@ -14,6 +14,7 @@ filesets:
       - lowrisc:prim:ram_1p
       - lowrisc:prim:otp
       - lowrisc:prim:double_lfsr
+      - lowrisc:prim:count
       - lowrisc:prim:lc_sync
       - lowrisc:prim:buf
       - lowrisc:prim:flop
@@ -21,6 +22,7 @@ filesets:
       - lowrisc:prim:edn_req
       - lowrisc:ip:pwrmgr_pkg
       - lowrisc:ip:edn_pkg
+      - lowrisc:prim:sparse_fsm
       - "fileset_partner  ? (partner:systems:ast_pkg)"
       - "!fileset_partner ? (lowrisc:systems:ast_pkg)"
     files:

@@ -55,7 +55,8 @@ Code Quality  | [LINT_PASS][]           | Done        |
 Code Quality  | [CDC_SETUP][]           | N/A         |
 Code Quality  | [FPGA_TIMING][]         | Done        |
 Code Quality  | [CDC_SYNCMACRO][]       | N/A         |
-Security      | [SEC_CM_DOCUMENTED][]   | Deferred    |
+Security      | [SEC_CM_DOCUMENTED][]   | Done        |
+Security      | [SEC_RND_CNST][]        | N/A         |
 
 [NEW_FEATURES]:        {{<relref "/doc/project/checklist.md#new_features" >}}
 [BLOCK_DIAGRAM]:       {{<relref "/doc/project/checklist.md#block_diagram" >}}
@@ -76,11 +77,17 @@ Security      | [SEC_CM_DOCUMENTED][]   | Deferred    |
 
 ### D2S
 
- Type         | Item                    | Resolution  | Note/Collaterals
---------------|-------------------------|-------------|------------------
-Security      | [SEC_CM_IMPLEMENTED][]  | Not Started |
+ Type         | Item                         | Resolution  | Note/Collaterals
+--------------|------------------------------|-------------|------------------
+Security      | [SEC_CM_IMPLEMENTED][]       | Done        |
+Security      | [SEC_CM_ASSETS_LISTED][]     | Done        |
+Security      | [SEC_CM_RTL_REVIEWED][]      | Not Started |
+Security      | [SEC_CM_COUNCIL_REVIEWED][]  | Not Started |
 
-[SEC_CM_IMPLEMENTED]:   {{<relref "/doc/project/checklist.md#sec_cm_implemented" >}}
+[SEC_CM_IMPLEMENTED]:      {{<relref "/doc/project/checklist.md#sec_cm_implemented" >}}
+[SEC_CM_ASSETS_LISTED]:    {{<relref "/doc/project/checklist.md#sec_cm_assets_listed" >}}
+[SEC_CM_RTL_REVIEWED]:     {{<relref "/doc/project/checklist.md#sec_cm_rtl_reviewed" >}}
+[SEC_CM_COUNCIL_REVIEWED]: {{<relref "/doc/project/checklist.md#sec_cm_council_reviewed" >}}
 
 ### D3
 

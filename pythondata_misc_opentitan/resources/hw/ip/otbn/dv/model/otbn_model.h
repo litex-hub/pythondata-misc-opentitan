@@ -16,8 +16,7 @@ class ISSWrapper;
 
 class OtbnModel {
  public:
-  OtbnModel(const std::string &mem_scope, const std::string &design_scope,
-            unsigned imem_size_words, unsigned dmem_size_words);
+  OtbnModel(const std::string &mem_scope, const std::string &design_scope);
   ~OtbnModel();
 
   // Replace any current loop warps with those from memutil. Returns 0
@@ -38,6 +37,10 @@ class OtbnModel {
 
   // EDN Step sends ISS the RND data when ACK signal is high.
   void edn_rnd_step(svLogicVecVal *edn_rnd_data /* logic [31:0] */);
+
+  void set_keymgr_value(svLogicVecVal *key0 /* logic [383:0] */,
+                        svLogicVecVal *key1 /* logic [383:0] */,
+                        unsigned char valid);
 
   // EDN Step sends ISS the URND related EDN data when ACK signal is high.
   void edn_urnd_step(svLogicVecVal *edn_urnd_data /* logic [31:0] */);
@@ -70,6 +73,18 @@ class OtbnModel {
   // Mark all of IMEM as invalid so that any fetch causes an integrity
   // error. Returns 0 on success; -1 on failure.
   int invalidate_imem();
+
+  // Mark all of DMEM as invalid so that any load causes an integrity
+  // error. Returns 0 on success; -1 on failure.
+  int invalidate_dmem();
+
+  // Step CRC by consuming 48 bits of data.
+  //
+  // This doesn't actually update any internal state: we're just using the
+  // otbn_model framework as a convenient connection between SystemVerilog and
+  // Python. Returns 0 on success; -1 on failure.
+  int step_crc(const svBitVecVal *item /* bit [47:0] */,
+               svBitVecVal *state /* bit [31:0] */);
 
   // Flush any information in the model
   void reset();
@@ -109,7 +124,6 @@ class OtbnModel {
   std::unique_ptr<ISSWrapper> iss_;
   OtbnMemUtil mem_util_;
   std::string design_scope_;
-  unsigned imem_size_words_, dmem_size_words_;
 };
 
 #endif  // OPENTITAN_HW_IP_OTBN_DV_MODEL_OTBN_MODEL_H_

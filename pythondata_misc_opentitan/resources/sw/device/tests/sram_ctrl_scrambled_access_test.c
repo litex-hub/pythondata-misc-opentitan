@@ -9,7 +9,7 @@
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/check.h"
 #include "sw/device/lib/testing/sram_ctrl_testutils.h"
-#include "sw/device/lib/testing/test_framework/test_main.h"
+#include "sw/device/lib/testing/test_framework/ottf.h"
 #include "sw/device/lib/testing/test_framework/test_status.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
@@ -27,7 +27,7 @@ static const uintptr_t kRetSramStartAddr =
 /**
  * First test pattern to be written and read from SRAM.
  */
-static const sram_ctrl_data_t kRamTestPattern1 = {
+static const sram_ctrl_testutils_data_t kRamTestPattern1 = {
     .words =
         {
             0xA5A5A5A5,
@@ -40,7 +40,7 @@ static const sram_ctrl_data_t kRamTestPattern1 = {
 /**
  * Second test pattern to be written and read from SRAM.
  */
-static const sram_ctrl_data_t kRamTestPattern2 = {
+static const sram_ctrl_testutils_data_t kRamTestPattern2 = {
     .words =
         {
             0x5A5A5A5A,

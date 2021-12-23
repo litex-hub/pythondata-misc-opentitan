@@ -220,12 +220,8 @@ static std::vector<T> get_stack(const std::string &stack_scope) {
 }
 
 OtbnModel::OtbnModel(const std::string &mem_scope,
-                     const std::string &design_scope, unsigned imem_size_words,
-                     unsigned dmem_size_words)
-    : mem_util_(mem_scope),
-      design_scope_(design_scope),
-      imem_size_words_(imem_size_words),
-      dmem_size_words_(dmem_size_words) {}
+                     const std::string &design_scope)
+    : mem_util_(mem_scope), design_scope_(design_scope) {}
 
 OtbnModel::~OtbnModel() {}
 
@@ -304,6 +300,22 @@ void OtbnModel::edn_urnd_step(svLogicVecVal *edn_urnd_data /* logic [31:0] */) {
   ISSWrapper *iss = ensure_wrapper();
 
   iss->edn_urnd_step(edn_urnd_data->aval);
+}
+
+void OtbnModel::set_keymgr_value(svLogicVecVal *key0 /* logic [383:0] */,
+                                 svLogicVecVal *key1 /* logic [383:0] */,
+                                 unsigned char valid) {
+  ISSWrapper *iss = ensure_wrapper();
+
+  std::array<uint32_t, 12> key0_arr;
+  std::array<uint32_t, 12> key1_arr;
+  assert(valid == 0 || valid == 1);
+  for (int i = 0; i < 12; i++) {
+    key0_arr[i] = key0[i].aval;
+    key1_arr[i] = key1[i].aval;
+  }
+
+  iss->set_keymgr_value(key0_arr, key1_arr, valid != 0);
 }
 
 void OtbnModel::edn_urnd_cdc_done() {
@@ -440,6 +452,46 @@ int OtbnModel::invalidate_imem() {
     std::cerr << "Error when invalidating IMEM in ISS: " << err.what() << "\n";
     return -1;
   }
+
+  return 0;
+}
+
+int OtbnModel::invalidate_dmem() {
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  try {
+    iss->invalidate_dmem();
+  } catch (const std::exception &err) {
+    std::cerr << "Error when invalidating DMEM in ISS: " << err.what() << "\n";
+    return -1;
+  }
+
+  return 0;
+}
+
+int OtbnModel::step_crc(const svBitVecVal *item /* bit [47:0] */,
+                        svBitVecVal *state /* bit [31:0] */) {
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  std::array<uint8_t, 6> item_arr;
+  for (int i = 0; i < item_arr.size(); ++i) {
+    item_arr[i] = item[i / 4] >> 8 * (i % 4);
+  }
+  uint32_t state32 = state[0];
+
+  try {
+    state32 = iss->step_crc(item_arr, state32);
+  } catch (const std::exception &err) {
+    std::cerr << "Error when stepping CRC in ISS: " << err.what() << "\n";
+    return -1;
+  }
+
+  // Write back to SV-land
+  state[0] = state32;
 
   return 0;
 }
@@ -638,10 +690,9 @@ bool OtbnModel::check_call_stack(ISSWrapper &iss) const {
   return good;
 }
 
-OtbnModel *otbn_model_init(const char *mem_scope, const char *design_scope,
-                           unsigned imem_words, unsigned dmem_words) {
+OtbnModel *otbn_model_init(const char *mem_scope, const char *design_scope) {
   assert(mem_scope && design_scope);
-  return new OtbnModel(mem_scope, design_scope, imem_words, dmem_words);
+  return new OtbnModel(mem_scope, design_scope);
 }
 
 void otbn_model_destroy(OtbnModel *model) { delete model; }
@@ -752,6 +803,17 @@ int otbn_model_invalidate_imem(OtbnModel *model) {
   return model->invalidate_imem();
 }
 
+int otbn_model_invalidate_dmem(OtbnModel *model) {
+  assert(model);
+  return model->invalidate_dmem();
+}
+
+int otbn_model_step_crc(OtbnModel *model, svBitVecVal *item /* bit [47:0] */,
+                        svBitVecVal *state /* inout bit [31:0] */) {
+  assert(model && item && state);
+  return model->step_crc(item, state);
+}
+
 void otbn_model_reset(OtbnModel *model) {
   assert(model);
   model->reset();
@@ -760,4 +822,10 @@ void otbn_model_reset(OtbnModel *model) {
 void otbn_take_loop_warps(OtbnModel *model, OtbnMemUtil *memutil) {
   assert(model && memutil);
   model->take_loop_warps(*memutil);
+}
+
+void otbn_model_set_keymgr_value(OtbnModel *model, svLogicVecVal *key0,
+                                 svLogicVecVal *key1, unsigned char valid) {
+  assert(model && key0 && key1);
+  model->set_keymgr_value(key0, key1, valid);
 }

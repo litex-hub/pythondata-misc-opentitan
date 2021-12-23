@@ -34,14 +34,13 @@ class lc_ctrl_base_test extends cip_base_test #(
     msg = "\s*map .* does not seem to be initialized correctly.*";
     catcher.add_change_sev("RegModel", msg, UVM_INFO);
 
-    // Demote sequencer kill errors
+    // Demote field busy warning
     msg = {
-      "\s*The task responsible for requesting a wait_for_grant on sequencer ",
-      ".*m_jtag_riscv_agent.sequencer' for sequence .* ",
-      "has been killed, to avoid a deadlock the sequence will be ",
-      "removed from the arbitration queues"
+      "\s*Setting the value of field \".*\" while containing",
+      "\s+register \"lc_ctrl_reg_block.alert_test\" is being accessed"
     };
-    catcher.add_change_sev("SEQREQZMB", msg, UVM_INFO);
+    catcher.add_change_sev("UVM/FLD/SET/BSY", msg, UVM_INFO);
+
   endfunction
 
 endclass : lc_ctrl_base_test

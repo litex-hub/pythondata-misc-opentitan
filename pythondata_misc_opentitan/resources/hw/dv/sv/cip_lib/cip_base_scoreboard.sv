@@ -197,6 +197,16 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     end
   endtask
 
+  // Called at the start of each alert handshake. The default implementation depends on the
+  // do_alert_check flag. If that is set, it checks that an alert is expected (by checking
+  // exp_alert[alert_name]).
+  virtual function void on_alert(string alert_name, alert_esc_seq_item item);
+    if (do_alert_check) begin
+      `DV_CHECK_EQ(exp_alert[alert_name], 1,
+                   $sformatf("alert %0s triggered unexpectedly", alert_name))
+    end
+  endfunction
+
   // this function check if the triggered alert is expected
   // to turn off this check, user can set `do_alert_check` to 0
   virtual function void process_alert(string alert_name, alert_esc_seq_item item);
@@ -208,10 +218,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
                               item.alert_handshake_sta), UVM_DEBUG)
     if (item.alert_handshake_sta == AlertReceived) begin
       under_alert_handshake[alert_name] = 1;
-      if (do_alert_check) begin
-        `DV_CHECK_EQ(exp_alert[alert_name], 1,
-                     $sformatf("alert %0s triggered unexpectedly", alert_name))
-      end
+      on_alert(alert_name, item);
     end else begin
       if (!cfg.under_reset && under_alert_handshake[alert_name] == 0) begin
         `uvm_error(`gfn, $sformatf("alert %0s is not received!", alert_name))
@@ -334,6 +341,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     bit csr_size_err, tl_item_err;
     bit has_intg_err;
     bit mem_byte_access_err, mem_wo_err, mem_ro_err;
+    bit is_passthru_mem = is_data_intg_passthru_mem(item, ral_name);
 
     if (!is_tl_access_mapped_addr(item, ral_name)) begin
       is_tl_unmapped_addr = 1;
@@ -361,8 +369,12 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
       tl_intg_err_e tl_intg_err_type;
       uint num_cmd_err_bits, num_data_err_bits;
 
-      // integrity at d_user is from DUT, which should be always correct
-      if (en_d_user_intg_chk) void'(item.is_d_chan_intg_ok(.throw_error(1)));
+      // integrity at d_user is from DUT, which should be always correct, except data integrity for
+      // passthru memory
+      void'(item.is_d_chan_intg_ok(
+            .en_data_intg_chk(!is_passthru_mem ||
+                              !cfg.disable_d_user_data_intg_check_for_passthru_mem),
+            .throw_error(1)));
 
       // sample covergroup
       `downcast(cip_item, item)
@@ -438,6 +450,19 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
       if (mem_byte_access_err || mem_wo_err || mem_ro_err) return 0;
     end
     return 1;
+  endfunction
+
+  virtual function bit is_data_intg_passthru_mem(tl_seq_item item, string ral_name);
+    uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
+    uvm_mem mem = cfg.ral_models[ral_name].default_map.get_mem_by_offset(addr);
+
+    if (mem == null) begin
+      return 0;
+    end else begin
+      dv_base_mem dv_mem;
+      `downcast(dv_mem, mem)
+      return dv_mem.get_data_intg_passthru();
+    end
   endfunction
 
   // check if csr write size greater or equal to csr width

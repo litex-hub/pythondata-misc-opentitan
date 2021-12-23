@@ -61,6 +61,14 @@ class rstmgr_base_vseq extends cip_base_vseq #(
     scanmode = get_rand_mubi4_val(scanmode_on_weight, 4, 4);
   endfunction
 
+  function void update_scanmode(prim_mubi_pkg::mubi4_t value);
+    cfg.rstmgr_vif.scanmode_i = value;
+  endfunction
+
+  function void update_scan_rst_n(logic value);
+    cfg.rstmgr_vif.scan_rst_ni = value;
+  endfunction
+
   function void set_pwrmgr_rst_reqs(logic rst_lc_req, logic rst_sys_req);
     cfg.rstmgr_vif.pwr_i.rst_lc_req  = {rstmgr_pkg::PowerDomains{rst_lc_req}};
     cfg.rstmgr_vif.pwr_i.rst_sys_req = {rstmgr_pkg::PowerDomains{rst_sys_req}};
@@ -197,8 +205,11 @@ class rstmgr_base_vseq extends cip_base_vseq #(
   task send_reset(pwrmgr_pkg::reset_cause_e reset_cause,
                   logic [pwrmgr_pkg::TotalResetWidth-1:0] rstreqs);
     set_reset_cause(reset_cause);
-    set_pwrmgr_rst_reqs(.rst_lc_req('1), .rst_sys_req('1));
     set_rstreqs(rstreqs);
+    cfg.io_div4_clk_rst_vif.wait_clks(2);
+    // These lag the reset requests since they are set after the pwrmgr fast fsm has made some
+    // state transitions.
+    set_pwrmgr_rst_reqs(.rst_lc_req('1), .rst_sys_req('1));
     `uvm_info(`gfn, $sformatf("Sending %0s reset", reset_cause.name()), UVM_LOW)
     cfg.io_div4_clk_rst_vif.wait_clks(non_ndm_reset_cycles);
     // Cause the reset to drop.
@@ -207,11 +218,22 @@ class rstmgr_base_vseq extends cip_base_vseq #(
     set_pwrmgr_rst_reqs(.rst_lc_req('0), .rst_sys_req('0));
   endtask
 
+  task send_scan_reset();
+    `uvm_info(`gfn, "Sending scan reset.", UVM_MEDIUM)
+    update_scanmode(prim_mubi_pkg::MuBi4True);
+    update_scan_rst_n(1'b0);
+    // The clocks are turned off, so wait in time units.
+    #1us;
+    update_scanmode(prim_mubi_pkg::MuBi4False);
+    update_scan_rst_n(1'b1);
+    `uvm_info(`gfn, "Done sending scan reset.", UVM_MEDIUM)
+  endtask
+
   // Sends an ndm reset, and drops it once it should have
   // caused the hardware to handle it.
   task send_ndm_reset();
     set_ndmreset_req(1'b1);
-    `uvm_info(`gfn, $sformatf("Sending ndm reset"), UVM_LOW)
+    `uvm_info(`gfn, "Sending ndm reset", UVM_LOW)
     cfg.io_div4_clk_rst_vif.wait_clks(ndm_reset_cycles);
     set_ndmreset_req(1'b0);
     `uvm_info(`gfn, $sformatf("Clearing ndm reset"), UVM_LOW)
@@ -251,11 +273,14 @@ class rstmgr_base_vseq extends cip_base_vseq #(
     join
   endtask
 
-  // This waits till the outgoing POR reset for the CPU goes inactive.
+  // This waits till the outgoing reset for the CPU goes inactive. It also waits at least one
+  // aon cycle to make sure we don't drop por_n_i before SVA has time to detect the por_aon
+  // reset went inactive.
   local task wait_for_cpu_out_of_reset();
     `DV_SPINWAIT_EXIT(wait (cfg.rstmgr_vif.resets_o.rst_sys_n[1] == 1'b1);,
                       cfg.clk_rst_vif.wait_clks(CPU_RESET_CLK_CYCLES);,
                       "timeout waiting for cpu reset inactive")
+    cfg.aon_clk_rst_vif.wait_clks(1);
   endtask
 
   virtual task apply_reset(string kind = "HARD");

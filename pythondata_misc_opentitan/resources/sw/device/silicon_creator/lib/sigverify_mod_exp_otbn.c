@@ -2,60 +2,95 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "error.h"
+#include "sw/device/lib/base/macros.h"
+#include "sw/device/lib/base/memory.h"
+
 #include "sw/device/silicon_creator/lib/drivers/otbn.h"
+#include "sw/device/silicon_creator/lib/error.h"
 #include "sw/device/silicon_creator/lib/otbn_util.h"
 #include "sw/device/silicon_creator/lib/sigverify_mod_exp.h"
 #include "sw/device/silicon_creator/lib/sigverify_rsa_key.h"
 
-OTBN_DECLARE_APP_SYMBOLS(rsa);          // The OTBN rsa app.
-OTBN_DECLARE_PTR_SYMBOL(rsa, mode);     // The RSA mode of operation.
-OTBN_DECLARE_PTR_SYMBOL(rsa, n_limbs);  // The number of 256-bit limbs.
-OTBN_DECLARE_PTR_SYMBOL(rsa, inout);    // The input/output message buffer
-OTBN_DECLARE_PTR_SYMBOL(rsa, modulus);  // The modulus to operate with.
+#include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
-static const otbn_app_t kOtbnAppRsa = OTBN_APP_T_INIT(rsa);
-static const otbn_ptr_t kOtbnVarRsaMode = OTBN_PTR_T_INIT(rsa, mode);
-static const otbn_ptr_t kOtbnVarRsaNLimbs = OTBN_PTR_T_INIT(rsa, n_limbs);
-static const otbn_ptr_t kOtbnVarRsaInOut = OTBN_PTR_T_INIT(rsa, inout);
-static const otbn_ptr_t kOtbnVarRsaModulus = OTBN_PTR_T_INIT(rsa, modulus);
+OTBN_DECLARE_APP_SYMBOLS(
+    run_rsa_verify_3072_rr_modexp);  // The OTBN RSA-3072 app.
+OTBN_DECLARE_PTR_SYMBOL(run_rsa_verify_3072_rr_modexp,
+                        out_buf);  // Output buffer (message).
+OTBN_DECLARE_PTR_SYMBOL(run_rsa_verify_3072_rr_modexp,
+                        in_exp);  // The RSA key exponent (e).
+OTBN_DECLARE_PTR_SYMBOL(run_rsa_verify_3072_rr_modexp,
+                        in_mod);  // The RSA modulus (n).
+OTBN_DECLARE_PTR_SYMBOL(run_rsa_verify_3072_rr_modexp,
+                        in_buf);  // The signature (s).
+OTBN_DECLARE_PTR_SYMBOL(run_rsa_verify_3072_rr_modexp,
+                        m0inv);  // The Montgomery constant m0_inv.
 
-static const uint32_t kOtbnModeEncrypt = 1;
+static const otbn_app_t kOtbnAppRsa =
+    OTBN_APP_T_INIT(run_rsa_verify_3072_rr_modexp);
+static const otbn_ptr_t kOtbnVarRsaOutBuf =
+    OTBN_PTR_T_INIT(run_rsa_verify_3072_rr_modexp, out_buf);
+static const otbn_ptr_t kOtbnVarRsaInExp =
+    OTBN_PTR_T_INIT(run_rsa_verify_3072_rr_modexp, in_exp);
+static const otbn_ptr_t kOtbnVarRsaInMod =
+    OTBN_PTR_T_INIT(run_rsa_verify_3072_rr_modexp, in_mod);
+static const otbn_ptr_t kOtbnVarRsaInBuf =
+    OTBN_PTR_T_INIT(run_rsa_verify_3072_rr_modexp, in_buf);
+static const otbn_ptr_t kOtbnVarRsaM0Inv =
+    OTBN_PTR_T_INIT(run_rsa_verify_3072_rr_modexp, m0inv);
 
 /**
- * Runs the OTBN RSA app for sigverify.
+ * Copies a 3072-bit number from the CPU memory to OTBN data memory.
  *
- * @param key An RSA public key.
- * @param sig Buffer that holds the signature, little-endian.
- * @param result Buffer to write the result to, little-endian.
+ * @param otbn The OTBN context object.
+ * @param src Source of the data to copy.
+ * @param dst Pointer to the destination in OTBN's data memory.
  * @return The result of the operation.
  */
-otbn_error_t sigverify_mod_exp_otbn_run_app(const sigverify_rsa_key_t *key,
-                                            const sigverify_rsa_buffer_t *sig,
-                                            sigverify_rsa_buffer_t *result) {
-  static const uint32_t n_limbs = kSigVerifyRsaNumBits / 256;
+static otbn_error_t write_rsa_3072_int_to_otbn(
+    otbn_t *otbn, const sigverify_rsa_buffer_t *src, otbn_ptr_t dst) {
+  return otbn_copy_data_to_otbn(otbn, kSigVerifyRsaNumWords, src->data, dst);
+}
 
+/**
+ * Copies a 3072-bit number from OTBN data memory to CPU memory.
+ *
+ * @param otbn The OTBN context object.
+ * @param src The pointer in OTBN data memory to copy from.
+ * @param dst The destination of the copied data in main memory (preallocated).
+ * @return The result of the operation.
+ */
+static otbn_error_t read_rsa_3072_int_from_otbn(otbn_t *otbn,
+                                                const otbn_ptr_t src,
+                                                sigverify_rsa_buffer_t *dst) {
+  return otbn_copy_data_from_otbn(otbn, kSigVerifyRsaNumWords, src, dst->data);
+}
+
+otbn_error_t run_otbn_rsa_3072_modexp(
+    const sigverify_rsa_key_t *public_key,
+    const sigverify_rsa_buffer_t *signature,
+    sigverify_rsa_buffer_t *recovered_message) {
   otbn_t otbn;
+
+  // Initialize OTBN and load the RSA app.
   otbn_init(&otbn);
   OTBN_RETURN_IF_ERROR(otbn_load_app(&otbn, kOtbnAppRsa));
 
-  // Set mode so start() will jump into rsa_encrypt().
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  // Set the exponent (e).
+  OTBN_RETURN_IF_ERROR(otbn_copy_data_to_otbn(&otbn, 1, &public_key->exponent,
+                                              kOtbnVarRsaInExp));
+
+  // Set the modulus (n).
   OTBN_RETURN_IF_ERROR(
-      otbn_copy_data_to_otbn(&otbn, sizeof(kOtbnModeEncrypt) / sizeof(uint32_t),
-                             &kOtbnModeEncrypt, kOtbnVarRsaMode));  //
+      write_rsa_3072_int_to_otbn(&otbn, &public_key->n, kOtbnVarRsaInMod));
 
-  // Set the number of 256-bit limbs for this RSA operation.
-  // NOLINTNEXTLINE(bugprone-sizeof-expression)
+  // Set the signature.
+  OTBN_RETURN_IF_ERROR(
+      write_rsa_3072_int_to_otbn(&otbn, signature, kOtbnVarRsaInBuf));
+
+  // Set the precomputed constant m0_inv.
   OTBN_RETURN_IF_ERROR(otbn_copy_data_to_otbn(
-      &otbn, sizeof(n_limbs) / sizeof(uint32_t), &n_limbs, kOtbnVarRsaNLimbs));
-
-  // Set the modulus.
-  OTBN_RETURN_IF_ERROR(otbn_copy_data_to_otbn(&otbn, kSigVerifyRsaNumWords,
-                                              key->n.data, kOtbnVarRsaModulus));
-  // Set the message text.
-  OTBN_RETURN_IF_ERROR(otbn_copy_data_to_otbn(&otbn, kSigVerifyRsaNumWords,
-                                              sig->data, kOtbnVarRsaInOut));
+      &otbn, kOtbnWideWordNumWords, public_key->n0_inv, kOtbnVarRsaM0Inv));
 
   // Start the OTBN routine.
   OTBN_RETURN_IF_ERROR(otbn_execute_app(&otbn));
@@ -63,22 +98,22 @@ otbn_error_t sigverify_mod_exp_otbn_run_app(const sigverify_rsa_key_t *key,
   // Spin here waiting for OTBN to complete.
   OTBN_RETURN_IF_ERROR(otbn_busy_wait_for_done(&otbn));
 
-  // Read digest out of OTBN dmem.
-  OTBN_RETURN_IF_ERROR(otbn_copy_data_from_otbn(
-      &otbn, kSigVerifyRsaNumWords, kOtbnVarRsaInOut, result->data));
+  // Read recovered message out of OTBN dmem.
+  OTBN_RETURN_IF_ERROR(
+      read_rsa_3072_int_from_otbn(&otbn, kOtbnVarRsaOutBuf, recovered_message));
+
   return kOtbnErrorOk;
 }
 
 rom_error_t sigverify_mod_exp_otbn(const sigverify_rsa_key_t *key,
                                    const sigverify_rsa_buffer_t *sig,
                                    sigverify_rsa_buffer_t *result) {
-  // TODO: The OTBN routines should be consistent with ibex exponent support.
-  if (key->exponent != 65537) {
+  if (key->exponent != 65537 && key->exponent != 3) {
     return kErrorSigverifyBadExponent;
   }
 
   // Run OTBN application, and convert the OTBN error to a ROM error if needed.
-  FOLD_OTBN_ERROR(sigverify_mod_exp_otbn_run_app(key, sig, result));
+  FOLD_OTBN_ERROR(run_otbn_rsa_3072_modexp(key, sig, result));
 
   return kErrorOk;
 }

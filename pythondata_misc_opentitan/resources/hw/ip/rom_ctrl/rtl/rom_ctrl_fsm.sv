@@ -7,6 +7,7 @@
 //
 
 module rom_ctrl_fsm
+  import prim_mubi_pkg::mubi4_t;
   import prim_util_pkg::vbits;
 #(
   parameter int RomDepth = 16,
@@ -42,7 +43,7 @@ module rom_ctrl_fsm
   input logic [TopCount*32-1:0]      kmac_digest_i,
 
   // To ROM mux
-  output logic                       rom_select_o,
+  output mubi4_t                     rom_select_bus_o,
   output logic [vbits(RomDepth)-1:0] rom_addr_o,
   output logic                       rom_req_o,
 
@@ -54,6 +55,8 @@ module rom_ctrl_fsm
 );
 
   import prim_mubi_pkg::mubi4_bool_to_mubi;
+  import prim_mubi_pkg::mubi4_test_true_loose;
+  import prim_mubi_pkg::MuBi4False, prim_mubi_pkg::MuBi4True;
 
   localparam int AW = vbits(RomDepth);
   localparam int TAW = vbits(TopCount);
@@ -123,7 +126,7 @@ module rom_ctrl_fsm
   //       Done [peripheries=2];
   //     }
   //
-  // Encoding generated with:
+  // Initial encoding generated with:
   // $ util/design/sparse-fsm-encode.py -d 3 -m 6 -n 6 -s 2 --language=sv
   //
   // Hamming distance histogram:
@@ -141,24 +144,31 @@ module rom_ctrl_fsm
   // Minimum Hamming weight: 1
   // Maximum Hamming weight: 5
   //
-  typedef enum logic [5:0] {
-    ReadingLow  = 6'b111101,
-    ReadingHigh = 6'b110110,
-    RomAhead    = 6'b000011,
-    KmacAhead   = 6'b101010,
-    Checking    = 6'b010000,
-    Done        = 6'b001100
+  // However, we glom on an extra 4 bits to hold a mubi4_t that encodes "state == Done". The idea is
+  // that we can do that for the rom_select_bus_o signal without needing an intermediate 1-bit
+  // signal which would need burying.
+  //
+  typedef enum logic [9:0] {
+    ReadingLow  = {6'b111101, MuBi4False},
+    ReadingHigh = {6'b110110, MuBi4False},
+    RomAhead    = {6'b000011, MuBi4False},
+    KmacAhead   = {6'b101010, MuBi4False},
+    Checking    = {6'b010000, MuBi4False},
+    Done        = {6'b001100, MuBi4True}
   } state_e;
 
-  logic [5:0]  state_q, state_d;
+  logic [9:0]  state_q, state_d;
   logic        fsm_alert;
 
-  prim_flop #(.Width(6), .ResetValue({ReadingLow}))
-  u_state_regs (
-    .clk_i  (clk_i),
-    .rst_ni (rst_ni),
-    .d_i    (state_d),
-    .q_o    (state_q)
+  prim_sparse_fsm_flop #(
+    .StateEnumT(state_e),
+    .Width(10),
+    .ResetValue({ReadingLow})
+  ) u_state_regs (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+    .state_i (state_d),
+    .state_o (state_q)
   );
 
   always_comb begin
@@ -206,6 +216,12 @@ module rom_ctrl_fsm
     endcase
   end
 
+  // The in_state_done signal is supposed to be true iff we're in FSM state Done. Grabbing just the
+  // bottom 4 bits of state_q is equivalent to "mubi4_bool_to_mubi(state_q == Done)" except that it
+  // doesn't have a 1-bit signal on the way.
+  mubi4_t in_state_done;
+  assign in_state_done = mubi4_t'(state_q[3:0]);
+
   // Route digest signals coming back from KMAC straight to the CSRs
   assign digest_o     = kmac_digest_i;
   assign digest_vld_o = kmac_done_i;
@@ -229,12 +245,14 @@ module rom_ctrl_fsm
   assign exp_digest_vld_o = reading_top;
   assign exp_digest_idx_o = rel_addr;
 
-  // Pass the 'done' and 'good' signals directly from the checker
-  assign pwrmgr_data_o = '{done: mubi4_bool_to_mubi(state_q == Done),
+  // The 'done' signal for pwrmgr is asserted once we get into the Done state. The 'good' signal
+  // compes directly from the checker.
+  assign pwrmgr_data_o = '{done: in_state_done,
                            good: mubi4_bool_to_mubi(checker_good)};
 
-  // Pass the digest all-at-once to the keymgr
-  assign keymgr_data_o = '{data: digest_i, valid: (state_q == Done)};
+  // Pass the digest all-at-once to the keymgr. The loose check means that glitches will add
+  // spurious edges to the valid signal that can be caught at the other end.
+  assign keymgr_data_o = '{data: digest_i, valid: mubi4_test_true_loose(in_state_done)};
 
   // KMAC rom data interface
   //
@@ -254,13 +272,23 @@ module rom_ctrl_fsm
     end
   end
 
-  // We keep control of the ROM mux from reset until we're done
-  assign rom_select_o = (state_q != Done);
+  // The counter is supposed to run from zero up to the top of memory and then tell us that it's
+  // done with the counter_done signal. We would like to be sure that no-one can fiddle with the
+  // counter address once the hash has been computed (if they could subvert the mux as well, this
+  // would allow them to generate a useful wrong address for a fetch). Fortunately, doing so would
+  // cause the counter_done signal to drop again and we *know* that it should stay high when our FSM
+  // is in the Done state.
+  logic unexpected_counter_change;
+  assign unexpected_counter_change = mubi4_test_true_loose(in_state_done) & !counter_done;
+
+  // We keep control of the ROM mux from reset until we're done.
+  assign rom_select_bus_o = in_state_done;
+
   assign rom_addr_o = counter_read_addr;
   assign rom_req_o = counter_read_req;
 
   // TODO: There are lots more checks that we could do here (things like spotting vld signals that
   //       occur when we're in an FSM state that doesn't expect them)
-  assign alert_o = fsm_alert | checker_alert;
+  assign alert_o = fsm_alert | checker_alert | unexpected_counter_change;
 
 endmodule

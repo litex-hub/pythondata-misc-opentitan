@@ -78,6 +78,17 @@
                 "Unexpected offset for " #type "." #member)
 
 /**
+ * A macro that expands to an assertion for the size of a struct member.
+ *
+ * @param type A struct type.
+ * @param member A member of the struct.
+ * @param size Expected size of the type.
+ */
+#define OT_ASSERT_MEMBER_SIZE(type, member, size)             \
+  static_assert(sizeof(((type){0}).member) == UINT32_C(size), \
+                "Unexpected size for " #type)
+
+/**
  * A macro that expands to an assertion for the size of a type.
  *
  * @param type A type.
@@ -115,10 +126,40 @@
 #define OT_ATTR_WEAK __attribute__((weak))
 
 /**
- * Returns the return address of the current function.
+ * Attribute to construct functions without prologue/epilogue sequences.
+ *
+ * Only basic asm statements can be safely included in naked functions.
+ *
+ * See https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Function-Attributes.html
+ * #RISC-V-Function-Attributes
+ */
+#define OT_ATTR_NAKED __attribute__((naked))
+
+/**
+ * Attribute to place symbols into particular sections.
+ *
+ * See https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
+ * #Common-Function-Attributes
+ */
+#define OT_ATTR_SECTION(name) __attribute__((section(name)))
+
+/**
+ * Returns the address of the current function stack frame.
  *
  * See https://gcc.gnu.org/onlinedocs/gcc/Return-Address.html.
  */
-#define OT_RETURN_ADDR() __builtin_return_address(0)
+#define OT_FRAME_ADDR() __builtin_frame_address(0)
+
+/**
+ * Hints to the compiler that some point is not reachable.
+ *
+ * One use case could be a function that never returns.
+ *
+ * Please not that if the control flow reaches the point of the
+ * __builtin_unreachable, the program is undefined.
+ *
+ * See https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html.
+ */
+#define OT_UNREACHABLE() __builtin_unreachable()
 
 #endif  // OPENTITAN_SW_DEVICE_LIB_BASE_MACROS_H_

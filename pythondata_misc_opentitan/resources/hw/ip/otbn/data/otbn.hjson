@@ -129,6 +129,11 @@
       package: "keymgr_pkg"
     },
   ],
+  countermeasures: [
+    { name: "BUS.INTEGRITY",
+      desc: "End-to-end bus integrity scheme."
+    }
+  ]
 
   regwidth: "32"
   registers: [
@@ -301,9 +306,18 @@
 
         Refer to the "List of Errors" section for a detailed description of the
         errors.
+
+        The host CPU can clear this register when OTBN is not running,
+        by writing any value. Write attempts while OTBN is running are ignored.
       ''',
-      swaccess: "ro",
-      hwaccess: "hwo",
+      swaccess: "rw",
+      hwaccess: "hrw",
+      hwext: "true",
+      hwqe:  "true",
+      tags: [
+            // Don't write this register in the automated CSR tests;
+            "excl:CsrAllTests:CsrExclWrite"
+      ],
       fields: [
         // Software errors
         { bits: "0",
@@ -450,10 +464,14 @@
         count towards the total.
 
         Always reads as 0 if OTBN is locked.
+
+        The host CPU can clear this register when OTBN is not running,
+        by writing any value. Write attempts while OTBN is running are ignored.
       ''',
+      swaccess: "rw",
+      hwaccess: "hrw",
       hwext: "true",
-      swaccess: "ro",
-      hwaccess: "hwo",
+      hwqe:  "true",
       fields: [
         { bits: "31:0",
           name: "insn_cnt",
@@ -461,6 +479,10 @@
           desc: '''
             The number of executed instructions.
           '''
+          tags: [
+            // Don't write this field in the automated CSR tests;
+            "excl:CsrAllTests:CsrExclWrite"
+          ]
         }
       ]
     }
@@ -470,6 +492,8 @@
 
         See the "Memory Load Integrity" section of the manual for full details.
       '''
+      hwext: "true",
+      hwqe:  "true",
       swaccess: "rw",
       hwaccess: "hrw",
       fields: [
@@ -477,6 +501,12 @@
           name: "checksum",
           resval: 0,
           desc: "Checksum accumulator"
+          tags: [
+            // Don't read this field in any of the automated CSR tests (they
+            // will predict the value wrongly because they don't know that it
+            // updates on memory writes)
+            "excl:CsrAllTests:CsrExclAll"
+          ]
         }
       ]
     }

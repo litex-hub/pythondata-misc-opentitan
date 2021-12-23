@@ -52,7 +52,51 @@ package lc_ctrl_env_pkg;
     lc_ctrl_pkg::lc_tx_t lc_escalate_en_o;
   } lc_outputs_t;
 
-  // verilog_format: off - avoid bad reformatting
+  // error injection
+  typedef struct packed {
+    // Bad protocol on clk_byp_ack_i
+    bit clk_byp_error_rsp;
+    // Bad protocol on flash_rma_ack_i
+    bit flash_rma_error_rsp;
+    // OTP responds with error
+    bit otp_prog_err;
+    // OTP data to lc_ctrl has error bit set
+    bit otp_partition_err;
+    // Incorrect token for state change
+    bit token_mismatch_err;
+    // Invalid state driven via OTP interface
+    bit state_err;
+    // Invalid count driven via OTP interface
+    bit count_err;
+    // Invalid fsm state - via force in lc_ctrl_if
+    bit state_backdoor_err;
+    // Invalid count      - via force in lc_ctrl_if
+    bit count_backdoor_err;
+    // Send a transition request in post_trans state
+    bit post_trans_err;
+    // Invalid transition for current state
+    bit transition_err;
+    // Invalid transition because count already at maximum
+    bit transition_count_err;
+  } lc_ctrl_err_inj_t;
+
+  // Test phase - used to synchronise the scoreboard
+  typedef enum {
+    LcCtrlTestInit,
+    LcCtrlIterStart,
+    LcCtrlDutReady,
+    LcCtrlBadNextState,
+    LcCtrlWaitTransition,
+    LcCtrlTransitionComplete,
+    LcCtrlReadState1,
+    LcCtrlEscalate,
+    LcCtrlReadState2,
+    LcCtrlPostTransition,
+    LcCtrlPostTransTransitionComplete,
+    LcCtrlPostStart
+  } lc_ctrl_test_phase_e;
+
+  // verilog_format: off
   const lc_outputs_t EXP_LC_OUTPUTS[NUM_STATES] = {
     // Raw (fixed size array index 0)
     {Off, Off, Off, Off, Off, Off, Off, Off, Off, Off, Off},
@@ -119,28 +163,35 @@ package lc_ctrl_env_pkg;
   typedef virtual pins_if #(LcPwrIfWidth) pwr_lc_vif;
   typedef virtual lc_ctrl_if lc_ctrl_vif;
 
+  // LC states which are valid for transitions
+  const
+  lc_state_e
+  LcValidStateForTrans[] = '{
+      LcStRaw,
+      LcStTestUnlocked0,
+      LcStTestLocked0,
+      LcStTestUnlocked1,
+      LcStTestLocked1,
+      LcStTestUnlocked2,
+      LcStTestLocked2,
+      LcStTestUnlocked3,
+      LcStTestLocked3,
+      LcStTestUnlocked4,
+      LcStTestLocked4,
+      LcStTestUnlocked5,
+      LcStTestLocked5,
+      LcStTestUnlocked6,
+      LcStTestLocked6,
+      LcStTestUnlocked7,
+      LcStDev,
+      LcStProd,
+      LcStProdEnd,
+      LcStRma
+  };
+
   // functions
   function automatic bit valid_state_for_trans(lc_state_e curr_state);
-    return (curr_state inside {LcStRaw,
-                               LcStTestUnlocked0,
-                               LcStTestLocked0,
-                               LcStTestUnlocked1,
-                               LcStTestLocked1,
-                               LcStTestUnlocked2,
-                               LcStTestLocked2,
-                               LcStTestUnlocked3,
-                               LcStTestLocked3,
-                               LcStTestUnlocked4,
-                               LcStTestLocked4,
-                               LcStTestUnlocked5,
-                               LcStTestLocked5,
-                               LcStTestUnlocked6,
-                               LcStTestLocked6,
-                               LcStTestUnlocked7,
-                               LcStDev,
-                               LcStProd,
-                               LcStProdEnd,
-                               LcStRma});
+    return (curr_state inside {LcValidStateForTrans});
   endfunction
 
   // verilog_format: off - avoid bad reformatting

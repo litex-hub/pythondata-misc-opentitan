@@ -6,20 +6,6 @@ package(default_visibility = ["//visibility:public"])
 
 load("//rules:opentitan.bzl", "OPENTITAN_CPU")
 
-cc_library(
-    name = "main",
-    srcs = [
-        "test_main.c",
-    ],
-    hdrs = [
-        "test_main.h",
-    ],
-    target_compatible_with = [OPENTITAN_CPU],
-    deps = [
-        ":test_framework",
-    ],
-)
-
 # TODO use more specific targets to avoid unnecesary dependencies
 # https://github.com/lowRISC/opentitan/issues/9098
 cc_library(
@@ -42,5 +28,99 @@ cc_library(
         "//sw/device/lib/runtime:hart",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/runtime:print",
+    ],
+)
+
+# TODO(lowRISC/opentitan#7972): clean up check.h after completing the
+# migration to bazel.
+cc_library(
+    name = "check",
+    hdrs = [
+        "test_status.h",
+        "//sw/device/lib/testing:check",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+cc_library(
+    name = "freertos_config",
+    hdrs = [
+        "FreeRTOSConfig.h",
+    ],
+    # FreeRTOS sources don't follow our project's include-path standard,
+    # and just include via the bare filename.
+    includes = ["."],
+    deps = [
+        "//sw/device/lib/arch:device",
+    ],
+)
+
+cc_library(
+    name = "freertos_port",
+    srcs = [
+        "freertos_hooks.c",
+        "freertos_port.S",
+        "freertos_port.c",
+    ],
+    hdrs = [
+        "ottf_macros.h",
+    ],
+    deps = [
+        ":check",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib:irq",
+        "//sw/device/lib/base",
+        "//sw/device/lib/dif:rv_timer",
+        "//sw/device/lib/dif:uart",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:log",
+        "//sw/vendor/freertos_freertos_kernel:kernel",
+    ],
+)
+
+cc_library(
+    name = "ottf",
+    srcs = [
+        "ottf.c",
+    ],
+    hdrs = [
+        "ottf.h",
+        "//sw/device/lib/testing:check",
+    ],
+    linkopts = [
+        # Make the linker keep resolving references between these
+        # targets until satisfied.
+        "-Wl,--start-group",
+        "$(location :freertos_port)",
+        "$(location //sw/device/lib:irq)",
+        "$(location //sw/vendor/freertos_freertos_kernel:kernel)",
+        "-Wl,--end-group",
+    ],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        ":freertos_port",
+        ":test_framework",
+        "//sw/device/lib:irq",
+        "//sw/device/lib/base",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/runtime:print",
+        "//sw/vendor/freertos_freertos_kernel:kernel",
+    ],
+)
+
+cc_library(
+    name = "ottf_isrs",
+    srcs = [
+        "ottf_isrs.S",
+        "ottf_isrs.c",
+    ],
+    hdrs = [
+        "ottf_isrs.h",
+    ],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        ":freertos_port",
     ],
 )

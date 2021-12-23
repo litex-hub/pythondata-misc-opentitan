@@ -193,8 +193,7 @@ static uint32_t read_hex_32(const char *str) {
 }
 
 // Read through trace output (in the lines argument) to pick up any write to
-// the named CSR register, updating *dest. If there is no such write and
-// required is true, returns false. Otherwise returns true.
+// the named CSR register, updating *dest.
 static void read_ext_reg(const std::string &reg_name,
                          const std::vector<std::string> &lines,
                          uint32_t *dest) {
@@ -355,6 +354,24 @@ void ISSWrapper::edn_urnd_step(uint32_t edn_urnd_data) {
   run_command(oss.str(), nullptr);
 }
 
+void ISSWrapper::set_keymgr_value(const std::array<uint32_t, 12> &key0_arr,
+                                  const std::array<uint32_t, 12> &key1_arr,
+                                  bool valid) {
+  std::ostringstream oss;
+
+  oss << "set_keymgr_value 0x" << std::hex << std::setfill('0');
+  for (int i = 0; i < 12; ++i) {
+    oss << std::setw(8) << key0_arr[11 - i];
+  }
+  oss << " 0x";
+  for (int i = 0; i < 12; ++i) {
+    oss << std::setw(8) << key1_arr[11 - i];
+  }
+  oss << " " << valid << "\n";
+
+  run_command(oss.str(), nullptr);
+}
+
 int ISSWrapper::step(bool gen_trace) {
   std::vector<std::string> lines;
   bool error = false;
@@ -386,6 +403,26 @@ int ISSWrapper::step(bool gen_trace) {
 
 void ISSWrapper::invalidate_imem() {
   run_command("invalidate_imem\n", nullptr);
+}
+
+void ISSWrapper::invalidate_dmem() {
+  run_command("invalidate_dmem\n", nullptr);
+}
+
+uint32_t ISSWrapper::step_crc(const std::array<uint8_t, 6> &item,
+                              uint32_t state) const {
+  std::vector<std::string> lines;
+
+  std::ostringstream oss;
+  oss << std::hex << "step_crc 0x" << std::setfill('0');
+  for (int i = 0; i < item.size(); ++i) {
+    oss << std::setw(2) << (int)item[5 - i];
+  }
+  oss << " 0x" << std::setw(8) << state << "\n";
+  run_command(oss.str(), &lines);
+
+  read_ext_reg("LOAD_CHECKSUM", lines, &state);
+  return state;
 }
 
 void ISSWrapper::reset(bool gen_trace) {

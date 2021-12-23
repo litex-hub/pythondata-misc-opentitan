@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Tuple
 
 from .trace import Trace
 
@@ -26,6 +26,10 @@ class WSR:
     '''Models a Wide Status Register'''
     def __init__(self, name: str):
         self.name = name
+
+    def has_value(self) -> bool:
+        '''Return whether the WSR has a valid value'''
+        return True
 
     def read_unsigned(self) -> int:
         '''Get the stored value as a 256-bit unsigned value'''
@@ -180,8 +184,8 @@ class URNDWSR(WSR):
         self._value = None  # type: Optional[int]
         self.running = False
 
-    # Function to left rotate a 64b number n by d bits
-    def leftRotate64(self, n: int, d: int) -> int:
+    def rol(self, n: int, d: int) -> int:
+        '''Rotate n left by d bits'''
         return ((n << d) & ((1 << 64) - 1)) | (n >> (64 - d))
 
     def read_u32(self) -> int:
@@ -205,7 +209,7 @@ class URNDWSR(WSR):
         a_out = a_in ^ b_in ^ d_in
         b_out = a_in ^ b_in ^ c_in
         c_out = a_in ^ ((b_in << 17) & ((1 << 64) - 1)) ^ c_in
-        d_out = self.leftRotate64(d_in, 45) ^ self.leftRotate64(b_in, 45)
+        d_out = self.rol(d_in, 45) ^ self.rol(b_in, 45)
         assert a_out < (1 << 64)
         assert b_out < (1 << 64)
         assert c_out < (1 << 64)
@@ -218,13 +222,16 @@ class URNDWSR(WSR):
 
     def step(self) -> None:
         if self.running:
+            mask64 = (1 << 64) - 1
             mid = 4 * [0]
-            self._next_value = 0
+            nv = 0
             for i in range(4):
-                self.state[i + 1] = self.state_update(self.state[i])
-                mid[i] = (self.state[i][3] + self.state[i][0]) & ((1 << 64) - 1)
-                self.out[i] = (self.leftRotate64(mid[i], 23) + self.state[i][3]) & ((1 << 64) - 1)
-                self._next_value = (self._next_value | (self.out[i] << (64 * i))) & ((1 << 256) - 1)
+                st_i = self.state[i]
+                self.state[i + 1] = self.state_update(st_i)
+                mid[i] = (st_i[3] + st_i[0]) & mask64
+                self.out[i] = (self.rol(mid[i], 23) + st_i[3]) & mask64
+                nv |= self.out[i] << (64 * i)
+            self._next_value = nv
             self.state[0] = self.state[4]
 
     def commit(self) -> None:
@@ -238,17 +245,93 @@ class URNDWSR(WSR):
         return ([])
 
 
+class KeyTrace(Trace):
+    def __init__(self, name: str, new_value: Optional[int]):
+        self.name = name
+        self.new_value = new_value
+
+    def trace(self) -> str:
+        val_desc = '(unset)' if self.new_value is None else self.new_value
+        return '{} = {}'.format(self.name, val_desc)
+
+
+class SideloadKey:
+    '''Represents a sideloaded key, with 384 bits of data and a valid signal'''
+    def __init__(self, name: str, val: Optional[int]):
+        self.name = name
+        self._value = (val is not None, val or 0)  # type: Tuple[bool, int]
+        self._next_value = None  # type: Optional[Tuple[bool, int]]
+
+    def has_value(self) -> bool:
+        return self._value[0]
+
+    def read_unsigned(self, shift: int) -> int:
+        vld, value = self._value
+
+        # The simulator should be careful not to call read_unsigned() unless it
+        # has first checked that the value exists.
+        assert vld
+
+        mask256 = (1 << 256) - 1
+        return (value >> shift) & mask256
+
+    def write_unsigned(self, value: Optional[int]) -> None:
+        assert value is None or (0 <= value < (1 << 384))
+        self._next_value = (False, 0) if value is None else (True, value)
+
+    def changes(self) -> List[KeyTrace]:
+        if self._next_value is not None:
+            vld, value = self._next_value
+            return [KeyTrace(self.name, value if vld else None)]
+        else:
+            return []
+
+    def commit(self) -> None:
+        if self._next_value is not None:
+            self._value = self._next_value
+            self._next_value = None
+
+
+class KeyWSR(WSR):
+    def __init__(self, name: str, shift: int, key_reg: SideloadKey):
+        assert 0 <= shift < 384
+        super().__init__(name)
+        self._shift = shift
+        self._key_reg = key_reg
+
+    def has_value(self) -> bool:
+        return self._key_reg.has_value()
+
+    def read_unsigned(self) -> int:
+        return self._key_reg.read_unsigned(self._shift)
+
+    def write_unsigned(self, value: int) -> None:
+        return
+
+
 class WSRFile:
     '''A model of the WSR file'''
     def __init__(self) -> None:
+        # Use fixed sideload keys for now. This matches the fixed keys used in
+        # the testbenches. Eventually the model will snoop the incoming key as
+        # it snoops the incoming EDN data for RND/URND now.
+        acc0 = 0
+        acc1 = 0
+        for i in range(384 // 32):
+            acc0 |= (0xDEADBEEF << (i * 32))
+            acc1 |= (0xBAADF00D << (i * 32))
+
+        self.KeyS0 = SideloadKey('KeyS0', acc0)
+        self.KeyS1 = SideloadKey('KeyS1', acc1)
+
         self.MOD = DumbWSR('MOD')
         self.RND = RandWSR('RND')
         self.URND = URNDWSR('URND')
         self.ACC = DumbWSR('ACC')
-        self.KeyS0L = DumbWSR('KeyS0L')
-        self.KeyS0H = DumbWSR('KeyS0H')
-        self.KeyS1L = DumbWSR('KeyS1L')
-        self.KeyS1H = DumbWSR('KeyS1H')
+        self.KeyS0L = KeyWSR('KeyS0L', 0, self.KeyS0)
+        self.KeyS0H = KeyWSR('KeyS0H', 256, self.KeyS0)
+        self.KeyS1L = KeyWSR('KeyS1L', 0, self.KeyS1)
+        self.KeyS1H = KeyWSR('KeyS1H', 256, self.KeyS1)
 
         self._by_idx = {
             0: self.MOD,
@@ -261,17 +344,17 @@ class WSRFile:
             7: self.KeyS1H,
         }
 
-        # Use fixed sideload keys for now. This matches the fixed keys used in
-        # the testbenches. Eventually the model will snoop the incoming key as
-        # it snoops the incoming EDN data for RND/URND now.
-        self.KeyS0L._value = 0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF
-        self.KeyS0H._value = 0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF
-        self.KeyS1L._value = 0xBAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00DBAADF00D
-        self.KeyS1H._value = 0xBAADF00DBAADF00DBAADF00DBAADF00D
-
     def check_idx(self, idx: int) -> bool:
         '''Return True if idx is a valid WSR index'''
         return idx in self._by_idx
+
+    def has_value_at_idx(self, idx: int) -> int:
+        '''Return True if the WSR at idx has a valid valu.
+
+        Assumes that idx is a valid index (call check_idx to ensure this).
+
+        '''
+        return self._by_idx[idx].has_value()
 
     def read_at_idx(self, idx: int) -> int:
         '''Read the WSR at idx as an unsigned 256-bit value
@@ -294,12 +377,18 @@ class WSRFile:
         self.RND.commit()
         self.URND.commit()
         self.ACC.commit()
+        self.KeyS0.commit()
+        self.KeyS1.commit()
 
     def abort(self) -> None:
         self.MOD.abort()
         self.RND.abort()
         self.URND.abort()
         self.ACC.abort()
+        # We commit changes to the sideloaded keys from outside, even if the
+        # instruction itself gets aborted.
+        self.KeyS0.commit()
+        self.KeyS1.commit()
 
     def changes(self) -> List[Trace]:
         ret = []  # type: List[Trace]
@@ -307,4 +396,6 @@ class WSRFile:
         ret += self.RND.changes()
         ret += self.URND.changes()
         ret += self.ACC.changes()
+        ret += self.KeyS0.changes()
+        ret += self.KeyS1.changes()
         return ret

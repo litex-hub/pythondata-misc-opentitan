@@ -137,7 +137,8 @@ class OTBNSim:
             # cycle after that until we start executing instructions, but that
             # doesn't really matter)
             changes = self._on_stall(verbose, fetch_next=False)
-            changes += [TraceExtRegChange('RND_REQ', ExtRegChange('=', 0, True, 0))]
+            changes += [TraceExtRegChange('RND_REQ',
+                                          ExtRegChange('=', 0, True, 0))]
             self.state.ext_regs.write('INSN_CNT', 0, True)
             return (None, changes)
 
@@ -154,11 +155,7 @@ class OTBNSim:
             self.state.ext_regs.write('INSN_CNT', 0, True)
             return (None, changes)
 
-        if self.state.fsm_state == FsmState.POST_EXEC:
-            return (None, self._on_stall(verbose, fetch_next=False))
-
-        if self.state.fsm_state == FsmState.LOCKING:
-            self.state.ext_regs.write('INSN_CNT', 0, True)
+        if self.state.fsm_state in [FsmState.POST_EXEC, FsmState.LOCKING]:
             return (None, self._on_stall(verbose, fetch_next=False))
 
         assert self.state.fsm_state == FsmState.EXEC
@@ -199,7 +196,7 @@ class OTBNSim:
         if not sim_stalled:
             return (insn, self._on_retire(verbose, insn))
 
-        return (None, self._on_stall(verbose, fetch_next=True))
+        return (None, self._on_stall(verbose, fetch_next=False))
 
     def dump_data(self) -> bytes:
         return self.state.dmem.dump_le_words()

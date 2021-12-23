@@ -68,12 +68,14 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
             // during key or init req, sram access shouldn't be taken
             randcase
               1: begin
-                // If we only do scrambling without re-init the mem, data intg will be wrong
-                cfg.scb.en_d_user_intg_chk = 0;
+                // If we only do scrambling without re-initializing the mem, data intg will be wrong
+                // since it's data intg passthru mem, it doesn't matter, just don't check it.
+                cfg.disable_d_user_data_intg_check_for_passthru_mem = 1;
                 req_scr_key();
               end
               1: begin
                 req_mem_init();
+                cfg.disable_d_user_data_intg_check_for_passthru_mem = 0;
               end
             endcase
           end
@@ -84,9 +86,15 @@ class sram_ctrl_smoke_vseq extends sram_ctrl_base_vseq;
             // cycles to finish
             cfg.clk_rst_vif.wait_clks(2);
             `uvm_info(`gfn, "accessing during key req", UVM_HIGH)
+
+            // SRAM init is basically to write all the mem with random value.
+            // When a read happens right after init, it's read-after-write hazard. SCB expects the
+            // read value is from memory directly, but it's actually from the last write of init.
+            // To avoid this case, don't access the last address in this parallel `do_rand_ops`
             do_rand_ops(.num_ops($urandom_range(100, 500)),
                         .abort(1),
-                        .en_ifetch(en_ifetch));
+                        .en_ifetch(en_ifetch),
+                        .not_use_last_addr(1));
             csr_utils_pkg::wait_no_outstanding_access();
           end
         join

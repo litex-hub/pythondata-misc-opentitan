@@ -10,7 +10,16 @@
 #include "sw/device/lib/runtime/ibex.h"
 #include "sw/device/lib/runtime/log.h"
 
-void ottf_exception_handler(void) {
+/**
+ * These weak symbols (pxCurrentTCB and kTestConfig) enable the OTTF ISRs to be
+ * used without the OTTF itself. This enables us to maintain one set of default
+ * ISRs for testing, while also enabling writing tests that do not make use of
+ * the OTTF. See the `crt_test` in `sw/device/tests/crt_test.c` for an example.
+ */
+OT_ATTR_WEAK void *pxCurrentTCB = NULL;
+OT_ATTR_WEAK void *kTestConfig = NULL;
+
+OT_ATTR_WEAK void ottf_exception_handler(void) {
   uint32_t mcause = ibex_mcause_read();
 
   switch ((ottf_exc_id_t)(mcause & kIdMax)) {

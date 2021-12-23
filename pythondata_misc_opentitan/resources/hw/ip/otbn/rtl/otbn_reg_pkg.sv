@@ -51,7 +51,72 @@ package otbn_reg_pkg;
   } otbn_reg2hw_ctrl_reg_t;
 
   typedef struct packed {
+    struct packed {
+      logic        q;
+      logic        qe;
+    } bad_data_addr;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } bad_insn_addr;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } call_stack;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } illegal_insn;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } loop;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } key_invalid;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } imem_intg_violation;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } dmem_intg_violation;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } reg_intg_violation;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } bus_intg_violation;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } bad_internal_state;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } illegal_bus_access;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } lifecycle_escalation;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } fatal_software;
+  } otbn_reg2hw_err_bits_reg_t;
+
+  typedef struct packed {
     logic [31:0] q;
+    logic        qe;
+  } otbn_reg2hw_insn_cnt_reg_t;
+
+  typedef struct packed {
+    logic [31:0] q;
+    logic        qe;
   } otbn_reg2hw_load_checksum_reg_t;
 
   typedef struct packed {
@@ -71,59 +136,45 @@ package otbn_reg_pkg;
   typedef struct packed {
     struct packed {
       logic        d;
-      logic        de;
     } bad_data_addr;
     struct packed {
       logic        d;
-      logic        de;
     } bad_insn_addr;
     struct packed {
       logic        d;
-      logic        de;
     } call_stack;
     struct packed {
       logic        d;
-      logic        de;
     } illegal_insn;
     struct packed {
       logic        d;
-      logic        de;
     } loop;
     struct packed {
       logic        d;
-      logic        de;
     } key_invalid;
     struct packed {
       logic        d;
-      logic        de;
     } imem_intg_violation;
     struct packed {
       logic        d;
-      logic        de;
     } dmem_intg_violation;
     struct packed {
       logic        d;
-      logic        de;
     } reg_intg_violation;
     struct packed {
       logic        d;
-      logic        de;
     } bus_intg_violation;
     struct packed {
       logic        d;
-      logic        de;
     } bad_internal_state;
     struct packed {
       logic        d;
-      logic        de;
     } illegal_bus_access;
     struct packed {
       logic        d;
-      logic        de;
     } lifecycle_escalation;
     struct packed {
       logic        d;
-      logic        de;
     } fatal_software;
   } otbn_hw2reg_err_bits_reg_t;
 
@@ -168,29 +219,30 @@ package otbn_reg_pkg;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
   } otbn_hw2reg_load_checksum_reg_t;
 
   // Register -> HW type
   typedef struct packed {
-    otbn_reg2hw_intr_state_reg_t intr_state; // [50:50]
-    otbn_reg2hw_intr_enable_reg_t intr_enable; // [49:49]
-    otbn_reg2hw_intr_test_reg_t intr_test; // [48:47]
-    otbn_reg2hw_alert_test_reg_t alert_test; // [46:43]
-    otbn_reg2hw_cmd_reg_t cmd; // [42:34]
-    otbn_reg2hw_ctrl_reg_t ctrl; // [33:32]
-    otbn_reg2hw_load_checksum_reg_t load_checksum; // [31:0]
+    otbn_reg2hw_intr_state_reg_t intr_state; // [112:112]
+    otbn_reg2hw_intr_enable_reg_t intr_enable; // [111:111]
+    otbn_reg2hw_intr_test_reg_t intr_test; // [110:109]
+    otbn_reg2hw_alert_test_reg_t alert_test; // [108:105]
+    otbn_reg2hw_cmd_reg_t cmd; // [104:96]
+    otbn_reg2hw_ctrl_reg_t ctrl; // [95:94]
+    otbn_reg2hw_err_bits_reg_t err_bits; // [93:66]
+    otbn_reg2hw_insn_cnt_reg_t insn_cnt; // [65:33]
+    otbn_reg2hw_load_checksum_reg_t load_checksum; // [32:0]
   } otbn_reg2hw_t;
 
   // HW -> register type
   typedef struct packed {
-    otbn_hw2reg_intr_state_reg_t intr_state; // [120:119]
-    otbn_hw2reg_ctrl_reg_t ctrl; // [118:118]
-    otbn_hw2reg_status_reg_t status; // [117:109]
-    otbn_hw2reg_err_bits_reg_t err_bits; // [108:81]
-    otbn_hw2reg_fatal_alert_cause_reg_t fatal_alert_cause; // [80:65]
-    otbn_hw2reg_insn_cnt_reg_t insn_cnt; // [64:33]
-    otbn_hw2reg_load_checksum_reg_t load_checksum; // [32:0]
+    otbn_hw2reg_intr_state_reg_t intr_state; // [105:104]
+    otbn_hw2reg_ctrl_reg_t ctrl; // [103:103]
+    otbn_hw2reg_status_reg_t status; // [102:94]
+    otbn_hw2reg_err_bits_reg_t err_bits; // [93:80]
+    otbn_hw2reg_fatal_alert_cause_reg_t fatal_alert_cause; // [79:64]
+    otbn_hw2reg_insn_cnt_reg_t insn_cnt; // [63:32]
+    otbn_hw2reg_load_checksum_reg_t load_checksum; // [31:0]
   } otbn_hw2reg_t;
 
   // Register offsets
@@ -216,8 +268,25 @@ package otbn_reg_pkg;
   parameter logic [7:0] OTBN_CMD_CMD_RESVAL = 8'h 0;
   parameter logic [0:0] OTBN_CTRL_RESVAL = 1'h 0;
   parameter logic [0:0] OTBN_CTRL_SOFTWARE_ERRS_FATAL_RESVAL = 1'h 0;
+  parameter logic [23:0] OTBN_ERR_BITS_RESVAL = 24'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_BAD_DATA_ADDR_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_BAD_INSN_ADDR_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_CALL_STACK_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_ILLEGAL_INSN_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_LOOP_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_KEY_INVALID_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_IMEM_INTG_VIOLATION_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_DMEM_INTG_VIOLATION_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_REG_INTG_VIOLATION_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_BUS_INTG_VIOLATION_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_BAD_INTERNAL_STATE_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_ILLEGAL_BUS_ACCESS_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_LIFECYCLE_ESCALATION_RESVAL = 1'h 0;
+  parameter logic [0:0] OTBN_ERR_BITS_FATAL_SOFTWARE_RESVAL = 1'h 0;
   parameter logic [31:0] OTBN_INSN_CNT_RESVAL = 32'h 0;
   parameter logic [31:0] OTBN_INSN_CNT_INSN_CNT_RESVAL = 32'h 0;
+  parameter logic [31:0] OTBN_LOAD_CHECKSUM_RESVAL = 32'h 0;
+  parameter logic [31:0] OTBN_LOAD_CHECKSUM_CHECKSUM_RESVAL = 32'h 0;
 
   // Window parameters
   parameter logic [BlockAw-1:0] OTBN_IMEM_OFFSET = 16'h 4000;

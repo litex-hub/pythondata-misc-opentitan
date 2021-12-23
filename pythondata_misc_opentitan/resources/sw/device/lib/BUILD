@@ -20,24 +20,6 @@ cc_library(
 )
 
 cc_library(
-    name = "irq",
-    srcs = [
-        "handler.c",
-        "irq.c",
-    ],
-    hdrs = [
-        "handler.h",
-        "irq.h",
-    ],
-    target_compatible_with = [OPENTITAN_CPU],
-    deps = [
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base",
-        "//sw/device/lib/runtime:log",
-    ],
-)
-
-cc_library(
     name = "pinmux",
     srcs = ["pinmux.c"],
     hdrs = ["pinmux.h"],
@@ -58,6 +40,16 @@ cc_library(
     deps = [
         "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base",
+    ],
+)
+
+cc_library(
+    name = "irq",
+    srcs = ["irq.c"],
+    hdrs = ["irq.h"],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
         "//sw/device/lib/base",
     ],
 )

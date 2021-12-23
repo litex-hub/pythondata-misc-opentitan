@@ -78,11 +78,17 @@ Security      | [SEC_RND_CNST][]        | NA          |
 
 ### D2S
 
- Type         | Item                    | Resolution  | Note/Collaterals
---------------|-------------------------|-------------|------------------
-Security      | [SEC_CM_IMPLEMENTED][]  | Not Started |
+ Type         | Item                         | Resolution  | Note/Collaterals
+--------------|------------------------------|-------------|------------------
+Security      | [SEC_CM_IMPLEMENTED][]       | Not Started |
+Security      | [SEC_CM_ASSETS_LISTED][]     | Not Started |
+Security      | [SEC_CM_RTL_REVIEWED][]      | Not Started |
+Security      | [SEC_CM_COUNCIL_REVIEWED][]  | Not Started |
 
-[SEC_CM_IMPLEMENTED]:   {{<relref "/doc/project/checklist.md#sec_cm_implemented" >}}
+[SEC_CM_IMPLEMENTED]:      {{<relref "/doc/project/checklist.md#sec_cm_implemented" >}}
+[SEC_CM_ASSETS_LISTED]:    {{<relref "/doc/project/checklist.md#sec_cm_assets_listed" >}}
+[SEC_CM_RTL_REVIEWED]:     {{<relref "/doc/project/checklist.md#sec_cm_rtl_reviewed" >}}
+[SEC_CM_COUNCIL_REVIEWED]: {{<relref "/doc/project/checklist.md#sec_cm_council_reviewed" >}}
 
 ### D3
 
@@ -173,21 +179,21 @@ Review        | [V2_CHECKLIST_SCOPED][]               | Done        |
 
  Type         | Item                                    | Resolution  | Note/Collaterals
 --------------|-----------------------------------------|-------------|------------------
-Documentation | [DESIGN_DELTAS_CAPTURED_V2][]           | Not Started |
-Documentation | [DV_DOC_COMPLETED][]                    | Not Started |
-Testbench     | [FUNCTIONAL_COVERAGE_IMPLEMENTED][]     | Not Started |
-Testbench     | [ALL_INTERFACES_EXERCISED][]            | Not Started |
-Testbench     | [ALL_ASSERTION_CHECKS_ADDED][]          | Not Started |
-Testbench     | [SIM_TB_ENV_COMPLETED][]                | Not Started |
-Tests         | [SIM_ALL_TESTS_PASSING][]               | Not Started |
-Tests         | [FPV_ALL_ASSERTIONS_WRITTEN][]          | Not Started |
-Tests         | [FPV_ALL_ASSUMPTIONS_REVIEWED][]        | Not Started |
-Tests         | [SIM_FW_SIMULATED][]                    | Not Started |
-Regression    | [SIM_NIGHTLY_REGRESSION_V2][]           | Not Started |
-Coverage      | [SIM_CODE_COVERAGE_V2][]                | Not Started |
-Coverage      | [SIM_FUNCTIONAL_COVERAGE_V2][]          | Not Started |
-Coverage      | [FPV_CODE_COVERAGE_V2][]                | Not Started |
-Coverage      | [FPV_COI_COVERAGE_V2][]                 | Not Started |
+Documentation | [DESIGN_DELTAS_CAPTURED_V2][]           | Done        |
+Documentation | [DV_DOC_COMPLETED][]                    | Done        |
+Testbench     | [FUNCTIONAL_COVERAGE_IMPLEMENTED][]     | Done        |
+Testbench     | [ALL_INTERFACES_EXERCISED][]            | Done        |
+Testbench     | [ALL_ASSERTION_CHECKS_ADDED][]          | Done        |
+Testbench     | [SIM_TB_ENV_COMPLETED][]                | Done        |
+Tests         | [SIM_ALL_TESTS_PASSING][]               | Done        |
+Tests         | [FPV_ALL_ASSERTIONS_WRITTEN][]          | NA          |
+Tests         | [FPV_ALL_ASSUMPTIONS_REVIEWED][]        | NA          |
+Tests         | [SIM_FW_SIMULATED][]                    | Done        |
+Regression    | [SIM_NIGHTLY_REGRESSION_V2][]           | Done        |
+Coverage      | [SIM_CODE_COVERAGE_V2][]                | Done        |
+Coverage      | [SIM_FUNCTIONAL_COVERAGE_V2][]          | Done        |
+Coverage      | [FPV_CODE_COVERAGE_V2][]                | NA          |
+Coverage      | [FPV_COI_COVERAGE_V2][]                 | NA          |
 Code Quality  | [TB_LINT_PASS][]                        | Not Started |
 Integration   | [PRE_VERIFIED_SUB_MODULES_V2][]         | Not Started |
 Issues        | [NO_HIGH_PRIORITY_ISSUES_PENDING][]     | Not Started |

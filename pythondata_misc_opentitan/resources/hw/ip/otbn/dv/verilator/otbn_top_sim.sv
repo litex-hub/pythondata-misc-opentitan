@@ -8,6 +8,7 @@ module otbn_top_sim (
 );
   import otbn_pkg::*;
   import edn_pkg::*;
+  import keymgr_pkg::otbn_key_req_t;
 
   // Size of the instruction memory, in bytes
   parameter int ImemSizeByte = otbn_reg_pkg::OTBN_IMEM_SIZE;
@@ -54,11 +55,13 @@ module otbn_top_sim (
 
   // Instruction counter (feeds into otbn.INSN_CNT in full block)
   logic [31:0]              insn_cnt;
-
   logic [1:0][SideloadKeyWidth-1:0] sideload_key_shares;
-
   assign sideload_key_shares[0] = {12{32'hDEADBEEF}};
   assign sideload_key_shares[1] = {12{32'hBAADF00D}};
+  otbn_key_req_t keymgr_key;
+  assign keymgr_key.key[0] = sideload_key_shares[0];
+  assign keymgr_key.key[1] = sideload_key_shares[1];
+  assign keymgr_key.valid  = 1'b1;
 
   otbn_core #(
     .ImemSizeByte ( ImemSizeByte ),
@@ -73,6 +76,7 @@ module otbn_top_sim (
 
     .err_bits_o                  ( otbn_err_bits       ),
     .recoverable_err_o           (                     ),
+    .reg_intg_violation_o        (                     ),
 
     .imem_req_o                  ( imem_req            ),
     .imem_addr_o                 ( imem_addr           ),
@@ -100,6 +104,7 @@ module otbn_top_sim (
     .edn_urnd_data_i             ( edn_urnd_data       ),
 
     .insn_cnt_o                  ( insn_cnt            ),
+    .insn_cnt_clear_i            ( 1'b0                ),
 
     .bus_intg_violation_i        ( 1'b0                ),
     .illegal_bus_access_i        ( 1'b0                ),
@@ -293,8 +298,6 @@ module otbn_top_sim (
   bit        otbn_model_err;
 
   otbn_core_model #(
-    .DmemSizeByte    ( DmemSizeByte ),
-    .ImemSizeByte    ( ImemSizeByte ),
     .MemScope        ( ".." ),
     .DesignScope     ( DesignScope )
   ) u_otbn_core_model (
@@ -318,7 +321,7 @@ module otbn_top_sim (
     .status_o              ( ),
     .insn_cnt_o            ( otbn_model_insn_cnt ),
 
-    .invalidate_imem_i     ( 1'b0 ),
+    .keymgr_key_i          ( keymgr_key),
 
     .done_rr_o             ( otbn_model_done_rr ),
 

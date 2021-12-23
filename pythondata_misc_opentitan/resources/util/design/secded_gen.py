@@ -18,7 +18,7 @@ import math
 import random
 import hjson
 import subprocess
-from typing import Tuple
+from typing import List, Tuple
 from pathlib import Path
 
 COPYRIGHT = """// Copyright lowRISC contributors.
@@ -189,6 +189,25 @@ def print_secded_enum_and_util_fns(cfgs):
     return enum_str
 
 
+def print_pkg_allzero(n, k, m, codes, suffix, codetype):
+
+    suffix = suffix.split('_')
+    suffix = [x.capitalize() for x in suffix]
+    suffix = ''.join(suffix)
+
+    invecc = 0
+    invcode = 0
+    if codetype in ["inv_hsiao", "inv_hamming"]:
+        for x in range(m):
+            invecc += (x % 2) << x
+        invcode = invecc << k
+    zerostr = f'''
+  parameter logic [{m-1}:0] Secded{suffix}{n}{k}ZeroEcc = {m}'h{invecc:0X};
+  parameter logic [{n-1}:0] Secded{suffix}{n}{k}ZeroWord = {n}'h{invcode:0X};
+'''
+    return zerostr
+
+
 def print_pkg_types(n, k, m, codes, suffix, codetype):
     typename = "secded%s_%d_%d_t" % (suffix, n, k)
 
@@ -239,14 +258,18 @@ def print_fn(n, k, m, codes, suffix, codetype, inv=False):
 
 
 def print_enc(n, k, m, codes, codetype):
-    invstr = "~" if codetype in ["inv_hsiao", "inv_hamming"] else ""
+    invert = 1 if codetype in ["inv_hsiao", "inv_hamming"] else 0
     outstr = "    data_o = {}'(data_i);\n".format(n)
-    format_str = "    data_o[{}] = " + str(invstr) + \
-                 "^(data_o & " + str(n) + "'h{:0" + str(
-                 (n + 3) // 4) + "X});\n"
-    # Print parity computation
+    format_str = "    data_o[{}] = 1'b{} ^ ^(data_o & " + str(n) + "'h{:0" +\
+                 str((n + 3) // 4) + "X});\n"
+    # Print parity computation If inverted encoding is turned on, we only
+    # invert every odd bit so that both all-one and all-zero encodings are not
+    # possible. This works for most encodings generated if the fanin is
+    # balanced (such as inverted Hsiao codes). However, since there is no
+    # guarantee, an FPV assertion is added to prove that all-zero and all-one
+    # encodings do not exist if an inverted code is used.
     for j, mask in enumerate(calc_bitmasks(k, m, codes, False)):
-        outstr += format_str.format(j + k, mask)
+        outstr += format_str.format(j + k, invert & (j % 2), mask)
     return outstr
 
 
@@ -260,9 +283,12 @@ def print_dec(n, k, m, codes, codetype, print_type="logic"):
     outstr += "    // Syndrome calculation\n"
     hexfmt = str(n) + "'h{:0" + str((n + 3) // 4) + "X}"
     format_str = "    syndrome_o[{}] = ^("
-    # Add ECC bit inversion if needed.
+    # Add ECC bit inversion if needed (see print_enc function).
     if codetype in ["inv_hsiao", "inv_hamming"]:
-        format_str += "(data_i ^ " + hexfmt.format((2**m -1) * 2**k) + ")"
+        invval = 0
+        for x in range(m):
+            invval += (x % 2) << x
+        format_str += "(data_i ^ " + hexfmt.format(invval << k) + ")"
     else:
         format_str += "data_i"
     format_str += " & " + hexfmt + ");\n"
@@ -324,11 +350,7 @@ def verify(cfgs):
     return error
 
 
-def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
-    log.info(f"Encoding ECC for {hex(dataword)}")
-
-    assert 0 <= dataword < (1 << k)
-
+def _ecc_pick_code(codetype: str, k: int) -> Tuple[int, List[int], int]:
     # first check to see if bit width is supported among configuration
     config = hjson.load(SECDED_CFG_PATH.open())
 
@@ -341,16 +363,22 @@ def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
             codes = gen_code(codetype, k, m)
             bitmasks = calc_bitmasks(k, m, codes, False)
             invert = 1 if codetype in ['inv_hsiao', 'inv_hamming'] else 0
-            break
-    else:
-        # error if k not supported
-        raise Exception(f'ECC for length {k} of type {codetype} unsupported')
+            return (m, bitmasks, invert)
+
+    # error if k not supported
+    raise Exception(f'ECC for length {k} of type {codetype} unsupported')
+
+
+def _ecc_encode(k: int,
+                m: int, bitmasks: List[int], invert: int,
+                dataword: int) -> int:
+    assert 0 <= dataword < (1 << k)
 
     # represent supplied dataword as a binary string
     word_bin = format(dataword, '0' + str(k) + 'b')
 
     codeword = word_bin
-    for mask in bitmasks:
+    for k, mask in enumerate(bitmasks):
         bit = 0
         log.debug(f'codeword: {codeword}')
         log.debug(f'mask: {hex(mask)}')
@@ -363,13 +391,31 @@ def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
             if int(f):
                 bit ^= int(codeword_rev[idx])
 
-        bit ^= invert
+        # Add ECC bit inversion if needed (see print_enc function).
+        bit ^= (invert & k % 2)
         codeword = str(bit) + codeword
+    return codeword
+
+
+def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
+    log.info(f"Encoding ECC for {hex(dataword)}")
+
+    m, bitmasks, invert = _ecc_pick_code(codetype, k)
+    codeword = _ecc_encode(k, m, bitmasks, invert, dataword)
 
     # Debug printouts
     log.debug(f'original hex: {hex(dataword)}')
     log.debug(f'codeword hex: {hex(int(codeword,2))}')
     return int(codeword, 2), m
+
+
+def ecc_encode_some(codetype: str,
+                    k: int,
+                    datawords: int) -> Tuple[List[int], int]:
+    m, bitmasks, invert = _ecc_pick_code(codetype, k)
+    codewords = [int(_ecc_encode(k, m, bitmasks, invert, w), 2)
+                 for w in datawords]
+    return codewords, m
 
 
 def gen_code(codetype, k, m):
@@ -418,15 +464,17 @@ def generate(cfgs, args):
         # write out C files, only hsiao codes are supported
         if codetype in ["hsiao", "inv_hsiao"]:
             write_c_files(n, k, m, codes, suffix, c_src_filename, c_h_filename,
-                codetype)
+                          codetype)
 
+        # write out all-zero word values for all codes
+        pkg_type_str += print_pkg_allzero(n, k, m, codes, suffix, codetype)
         # write out package typedefs
         pkg_type_str += print_pkg_types(n, k, m, codes, suffix, codetype)
         # print out functions
         pkg_out_str += print_fn(n, k, m, codes, suffix, codetype)
 
         if not args.no_fpv:
-            write_fpv_files(n, k, m, codes, suffix, args.fpv_outdir)
+            write_fpv_files(n, k, m, codes, suffix, args.fpv_outdir, codetype)
 
     with open(c_h_filename, "a") as f:
         f.write(C_H_FOOT)
@@ -442,6 +490,7 @@ def generate(cfgs, args):
 
 def _inv_hsiao_code(k, m):
     return _hsiao_code(k, m)
+
 
 # k = data bits
 # m = parity bits
@@ -532,6 +581,7 @@ def _hsiao_code(k, m):
 def _inv_hamming_code(k, m):
     return _hamming_code(k, m)
 
+
 # n = total bits
 # k = data bits
 # m = parity bits
@@ -617,7 +667,7 @@ def write_c_files(n, k, m, codes, suffix, c_src_filename, c_h_filename,
     assert in_type
     assert out_type
     assert codetype in ["hsiao", "inv_hsiao"]
-    invert = "true" if codetype == "inv_hsiao" else "false"
+    invert = (codetype == "inv_hsiao")
 
     with open(c_src_filename, "a") as f:
         # Write out function prototype in src
@@ -634,8 +684,10 @@ def write_c_files(n, k, m, codes, suffix, c_src_filename, c_h_filename,
         # into a single word of integrity bits
         f.write("return ")
         parity_bit_masks = enumerate(calc_bitmasks(k, m, codes, False))
+        # Add ECC bit inversion if needed (see print_enc function).
         f.write(" | ".join(
-                [f"(calc_parity(word & 0x{mask:x}, {invert}) << {par_bit})"
+                [f"(calc_parity(word & 0x{mask:x}, "
+                 f"{'true' if invert and (par_bit % 2) else 'false'}) << {par_bit})"
                  for par_bit, mask in parity_bit_masks]))
 
         f.write(";\n}\n")
@@ -702,7 +754,7 @@ endmodule : {}_dec
         f.write(outstr)
 
 
-def write_fpv_files(n, k, m, codes, suffix, outdir):
+def write_fpv_files(n, k, m, codes, suffix, outdir, codetype):
     module_name = "prim_secded%s_%d_%d" % (suffix, n, k)
 
     with open(outdir + "/tb/" + module_name + "_tb.sv", "w") as f:
@@ -713,29 +765,39 @@ module {}_tb (
   input               rst_ni,
   input        [{}:0] data_i,
   output logic [{}:0] data_o,
+  output logic [{}:0] encoded_o,
   output logic [{}:0] syndrome_o,
   output logic [1:0]  err_o,
   input        [{}:0] error_inject_i
 );
 
-  logic [{}:0] data_enc;
-
   {}_enc {}_enc (
     .data_i,
-    .data_o(data_enc)
+    .data_o(encoded_o)
   );
 
   {}_dec {}_dec (
-    .data_i(data_enc ^ error_inject_i),
+    .data_i(encoded_o ^ error_inject_i),
     .data_o,
     .syndrome_o,
     .err_o
   );
 
 endmodule : {}_tb
-'''.format(COPYRIGHT, module_name, (k - 1), (k - 1), (m - 1), (n - 1), (n - 1),
+'''.format(COPYRIGHT, module_name, (k - 1), (k - 1), (n - 1), (m - 1), (n - 1),
            module_name, module_name, module_name, module_name, module_name)
         f.write(outstr)
+
+    # Additional assertions for inverted codes.
+    if codetype in ["inv_hsiao", "inv_hamming"]:
+        inv_asserts = '''
+  // Check that all-one and all-zero data does not result in all-one or all-zero codewords
+  `ASSERT(AllZerosCheck_A, data_i == '0 |-> encoded_o != '0)
+  `ASSERT(AllOnesCheck_A, data_i == '1 |-> encoded_o != '1)
+
+'''
+    else:
+        inv_asserts = ""
 
     with open(outdir + "/vip/" + module_name + "_assert_fpv.sv", "w") as f:
         outstr = '''{}// SECDED FPV assertion file generated by util/design/secded_gen.py
@@ -745,6 +807,7 @@ module {}_assert_fpv (
   input        rst_ni,
   input [{}:0] data_i,
   input [{}:0] data_o,
+  input [{}:0] encoded_o,
   input [{}:0] syndrome_o,
   input [1:0]  err_o,
   input [{}:0] error_inject_i
@@ -765,10 +828,10 @@ module {}_assert_fpv (
   // Basic syndrome check
   `ASSERT(SyndromeCheck_A, |syndrome_o |-> $countones(error_inject_i) > 0)
   `ASSERT(SyndromeCheckReverse_A, $countones(error_inject_i) > 0 |-> |syndrome_o)
-
+{}
 endmodule : {}_assert_fpv
-'''.format(COPYRIGHT, module_name, (k - 1), (k - 1), (m - 1), (n - 1),
-           module_name)
+'''.format(COPYRIGHT, module_name, (k - 1), (k - 1), (n - 1), (m - 1), (n - 1),
+           inv_asserts, module_name)
         f.write(outstr)
 
     with open(outdir + "/tb/" + module_name + "_bind_fpv.sv", "w") as f:
@@ -782,6 +845,7 @@ module {}_bind_fpv;
     .rst_ni,
     .data_i,
     .data_o,
+    .encoded_o,
     .syndrome_o,
     .err_o,
     .error_inject_i

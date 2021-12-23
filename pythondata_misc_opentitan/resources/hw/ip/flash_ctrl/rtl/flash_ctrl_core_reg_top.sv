@@ -98,15 +98,16 @@ module flash_ctrl_core_reg_top (
 
   // Create Socket_1n
   tlul_socket_1n #(
-    .N          (3),
-    .HReqPass   (1'b1),
-    .HRspPass   (1'b1),
-    .DReqPass   ({3{1'b1}}),
-    .DRspPass   ({3{1'b1}}),
-    .HReqDepth  (4'h0),
-    .HRspDepth  (4'h0),
-    .DReqDepth  ({3{4'h0}}),
-    .DRspDepth  ({3{4'h0}})
+    .N            (3),
+    .HReqPass     (1'b1),
+    .HRspPass     (1'b1),
+    .DReqPass     ({3{1'b1}}),
+    .DRspPass     ({3{1'b1}}),
+    .HReqDepth    (4'h0),
+    .HRspDepth    (4'h0),
+    .DReqDepth    ({3{4'h0}}),
+    .DRspDepth    ({3{4'h0}}),
+    .ExplicitErrs (1'b0)
   ) u_socket (
     .clk_i  (clk_i),
     .rst_ni (rst_ni),
@@ -119,15 +120,20 @@ module flash_ctrl_core_reg_top (
 
   // Create steering logic
   always_comb begin
-    reg_steer = 2;       // Default set to register
+    unique case (tl_i.a_address[AW-1:0]) inside
+      [392:395]: begin
+        reg_steer = 0;
+      end
+      [396:399]: begin
+        reg_steer = 1;
+      end
+      default: begin
+        // Default set to register
+        reg_steer = 2;
+      end
+    endcase
 
-    // TODO: Can below codes be unique case () inside ?
-    if (tl_i.a_address[AW-1:0] >= 392 && tl_i.a_address[AW-1:0] < 396) begin
-      reg_steer = 0;
-    end
-    if (tl_i.a_address[AW-1:0] >= 396 && tl_i.a_address[AW-1:0] < 400) begin
-      reg_steer = 1;
-    end
+    // Override this in case of an integrity error
     if (intg_err) begin
       reg_steer = 2;
     end

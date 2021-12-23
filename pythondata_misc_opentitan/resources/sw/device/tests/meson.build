@@ -26,37 +26,21 @@ sw_rom_ext_tests = {
 }
 
 ###############################################################################
-# OTTF Example Tests
+# Example Chip-Level Test
 ###############################################################################
-ottf_example_bare_metal_test_lib = declare_dependency(
+example_chip_level_test_lib = declare_dependency(
   link_with: static_library(
-    'ottf_example_bare_metal_test_lib',
-    sources: ['ottf_example_bare_metal_test.c'],
+    'example_chip_level_test_lib',
+    sources: ['example_chip_level_test.c'],
     dependencies: [
-      sw_lib_runtime_log,
+      # Add dependencies here.
     ],
   ),
 )
-sw_tests += {
-  'ottf_example_bare_metal_test': {
-    'library': ottf_example_bare_metal_test_lib,
-    'use_ottf': true,
-  }
-}
 
-ottf_example_concurrency_test_lib = declare_dependency(
-  link_with: static_library(
-    'ottf_example_concurrency_test_lib',
-    sources: ['ottf_example_concurrency_test.c'],
-    dependencies: [
-      sw_lib_runtime_log,
-    ],
-  ),
-)
 sw_tests += {
-  'ottf_example_concurrency_test': {
-    'library': ottf_example_concurrency_test_lib,
-    'use_ottf': true,
+  'example_chip_level_test': {
+    'library': example_chip_level_test_lib,
   }
 }
 
@@ -435,6 +419,23 @@ sw_tests += {
   }
 }
 
+sram_ctrl_smoketest_lib = declare_dependency(
+  link_with: static_library(
+    'sram_ctrl_smoketest_lib',
+    sources: ['sram_ctrl_smoketest.c'],
+    dependencies: [
+      sw_lib_dif_sram_ctrl,
+      sw_lib_runtime_log,
+      sw_lib_mmio,
+    ],
+  ),
+)
+sw_tests += {
+  'sram_ctrl_smoketest': {
+    'library': sram_ctrl_smoketest_lib,
+  }
+}
+
 ###############################################################################
 # IP Integration Tests
 ###############################################################################
@@ -494,6 +495,25 @@ sw_tests += {
   }
 }
 
+kmac_app_rom_test_lib = declare_dependency(
+  link_with: static_library(
+    'kmac_app_rom_test_lib',
+    sources: [
+      hw_ip_rom_ctrl_reg_h,
+      'kmac_app_rom_test.c',
+    ],
+    dependencies: [
+      sw_lib_dif_rom_ctrl,
+      sw_lib_runtime_log,
+      sw_lib_mmio,
+    ],
+  ),
+)
+sw_tests += {
+  'kmac_app_rom_test': {
+    'library': kmac_app_rom_test_lib,
+  }
+}
 
 # Lifecycle Controller Tests
 lc_ctrl_otp_hw_cfg_test_lib = declare_dependency(
@@ -636,6 +656,31 @@ sw_tests += {
   }
 }
 
+# SRAM Controller main scrambled access test.
+sram_ctrl_main_scrambled_access_test_lib = declare_dependency(
+  link_with: static_library(
+    'sram_ctrl_main_scrambled_access_test_lib',
+    sources: [
+      hw_ip_rstmgr_reg_h,
+      hw_ip_sram_ctrl_reg_h,
+      'sram_ctrl_main_scrambled_access_test.c',
+    ],
+    dependencies: [
+      sw_lib_dif_rstmgr,
+      sw_lib_dif_sram_ctrl,
+      sw_lib_runtime_log,
+      sw_lib_testing_rstmgr_testutils,
+      sw_lib_testing_sram_ctrl_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'sram_ctrl_main_scrambled_access_test': {
+    'library': sram_ctrl_main_scrambled_access_test_lib,
+  }
+}
+
 # SRAM Controller execution from Main SRAM test.
 sram_ctrl_execution_test_main_lib = declare_dependency(
   link_with: static_library(
@@ -644,6 +689,7 @@ sram_ctrl_execution_test_main_lib = declare_dependency(
     dependencies: [
       sw_lib_bitfield,
       sw_lib_dif_sram_ctrl,
+      sw_lib_runtime_ibex,
       sw_lib_runtime_log,
       sw_lib_testing_lc_ctrl_testutils,
       sw_lib_testing_otp_ctrl_testutils,
@@ -665,7 +711,6 @@ sram_ctrl_execution_test_ret_lib = declare_dependency(
     sources: ['sram_ctrl_execution_test_ret.c'],
     dependencies: [
       sw_lib_dif_sram_ctrl,
-      sw_lib_irq_handlers,
       sw_lib_runtime_ibex,
       sw_lib_runtime_log,
       sw_lib_testing_sram_ctrl_testutils,
@@ -710,35 +755,19 @@ sw_tests += {
 ###############################################################################
 # Build Targets
 ###############################################################################
-# (unsigned) test binaries loaded with ROM from sw/device/boot_rom/
+# (unsigned) test binaries loaded with ROM from sw/device/lib/testing/test_rom/
 foreach sw_test_name, sw_test_info : sw_tests
   foreach device_name, device_lib : sw_lib_arch_core_devices
-    if 'use_ottf' in sw_test_info
-      # test target with OTTF
-      sw_test_elf = executable(
-        sw_test_name + '_' + device_name,
-        name_suffix: 'elf',
-        dependencies: [
-          riscv_crt,
-          device_lib,
-          sw_test_info['library'],
-          sw_lib_testing_ottf,
-        ],
-      )
-    else
-      # test target with bare metal on-device test framework
-      sw_test_elf = executable(
-        sw_test_name + '_' + device_name,
-        name_suffix: 'elf',
-        dependencies: [
-          riscv_crt,
-          device_lib,
-          sw_test_info['library'],
-          sw_lib_irq_handlers,
-          sw_lib_testing_test_main,
-        ],
-      )
-    endif
+    sw_test_elf = executable(
+      sw_test_name + '_' + device_name,
+      name_suffix: 'elf',
+      dependencies: [
+        test_rom_ext,
+        device_lib,
+        sw_test_info['library'],
+        sw_lib_testing_ottf,
+      ],
+    )
 
     target_name = sw_test_name + '_@0@_' + device_name
 
@@ -947,16 +976,20 @@ foreach device_name, device_lib : sw_lib_arch_core_devices
     name_suffix: 'elf',
     sources: ['crt_test.c'],
     dependencies: [
-      riscv_crt,
+      test_rom_ext,
       device_lib,
-      sw_lib_irq_handlers,
       sw_lib_testing_test_status,
       sw_lib_runtime_print,
       sw_lib_runtime_log,
       sw_lib_dif_uart,
-      # Explicitly do not pull in the test main; we need to run right after
-      # the CRT is done executing.
-      # sw_lib_testing_test_main,
+      # Explicitly DO NOT pull in the OTTF; we need to run right after
+      # the test ROM_EXT is done executing. However, DO pull in the OTTF ISRs.
+      # While this test does not override any of the default ISR symbols, they
+      # should be linked in since the `mtvec` is set to point to these in the
+      # `sw/device/lib/testing/test_rom_ext/test_rom_ext_start.S` initialization
+      # assembly (contained in the test_rom_ext target above).
+      # sw_lib_testing_ottf,
+      sw_lib_testing_ottf_isrs,
     ],
   )
 

@@ -71,7 +71,7 @@ unused_im_defs, undriven_im_defs = lib.get_dangling_im_def(top["inter_signal"]["
 module chip_${top["name"]}_${target["name"]} #(
   // Path to a VMEM file containing the contents of the boot ROM, which will be
   // baked into the FPGA bitstream.
-  parameter BootRomInitFile = "boot_rom_fpga_${target["name"]}.32.vmem",
+  parameter BootRomInitFile = "test_rom_fpga_${target["name"]}.32.vmem",
   // Path to a VMEM file containing the contents of the emulated OTP, which will be
   // baked into the FPGA bitstream.
   parameter OtpCtrlMemInitFile = "otp_img_fpga_${target["name"]}.vmem"
@@ -529,6 +529,21 @@ module chip_${top["name"]}_${target["name"]} (
   logic unused_in_io_uphy_oe_n;
   assign unused_in_io_uphy_oe_n = manual_in_io_uphy_oe_n;
 
+% endif
+% if target["name"] == "cw310":
+  // Set SPD to full-speed
+  assign manual_oe_io_uphy_spd = 1'b1;
+  assign manual_out_io_uphy_spd = 1'b1;
+
+  logic unused_in_io_uphy_spd;
+  assign unused_in_io_uphy_spd = manual_in_io_uphy_spd;
+
+  // Disable TUSB1106 low-power mode (for now?)
+  assign manual_oe_io_uphy_sus = 1'b1;
+  assign manual_out_io_uphy_sus = 1'b0;
+
+  logic unused_in_io_uphy_sus;
+  assign unused_in_io_uphy_sus = manual_in_io_uphy_sus;
 % endif
 
 ###################################################################

@@ -16,8 +16,7 @@
 extern "C" {
 
 // Create an OtbnModel object. Will always succeed.
-OtbnModel *otbn_model_init(const char *mem_scope, const char *design_scope,
-                           unsigned imem_words, unsigned dmem_words);
+OtbnModel *otbn_model_init(const char *mem_scope, const char *design_scope);
 
 // Delete an OtbnModel
 void otbn_model_destroy(OtbnModel *model);
@@ -38,6 +37,10 @@ void edn_model_rnd_cdc_done(OtbnModel *model);
 
 // Signal RTL is finished processing EDN data for URND to Model
 void edn_model_urnd_cdc_done(OtbnModel *model);
+
+// Pass keymgr data to model
+void otbn_model_set_keymgr_value(OtbnModel *model, svLogicVecVal *key0,
+                                 svLogicVecVal *key1, unsigned char valid);
 
 // The main entry point to the OTBN model, exported from here and used in
 // otbn_core_model.sv.
@@ -81,6 +84,18 @@ unsigned otbn_model_step(OtbnModel *model, svLogic start, unsigned model_state,
 // Tell the model to mark all of IMEM as invalid so that any fetch causes an
 // integrity error. Returns 0 on success or -1 on failure.
 int otbn_model_invalidate_imem(OtbnModel *model);
+
+// Tell the model to mark all of DMEM as invalid so that any load causes an
+// integrity error. Returns 0 on success or -1 on failure.
+int otbn_model_invalidate_dmem(OtbnModel *model);
+
+// Step the CRC calculation for item
+//
+// state is an inout parameter and should be updated in-place. This is
+// a "pure" function: there isn't actually any model state that gets
+// updated by calling it. Returns 0 on success or -1 on failure.
+int otbn_model_step_crc(OtbnModel *model, svBitVecVal *item /* bit [47:0] */,
+                        svBitVecVal *state /* inout bit [31:0] */);
 
 // Flush any information in the model
 void otbn_model_reset(OtbnModel *model);

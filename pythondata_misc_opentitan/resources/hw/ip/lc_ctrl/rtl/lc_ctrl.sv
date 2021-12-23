@@ -162,7 +162,10 @@ module lc_ctrl
   logic dmi_resp_valid;
 
   logic scanmode;
-  assign scanmode = (scanmode_i == On);
+  prim_mubi4_dec u_prim_mubi4_dec (
+    .mubi_i(scanmode_i),
+    .mubi_dec_o(scanmode)
+  );
 
   logic tck_muxed;
   logic trst_n_muxed;
@@ -578,7 +581,7 @@ module lc_ctrl
   // KMAC Interface //
   ////////////////////
 
-  logic token_hash_req, token_hash_req_chk, token_hash_ack, token_hash_err;
+  logic token_hash_req, token_hash_req_chk, token_hash_ack, token_hash_err, token_if_fsm_err;
   lc_token_t hashed_token;
   lc_ctrl_kmac_if u_lc_ctrl_kmac_if (
     .clk_i,
@@ -592,6 +595,7 @@ module lc_ctrl
     .token_hash_req_chk_i ( token_hash_req_chk ),
     .token_hash_ack_o     ( token_hash_ack     ),
     .token_hash_err_o     ( token_hash_err     ),
+    .token_if_fsm_err_o   ( token_if_fsm_err   ),
     .hashed_token_o       ( hashed_token       )
   );
 
@@ -606,44 +610,45 @@ module lc_ctrl
   ) u_lc_ctrl_fsm (
     .clk_i,
     .rst_ni,
-    .init_req_i             ( lc_init                         ),
-    .init_done_o            ( lc_done_d                       ),
-    .idle_o                 ( lc_idle_d                       ),
-    .esc_scrap_state0_i     ( esc_scrap_state0                ),
-    .esc_scrap_state1_i     ( esc_scrap_state1                ),
-    .lc_state_valid_i       ( otp_lc_data_i.valid             ),
-    .lc_state_i             ( otp_lc_data_i.state             ),
-    .secrets_valid_i        ( otp_lc_data_i.secrets_valid     ),
-    .lc_cnt_i               ( otp_lc_data_i.count             ),
-    .use_ext_clock_i        ( use_ext_clock_q                 ),
-    .test_unlock_token_i    ( otp_lc_data_i.test_unlock_token ),
-    .test_exit_token_i      ( otp_lc_data_i.test_exit_token   ),
-    .test_tokens_valid_i    ( otp_lc_data_i.test_tokens_valid ),
-    .rma_token_i            ( otp_lc_data_i.rma_token         ),
-    .rma_token_valid_i      ( otp_lc_data_i.rma_token_valid   ),
-    .trans_cmd_i            ( transition_cmd                  ),
-    .trans_target_i         ( transition_target_q             ),
-    .dec_lc_state_o         ( dec_lc_state                    ),
-    .dec_lc_cnt_o           ( dec_lc_cnt                      ),
-    .dec_lc_id_state_o      ( dec_lc_id_state                 ),
-    .token_hash_req_o       ( token_hash_req                  ),
-    .token_hash_req_chk_o   ( token_hash_req_chk              ),
-    .token_hash_ack_i       ( token_hash_ack                  ),
-    .token_hash_err_i       ( token_hash_err                  ),
-    .hashed_token_i         ( hashed_token                    ),
-    .otp_prog_req_o         ( lc_otp_program_o.req            ),
-    .otp_prog_lc_state_o    ( lc_otp_program_o.state          ),
-    .otp_prog_lc_cnt_o      ( lc_otp_program_o.count          ),
-    .otp_prog_ack_i         ( lc_otp_program_i.ack            ),
-    .otp_prog_err_i         ( lc_otp_program_i.err            ),
-    .trans_success_o        ( trans_success_d                 ),
-    .trans_cnt_oflw_error_o ( trans_cnt_oflw_error_d          ),
-    .trans_invalid_error_o  ( trans_invalid_error_d           ),
-    .token_invalid_error_o  ( token_invalid_error_d           ),
-    .flash_rma_error_o      ( flash_rma_error_d               ),
-    .otp_prog_error_o       ( otp_prog_error_d                ),
-    .state_invalid_error_o  ( state_invalid_error_d           ),
-    .lc_raw_test_rma_o      ( lc_raw_test_rma                 ),
+    .init_req_i             ( lc_init                          ),
+    .init_done_o            ( lc_done_d                        ),
+    .idle_o                 ( lc_idle_d                        ),
+    .esc_scrap_state0_i     ( esc_scrap_state0                 ),
+    .esc_scrap_state1_i     ( esc_scrap_state1                 ),
+    .lc_state_valid_i       ( otp_lc_data_i.valid              ),
+    .lc_state_i             ( lc_state_e'(otp_lc_data_i.state) ),
+    .secrets_valid_i        ( otp_lc_data_i.secrets_valid      ),
+    .lc_cnt_i               ( lc_cnt_e'(otp_lc_data_i.count)   ),
+    .use_ext_clock_i        ( use_ext_clock_q                  ),
+    .test_unlock_token_i    ( otp_lc_data_i.test_unlock_token  ),
+    .test_exit_token_i      ( otp_lc_data_i.test_exit_token    ),
+    .test_tokens_valid_i    ( otp_lc_data_i.test_tokens_valid  ),
+    .rma_token_i            ( otp_lc_data_i.rma_token          ),
+    .rma_token_valid_i      ( otp_lc_data_i.rma_token_valid    ),
+    .trans_cmd_i            ( transition_cmd                   ),
+    .trans_target_i         ( transition_target_q              ),
+    .dec_lc_state_o         ( dec_lc_state                     ),
+    .dec_lc_cnt_o           ( dec_lc_cnt                       ),
+    .dec_lc_id_state_o      ( dec_lc_id_state                  ),
+    .token_hash_req_o       ( token_hash_req                   ),
+    .token_hash_req_chk_o   ( token_hash_req_chk               ),
+    .token_hash_ack_i       ( token_hash_ack                   ),
+    .token_hash_err_i       ( token_hash_err                   ),
+    .token_if_fsm_err_i     ( token_if_fsm_err                 ),
+    .hashed_token_i         ( hashed_token                     ),
+    .otp_prog_req_o         ( lc_otp_program_o.req             ),
+    .otp_prog_lc_state_o    ( lc_otp_program_o.state           ),
+    .otp_prog_lc_cnt_o      ( lc_otp_program_o.count           ),
+    .otp_prog_ack_i         ( lc_otp_program_i.ack             ),
+    .otp_prog_err_i         ( lc_otp_program_i.err             ),
+    .trans_success_o        ( trans_success_d                  ),
+    .trans_cnt_oflw_error_o ( trans_cnt_oflw_error_d           ),
+    .trans_invalid_error_o  ( trans_invalid_error_d            ),
+    .token_invalid_error_o  ( token_invalid_error_d            ),
+    .flash_rma_error_o      ( flash_rma_error_d                ),
+    .otp_prog_error_o       ( otp_prog_error_d                 ),
+    .state_invalid_error_o  ( state_invalid_error_d            ),
+    .lc_raw_test_rma_o      ( lc_raw_test_rma                  ),
     .lc_dft_en_o,
     .lc_nvm_debug_en_o,
     .lc_hw_debug_en_o,
@@ -688,5 +693,11 @@ module lc_ctrl
   `ASSERT_KNOWN(LcFlashRmaSeedKnown_A,  lc_flash_rma_seed_o        )
   `ASSERT_KNOWN(LcFlashRmaReqKnown_A,   lc_flash_rma_req_o         )
   `ASSERT_KNOWN(LcKeymgrDiv_A,          lc_keymgr_div_o            )
+
+  // Alert assertions for sparse FSMs.
+  `ASSERT_PRIM_FSM_ERROR_TRIGGER_ALERT(CtrlLcFsmCheck_A,
+      u_lc_ctrl_fsm.u_fsm_state_regs, alert_tx_o[1])
+  `ASSERT_PRIM_FSM_ERROR_TRIGGER_ALERT(CtrlKmacIfFsmCheck_A,
+      u_lc_ctrl_kmac_if.u_state_regs, alert_tx_o[1])
 
 endmodule : lc_ctrl

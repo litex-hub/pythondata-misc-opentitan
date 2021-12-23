@@ -22,6 +22,9 @@ class otbn_base_vseq extends cip_base_vseq #(
   // we assume we've got a new program, which might take a different amount of time)
   protected int unsigned longest_run_ = 0;
 
+  // This flag is set in the common vseq to re-enable the checks done by check_no_fatal_alerts
+  protected bit enable_base_alert_checks = 1'b0;
+
   // Load the contents of an ELF file into the DUT's memories, either by a DPI backdoor (if backdoor
   // is true) or with TL transactions. Also, pass loop warp rules to the ISS through the model.
   protected task load_elf(string path, bit backdoor);
@@ -49,6 +52,7 @@ class otbn_base_vseq extends cip_base_vseq #(
   // Load the contents of an ELF file into the DUT's memories by TL transactions
   protected task load_elf_over_bus(string path);
     otbn_loaded_word to_load[$];
+    bit [33:0]       opns[$];
 
     // First, tell OtbnMemUtil to stage the ELF. This reads the file and stashes away the segments
     // we need. If something goes wrong, it will print a message to stderr, so we can just fail.
@@ -57,23 +61,62 @@ class otbn_base_vseq extends cip_base_vseq #(
     end
 
     // Next, we need to get the data to be loaded across the "DPI barrier" and into SystemVerilog.
-    // We make a queue of the things that need loading (in address order) and then shuffle it, so
-    // that we load the memory in an arbitrary order
+    // We make a queue of the things that need loading (in address order). We'll index into that
+    // queue in the "operations" list below.
     get_queue_entries(1'b0, to_load);
     get_queue_entries(1'b1, to_load);
-    to_load.shuffle();
+
+    // The operations that we might perform are:
+    //
+    //  - Write a word from to_load into IMEM or DMEM
+    //  - Set LOAD_CHECKSUM to some value
+    //  - Read LOAD_CHECKSUM (the scoreboard will check the result)
+    //
+    // Represent these operations as a pair {op, value} where op is 0, 1 or 2 for the operations
+    // above and value is a 32-bit value that gives an index into to_load if op is zero, a random
+    // value to write to LOAD_CHECKSUM if op is one, and is ignored if op is two.
+    //
+    // We just write to LOAD_CHECKSUM a couple of times (since writing it too often might actually
+    // hide a bug). We read from LOAD_CHECKSUM roughly once every 10 writes.
+    //
+    foreach (to_load[i]) opns.push_back({2'b00, 32'(i)});
+    for (int i = 0; i < 2; ++i) begin
+      bit [31:0] value;
+      `DV_CHECK_STD_RANDOMIZE_FATAL(value)
+      opns.push_back({2'b01, value});
+    end
+    for (int i = 0; i < to_load.size() / 10; ++i) opns.push_back({2'b10, 32'd0});
+
+    // Shuffle opns so that we perform them in an arbitrary order
+    opns.shuffle();
 
     // Send the writes, one by one
-    foreach (to_load[i]) begin
-      csr_utils_pkg::mem_wr(to_load[i].for_imem ? ral.imem : ral.dmem,
-                            to_load[i].offset,
-                            to_load[i].data);
+    foreach (opns[i]) begin
+      bit [1:0] op;
+      bit [31:0] value;
+
+      {op, value} = opns[i];
+      case (op)
+        2'b00:
+          csr_utils_pkg::mem_wr(to_load[value].for_imem ? ral.imem : ral.dmem,
+                                to_load[value].offset,
+                                to_load[value].data);
+        2'b01:
+          csr_utils_pkg::csr_wr(ral.load_checksum, value);
+        2'b10: begin
+          uvm_reg_data_t reg_val;
+          csr_utils_pkg::csr_rd(ral.load_checksum, reg_val);
+        end
+        default:
+          `uvm_fatal(`gfn, "Invalid operation")
+      endcase
     end
   endtask
 
   protected function automatic void
   get_queue_entries(bit for_imem, ref otbn_loaded_word entries[$]);
-    // Get the size of this memory (to make sure the number of loaded words makes sense)
+    // Get the bus-accessible size of this memory (to make sure the number of loaded words makes
+    // sense)
     int unsigned mem_size = for_imem ? OTBN_IMEM_SIZE : OTBN_DMEM_SIZE;
 
     // Iterate over the segments for this memory
@@ -354,4 +397,15 @@ class otbn_base_vseq extends cip_base_vseq #(
       @(negedge cfg.clk_rst_vif.rst_n or posedge cfg.intr_vif.pins[0]);
     end
   endtask
+
+  // Overridden from cip_base_vseq
+  //
+  // This task in the base sequence checks whether any alerts fire. This doesn't really work for
+  // OTBN because it's not in sync with the logic that actually generates the alerts. We handle this
+  // properly in the scoreboard so want to disable this check except in otbn_common_vseq (which is
+  // used for the generic alert tests).
+  task check_no_fatal_alerts();
+    if (enable_base_alert_checks) super.check_no_fatal_alerts();
+  endtask
+
 endclass : otbn_base_vseq

@@ -6,13 +6,17 @@
 #include <stdint.h>
 
 #include "sw/device/lib/base/bitfield.h"
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/dif/dif_sram_ctrl.h"
+#include "sw/device/lib/runtime/ibex.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/check.h"
 #include "sw/device/lib/testing/lc_ctrl_testutils.h"
 #include "sw/device/lib/testing/otp_ctrl_testutils.h"
 #include "sw/device/lib/testing/sram_ctrl_testutils.h"
-#include "sw/device/lib/testing/test_framework/test_main.h"
+#include "sw/device/lib/testing/test_framework/ottf.h"
+#include "sw/device/lib/testing/test_framework/ottf_isrs.h"
+#include "sw/device/lib/testing/test_framework/ottf_macros.h"
 #include "sw/device/lib/testing/test_framework/test_status.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
@@ -21,8 +25,12 @@ const test_config_t kTestConfig;
 
 static dif_sram_ctrl_t sram_ctrl;
 
-static volatile const uint32_t kExecParam1 = 2;
-static volatile const uint32_t kExecParam2 = 3;
+/**
+ * This flag is used to verify that the execution from SRAM was successful.
+ * Declared as volatile, because it is referenced in the fault handler, as well
+ * as the main test flow.
+ */
+static volatile bool exception_observed;
 
 /**
  * Main SRAM start and end addresses (inclusive).
@@ -42,50 +50,14 @@ static const uint32_t kRamEndAddr = TOP_EARLGREY_SRAM_CTRL_MAIN_RAM_BASE_ADDR +
 static const uint32_t kOtpIfetchHwRelativeOffset = 8;
 
 /**
- * Buffer to hold instructions to be executed.
+ * Executes the return instruction from MAIN SRAM.
  *
- * Because this is the Main SRAM, we let the compiler allocate the buffer
- * instead of using the hard-coded locations from the `sram_ctrl_testutil.c`,
- * in order to prevent clobbering the data used by the program.
- *
- * This can be thought of as the implementation for the `ram_exec_function_t`.
- *
- * NOTE: We explicitly specify the `.data` section, otherwise due to the
- *       `const` qualifier buffer would end up in flash. The implicit
- *       alternative would be to drop the `const` qualifier, making the buffer
- *       go into the `.data` section.
+ * This function will return on success, or cause an exception if the
+ * execution is disabled.
  */
-__attribute__((section(
-    ".data"))) static volatile const uint32_t execution_test_instructions[2] = {
-    /*
-     *   Abstract representation: add rd, rs1, rs2
-     *   +-----------+-------+-------+-------+------+-----------+
-     *   |  0000000  |  rs2  |  rs1  |  000  |  rd  |  0110011  |
-     *   +-----------+-------+-------+-------+------+-----------+
-     *   31        25 24   20 19   15 14   12 11   7 6          0
-     *
-     *   Custom representation: add a0, a1, a0
-     *   +-----------+---------+---------+-------+--------+-----------+
-     *   |  0000000  |  01010  |  01011  |  000  | 01010  |  0110011  |
-     *   +-----------+---------+---------+-------+--------+-----------+
-     *   31        25 24     20 19     15 14   12 11     7 6          0
-     */
-    0x00A58533,
-    /*
-     *   Abstract representation: ret == jalr rd, offset(rs1)
-     *   +----------------+-------+-------+------+-----------+
-     *   |  000000000000  |  rs1  |  000  |  rd  |  1100111  |
-     *   +----------------+-------+-------+------+-----------+
-     *   31             20 19   15 14   12 11   7 6          0
-     *
-     *   Custom representation: jalr zero, 0(ra)
-     *   +----------------+---------+-------+---------+-----------+
-     *   |  000000000000  |  00001  |  000  |  00000  |  1100111  |
-     *   +----------------+---------+-------+---------+-----------+
-     *   31             20 19     15 14   12 11      7 6          0
-     */
-    0x00008067,
-};
+OT_ATTR_NAKED
+OT_ATTR_SECTION(".data")
+void execute_code_in_sram(void) { asm volatile("jalr zero, 0(ra)"); }
 
 static bool otp_ifetch_enabled(void) {
   dif_otp_ctrl_t otp;
@@ -112,30 +84,63 @@ static bool otp_ifetch_enabled(void) {
 }
 
 /**
- * Performs SRAM execution test.
+ * Overrides the default OTTF exception handler.
  *
- * `ram_exec_function_t` is "mapped" onto the `execution_test_instructions`
- * buffer that holds hand-crafted machine instructions. Effectively, this
- * buffer becomes the function body.
+ * This exception handler only processes the faults that are relevant to this
+ * test. It falls into an infinite `wait_for_interrupt` routine (by calling
+ * `abort()`) for the rest.
  *
- * According to the calling convention the parameters will be passed in the
- * a0 and a1 registers, with a0 also treated as the return value register.
+ * The controlled fault originates in the retention SRAM, which means that
+ * normally the return address would be calculated relative to the trapped
+ * instruction. However, due to execution from retention SRAM being permanently
+ * disabled, this approach would not work.
+ *
+ * Instead the control flow needs to be returned to the caller. In other words,
+ * sram_execution_test -> retention_sram -> exception_handler
+ * -> sram_execution_test.
+ *
+ * Before the jump into the exception handler, the register set is saved on
+ * stack by the OTTF exception handler entry subroutine, which means that the
+ * return address can be loaded from there. See comments below for more details.
  */
-static void sram_execution_test(void) {
-  // Map the function pointer onto the instruction buffer.
-  sram_ctrl_testutils_exec_function_t func =
-      (sram_ctrl_testutils_exec_function_t)execution_test_instructions;
+void ottf_exeception_handler(void) {
+  // The frame address is the address of the stack location that holds the
+  // `mepc`, since the OTTF exception handler entry code saves the `mepc` to
+  // the top of the stack before transferring control flow to the exception
+  // handler function (which is overridden here). See the `handler_exception`
+  // subroutine in `sw/device/lib/testing/testing/ottf_isrs.S` for more details.
+  uintptr_t mepc_stack_addr = (uintptr_t)OT_FRAME_ADDR();
 
-  uintptr_t func_address = (uintptr_t)func;
-  CHECK(func_address >= kRamStartAddr && func_address <= kRamEndAddr,
-        "Test code resides outside of the Main SRAM: function address = %x",
-        func_address);
+  // The return address of the function that holds the trapping instruction is
+  // the second top-most value placed on the stack by the OTTF exception handler
+  // entry code. We grab this off the stack so that we can use it to overwrite
+  // the `mepc` value stored on the stack, so that the `ottf_isr_exit`
+  // subroutine (in `sw/device/lib/testing/test_framework/ottf_isrs.S`) will
+  // restore control flow to the `sram_execution_test` function as described
+  // above.
+  uintptr_t ret_addr = *(uintptr_t *)(mepc_stack_addr + OTTF_WORD_SIZE);
 
-  uint32_t expected_result = kExecParam1 + kExecParam2;
-  uint32_t result = func(kExecParam1, kExecParam2);
-  CHECK(result == expected_result,
-        "SRAM Execution expected %d + %d = %d, got %d", kExecParam1,
-        kExecParam2, expected_result, result);
+  LOG_INFO("Handling exception: mepc = %p, (trapped) return address = %p",
+           ibex_mepc_read(), ret_addr);
+
+  uint32_t mcause = ibex_mcause_read();
+  ottf_exc_id_t exception_id = mcause & kIdMax;
+
+  switch (exception_id) {
+    case kInstrAccessFault:
+      LOG_INFO("Instruction access fault handler");
+      exception_observed = true;
+      *(uintptr_t *)mepc_stack_addr = ret_addr;
+      break;
+    case kIllegalInstrFault:
+      LOG_INFO("Illegal instruction fault handler");
+      exception_observed = true;
+      *(uintptr_t *)mepc_stack_addr = ret_addr;
+      break;
+    default:
+      LOG_FATAL("Unexpected exception id = 0x%x", exception_id);
+      abort();
+  }
 }
 
 /**
@@ -147,6 +152,11 @@ static void sram_execution_test(void) {
  * determines whether the execution from SRAM is enabled.
  */
 bool test_main(void) {
+  uintptr_t func_address = (uintptr_t)execute_code_in_sram;
+  CHECK(func_address >= kRamStartAddr && func_address <= kRamEndAddr,
+        "Test code resides outside of the Main SRAM: function address = %x",
+        func_address);
+
   CHECK_DIF_OK(dif_sram_ctrl_init(
       mmio_region_from_addr(TOP_EARLGREY_SRAM_CTRL_MAIN_REGS_BASE_ADDR),
       &sram_ctrl));
@@ -167,10 +177,16 @@ bool test_main(void) {
       CHECK_DIF_OK(
           dif_sram_ctrl_exec_set_enabled(&sram_ctrl, kDifToggleEnabled));
 
-      sram_execution_test();
+      exception_observed = false;
+      execute_code_in_sram();
+      CHECK(!exception_observed,
+            "Exception observed whilst executing from SRAM!");
     }
   } else if (lc_ctrl_testutils_debug_func_enabled(&lc)) {
-    sram_execution_test();
+    exception_observed = false;
+    execute_code_in_sram();
+    CHECK(!exception_observed,
+          "Exception observed whilst executing from SRAM!");
   } else {
     LOG_FATAL("Execution from SRAM cannot be enabled, cannot run the test");
   }

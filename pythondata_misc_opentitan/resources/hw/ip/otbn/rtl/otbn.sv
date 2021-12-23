@@ -47,21 +47,21 @@ module otbn
   input prim_ram_1p_pkg::ram_1p_cfg_t ram_cfg_i,
 
   // EDN clock and interface
-  input                                              clk_edn_i,
-  input                                              rst_edn_ni,
-  output edn_pkg::edn_req_t                          edn_rnd_o,
-  input  edn_pkg::edn_rsp_t                          edn_rnd_i,
+  input                     clk_edn_i,
+  input                     rst_edn_ni,
+  output edn_pkg::edn_req_t edn_rnd_o,
+  input  edn_pkg::edn_rsp_t edn_rnd_i,
 
-  output edn_pkg::edn_req_t                          edn_urnd_o,
-  input  edn_pkg::edn_rsp_t                          edn_urnd_i,
+  output edn_pkg::edn_req_t edn_urnd_o,
+  input  edn_pkg::edn_rsp_t edn_urnd_i,
 
   // Key request to OTP (running on clk_fixed)
-  input                                              clk_otp_i,
-  input                                              rst_otp_ni,
-  output otp_ctrl_pkg::otbn_otp_key_req_t            otbn_otp_key_o,
-  input  otp_ctrl_pkg::otbn_otp_key_rsp_t            otbn_otp_key_i,
+  input                                   clk_otp_i,
+  input                                   rst_otp_ni,
+  output otp_ctrl_pkg::otbn_otp_key_req_t otbn_otp_key_o,
+  input  otp_ctrl_pkg::otbn_otp_key_rsp_t otbn_otp_key_i,
 
-  input  keymgr_pkg::otbn_key_req_t                  keymgr_key_i
+  input keymgr_pkg::otbn_key_req_t keymgr_key_i
 );
 
   import prim_util_pkg::vbits;
@@ -86,8 +86,8 @@ module otbn
   localparam int ImemAddrWidth = vbits(ImemSizeByte);
   localparam int DmemAddrWidth = vbits(DmemSizeByte);
 
-  `ASSERT_INIT(ImemSizePowerOfTwo, 2**ImemAddrWidth == ImemSizeByte)
-  `ASSERT_INIT(DmemSizePowerOfTwo, 2**DmemAddrWidth == DmemSizeByte)
+  `ASSERT_INIT(ImemSizePowerOfTwo, 2 ** ImemAddrWidth == ImemSizeByte)
+  `ASSERT_INIT(DmemSizePowerOfTwo, 2 ** DmemAddrWidth == DmemSizeByte)
 
   logic start_d, start_q;
   logic busy_execute_d, busy_execute_q;
@@ -95,8 +95,14 @@ module otbn
   logic locked;
   logic illegal_bus_access_d, illegal_bus_access_q;
 
-  err_bits_t err_bits;
   logic recoverable_err;
+  logic reg_intg_violation;
+  err_bits_t err_bits, err_bits_d, err_bits_q;
+  logic err_bits_en;
+
+  // ERR_BITS register should be cleared due to a write request from the host processor
+  // when OTBN is not running.
+  logic err_bits_clear;
 
   logic software_errs_fatal_q, software_errs_fatal_d;
 
@@ -109,14 +115,8 @@ module otbn
     TlWinDmem = 1'b1
   } tl_win_e;
 
-  tlul_pkg::tl_h2d_t tl_win_h2d [2];
-  tlul_pkg::tl_d2h_t tl_win_d2h [2];
-
-  // TODO: Implement LOAD_CHECKSUM register
-  logic unused_load_checksum;
-  assign unused_load_checksum = ^reg2hw.load_checksum;
-  assign hw2reg.load_checksum.d = '0;
-  assign hw2reg.load_checksum.de = 1'b0;
+  tlul_pkg::tl_h2d_t tl_win_h2d[2];
+  tlul_pkg::tl_d2h_t tl_win_d2h[2];
 
   // Inter-module signals ======================================================
 
@@ -149,15 +149,15 @@ module otbn
     .Width(1)
   ) u_intr_hw_done (
     .clk_i,
-    .rst_ni                 (rst_n),
-    .event_intr_i           (done),
-    .reg2hw_intr_enable_q_i (reg2hw.intr_enable.q),
-    .reg2hw_intr_test_q_i   (reg2hw.intr_test.q),
-    .reg2hw_intr_test_qe_i  (reg2hw.intr_test.qe),
-    .reg2hw_intr_state_q_i  (reg2hw.intr_state.q),
-    .hw2reg_intr_state_de_o (hw2reg.intr_state.de),
-    .hw2reg_intr_state_d_o  (hw2reg.intr_state.d),
-    .intr_o                 (intr_done_o)
+    .rst_ni                (rst_n),
+    .event_intr_i          (done),
+    .reg2hw_intr_enable_q_i(reg2hw.intr_enable.q),
+    .reg2hw_intr_test_q_i  (reg2hw.intr_test.q),
+    .reg2hw_intr_test_qe_i (reg2hw.intr_test.qe),
+    .reg2hw_intr_state_q_i (reg2hw.intr_state.q),
+    .hw2reg_intr_state_de_o(hw2reg.intr_state.de),
+    .hw2reg_intr_state_d_o (hw2reg.intr_state.d),
+    .intr_o                (intr_done_o)
   );
 
   // Instruction Memory (IMEM) =================================================
@@ -191,10 +191,22 @@ module otbn
   logic [38:0] imem_wdata_bus;
   logic [38:0] imem_wmask_bus;
   logic [38:0] imem_rdata_bus;
+  logic [top_pkg::TL_DBW-1:0] imem_byte_mask_bus;
   logic imem_rvalid_bus;
   logic [1:0] imem_rerror_bus;
 
   logic imem_bus_intg_violation;
+
+  typedef struct packed {
+    logic        imem;
+    logic [14:0] index;
+    logic [31:0] wr_data;
+  } mem_crc_data_in_t;
+
+  logic             mem_crc_data_in_valid;
+  mem_crc_data_in_t mem_crc_data_in;
+  logic             set_crc;
+  logic [31:0]      crc_in, crc_out;
 
   logic [ImemAddrWidth-1:0] imem_addr_core;
   assign imem_index_core = imem_addr_core[ImemAddrWidth-1:2];
@@ -213,8 +225,8 @@ module otbn
   logic                    unused_otbn_dmem_scramble_key_seed_valid;
 
   otbn_scramble_ctrl #(
-    .RndCnstOtbnKey   (RndCnstOtbnKey),
-    .RndCnstOtbnNonce (RndCnstOtbnNonce)
+    .RndCnstOtbnKey  (RndCnstOtbnKey),
+    .RndCnstOtbnNonce(RndCnstOtbnNonce)
   ) u_otbn_scramble_ctrl (
     .clk_i,
     .rst_ni,
@@ -225,38 +237,37 @@ module otbn
     .otbn_otp_key_o,
     .otbn_otp_key_i,
 
-    .otbn_dmem_scramble_key_o            (otbn_dmem_scramble_key           ),
-    .otbn_dmem_scramble_nonce_o          (otbn_dmem_scramble_nonce         ),
-    .otbn_dmem_scramble_valid_o          (otbn_dmem_scramble_valid         ),
-    .otbn_dmem_scramble_key_seed_valid_o (unused_otbn_dmem_scramble_key_seed_valid),
+    .otbn_dmem_scramble_key_o           (otbn_dmem_scramble_key),
+    .otbn_dmem_scramble_nonce_o         (otbn_dmem_scramble_nonce),
+    .otbn_dmem_scramble_valid_o         (otbn_dmem_scramble_valid),
+    .otbn_dmem_scramble_key_seed_valid_o(unused_otbn_dmem_scramble_key_seed_valid),
 
-    .otbn_imem_scramble_key_o            (otbn_imem_scramble_key           ),
-    .otbn_imem_scramble_nonce_o          (otbn_imem_scramble_nonce         ),
-    .otbn_imem_scramble_valid_o          (otbn_imem_scramble_valid         ),
-    .otbn_imem_scramble_key_seed_valid_o (unused_otbn_imem_scramble_key_seed_valid),
+    .otbn_imem_scramble_key_o           (otbn_imem_scramble_key),
+    .otbn_imem_scramble_nonce_o         (otbn_imem_scramble_nonce),
+    .otbn_imem_scramble_valid_o         (otbn_imem_scramble_valid),
+    .otbn_imem_scramble_key_seed_valid_o(unused_otbn_imem_scramble_key_seed_valid),
 
-    .otbn_dmem_scramble_new_req_i (1'b0),
-    .otbn_imem_scramble_new_req_i (1'b0)
+    .otbn_dmem_scramble_new_req_i(1'b0),
+    .otbn_imem_scramble_new_req_i(1'b0)
   );
 
   prim_ram_1p_scr #(
-    .Width           (39),
-    .Depth           (ImemSizeWords),
-    .DataBitsPerMask (39),
-    .EnableParity    (0),
-    .DiffWidth       (39)
+    .Width          (39),
+    .Depth          (ImemSizeWords),
+    .DataBitsPerMask(39),
+    .EnableParity   (0),
+    .DiffWidth      (39)
   ) u_imem (
     .clk_i,
-    .rst_ni      (rst_n),
+    .rst_ni(rst_n),
 
-    .key_valid_i (otbn_imem_scramble_valid),
-    .key_i       (otbn_imem_scramble_key),
-    .nonce_i     (otbn_imem_scramble_nonce),
+    .key_valid_i(otbn_imem_scramble_valid),
+    .key_i      (otbn_imem_scramble_key),
+    .nonce_i    (otbn_imem_scramble_nonce),
 
     .req_i       (imem_req),
-    // TODO: Deal with grant signal, can we safely ignore?  Does OTBN need refactoring to deal with
-    // no grant? If exposed to Ibex will result in long stall if there's no valid key, may not be
-    // the behaviour we want, read error instead?
+    // TODO: OTBN should always get grant when active, wire up grant and add check it occurs,
+    // trigger fatal alert if it doesn't.
     .gnt_o       (),
     .write_i     (imem_write),
     .addr_i      (imem_index),
@@ -264,11 +275,11 @@ module otbn
     .wmask_i     (imem_wmask),
     .intg_error_i(1'b0),
 
-    .rdata_o     (imem_rdata),
-    .rvalid_o    (imem_rvalid),
-    .raddr_o     (),
-    .rerror_o    (),
-    .cfg_i       (ram_cfg_i)
+    .rdata_o (imem_rdata),
+    .rvalid_o(imem_rvalid),
+    .raddr_o (),
+    .rerror_o(),
+    .cfg_i   (ram_cfg_i)
   );
 
   // IMEM access from main TL-UL bus
@@ -278,29 +289,29 @@ module otbn
 
   import prim_mubi_pkg::MuBi4False;
   tlul_adapter_sram #(
-    .SramAw      (ImemIndexWidth),
-    .SramDw      (32),
-    .Outstanding (1),
-    .ByteAccess  (0),
-    .ErrOnRead   (0),
-    .EnableDataIntgPt (1)
+    .SramAw          (ImemIndexWidth),
+    .SramDw          (32),
+    .Outstanding     (1),
+    .ByteAccess      (0),
+    .ErrOnRead       (0),
+    .EnableDataIntgPt(1)
   ) u_tlul_adapter_sram_imem (
     .clk_i,
-    .rst_ni      (rst_n                  ),
-    .tl_i        (tl_win_h2d[TlWinImem]  ),
-    .tl_o        (tl_win_d2h[TlWinImem]  ),
-    .en_ifetch_i (MuBi4False             ),
-    .req_o       (imem_req_bus           ),
-    .req_type_o  (                       ),
-    .gnt_i       (imem_gnt_bus           ),
-    .we_o        (imem_write_bus         ),
-    .addr_o      (imem_index_bus         ),
-    .wdata_o     (imem_wdata_bus         ),
-    .wmask_o     (imem_wmask_bus         ),
+    .rst_ni      (rst_n),
+    .tl_i        (tl_win_h2d[TlWinImem]),
+    .tl_o        (tl_win_d2h[TlWinImem]),
+    .en_ifetch_i (MuBi4False),
+    .req_o       (imem_req_bus),
+    .req_type_o  (),
+    .gnt_i       (imem_gnt_bus),
+    .we_o        (imem_write_bus),
+    .addr_o      (imem_index_bus),
+    .wdata_o     (imem_wdata_bus),
+    .wmask_o     (imem_wmask_bus),
     .intg_error_o(imem_bus_intg_violation),
-    .rdata_i     (imem_rdata_bus         ),
-    .rvalid_i    (imem_rvalid_bus        ),
-    .rerror_i    (imem_rerror_bus        )
+    .rdata_i     (imem_rdata_bus),
+    .rvalid_i    (imem_rvalid_bus),
+    .rerror_i    (imem_rerror_bus)
   );
 
 
@@ -332,18 +343,19 @@ module otbn
   // don't have the corresponding check for writes from the core because the
   // core cannot perform writes (and has no imem_wmask_o port).
   assign imem_wmask = imem_access_core ? '1 : imem_wmask_bus;
-  `ASSERT(ImemWmaskBusIsFullWord_A,
-      imem_req_bus && imem_write_bus |-> imem_wmask_bus == '1)
+  `ASSERT(ImemWmaskBusIsFullWord_A, imem_req_bus && imem_write_bus |-> imem_wmask_bus == '1)
 
   // Explicitly tie off bus interface during core operation to avoid leaking
   // the currently executed instruction from IMEM through the bus
   // unintentionally.
-  assign imem_rdata_bus  = !imem_access_core && !illegal_bus_access_q ? imem_rdata : 39'b0;
+  assign imem_rdata_bus = !imem_access_core && !illegal_bus_access_q ? imem_rdata : 39'b0;
   assign imem_rdata_core = imem_rdata;
 
   // When an illegal bus access is seen, always return a dummy response the follow cycle.
-  assign imem_rvalid_bus  = (~imem_access_core & imem_rvalid) | imem_dummy_response_q;
+  assign imem_rvalid_bus = (~imem_access_core & imem_rvalid) | imem_dummy_response_q;
   assign imem_rvalid_core = imem_access_core ? imem_rvalid : 1'b0;
+
+  assign imem_byte_mask_bus = tl_win_h2d[TlWinImem].a_mask;
 
   // No imem errors reported for bus reads. Integrity is carried through on the bus so integrity
   // checking on TL responses will pick up any errors.
@@ -385,6 +397,10 @@ module otbn
   logic [ExtWLEN-1:0] dmem_wdata_bus;
   logic [ExtWLEN-1:0] dmem_wmask_bus;
   logic [ExtWLEN-1:0] dmem_rdata_bus;
+  logic [DmemAddrWidth-1:0] dmem_addr_bus;
+  logic unused_dmem_addr_bus;
+  logic [31:0] dmem_wdata_narrow_bus;
+  logic [top_pkg::TL_DBW-1:0] dmem_byte_mask_bus;
   logic dmem_rvalid_bus;
   logic [1:0] dmem_rerror_bus;
 
@@ -397,24 +413,23 @@ module otbn
   assign unused_dmem_addr_core_wordbits = ^dmem_addr_core[DmemAddrWidth-DmemIndexWidth-1:0];
 
   prim_ram_1p_scr #(
-    .Width              (ExtWLEN),
-    .Depth              (DmemSizeWords),
-    .DataBitsPerMask    (39),
-    .EnableParity       (0),
-    .DiffWidth          (39),
-    .ReplicateKeyStream (1)
+    .Width             (ExtWLEN),
+    .Depth             (DmemSizeWords),
+    .DataBitsPerMask   (39),
+    .EnableParity      (0),
+    .DiffWidth         (39),
+    .ReplicateKeyStream(1)
   ) u_dmem (
     .clk_i,
-    .rst_ni      (rst_n),
+    .rst_ni(rst_n),
 
-    .key_valid_i (otbn_dmem_scramble_valid),
-    .key_i       (otbn_dmem_scramble_key),
-    .nonce_i     (otbn_dmem_scramble_nonce),
+    .key_valid_i(otbn_dmem_scramble_valid),
+    .key_i      (otbn_dmem_scramble_key),
+    .nonce_i    (otbn_dmem_scramble_nonce),
 
     .req_i       (dmem_req),
-    // TODO: Deal with grant signal, can we safely ignore?  Does OTBN need refactoring to deal with
-    // no grant? If exposed to Ibex will result in long stall if there's no valid key, may not be
-    // the behaviour we want, read error instead?
+    // TODO: OTBN should always get grant when active, wire up grant and add check it occurs,
+    // trigger fatal alert if it doesn't.
     .gnt_o       (),
     .write_i     (dmem_write),
     .addr_i      (dmem_index),
@@ -422,11 +437,11 @@ module otbn
     .wmask_i     (dmem_wmask),
     .intg_error_i(1'b0),
 
-    .rdata_o     (dmem_rdata),
-    .rvalid_o    (dmem_rvalid),
-    .raddr_o     (),
-    .rerror_o    (),
-    .cfg_i       (ram_cfg_i)
+    .rdata_o (dmem_rdata),
+    .rvalid_o(dmem_rvalid),
+    .raddr_o (),
+    .rerror_o(),
+    .cfg_i   (ram_cfg_i)
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -445,11 +460,11 @@ module otbn
     // Separate check for dmem read data integrity outside of `u_dmem` as `prim_ram_1p_adv` doesn't
     // have functionality for only integrity checking, just fully integrated ECC. Integrity bits are
     // implemented on a 32-bit granule so separate checks are required for each.
-    prim_secded_39_32_dec u_dmem_intg_check (
-      .data_i     (dmem_rdata[i_word*39 +: 39]),
-      .data_o     (),
-      .syndrome_o (),
-      .err_o      (dmem_rerror_raw)
+    prim_secded_inv_39_32_dec u_dmem_intg_check (
+      .data_i    (dmem_rdata[i_word*39+:39]),
+      .data_o    (),
+      .syndrome_o(),
+      .err_o     (dmem_rerror_raw)
     );
 
     // Only report an error where the word was actually accessed. Otherwise uninitialised memory
@@ -470,35 +485,35 @@ module otbn
   assign dmem_gnt_bus = dmem_req_bus;
 
   tlul_adapter_sram #(
-    .SramAw      (DmemIndexWidth - 1),
-    .SramDw      (WLEN),
-    .Outstanding (1),
-    .ByteAccess  (0),
-    .ErrOnRead   (0),
-    .EnableDataIntgPt (1)
+    .SramAw          (DmemIndexWidth - 1),
+    .SramDw          (WLEN),
+    .Outstanding     (1),
+    .ByteAccess      (0),
+    .ErrOnRead       (0),
+    .EnableDataIntgPt(1)
   ) u_tlul_adapter_sram_dmem (
     .clk_i,
-    .rst_ni      (rst_n                  ),
-    .tl_i        (tl_win_h2d[TlWinDmem]  ),
-    .tl_o        (tl_win_d2h[TlWinDmem]  ),
-    .en_ifetch_i (MuBi4False             ),
-    .req_o       (dmem_req_bus           ),
-    .req_type_o  (                       ),
-    .gnt_i       (dmem_gnt_bus           ),
-    .we_o        (dmem_write_bus         ),
-    .addr_o      (dmem_index_bus         ),
-    .wdata_o     (dmem_wdata_bus         ),
-    .wmask_o     (dmem_wmask_bus         ),
+    .rst_ni      (rst_n),
+    .tl_i        (tl_win_h2d[TlWinDmem]),
+    .tl_o        (tl_win_d2h[TlWinDmem]),
+    .en_ifetch_i (MuBi4False),
+    .req_o       (dmem_req_bus),
+    .req_type_o  (),
+    .gnt_i       (dmem_gnt_bus),
+    .we_o        (dmem_write_bus),
+    .addr_o      (dmem_index_bus),
+    .wdata_o     (dmem_wdata_bus),
+    .wmask_o     (dmem_wmask_bus),
     .intg_error_o(dmem_bus_intg_violation),
-    .rdata_i     (dmem_rdata_bus         ),
-    .rvalid_i    (dmem_rvalid_bus        ),
-    .rerror_i    (dmem_rerror_bus        )
+    .rdata_i     (dmem_rdata_bus),
+    .rvalid_i    (dmem_rvalid_bus),
+    .rerror_i    (dmem_rerror_bus)
   );
 
   // Mux core and bus access into dmem
   assign dmem_access_core = busy_execute_q;
 
-  assign dmem_req   = dmem_access_core ? dmem_req_core   : dmem_req_bus;
+  assign dmem_req = dmem_access_core ? dmem_req_core : dmem_req_bus;
   assign dmem_write = dmem_access_core ? dmem_write_core : dmem_write_bus;
   assign dmem_wmask = dmem_access_core ? dmem_wmask_core : dmem_wmask_bus;
   assign dmem_index = dmem_access_core ? dmem_index_core : {1'b0, dmem_index_bus};
@@ -530,17 +545,59 @@ module otbn
   assign dmem_rerror_bus  = 2'b00;
   assign dmem_rerror_core = dmem_rerror;
 
+  assign dmem_addr_bus = tl_win_h2d[TlWinDmem].a_address[DmemAddrWidth-1:0];
+  assign dmem_wdata_narrow_bus = tl_win_h2d[TlWinDmem].a_data[31:0];
+  assign dmem_byte_mask_bus = tl_win_h2d[TlWinDmem].a_mask;
+
+  // Memory Load Integrity =====================================================
+  // CRC logic below assumes a incoming data bus width of 32 bits
+  `ASSERT_INIT(TLDWIs32Bit_A, top_pkg::TL_DW == 32)
+
+  // Only advance CRC calculation on full 32-bit writes;
+  assign mem_crc_data_in_valid   = ~(dmem_access_core | imem_access_core) &
+      ((imem_req_bus & (imem_byte_mask_bus == 4'hf)) |
+       (dmem_req_bus & (dmem_byte_mask_bus == 4'hf)));
+
+  assign mem_crc_data_in.wr_data = imem_req_bus ? imem_wdata_bus[31:0] :
+                                                  dmem_wdata_narrow_bus[31:0];
+  assign mem_crc_data_in.index   = imem_req_bus ? {{15 - ImemIndexWidth{1'b0}}, imem_index_bus} :
+                                                   {{15 - (DmemAddrWidth - 2){1'b0}},
+                                                    dmem_addr_bus[DmemAddrWidth-1:2]};
+  assign mem_crc_data_in.imem    = imem_req_bus;
+
+  // Only the bits that factor into the dmem index and dmem word enables are required
+  assign unused_dmem_addr_bus = ^{dmem_addr_bus[DmemAddrWidth-1:DmemIndexWidth],
+                                  dmem_addr_bus[1:0]};
+
+  prim_crc32 #(
+    .BytesPerWord(6)
+  ) u_mem_load_crc32 (
+    .clk_i (clk_i),
+    .rst_ni(rst_ni),
+
+    .set_crc_i(set_crc),
+    .crc_in_i (crc_in),
+
+    .data_valid_i(mem_crc_data_in_valid),
+    .data_i      (mem_crc_data_in),
+    .crc_out_o   (crc_out)
+  );
+
+  assign set_crc = reg2hw.load_checksum.qe;
+  assign crc_in = reg2hw.load_checksum.q;
+  assign hw2reg.load_checksum.d = crc_out;
+
   // Registers =================================================================
 
   logic reg_bus_intg_violation;
 
   otbn_reg_top u_reg (
     .clk_i,
-    .rst_ni (rst_n),
+    .rst_ni  (rst_n),
     .tl_i,
     .tl_o,
-    .tl_win_o (tl_win_h2d),
-    .tl_win_i (tl_win_d2h),
+    .tl_win_o(tl_win_h2d),
+    .tl_win_i(tl_win_d2h),
 
     .reg2hw,
     .hw2reg,
@@ -601,103 +658,111 @@ module otbn
   // ERR_BITS register
   // The error bits for an OTBN operation get stored on the cycle that done is
   // asserted. Software is expected to read them out before starting the next operation.
-  assign hw2reg.err_bits.bad_data_addr.de = done;
-  assign hw2reg.err_bits.bad_data_addr.d = err_bits.bad_data_addr;
 
-  assign hw2reg.err_bits.bad_insn_addr.de = done;
-  assign hw2reg.err_bits.bad_insn_addr.d = err_bits.bad_insn_addr;
+  assign hw2reg.err_bits.bad_data_addr.d = err_bits_q.bad_data_addr;
+  assign hw2reg.err_bits.bad_insn_addr.d = err_bits_q.bad_insn_addr;
+  assign hw2reg.err_bits.call_stack.d = err_bits_q.call_stack;
+  assign hw2reg.err_bits.illegal_insn.d = err_bits_q.illegal_insn;
+  assign hw2reg.err_bits.loop.d = err_bits_q.loop;
+  assign hw2reg.err_bits.key_invalid.d = err_bits_q.key_invalid;
+  assign hw2reg.err_bits.imem_intg_violation.d = err_bits_q.imem_intg_violation;
+  assign hw2reg.err_bits.dmem_intg_violation.d = err_bits_q.dmem_intg_violation;
+  assign hw2reg.err_bits.reg_intg_violation.d = err_bits_q.reg_intg_violation;
+  assign hw2reg.err_bits.bus_intg_violation.d = err_bits_q.bus_intg_violation;
+  assign hw2reg.err_bits.bad_internal_state.d = err_bits_q.bad_internal_state;
+  assign hw2reg.err_bits.illegal_bus_access.d = err_bits_q.illegal_bus_access;
+  assign hw2reg.err_bits.lifecycle_escalation.d = err_bits_q.lifecycle_escalation;
+  assign hw2reg.err_bits.fatal_software.d = err_bits_q.fatal_software;
 
-  assign hw2reg.err_bits.call_stack.de = done;
-  assign hw2reg.err_bits.call_stack.d = err_bits.call_stack;
+  assign err_bits_clear = reg2hw.err_bits.bad_data_addr.qe & ~busy_execute_q;
+  assign err_bits_d = err_bits_clear ? '0 : err_bits;
+  assign err_bits_en = err_bits_clear | done;
 
-  assign hw2reg.err_bits.illegal_insn.de = done;
-  assign hw2reg.err_bits.illegal_insn.d = err_bits.illegal_insn;
+  logic unused_reg2hw_err_bits;
 
-  assign hw2reg.err_bits.loop.de = done;
-  assign hw2reg.err_bits.loop.d = err_bits.loop;
+  // Majority of reg2hw.err_bits is unused as write values are ignored, all writes clear the
+  // register to 0.
+  assign unused_reg2hw_err_bits = ^{reg2hw.err_bits.bad_data_addr.q,
+                                    reg2hw.err_bits.bad_insn_addr,
+                                    reg2hw.err_bits.call_stack,
+                                    reg2hw.err_bits.illegal_insn,
+                                    reg2hw.err_bits.loop,
+                                    reg2hw.err_bits.key_invalid,
+                                    reg2hw.err_bits.imem_intg_violation,
+                                    reg2hw.err_bits.dmem_intg_violation,
+                                    reg2hw.err_bits.reg_intg_violation,
+                                    reg2hw.err_bits.bus_intg_violation,
+                                    reg2hw.err_bits.bad_internal_state,
+                                    reg2hw.err_bits.illegal_bus_access,
+                                    reg2hw.err_bits.lifecycle_escalation,
+                                    reg2hw.err_bits.fatal_software};
 
-  assign hw2reg.err_bits.key_invalid.de = done;
-  assign hw2reg.err_bits.key_invalid.d = err_bits.key_invalid;
-
-  assign hw2reg.err_bits.imem_intg_violation.de = done;
-  assign hw2reg.err_bits.imem_intg_violation.d = err_bits.imem_intg_violation;
-
-  assign hw2reg.err_bits.dmem_intg_violation.de = done;
-  assign hw2reg.err_bits.dmem_intg_violation.d = err_bits.dmem_intg_violation;
-
-  assign hw2reg.err_bits.reg_intg_violation.de = done;
-  assign hw2reg.err_bits.reg_intg_violation.d = err_bits.reg_intg_violation;
-
-  assign hw2reg.err_bits.bus_intg_violation.de = done;
-  assign hw2reg.err_bits.bus_intg_violation.d = err_bits.bus_intg_violation;
-
-  assign hw2reg.err_bits.bad_internal_state.de = done;
-  assign hw2reg.err_bits.bad_internal_state.d = err_bits.bad_internal_state;
-
-  assign hw2reg.err_bits.illegal_bus_access.de = done;
-  assign hw2reg.err_bits.illegal_bus_access.d = err_bits.illegal_bus_access;
-
-  assign hw2reg.err_bits.lifecycle_escalation.de = done;
-  assign hw2reg.err_bits.lifecycle_escalation.d = err_bits.lifecycle_escalation;
-
-  assign hw2reg.err_bits.fatal_software.de = done;
-  assign hw2reg.err_bits.fatal_software.d = err_bits.fatal_software;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      err_bits_q <= '0;
+    end else if (err_bits_en) begin
+      err_bits_q <= err_bits_d;
+    end
+  end
 
   // FATAL_ALERT_CAUSE register. The .de and .d values are equal for each bit, so that it can only
   // be set, not cleared.
   assign hw2reg.fatal_alert_cause.imem_intg_violation.de = insn_fetch_err;
-  assign hw2reg.fatal_alert_cause.imem_intg_violation.d  = insn_fetch_err;
+  assign hw2reg.fatal_alert_cause.imem_intg_violation.d = insn_fetch_err;
   assign hw2reg.fatal_alert_cause.dmem_intg_violation.de = dmem_rerror;
-  assign hw2reg.fatal_alert_cause.dmem_intg_violation.d  = dmem_rerror;
-  // TODO: Register file errors
-  assign hw2reg.fatal_alert_cause.reg_intg_violation.de = 0;
-  assign hw2reg.fatal_alert_cause.reg_intg_violation.d  = 0;
+  assign hw2reg.fatal_alert_cause.dmem_intg_violation.d = dmem_rerror;
+  assign hw2reg.fatal_alert_cause.reg_intg_violation.de = reg_intg_violation;
+  assign hw2reg.fatal_alert_cause.reg_intg_violation.d = reg_intg_violation;
   assign hw2reg.fatal_alert_cause.bus_intg_violation.de = bus_intg_violation;
-  assign hw2reg.fatal_alert_cause.bus_intg_violation.d  = bus_intg_violation;
+  assign hw2reg.fatal_alert_cause.bus_intg_violation.d = bus_intg_violation;
   assign hw2reg.fatal_alert_cause.bad_internal_state.de = 0;
-  assign hw2reg.fatal_alert_cause.bad_internal_state.d  = 0;
+  assign hw2reg.fatal_alert_cause.bad_internal_state.d = 0;
   assign hw2reg.fatal_alert_cause.illegal_bus_access.de = illegal_bus_access_d;
-  assign hw2reg.fatal_alert_cause.illegal_bus_access.d  = illegal_bus_access_d;
+  assign hw2reg.fatal_alert_cause.illegal_bus_access.d = illegal_bus_access_d;
   assign hw2reg.fatal_alert_cause.lifecycle_escalation.de = lifecycle_escalation;
-  assign hw2reg.fatal_alert_cause.lifecycle_escalation.d  = lifecycle_escalation;
+  assign hw2reg.fatal_alert_cause.lifecycle_escalation.d = lifecycle_escalation;
   assign hw2reg.fatal_alert_cause.fatal_software.de = done;
-  assign hw2reg.fatal_alert_cause.fatal_software.d  = err_bits.fatal_software;
+  assign hw2reg.fatal_alert_cause.fatal_software.d = err_bits_d.fatal_software;
 
   // INSN_CNT register
   logic [31:0] insn_cnt;
+  logic        insn_cnt_clear;
+  logic        unused_insn_cnt_q;
   assign hw2reg.insn_cnt.d = insn_cnt;
+  assign insn_cnt_clear = reg2hw.insn_cnt.qe & ~busy_execute_q;
+  // Ignore all write data to insn_cnt. All writes zero the register.
+  assign unused_insn_cnt_q = ^reg2hw.insn_cnt.q;
 
   // Alerts ====================================================================
 
   logic [NumAlerts-1:0] alert_test;
-  assign alert_test[AlertFatal] = reg2hw.alert_test.fatal.q &
-                                  reg2hw.alert_test.fatal.qe;
-  assign alert_test[AlertRecov] = reg2hw.alert_test.recov.q &
-                                  reg2hw.alert_test.recov.qe;
+  assign alert_test[AlertFatal] = reg2hw.alert_test.fatal.q & reg2hw.alert_test.fatal.qe;
+  assign alert_test[AlertRecov] = reg2hw.alert_test.recov.q & reg2hw.alert_test.recov.qe;
 
   logic [NumAlerts-1:0] alerts;
   assign alerts[AlertFatal] = insn_fetch_err       |
                               dmem_rerror          |
                               bus_intg_violation   |
+                              reg_intg_violation   |
                               illegal_bus_access_d |
                               lifecycle_escalation |
                               err_bits.fatal_software;
 
   assign alerts[AlertRecov] = recoverable_err & done;
 
-  for (genvar i = 0; i < NumAlerts; i++) begin: gen_alert_tx
+  for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
     prim_alert_sender #(
       .AsyncOn(AlertAsyncOn[i]),
       .IsFatal(i == AlertFatal)
     ) u_prim_alert_sender (
       .clk_i,
-      .rst_ni        ( rst_n         ),
-      .alert_test_i  ( alert_test[i] ),
-      .alert_req_i   ( alerts[i]     ),
-      .alert_ack_o   (               ),
-      .alert_state_o (               ),
-      .alert_rx_i    ( alert_rx_i[i] ),
-      .alert_tx_o    ( alert_tx_o[i] )
+      .rst_ni       (rst_n),
+      .alert_test_i (alert_test[i]),
+      .alert_req_i  (alerts[i]),
+      .alert_ack_o  (),
+      .alert_state_o(),
+      .alert_rx_i   (alert_rx_i[i]),
+      .alert_tx_o   (alert_tx_o[i])
     );
   end
 
@@ -803,8 +868,6 @@ module otbn
     assign edn_urnd_data_valid = edn_urnd_req & edn_urnd_ack;
 
     otbn_core_model #(
-      .DmemSizeByte(DmemSizeByte),
-      .ImemSizeByte(ImemSizeByte),
       .MemScope(".."),
       .DesignScope("")
     ) u_otbn_core_model (
@@ -826,6 +889,7 @@ module otbn
       .edn_urnd_o            (edn_urnd_req_model),
       .edn_urnd_cdc_done_i   (edn_urnd_data_valid),
 
+      .status_o              (),
       .insn_cnt_o            (insn_cnt_model),
 
       .done_rr_o (done_rr_model),
@@ -859,6 +923,7 @@ module otbn
 
       .err_bits_o                  (err_bits_rtl),
       .recoverable_err_o           (recoverable_err_rtl),
+      .reg_intg_violation_o        (reg_intg_violation),
 
       .imem_req_o                  (imem_req_core),
       .imem_addr_o                 (imem_addr_core),
@@ -886,6 +951,7 @@ module otbn
       .edn_urnd_data_i             (edn_urnd_data),
 
       .insn_cnt_o                  (insn_cnt_rtl),
+      .insn_cnt_clear_i            (insn_cnt_clear),
 
       .bus_intg_violation_i        (bus_intg_violation),
       .illegal_bus_access_i        (illegal_bus_access_q),
@@ -897,6 +963,7 @@ module otbn
       .sideload_key_shares_valid_i ({2{keymgr_key_i.valid}})
     );
   `else
+
     otbn_core #(
       .RegFile(RegFile),
       .DmemSizeByte(DmemSizeByte),
@@ -912,6 +979,7 @@ module otbn
 
       .err_bits_o                  (err_bits),
       .recoverable_err_o           (recoverable_err),
+      .reg_intg_violation_o        (reg_intg_violation),
 
       .imem_req_o                  (imem_req_core),
       .imem_addr_o                 (imem_addr_core),
@@ -939,6 +1007,7 @@ module otbn
       .edn_urnd_data_i             (edn_urnd_data),
 
       .insn_cnt_o                  (insn_cnt),
+      .insn_cnt_clear_i            (insn_cnt_clear),
 
       .bus_intg_violation_i        (bus_intg_violation),
       .illegal_bus_access_i        (illegal_bus_access_q),
@@ -968,13 +1037,18 @@ module otbn
   `ASSERT_KNOWN(EdnUrndOKnown_A, edn_urnd_o, clk_edn_i, !rst_edn_ni)
   `ASSERT_KNOWN(OtbnOtpKeyO_A, otbn_otp_key_o, clk_otp_i, !rst_otp_ni)
 
+  // Incoming key must be valid (other inputs go via prim modules that handle the X checks).
+  `ASSERT_KNOWN(KeyMgrKeyValid_A, keymgr_key_i.valid)
+
   // In locked state, the readable registers INSN_CNT, IMEM, and DMEM are expected to always read 0
   // when accessed from the bus. For INSN_CNT, we use "|=>" so that the assertion lines up with
   // "status.q" (a signal that isn't directly accessible here).
   `ASSERT(LockedInsnCntReadsZero_A, (hw2reg.status.d == StatusLocked) |=> insn_cnt == 'd0)
   `ASSERT(NonIdleImemReadsZero_A,
-      (hw2reg.status.d != StatusIdle) & imem_rvalid_bus |-> imem_rdata_bus == 'd0)
+          (hw2reg.status.d != StatusIdle) & imem_rvalid_bus |-> imem_rdata_bus == 'd0)
   `ASSERT(NonIdleDmemReadsZero_A,
-      (hw2reg.status.d != StatusIdle) & dmem_rvalid_bus |-> dmem_rdata_bus == 'd0)
+          (hw2reg.status.d != StatusIdle) & dmem_rvalid_bus |-> dmem_rdata_bus == 'd0)
 
+  // Constraint from package, check here as we cannot have `ASSERT_INIT in package
+  `ASSERT_INIT(WsrESizeMatchesParameter_A, $bits(wsr_e) == WsrNumWidth)
 endmodule

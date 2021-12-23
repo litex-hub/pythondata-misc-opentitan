@@ -12,20 +12,8 @@ class pwrmgr_reset_vseq extends pwrmgr_base_vseq;
 
   `uvm_object_new
 
-  rand bit power_glitch_reset;
-  rand bit escalation_reset;
-
-  // TODO(maturana) Enable escalation resets once there is support for driving them.
-  constraint escalation_reset_c {escalation_reset == 1'b0;}
-  constraint resets_en_c {
-    solve resets, power_glitch_reset, escalation_reset before resets_en;
-    |{resets_en & resets, power_glitch_reset, escalation_reset} == 1'b1;
-  }
-
   constraint wakeups_c {wakeups == 0;}
   constraint wakeups_en_c {wakeups_en == 0;}
-
-  prim_mubi_pkg::mubi4_t sw_rst_from_rstmgr;
 
   function void post_randomize();
     sw_rst_from_rstmgr = get_rand_mubi4_val(8, 4, 4);
@@ -41,12 +29,14 @@ class pwrmgr_reset_vseq extends pwrmgr_base_vseq;
     for (int i = 0; i < num_trans; ++i) begin
       `uvm_info(`gfn, "Starting new round", UVM_MEDIUM)
       `DV_CHECK_RANDOMIZE_FATAL(this)
+      setup_interrupt(.enable(en_intr));
       enabled_resets = resets_en & resets;
       `uvm_info(`gfn, $sformatf(
-                "Enabled resets=0x%x, power_reset=%b, escalation=%b",
+                "Enabled resets=0x%x, power_reset=%b, escalation=%b, sw_reset=%b",
                 enabled_resets,
                 power_glitch_reset,
-                escalation_reset
+                escalation_reset,
+                sw_rst_from_rstmgr
                 ), UVM_MEDIUM)
 
       csr_wr(.ptr(ral.reset_en[0]), .value(resets_en));
@@ -80,6 +70,9 @@ class pwrmgr_reset_vseq extends pwrmgr_base_vseq;
 
       cfg.slow_clk_rst_vif.wait_clks(4);
       csr_rd_check(.ptr(ral.reset_status[0]), .compare_value('0));
+
+      // And check interrupt is not set.
+      check_and_clear_interrupt(.expected(1'b0));
     end
   endtask
 

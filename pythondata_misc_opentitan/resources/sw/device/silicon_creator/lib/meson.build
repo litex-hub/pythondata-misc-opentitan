@@ -91,7 +91,7 @@ sw_silicon_creator_lib_sigverify = declare_dependency(
       sw_silicon_creator_lib_driver_lifecycle,
       sw_lib_bitfield,
       sw_silicon_creator_lib_otbn_util,
-      sw_silicon_creator_otbn['rsa']['rv32embed_dependency'],
+      sw_otbn['run_rsa_verify_3072_rr_modexp']['rv32embed_dependency'],
     ],
   ),
 )
@@ -143,8 +143,8 @@ sw_silicon_creator_lib_irq_asm = declare_dependency(
   link_with: static_library(
     'sw_silicon_creator_lib_irq_asm',
     sources: [
-      hw_ip_aon_timer_reg_h,
-      hw_ip_pwrmgr_reg_h,
+      hw_ip_rstmgr_reg_h,
+      hw_ip_flash_ctrl_reg_h,
       'irq_asm.S',
     ],
   ),
@@ -322,7 +322,6 @@ sw_silicon_creator_lib_irq_asm_functest = declare_dependency(
       sw_silicon_creator_lib_irq_asm,
       sw_silicon_creator_lib_driver_retention_sram,
       sw_silicon_creator_lib_driver_rstmgr,
-      sw_silicon_creator_lib_driver_watchdog,
     ],
   ),
 )

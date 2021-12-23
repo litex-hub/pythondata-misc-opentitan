@@ -490,6 +490,9 @@ Refer to the [Secure Wipe]({{<relref "#design-details-secure-wipe">}}) section f
 ## Instruction Counter
 
 In order to detect and mitigate fault injection attacks on the OTBN, the host CPU can read the number of executed instructions from {{< regref "INSN_CNT">}} and verify whether it matches the expectation.
+The host CPU can clear the instruction counter when OTBN is not running.
+Writing any value to {{< regref "INSN_CNT">}} clears this register to zero.
+Write attempts while OTBN is running are ignored.
 
 ## Key Sideloading
 
@@ -556,6 +559,15 @@ This is to allow OTBN applications to store sensitive information in the other h
 
 Each memory write through the register interface updates a checksum.
 See the [Memory Load Integrity]({{< relref "#mem-load-integrity" >}}) section for more details.
+
+### Instruction Prefetch
+
+OTBN employs an instruction prefetch stage which allows register file inputs to be taken directly from registers by pre-decoding instructions in the prefetch stage.
+This is required to enable the blanking SCA hardening measure (TODO: Not yet implemented or documented).
+Its operation is entirely transparent to software.
+It does not speculate and will only prefetch where the next instruction address can be known.
+This results in a stall cycle for all conditional branches and jumps as the result is neither predicted nor known ahead of time.
+Instruction bits held in the prefetch buffer are unscrambled but use the integrity protection described in [Data Integrity Protection]({{<relref "#design-details-data-integrity-protection">}}).
 
 ### Random Numbers
 
@@ -797,6 +809,10 @@ The error that caused the alert can be determined by reading the {{< regref "FAT
 If OTBN was running, this value will also be reflected in the {{< regref "ERR_BITS" >}} register.
 A fatal alert can only be cleared by resetting OTBN through the `rst_ni` line.
 
+The host CPU can clear the {{< regref "ERR_BITS" >}} when OTBN is not running.
+Writing any value to {{< regref "ERR_BITS" >}} clears this register to zero.
+Write attempts while OTBN is running are ignored.
+
 ### Reaction to Life Cycle Escalation Requests {#design-details-lifecycle-escalation}
 
 OTBN receives and reacts to escalation signals from the [life cycle controller]({{< relref "/hw/ip/lc_ctrl/doc#security-escalation" >}}).
@@ -927,17 +943,20 @@ It isn't a cryptographically secure MAC, so cannot spot an attacker who can comp
 However, in this case the attacker would be equally able to control responses from OTBN, so any such check could be subverted.
 
 The CRC used is the 32-bit CRC-32-IEEE checksum.
-This standard choice of generating polynomial makes it compatible with other tooling, such as the POSIX cksum utility [[POSIX18]({{< relref "#ref-posix-cksum">}})].
+This standard choice of generating polynomial makes it compatible with other tooling and libraries, such as the [crc32 function](https://docs.python.org/3/library/binascii.html#binascii.crc32) in the python 'binascii' module and the crc instructions in the RISC-V bitmanip specification [[SYMBIOTIC21]]({{<relref "#ref-symbiotic21" >}}).
 The stream over which the checksum is computed is the stream of writes that have been seen since the last write to {{< regref "LOAD_CHECKSUM" >}}.
 Each write is treated as a 48b value, `{imem, idx, wdata}`.
 Here, `imem` is a single bit flag which is one for writes to IMEM and zero for writes to DMEM.
 The `idx` value is the index of the word within the memory, zero extended from 10b to 15b.
 Finally, `wdata` is the 32b word that was written.
+Writes that are less than 32b or not aligned on a 32b boundary are ignored and not factored into the CRC calculation.
 
 The host processor can also write to the register.
-Typically, this will be to clear the value to `32'hffffffff`, the traditional starting value for a 32-bit CRC.
+Typically, this will be to clear the value to `32'h00000000`, the traditional starting value for a 32-bit CRC.
+Note the internal representation of the CRC is inverted from the register visible version.
+This is done to maintain compatibility with existing CRC-32-IEEE tooling and libraries.
 
-To use this functionality, the host processor should set {{< regref "LOAD_CHECKSUM" >}} to a known value (traditionally, `32'hffffffff`).
+To use this functionality, the host processor should set {{< regref "LOAD_CHECKSUM" >}} to a known value (traditionally, `32'h00000000`).
 Next, it should write the program to be loaded to OTBN's IMEM and DMEM over the bus.
 Finally, it should read back the value of {{< regref "LOAD_CHECKSUM" >}} and compare it with an expected value.
 
@@ -1371,4 +1390,4 @@ Code snippets giving examples of 256x256 and 384x384 multiplies can be found in 
 
 <a name="ref-chen08">[CHEN08]</a> L. Chen, "Hsiao-Code Check Matrices and Recursively Balanced Matrices," arXiv:0803.1217 [cs], Mar. 2008 [Online]. Available: http://arxiv.org/abs/0803.1217
 
-<a name="ref-posix-cksum">[POSIX18]</a> The Open Group, "cksum" manual. Available: https://pubs.opengroup.org/onlinepubs/9699919799/utilities/cksum.html
+<a name="ref-symbiotic21">[SYMBIOTIC21]</a> RISC-V Bitmanip Extension v0.93 Available: https://github.com/riscv/riscv-bitmanip/releases/download/v0.93/bitmanip-0.93.pdf 

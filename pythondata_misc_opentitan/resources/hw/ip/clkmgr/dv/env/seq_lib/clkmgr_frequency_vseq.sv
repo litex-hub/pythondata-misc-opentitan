@@ -11,10 +11,11 @@ class clkmgr_frequency_vseq extends clkmgr_base_vseq;
 
   // This is measured in aon clocks, and is pretty tight.
   localparam int CyclesToGetOneMeasurement = 2;
-  // This is measured in clkmgr clk_i clocks. It is set to cover worse case delays.
+
+  // This is measured in clkmgr clk_i clocks. It is set to cover worst case delays.
   // The clk_i frequency is randomized for IPs, but the clkmgr is hooked to io_div4, which would
-  // allow a tighter number of cycles.
-  // TODO(maturana) Connect clkmgr's clk_i to the powerup io_div4 clock, as is in the chip.
+  // allow a tighter number of cycles. Leaving the clk_i random probably provides more cases,
+  // so leaving it as is.
   localparam int CyclesForErrUpdate = 16;
 
   // The min ands max offsets from the expected counts. Notice the count occasionally matches
@@ -165,6 +166,10 @@ class clkmgr_frequency_vseq extends clkmgr_base_vseq;
           min_threshold = expected + min_offset;
           max_threshold = expected + max_offset;
           if (min_threshold > expected || max_threshold < expected - 1) begin
+            `uvm_info(`gfn, $sformatf(
+                      "Expect %0s to get a %0s error",
+                      clk_mesr.name,
+                      (min_threshold > expected ? "slow" : "fast" )), UVM_MEDIUM)
             cfg.scoreboard.set_exp_alert(.alert_name("recov_fault"), .max_delay(4000));
             expected_recov_err[clk] = 1;
           end
@@ -176,6 +181,7 @@ class clkmgr_frequency_vseq extends clkmgr_base_vseq;
       end
       wait_before_read_recov_err_code();
       csr_rd(.ptr(ral.recov_err_code), .value(actual_recov_err));
+      `uvm_info(`gfn, $sformatf("Expected recov err register=0x%x", expected_recov_err), UVM_MEDIUM)
       if (actual_recov_err != expected_recov_err) begin
         logic [ClkMesrUsb:0] mismatch_recov_err = actual_recov_err ^ expected_recov_err;
         foreach (mismatch_recov_err[clk]) begin

@@ -23,6 +23,7 @@ module tb;
   wire clk, rst_n;
   wire idle, intr_done;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
+  otbn_key_req_t keymgr_key;
 
   // interfaces
   clk_rst_if                    clk_rst_if (.clk(clk), .rst_n(rst_n));
@@ -35,11 +36,16 @@ module tb;
   // needed for sequences that trigger alerts (locking OTBN) without telling the model.
   `DV_ASSERT_CTRL("otbn_status_assert_en", tb.MatchingStatus_A)
 
+  assign keymgr_key.key[0] = {12{32'hDEADBEEF}};
+  assign keymgr_key.key[1] = {12{32'hBAADF00D}};
+  assign keymgr_key.valid  = 1'b1;
+
   otbn_model_if #(
     .ImemSizeByte (otbn_reg_pkg::OTBN_IMEM_SIZE)
   ) model_if (
-    .clk_i  (clk),
-    .rst_ni (rst_n)
+    .clk_i         (clk),
+    .rst_ni        (rst_n),
+    .keymgr_key_i  (keymgr_key)
   );
 
   // edn_clk, edn_rst_n and edn_if is defined and driven in below macro
@@ -89,12 +95,6 @@ module tb;
   assign otp_key_rsp.key = TestScrambleKey;
   assign otp_key_rsp.nonce = TestScrambleNonce;
   assign otp_key_rsp.seed_valid = 1'b0;
-
-  otbn_key_req_t keymgr_key;
-
-  assign keymgr_key.key[0] = {12{32'hDEADBEEF}};
-  assign keymgr_key.key[1] = {12{32'hBAADF00D}};
-  assign keymgr_key.valid  = 1'b1;
 
   // dut
   otbn # (
@@ -196,8 +196,6 @@ module tb;
   bit [31:0] model_insn_cnt;
 
   otbn_core_model #(
-    .DmemSizeByte (otbn_reg_pkg::OTBN_DMEM_SIZE),
-    .ImemSizeByte (otbn_reg_pkg::OTBN_IMEM_SIZE),
     .MemScope     ("..dut"),
     .DesignScope  ("..dut.u_otbn_core")
   ) u_model (
@@ -208,7 +206,7 @@ module tb;
 
     .start_i      (model_if.start),
 
-    .err_bits_o   (),
+    .err_bits_o   (model_if.err_bits),
 
     .edn_rnd_i             ({edn_if[0].ack, edn_if[0].d_data}),
     .edn_rnd_o             (edn_rnd_req_model),
@@ -221,11 +219,11 @@ module tb;
     .status_o     (model_if.status),
     .insn_cnt_o   (model_insn_cnt),
 
-    .invalidate_imem_i (model_if.invalidate_imem),
-
     .done_rr_o    (),
 
-    .err_o        (model_if.err)
+    .err_o        (model_if.err),
+
+    .keymgr_key_i (model_if.keymgr_key_i)
   );
 
   // Pull the final PC and the OtbnModel handle out of the SV model wrapper.
@@ -266,6 +264,7 @@ module tb;
 
   initial begin
     mem_bkdr_util imem_util, dmem_util;
+    int unsigned real_dmem_size, dmem_depth;
 
     // drive clk and rst_n from clk_if
     clk_rst_if.set_active();
@@ -302,13 +301,18 @@ module tb;
                             "u_mem.gen_generic.u_impl_generic.mem"}),
                     .depth (otbn_reg_pkg::OTBN_IMEM_SIZE / 4),
                     .n_bits (otbn_reg_pkg::OTBN_IMEM_SIZE / 4 * 39),
-                    .err_detection_scheme (mem_bkdr_util_pkg::Ecc_39_32));
+                    .err_detection_scheme (mem_bkdr_util_pkg::EccInv_39_32));
+
+    // DMEM is twice as big as the bus-accessible part
+    real_dmem_size = 2 * otbn_reg_pkg::OTBN_DMEM_SIZE;
+    dmem_depth = real_dmem_size / 32;
+
     dmem_util = new(.name ("dmem_util"),
                     .path ({"tb.dut.u_dmem.u_prim_ram_1p_adv.",
                             "u_mem.gen_generic.u_impl_generic.mem"}),
-                    .depth (otbn_reg_pkg::OTBN_DMEM_SIZE / 32),
-                    .n_bits (otbn_reg_pkg::OTBN_DMEM_SIZE / 32 * 312),
-                    .err_detection_scheme (mem_bkdr_util_pkg::Ecc_39_32));
+                    .depth (dmem_depth),
+                    .n_bits (dmem_depth * 312),
+                    .err_detection_scheme (mem_bkdr_util_pkg::EccInv_39_32));
 
     uvm_config_db#(mem_bkdr_util)::set(null, "*.env", imem_util.get_name(), imem_util);
     uvm_config_db#(mem_bkdr_util)::set(null, "*.env", dmem_util.get_name(), dmem_util);

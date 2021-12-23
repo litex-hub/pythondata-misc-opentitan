@@ -30,11 +30,34 @@ yosys "chparam -set SBoxImpl $lr_synth_s_box_impl $lr_synth_top_module"
 # Remap Xilinx Vivado "keep" attributes to Yosys style.
 yosys "attrmap -tocase keep -imap keep=\"true\" keep=1 -imap keep=\"false\" keep=0 -remove keep=0"
 
+# Place keep_hierarchy contraints on relevant modules to prevent aggressive synthesis optimzations
+# across the boundaries of these modules.
+yosys "hierarchy -check -top $lr_synth_top_module"
+yosys "setattr -mod -set keep_hierarchy 1 *prim_xilinx_buf*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_*_fsm_p*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_*_fsm_n*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_sel_buf_chk*"
+
 # Synthesize.
-yosys "synth $flatten_opt -top $lr_synth_top_module"
+yosys "synth -nofsm $flatten_opt -top $lr_synth_top_module"
 yosys "opt -purge"
 
 yosys "write_verilog $lr_synth_pre_map_out"
+
+# Remove keep_hierarchy constraints before writing out the netlist for Alma as it doesn't like
+# these constraints.
+yosys "setattr -mod -set keep_hierarchy 0 *prim_xilinx_buf*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_*_fsm_p*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_*_fsm_n*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_sel_buf_chk*"
+
+yosys "write_verilog $lr_synth_alma_out"
+
+# Re-add keep_hierarchy constraints for further synthesis steps.
+yosys "setattr -mod -set keep_hierarchy 1 *prim_xilinx_buf*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_*_fsm_p*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_*_fsm_n*"
+yosys "setattr -mod -set keep_hierarchy 1 *aes_sel_buf_chk*"
 
 yosys "dfflibmap -liberty $lr_synth_cell_library_path"
 yosys "opt"
@@ -45,6 +68,17 @@ if { $lr_synth_timing_run } {
   yosys "abc -liberty $lr_synth_cell_library_path -constr $lr_synth_abc_sdc_file_in -D $yosys_abc_clk_period"
 } else {
   yosys "abc -liberty $lr_synth_cell_library_path"
+}
+
+# Remove keep_hierarchy constraints before the final flattening step. We're done optimizing.
+yosys "setattr -mod -set keep_hierarchy 0 *prim_xilinx_buf*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_*_fsm_p*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_*_fsm_n*"
+yosys "setattr -mod -set keep_hierarchy 0 *aes_sel_buf_chk*"
+
+# Final flattening.
+if { $lr_synth_flatten } {
+  yosys "flatten"
 }
 
 yosys "clean"

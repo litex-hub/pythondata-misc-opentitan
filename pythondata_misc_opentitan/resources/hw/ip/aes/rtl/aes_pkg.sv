@@ -13,6 +13,7 @@ parameter int unsigned NumSharesKey = 2;
 // Software updates IV in chunks of 32 bits, the counter updates 16 bits at a time.
 parameter int unsigned SliceSizeCtr = 16;
 parameter int unsigned NumSlicesCtr = aes_reg_pkg::NumRegsIv * 32 / SliceSizeCtr;
+parameter int unsigned SliceIdxWidth = prim_util_pkg::vbits(NumSlicesCtr);
 
 // Widths of signals carrying pseudo-random data for clearing
 parameter int unsigned WidthPRDClearing = 64;
@@ -323,6 +324,9 @@ typedef enum logic [Sp2VWidth-1:0] {
   SP2V_HIGH = MUX2_SEL_0,
   SP2V_LOW  = MUX2_SEL_1
 } sp2v_e;
+
+typedef logic [Sp2VWidth-1:0] sp2v_logic_t;
+parameter sp2v_logic_t SP2V_LOGIC_HIGH = {SP2V_HIGH};
 
 // Control register type
 typedef struct packed {

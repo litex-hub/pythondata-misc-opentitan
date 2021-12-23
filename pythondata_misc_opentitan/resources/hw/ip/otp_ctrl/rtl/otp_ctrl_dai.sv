@@ -79,48 +79,53 @@ module otp_ctrl_dai
   // DAI Control FSM //
   /////////////////////
 
-  // Encoding generated with ./sparse-fsm-encode.py -d 5 -m 20 -n 12 -s 3011551511
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 5 -m 20 -n 12 \
+  //      -s 3011551511 --language=sv
+  //
   // Hamming distance histogram:
   //
-  // 0:  --
-  // 1:  --
-  // 2:  --
-  // 3:  --
-  // 4:  --
-  // 5:  |||||||||||||||||| (32.11%)
-  // 6:  |||||||||||||||||||| (35.26%)
-  // 7:  |||||||| (15.79%)
-  // 8:  |||||| (11.58%)
-  // 9:  | (2.11%)
-  // 10:  (1.05%)
-  // 11: | (2.11%)
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: --
+  //  4: --
+  //  5: |||||||||||||||| (31.05%)
+  //  6: |||||||||||||||||||| (36.84%)
+  //  7: |||||||| (15.26%)
+  //  8: |||| (8.95%)
+  //  9: || (5.26%)
+  // 10:  (1.58%)
+  // 11:  (1.05%)
   // 12: --
   //
   // Minimum Hamming distance: 5
   // Maximum Hamming distance: 11
+  // Minimum Hamming weight: 2
+  // Maximum Hamming weight: 9
   //
-  parameter int StateWidth = 12;
+  localparam int StateWidth = 12;
   typedef enum logic [StateWidth-1:0] {
-    ResetSt       = 12'b001000011011,
-    InitOtpSt     = 12'b101111001001,
-    InitPartSt    = 12'b101010100111,
-    IdleSt        = 12'b110100110101,
-    ErrorSt       = 12'b100011010000,
-    ReadSt        = 12'b111001010110,
-    ReadWaitSt    = 12'b000101100111,
-    DescrSt       = 12'b110001001101,
-    DescrWaitSt   = 12'b010000110010,
-    WriteSt       = 12'b101101111100,
-    WriteWaitSt   = 12'b100100101010,
-    ScrSt         = 12'b111110010011,
-    ScrWaitSt     = 12'b010110011000,
-    DigClrSt      = 12'b011100001110,
-    DigReadSt     = 12'b011001101000,
-    DigReadWaitSt = 12'b000011111110,
-    DigSt         = 12'b000010101001,
-    DigPadSt      = 12'b000000000100,
-    DigFinSt      = 12'b010011000011,
-    DigWaitSt     = 12'b011011110101
+    ResetSt       = 12'b101111010100,
+    InitOtpSt     = 12'b110000110010,
+    InitPartSt    = 12'b000111111001,
+    IdleSt        = 12'b111010000011,
+    ErrorSt       = 12'b100010001110,
+    ReadSt        = 12'b100101100110,
+    ReadWaitSt    = 12'b001100000000,
+    DescrSt       = 12'b011000101111,
+    DescrWaitSt   = 12'b110101011111,
+    WriteSt       = 12'b110111001000,
+    WriteWaitSt   = 12'b111001111100,
+    ScrSt         = 12'b000000010101,
+    ScrWaitSt     = 12'b010110110100,
+    DigClrSt      = 12'b001111001111,
+    DigReadSt     = 12'b001001110011,
+    DigReadWaitSt = 12'b101110111010,
+    DigSt         = 12'b011111100010,
+    DigPadSt      = 12'b011010011000,
+    DigFinSt      = 12'b110011100101,
+    DigWaitSt     = 12'b100000101001
   } state_e;
 
   typedef enum logic [1:0] {
@@ -136,8 +141,8 @@ module otp_ctrl_dai
   } addr_sel_e;
 
   state_e state_d, state_q;
-  logic [CntWidth-1:0] cnt_d, cnt_q;
-  logic cnt_en, cnt_clr;
+  logic [CntWidth-1:0] cnt;
+  logic cnt_en, cnt_clr, cnt_err;
   otp_err_e error_d, error_q;
   logic data_en, data_clr;
   data_sel_e data_sel;
@@ -545,7 +550,7 @@ module otp_ctrl_dai
         // No need to digest the digest value itself
         if (otp_addr_o == digest_addr_lut[part_idx]) begin
           // Trigger digest round in case this is the second block in a row.
-          if (!cnt_q[0]) begin
+          if (!cnt[0]) begin
             scrmbl_cmd_o = Digest;
             if (scrmbl_ready_i) begin
               state_d = DigFinSt;
@@ -556,7 +561,7 @@ module otp_ctrl_dai
           end
         end else begin
           // Trigger digest round in case this is the second block in a row.
-          if (!cnt_q[0]) begin
+          if (!cnt[0]) begin
             scrmbl_cmd_o = Digest;
           end
           // Go back and fetch more data blocks.
@@ -619,7 +624,7 @@ module otp_ctrl_dai
     endcase // state_q
 
     // Unconditionally jump into the terminal error state in case of escalation.
-    if (escalate_en_i != lc_ctrl_pkg::Off) begin
+    if (escalate_en_i != lc_ctrl_pkg::Off || cnt_err) begin
       state_d = ErrorSt;
       if (state_q != ErrorSt) begin
         error_d = FsmStateError;
@@ -703,13 +708,26 @@ module otp_ctrl_dai
 
   // Address counter - this is only used for computing a digest, hence the increment is
   // fixed to 8 byte.
-  assign cnt_d = (cnt_clr) ? '0           :
-                 (cnt_en)  ? cnt_q + 1'b1 : cnt_q;
+  prim_count #(
+    .Width(CntWidth),
+    .OutSelDnCnt(0), // count up
+    .CntStyle(prim_count_pkg::CrossCnt)
+  ) u_prim_count (
+    .clk_i,
+    .rst_ni,
+    .clr_i(cnt_clr),
+    .set_i(1'b0),
+    .set_cnt_i('0),
+    .en_i(cnt_en),
+    .step_i(CntWidth'(1)),
+    .cnt_o(cnt),
+    .err_o(cnt_err)
+  );
 
   // Note that OTP works on halfword (16bit) addresses, hence need to
   // shift the addresses appropriately.
   logic [OtpByteAddrWidth-1:0] addr_calc;
-  assign addr_calc = {cnt_q, {$clog2(ScrmblBlockWidth/8){1'b0}}} + addr_base;
+  assign addr_calc = {cnt, {$clog2(ScrmblBlockWidth/8){1'b0}}} + addr_base;
   assign otp_addr_o = OtpAddrWidth'(addr_calc >> OtpAddrShift);
 
   ///////////////
@@ -720,25 +738,24 @@ module otp_ctrl_dai
   // flops in order to prevent FSM state encoding optimizations.
   logic [StateWidth-1:0] state_raw_q;
   assign state_q = state_e'(state_raw_q);
-  prim_flop #(
+  prim_sparse_fsm_flop #(
+    .StateEnumT(state_e),
     .Width(StateWidth),
     .ResetValue(StateWidth'(ResetSt))
   ) u_state_regs (
     .clk_i,
     .rst_ni,
-    .d_i ( state_d     ),
-    .q_o ( state_raw_q )
+    .state_i ( state_d     ),
+    .state_o ( state_raw_q )
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
       error_q        <= NoError;
-      cnt_q          <= '0;
       data_q         <= '0;
       base_sel_q     <= DaiOffset;
     end else begin
       error_q        <= error_d;
-      cnt_q          <= cnt_d;
       base_sel_q     <= base_sel_d;
 
       // Working register

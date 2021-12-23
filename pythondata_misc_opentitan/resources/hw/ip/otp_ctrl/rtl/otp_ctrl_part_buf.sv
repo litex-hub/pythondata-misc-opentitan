@@ -103,44 +103,49 @@ module otp_ctrl_part_buf
   // OTP Partition FSM //
   ///////////////////////
 
-  // Encoding generated with ./sparse-fsm-encode.py -d 5 -m 16 -n 12 -s 3370657881
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 5 -m 16 -n 12 \
+  //      -s 3370657881 --language=sv
+  //
   // Hamming distance histogram:
   //
-  // 0:  --
-  // 1:  --
-  // 2:  --
-  // 3:  --
-  // 4:  --
-  // 5:  |||||||||||||||||| (30.00%)
-  // 6:  |||||||||||||||||||| (32.50%)
-  // 7:  ||||||||||| (19.17%)
-  // 8:  ||||||| (11.67%)
-  // 9:  || (4.17%)
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: --
+  //  4: --
+  //  5: |||||||||||||| (28.33%)
+  //  6: |||||||||||||||||||| (38.33%)
+  //  7: |||||||||| (19.17%)
+  //  8: ||| (5.83%)
+  //  9: || (4.17%)
   // 10: | (2.50%)
-  // 11: --
-  // 12: --
+  // 11:  (0.83%)
+  // 12:  (0.83%)
   //
   // Minimum Hamming distance: 5
-  // Maximum Hamming distance: 10
+  // Maximum Hamming distance: 12
+  // Minimum Hamming weight: 4
+  // Maximum Hamming weight: 8
   //
   localparam int StateWidth = 12;
   typedef enum logic [StateWidth-1:0] {
-    ResetSt         = 12'b001001101010,
+    ResetSt         = 12'b011000001110,
     InitSt          = 12'b110100100111,
     InitWaitSt      = 12'b001110110001,
     InitDescrSt     = 12'b110010000100,
-    InitDescrWaitSt = 12'b101000011100,
-    IdleSt          = 12'b100110101000,
-    IntegScrSt      = 12'b010101001101,
-    IntegScrWaitSt  = 12'b110101011010,
-    IntegDigClrSt   = 12'b011000011011,
-    IntegDigSt      = 12'b101001000001,
-    IntegDigPadSt   = 12'b101111010111,
+    InitDescrWaitSt = 12'b100110101000,
+    IdleSt          = 12'b010101001101,
+    IntegScrSt      = 12'b110101011010,
+    IntegScrWaitSt  = 12'b100010011111,
+    IntegDigClrSt   = 12'b101001000001,
+    IntegDigSt      = 12'b011101100010,
+    IntegDigPadSt   = 12'b001101010111,
     IntegDigFinSt   = 12'b011011100101,
     IntegDigWaitSt  = 12'b100011110010,
-    CnstyReadSt     = 12'b111111101110,
-    CnstyReadWaitSt = 12'b001100000110,
-    ErrorSt         = 12'b000011011001
+    CnstyReadSt     = 12'b000001101011,
+    CnstyReadWaitSt = 12'b101001111100,
+    ErrorSt         = 12'b010110111110
   } state_e;
 
   typedef enum logic {
@@ -158,8 +163,8 @@ module otp_ctrl_part_buf
   data_sel_e data_sel;
   base_sel_e base_sel;
   mubi8_t dout_locked_d, dout_locked_q;
-  logic [CntWidth-1:0] cnt_d, cnt_q;
-  logic cnt_en, cnt_clr;
+  logic [CntWidth-1:0] cnt;
+  logic cnt_en, cnt_clr, cnt_err;
   logic ecc_err;
   logic buffer_reg_en;
   logic [ScrmblBlockWidth-1:0] data_mux;
@@ -240,7 +245,7 @@ module otp_ctrl_part_buf
             // Once we've read and descrambled the whole partition, we can go to integrity
             // verification. Note that the last block is the digest value, which does not
             // have to be descrambled.
-            if (cnt_q == LastScrmblBlock) begin
+            if (cnt == LastScrmblBlock) begin
               state_d = IntegDigClrSt;
             // Only need to descramble if this is a scrambled partition.
             // Otherwise, we can just go back to InitSt and read the next block.
@@ -352,7 +357,7 @@ module otp_ctrl_part_buf
               if (scrmbl_data_o == data_mux || check_byp_en_i == lc_ctrl_pkg::On) begin
                 // Can go back to idle and acknowledge the
                 // request if this is the last block.
-                if (cnt_q == LastScrmblBlock) begin
+                if (cnt == LastScrmblBlock) begin
                   state_d = IdleSt;
                   cnsty_chk_ack_o = 1'b1;
                 // Need to go back and read out more blocks.
@@ -447,11 +452,11 @@ module otp_ctrl_part_buf
         if (scrmbl_ready_i) begin
           cnt_en = 1'b1;
           // No need to digest the digest value itself
-          if (cnt_q == PenultimateScrmblBlock) begin
+          if (cnt == PenultimateScrmblBlock) begin
             // Note that the digest operates on 128bit blocks since the data is fed in via the
             // PRESENT key input. Therefore, we only trigger a digest update on every second
             // 64bit block that is pushed into the scrambling datapath.
-            if (cnt_q[0]) begin
+            if (cnt[0]) begin
               scrmbl_cmd_o = Digest;
               state_d = IntegDigFinSt;
             end else begin
@@ -460,7 +465,7 @@ module otp_ctrl_part_buf
             end
           end else begin
             // Trigger digest round in case this is the second block in a row.
-            if (cnt_q[0]) begin
+            if (cnt[0]) begin
               scrmbl_cmd_o = Digest;
             end
             // Go back and scramble the next data block if this is
@@ -555,7 +560,7 @@ module otp_ctrl_part_buf
         error_d = CheckFailError;
       end
     end
-    if (escalate_en_i != lc_ctrl_pkg::Off) begin
+    if (escalate_en_i != lc_ctrl_pkg::Off || cnt_err) begin
       state_d = ErrorSt;
       if (state_q != ErrorSt) begin
         error_d = FsmStateError;
@@ -569,8 +574,21 @@ module otp_ctrl_part_buf
 
   // Address counter - this is only used for computing a digest, hence the increment is
   // fixed to 8 byte.
-  assign cnt_d = (cnt_clr) ? '0           :
-                 (cnt_en)  ? cnt_q + 1'b1 : cnt_q;
+  prim_count #(
+    .Width(CntWidth),
+    .OutSelDnCnt(0), // count up
+    .CntStyle(prim_count_pkg::CrossCnt)
+  ) u_prim_count (
+    .clk_i,
+    .rst_ni,
+    .clr_i(cnt_clr),
+    .set_i(1'b0),
+    .set_cnt_i('0),
+    .en_i(cnt_en),
+    .step_i(CntWidth'(1)),
+    .cnt_o(cnt),
+    .err_o(cnt_err)
+  );
 
   logic [OtpByteAddrWidth-1:0] addr_base;
   assign addr_base = (base_sel == DigOffset) ? DigestOffset : Info.offset;
@@ -578,7 +596,7 @@ module otp_ctrl_part_buf
   // Note that OTP works on halfword (16bit) addresses, hence need to
   // shift the addresses appropriately.
   logic [OtpByteAddrWidth-1:0] addr_calc;
-  assign addr_calc = OtpByteAddrWidth'({cnt_q, {$clog2(ScrmblBlockWidth/8){1'b0}}}) + addr_base;
+  assign addr_calc = OtpByteAddrWidth'({cnt, {$clog2(ScrmblBlockWidth/8){1'b0}}}) + addr_base;
   assign otp_addr_o = addr_calc[OtpByteAddrWidth-1:OtpAddrShift];
 
   if (OtpAddrShift > 0) begin : gen_unused
@@ -590,7 +608,7 @@ module otp_ctrl_part_buf
   assign otp_size_o = OtpSizeWidth'(unsigned'(ScrmblBlockWidth / OtpWidth) - 1);
 
   logic [Info.size*8-1:0] data;
-  assign scrmbl_data_o = data[{cnt_q, {$clog2(ScrmblBlockWidth){1'b0}}} +: ScrmblBlockWidth];
+  assign scrmbl_data_o = data[{cnt, {$clog2(ScrmblBlockWidth){1'b0}}} +: ScrmblBlockWidth];
 
   assign data_mux = (data_sel == ScrmblData) ? scrmbl_data_i : otp_rdata_i;
 
@@ -605,7 +623,7 @@ module otp_ctrl_part_buf
     .clk_i,
     .rst_ni,
     .wren_i    ( buffer_reg_en ),
-    .addr_i    ( cnt_q         ),
+    .addr_i    ( cnt         ),
     .wdata_i   ( data_mux      ),
     .data_o    ( data          ),
     .ecc_err_o ( ecc_err       )
@@ -667,25 +685,24 @@ module otp_ctrl_part_buf
   // flops in order to prevent FSM state encoding optimizations.
   logic [StateWidth-1:0] state_raw_q;
   assign state_q = state_e'(state_raw_q);
-  prim_flop #(
+  prim_sparse_fsm_flop #(
+    .StateEnumT(state_e),
     .Width(StateWidth),
     .ResetValue(StateWidth'(ResetSt))
   ) u_state_regs (
     .clk_i,
     .rst_ni,
-    .d_i ( state_d     ),
-    .q_o ( state_raw_q )
+    .state_i ( state_d     ),
+    .state_o ( state_raw_q )
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
       error_q       <= NoError;
-      cnt_q         <= '0;
       // data output is locked by default
       dout_locked_q <= MuBi8True;
     end else begin
       error_q       <= error_d;
-      cnt_q         <= cnt_d;
       dout_locked_q <= dout_locked_d;
     end
   end

@@ -40,7 +40,7 @@ class FsmState(IntEnum):
     there has been a fatal error. It matches Status.LOCKED.
 
     PRE_EXEC, FETCH_WAIT, EXEC, POST_EXEC and LOCKING correspond to
-    Status.BUSY_EXECUTE.  PRE_EXEC is the period after starting OTBN where we're
+    Status.BUSY_EXECUTE. PRE_EXEC is the period after starting OTBN where we're
     still waiting for an EDN value to seed URND. FETCH_WAIT is the single cycle
     delay after seeding URND to fill the prefetch stage. EXEC is the period
     where we start fetching and executing instructions.
@@ -104,8 +104,13 @@ class OTBNState:
         self.urnd_256b = 4 * [0]
         self.urnd_64b = 0
 
-        # This flag is set to true if we've injected integrity errors, trashing
-        # the whole of IMEM. The next fetch should fail.
+        # To simulate injecting integrity errors, we set a flag to say that
+        # IMEM is no longer readable without getting an error. This can't take
+        # effect instantly because the RTL's prefetch stage (which we don't
+        # model except for matching its timing) has a copy of the next
+        # instruction. Make this a counter, decremented once per cycle. When we
+        # get to zero, we set the flag.
+        self._time_to_imem_invalidation = None  # type: Optional[int]
         self.invalidated_imem = False
 
     def get_next_pc(self) -> int:
@@ -147,6 +152,12 @@ class OTBNState:
         # Reset the 32b package counter and wait until receiving done
         # signal from RTL
         self.urnd_256b_counter = 0
+
+    def set_keymgr_value(self, key0: int, key1: int, valid: int) -> None:
+        assert 0 <= key0 < (1 << 384)
+        assert 0 <= key1 < (1 << 384)
+        self.wsrs.KeyS0.write_unsigned(key0 if valid else None)
+        self.wsrs.KeyS1.write_unsigned(key1 if valid else None)
 
     def edn_rnd_step(self, rnd_data: int) -> None:
         # Take the new data
@@ -265,6 +276,12 @@ class OTBNState:
         # We shouldn't be running commit() in IDLE or LOCKED mode
         assert self.running()
 
+        if self._time_to_imem_invalidation is not None:
+            self._time_to_imem_invalidation -= 1
+            if self._time_to_imem_invalidation == 0:
+                self.invalidated_imem = True
+                self._time_to_imem_invalidation = None
+
         # Check if we processed the RND data, if so set the register. This is
         # done seperately from the rnd_completed method because in other case
         # we are exiting stall caused by RND waiting by one cycle too early.
@@ -327,8 +344,11 @@ class OTBNState:
         # POST_EXEC to allow one more cycle.
         if self.pending_halt:
             self.ext_regs.commit()
-            self.fsm_state = (FsmState.LOCKING
-                              if self._err_bits >> 16 else FsmState.POST_EXEC)
+            if self._err_bits >> 16:
+                self.ext_regs.write('INSN_CNT', 0, True)
+                self.fsm_state = FsmState.LOCKING
+            else:
+                self.fsm_state = FsmState.POST_EXEC
             return
 
         # As pending_halt wasn't set, there shouldn't be any pending error bits
@@ -498,3 +518,6 @@ class OTBNState:
         '''
         self._err_bits |= err_bits
         self.pending_halt = True
+
+    def invalidate_imem(self) -> None:
+        self._time_to_imem_invalidation = 2

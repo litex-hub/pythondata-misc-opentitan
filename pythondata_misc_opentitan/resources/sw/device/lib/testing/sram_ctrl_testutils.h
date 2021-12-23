@@ -10,45 +10,41 @@
 
 #include "sw/device/lib/dif/dif_sram_ctrl.h"
 
-/*
- * Adds the first parameter to the second parameter and returns the result.
- *
- * The main use-case is to map this function pointer onto a buffer holding
- * SRAM execution test instructions. The assumption is that this buffer holds
- * instruction[0] = add a0, a1, a0, instruction[1] = jalr zero, 0(ra).
+/**
+ * Test buffer size in words and bytes.
  */
-typedef uint32_t (*sram_ctrl_testutils_exec_function_t)(volatile uint32_t,
-                                                        volatile uint32_t);
+#define SRAM_CTRL_TESTUTILS_DATA_NUM_WORDS 4
+#define SRAM_CTRL_TESTUTILS_DATA_NUM_BYTES \
+  (SRAM_CTRL_TESTUTILS_DATA_NUM_WORDS * sizeof(uint32_t))
 
 /**
  * A typed representation of the test data.
  */
-#define SRAM_CTRL_DATA_NUM_WORDS 4
-#define SRAM_CTRL_DATA_NUM_BYTES 128
-typedef struct sram_ctrl_data {
-  uint32_t words[SRAM_CTRL_DATA_NUM_WORDS];
-} sram_ctrl_data_t;
+typedef struct sram_ctrl_testutils_data {
+  uint32_t words[SRAM_CTRL_TESTUTILS_DATA_NUM_WORDS];
+} sram_ctrl_testutils_data_t;
 
 /**
  * Writes `data` at the `address` in RAM.
  */
-void sram_ctrl_testutils_write(uintptr_t address, const sram_ctrl_data_t *data);
+void sram_ctrl_testutils_write(uintptr_t address,
+                               const sram_ctrl_testutils_data_t *data);
 
 /**
  * Reads data from `address` in SRAM and compares against `expected`.
  *
  * The data is checked for equality.
  */
-bool sram_ctrl_testutils_read_check_eq(uintptr_t address,
-                                       const sram_ctrl_data_t *expected);
+bool sram_ctrl_testutils_read_check_eq(
+    uintptr_t address, const sram_ctrl_testutils_data_t *expected);
 
 /**
  * Reads data from `address` in SRAM and compares against `expected`.
  *
  * The data is checked for inequality.
  */
-bool sram_ctrl_testutils_read_check_neq(uintptr_t address,
-                                        const sram_ctrl_data_t *expected);
+bool sram_ctrl_testutils_read_check_neq(
+    uintptr_t address, const sram_ctrl_testutils_data_t *expected);
 
 /**
  * Triggers the SRAM scrambling operation.
