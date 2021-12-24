@@ -4,53 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9284"
-version_tuple = (0, 0, 9284)
+version_str = "0.0.post9289"
+version_tuple = (0, 0, 9289)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9284")
+    pversion = V("0.0.post9289")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9171"
-data_version_tuple = (0, 0, 9171)
+data_version_str = "0.0.post9172"
+data_version_tuple = (0, 0, 9172)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9171")
+    pdata_version = V("0.0.post9172")
 except ImportError:
     pass
-data_git_hash = "5c710272c119a859e495b517e8833aea95eadd5f"
-data_git_describe = "v0.0-9171-g5c710272c"
+data_git_hash = "94308f5e5e4bc44b419463ec65ed91a577820790"
+data_git_describe = "v0.0-9172-g94308f5e5"
 data_git_msg = """\
-commit 5c710272c119a859e495b517e8833aea95eadd5f
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Dec 17 16:52:42 2021 -0800
+commit 94308f5e5e4bc44b419463ec65ed91a577820790
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Dec 22 17:14:43 2021 -0800
 
-    [ entropy_src, dv] Scoreboarding for Health Checks
+    [dv/pwrmgr] Add more checking into scoreboard
     
-    (Note: Some checks disabled in scoreboard due to bugs in DUT)
+    Predict the interrupt.
+    Add interrupt coverage.
     
-    - Health check scoreboarding is now functional
-      - Monitors input RNG, and applies health checks independently
-      - Creates predictions for watermarks, failures, and alerts
-      - Applies thresholds based on live register settings
-        - Handles both FIPS and BYPASS settings (still tesing BYPASS only, in smoke test)
-      - Base vseq now checks all watermark values at end of sim.
-      - Thresholds currently set to maximum tolerance, will test thresholds in a future PR
-    - Some differences in IP discovered
-      - Watermark registers are are not matching for the following tests: repcnt, repcnts
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post113"
-tool_version_tuple = (0, 0, 113)
+tool_version_str = "0.0.post117"
+tool_version_tuple = (0, 0, 117)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post113")
+    ptool_version = V("0.0.post117")
 except ImportError:
     pass
 
