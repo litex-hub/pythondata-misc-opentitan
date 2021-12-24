@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9290"
-version_tuple = (0, 0, 9290)
+version_str = "0.0.post9291"
+version_tuple = (0, 0, 9291)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9290")
+    pversion = V("0.0.post9291")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9173"
-data_version_tuple = (0, 0, 9173)
+data_version_str = "0.0.post9174"
+data_version_tuple = (0, 0, 9174)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9173")
+    pdata_version = V("0.0.post9174")
 except ImportError:
     pass
-data_git_hash = "854388d4644276f097acdacb1f4ed356b2d04ce2"
-data_git_describe = "v0.0-9173-g854388d46"
+data_git_hash = "da5559c67ae4b0bf1671b33090f82d8bf357c78b"
+data_git_describe = "v0.0-9174-gda5559c67"
 data_git_msg = """\
-commit 854388d4644276f097acdacb1f4ed356b2d04ce2
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Dec 23 13:58:25 2021 -0800
+commit da5559c67ae4b0bf1671b33090f82d8bf357c78b
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Dec 22 17:50:34 2021 -0800
 
-    [fpv/pinmux] Update pinmux existing assertions
+    [sram/dv] clean up scb to remove old backdoor checking
     
-    This PR updates the currect assertions to consider two more cases: sleep
-    and jtag.
+    The new backdoor checking was added in #9573, which is pretty stable.
+    Now removed the old backdoor checks. No other function change in this
+    update.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
