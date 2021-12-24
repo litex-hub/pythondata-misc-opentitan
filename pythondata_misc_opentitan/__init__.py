@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9293"
-version_tuple = (0, 0, 9293)
+version_str = "0.0.post9294"
+version_tuple = (0, 0, 9294)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9293")
+    pversion = V("0.0.post9294")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9176"
-data_version_tuple = (0, 0, 9176)
+data_version_str = "0.0.post9177"
+data_version_tuple = (0, 0, 9177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9176")
+    pdata_version = V("0.0.post9177")
 except ImportError:
     pass
-data_git_hash = "478730670dbe2a0342fbee7062dde7e7e7cc447d"
-data_git_describe = "v0.0-9176-g478730670"
+data_git_hash = "fe17d1cae4c7226d39284fa081de25e33b7e6b0d"
+data_git_describe = "v0.0-9177-gfe17d1cae"
 data_git_msg = """\
-commit 478730670dbe2a0342fbee7062dde7e7e7cc447d
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Dec 23 08:31:23 2021 -0800
+commit fe17d1cae4c7226d39284fa081de25e33b7e6b0d
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Thu Dec 23 17:06:10 2021 -0800
 
-    [top] Switch USB pads to new dual pad type
+    [ entropy_src ] Minor bug-fix in scoreboarding for repcnt & repcnts
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Whenever a new bit value or symbol is encountered, the repcnt and repcnts
+    scores should be expected to reset to 1 (1 repetition of most recent value).
+    
+    Previously the scoreboard expected a reset to 0 when finding a new bit/symbol.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
