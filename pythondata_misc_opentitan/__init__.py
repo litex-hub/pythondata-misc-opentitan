@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9299"
-version_tuple = (0, 0, 9299)
+version_str = "0.0.post9300"
+version_tuple = (0, 0, 9300)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9299")
+    pversion = V("0.0.post9300")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9182"
-data_version_tuple = (0, 0, 9182)
+data_version_str = "0.0.post9183"
+data_version_tuple = (0, 0, 9183)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9182")
+    pdata_version = V("0.0.post9183")
 except ImportError:
     pass
-data_git_hash = "28b1ab1451ee70ee6cee068b2f399aeea615cb5b"
-data_git_describe = "v0.0-9182-g28b1ab145"
+data_git_hash = "c85ddf7af30f139984f109df07cf82b544c5ecba"
+data_git_describe = "v0.0-9183-gc85ddf7af"
 data_git_msg = """\
-commit 28b1ab1451ee70ee6cee068b2f399aeea615cb5b
-Author: Dror Kabely <dror.kabely@opentitan.org>
-Date:   Thu Dec 23 17:36:52 2021 +0200
+commit c85ddf7af30f139984f109df07cf82b544c5ecba
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Dec 28 10:53:15 2021 -0800
 
-    [dv/mem_bkdr_util] added backdoor write of LC counter into LC partition in OTP
+    [fpv/script] Clean up script
     
-    Signed-off-by: Dror Kabely <dror.kabely@opentitan.org>
+    1. Clean up alert_handler's counter abstraction path because
+    alert_handler updated the counters to double_lsfr and prim_count.
+    2. Clean up result parsing script to continue the parsing script even
+    though there was coverage error. This can ensure we still have the
+    assertion pass/fail results.
+    3. Clean up port updates from rv_dm.
+    4. Downgrade a pwrmgr's error to warning, as both xcelium and VCS did
+    not report it as an error.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
