@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9297"
-version_tuple = (0, 0, 9297)
+version_str = "0.0.post9299"
+version_tuple = (0, 0, 9299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9297")
+    pversion = V("0.0.post9299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9180"
-data_version_tuple = (0, 0, 9180)
+data_version_str = "0.0.post9182"
+data_version_tuple = (0, 0, 9182)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9180")
+    pdata_version = V("0.0.post9182")
 except ImportError:
     pass
-data_git_hash = "0d61aa80799c9af33e2f6755dd6ddf28bca2f95a"
-data_git_describe = "v0.0-9180-g0d61aa807"
+data_git_hash = "28b1ab1451ee70ee6cee068b2f399aeea615cb5b"
+data_git_describe = "v0.0-9182-g28b1ab145"
 data_git_msg = """\
-commit 0d61aa80799c9af33e2f6755dd6ddf28bca2f95a
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Sat Dec 18 14:17:46 2021 -0800
+commit 28b1ab1451ee70ee6cee068b2f399aeea615cb5b
+Author: Dror Kabely <dror.kabely@opentitan.org>
+Date:   Thu Dec 23 17:36:52 2021 +0200
 
-    [csrng/dv] Modify seed generation/handling
+    [dv/mem_bkdr_util] added backdoor write of LC counter into LC partition in OTP
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Dror Kabely <dror.kabely@opentitan.org>
 
 """
 
