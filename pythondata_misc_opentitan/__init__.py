@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9302"
-version_tuple = (0, 0, 9302)
+version_str = "0.0.post9304"
+version_tuple = (0, 0, 9304)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9302")
+    pversion = V("0.0.post9304")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9185"
-data_version_tuple = (0, 0, 9185)
+data_version_str = "0.0.post9187"
+data_version_tuple = (0, 0, 9187)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9185")
+    pdata_version = V("0.0.post9187")
 except ImportError:
     pass
-data_git_hash = "72068eb8d367060e9731d3f6537009c48db87481"
-data_git_describe = "v0.0-9185-g72068eb8d"
+data_git_hash = "f3d772a52c4d32778f600124736468cd145524e1"
+data_git_describe = "v0.0-9187-gf3d772a52"
 data_git_msg = """\
-commit 72068eb8d367060e9731d3f6537009c48db87481
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Dec 23 17:21:49 2021 -0800
+commit f3d772a52c4d32778f600124736468cd145524e1
+Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
+Date:   Tue Dec 28 20:37:14 2021 +0000
 
-    [ entropy_src, rtl ] Improve watermarking for repcnt & repcnts
+    Bit transfer, async fifo and abort
     
-    - repcnt and repcnts ht outputs now indicate the largest repetition
-    count (regardless of threshold)
-    - watermarking can be updated even if not on the boundary of a
-    health check
-    
-    Fixes #9819
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
 
 """
 
