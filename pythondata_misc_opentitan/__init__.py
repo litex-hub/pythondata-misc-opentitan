@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9301"
-version_tuple = (0, 0, 9301)
+version_str = "0.0.post9302"
+version_tuple = (0, 0, 9302)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9301")
+    pversion = V("0.0.post9302")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9184"
-data_version_tuple = (0, 0, 9184)
+data_version_str = "0.0.post9185"
+data_version_tuple = (0, 0, 9185)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9184")
+    pdata_version = V("0.0.post9185")
 except ImportError:
     pass
-data_git_hash = "5711ee677dc28fc19894060c320df82a2ea6c381"
-data_git_describe = "v0.0-9184-g5711ee677"
+data_git_hash = "72068eb8d367060e9731d3f6537009c48db87481"
+data_git_describe = "v0.0-9185-g72068eb8d"
 data_git_msg = """\
-commit 5711ee677dc28fc19894060c320df82a2ea6c381
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Dec 28 12:09:46 2021 -0800
+commit 72068eb8d367060e9731d3f6537009c48db87481
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Thu Dec 23 17:21:49 2021 -0800
 
-    [fpv/pinmux] Update jtag pinmux assertion
+    [ entropy_src, rtl ] Improve watermarking for repcnt & repcnts
     
-    This PR adds assertions on jtag ports in pinmux based on internal
-    variable `tap_strap`.
-    Next PR will write assertions to ensure `tap_strap` is correct.
+    - repcnt and repcnts ht outputs now indicate the largest repetition
+    count (regardless of threshold)
+    - watermarking can be updated even if not on the boundary of a
+    health check
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Fixes #9819
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
