@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9300"
-version_tuple = (0, 0, 9300)
+version_str = "0.0.post9301"
+version_tuple = (0, 0, 9301)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9300")
+    pversion = V("0.0.post9301")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9183"
-data_version_tuple = (0, 0, 9183)
+data_version_str = "0.0.post9184"
+data_version_tuple = (0, 0, 9184)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9183")
+    pdata_version = V("0.0.post9184")
 except ImportError:
     pass
-data_git_hash = "c85ddf7af30f139984f109df07cf82b544c5ecba"
-data_git_describe = "v0.0-9183-gc85ddf7af"
+data_git_hash = "5711ee677dc28fc19894060c320df82a2ea6c381"
+data_git_describe = "v0.0-9184-g5711ee677"
 data_git_msg = """\
-commit c85ddf7af30f139984f109df07cf82b544c5ecba
+commit 5711ee677dc28fc19894060c320df82a2ea6c381
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Dec 28 10:53:15 2021 -0800
+Date:   Tue Dec 28 12:09:46 2021 -0800
 
-    [fpv/script] Clean up script
+    [fpv/pinmux] Update jtag pinmux assertion
     
-    1. Clean up alert_handler's counter abstraction path because
-    alert_handler updated the counters to double_lsfr and prim_count.
-    2. Clean up result parsing script to continue the parsing script even
-    though there was coverage error. This can ensure we still have the
-    assertion pass/fail results.
-    3. Clean up port updates from rv_dm.
-    4. Downgrade a pwrmgr's error to warning, as both xcelium and VCS did
-    not report it as an error.
+    This PR adds assertions on jtag ports in pinmux based on internal
+    variable `tap_strap`.
+    Next PR will write assertions to ensure `tap_strap` is correct.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
