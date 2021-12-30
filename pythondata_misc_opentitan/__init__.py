@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9304"
-version_tuple = (0, 0, 9304)
+version_str = "0.0.post9305"
+version_tuple = (0, 0, 9305)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9304")
+    pversion = V("0.0.post9305")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9187"
-data_version_tuple = (0, 0, 9187)
+data_version_str = "0.0.post9188"
+data_version_tuple = (0, 0, 9188)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9187")
+    pdata_version = V("0.0.post9188")
 except ImportError:
     pass
-data_git_hash = "f3d772a52c4d32778f600124736468cd145524e1"
-data_git_describe = "v0.0-9187-gf3d772a52"
+data_git_hash = "5493d4bd15d51449b36bbfae37193d9c763665cc"
+data_git_describe = "v0.0-9188-g5493d4bd1"
 data_git_msg = """\
-commit f3d772a52c4d32778f600124736468cd145524e1
-Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
-Date:   Tue Dec 28 20:37:14 2021 +0000
+commit 5493d4bd15d51449b36bbfae37193d9c763665cc
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Fri Dec 24 08:07:47 2021 -0800
 
-    Bit transfer, async fifo and abort
+    [entropy_src, dv] Restructuring of "rng" vseq
     
-    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
+    - Implemented scoreboarding for CSRNG bus seeds
+    - Added two new processings to RNG test
+       - A csrng pull thread
+       - A thread for sending CSR commands (which currently holds just some
+         placeholder commands, but will hold alert handling in a future PR)
+    - Added a new cfg variable "Duration" to control how long the test runs
+       - Currently the test runs for 7.5ms
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
