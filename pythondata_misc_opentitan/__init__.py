@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9307"
-version_tuple = (0, 0, 9307)
+version_str = "0.0.post9308"
+version_tuple = (0, 0, 9308)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9307")
+    pversion = V("0.0.post9308")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9190"
-data_version_tuple = (0, 0, 9190)
+data_version_str = "0.0.post9191"
+data_version_tuple = (0, 0, 9191)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9190")
+    pdata_version = V("0.0.post9191")
 except ImportError:
     pass
-data_git_hash = "76bb780cf56fc9d2375f8f9d1cb04f337516a0f3"
-data_git_describe = "v0.0-9190-g76bb780cf"
+data_git_hash = "bf6f6d15ba147ea7b0d95ff5b7cbca0789172e7c"
+data_git_describe = "v0.0-9191-gbf6f6d15b"
 data_git_msg = """\
-commit 76bb780cf56fc9d2375f8f9d1cb04f337516a0f3
+commit bf6f6d15ba147ea7b0d95ff5b7cbca0789172e7c
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Dec 29 14:11:28 2021 -0800
+Date:   Thu Dec 30 11:50:02 2021 -0800
 
-    [fpv/pinmux] Tapstrap assertion
+    [fpv/pinmux] Sleep mode and dio related assertions
     
-    This PR adds assertions on pinmux tapstrap selection.
+    This PR adds sleep mode assertions and DIO assertions.
+    A few failures filed an issue #9850 to clarify.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
