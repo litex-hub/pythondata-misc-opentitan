@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9324"
-version_tuple = (0, 0, 9324)
+version_str = "0.0.post9328"
+version_tuple = (0, 0, 9328)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9324")
+    pversion = V("0.0.post9328")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9207"
-data_version_tuple = (0, 0, 9207)
+data_version_str = "0.0.post9211"
+data_version_tuple = (0, 0, 9211)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9207")
+    pdata_version = V("0.0.post9211")
 except ImportError:
     pass
-data_git_hash = "7d2b7999be34022174ce5f112eb2bb573164c389"
-data_git_describe = "v0.0-9207-g7d2b7999b"
+data_git_hash = "9336f6d03fe6154c7d621d962d5eb402eb1c0332"
+data_git_describe = "v0.0-9211-g9336f6d03"
 data_git_msg = """\
-commit 7d2b7999be34022174ce5f112eb2bb573164c389
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Tue Dec 28 06:45:22 2021 -0800
+commit 9336f6d03fe6154c7d621d962d5eb402eb1c0332
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Dec 16 17:42:45 2021 +0000
 
-    [csrng/rtl] fsm default value incorrect
+    [spi_device] Add `addr_swap_en` to the swap condition
     
-    While doing state machine error testing, the default value for the drbg_updob fsm was found to be incorrect.
-    It needs to be the error state.
+    While adding `payload_swap_en` field in CMD_INFO, I missed to add
+    `addr_swap_en` to the swap enable condition. This commit revises to use
+    the config in CMD_INFO.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
