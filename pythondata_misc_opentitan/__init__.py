@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9310"
-version_tuple = (0, 0, 9310)
+version_str = "0.0.post9311"
+version_tuple = (0, 0, 9311)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9310")
+    pversion = V("0.0.post9311")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9193"
-data_version_tuple = (0, 0, 9193)
+data_version_str = "0.0.post9194"
+data_version_tuple = (0, 0, 9194)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9193")
+    pdata_version = V("0.0.post9194")
 except ImportError:
     pass
-data_git_hash = "331f25cb0c780dbf382bd601b8a5b7ac90c21f98"
-data_git_describe = "v0.0-9193-g331f25cb0"
+data_git_hash = "27685eff1a0dab971c32b94c1f04a53e54442097"
+data_git_describe = "v0.0-9194-g27685eff1"
 data_git_msg = """\
-commit 331f25cb0c780dbf382bd601b8a5b7ac90c21f98
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Dec 24 07:17:59 2021 -0800
+commit 27685eff1a0dab971c32b94c1f04a53e54442097
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Dec 10 18:58:04 2021 +0000
 
-    [sysrst_ctrl] Update Hjson
+    [otbn,util] Combine information- and control- flow to analyze OTBN.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Adds analysis tools that construct information-flow graphs for
+    subroutines or whole programs.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
