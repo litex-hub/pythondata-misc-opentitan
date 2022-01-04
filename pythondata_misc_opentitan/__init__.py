@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9321"
-version_tuple = (0, 0, 9321)
+version_str = "0.0.post9324"
+version_tuple = (0, 0, 9324)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9321")
+    pversion = V("0.0.post9324")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9204"
-data_version_tuple = (0, 0, 9204)
+data_version_str = "0.0.post9207"
+data_version_tuple = (0, 0, 9207)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9204")
+    pdata_version = V("0.0.post9207")
 except ImportError:
     pass
-data_git_hash = "8b675981e9a9f2a7ebadc2f7964e4b2437bacce6"
-data_git_describe = "v0.0-9204-g8b675981e"
+data_git_hash = "7d2b7999be34022174ce5f112eb2bb573164c389"
+data_git_describe = "v0.0-9207-g7d2b7999b"
 data_git_msg = """\
-commit 8b675981e9a9f2a7ebadc2f7964e4b2437bacce6
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Dec 16 18:08:59 2021 -0800
+commit 7d2b7999be34022174ce5f112eb2bb573164c389
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Dec 28 06:45:22 2021 -0800
 
-    [sw/dif] Add `toggle_to_bool()` and `bool_to_toggle()` to DIF base.
+    [csrng/rtl] fsm default value incorrect
     
-    Several DIF libraries had redefined the same logic to translate
-    `dif_toggle_t` types to/from bool types. This commit adds one shared
-    implementation of said functions, and removes the duplicates across
-    individual DIF libraries.
+    While doing state machine error testing, the default value for the drbg_updob fsm was found to be incorrect.
+    It needs to be the error state.
     
-    This partially addresses a task item in #9036.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
