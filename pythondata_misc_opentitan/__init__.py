@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9319"
-version_tuple = (0, 0, 9319)
+version_str = "0.0.post9321"
+version_tuple = (0, 0, 9321)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9319")
+    pversion = V("0.0.post9321")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9202"
-data_version_tuple = (0, 0, 9202)
+data_version_str = "0.0.post9204"
+data_version_tuple = (0, 0, 9204)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9202")
+    pdata_version = V("0.0.post9204")
 except ImportError:
     pass
-data_git_hash = "1fb5b0707159cac583a3deb8dced262358ef24b5"
-data_git_describe = "v0.0-9202-g1fb5b0707"
+data_git_hash = "8b675981e9a9f2a7ebadc2f7964e4b2437bacce6"
+data_git_describe = "v0.0-9204-g8b675981e"
 data_git_msg = """\
-commit 1fb5b0707159cac583a3deb8dced262358ef24b5
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Dec 23 10:12:53 2021 -0500
+commit 8b675981e9a9f2a7ebadc2f7964e4b2437bacce6
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Dec 16 18:08:59 2021 -0800
 
-    [sw/silicon_creator] Lock CREATOR_SW_CFG OTP partition in rom_ext
+    [sw/dif] Add `toggle_to_bool()` and `bool_to_toggle()` to DIF base.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Several DIF libraries had redefined the same logic to translate
+    `dif_toggle_t` types to/from bool types. This commit adds one shared
+    implementation of said functions, and removes the duplicates across
+    individual DIF libraries.
+    
+    This partially addresses a task item in #9036.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
