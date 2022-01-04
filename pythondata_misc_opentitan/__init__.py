@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9317"
-version_tuple = (0, 0, 9317)
+version_str = "0.0.post9319"
+version_tuple = (0, 0, 9319)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9317")
+    pversion = V("0.0.post9319")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9200"
-data_version_tuple = (0, 0, 9200)
+data_version_str = "0.0.post9202"
+data_version_tuple = (0, 0, 9202)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9200")
+    pdata_version = V("0.0.post9202")
 except ImportError:
     pass
-data_git_hash = "4d0617cb43e9965eeffe3b603c0d0b42b128d6ef"
-data_git_describe = "v0.0-9200-g4d0617cb4"
+data_git_hash = "1fb5b0707159cac583a3deb8dced262358ef24b5"
+data_git_describe = "v0.0-9202-g1fb5b0707"
 data_git_msg = """\
-commit 4d0617cb43e9965eeffe3b603c0d0b42b128d6ef
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Jan 4 08:08:07 2022 -0800
+commit 1fb5b0707159cac583a3deb8dced262358ef24b5
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Dec 23 10:12:53 2021 -0500
 
-    [rv_core_ibex] Minor fix in waiver comment
+    [sw/silicon_creator] Lock CREATOR_SW_CFG OTP partition in rom_ext
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
