@@ -4,36 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9312"
-version_tuple = (0, 0, 9312)
+version_str = "0.0.post9314"
+version_tuple = (0, 0, 9314)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9312")
+    pversion = V("0.0.post9314")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9195"
-data_version_tuple = (0, 0, 9195)
+data_version_str = "0.0.post9197"
+data_version_tuple = (0, 0, 9197)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9195")
+    pdata_version = V("0.0.post9197")
 except ImportError:
     pass
-data_git_hash = "a510f8e1f1ae7efd0f6924d376cea58295f2ce3b"
-data_git_describe = "v0.0-9195-ga510f8e1f"
+data_git_hash = "fafeaf223e11aa36e33606b9aadca4cd6b175863"
+data_git_describe = "v0.0-9197-gfafeaf223"
 data_git_msg = """\
-commit a510f8e1f1ae7efd0f6924d376cea58295f2ce3b
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Dec 7 09:45:55 2021 +0000
+commit fafeaf223e11aa36e33606b9aadca4cd6b175863
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 4 14:42:44 2022 +0000
 
-    [sw] Fix endianness bit in HMAC DIF.
+    [otbn] Widen prefetch_loop_end_addr to avoid overflow
     
-    According to the HMAC block specification, the digest is big-endian when
-    the `digest_swap` bit is 1, and little-endian if it's 0; the DIF had
-    these switched.
+    There's an amusing bug that you can trigger if you have something like
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+       loopi  123, 1025
+    
+    The problem is that 1025 instructions (the loop body length) works out
+    as 4096 + 4 bytes, so the correct value of prefetch_loop_end_addr is
+    something like old_addr + 4096 + 4.
+    
+    Unfortunately, 4096 is the size of IMEM so we were truncating this to
+    just old_addr + 4. This meant that the prefetch stage thought that the
+    following instruction was at the end of the loop and predicted a back
+    edge. Eventually, we failed the NoAddressMismatch assertion in
+    otbn_instruction_fetch.sv.
+    
+    The fix is to pass one extra bit in the address, just like we already
+    do with the check in the loop controller itself.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
