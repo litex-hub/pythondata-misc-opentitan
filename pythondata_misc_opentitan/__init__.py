@@ -4,49 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9314"
-version_tuple = (0, 0, 9314)
+version_str = "0.0.post9317"
+version_tuple = (0, 0, 9317)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9314")
+    pversion = V("0.0.post9317")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9197"
-data_version_tuple = (0, 0, 9197)
+data_version_str = "0.0.post9200"
+data_version_tuple = (0, 0, 9200)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9197")
+    pdata_version = V("0.0.post9200")
 except ImportError:
     pass
-data_git_hash = "fafeaf223e11aa36e33606b9aadca4cd6b175863"
-data_git_describe = "v0.0-9197-gfafeaf223"
+data_git_hash = "4d0617cb43e9965eeffe3b603c0d0b42b128d6ef"
+data_git_describe = "v0.0-9200-g4d0617cb4"
 data_git_msg = """\
-commit fafeaf223e11aa36e33606b9aadca4cd6b175863
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 4 14:42:44 2022 +0000
+commit 4d0617cb43e9965eeffe3b603c0d0b42b128d6ef
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Jan 4 08:08:07 2022 -0800
 
-    [otbn] Widen prefetch_loop_end_addr to avoid overflow
+    [rv_core_ibex] Minor fix in waiver comment
     
-    There's an amusing bug that you can trigger if you have something like
-    
-       loopi  123, 1025
-    
-    The problem is that 1025 instructions (the loop body length) works out
-    as 4096 + 4 bytes, so the correct value of prefetch_loop_end_addr is
-    something like old_addr + 4096 + 4.
-    
-    Unfortunately, 4096 is the size of IMEM so we were truncating this to
-    just old_addr + 4. This meant that the prefetch stage thought that the
-    following instruction was at the end of the loop and predicted a back
-    edge. Eventually, we failed the NoAddressMismatch assertion in
-    otbn_instruction_fetch.sv.
-    
-    The fix is to pass one extra bit in the address, just like we already
-    do with the check in the loop controller itself.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
