@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9331"
-version_tuple = (0, 0, 9331)
+version_str = "0.0.post9332"
+version_tuple = (0, 0, 9332)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9331")
+    pversion = V("0.0.post9332")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9214"
-data_version_tuple = (0, 0, 9214)
+data_version_str = "0.0.post9215"
+data_version_tuple = (0, 0, 9215)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9214")
+    pdata_version = V("0.0.post9215")
 except ImportError:
     pass
-data_git_hash = "66acab0f4de6194018614771c65399a6a6013fe0"
-data_git_describe = "v0.0-9214-g66acab0f4"
+data_git_hash = "37ec7a232eff9fc95fdbf5eabe1975e14a5dd318"
+data_git_describe = "v0.0-9215-g37ec7a232"
 data_git_msg = """\
-commit 66acab0f4de6194018614771c65399a6a6013fe0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jan 4 12:26:20 2022 -0800
+commit 37ec7a232eff9fc95fdbf5eabe1975e14a5dd318
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 4 13:58:55 2022 -0800
 
-    [fpv/pinmux] Add aon_clock and reset to run script
+    [dv/uart] Fix typo in scoreboard
     
-    This PR adds aon_clk and aon_rst to the fpv.tcl script.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
