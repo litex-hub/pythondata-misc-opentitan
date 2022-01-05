@@ -4,38 +4,59 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9343"
-version_tuple = (0, 0, 9343)
+version_str = "0.0.post9344"
+version_tuple = (0, 0, 9344)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9343")
+    pversion = V("0.0.post9344")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9226"
-data_version_tuple = (0, 0, 9226)
+data_version_str = "0.0.post9227"
+data_version_tuple = (0, 0, 9227)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9226")
+    pdata_version = V("0.0.post9227")
 except ImportError:
     pass
-data_git_hash = "2525a63545c489f42167bcfd1f563c5e083e757b"
-data_git_describe = "v0.0-9226-g2525a6354"
+data_git_hash = "5989d2abf4c3890f927579c9ba4b845cb6d553d0"
+data_git_describe = "v0.0-9227-g5989d2abf"
 data_git_msg = """\
-commit 2525a63545c489f42167bcfd1f563c5e083e757b
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 4 18:56:10 2022 -0800
+commit 5989d2abf4c3890f927579c9ba4b845cb6d553d0
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Wed Dec 22 17:18:55 2021 +0000
 
-    [dv/pwrmgr] Add escalation reset
+    [lc_ctrl/dv] Implemented jtag_access jtag_priority and regwen_during_op testpoints
     
-    Connect alert_esc_agent and cfg to environment.
-    Use escalation interface in testbench.
-    Remove useless ndm system reset inputs in pwrmgr_rstmgr SVA.
-    Add timeout if a WFI doesn't occur when transitioning to low power
-    for the sake of simplicity.
+    - Added test sequences:
+      - lc_ctrl_jtag_access_vseq to test the the mutex controlled registers via
+      both the locked and unlocked interface to verify the interfaces and mutex
+      control.
+      - lc_ctrl_jtag_priority_vseq to test that when claiming the mutex that
+      JTAG has priority over Tile Link
+      - lc_ctrl_regwen_during_op_vseq to test mutex controlled registers are
+      locked during state transition
+    - Added tests:
+      - lc_ctrl_jtag_access
+      - lc_ctrl_jtag_smoke
+      - lc_ctrl_jtag_state_post_trans
+      - lc_ctrl_jtag_errors
+      - lc_ctrl_jtag_prog_failure
+      - lc_ctrl_jtag_csr_hw_reset
+      - lc_ctrl_jtag_csr_rw
+      - lc_ctrl_jtag_csr_bit_bash
+      - lc_ctrl_jtag_csr_aliasing
+      - lc_ctrl_jtag_same_csr_outstanding
+      - lc_ctrl_jtag_csr_mem_rw_with_rand_reset
+      - lc_ctrl_jtag_alert_test
+      - lc_ctrl_regwen_during_op
+      - lc_ctrl_jtag_regwen_during_op
+    - Added regression jtag
+    - Fixed up sequences for corrected status ready bit semantics
+    from PR #9860
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
