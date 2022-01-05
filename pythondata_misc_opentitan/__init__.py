@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9341"
-version_tuple = (0, 0, 9341)
+version_str = "0.0.post9342"
+version_tuple = (0, 0, 9342)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9341")
+    pversion = V("0.0.post9342")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9224"
-data_version_tuple = (0, 0, 9224)
+data_version_str = "0.0.post9225"
+data_version_tuple = (0, 0, 9225)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9224")
+    pdata_version = V("0.0.post9225")
 except ImportError:
     pass
-data_git_hash = "037e7f9a9c368e181df96fb31662ba37cc9d968b"
-data_git_describe = "v0.0-9224-g037e7f9a9"
+data_git_hash = "73a8c733d890bb9769ac354524e3b07af995aabd"
+data_git_describe = "v0.0-9225-g73a8c733d"
 data_git_msg = """\
-commit 037e7f9a9c368e181df96fb31662ba37cc9d968b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Jan 5 15:53:11 2022 +0000
+commit 73a8c733d890bb9769ac354524e3b07af995aabd
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jan 4 15:52:20 2022 -0800
 
-    [chip,dv] Fix compilation for private CI
+    [dv/tools] Fix alert ping exclusion
     
-    This code come from PR 9740 (commit c1cf4a8), which needed updating
-    for commit 28b1ab1451, merged in the meantime.
+    Fix alert ping exclusion only apply to DUT level but not
+    prim_alert_sender level.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
