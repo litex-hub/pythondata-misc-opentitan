@@ -4,36 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9328"
-version_tuple = (0, 0, 9328)
+version_str = "0.0.post9329"
+version_tuple = (0, 0, 9329)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9328")
+    pversion = V("0.0.post9329")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9211"
-data_version_tuple = (0, 0, 9211)
+data_version_str = "0.0.post9212"
+data_version_tuple = (0, 0, 9212)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9211")
+    pdata_version = V("0.0.post9212")
 except ImportError:
     pass
-data_git_hash = "9336f6d03fe6154c7d621d962d5eb402eb1c0332"
-data_git_describe = "v0.0-9211-g9336f6d03"
+data_git_hash = "616eadc1a1133ac45421f32ecc8d4458ca1daf4c"
+data_git_describe = "v0.0-9212-g616eadc1a"
 data_git_msg = """\
-commit 9336f6d03fe6154c7d621d962d5eb402eb1c0332
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Dec 16 17:42:45 2021 +0000
+commit 616eadc1a1133ac45421f32ecc8d4458ca1daf4c
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Dec 30 15:28:51 2021 -0800
 
-    [spi_device] Add `addr_swap_en` to the swap condition
+    [sram/dv] Enable stress test
     
-    While adding `payload_swap_en` field in CMD_INFO, I missed to add
-    `addr_swap_en` to the swap enable condition. This commit revises to use
-    the config in CMD_INFO.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Also fix some failures in stress_all and stress_all with reset
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
