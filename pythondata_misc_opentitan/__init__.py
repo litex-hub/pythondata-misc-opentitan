@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9340"
-version_tuple = (0, 0, 9340)
+version_str = "0.0.post9341"
+version_tuple = (0, 0, 9341)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9340")
+    pversion = V("0.0.post9341")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9223"
-data_version_tuple = (0, 0, 9223)
+data_version_str = "0.0.post9224"
+data_version_tuple = (0, 0, 9224)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9223")
+    pdata_version = V("0.0.post9224")
 except ImportError:
     pass
-data_git_hash = "92c57334f99f03b11830f3a8a58b2615f003fe33"
-data_git_describe = "v0.0-9223-g92c57334f"
+data_git_hash = "037e7f9a9c368e181df96fb31662ba37cc9d968b"
+data_git_describe = "v0.0-9224-g037e7f9a9"
 data_git_msg = """\
-commit 92c57334f99f03b11830f3a8a58b2615f003fe33
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Thu Dec 23 08:56:34 2021 -0800
+commit 037e7f9a9c368e181df96fb31662ba37cc9d968b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Jan 5 15:53:11 2022 +0000
 
-    [pwm/dv] adding pwm env
+    [chip,dv] Fix compilation for private CI
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    This code come from PR 9740 (commit c1cf4a8), which needed updating
+    for commit 28b1ab1451, merged in the meantime.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
