@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9329"
-version_tuple = (0, 0, 9329)
+version_str = "0.0.post9331"
+version_tuple = (0, 0, 9331)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9329")
+    pversion = V("0.0.post9331")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9212"
-data_version_tuple = (0, 0, 9212)
+data_version_str = "0.0.post9214"
+data_version_tuple = (0, 0, 9214)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9212")
+    pdata_version = V("0.0.post9214")
 except ImportError:
     pass
-data_git_hash = "616eadc1a1133ac45421f32ecc8d4458ca1daf4c"
-data_git_describe = "v0.0-9212-g616eadc1a"
+data_git_hash = "66acab0f4de6194018614771c65399a6a6013fe0"
+data_git_describe = "v0.0-9214-g66acab0f4"
 data_git_msg = """\
-commit 616eadc1a1133ac45421f32ecc8d4458ca1daf4c
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Dec 30 15:28:51 2021 -0800
+commit 66acab0f4de6194018614771c65399a6a6013fe0
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jan 4 12:26:20 2022 -0800
 
-    [sram/dv] Enable stress test
+    [fpv/pinmux] Add aon_clock and reset to run script
     
-    Also fix some failures in stress_all and stress_all with reset
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR adds aon_clk and aon_rst to the fpv.tcl script.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
