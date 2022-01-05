@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9332"
-version_tuple = (0, 0, 9332)
+version_str = "0.0.post9333"
+version_tuple = (0, 0, 9333)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9332")
+    pversion = V("0.0.post9333")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9215"
-data_version_tuple = (0, 0, 9215)
+data_version_str = "0.0.post9216"
+data_version_tuple = (0, 0, 9216)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9215")
+    pdata_version = V("0.0.post9216")
 except ImportError:
     pass
-data_git_hash = "37ec7a232eff9fc95fdbf5eabe1975e14a5dd318"
-data_git_describe = "v0.0-9215-g37ec7a232"
+data_git_hash = "32517dee2de8b39438e289f85f4b4353683a9812"
+data_git_describe = "v0.0-9216-g32517dee2"
 data_git_msg = """\
-commit 37ec7a232eff9fc95fdbf5eabe1975e14a5dd318
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 4 13:58:55 2022 -0800
+commit 32517dee2de8b39438e289f85f4b4353683a9812
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 4 17:48:24 2022 +0000
 
-    [dv/uart] Fix typo in scoreboard
+    [otbn,dv] Fix loop warping for 1st iteration of single insn loop
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    The previous code looked at current_loop_d.iterations but the problem
+    is that if the loop has only one instruction then the count has
+    already been decremented the first time we check.
+    
+    Fix things by looking at current_loop_q.iterations and then fixing
+    things up appropriately for updating the "_d version" afterwards.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
