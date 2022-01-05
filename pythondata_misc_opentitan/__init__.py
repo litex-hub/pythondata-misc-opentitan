@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9342"
-version_tuple = (0, 0, 9342)
+version_str = "0.0.post9343"
+version_tuple = (0, 0, 9343)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9342")
+    pversion = V("0.0.post9343")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9225"
-data_version_tuple = (0, 0, 9225)
+data_version_str = "0.0.post9226"
+data_version_tuple = (0, 0, 9226)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9225")
+    pdata_version = V("0.0.post9226")
 except ImportError:
     pass
-data_git_hash = "73a8c733d890bb9769ac354524e3b07af995aabd"
-data_git_describe = "v0.0-9225-g73a8c733d"
+data_git_hash = "2525a63545c489f42167bcfd1f563c5e083e757b"
+data_git_describe = "v0.0-9226-g2525a6354"
 data_git_msg = """\
-commit 73a8c733d890bb9769ac354524e3b07af995aabd
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jan 4 15:52:20 2022 -0800
+commit 2525a63545c489f42167bcfd1f563c5e083e757b
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 4 18:56:10 2022 -0800
 
-    [dv/tools] Fix alert ping exclusion
+    [dv/pwrmgr] Add escalation reset
     
-    Fix alert ping exclusion only apply to DUT level but not
-    prim_alert_sender level.
+    Connect alert_esc_agent and cfg to environment.
+    Use escalation interface in testbench.
+    Remove useless ndm system reset inputs in pwrmgr_rstmgr SVA.
+    Add timeout if a WFI doesn't occur when transitioning to low power
+    for the sake of simplicity.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
