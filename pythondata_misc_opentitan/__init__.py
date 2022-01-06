@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9350"
-version_tuple = (0, 0, 9350)
+version_str = "0.0.post9351"
+version_tuple = (0, 0, 9351)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9350")
+    pversion = V("0.0.post9351")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9233"
-data_version_tuple = (0, 0, 9233)
+data_version_str = "0.0.post9234"
+data_version_tuple = (0, 0, 9234)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9233")
+    pdata_version = V("0.0.post9234")
 except ImportError:
     pass
-data_git_hash = "f508d2d9b15bd147cb444749c0b7fea0756ea252"
-data_git_describe = "v0.0-9233-gf508d2d9b"
+data_git_hash = "2eebef3247ac10bfa8147218d105091fe22472b6"
+data_git_describe = "v0.0-9234-g2eebef324"
 data_git_msg = """\
-commit f508d2d9b15bd147cb444749c0b7fea0756ea252
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Thu Dec 30 12:04:47 2021 -0800
+commit 2eebef3247ac10bfa8147218d105091fe22472b6
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Jan 5 14:38:12 2022 -0800
 
-    [csrng/dv] Updated testplan, Create/debug stress_all_vseq/test
+    [pinmux] Fix wakeup detector MIO selection mux
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Fix #9890
+    
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
