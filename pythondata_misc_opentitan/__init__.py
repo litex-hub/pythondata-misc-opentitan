@@ -4,35 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9353"
-version_tuple = (0, 0, 9353)
+version_str = "0.0.post9355"
+version_tuple = (0, 0, 9355)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9353")
+    pversion = V("0.0.post9355")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9236"
-data_version_tuple = (0, 0, 9236)
+data_version_str = "0.0.post9238"
+data_version_tuple = (0, 0, 9238)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9236")
+    pdata_version = V("0.0.post9238")
 except ImportError:
     pass
-data_git_hash = "bc899d7c848f203ee42e1b3e104b5924211e6c0b"
-data_git_describe = "v0.0-9236-gbc899d7c8"
+data_git_hash = "cb56b467022a58683cdbf5589cc7a8a7c15944a6"
+data_git_describe = "v0.0-9238-gcb56b4670"
 data_git_msg = """\
-commit bc899d7c848f203ee42e1b3e104b5924211e6c0b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Dec 14 18:07:15 2021 +0000
+commit cb56b467022a58683cdbf5589cc7a8a7c15944a6
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Jan 4 19:00:40 2022 +0100
 
-    [otbn,dv,doc] Write an explicit note about coverage for CSRs/WSRs
+    [prim_xilinx] Replace KEEP with DONT_TOUCH attributes
     
-    Coverage for these are tracked elsewhere, but it's probably helpful to
-    leave a pointer for anyone who's thinking about them at a block level.
+    Previously, we have been using KEEP attributes to prevent synthesis
+    optimizations across these primitives to ensure that FI and SCA
+    countermeasures are not optimized away. However, according to the
+    Vivado Design Suite User Guide: Synthesis (UG901), the KEEP attribute
+    is commonly used in conjunction with timing constraints but
+    doesn't force place and route to keep the signal. Instead, the
+    DONT_TOUCH attribute is recommended for this purpose (see Chapter 2):
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    "Unlike KEEP and KEEP_HIERARCHY, DONT_TOUCH is forward-annotated to
+    place and route to prevent logic optimization."
+    
+    In addition, the KEEP/DONT_TOUCH attributes are not supported on ports
+    of modules and instead should be applied to the module itself.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
