@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9351"
-version_tuple = (0, 0, 9351)
+version_str = "0.0.post9353"
+version_tuple = (0, 0, 9353)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9351")
+    pversion = V("0.0.post9353")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9234"
-data_version_tuple = (0, 0, 9234)
+data_version_str = "0.0.post9236"
+data_version_tuple = (0, 0, 9236)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9234")
+    pdata_version = V("0.0.post9236")
 except ImportError:
     pass
-data_git_hash = "2eebef3247ac10bfa8147218d105091fe22472b6"
-data_git_describe = "v0.0-9234-g2eebef324"
+data_git_hash = "bc899d7c848f203ee42e1b3e104b5924211e6c0b"
+data_git_describe = "v0.0-9236-gbc899d7c8"
 data_git_msg = """\
-commit 2eebef3247ac10bfa8147218d105091fe22472b6
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Jan 5 14:38:12 2022 -0800
+commit bc899d7c848f203ee42e1b3e104b5924211e6c0b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Dec 14 18:07:15 2021 +0000
 
-    [pinmux] Fix wakeup detector MIO selection mux
+    [otbn,dv,doc] Write an explicit note about coverage for CSRs/WSRs
     
-    Fix #9890
+    Coverage for these are tracked elsewhere, but it's probably helpful to
+    leave a pointer for anyone who's thinking about them at a block level.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
