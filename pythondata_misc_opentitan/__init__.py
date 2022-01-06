@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9358"
-version_tuple = (0, 0, 9358)
+version_str = "0.0.post9360"
+version_tuple = (0, 0, 9360)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9358")
+    pversion = V("0.0.post9360")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9241"
-data_version_tuple = (0, 0, 9241)
+data_version_str = "0.0.post9243"
+data_version_tuple = (0, 0, 9243)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9241")
+    pdata_version = V("0.0.post9243")
 except ImportError:
     pass
-data_git_hash = "02337e0ce70da9f42ec23401505a3f63fc4a432b"
-data_git_describe = "v0.0-9241-g02337e0ce"
+data_git_hash = "b5eefa44470c62121d4556b349ef2709b7e69bce"
+data_git_describe = "v0.0-9243-gb5eefa444"
 data_git_msg = """\
-commit 02337e0ce70da9f42ec23401505a3f63fc4a432b
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Jan 5 14:44:44 2022 -0800
+commit b5eefa44470c62121d4556b349ef2709b7e69bce
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Jan 4 06:09:24 2022 -0800
 
-    [csrng/dv] Modify for efuse, certain enables off
+    [spi_host/dv] modified transactional behavior for more randomized behavior
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
