@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9362"
-version_tuple = (0, 0, 9362)
+version_str = "0.0.post9366"
+version_tuple = (0, 0, 9366)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9362")
+    pversion = V("0.0.post9366")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9245"
-data_version_tuple = (0, 0, 9245)
+data_version_str = "0.0.post9249"
+data_version_tuple = (0, 0, 9249)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9245")
+    pdata_version = V("0.0.post9249")
 except ImportError:
     pass
-data_git_hash = "d43b1b22cad9d9f9326773101bb637b8dfe140ef"
-data_git_describe = "v0.0-9245-gd43b1b22c"
+data_git_hash = "30fced74b749946898a6c655e9f81895e8d8400d"
+data_git_describe = "v0.0-9249-g30fced74b"
 data_git_msg = """\
-commit d43b1b22cad9d9f9326773101bb637b8dfe140ef
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Jan 6 16:05:18 2022 +0100
+commit 30fced74b749946898a6c655e9f81895e8d8400d
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jan 5 22:19:04 2022 -0800
 
-    [top_englishbreakfast] Update utility script for removing autogen files
+    [sram/dv] Update testplan and fix unmapped test
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Remove partiy test as it's replaced by passthru_mem_tl_intg_err
+    Add stress_all
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
