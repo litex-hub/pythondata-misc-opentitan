@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9349"
-version_tuple = (0, 0, 9349)
+version_str = "0.0.post9350"
+version_tuple = (0, 0, 9350)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9349")
+    pversion = V("0.0.post9350")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9232"
-data_version_tuple = (0, 0, 9232)
+data_version_str = "0.0.post9233"
+data_version_tuple = (0, 0, 9233)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9232")
+    pdata_version = V("0.0.post9233")
 except ImportError:
     pass
-data_git_hash = "3dab726bc1ece248cba95611400ca55ceaa5a848"
-data_git_describe = "v0.0-9232-g3dab726bc"
+data_git_hash = "f508d2d9b15bd147cb444749c0b7fea0756ea252"
+data_git_describe = "v0.0-9233-gf508d2d9b"
 data_git_msg = """\
-commit 3dab726bc1ece248cba95611400ca55ceaa5a848
-Author: Palmer Dabbelt <palmer@rivosinc.com>
-Date:   Wed Jan 5 16:36:02 2022 -0800
+commit f508d2d9b15bd147cb444749c0b7fea0756ea252
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Thu Dec 30 12:04:47 2021 -0800
 
-    [doc] Fix a grammatical error in ug/design
+    [csrng/dv] Updated testplan, Create/debug stress_all_vseq/test
     
-    Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
