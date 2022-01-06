@@ -4,46 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9355"
-version_tuple = (0, 0, 9355)
+version_str = "0.0.post9358"
+version_tuple = (0, 0, 9358)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9355")
+    pversion = V("0.0.post9358")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9238"
-data_version_tuple = (0, 0, 9238)
+data_version_str = "0.0.post9241"
+data_version_tuple = (0, 0, 9241)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9238")
+    pdata_version = V("0.0.post9241")
 except ImportError:
     pass
-data_git_hash = "cb56b467022a58683cdbf5589cc7a8a7c15944a6"
-data_git_describe = "v0.0-9238-gcb56b4670"
+data_git_hash = "02337e0ce70da9f42ec23401505a3f63fc4a432b"
+data_git_describe = "v0.0-9241-g02337e0ce"
 data_git_msg = """\
-commit cb56b467022a58683cdbf5589cc7a8a7c15944a6
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Jan 4 19:00:40 2022 +0100
+commit 02337e0ce70da9f42ec23401505a3f63fc4a432b
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Jan 5 14:44:44 2022 -0800
 
-    [prim_xilinx] Replace KEEP with DONT_TOUCH attributes
+    [csrng/dv] Modify for efuse, certain enables off
     
-    Previously, we have been using KEEP attributes to prevent synthesis
-    optimizations across these primitives to ensure that FI and SCA
-    countermeasures are not optimized away. However, according to the
-    Vivado Design Suite User Guide: Synthesis (UG901), the KEEP attribute
-    is commonly used in conjunction with timing constraints but
-    doesn't force place and route to keep the signal. Instead, the
-    DONT_TOUCH attribute is recommended for this purpose (see Chapter 2):
-    
-    "Unlike KEEP and KEEP_HIERARCHY, DONT_TOUCH is forward-annotated to
-    place and route to prevent logic optimization."
-    
-    In addition, the KEEP/DONT_TOUCH attributes are not supported on ports
-    of modules and instead should be applied to the module itself.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
