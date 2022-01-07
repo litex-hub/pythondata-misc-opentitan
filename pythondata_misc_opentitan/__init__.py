@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9388"
-version_tuple = (0, 0, 9388)
+version_str = "0.0.post9390"
+version_tuple = (0, 0, 9390)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9388")
+    pversion = V("0.0.post9390")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9271"
-data_version_tuple = (0, 0, 9271)
+data_version_str = "0.0.post9273"
+data_version_tuple = (0, 0, 9273)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9271")
+    pdata_version = V("0.0.post9273")
 except ImportError:
     pass
-data_git_hash = "a8f89ad1ed328fde67c0e67d8bb0ca4748033974"
-data_git_describe = "v0.0-9271-ga8f89ad1e"
+data_git_hash = "fbb37b1a04097143cfa7b0c26477e5b9b4884327"
+data_git_describe = "v0.0-9273-gfbb37b1a0"
 data_git_msg = """\
-commit a8f89ad1ed328fde67c0e67d8bb0ca4748033974
+commit fbb37b1a04097143cfa7b0c26477e5b9b4884327
 Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jan 6 22:47:04 2022 -0800
+Date:   Thu Jan 6 14:04:30 2022 -0800
 
-    [sram/dv] add sram_ctrl_regwen_vseq
+    [sram/dv] Update DV doc
     
-    `ctrl` CSR is excluded in csr tests and it's gated by ctrl_regwen.
-    Add this test to verify it
+    Update the memory scb checkings
     
     Signed-off-by: Weicai Yang <weicai@google.com>
 
