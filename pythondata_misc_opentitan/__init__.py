@@ -4,42 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9367"
-version_tuple = (0, 0, 9367)
+version_str = "0.0.post9368"
+version_tuple = (0, 0, 9368)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9367")
+    pversion = V("0.0.post9368")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9250"
-data_version_tuple = (0, 0, 9250)
+data_version_str = "0.0.post9251"
+data_version_tuple = (0, 0, 9251)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9250")
+    pdata_version = V("0.0.post9251")
 except ImportError:
     pass
-data_git_hash = "029d20f5daf06c862b1b8b426a923b28efffd90b"
-data_git_describe = "v0.0-9250-g029d20f5d"
+data_git_hash = "a870ebef5ed5cd119647f00ffc5a028a56d88785"
+data_git_describe = "v0.0-9251-ga870ebef5"
 data_git_msg = """\
-commit 029d20f5daf06c862b1b8b426a923b28efffd90b
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Jan 5 20:56:01 2022 -0800
+commit a870ebef5ed5cd119647f00ffc5a028a56d88785
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 6 11:21:07 2022 -0800
 
-    [dv/pwrmgr] Add more pwrmgr SVAs
+    [fpv/pinmux] Add aon_wkup assertions
     
-    Add SVA checking the incoming reset requests cause rstreqs outputs to
-    rstmgr to respond correctly.
-    Bind clkmgr_pwrmgr_sva_if into pwrmgr to check clk_en/status protocol.
-    Fix some SVAs to be less rigid without loosing checks.
-    Split clkmgr_pwrmgr_sva_if.sv into separate target for sharing.
-    Improve escalation stimulus to get cleared when pwrmgr requests lc reset.
-    Clear resets at the end of each wakeup_reset round in case they were disabled.
-    Disable estclk_ctrl selection at the end of each extclk sequence round.
-    Minor formatting fixes for verible.
+    This PR adds aon_wkup_o assertions and changes aon_clk rate to be slower
+    than clk_i.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
