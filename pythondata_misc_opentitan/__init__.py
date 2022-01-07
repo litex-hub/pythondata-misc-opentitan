@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9368"
-version_tuple = (0, 0, 9368)
+version_str = "0.0.post9369"
+version_tuple = (0, 0, 9369)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9368")
+    pversion = V("0.0.post9369")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9251"
-data_version_tuple = (0, 0, 9251)
+data_version_str = "0.0.post9252"
+data_version_tuple = (0, 0, 9252)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9251")
+    pdata_version = V("0.0.post9252")
 except ImportError:
     pass
-data_git_hash = "a870ebef5ed5cd119647f00ffc5a028a56d88785"
-data_git_describe = "v0.0-9251-ga870ebef5"
+data_git_hash = "464b15e6e07714a7f4a9d380a42dae97b8e6baf4"
+data_git_describe = "v0.0-9252-g464b15e6e"
 data_git_msg = """\
-commit a870ebef5ed5cd119647f00ffc5a028a56d88785
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jan 6 11:21:07 2022 -0800
+commit 464b15e6e07714a7f4a9d380a42dae97b8e6baf4
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jan 6 15:35:11 2022 -0800
 
-    [fpv/pinmux] Add aon_wkup assertions
+    [dv] intg_err test cleanup and change passthru_mem_tl_intg_err to V2S
     
-    This PR adds aon_wkup_o assertions and changes aon_clk rate to be slower
-    than clk_i.
+    Clean up some unused codes
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
