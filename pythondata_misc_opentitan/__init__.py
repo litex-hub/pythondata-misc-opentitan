@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9369"
-version_tuple = (0, 0, 9369)
+version_str = "0.0.post9370"
+version_tuple = (0, 0, 9370)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9369")
+    pversion = V("0.0.post9370")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9252"
-data_version_tuple = (0, 0, 9252)
+data_version_str = "0.0.post9253"
+data_version_tuple = (0, 0, 9253)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9252")
+    pdata_version = V("0.0.post9253")
 except ImportError:
     pass
-data_git_hash = "464b15e6e07714a7f4a9d380a42dae97b8e6baf4"
-data_git_describe = "v0.0-9252-g464b15e6e"
+data_git_hash = "26887cb975e0512920b9359e5ee41d887d1f5601"
+data_git_describe = "v0.0-9253-g26887cb97"
 data_git_msg = """\
-commit 464b15e6e07714a7f4a9d380a42dae97b8e6baf4
+commit 26887cb975e0512920b9359e5ee41d887d1f5601
 Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jan 6 15:35:11 2022 -0800
+Date:   Thu Jan 6 15:37:09 2022 -0800
 
-    [dv] intg_err test cleanup and change passthru_mem_tl_intg_err to V2S
+    [sram/dv] Fix intg_err test
     
-    Clean up some unused codes
-    
+    Shouldn't do sram_init for intg_err test. Only apply init for
+    passthru_mem test
     Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
