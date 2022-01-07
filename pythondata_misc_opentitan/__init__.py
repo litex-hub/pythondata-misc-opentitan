@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9370"
-version_tuple = (0, 0, 9370)
+version_str = "0.0.post9377"
+version_tuple = (0, 0, 9377)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9370")
+    pversion = V("0.0.post9377")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9253"
-data_version_tuple = (0, 0, 9253)
+data_version_str = "0.0.post9260"
+data_version_tuple = (0, 0, 9260)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9253")
+    pdata_version = V("0.0.post9260")
 except ImportError:
     pass
-data_git_hash = "26887cb975e0512920b9359e5ee41d887d1f5601"
-data_git_describe = "v0.0-9253-g26887cb97"
+data_git_hash = "6e5dec042bd61fa5ff5da3acbb30041e7686e62f"
+data_git_describe = "v0.0-9260-g6e5dec042"
 data_git_msg = """\
-commit 26887cb975e0512920b9359e5ee41d887d1f5601
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jan 6 15:37:09 2022 -0800
+commit 6e5dec042bd61fa5ff5da3acbb30041e7686e62f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 6 17:12:11 2022 -0800
 
-    [sram/dv] Fix intg_err test
+    [dv/top_level] Update top-level kmac testplan
     
-    Shouldn't do sram_init for intg_err test. Only apply init for
-    passthru_mem test
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    As the email discussion with David, Michael, and Weicai.
+    This PR updates top-level kmac testplan related to `entropy_timer`.
+    This is replaced by EDN and `entropy_refresh` registers.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
