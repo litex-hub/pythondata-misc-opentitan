@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9377"
-version_tuple = (0, 0, 9377)
+version_str = "0.0.post9383"
+version_tuple = (0, 0, 9383)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9377")
+    pversion = V("0.0.post9383")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9260"
-data_version_tuple = (0, 0, 9260)
+data_version_str = "0.0.post9266"
+data_version_tuple = (0, 0, 9266)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9260")
+    pdata_version = V("0.0.post9266")
 except ImportError:
     pass
-data_git_hash = "6e5dec042bd61fa5ff5da3acbb30041e7686e62f"
-data_git_describe = "v0.0-9260-g6e5dec042"
+data_git_hash = "a41c0a57568f1dc8263a4ecc3913f190750959f5"
+data_git_describe = "v0.0-9266-ga41c0a575"
 data_git_msg = """\
-commit 6e5dec042bd61fa5ff5da3acbb30041e7686e62f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jan 6 17:12:11 2022 -0800
+commit a41c0a57568f1dc8263a4ecc3913f190750959f5
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Jan 5 04:37:04 2022 -0800
 
-    [dv/top_level] Update top-level kmac testplan
+    [prim_filter_cnt] Make threshold runtime programmable
     
-    As the email discussion with David, Michael, and Weicai.
-    This PR updates top-level kmac testplan related to `entropy_timer`.
-    This is replaced by EDN and `entropy_refresh` registers.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
