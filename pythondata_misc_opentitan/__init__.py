@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9385"
-version_tuple = (0, 0, 9385)
+version_str = "0.0.post9387"
+version_tuple = (0, 0, 9387)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9385")
+    pversion = V("0.0.post9387")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9268"
-data_version_tuple = (0, 0, 9268)
+data_version_str = "0.0.post9270"
+data_version_tuple = (0, 0, 9270)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9268")
+    pdata_version = V("0.0.post9270")
 except ImportError:
     pass
-data_git_hash = "e05b0e5e0c99970cb7fb79124b44dbf5fa15455b"
-data_git_describe = "v0.0-9268-ge05b0e5e0"
+data_git_hash = "0eb98eb2d1b72c72e9577b1d7c5a38b72cbe4933"
+data_git_describe = "v0.0-9270-g0eb98eb2d"
 data_git_msg = """\
-commit e05b0e5e0c99970cb7fb79124b44dbf5fa15455b
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Jan 7 05:57:03 2022 -0800
+commit 0eb98eb2d1b72c72e9577b1d7c5a38b72cbe4933
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 6 14:15:15 2022 -0800
 
-    [csrng/doc] fix lc_hw_debug_en comment
+    [fpv/pinmux] Add an entry for chip_earlgrey settings
     
-    The statement in the hjson file is not true anymore, removed.
+    This PR adds a hjson entry for pinmux with chip_earlgrey settings.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
