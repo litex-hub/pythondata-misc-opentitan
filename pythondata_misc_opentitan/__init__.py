@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9402"
-version_tuple = (0, 0, 9402)
+version_str = "0.0.post9408"
+version_tuple = (0, 0, 9408)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9402")
+    pversion = V("0.0.post9408")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9284"
-data_version_tuple = (0, 0, 9284)
+data_version_str = "0.0.post9290"
+data_version_tuple = (0, 0, 9290)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9284")
+    pdata_version = V("0.0.post9290")
 except ImportError:
     pass
-data_git_hash = "1d09fe63935b80842a13096f52fd0a09a9f57bd2"
-data_git_describe = "v0.0-9284-g1d09fe639"
+data_git_hash = "d97b4a0fe8c4370169799cb4b2783833b716e26f"
+data_git_describe = "v0.0-9290-gd97b4a0fe"
 data_git_msg = """\
-commit 1d09fe63935b80842a13096f52fd0a09a9f57bd2
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Jan 10 08:57:46 2022 -0800
+commit d97b4a0fe8c4370169799cb4b2783833b716e26f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sat Jan 8 12:00:41 2022 -0800
 
-    [pinmux/doc] Minor update
+    [fpv/pinmux] Add dio/mio_attr_o assertions
     
-    This removes the "chicken" switch terminology from sram_ctrl docs,
-    as it may be confusing.
+    This PR adds assertions for d/mio_attr_o output based on the attr csr
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
