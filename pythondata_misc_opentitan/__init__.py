@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9408"
-version_tuple = (0, 0, 9408)
+version_str = "0.0.post9409"
+version_tuple = (0, 0, 9409)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9408")
+    pversion = V("0.0.post9409")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9290"
-data_version_tuple = (0, 0, 9290)
+data_version_str = "0.0.post9291"
+data_version_tuple = (0, 0, 9291)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9290")
+    pdata_version = V("0.0.post9291")
 except ImportError:
     pass
-data_git_hash = "d97b4a0fe8c4370169799cb4b2783833b716e26f"
-data_git_describe = "v0.0-9290-gd97b4a0fe"
+data_git_hash = "f97c020377051ee4816f152f235a195093555775"
+data_git_describe = "v0.0-9291-gf97c02037"
 data_git_msg = """\
-commit d97b4a0fe8c4370169799cb4b2783833b716e26f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sat Jan 8 12:00:41 2022 -0800
+commit f97c020377051ee4816f152f235a195093555775
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Thu Jan 6 17:37:42 2022 +0000
 
-    [fpv/pinmux] Add dio/mio_attr_o assertions
+    [rom_ctrl, dv] Added passthru mem test
     
-    This PR adds assertions for d/mio_attr_o output based on the attr csr
+    Added all the necessary changes to include
+    rom_ctrl_passthru_mem_tl_intg_err for rom controller module
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
