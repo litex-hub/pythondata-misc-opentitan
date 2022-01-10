@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9400"
-version_tuple = (0, 0, 9400)
+version_str = "0.0.post9401"
+version_tuple = (0, 0, 9401)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9400")
+    pversion = V("0.0.post9401")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9282"
-data_version_tuple = (0, 0, 9282)
+data_version_str = "0.0.post9283"
+data_version_tuple = (0, 0, 9283)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9282")
+    pdata_version = V("0.0.post9283")
 except ImportError:
     pass
-data_git_hash = "1a55e94b62470c933d59e4d3dfedfc689eb0df76"
-data_git_describe = "v0.0-9282-g1a55e94b6"
+data_git_hash = "9d7908ff11d7904de3866499f3554e0c7ca1919d"
+data_git_describe = "v0.0-9283-g9d7908ff1"
 data_git_msg = """\
-commit 1a55e94b62470c933d59e4d3dfedfc689eb0df76
-Author: Alex Bradbury <asb@lowrisc.org>
-Date:   Mon Jan 10 15:11:06 2022 +0000
+commit 9d7908ff11d7904de3866499f3554e0c7ca1919d
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Jan 7 08:26:17 2022 -0800
 
-    [site/landing] Add Winbond partner logo
+    [prim_assert,dv] Use if condition in assert_init
     
-    Signed-off-by: Alex Bradbury <asb@lowrisc.org>
+    In this context, an if condition and assert statement exhibit the same
+    behavior. For some strange reason, the fix made in #9017 for Xcelium
+    (addition of #0 delay) worked for IP level testbenches but not the chip
+    level. The chip level tests returned the same error (race condition
+    causing the signal value to reflect an X, failing the assertion). This
+    may very well be a tool bug, where Xcelium is sampling the preponed
+    value of the signal when it shouldn't, but this seems to not be
+    reproducible in a standalone testcase (given that IP level testbenches
+    work fine). So in the interest of time, we just switch this out to a if
+    condition, which has an added advantage of begin immune to assert
+    control system tasks.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
