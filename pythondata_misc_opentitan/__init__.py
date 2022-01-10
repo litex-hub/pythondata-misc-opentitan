@@ -4,44 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9401"
-version_tuple = (0, 0, 9401)
+version_str = "0.0.post9402"
+version_tuple = (0, 0, 9402)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9401")
+    pversion = V("0.0.post9402")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9283"
-data_version_tuple = (0, 0, 9283)
+data_version_str = "0.0.post9284"
+data_version_tuple = (0, 0, 9284)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9283")
+    pdata_version = V("0.0.post9284")
 except ImportError:
     pass
-data_git_hash = "9d7908ff11d7904de3866499f3554e0c7ca1919d"
-data_git_describe = "v0.0-9283-g9d7908ff1"
+data_git_hash = "1d09fe63935b80842a13096f52fd0a09a9f57bd2"
+data_git_describe = "v0.0-9284-g1d09fe639"
 data_git_msg = """\
-commit 9d7908ff11d7904de3866499f3554e0c7ca1919d
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Jan 7 08:26:17 2022 -0800
+commit 1d09fe63935b80842a13096f52fd0a09a9f57bd2
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Jan 10 08:57:46 2022 -0800
 
-    [prim_assert,dv] Use if condition in assert_init
+    [pinmux/doc] Minor update
     
-    In this context, an if condition and assert statement exhibit the same
-    behavior. For some strange reason, the fix made in #9017 for Xcelium
-    (addition of #0 delay) worked for IP level testbenches but not the chip
-    level. The chip level tests returned the same error (race condition
-    causing the signal value to reflect an X, failing the assertion). This
-    may very well be a tool bug, where Xcelium is sampling the preponed
-    value of the signal when it shouldn't, but this seems to not be
-    reproducible in a standalone testcase (given that IP level testbenches
-    work fine). So in the interest of time, we just switch this out to a if
-    condition, which has an added advantage of begin immune to assert
-    control system tasks.
+    This removes the "chicken" switch terminology from sram_ctrl docs,
+    as it may be confusing.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
