@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9399"
-version_tuple = (0, 0, 9399)
+version_str = "0.0.post9400"
+version_tuple = (0, 0, 9400)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9399")
+    pversion = V("0.0.post9400")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9281"
-data_version_tuple = (0, 0, 9281)
+data_version_str = "0.0.post9282"
+data_version_tuple = (0, 0, 9282)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9281")
+    pdata_version = V("0.0.post9282")
 except ImportError:
     pass
-data_git_hash = "405e3219f6b4081a18255dca7a67678b9051c4f7"
-data_git_describe = "v0.0-9281-g405e3219f"
+data_git_hash = "1a55e94b62470c933d59e4d3dfedfc689eb0df76"
+data_git_describe = "v0.0-9282-g1a55e94b6"
 data_git_msg = """\
-commit 405e3219f6b4081a18255dca7a67678b9051c4f7
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Jan 7 18:07:21 2022 +0000
+commit 1a55e94b62470c933d59e4d3dfedfc689eb0df76
+Author: Alex Bradbury <asb@lowrisc.org>
+Date:   Mon Jan 10 15:11:06 2022 +0000
 
-    [sw,crypto] Adjust parameters for R^2 algorithm on Ibex.
+    [site/landing] Add Winbond partner logo
     
-    Because the operands in this computation are always powers of 2, it is
-    equivalent to square the operand or to perform a certain number of
-    (modular) doublings. For small numbers the doublings are faster and for
-    larger ones the squaring is faster; the cutoff where this happens for
-    our implementation is at 2^96 (empirically determined).
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alex Bradbury <asb@lowrisc.org>
 
 """
 
