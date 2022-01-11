@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9432"
-version_tuple = (0, 0, 9432)
+version_str = "0.0.post9440"
+version_tuple = (0, 0, 9440)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9432")
+    pversion = V("0.0.post9440")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9314"
-data_version_tuple = (0, 0, 9314)
+data_version_str = "0.0.post9322"
+data_version_tuple = (0, 0, 9322)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9314")
+    pdata_version = V("0.0.post9322")
 except ImportError:
     pass
-data_git_hash = "ad632a0c8b5586b310773f0bceff2c794695830a"
-data_git_describe = "v0.0-9314-gad632a0c8"
+data_git_hash = "1a8b6f6e50d57ebf82c18de6e680d7c7382a6849"
+data_git_describe = "v0.0-9322-g1a8b6f6e5"
 data_git_msg = """\
-commit ad632a0c8b5586b310773f0bceff2c794695830a
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jan 10 17:24:18 2022 -0800
+commit 1a8b6f6e50d57ebf82c18de6e680d7c7382a6849
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Jan 4 07:17:25 2022 -0800
 
-    [fpv/script] Update tcl script
+    [csrng/edn/entropy_src] Align countermeasure naming
     
-    This PR updates fpv.tcl script with some latest jaspergold changes.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
