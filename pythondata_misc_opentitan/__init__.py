@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9414"
-version_tuple = (0, 0, 9414)
+version_str = "0.0.post9416"
+version_tuple = (0, 0, 9416)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9414")
+    pversion = V("0.0.post9416")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9296"
-data_version_tuple = (0, 0, 9296)
+data_version_str = "0.0.post9298"
+data_version_tuple = (0, 0, 9298)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9296")
+    pdata_version = V("0.0.post9298")
 except ImportError:
     pass
-data_git_hash = "241d606a8a9e1e274c0dcad2ad390d1c28721cf3"
-data_git_describe = "v0.0-9296-g241d606a8"
+data_git_hash = "827b23227e7ef0beaafe73920cba51a56e8e0afa"
+data_git_describe = "v0.0-9298-g827b23227"
 data_git_msg = """\
-commit 241d606a8a9e1e274c0dcad2ad390d1c28721cf3
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Jan 10 14:06:36 2022 -0800
+commit 827b23227e7ef0beaafe73920cba51a56e8e0afa
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Jan 10 11:23:50 2022 -0800
 
-    [sram/dv] Minor DV doc update
+    [pinmux/doc] Update docs
     
-    1. added prim_prince, prim_lfsr are verified separately
-    2. added using different INSTR_EXEC parameter for ret and main sram
+    Fix #9953
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Indicate that all pad attribute CSRs have WARL access, and make a note
+    that the pad attributes will be temporarily forced to 0 on the JTAG IOs
+    when they are activated.
+    
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
