@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9424"
-version_tuple = (0, 0, 9424)
+version_str = "0.0.post9425"
+version_tuple = (0, 0, 9425)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9424")
+    pversion = V("0.0.post9425")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9306"
-data_version_tuple = (0, 0, 9306)
+data_version_str = "0.0.post9307"
+data_version_tuple = (0, 0, 9307)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9306")
+    pdata_version = V("0.0.post9307")
 except ImportError:
     pass
-data_git_hash = "eadef042fa31019ab3174d6c48ab743b9af40495"
-data_git_describe = "v0.0-9306-geadef042f"
+data_git_hash = "a894cec40a0fe19ecce2bbbf3d06699f074a8d9b"
+data_git_describe = "v0.0-9307-ga894cec40"
 data_git_msg = """\
-commit eadef042fa31019ab3174d6c48ab743b9af40495
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Mon Jan 10 07:54:25 2022 +0000
+commit a894cec40a0fe19ecce2bbbf3d06699f074a8d9b
+Author: Luís Marques <luismarques@lowrisc.org>
+Date:   Fri Jan 7 00:35:13 2022 +0000
 
-    [rom_ctrl, dv] combined successful_rom_chk test with smoke test
+    [sw, host] Update Mundane version
     
-    Based on V1 review comments, successful_rom_chk test is combined with
-    rom_ctrl_smoke testcase.
+    This updates the dependency Mundane to version 0.5.0. That version includes
+    the latest BoringSSL version, which fixes compilation errors with recent
+    versions of GCC.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
 
 """
 
