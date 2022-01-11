@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9431"
-version_tuple = (0, 0, 9431)
+version_str = "0.0.post9432"
+version_tuple = (0, 0, 9432)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9431")
+    pversion = V("0.0.post9432")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9313"
-data_version_tuple = (0, 0, 9313)
+data_version_str = "0.0.post9314"
+data_version_tuple = (0, 0, 9314)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9313")
+    pdata_version = V("0.0.post9314")
 except ImportError:
     pass
-data_git_hash = "56ab31bb62792dd25cbf61da91c215bdf1f51d38"
-data_git_describe = "v0.0-9313-g56ab31bb6"
+data_git_hash = "ad632a0c8b5586b310773f0bceff2c794695830a"
+data_git_describe = "v0.0-9314-gad632a0c8"
 data_git_msg = """\
-commit 56ab31bb62792dd25cbf61da91c215bdf1f51d38
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Wed Dec 22 12:57:06 2021 -0800
+commit ad632a0c8b5586b310773f0bceff2c794695830a
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Jan 10 17:24:18 2022 -0800
 
-    [spi_host/dv] adding framework for the coverage model
+    [fpv/script] Update tcl script
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    This PR updates fpv.tcl script with some latest jaspergold changes.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
