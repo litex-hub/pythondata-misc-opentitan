@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9409"
-version_tuple = (0, 0, 9409)
+version_str = "0.0.post9414"
+version_tuple = (0, 0, 9414)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9409")
+    pversion = V("0.0.post9414")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9291"
-data_version_tuple = (0, 0, 9291)
+data_version_str = "0.0.post9296"
+data_version_tuple = (0, 0, 9296)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9291")
+    pdata_version = V("0.0.post9296")
 except ImportError:
     pass
-data_git_hash = "f97c020377051ee4816f152f235a195093555775"
-data_git_describe = "v0.0-9291-gf97c02037"
+data_git_hash = "241d606a8a9e1e274c0dcad2ad390d1c28721cf3"
+data_git_describe = "v0.0-9296-g241d606a8"
 data_git_msg = """\
-commit f97c020377051ee4816f152f235a195093555775
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Thu Jan 6 17:37:42 2022 +0000
+commit 241d606a8a9e1e274c0dcad2ad390d1c28721cf3
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Jan 10 14:06:36 2022 -0800
 
-    [rom_ctrl, dv] Added passthru mem test
+    [sram/dv] Minor DV doc update
     
-    Added all the necessary changes to include
-    rom_ctrl_passthru_mem_tl_intg_err for rom controller module
+    1. added prim_prince, prim_lfsr are verified separately
+    2. added using different INSTR_EXEC parameter for ret and main sram
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
