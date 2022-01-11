@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9440"
-version_tuple = (0, 0, 9440)
+version_str = "0.0.post9443"
+version_tuple = (0, 0, 9443)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9440")
+    pversion = V("0.0.post9443")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9322"
-data_version_tuple = (0, 0, 9322)
+data_version_str = "0.0.post9325"
+data_version_tuple = (0, 0, 9325)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9322")
+    pdata_version = V("0.0.post9325")
 except ImportError:
     pass
-data_git_hash = "1a8b6f6e50d57ebf82c18de6e680d7c7382a6849"
-data_git_describe = "v0.0-9322-g1a8b6f6e5"
+data_git_hash = "33e0d1e65b289c01f8c8edcfc0fa6bcfad114924"
+data_git_describe = "v0.0-9325-g33e0d1e65"
 data_git_msg = """\
-commit 1a8b6f6e50d57ebf82c18de6e680d7c7382a6849
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Jan 4 07:17:25 2022 -0800
+commit 33e0d1e65b289c01f8c8edcfc0fa6bcfad114924
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Jan 7 13:56:41 2022 -0800
 
-    [csrng/edn/entropy_src] Align countermeasure naming
+    [dif/alert_handler] Add alert configuration DIF.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Previously, the only way to configure an alert within the alert handler
+    was to build a rather large struct that would configure all alerts
+    within a class. (Re)Configuring a single alert had the side of effect of
+    reconfiguring the class too.
+    
+    This commit adds a DIF to configure a single alert, i.e., enable it, set
+    its class, and lock it. This partially addresses #9899.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
