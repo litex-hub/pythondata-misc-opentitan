@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9429"
-version_tuple = (0, 0, 9429)
+version_str = "0.0.post9431"
+version_tuple = (0, 0, 9431)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9429")
+    pversion = V("0.0.post9431")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9311"
-data_version_tuple = (0, 0, 9311)
+data_version_str = "0.0.post9313"
+data_version_tuple = (0, 0, 9313)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9311")
+    pdata_version = V("0.0.post9313")
 except ImportError:
     pass
-data_git_hash = "57af03763aeb10cffba4ab97806934539246f776"
-data_git_describe = "v0.0-9311-g57af03763"
+data_git_hash = "56ab31bb62792dd25cbf61da91c215bdf1f51d38"
+data_git_describe = "v0.0-9313-g56ab31bb6"
 data_git_msg = """\
-commit 57af03763aeb10cffba4ab97806934539246f776
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jan 6 18:09:40 2022 -0800
+commit 56ab31bb62792dd25cbf61da91c215bdf1f51d38
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Wed Dec 22 12:57:06 2021 -0800
 
-    [dv/pwrmgr] Update documentation and checklist
+    [spi_host/dv] adding framework for the coverage model
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
