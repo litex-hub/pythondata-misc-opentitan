@@ -4,45 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9423"
-version_tuple = (0, 0, 9423)
+version_str = "0.0.post9424"
+version_tuple = (0, 0, 9424)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9423")
+    pversion = V("0.0.post9424")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9305"
-data_version_tuple = (0, 0, 9305)
+data_version_str = "0.0.post9306"
+data_version_tuple = (0, 0, 9306)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9305")
+    pdata_version = V("0.0.post9306")
 except ImportError:
     pass
-data_git_hash = "b293e9467b1cb828ed5794ec93d7007d73ce6565"
-data_git_describe = "v0.0-9305-gb293e9467"
+data_git_hash = "eadef042fa31019ab3174d6c48ab743b9af40495"
+data_git_describe = "v0.0-9306-geadef042f"
 data_git_msg = """\
-commit b293e9467b1cb828ed5794ec93d7007d73ce6565
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Jan 7 14:29:41 2022 +0000
+commit eadef042fa31019ab3174d6c48ab743b9af40495
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Mon Jan 10 07:54:25 2022 +0000
 
-    [otbn,dv] Only run the exp_end_addr check for some runs
+    [rom_ctrl, dv] combined successful_rom_chk test with smoke test
     
-    The expected end address check wasn't quite working now that we had a
-    key sideload interface. The problem is that if you read from one of
-    the sideload key WSRs when there's no key, the operation immediately
-    stops with an error. That's fine, but we won't stop at the address we
-    expected.
+    Based on V1 review comments, successful_rom_chk test is combined with
+    rom_ctrl_smoke testcase.
     
-    To allow this check to run at least some of the time (giving us more
-    confidence in the rig), we define a new absent_key_allowed flag. If
-    it's true, we use the normal key sideload sequence and disable the
-    check. If it's false, we grab control of the sideload sequencer and
-    run a specialised version where the key might change, but it always
-    has a value. In this case, we can assert the end address again.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
