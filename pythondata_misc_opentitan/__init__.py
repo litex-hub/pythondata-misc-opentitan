@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9425"
-version_tuple = (0, 0, 9425)
+version_str = "0.0.post9426"
+version_tuple = (0, 0, 9426)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9425")
+    pversion = V("0.0.post9426")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9307"
-data_version_tuple = (0, 0, 9307)
+data_version_str = "0.0.post9308"
+data_version_tuple = (0, 0, 9308)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9307")
+    pdata_version = V("0.0.post9308")
 except ImportError:
     pass
-data_git_hash = "a894cec40a0fe19ecce2bbbf3d06699f074a8d9b"
-data_git_describe = "v0.0-9307-ga894cec40"
+data_git_hash = "2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4"
+data_git_describe = "v0.0-9308-g2d6cd7a7e"
 data_git_msg = """\
-commit a894cec40a0fe19ecce2bbbf3d06699f074a8d9b
-Author: Luís Marques <luismarques@lowrisc.org>
-Date:   Fri Jan 7 00:35:13 2022 +0000
+commit 2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Jan 11 11:55:00 2022 +0000
 
-    [sw, host] Update Mundane version
+    Revert "[pinmux_wkup] Change comparison to GE to stay on the safe side"
     
-    This updates the dependency Mundane to version 0.5.0. That version includes
-    the latest BoringSSL version, which fixes compilation errors with recent
-    versions of GCC.
+    This reverts commit 9f2fccf76a250c5398514da8a9bda98c544a9ee0.
     
-    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
+    This fixes an FPGA timing failure that is breaking CI.
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
