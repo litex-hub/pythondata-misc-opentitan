@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9426"
-version_tuple = (0, 0, 9426)
+version_str = "0.0.post9429"
+version_tuple = (0, 0, 9429)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9426")
+    pversion = V("0.0.post9429")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9308"
-data_version_tuple = (0, 0, 9308)
+data_version_str = "0.0.post9311"
+data_version_tuple = (0, 0, 9311)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9308")
+    pdata_version = V("0.0.post9311")
 except ImportError:
     pass
-data_git_hash = "2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4"
-data_git_describe = "v0.0-9308-g2d6cd7a7e"
+data_git_hash = "57af03763aeb10cffba4ab97806934539246f776"
+data_git_describe = "v0.0-9311-g57af03763"
 data_git_msg = """\
-commit 2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Jan 11 11:55:00 2022 +0000
+commit 57af03763aeb10cffba4ab97806934539246f776
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jan 6 18:09:40 2022 -0800
 
-    Revert "[pinmux_wkup] Change comparison to GE to stay on the safe side"
+    [dv/pwrmgr] Update documentation and checklist
     
-    This reverts commit 9f2fccf76a250c5398514da8a9bda98c544a9ee0.
-    
-    This fixes an FPGA timing failure that is breaking CI.
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
