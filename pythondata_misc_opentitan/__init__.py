@@ -4,40 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9443"
-version_tuple = (0, 0, 9443)
+version_str = "0.0.post9444"
+version_tuple = (0, 0, 9444)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9443")
+    pversion = V("0.0.post9444")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9325"
-data_version_tuple = (0, 0, 9325)
+data_version_str = "0.0.post9326"
+data_version_tuple = (0, 0, 9326)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9325")
+    pdata_version = V("0.0.post9326")
 except ImportError:
     pass
-data_git_hash = "33e0d1e65b289c01f8c8edcfc0fa6bcfad114924"
-data_git_describe = "v0.0-9325-g33e0d1e65"
+data_git_hash = "c0b1736198999376f7c213555fd2bbf370161cf0"
+data_git_describe = "v0.0-9326-gc0b173619"
 data_git_msg = """\
-commit 33e0d1e65b289c01f8c8edcfc0fa6bcfad114924
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Jan 7 13:56:41 2022 -0800
+commit c0b1736198999376f7c213555fd2bbf370161cf0
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jan 11 12:40:26 2022 -0800
 
-    [dif/alert_handler] Add alert configuration DIF.
+    [flash_ctrl] Small shimming logic around prim_prince
     
-    Previously, the only way to configure an alert within the alert handler
-    was to build a rather large struct that would configure all alerts
-    within a class. (Re)Configuring a single alert had the side of effect of
-    reconfiguring the class too.
+    - Fixes #9842
+    - primarily needed to handle cases where there are back to
+      back requests for prim_prince
     
-    This commit adds a DIF to configure a single alert, i.e., enable it, set
-    its class, and lock it. This partially addresses #9899.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
