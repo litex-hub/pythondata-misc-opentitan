@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9487"
-version_tuple = (0, 0, 9487)
+version_str = "0.0.post9489"
+version_tuple = (0, 0, 9489)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9487")
+    pversion = V("0.0.post9489")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9369"
-data_version_tuple = (0, 0, 9369)
+data_version_str = "0.0.post9371"
+data_version_tuple = (0, 0, 9371)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9369")
+    pdata_version = V("0.0.post9371")
 except ImportError:
     pass
-data_git_hash = "99cbf0c060642c0389dbf1710c9cc98673f1db86"
-data_git_describe = "v0.0-9369-g99cbf0c06"
+data_git_hash = "c759af5274d11276c006d661ce14fb99d0e7774b"
+data_git_describe = "v0.0-9371-gc759af527"
 data_git_msg = """\
-commit 99cbf0c060642c0389dbf1710c9cc98673f1db86
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Jan 12 15:04:21 2022 +0000
+commit c759af5274d11276c006d661ce14fb99d0e7774b
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Jan 11 18:51:23 2022 -0800
 
-    [usbdev] Add lint waiver
+    Revert "Revert "[pinmux_wkup] Change comparison to GE to stay on the safe side""
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    This reverts commit 2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
