@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9463"
-version_tuple = (0, 0, 9463)
+version_str = "0.0.post9484"
+version_tuple = (0, 0, 9484)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9463")
+    pversion = V("0.0.post9484")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9345"
-data_version_tuple = (0, 0, 9345)
+data_version_str = "0.0.post9366"
+data_version_tuple = (0, 0, 9366)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9345")
+    pdata_version = V("0.0.post9366")
 except ImportError:
     pass
-data_git_hash = "430ef6c2cd84ab6f52b48e28c246de3404a8c6a7"
-data_git_describe = "v0.0-9345-g430ef6c2c"
+data_git_hash = "03e6b7e5e60666d1cb9bdfca4f0a58afe279ac8b"
+data_git_describe = "v0.0-9366-g03e6b7e5e"
 data_git_msg = """\
-commit 430ef6c2cd84ab6f52b48e28c246de3404a8c6a7
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Jan 11 18:29:00 2022 -0800
+commit 03e6b7e5e60666d1cb9bdfca4f0a58afe279ac8b
+Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+Date:   Thu Dec 23 16:28:06 2021 +0100
 
-    [sw, dv, device.h] Add symbol for AON clock freq
+    [kmac] made all invalid states of sparse fsm terminal
     
-    This PR adds a `device.h` symbol representing AON clock frequency, which
-    is set differently in each simulation platform.
-    
-    Fixes #9927.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
 
 """
 
