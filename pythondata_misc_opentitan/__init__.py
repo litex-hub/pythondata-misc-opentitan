@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9459"
-version_tuple = (0, 0, 9459)
+version_str = "0.0.post9462"
+version_tuple = (0, 0, 9462)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9459")
+    pversion = V("0.0.post9462")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9341"
-data_version_tuple = (0, 0, 9341)
+data_version_str = "0.0.post9344"
+data_version_tuple = (0, 0, 9344)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9341")
+    pdata_version = V("0.0.post9344")
 except ImportError:
     pass
-data_git_hash = "ee1634b6b26f59b40e35e5c6e310c783b267db5e"
-data_git_describe = "v0.0-9341-gee1634b6b"
+data_git_hash = "d5413a727ad941c6ad817011706569399c8956ca"
+data_git_describe = "v0.0-9344-gd5413a727"
 data_git_msg = """\
-commit ee1634b6b26f59b40e35e5c6e310c783b267db5e
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Jan 11 12:46:02 2022 -0800
+commit d5413a727ad941c6ad817011706569399c8956ca
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jan 11 12:56:52 2022 -0800
 
-    [spi_host/dv] added spi_host to nightly regression
+    [flash_ctrl] Documentation update
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    - clarify behavior and usage of flash read buffers
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
