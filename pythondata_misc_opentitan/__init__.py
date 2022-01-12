@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9444"
-version_tuple = (0, 0, 9444)
+version_str = "0.0.post9446"
+version_tuple = (0, 0, 9446)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9444")
+    pversion = V("0.0.post9446")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9326"
-data_version_tuple = (0, 0, 9326)
+data_version_str = "0.0.post9328"
+data_version_tuple = (0, 0, 9328)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9326")
+    pdata_version = V("0.0.post9328")
 except ImportError:
     pass
-data_git_hash = "c0b1736198999376f7c213555fd2bbf370161cf0"
-data_git_describe = "v0.0-9326-gc0b173619"
+data_git_hash = "d136b23018dbd2a4f10abec13b2fde30e91438b6"
+data_git_describe = "v0.0-9328-gd136b2301"
 data_git_msg = """\
-commit c0b1736198999376f7c213555fd2bbf370161cf0
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 11 12:40:26 2022 -0800
+commit d136b23018dbd2a4f10abec13b2fde30e91438b6
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Jan 11 10:57:29 2022 -0800
 
-    [flash_ctrl] Small shimming logic around prim_prince
+    [pinmux/doc] Update sleep mode terminology
     
-    - Fixes #9842
-    - primarily needed to handle cases where there are back to
-      back requests for prim_prince
+    Fix #9905
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
