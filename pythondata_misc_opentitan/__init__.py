@@ -4,34 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9446"
-version_tuple = (0, 0, 9446)
+version_str = "0.0.post9448"
+version_tuple = (0, 0, 9448)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9446")
+    pversion = V("0.0.post9448")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9328"
-data_version_tuple = (0, 0, 9328)
+data_version_str = "0.0.post9330"
+data_version_tuple = (0, 0, 9330)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9328")
+    pdata_version = V("0.0.post9330")
 except ImportError:
     pass
-data_git_hash = "d136b23018dbd2a4f10abec13b2fde30e91438b6"
-data_git_describe = "v0.0-9328-gd136b2301"
+data_git_hash = "e40b42973f1410008feb98aeac2376d30656010c"
+data_git_describe = "v0.0-9330-ge40b42973"
 data_git_msg = """\
-commit d136b23018dbd2a4f10abec13b2fde30e91438b6
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Jan 11 10:57:29 2022 -0800
+commit e40b42973f1410008feb98aeac2376d30656010c
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 11 16:29:44 2022 +0000
 
-    [pinmux/doc] Update sleep mode terminology
+    [otbn,dv] Avoid "double recov alert" problem
     
-    Fix #9905
+    Some sequences of operations could cause a problem where we ran two
+    back-to-back operations, each of which causing a recoverable alert,
+    where the second operation finished while before the handshake of the
+    first alert finished. If this happened, we would essentially drop the
+    second alert, causing the scoreboard to complain.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    The fix is to expose the "waiting for an alert" state from the
+    scoreboard and wait in the vseq for that, then for any following
+    recoverable alert handshake to finish. This way, we can't start the
+    second operation too early.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
