@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9484"
-version_tuple = (0, 0, 9484)
+version_str = "0.0.post9487"
+version_tuple = (0, 0, 9487)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9484")
+    pversion = V("0.0.post9487")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9366"
-data_version_tuple = (0, 0, 9366)
+data_version_str = "0.0.post9369"
+data_version_tuple = (0, 0, 9369)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9366")
+    pdata_version = V("0.0.post9369")
 except ImportError:
     pass
-data_git_hash = "03e6b7e5e60666d1cb9bdfca4f0a58afe279ac8b"
-data_git_describe = "v0.0-9366-g03e6b7e5e"
+data_git_hash = "99cbf0c060642c0389dbf1710c9cc98673f1db86"
+data_git_describe = "v0.0-9369-g99cbf0c06"
 data_git_msg = """\
-commit 03e6b7e5e60666d1cb9bdfca4f0a58afe279ac8b
-Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
-Date:   Thu Dec 23 16:28:06 2021 +0100
+commit 99cbf0c060642c0389dbf1710c9cc98673f1db86
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Jan 12 15:04:21 2022 +0000
 
-    [kmac] made all invalid states of sparse fsm terminal
+    [usbdev] Add lint waiver
     
-    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
