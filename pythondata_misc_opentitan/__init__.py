@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9462"
-version_tuple = (0, 0, 9462)
+version_str = "0.0.post9463"
+version_tuple = (0, 0, 9463)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9462")
+    pversion = V("0.0.post9463")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9344"
-data_version_tuple = (0, 0, 9344)
+data_version_str = "0.0.post9345"
+data_version_tuple = (0, 0, 9345)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9344")
+    pdata_version = V("0.0.post9345")
 except ImportError:
     pass
-data_git_hash = "d5413a727ad941c6ad817011706569399c8956ca"
-data_git_describe = "v0.0-9344-gd5413a727"
+data_git_hash = "430ef6c2cd84ab6f52b48e28c246de3404a8c6a7"
+data_git_describe = "v0.0-9345-g430ef6c2c"
 data_git_msg = """\
-commit d5413a727ad941c6ad817011706569399c8956ca
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 11 12:56:52 2022 -0800
+commit 430ef6c2cd84ab6f52b48e28c246de3404a8c6a7
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Jan 11 18:29:00 2022 -0800
 
-    [flash_ctrl] Documentation update
+    [sw, dv, device.h] Add symbol for AON clock freq
     
-    - clarify behavior and usage of flash read buffers
+    This PR adds a `device.h` symbol representing AON clock frequency, which
+    is set differently in each simulation platform.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Fixes #9927.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
