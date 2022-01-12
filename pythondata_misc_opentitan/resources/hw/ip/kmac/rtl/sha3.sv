@@ -69,7 +69,11 @@ module sha3
   output logic [StateW-1:0] state_o [Share],
 
   // error_o value is pushed to Error FIFO at KMAC/SHA3 top and reported to SW
-  output err_t error_o
+  output err_t error_o,
+
+  // sparse_fsm_alert
+  output logic sparse_fsm_error_o
+
 );
   /////////////////
   // Definitions //
@@ -110,10 +114,17 @@ module sha3
   logic processing;
 
   // FSM variable
-  sha3_pkg::sha3_st_e st, st_d;
+  sha3_st_sparse_e st, st_d;
 
   // Keccak control signal (filtered by State Machine)
   logic keccak_start, keccak_process, keccak_done;
+
+  // alert signals
+  logic sha3_state_error;
+  logic keccak_round_state_error;
+  logic sha3pad_state_error;
+
+  assign sparse_fsm_error_o = sha3_state_error | keccak_round_state_error | sha3pad_state_error;
 
   /////////////////
   // Connections //
@@ -158,17 +169,28 @@ module sha3
   assign state_valid_o = state_valid;
   assign state_o = state_guarded;
 
-  assign sha3_fsm_o = st;
+  assign sha3_fsm_o = sparse2logic(st);
 
   ///////////////////
   // State Machine //
   ///////////////////
 
   // State Register
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) st <= StIdle;
-    else         st <= st_d;
-  end
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  logic [StateWidth-1:0] state_raw_q;
+  assign st = sha3_st_sparse_e'(state_raw_q);
+  prim_sparse_fsm_flop #(
+    .StateEnumT(sha3_st_sparse_e),
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StIdle_sparse))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .state_i ( st_d        ),
+    .state_o ( state_raw_q )
+  );
+
 
   // Next State and Output Logic
   // Mainly the FSM controls the input signal access
@@ -177,7 +199,7 @@ module sha3
   // StSqueeze: only run_i, done_i signal is allowed
 
   always_comb begin
-    st_d = StIdle;
+    st_d = StIdle_sparse;
 
     // default output values
     keccak_start = 1'b 0;
@@ -190,62 +212,66 @@ module sha3
     state_valid = 1'b 0;
     mux_sel = MuxGuard ;
 
+    sha3_state_error = 1'b 0;
+
     unique case (st)
-      StIdle: begin
+      StIdle_sparse: begin
         if (start_i) begin
-          st_d = StAbsorb;
+          st_d = StAbsorb_sparse;
 
           keccak_start = 1'b 1;
         end else begin
-          st_d = StIdle;
+          st_d = StIdle_sparse;
         end
       end
 
-      StAbsorb: begin
+      StAbsorb_sparse: begin
         if (process_i && !processing) begin
-          st_d = StAbsorb;
+          st_d = StAbsorb_sparse;
 
           keccak_process = 1'b 1;
         end else if (absorbed) begin
-          st_d = StSqueeze;
+          st_d = StSqueeze_sparse;
         end else begin
-          st_d = StAbsorb;
+          st_d = StAbsorb_sparse;
         end
       end
 
-      StSqueeze: begin
+      StSqueeze_sparse: begin
         state_valid = 1'b 1;
         mux_sel = MuxRelease; // Expose state to register interface
 
         squeezing = 1'b 1;
 
         if (run_i) begin
-          st_d = StManualRun;
+          st_d = StManualRun_sparse;
 
           sw_keccak_run = 1'b 1;
         end else if (done_i) begin
-          st_d = StFlush;
+          st_d = StFlush_sparse;
 
           keccak_done = 1'b 1;
         end else begin
-          st_d = StSqueeze;
+          st_d = StSqueeze_sparse;
         end
       end
 
-      StManualRun: begin
+      StManualRun_sparse: begin
         if (keccak_complete) begin
-          st_d = StSqueeze;
+          st_d = StSqueeze_sparse;
         end else begin
-          st_d = StManualRun;
+          st_d = StManualRun_sparse;
         end
       end
 
-      StFlush: begin
-        st_d = StIdle;
+      StFlush_sparse: begin
+        st_d = StIdle_sparse;
       end
 
       default: begin
-        st_d = StIdle;
+        //this state is terminal
+        st_d = st;
+        sha3_state_error = 1'b 1;
       end
 
     endcase
@@ -277,7 +303,7 @@ module sha3
     error_o = '{valid: 1'b0, code: ErrNone, info: '0};
 
     unique case (st)
-      StIdle: begin
+      StIdle_sparse: begin
         if (process_i || run_i || done_i) begin
           error_o = '{
             valid: 1'b 1,
@@ -287,7 +313,7 @@ module sha3
         end
       end
 
-      StAbsorb: begin
+      StAbsorb_sparse: begin
         if (start_i || run_i || done_i || (process_i && processing)) begin
           error_o = '{
             valid: 1'b 1,
@@ -297,7 +323,7 @@ module sha3
         end
       end
 
-      StSqueeze: begin
+      StSqueeze_sparse: begin
         if (start_i || process_i) begin
           error_o = '{
             valid: 1'b 1,
@@ -307,7 +333,7 @@ module sha3
         end
       end
 
-      StManualRun: begin
+      StManualRun_sparse: begin
         if (start_i || process_i || run_i || done_i) begin
           error_o = '{
             valid: 1'b 1,
@@ -317,7 +343,7 @@ module sha3
         end
       end
 
-      StFlush: begin
+      StFlush_sparse: begin
         if (start_i || process_i || run_i || done_i) begin
           error_o = '{
             valid: 1'b 1,
@@ -370,7 +396,8 @@ module sha3
     .done_i    (keccak_done),
 
     // output
-    .absorbed_o (absorbed)
+    .absorbed_o         (absorbed),
+    .sparse_fsm_error_o (sha3pad_state_error)
   );
 
   // Keccak round logic
@@ -398,6 +425,8 @@ module sha3
 
     .state_o    (state),
 
+    .sparse_fsm_error_o (keccak_round_state_error),
+
     .clear_i    (keccak_done)
   );
 
@@ -407,7 +436,8 @@ module sha3
 
   // Unknown check for case statement
   `ASSERT(MuxSelKnown_A, mux_sel inside {MuxGuard, MuxRelease})
-  `ASSERT(FsmKnown_A, st inside {StIdle, StAbsorb, StSqueeze, StManualRun, StFlush})
+  `ASSERT(FsmKnown_A, st inside {StIdle_sparse, StAbsorb_sparse, StSqueeze_sparse,
+                                        StManualRun_sparse, StFlush_sparse})
 
   // `state` shall be 0 in invalid
   if (EnMasking) begin: gen_chk_digest_masked
@@ -422,7 +452,7 @@ module sha3
   // skip the msg interface assertions as they are in sha3pad.sv
 
   // Software run signal happens in Squeezing stage
-  `ASSUME(SwRunInSqueezing_a, run_i |-> error_o.valid || (st == StSqueeze))
+  `ASSUME(SwRunInSqueezing_a, run_i |-> error_o.valid || (st == StSqueeze_sparse))
 
   // If control received but not propagated into submodules, it is error condition
   `ASSERT(ErrDetection_A, error_o.valid

@@ -67,7 +67,8 @@ module kmac_errchk
   input sha3_absorbed_i,
   input keccak_done_i,
 
-  output err_t error_o
+  output err_t error_o,
+  output logic sparse_fsm_error_o
 );
 
   // sha3_pkg::sha3_mode_e
@@ -85,14 +86,46 @@ module kmac_errchk
   /////////////////
   // Definitions //
   /////////////////
-  typedef enum logic [2:0] {
-    StIdle,
-    StMsgFeed,
-    StProcessing,
-    StAbsorbed,
-    StSqueezing
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 5 -n 6 \
+  //      -s 2239170217 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||||||||||||| (50.00%)
+  //  4: |||||||||||||||| (40.00%)
+  //  5: |||| (10.00%)
+  //  6: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 5
+  // Minimum Hamming weight: 2
+  // Maximum Hamming weight: 4
+  //
+  localparam int StateWidth = 6;
+  typedef enum logic [StateWidth-1:0] {
+    StIdle = 6'b001101,
+    StMsgFeed = 6'b110001,
+    StProcessing = 6'b010110,
+    StAbsorbed = 6'b100010,
+    StSqueezing = 6'b111100
   } st_e;
   st_e st, st_d;
+
+  localparam int StateWidthL = 3;
+  typedef enum logic [StateWidthL-1:0] {
+    StIdleL,
+    StMsgFeedL,
+    StProcessingL,
+    StAbsorbedL,
+    StSqueezingL,
+    StErrorL
+  } st_logical_e;
+  st_logical_e stL;
+
 
   /////////////
   // Signals //
@@ -118,6 +151,7 @@ module kmac_errchk
   // info field: Current state, Received command
   always_comb begin
     err_swsequence = 1'b 0;
+    sparse_fsm_error_o = 1'b 0;
 
     unique case (st)
       StIdle: begin
@@ -155,6 +189,7 @@ module kmac_errchk
 
       default: begin
         err_swsequence = 1'b 0;
+        sparse_fsm_error_o = 1'b 1;
       end
     endcase
   end
@@ -193,6 +228,16 @@ module kmac_errchk
     end
   end : check_prefix
 
+  always_comb begin : recode_st
+    unique case (st)
+      StIdle       : stL = StIdleL;
+      StMsgFeed    : stL = StMsgFeedL;
+      StProcessing : stL = StProcessingL;
+      StAbsorbed   : stL = StAbsorbedL;
+      StSqueezing  : stL = StSqueezingL;
+      default      : stL = StErrorL;
+    endcase
+  end : recode_st
 
   // Return error code
   err_t err;
@@ -205,8 +250,8 @@ module kmac_errchk
                  code: ErrSwCmdSequence,
                  info: {5'h0,
                         {err_swsequence, err_modestrength, err_prefix},
-                        8'h0,
-                        {1'b0, st, sw_cmd_i}
+                        8'h 0,
+                        {1'b0, stL, sw_cmd_i}
                        }
                };
       end
@@ -242,7 +287,7 @@ module kmac_errchk
   assign error_o = err;
 
   // If below failed, revise err_swsequence error response info field.
-  `ASSERT_INIT(ExpectedStSwCmdBits_A, $bits(st) == 3 && $bits(sw_cmd_i) == 4)
+  `ASSERT_INIT(ExpectedStSwCmdBits_A, $bits(st) == StateWidth && $bits(sw_cmd_i) == 4)
 
   // If failed, revise err_modestrength error info field.
   `ASSERT_INIT(ExpectedModeStrengthBits_A,
@@ -252,13 +297,20 @@ module kmac_errchk
   ///////////////////
   // State Machine //
   ///////////////////
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      st <= StIdle;
-    end else begin
-      st <= st_d;
-    end
-  end
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  logic [StateWidth-1:0] state_raw_q;
+  assign st = st_e'(state_raw_q);
+  prim_sparse_fsm_flop #(
+    .StateEnumT(st_e),
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StIdle))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .state_i ( st_d        ),
+    .state_o ( state_raw_q )
+  );
 
   always_comb begin : next_state
     st_d = st;
@@ -299,7 +351,8 @@ module kmac_errchk
       end
 
       default: begin
-        st_d = StIdle;
+        // this state is terminal
+        st_d = st;
       end
     endcase
   end : next_state

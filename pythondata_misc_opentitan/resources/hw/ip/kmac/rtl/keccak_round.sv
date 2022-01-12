@@ -51,6 +51,8 @@ module keccak_round #(
   // State out. This can be used as Digest
   output logic [Width-1:0] state_o [Share],
 
+  output logic             sparse_fsm_error_o,
+
   input                    clear_i     // Clear internal state to '0
 );
 
@@ -129,44 +131,71 @@ module keccak_round #(
   // state inputs
   assign rnd_eq_end = (int'(round) == MaxRound - 1);
 
-  typedef enum logic [2:0] {
-      StIdle,
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 6 -n 6 \
+  //      -s 1363425333 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||||||||||||| (53.33%)
+  //  4: ||||||||||||||| (40.00%)
+  //  5: || (6.67%)
+  //  6: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 5
+  // Minimum Hamming weight: 1
+  // Maximum Hamming weight: 5
+  //
+  localparam int StateWidth = 6;
+  typedef enum logic [StateWidth-1:0] {
+      StIdle = 6'b100010,
 
       // Active state is used in Unmasked version only.
       // It handles keccak round in a cycle
-      StActive,
+      StActive = 6'b111101,
 
       // Phase1 --> Phase2 --> Phase3
       // Activated only in Masked version.
       // Phase1 processes Theta, Rho, Pi steps in a cycle and stores the states
       // into storage. It unconditionally moves to Phase2.
-      StPhase1,
+      StPhase1 = 6'b011011,
 
       // First half part of Chi step. It waits random value is ready
       // then move to Phase 3.
-      StPhase2,
+      StPhase2 = 6'b000111,
 
       // Second half of Chi step and Iota step.
       // This state doesn't require random value as it is XORed into the states
       // in Phase2. If round is reached to the end (MaxRound -1) then it
       // completes the process and goes back to Idle. If not, repeats the Phase
       // again.
-      StPhase3,
+      StPhase3 = 6'b001000,
 
       // Error state. Not clearly defined yet.
       // Intention is if any unexpected input in the process, state moves to
       // here and report through the error fifo with debugging information.
-      StError
+      StError = 6'b010100
   } keccak_st_e;
   keccak_st_e keccak_st, keccak_st_d;
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      keccak_st <= StIdle;
-    end else begin
-      keccak_st <= keccak_st_d;
-    end
-  end
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  logic [StateWidth-1:0] state_raw_q;
+  assign keccak_st = keccak_st_e'(state_raw_q);
+  prim_sparse_fsm_flop #(
+    .StateEnumT(keccak_st_e),
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StIdle))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .state_i ( keccak_st_d ),
+    .state_o ( state_raw_q )
+  );
 
   // Next state logic and output logic
   always_comb begin
@@ -185,6 +214,8 @@ module keccak_round #(
     sel_mux = 1'b 0;
 
     complete_d = 1'b 0;
+
+    sparse_fsm_error_o = 1'b 0;
 
     unique case (keccak_st)
       StIdle: begin
@@ -267,11 +298,13 @@ module keccak_round #(
       end
 
       StError: begin
-        keccak_st_d = StIdle;
+        keccak_st_d = StError;
       end
 
       default: begin
-        keccak_st_d = StError;
+        //this state is terminal
+        keccak_st_d = keccak_st;
+        sparse_fsm_error_o = 1'b 1;
       end
     endcase
   end

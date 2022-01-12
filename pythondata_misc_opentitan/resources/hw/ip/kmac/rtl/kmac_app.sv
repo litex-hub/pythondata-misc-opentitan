@@ -104,7 +104,9 @@ module kmac_app
   input err_processed_i,
 
   // error_o value is pushed to Error FIFO at KMAC/SHA3 top and reported to SW
-  output kmac_pkg::err_t error_o
+  output kmac_pkg::err_t error_o,
+
+  output logic sparse_fsm_error_o
 );
 
   /////////////////
@@ -341,16 +343,19 @@ module kmac_app
   /////////
 
   // State register
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
   logic [StateWidth-1:0] st_raw;
   assign st = st_e'(st_raw);
-  prim_flop #(
+  prim_sparse_fsm_flop #(
+    .StateEnumT(st_e),
     .Width      (StateWidth),
     .ResetValue (StateWidth'(StIdle))
   ) u_state_regs (
     .clk_i,
     .rst_ni,
-    .d_i ( st_d   ),
-    .q_o ( st_raw )
+    .state_i ( st_d   ),
+    .state_o ( st_raw )
   );
 
   // Next State & output logic
@@ -371,6 +376,7 @@ module kmac_app
 
     // Error
     fsm_err = '{valid: 1'b 0, code: ErrNone, info: '0};
+    sparse_fsm_error_o = 1'b 0;
 
     // If error happens, FSM asserts data ready but discard incoming msg
     fsm_data_ready = 1'b 0;
@@ -495,7 +501,9 @@ module kmac_app
       end
 
       default: begin
-        st_d = StIdle;
+        // this state is terminal
+        st_d = st;
+        sparse_fsm_error_o = 1'b 1;
       end
     endcase
   end

@@ -58,6 +58,7 @@ module kmac_entropy
 
   // Error output
   output err_t err_o,
+  output logic sparse_fsm_error_o,
   input        err_processed_i
 );
 
@@ -376,19 +377,23 @@ module kmac_entropy
   assign st = rand_st_e'(st_raw_q);
 
   // State FF
-  prim_flop #(
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  prim_sparse_fsm_flop #(
+    .StateEnumT(rand_st_e),
     .Width(StateWidth),
     .ResetValue(StateWidth'(StRandReset))
   ) u_state_regs (
     .clk_i,
     .rst_ni,
-    .d_i ( st_d     ),
-    .q_o ( st_raw_q )
+    .state_i ( st_d     ),
+    .state_o ( st_raw_q )
   );
 
   // State: Next State and Output Logic
   always_comb begin
     st_d = StRandReset;
+    sparse_fsm_error_o = 1'b 0;
 
     // Default Timer values
     timer_enable = 1'b 0;
@@ -588,7 +593,9 @@ module kmac_entropy
       end
 
       default: begin
-        st_d = StRandReset;
+        // this state is terminal
+        st_d = st;
+        sparse_fsm_error_o = 1'b 1;
       end
     endcase
   end
