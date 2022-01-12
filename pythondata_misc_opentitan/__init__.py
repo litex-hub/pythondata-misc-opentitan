@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9448"
-version_tuple = (0, 0, 9448)
+version_str = "0.0.post9455"
+version_tuple = (0, 0, 9455)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9448")
+    pversion = V("0.0.post9455")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9330"
-data_version_tuple = (0, 0, 9330)
+data_version_str = "0.0.post9337"
+data_version_tuple = (0, 0, 9337)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9330")
+    pdata_version = V("0.0.post9337")
 except ImportError:
     pass
-data_git_hash = "e40b42973f1410008feb98aeac2376d30656010c"
-data_git_describe = "v0.0-9330-ge40b42973"
+data_git_hash = "c3bd8451e23db3cc941ec9636735ab592d1c70bb"
+data_git_describe = "v0.0-9337-gc3bd8451e"
 data_git_msg = """\
-commit e40b42973f1410008feb98aeac2376d30656010c
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 11 16:29:44 2022 +0000
+commit c3bd8451e23db3cc941ec9636735ab592d1c70bb
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Jan 11 09:55:09 2022 +0100
 
-    [otbn,dv] Avoid "double recov alert" problem
+    [primgen] Update AscentLint waiver in generated abstract prim wrappers
     
-    Some sequences of operations could cause a problem where we ran two
-    back-to-back operations, each of which causing a recoverable alert,
-    where the second operation finished while before the handshake of the
-    first alert finished. If this happened, we would essentially drop the
-    second alert, causing the scoreboard to complain.
-    
-    The fix is to expose the "waiting for an alert" state from the
-    scoreboard and wait in the vseq for that, then for any following
-    recoverable alert handshake to finish. This way, we can't start the
-    second operation too early.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
