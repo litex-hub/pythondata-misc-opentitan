@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9500"
-version_tuple = (0, 0, 9500)
+version_str = "0.0.post9506"
+version_tuple = (0, 0, 9506)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9500")
+    pversion = V("0.0.post9506")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9382"
-data_version_tuple = (0, 0, 9382)
+data_version_str = "0.0.post9388"
+data_version_tuple = (0, 0, 9388)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9382")
+    pdata_version = V("0.0.post9388")
 except ImportError:
     pass
-data_git_hash = "f8e2a738f7ec6e6259b0a9934732af20fd100c81"
-data_git_describe = "v0.0-9382-gf8e2a738f"
+data_git_hash = "c439fa718ae74a00a4900238a513f239be35bcc8"
+data_git_describe = "v0.0-9388-gc439fa718"
 data_git_msg = """\
-commit f8e2a738f7ec6e6259b0a9934732af20fd100c81
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Mon Jan 10 10:48:14 2022 +0000
+commit c439fa718ae74a00a4900238a513f239be35bcc8
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Jan 12 13:35:54 2022 -0800
 
-    [sw,tests] Add the chip level test `chip_sw_aon_timer_wakeup_irq`
+    [entropy complex/rtl] change comment on countermeasure
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    A countermeasure comment was confusing for all entropy blocks doing consecutive bus comparisos.
+    The comment has been corrected.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
