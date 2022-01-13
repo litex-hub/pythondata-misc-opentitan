@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9522"
-version_tuple = (0, 0, 9522)
+version_str = "0.0.post9523"
+version_tuple = (0, 0, 9523)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9522")
+    pversion = V("0.0.post9523")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9400"
-data_version_tuple = (0, 0, 9400)
+data_version_str = "0.0.post9401"
+data_version_tuple = (0, 0, 9401)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9400")
+    pdata_version = V("0.0.post9401")
 except ImportError:
     pass
-data_git_hash = "28deecfe0b680203aefceb143b7ade77a2570d44"
-data_git_describe = "v0.0-9400-g28deecfe0"
+data_git_hash = "f3b63da6c892ae3bf5526054623737f24eb53713"
+data_git_describe = "v0.0-9401-gf3b63da6c"
 data_git_msg = """\
-commit 28deecfe0b680203aefceb143b7ade77a2570d44
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 12 16:36:54 2022 -0800
+commit f3b63da6c892ae3bf5526054623737f24eb53713
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sun Jan 9 13:14:26 2022 -0800
 
-    [doc] update tlul and flash documentation
+    [fpv/pinmux] V1 checklist
     
-    - update to explain instruction type attribute in tlul user bits.
-    - update to explain how flash execution contro makes use of the
-      instruction type bits.
+    This PR updates V1 checklist and status.
     
-    - Companion PR to #10035 and #10022
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
