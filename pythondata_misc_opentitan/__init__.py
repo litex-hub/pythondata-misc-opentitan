@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9506"
-version_tuple = (0, 0, 9506)
+version_str = "0.0.post9509"
+version_tuple = (0, 0, 9509)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9506")
+    pversion = V("0.0.post9509")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9388"
-data_version_tuple = (0, 0, 9388)
+data_version_str = "0.0.post9391"
+data_version_tuple = (0, 0, 9391)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9388")
+    pdata_version = V("0.0.post9391")
 except ImportError:
     pass
-data_git_hash = "c439fa718ae74a00a4900238a513f239be35bcc8"
-data_git_describe = "v0.0-9388-gc439fa718"
+data_git_hash = "5ef1bff3de774e7c58e0a61bb64d383e30440c4c"
+data_git_describe = "v0.0-9391-g5ef1bff3d"
 data_git_msg = """\
-commit c439fa718ae74a00a4900238a513f239be35bcc8
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Jan 12 13:35:54 2022 -0800
+commit 5ef1bff3de774e7c58e0a61bb64d383e30440c4c
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Jan 12 04:28:58 2022 -0800
 
-    [entropy complex/rtl] change comment on countermeasure
+    [edn/dv] Add scoreboard checking
     
-    A countermeasure comment was confusing for all entropy blocks doing consecutive bus comparisos.
-    The comment has been corrected.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
