@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9523"
-version_tuple = (0, 0, 9523)
+version_str = "0.0.post9525"
+version_tuple = (0, 0, 9525)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9523")
+    pversion = V("0.0.post9525")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9401"
-data_version_tuple = (0, 0, 9401)
+data_version_str = "0.0.post9403"
+data_version_tuple = (0, 0, 9403)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9401")
+    pdata_version = V("0.0.post9403")
 except ImportError:
     pass
-data_git_hash = "f3b63da6c892ae3bf5526054623737f24eb53713"
-data_git_describe = "v0.0-9401-gf3b63da6c"
+data_git_hash = "a24bc023c975d3986d9a6e4f715ae81fc201d8e5"
+data_git_describe = "v0.0-9403-ga24bc023c"
 data_git_msg = """\
-commit f3b63da6c892ae3bf5526054623737f24eb53713
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sun Jan 9 13:14:26 2022 -0800
+commit a24bc023c975d3986d9a6e4f715ae81fc201d8e5
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Wed Jan 12 15:16:36 2022 +0000
 
-    [fpv/pinmux] V1 checklist
+    Added sysrst_ctrl to nightly regression
     
-    This PR updates V1 checklist and status.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
