@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9489"
-version_tuple = (0, 0, 9489)
+version_str = "0.0.post9492"
+version_tuple = (0, 0, 9492)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9489")
+    pversion = V("0.0.post9492")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9371"
-data_version_tuple = (0, 0, 9371)
+data_version_str = "0.0.post9374"
+data_version_tuple = (0, 0, 9374)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9371")
+    pdata_version = V("0.0.post9374")
 except ImportError:
     pass
-data_git_hash = "c759af5274d11276c006d661ce14fb99d0e7774b"
-data_git_describe = "v0.0-9371-gc759af527"
+data_git_hash = "4b74463b4dfc853ea5b4e0821bb216890ee53907"
+data_git_describe = "v0.0-9374-g4b74463b4"
 data_git_msg = """\
-commit c759af5274d11276c006d661ce14fb99d0e7774b
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Jan 11 18:51:23 2022 -0800
+commit 4b74463b4dfc853ea5b4e0821bb216890ee53907
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sun Nov 7 15:56:49 2021 -0800
 
-    Revert "Revert "[pinmux_wkup] Change comparison to GE to stay on the safe side""
+    [ spi_host, prj ] Update SPI_HOST checklist
     
-    This reverts commit 2d6cd7a7e3e112a8c73881e0330bbd5a26d3bce4.
+    - Indicate all items as ready for D2
+    - Mark items in D2S, V2S as N/A
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
