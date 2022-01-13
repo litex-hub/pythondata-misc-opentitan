@@ -4,41 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9516"
-version_tuple = (0, 0, 9516)
+version_str = "0.0.post9518"
+version_tuple = (0, 0, 9518)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9516")
+    pversion = V("0.0.post9518")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9395"
-data_version_tuple = (0, 0, 9395)
+data_version_str = "0.0.post9396"
+data_version_tuple = (0, 0, 9396)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9395")
+    pdata_version = V("0.0.post9396")
 except ImportError:
     pass
-data_git_hash = "aae9bf89d25cbd877fa54f1e0fe448fc408f45d9"
-data_git_describe = "v0.0-9395-gaae9bf89d"
+data_git_hash = "b61a21962d180abe6e510db3fd726a5afe6a8b00"
+data_git_describe = "v0.0-9396-gb61a21962"
 data_git_msg = """\
-commit aae9bf89d25cbd877fa54f1e0fe448fc408f45d9
+commit b61a21962d180abe6e510db3fd726a5afe6a8b00
 Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 12 12:26:28 2022 -0800
+Date:   Tue Jan 11 15:51:21 2022 -0800
 
-    [ci] Add pwrmgr_smoketest to private CI
+    [clkmgr] various spec and parameter updates
+    
+    @matutem pointed out various shortcomings of the existing checks.
+    Since these gaps cannot be easily improved, the spec should at least
+    clearly explain what the minimal detection resolution is.
+    
+    - Fixes #8164
+    - Fixes #9969
+    
+    Also shrink the timeout margin to ensure timeout checks are not unnecessarily
+    large.
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post121"
-tool_version_tuple = (0, 0, 121)
+tool_version_str = "0.0.post122"
+tool_version_tuple = (0, 0, 122)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post121")
+    ptool_version = V("0.0.post122")
 except ImportError:
     pass
 
