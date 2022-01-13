@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9520"
-version_tuple = (0, 0, 9520)
+version_str = "0.0.post9521"
+version_tuple = (0, 0, 9521)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9520")
+    pversion = V("0.0.post9521")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9398"
-data_version_tuple = (0, 0, 9398)
+data_version_str = "0.0.post9399"
+data_version_tuple = (0, 0, 9399)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9398")
+    pdata_version = V("0.0.post9399")
 except ImportError:
     pass
-data_git_hash = "2745275cae4897ed59a9e4e2bcd534590b3352a9"
-data_git_describe = "v0.0-9398-g2745275ca"
+data_git_hash = "4a6f457f4306dec5149a8fa5c67f8d1faf5e5139"
+data_git_describe = "v0.0-9399-g4a6f457f4"
 data_git_msg = """\
-commit 2745275cae4897ed59a9e4e2bcd534590b3352a9
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sun Jan 9 13:07:15 2022 -0800
+commit 4a6f457f4306dec5149a8fa5c67f8d1faf5e5139
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Jan 12 21:56:29 2022 -0800
 
-    [fpv/pinmux] Update pinmux doc for V1 requirements
+    [dv/clkmgr] Add measurement saturation and fix timeout
     
-    This PR updates the pinmux doc for V1.
+    Add code to set the measurement cnt to a high value to test counter
+    saturation.
+    Fix measurement timeout test to stop the clock after the measurements
+    start to make sure the CSRs are updated, and to expect all io derived
+    clocks to timeout when the primary io clock is stopped.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
