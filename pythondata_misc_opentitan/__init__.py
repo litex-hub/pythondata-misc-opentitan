@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9496"
-version_tuple = (0, 0, 9496)
+version_str = "0.0.post9497"
+version_tuple = (0, 0, 9497)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9496")
+    pversion = V("0.0.post9497")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9378"
-data_version_tuple = (0, 0, 9378)
+data_version_str = "0.0.post9379"
+data_version_tuple = (0, 0, 9379)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9378")
+    pdata_version = V("0.0.post9379")
 except ImportError:
     pass
-data_git_hash = "06aa144a8086dc89d114df31a159d4d46f4e7f5b"
-data_git_describe = "v0.0-9378-g06aa144a8"
+data_git_hash = "0416df9b9e2d1d167efb56e0a8dd11eab2a98cbd"
+data_git_describe = "v0.0-9379-g0416df9b9"
 data_git_msg = """\
-commit 06aa144a8086dc89d114df31a159d4d46f4e7f5b
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jan 6 20:58:09 2022 -0800
+commit 0416df9b9e2d1d167efb56e0a8dd11eab2a98cbd
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Mon Jan 3 15:38:46 2022 -0800
 
-    [sram/dv] Sign off V2
+    [ spi_host, rtl/dv/doc ] New "OUTPUT_EN" register
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - All SPI_HOST outputs are now disabled by default until the OUTPUT_EN register is set
+    - Includes a one line change to the SPI_HOST DV environment to activate this
+    - A description of the new register field has been added to the documentation
+    
+    Fixes 8920
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
