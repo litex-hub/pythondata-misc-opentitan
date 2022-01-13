@@ -4,42 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9518"
-version_tuple = (0, 0, 9518)
+version_str = "0.0.post9520"
+version_tuple = (0, 0, 9520)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9518")
+    pversion = V("0.0.post9520")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9396"
-data_version_tuple = (0, 0, 9396)
+data_version_str = "0.0.post9398"
+data_version_tuple = (0, 0, 9398)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9396")
+    pdata_version = V("0.0.post9398")
 except ImportError:
     pass
-data_git_hash = "b61a21962d180abe6e510db3fd726a5afe6a8b00"
-data_git_describe = "v0.0-9396-gb61a21962"
+data_git_hash = "2745275cae4897ed59a9e4e2bcd534590b3352a9"
+data_git_describe = "v0.0-9398-g2745275ca"
 data_git_msg = """\
-commit b61a21962d180abe6e510db3fd726a5afe6a8b00
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 11 15:51:21 2022 -0800
+commit 2745275cae4897ed59a9e4e2bcd534590b3352a9
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sun Jan 9 13:07:15 2022 -0800
 
-    [clkmgr] various spec and parameter updates
+    [fpv/pinmux] Update pinmux doc for V1 requirements
     
-    @matutem pointed out various shortcomings of the existing checks.
-    Since these gaps cannot be easily improved, the spec should at least
-    clearly explain what the minimal detection resolution is.
+    This PR updates the pinmux doc for V1.
     
-    - Fixes #8164
-    - Fixes #9969
-    
-    Also shrink the timeout margin to ensure timeout checks are not unnecessarily
-    large.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
