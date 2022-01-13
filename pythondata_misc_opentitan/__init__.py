@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9497"
-version_tuple = (0, 0, 9497)
+version_str = "0.0.post9500"
+version_tuple = (0, 0, 9500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9497")
+    pversion = V("0.0.post9500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9379"
-data_version_tuple = (0, 0, 9379)
+data_version_str = "0.0.post9382"
+data_version_tuple = (0, 0, 9382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9379")
+    pdata_version = V("0.0.post9382")
 except ImportError:
     pass
-data_git_hash = "0416df9b9e2d1d167efb56e0a8dd11eab2a98cbd"
-data_git_describe = "v0.0-9379-g0416df9b9"
+data_git_hash = "f8e2a738f7ec6e6259b0a9934732af20fd100c81"
+data_git_describe = "v0.0-9382-gf8e2a738f"
 data_git_msg = """\
-commit 0416df9b9e2d1d167efb56e0a8dd11eab2a98cbd
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Mon Jan 3 15:38:46 2022 -0800
+commit f8e2a738f7ec6e6259b0a9934732af20fd100c81
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Mon Jan 10 10:48:14 2022 +0000
 
-    [ spi_host, rtl/dv/doc ] New "OUTPUT_EN" register
+    [sw,tests] Add the chip level test `chip_sw_aon_timer_wakeup_irq`
     
-    - All SPI_HOST outputs are now disabled by default until the OUTPUT_EN register is set
-    - Includes a one line change to the SPI_HOST DV environment to activate this
-    - A description of the new register field has been added to the documentation
-    
-    Fixes 8920
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
