@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9492"
-version_tuple = (0, 0, 9492)
+version_str = "0.0.post9496"
+version_tuple = (0, 0, 9496)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9492")
+    pversion = V("0.0.post9496")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9374"
-data_version_tuple = (0, 0, 9374)
+data_version_str = "0.0.post9378"
+data_version_tuple = (0, 0, 9378)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9374")
+    pdata_version = V("0.0.post9378")
 except ImportError:
     pass
-data_git_hash = "4b74463b4dfc853ea5b4e0821bb216890ee53907"
-data_git_describe = "v0.0-9374-g4b74463b4"
+data_git_hash = "06aa144a8086dc89d114df31a159d4d46f4e7f5b"
+data_git_describe = "v0.0-9378-g06aa144a8"
 data_git_msg = """\
-commit 4b74463b4dfc853ea5b4e0821bb216890ee53907
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sun Nov 7 15:56:49 2021 -0800
+commit 06aa144a8086dc89d114df31a159d4d46f4e7f5b
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jan 6 20:58:09 2022 -0800
 
-    [ spi_host, prj ] Update SPI_HOST checklist
+    [sram/dv] Sign off V2
     
-    - Indicate all items as ready for D2
-    - Mark items in D2S, V2S as N/A
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
