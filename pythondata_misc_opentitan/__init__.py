@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9511"
-version_tuple = (0, 0, 9511)
+version_str = "0.0.post9514"
+version_tuple = (0, 0, 9514)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9511")
+    pversion = V("0.0.post9514")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9391"
-data_version_tuple = (0, 0, 9391)
+data_version_str = "0.0.post9394"
+data_version_tuple = (0, 0, 9394)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9391")
+    pdata_version = V("0.0.post9394")
 except ImportError:
     pass
-data_git_hash = "5ef1bff3de774e7c58e0a61bb64d383e30440c4c"
-data_git_describe = "v0.0-9391-g5ef1bff3d"
+data_git_hash = "e4c5d706cc9d6516a58dd271485f7eee1b91cf7e"
+data_git_describe = "v0.0-9394-ge4c5d706c"
 data_git_msg = """\
-commit 5ef1bff3de774e7c58e0a61bb64d383e30440c4c
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Jan 12 04:28:58 2022 -0800
+commit e4c5d706cc9d6516a58dd271485f7eee1b91cf7e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Jan 11 16:25:32 2022 -0500
 
-    [edn/dv] Add scoreboard checking
+    [bazel] Update BUILD files
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
