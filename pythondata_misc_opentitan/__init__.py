@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9541"
-version_tuple = (0, 0, 9541)
+version_str = "0.0.post9542"
+version_tuple = (0, 0, 9542)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9541")
+    pversion = V("0.0.post9542")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9419"
-data_version_tuple = (0, 0, 9419)
+data_version_str = "0.0.post9420"
+data_version_tuple = (0, 0, 9420)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9419")
+    pdata_version = V("0.0.post9420")
 except ImportError:
     pass
-data_git_hash = "756ea0bdfd5c19b6b25cc7e83eaef32452991ba1"
-data_git_describe = "v0.0-9419-g756ea0bdf"
+data_git_hash = "7dbbbd5410f3aecf120d5d0ec1cbb3b3fd508feb"
+data_git_describe = "v0.0-9420-g7dbbbd541"
 data_git_msg = """\
-commit 756ea0bdfd5c19b6b25cc7e83eaef32452991ba1
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Jan 10 14:31:47 2022 -0800
+commit 7dbbbd5410f3aecf120d5d0ec1cbb3b3fd508feb
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Mon Jan 10 20:28:34 2022 -0800
 
-    [dv] Update checklist
+    [hmac_smoketest] change endianness of expectation
     
-    As discussed in SRAM Ctrl V2 review, updated these checklist
-    1. Updated the description for “pre_verified_sub_modules_v2”
-    2. Updated V2S checklist to add an item for FPV
+    https://github.com/lowRISC/opentitan/pull/9553 has swapped the
+    endianness bit to correct it's behavior so the smoke test for the hmac
+    needs to have a corrected expectation to pass.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
