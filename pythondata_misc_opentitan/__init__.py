@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9532"
-version_tuple = (0, 0, 9532)
+version_str = "0.0.post9534"
+version_tuple = (0, 0, 9534)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9532")
+    pversion = V("0.0.post9534")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9410"
-data_version_tuple = (0, 0, 9410)
+data_version_str = "0.0.post9412"
+data_version_tuple = (0, 0, 9412)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9410")
+    pdata_version = V("0.0.post9412")
 except ImportError:
     pass
-data_git_hash = "f3ce1a11d87b9a040d0ca556bacba68eec9980c6"
-data_git_describe = "v0.0-9410-gf3ce1a11d"
+data_git_hash = "f81c8aca4edcd5420f972513fbbc39f17af0ac5e"
+data_git_describe = "v0.0-9412-gf81c8aca4"
 data_git_msg = """\
-commit f3ce1a11d87b9a040d0ca556bacba68eec9980c6
-Author: Jacob Levy <jacob.levy@opentitan.org>
-Date:   Wed Jan 12 19:26:07 2022 +0200
+commit f81c8aca4edcd5420f972513fbbc39f17af0ac5e
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Thu Jan 13 11:03:25 2022 +0000
 
-    [AST] Add 2 DFT padmux2ast (remove 2 analog DFT inputs) and solve AST Lint/Synth OSCs issue
+    [rom_ctrl, dv] Added new checker and coverpoint to testplan
     
-    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
+    Enhanced testplan to include checkers and covergroups to ensure that
+    tilelink accesses are blocked until pwrmgr_data_o.done is asserted
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
