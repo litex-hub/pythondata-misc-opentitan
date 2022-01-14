@@ -33,7 +33,7 @@ parameter int unsigned AdcChannels     = 2;
 parameter int unsigned AdcDataWidth    = 10;
 parameter int unsigned UsbCalibWidth   = 20;
 parameter int unsigned Ast2PadOutWidth = 9;
-parameter int unsigned Pad2AstInWidth  = 7;
+parameter int unsigned Pad2AstInWidth  = 9;
 
 // These LFSR parameters have been generated with
 // $ ./util/design/gen-lfsr-seed.py --width 64 --seed 691876113 --prefix ""
@@ -132,6 +132,31 @@ typedef struct packed {
   logic     io;
   logic     aon;
 } clks_osc_byp_t;
+
+typedef enum logic [4-1:0] {
+  ObsNon = 4'h0,  // No module observed (disable)
+  ObsAst = 4'h1,  // Observe AST
+  ObsFla = 4'h2,  // Observe FLASH
+  ObsOtp = 4'h3,  // Observe OTP
+  ObsOt0 = 4'h4,  // Observe OT0
+  ObsOt1 = 4'h5,  // Observe OT1
+  ObsOt2 = 4'h6,  // Observe OT2
+  ObsOt3 = 4'h7,  // Observe OT3
+  ObsRs0 = 4'h8,  // RESERVED
+  ObsRs1 = 4'h9,  // RESERVED
+  ObsRs2 = 4'hA,  // RESERVED
+  ObsRs3 = 4'hB,  // RESERVED
+  ObsRs4 = 4'hC,  // RESERVED
+  ObsRs5 = 4'hD,  // RESERVED
+  ObsRs6 = 4'hE,  // RESERVED
+  ObsRs7 = 4'hF   // RESERVED
+} ast_omdl_e;
+
+typedef struct packed {
+  logic [4-1:0]          obgsl;
+  ast_omdl_e             obmsl;
+  prim_mubi_pkg::mubi4_t obmen;
+} ast_obs_ctrl_t;
 
 endpackage  // of ast_pkg
 `endif  // of __AST_PKG_SV

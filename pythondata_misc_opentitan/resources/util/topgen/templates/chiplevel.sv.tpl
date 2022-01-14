@@ -703,7 +703,9 @@ module chip_${top["name"]}_${target["name"]} (
                      mio_in_raw[MioPadIob7],
                      mio_in_raw[MioPadIob2],
                      mio_in_raw[MioPadIob1],
-                     mio_in_raw[MioPadIob0]
+                     mio_in_raw[MioPadIob0],
+                     mio_in_raw[MioPadIoa5],
+                     mio_in_raw[MioPadIoa4]
                    };
 
   // AST does not use all clocks / resets forwarded to it
@@ -767,8 +769,6 @@ module chip_${top["name"]}_${target["name"]} (
     .adc_a1_ai             ( CC2 ),
 
     // Direct short to PAD
-    .pad2ast_t0_ai         ( IOA4 ),
-    .pad2ast_t1_ai         ( IOA5 ),
     .ast2pad_t0_ao         ( IOA2 ),
     .ast2pad_t1_ao         ( IOA3 ),
 % else:
@@ -786,8 +786,6 @@ module chip_${top["name"]}_${target["name"]} (
     .adc_a1_ai             ( '0 ),
 
     // Direct short to PAD
-    .pad2ast_t0_ai         ( '0 ),
-    .pad2ast_t1_ai         ( '0 ),
     .ast2pad_t0_ao         (  ),
     .ast2pad_t1_ao         (  ),
 
@@ -867,6 +865,10 @@ module chip_${top["name"]}_${target["name"]} (
     // dft
     .dft_strap_test_i      ( dft_strap_test   ),
     .lc_dft_en_i           ( dft_en           ),
+    .fla_obs_i             ( '0 ),
+    .otp_obs_i             ( '0 ),
+    .otm_obs_i             ( '0 ),
+    .obs_ctrl_o            (  ),
     // pinmux related
     .padmux2ast_i          ( pad2ast    ),
     .ast2padmux_o          ( ast2pinmux ),
