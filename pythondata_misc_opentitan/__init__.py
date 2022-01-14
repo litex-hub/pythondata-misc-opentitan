@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9543"
-version_tuple = (0, 0, 9543)
+version_str = "0.0.post9546"
+version_tuple = (0, 0, 9546)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9543")
+    pversion = V("0.0.post9546")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9421"
-data_version_tuple = (0, 0, 9421)
+data_version_str = "0.0.post9424"
+data_version_tuple = (0, 0, 9424)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9421")
+    pdata_version = V("0.0.post9424")
 except ImportError:
     pass
-data_git_hash = "c4cebb2b261ebc30e1998fdbdaf843e96b72b3ec"
-data_git_describe = "v0.0-9421-gc4cebb2b2"
+data_git_hash = "ac99d1644ae8ec11b02e211a98281d89f9084fb1"
+data_git_describe = "v0.0-9424-gac99d1644"
 data_git_msg = """\
-commit c4cebb2b261ebc30e1998fdbdaf843e96b72b3ec
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Jan 12 08:27:49 2022 -0500
+commit ac99d1644ae8ec11b02e211a98281d89f9084fb1
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Jan 13 20:06:32 2022 +0000
 
-    [sw/silicon_creator] Harden encoded message check
+    [spi_device] Connect SRAM arbiter grant signal
     
-    This change hardens the encoded message check, i.e. the last step of
-    signature verification, by producing the value that will unlock flash
-    execution (written to the EXEC register of flash_ctrl) using shares.
+    SW access port (TL-UL) can handle the grant signal. Other requesters
+    from the HW can't handle. The assertion catches the case but the better
+    approach is to lower the SW access priority in prim_sram_arbiter and
+    also block the requeset when SPI transaction is active.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    In this commmit, the SW access has lowest priority. When HW (upload)
+    requests, the Sw loses the access.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
