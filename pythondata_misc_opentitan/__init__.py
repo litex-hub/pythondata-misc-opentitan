@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9542"
-version_tuple = (0, 0, 9542)
+version_str = "0.0.post9543"
+version_tuple = (0, 0, 9543)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9542")
+    pversion = V("0.0.post9543")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9420"
-data_version_tuple = (0, 0, 9420)
+data_version_str = "0.0.post9421"
+data_version_tuple = (0, 0, 9421)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9420")
+    pdata_version = V("0.0.post9421")
 except ImportError:
     pass
-data_git_hash = "7dbbbd5410f3aecf120d5d0ec1cbb3b3fd508feb"
-data_git_describe = "v0.0-9420-g7dbbbd541"
+data_git_hash = "c4cebb2b261ebc30e1998fdbdaf843e96b72b3ec"
+data_git_describe = "v0.0-9421-gc4cebb2b2"
 data_git_msg = """\
-commit 7dbbbd5410f3aecf120d5d0ec1cbb3b3fd508feb
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Jan 10 20:28:34 2022 -0800
+commit c4cebb2b261ebc30e1998fdbdaf843e96b72b3ec
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Jan 12 08:27:49 2022 -0500
 
-    [hmac_smoketest] change endianness of expectation
+    [sw/silicon_creator] Harden encoded message check
     
-    https://github.com/lowRISC/opentitan/pull/9553 has swapped the
-    endianness bit to correct it's behavior so the smoke test for the hmac
-    needs to have a corrected expectation to pass.
+    This change hardens the encoded message check, i.e. the last step of
+    signature verification, by producing the value that will unlock flash
+    execution (written to the EXEC register of flash_ctrl) using shares.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
