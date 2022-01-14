@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9525"
-version_tuple = (0, 0, 9525)
+version_str = "0.0.post9530"
+version_tuple = (0, 0, 9530)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9525")
+    pversion = V("0.0.post9530")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9403"
-data_version_tuple = (0, 0, 9403)
+data_version_str = "0.0.post9408"
+data_version_tuple = (0, 0, 9408)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9403")
+    pdata_version = V("0.0.post9408")
 except ImportError:
     pass
-data_git_hash = "a24bc023c975d3986d9a6e4f715ae81fc201d8e5"
-data_git_describe = "v0.0-9403-ga24bc023c"
+data_git_hash = "60c1f1277317ce3fa447d6955124d77a9b559fd4"
+data_git_describe = "v0.0-9408-g60c1f1277"
 data_git_msg = """\
-commit a24bc023c975d3986d9a6e4f715ae81fc201d8e5
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Wed Jan 12 15:16:36 2022 +0000
+commit 60c1f1277317ce3fa447d6955124d77a9b559fd4
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Jan 13 20:29:42 2022 +0000
 
-    Added sysrst_ctrl to nightly regression
+    [spi_device] Lint fix
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    use constant 0 for lint tool to assume the correct bit size
+    
+    To avoid Out of Bound lint error, logic is changed to explicit
+    assignment in jedec.sv
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
