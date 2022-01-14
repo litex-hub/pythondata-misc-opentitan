@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9534"
-version_tuple = (0, 0, 9534)
+version_str = "0.0.post9538"
+version_tuple = (0, 0, 9538)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9534")
+    pversion = V("0.0.post9538")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9412"
-data_version_tuple = (0, 0, 9412)
+data_version_str = "0.0.post9416"
+data_version_tuple = (0, 0, 9416)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9412")
+    pdata_version = V("0.0.post9416")
 except ImportError:
     pass
-data_git_hash = "f81c8aca4edcd5420f972513fbbc39f17af0ac5e"
-data_git_describe = "v0.0-9412-gf81c8aca4"
+data_git_hash = "10c66e44abff84b940c95d89ceb35d987c1001bb"
+data_git_describe = "v0.0-9416-g10c66e44a"
 data_git_msg = """\
-commit f81c8aca4edcd5420f972513fbbc39f17af0ac5e
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Thu Jan 13 11:03:25 2022 +0000
+commit 10c66e44abff84b940c95d89ceb35d987c1001bb
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Jan 11 15:20:03 2022 +0000
 
-    [rom_ctrl, dv] Added new checker and coverpoint to testplan
+    [sw,otbn] Adjust loaders to properly handle OTBN's new bss section.
     
-    Enhanced testplan to include checkers and covergroups to ensure that
-    tilelink accesses are blocked until pwrmgr_data_o.done is asserted
+    This change adjusts the OTBN build script to categorize the .bss section
+    as .bss rather than .rodata for .rv32embed.o files, which means it is no
+    longer guaranteed that DMEM regions are continuous in memory. The
+    loaders are then adjusted to handle the two separate sections.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
