@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9530"
-version_tuple = (0, 0, 9530)
+version_str = "0.0.post9532"
+version_tuple = (0, 0, 9532)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9530")
+    pversion = V("0.0.post9532")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9408"
-data_version_tuple = (0, 0, 9408)
+data_version_str = "0.0.post9410"
+data_version_tuple = (0, 0, 9410)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9408")
+    pdata_version = V("0.0.post9410")
 except ImportError:
     pass
-data_git_hash = "60c1f1277317ce3fa447d6955124d77a9b559fd4"
-data_git_describe = "v0.0-9408-g60c1f1277"
+data_git_hash = "f3ce1a11d87b9a040d0ca556bacba68eec9980c6"
+data_git_describe = "v0.0-9410-gf3ce1a11d"
 data_git_msg = """\
-commit 60c1f1277317ce3fa447d6955124d77a9b559fd4
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jan 13 20:29:42 2022 +0000
+commit f3ce1a11d87b9a040d0ca556bacba68eec9980c6
+Author: Jacob Levy <jacob.levy@opentitan.org>
+Date:   Wed Jan 12 19:26:07 2022 +0200
 
-    [spi_device] Lint fix
+    [AST] Add 2 DFT padmux2ast (remove 2 analog DFT inputs) and solve AST Lint/Synth OSCs issue
     
-    use constant 0 for lint tool to assume the correct bit size
-    
-    To avoid Out of Bound lint error, logic is changed to explicit
-    assignment in jedec.sv
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Jacob Levy <jacob.levy@opentitan.org>
 
 """
 
