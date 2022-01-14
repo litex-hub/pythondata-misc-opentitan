@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9538"
-version_tuple = (0, 0, 9538)
+version_str = "0.0.post9539"
+version_tuple = (0, 0, 9539)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9538")
+    pversion = V("0.0.post9539")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9416"
-data_version_tuple = (0, 0, 9416)
+data_version_str = "0.0.post9417"
+data_version_tuple = (0, 0, 9417)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9416")
+    pdata_version = V("0.0.post9417")
 except ImportError:
     pass
-data_git_hash = "10c66e44abff84b940c95d89ceb35d987c1001bb"
-data_git_describe = "v0.0-9416-g10c66e44a"
+data_git_hash = "ee5604553d080abc708f526bcc69f5fe886987e2"
+data_git_describe = "v0.0-9417-gee5604553"
 data_git_msg = """\
-commit 10c66e44abff84b940c95d89ceb35d987c1001bb
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Jan 11 15:20:03 2022 +0000
+commit ee5604553d080abc708f526bcc69f5fe886987e2
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Jan 4 22:58:13 2022 +0000
 
-    [sw,otbn] Adjust loaders to properly handle OTBN's new bss section.
+    [spi_device] Add valid check in CmdParse
     
-    This change adjusts the OTBN build script to categorize the .bss section
-    as .bss rather than .rodata for .rv32embed.o files, which means it is no
-    longer guaranteed that DMEM regions are continuous in memory. The
-    loaders are then adjusted to handle the two separate sections.
+    Add cmd_info_slot valid field to the opcode_* conditions. With the
+    change, the cmdparse won't raise OnlyOneDatapath_A assertion for
+    unprogrammed cmd_info slot.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
