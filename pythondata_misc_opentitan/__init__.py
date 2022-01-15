@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9546"
-version_tuple = (0, 0, 9546)
+version_str = "0.0.post9547"
+version_tuple = (0, 0, 9547)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9546")
+    pversion = V("0.0.post9547")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9424"
-data_version_tuple = (0, 0, 9424)
+data_version_str = "0.0.post9425"
+data_version_tuple = (0, 0, 9425)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9424")
+    pdata_version = V("0.0.post9425")
 except ImportError:
     pass
-data_git_hash = "ac99d1644ae8ec11b02e211a98281d89f9084fb1"
-data_git_describe = "v0.0-9424-gac99d1644"
+data_git_hash = "e81c3258f6f9bb667f989e6ccefb32d8582e9dad"
+data_git_describe = "v0.0-9425-ge81c3258f"
 data_git_msg = """\
-commit ac99d1644ae8ec11b02e211a98281d89f9084fb1
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jan 13 20:06:32 2022 +0000
+commit e81c3258f6f9bb667f989e6ccefb32d8582e9dad
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jan 14 14:37:09 2022 -0800
 
-    [spi_device] Connect SRAM arbiter grant signal
+    [sysrst_ctrl] Trigger wakeup interrupt only when wkup_req rises
     
-    SW access port (TL-UL) can handle the grant signal. Other requesters
-    from the HW can't handle. The assertion catches the case but the better
-    approach is to lower the SW access priority in prim_sram_arbiter and
-    also block the requeset when SPI transaction is active.
+    See also: https://github.com/lowRISC/opentitan/pull/10034/files#r783573203
     
-    In this commmit, the SW access has lowest priority. When HW (upload)
-    requests, the Sw loses the access.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
