@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9547"
-version_tuple = (0, 0, 9547)
+version_str = "0.0.post9548"
+version_tuple = (0, 0, 9548)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9547")
+    pversion = V("0.0.post9548")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9425"
-data_version_tuple = (0, 0, 9425)
+data_version_str = "0.0.post9426"
+data_version_tuple = (0, 0, 9426)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9425")
+    pdata_version = V("0.0.post9426")
 except ImportError:
     pass
-data_git_hash = "e81c3258f6f9bb667f989e6ccefb32d8582e9dad"
-data_git_describe = "v0.0-9425-ge81c3258f"
+data_git_hash = "1e2e6b3469d36dd13cdd2d0a518c98c1c5a4de79"
+data_git_describe = "v0.0-9426-g1e2e6b346"
 data_git_msg = """\
-commit e81c3258f6f9bb667f989e6ccefb32d8582e9dad
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jan 14 14:37:09 2022 -0800
+commit 1e2e6b3469d36dd13cdd2d0a518c98c1c5a4de79
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jan 13 12:37:14 2022 -0800
 
-    [sysrst_ctrl] Trigger wakeup interrupt only when wkup_req rises
+    [dv/clkmgr] Add stress test
     
-    See also: https://github.com/lowRISC/opentitan/pull/10034/files#r783573203
+    Fix for forks missing isolation forks.
+    Fix other minor issues caught by this test.
+    Move CSR value tracking to clkmgr interface.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
