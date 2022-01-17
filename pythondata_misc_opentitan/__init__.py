@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9555"
-version_tuple = (0, 0, 9555)
+version_str = "0.0.post9562"
+version_tuple = (0, 0, 9562)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9555")
+    pversion = V("0.0.post9562")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9433"
-data_version_tuple = (0, 0, 9433)
+data_version_str = "0.0.post9440"
+data_version_tuple = (0, 0, 9440)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9433")
+    pdata_version = V("0.0.post9440")
 except ImportError:
     pass
-data_git_hash = "50dd5699865d116ee0a313cbda096adf44576bca"
-data_git_describe = "v0.0-9433-g50dd56998"
+data_git_hash = "90ff24f3a186d6015d7f80e2b50eea3925c59125"
+data_git_describe = "v0.0-9440-g90ff24f3a"
 data_git_msg = """\
-commit 50dd5699865d116ee0a313cbda096adf44576bca
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri Jan 14 12:02:31 2022 +0000
+commit 90ff24f3a186d6015d7f80e2b50eea3925c59125
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Dec 16 17:04:34 2021 +0000
 
-    [rom_ctrl, dv] V1 signoff
+    [otbn,dv] Document how we cover integrity protection
     
-    All actions items from V1 review have been finished and PRs have been
-    merged.
+    Also mark the existing mem_integrity testpoint and the new
+    internal_integrity testpoint as V2S since they're testing fault
+    detection.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
