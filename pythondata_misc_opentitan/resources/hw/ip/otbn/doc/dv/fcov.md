@@ -60,6 +60,31 @@ We expect to:
 Accesses to CSRs and WSRs are tracked in the coverage for the instructions that access them.
 See [CSRRS](#csrrs) and [CSRRW](#csrrw) for CSRs; [BN.WSRR](#bnwsrr) and [BN.WSRW](#bnwsrw) for WSRs.
 
+## Random numbers
+
+Random numbers are exposed to OTBN code through the `RND` and `URND` CSRs and WSRs.
+A new random number can be prefetched for `RND` with the `RND_PREFETCH` CSR.
+
+We track uses of each of these CSRs and WSRs in the instructions that access them.
+See [CSRRS](#csrrs) and [CSRRW](#csrrw) for CSRs; [BN.WSRR](#bnwsrr) and [BN.WSRW](#bnwsrw) for WSRs.
+However, we also want to see some interactions between `RND` and `RND_PREFETCH`.
+These are all tracked with cover properties in `otbn_rnd_if.sv`.
+
+Specifically, we expect to see:
+
+- An read of `RND` (either CSR or WSR) before any write to `RND_PREFETCH`.
+  This is tracked with the `RndWithNoPrefetch_C` cover property.
+- Two consecutive writes to `RND_PREFETCH` without a random value arriving between.
+  This is tracked with the `PrefetchPrefetch_C` cover property.
+- Two consecutive writes to `RND_PREFETCH`, where a random value arrives between them.
+  This is tracked with the `FullPrefetch_C` cover property.
+- A write to `RND_PREFETCH` followed by a read from `RND` after the random value has arrived.
+  This is tracked with the `FullRead_C` cover property.
+- A write to `RND_PREFETCH` followed by a read from `RND` before the random value has arrived.
+  This is tracked with the `PrefetchingRead_C` cover property.
+
+
+
 ## Flags
 
 Each flag in each flag group should be set to one from zero by some instruction.
@@ -88,6 +113,13 @@ We want to see errors/alerts caused by corrupting each of these pieces of state.
 Rather than tracking this with functional coverage, we rely on testplan entries.
 
 See the `mem_integrity` and `internal_integrity` entries in the testplan for more details.
+
+## Lifecycle escalation
+
+The lifecycle controller can send a "lifecycle escalation" signal to tell OTBN to clear its internal state and to raise its own fatal error.
+
+We expect to see this happen.
+However, we don't track coverage for this explicitly since it's handled at the testplan level (with the `lc_escalation` testpoint).
 
 ## External (bus-accessible) CSRs {#ext-csrs}
 
