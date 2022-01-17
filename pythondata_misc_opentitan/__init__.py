@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9551"
-version_tuple = (0, 0, 9551)
+version_str = "0.0.post9553"
+version_tuple = (0, 0, 9553)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9551")
+    pversion = V("0.0.post9553")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9429"
-data_version_tuple = (0, 0, 9429)
+data_version_str = "0.0.post9431"
+data_version_tuple = (0, 0, 9431)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9429")
+    pdata_version = V("0.0.post9431")
 except ImportError:
     pass
-data_git_hash = "84ad1434dbbab673f340a189dfdcae0c93aeff8b"
-data_git_describe = "v0.0-9429-g84ad1434d"
+data_git_hash = "733e3ecf5ccc3fd89755c9e3ec6c3532bc53c12d"
+data_git_describe = "v0.0-9431-g733e3ecf5"
 data_git_msg = """\
-commit 84ad1434dbbab673f340a189dfdcae0c93aeff8b
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Jan 13 11:42:49 2022 -0800
+commit 733e3ecf5ccc3fd89755c9e3ec6c3532bc53c12d
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Wed Jan 5 16:40:55 2022 -0800
 
-    [ spi_host, doc ] fix minor typo found in D2 review.
+    [edn, dv] EDN testplan update
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+      - Update EDN testplan to include alert and error tests
+      - Move the ERR_CODE verification from the interrupt test to error test
+      - Add a covergroup for interrupt, alert and error test
+    
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
