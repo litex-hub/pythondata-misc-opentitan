@@ -4,35 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9567"
-version_tuple = (0, 0, 9567)
+version_str = "0.0.post9568"
+version_tuple = (0, 0, 9568)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9567")
+    pversion = V("0.0.post9568")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9445"
-data_version_tuple = (0, 0, 9445)
+data_version_str = "0.0.post9446"
+data_version_tuple = (0, 0, 9446)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9445")
+    pdata_version = V("0.0.post9446")
 except ImportError:
     pass
-data_git_hash = "53b9e7d8e3c616764c175a489d566bddb1e6a6d9"
-data_git_describe = "v0.0-9445-g53b9e7d8e"
+data_git_hash = "db0b4cea41217ccca01060f31b2ff1298c64bf86"
+data_git_describe = "v0.0-9446-gdb0b4cea4"
 data_git_msg = """\
-commit 53b9e7d8e3c616764c175a489d566bddb1e6a6d9
+commit db0b4cea41217ccca01060f31b2ff1298c64bf86
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Dec 14 18:31:26 2021 +0000
+Date:   Tue Dec 14 18:33:33 2021 +0000
 
-    [otbn,dv] Add functional coverage for fatal SW errs
-    
-    This is a little fiddly because observing it happening requires two TL
-    reads. If we're struggling to hit these bins, we could improve the
-    tracking in the coverage code so that we can see it in more ways (e.g.
-    read FATAL_ALERT_CAUSE before ERR_BITS).
+    [otbn,dv] Add coverage for scratchpad memory
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
