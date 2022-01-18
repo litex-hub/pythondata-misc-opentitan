@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9585"
-version_tuple = (0, 0, 9585)
+version_str = "0.0.post9591"
+version_tuple = (0, 0, 9591)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9585")
+    pversion = V("0.0.post9591")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9463"
-data_version_tuple = (0, 0, 9463)
+data_version_str = "0.0.post9469"
+data_version_tuple = (0, 0, 9469)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9463")
+    pdata_version = V("0.0.post9469")
 except ImportError:
     pass
-data_git_hash = "8a2c0aba06fc49162943be2fc6e97dcdc73f14da"
-data_git_describe = "v0.0-9463-g8a2c0aba0"
+data_git_hash = "724b74102f2141cf6a3c71cf0ce35815e9ab8524"
+data_git_describe = "v0.0-9469-g724b74102"
 data_git_msg = """\
-commit 8a2c0aba06fc49162943be2fc6e97dcdc73f14da
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Jan 17 14:57:51 2022 +0000
+commit 724b74102f2141cf6a3c71cf0ce35815e9ab8524
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 14 15:46:41 2022 -0800
 
-    [dv,rstmgr] Fix mubi check in rstmgr_cascading_sva_if
+    [dv/jtag] Add a runtime switch `create_jtag_map`
     
-    The type of scanmode_i changed to mubi4_t in ee8c4bf171 but it looks
-    like we didn't update its uses to the new type.
+    This PR adds a runtime switch `create_jtag_map` to reuse the code to
+    clone a jtag_map from default_map.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
