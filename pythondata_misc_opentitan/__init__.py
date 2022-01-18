@@ -4,30 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9601"
-version_tuple = (0, 0, 9601)
+version_str = "0.0.post9604"
+version_tuple = (0, 0, 9604)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9601")
+    pversion = V("0.0.post9604")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9479"
-data_version_tuple = (0, 0, 9479)
+data_version_str = "0.0.post9482"
+data_version_tuple = (0, 0, 9482)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9479")
+    pdata_version = V("0.0.post9482")
 except ImportError:
     pass
-data_git_hash = "d3975c6cff90e0764dd1e5f30022eac674699597"
-data_git_describe = "v0.0-9479-gd3975c6cf"
+data_git_hash = "df8b8cd626942a121ea6541caafaad4dbd3f14f9"
+data_git_describe = "v0.0-9482-gdf8b8cd62"
 data_git_msg = """\
-commit d3975c6cff90e0764dd1e5f30022eac674699597
+commit df8b8cd626942a121ea6541caafaad4dbd3f14f9
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 18 18:00:53 2022 +0000
+Date:   Tue Jan 11 18:03:15 2022 +0000
 
-    [otbn,dv] Add a stress_all_with_rand_reset test
+    [rom_ctrl,doc] Expand countermeasure list
+    
+    This is going to be the starting point for both the D2S review and
+    also any extra testplan items that go into V2S. Try to explicitly list
+    all the extra tricks we're playing.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
