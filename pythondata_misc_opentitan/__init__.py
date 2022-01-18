@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9571"
-version_tuple = (0, 0, 9571)
+version_str = "0.0.post9575"
+version_tuple = (0, 0, 9575)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9571")
+    pversion = V("0.0.post9575")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9449"
-data_version_tuple = (0, 0, 9449)
+data_version_str = "0.0.post9453"
+data_version_tuple = (0, 0, 9453)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9449")
+    pdata_version = V("0.0.post9453")
 except ImportError:
     pass
-data_git_hash = "39418a494fef3c225272aa1be681e089ee2b4319"
-data_git_describe = "v0.0-9449-g39418a494"
+data_git_hash = "c26986551a1fd0f357e8a9ebcd739a7a64c27635"
+data_git_describe = "v0.0-9453-gc26986551"
 data_git_msg = """\
-commit 39418a494fef3c225272aa1be681e089ee2b4319
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Tue Jan 11 01:05:24 2022 +0000
+commit c26986551a1fd0f357e8a9ebcd739a7a64c27635
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 18 09:22:40 2022 +0000
 
-    [aon_timer,dv] Testplan Update after V1 Review
+    [otbn,dv] Don't bother resetting at the end of err vseqs
     
-    This change includes addition of prescaler test which explicitly
-    tests the funcitonality of both timers while prescale configuration
-    is set randomly while running.
+    We'll handle this in any sequence that chains them together. This way,
+    we can use one of these sequences if we want a locked OTBN for some
+    reason.
     
-    Also includes coverpoints from the DV document into the hjson.
-    
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
