@@ -4,37 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9594"
-version_tuple = (0, 0, 9594)
+version_str = "0.0.post9598"
+version_tuple = (0, 0, 9598)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9594")
+    pversion = V("0.0.post9598")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9472"
-data_version_tuple = (0, 0, 9472)
+data_version_str = "0.0.post9476"
+data_version_tuple = (0, 0, 9476)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9472")
+    pdata_version = V("0.0.post9476")
 except ImportError:
     pass
-data_git_hash = "67b6a421ee94d6217977a60bcdf6abb5586fecce"
-data_git_describe = "v0.0-9472-g67b6a421e"
+data_git_hash = "95be8e6722ed33dbcfc8757d7e06734af168f1f5"
+data_git_describe = "v0.0-9476-g95be8e672"
 data_git_msg = """\
-commit 67b6a421ee94d6217977a60bcdf6abb5586fecce
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jan 18 08:05:55 2022 -0800
+commit 95be8e6722ed33dbcfc8757d7e06734af168f1f5
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Jan 14 18:11:43 2022 -0800
 
-    [dv/otp_ctrl] Fix dai_err regression timeout
+    [dif/alert_handler] Add X macros to simplify DIF code.
     
-    This PR fixes timeout in dai_err in post_start. The post_start in
-    cip_base_vseq uses dut_init which will start the otp_init. The OTP init
-    won't work in this seq due to the errors, so we will have to re-backdoor
-    program the entire OTP.
+    The alert handler has a list of classes and local alerts that are
+    converted to enums, that are used in several case statement. This commit
+    adds X macros to improve the maintainability (in the case that the
+    hardware changes and additional local alerts or classes are added), and
+    readability of the alert handler DIF code.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This commit was added in response to a review comment in #10040.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
