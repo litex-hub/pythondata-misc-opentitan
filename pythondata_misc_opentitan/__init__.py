@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9591"
-version_tuple = (0, 0, 9591)
+version_str = "0.0.post9592"
+version_tuple = (0, 0, 9592)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9591")
+    pversion = V("0.0.post9592")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9469"
-data_version_tuple = (0, 0, 9469)
+data_version_str = "0.0.post9470"
+data_version_tuple = (0, 0, 9470)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9469")
+    pdata_version = V("0.0.post9470")
 except ImportError:
     pass
-data_git_hash = "724b74102f2141cf6a3c71cf0ce35815e9ab8524"
-data_git_describe = "v0.0-9469-g724b74102"
+data_git_hash = "ce2da4b2b2c5964d37cc67fa75b4adeac67b088e"
+data_git_describe = "v0.0-9470-gce2da4b2b"
 data_git_msg = """\
-commit 724b74102f2141cf6a3c71cf0ce35815e9ab8524
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jan 14 15:46:41 2022 -0800
+commit ce2da4b2b2c5964d37cc67fa75b4adeac67b088e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Jan 13 18:32:45 2022 -0800
 
-    [dv/jtag] Add a runtime switch `create_jtag_map`
+    [all] various simple lint fixes
     
-    This PR adds a runtime switch `create_jtag_map` to reuse the code to
-    clone a jtag_map from default_map.
+    - remove unused parameters in flash_ctrl
+    - add mubi waivers
+    - add reset waives and change parameters to unsigned
+    - handle undriven / unloaded signals in socket when there is no error responder
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
