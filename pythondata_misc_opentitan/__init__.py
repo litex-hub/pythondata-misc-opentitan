@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9580"
-version_tuple = (0, 0, 9580)
+version_str = "0.0.post9585"
+version_tuple = (0, 0, 9585)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9580")
+    pversion = V("0.0.post9585")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9458"
-data_version_tuple = (0, 0, 9458)
+data_version_str = "0.0.post9463"
+data_version_tuple = (0, 0, 9463)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9458")
+    pdata_version = V("0.0.post9463")
 except ImportError:
     pass
-data_git_hash = "51abd9f8d94d9a362c49b2de851ff17d6bee5d46"
-data_git_describe = "v0.0-9458-g51abd9f8d"
+data_git_hash = "8a2c0aba06fc49162943be2fc6e97dcdc73f14da"
+data_git_describe = "v0.0-9463-g8a2c0aba0"
 data_git_msg = """\
-commit 51abd9f8d94d9a362c49b2de851ff17d6bee5d46
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Tue Dec 7 14:54:24 2021 +0000
+commit 8a2c0aba06fc49162943be2fc6e97dcdc73f14da
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Jan 17 14:57:51 2022 +0000
 
-    [bazel] Docs ignore bazel's build directories
+    [dv,rstmgr] Fix mubi check in rstmgr_cascading_sva_if
     
-    Our site configs need another entry to ignore bazel build directories
-    when building documentation.
+    The type of scanmode_i changed to mubi4_t in ee8c4bf171 but it looks
+    like we didn't update its uses to the new type.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
