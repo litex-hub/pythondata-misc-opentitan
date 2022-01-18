@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9575"
-version_tuple = (0, 0, 9575)
+version_str = "0.0.post9578"
+version_tuple = (0, 0, 9578)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9575")
+    pversion = V("0.0.post9578")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9453"
-data_version_tuple = (0, 0, 9453)
+data_version_str = "0.0.post9456"
+data_version_tuple = (0, 0, 9456)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9453")
+    pdata_version = V("0.0.post9456")
 except ImportError:
     pass
-data_git_hash = "c26986551a1fd0f357e8a9ebcd739a7a64c27635"
-data_git_describe = "v0.0-9453-gc26986551"
+data_git_hash = "2b53c16ad1e3836da28898a2bf9347d7a11ad190"
+data_git_describe = "v0.0-9456-g2b53c16ad"
 data_git_msg = """\
-commit c26986551a1fd0f357e8a9ebcd739a7a64c27635
+commit 2b53c16ad1e3836da28898a2bf9347d7a11ad190
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 18 09:22:40 2022 +0000
+Date:   Mon Jan 17 14:59:44 2022 +0000
 
-    [otbn,dv] Don't bother resetting at the end of err vseqs
+    [dv,spi] Remove some unnecessary "unique"s
     
-    We'll handle this in any sequence that chains them together. This way,
-    we can use one of these sequences if we want a locked OTBN for some
-    reason.
+    In these two statements, a unique case doesn't give any extra
+    information (the cases are obviously distinct!) and it also doesn't
+    actually work. VCS warns with:
+    
+        Warning-[UFCNP] Unique/priority final check ignored
+        ../src/lowrisc_dv_spi_agent_0.1/spi_device_driver.sv, 67
+          Unique/priority final check will not be performed for this statement.
+          Unique/priority statement is not in always block or not in simple for-loop.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
