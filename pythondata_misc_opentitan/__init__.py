@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9592"
-version_tuple = (0, 0, 9592)
+version_str = "0.0.post9594"
+version_tuple = (0, 0, 9594)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9592")
+    pversion = V("0.0.post9594")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9470"
-data_version_tuple = (0, 0, 9470)
+data_version_str = "0.0.post9472"
+data_version_tuple = (0, 0, 9472)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9470")
+    pdata_version = V("0.0.post9472")
 except ImportError:
     pass
-data_git_hash = "ce2da4b2b2c5964d37cc67fa75b4adeac67b088e"
-data_git_describe = "v0.0-9470-gce2da4b2b"
+data_git_hash = "67b6a421ee94d6217977a60bcdf6abb5586fecce"
+data_git_describe = "v0.0-9472-g67b6a421e"
 data_git_msg = """\
-commit ce2da4b2b2c5964d37cc67fa75b4adeac67b088e
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jan 13 18:32:45 2022 -0800
+commit 67b6a421ee94d6217977a60bcdf6abb5586fecce
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jan 18 08:05:55 2022 -0800
 
-    [all] various simple lint fixes
+    [dv/otp_ctrl] Fix dai_err regression timeout
     
-    - remove unused parameters in flash_ctrl
-    - add mubi waivers
-    - add reset waives and change parameters to unsigned
-    - handle undriven / unloaded signals in socket when there is no error responder
+    This PR fixes timeout in dai_err in post_start. The post_start in
+    cip_base_vseq uses dut_init which will start the otp_init. The OTP init
+    won't work in this seq due to the errors, so we will have to re-backdoor
+    program the entire OTP.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
