@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9578"
-version_tuple = (0, 0, 9578)
+version_str = "0.0.post9580"
+version_tuple = (0, 0, 9580)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9578")
+    pversion = V("0.0.post9580")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9456"
-data_version_tuple = (0, 0, 9456)
+data_version_str = "0.0.post9458"
+data_version_tuple = (0, 0, 9458)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9456")
+    pdata_version = V("0.0.post9458")
 except ImportError:
     pass
-data_git_hash = "2b53c16ad1e3836da28898a2bf9347d7a11ad190"
-data_git_describe = "v0.0-9456-g2b53c16ad"
+data_git_hash = "51abd9f8d94d9a362c49b2de851ff17d6bee5d46"
+data_git_describe = "v0.0-9458-g51abd9f8d"
 data_git_msg = """\
-commit 2b53c16ad1e3836da28898a2bf9347d7a11ad190
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Jan 17 14:59:44 2022 +0000
+commit 51abd9f8d94d9a362c49b2de851ff17d6bee5d46
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Tue Dec 7 14:54:24 2021 +0000
 
-    [dv,spi] Remove some unnecessary "unique"s
+    [bazel] Docs ignore bazel's build directories
     
-    In these two statements, a unique case doesn't give any extra
-    information (the cases are obviously distinct!) and it also doesn't
-    actually work. VCS warns with:
+    Our site configs need another entry to ignore bazel build directories
+    when building documentation.
     
-        Warning-[UFCNP] Unique/priority final check ignored
-        ../src/lowrisc_dv_spi_agent_0.1/spi_device_driver.sv, 67
-          Unique/priority final check will not be performed for this statement.
-          Unique/priority statement is not in always block or not in simple for-loop.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
