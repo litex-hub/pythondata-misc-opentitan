@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9598"
-version_tuple = (0, 0, 9598)
+version_str = "0.0.post9601"
+version_tuple = (0, 0, 9601)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9598")
+    pversion = V("0.0.post9601")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9476"
-data_version_tuple = (0, 0, 9476)
+data_version_str = "0.0.post9479"
+data_version_tuple = (0, 0, 9479)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9476")
+    pdata_version = V("0.0.post9479")
 except ImportError:
     pass
-data_git_hash = "95be8e6722ed33dbcfc8757d7e06734af168f1f5"
-data_git_describe = "v0.0-9476-g95be8e672"
+data_git_hash = "d3975c6cff90e0764dd1e5f30022eac674699597"
+data_git_describe = "v0.0-9479-gd3975c6cf"
 data_git_msg = """\
-commit 95be8e6722ed33dbcfc8757d7e06734af168f1f5
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Jan 14 18:11:43 2022 -0800
+commit d3975c6cff90e0764dd1e5f30022eac674699597
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 18 18:00:53 2022 +0000
 
-    [dif/alert_handler] Add X macros to simplify DIF code.
+    [otbn,dv] Add a stress_all_with_rand_reset test
     
-    The alert handler has a list of classes and local alerts that are
-    converted to enums, that are used in several case statement. This commit
-    adds X macros to improve the maintainability (in the case that the
-    hardware changes and additional local alerts or classes are added), and
-    readability of the alert handler DIF code.
-    
-    This commit was added in response to a review comment in #10040.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
