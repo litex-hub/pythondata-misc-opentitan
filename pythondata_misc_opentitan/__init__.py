@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9623"
-version_tuple = (0, 0, 9623)
+version_str = "0.0.post9624"
+version_tuple = (0, 0, 9624)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9623")
+    pversion = V("0.0.post9624")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9501"
-data_version_tuple = (0, 0, 9501)
+data_version_str = "0.0.post9502"
+data_version_tuple = (0, 0, 9502)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9501")
+    pdata_version = V("0.0.post9502")
 except ImportError:
     pass
-data_git_hash = "610e719dc85413520501a0aac552df1d6e1cc34d"
-data_git_describe = "v0.0-9501-g610e719dc"
+data_git_hash = "73b373ddc161d9d2e2d1809c164cd786ddb123de"
+data_git_describe = "v0.0-9502-g73b373ddc"
 data_git_msg = """\
-commit 610e719dc85413520501a0aac552df1d6e1cc34d
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue Jan 18 14:46:27 2022 +0000
+commit 73b373ddc161d9d2e2d1809c164cd786ddb123de
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Dec 15 17:24:28 2021 +0000
 
-    [sw,tests] Add the chip level test `chip_sw_aon_timer_sleep_wdog_bite_reset`
+    [sw,otbn] Add scripts for OTBN information-flow analysis.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Adds two scripts based on the recently added information-flow analysis
+    machinery:
+    - check_const_time.py checks if certain secret values can influence the
+    control flow of a subroutine or program
+    - analyze_information_flow.py provides more information, e.g. the full
+    information-flow graph for a subroutine or program or the final secrets
+    given a particular initial set
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
