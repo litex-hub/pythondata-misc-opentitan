@@ -399,6 +399,24 @@ opentitan_functest(
     ],
 )
 
+opentitan_functest(
+    name = "sigverify_dynamic_functest",
+    srcs = ["sigverify_dynamic_functest.c"],
+    verilator = verilator_params(
+        timeout = "long",
+        tags = [
+            "manual",
+            "verilator",
+        ],
+    ),
+    deps = [
+        ":sigverify",
+        ":sigverify_testvectors",
+        ":test_main",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
+    ],
+)
+
 cc_library(
     name = "sigverify_mod_exp_ibex",
     srcs = ["sigverify_mod_exp_ibex.c"],
@@ -426,6 +444,24 @@ cc_library(
         "sigverify_tests/sigverify_testvectors.h",
     ],
     deps = [
+    ],
+)
+
+opentitan_functest(
+    name = "sigverify_mod_exp_ibex_functest",
+    srcs = ["sigverify_mod_exp_ibex_functest.c"],
+    verilator = verilator_params(
+        timeout = "long",
+        tags = [
+            "manual",
+            "verilator",
+        ],
+    ),
+    deps = [
+        ":sigverify_mod_exp_ibex",
+        ":sigverify_testvectors",
+        ":test_main",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
     ],
 )
 
