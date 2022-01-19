@@ -4,35 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9626"
-version_tuple = (0, 0, 9626)
+version_str = "0.0.post9628"
+version_tuple = (0, 0, 9628)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9626")
+    pversion = V("0.0.post9628")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9504"
-data_version_tuple = (0, 0, 9504)
+data_version_str = "0.0.post9506"
+data_version_tuple = (0, 0, 9506)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9504")
+    pdata_version = V("0.0.post9506")
 except ImportError:
     pass
-data_git_hash = "f40f3bbb11ef092a0e7fdccd41e950eb156d2806"
-data_git_describe = "v0.0-9504-gf40f3bbb1"
+data_git_hash = "cc147faf54de28d8958cc3d23f1925062e0a9c53"
+data_git_describe = "v0.0-9506-gcc147faf5"
 data_git_msg = """\
-commit f40f3bbb11ef092a0e7fdccd41e950eb156d2806
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Tue Jan 18 07:43:45 2022 -0800
+commit cc147faf54de28d8958cc3d23f1925062e0a9c53
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Jan 13 17:41:23 2022 -0800
 
-    [entropy_src/rtl] return ack sm to idle when disabled
+    [dif/alert_handler] Add ping timer enable DIF.
     
-    In the case the entropy_src is disabled and a request from CSRNG is pending, the state machine should return to idle and wait to be enabled again.
-    Fixes #10133.
+    The previous commit adds a DIF to configure the ping timer. This DIF can
+    also be used to enable and lock the ping timer too. However, if a user
+    wants to only configure the ping timer, and enable it later, they would
+    have to write to the time out register again too.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    This commit adds another DIF that just enables (and locks, if requested)
+    the ping timer. This enables more fine grain configuration of the alert
+    handler's ping timer.
+    
+    This addresses a task in #9899.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
