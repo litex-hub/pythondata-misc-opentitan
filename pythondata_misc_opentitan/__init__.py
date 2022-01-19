@@ -4,44 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9635"
-version_tuple = (0, 0, 9635)
+version_str = "0.0.post9636"
+version_tuple = (0, 0, 9636)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9635")
+    pversion = V("0.0.post9636")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9513"
-data_version_tuple = (0, 0, 9513)
+data_version_str = "0.0.post9514"
+data_version_tuple = (0, 0, 9514)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9513")
+    pdata_version = V("0.0.post9514")
 except ImportError:
     pass
-data_git_hash = "40c007a05bf96e2413887650bf110c12196322e3"
-data_git_describe = "v0.0-9513-g40c007a05"
+data_git_hash = "7f09574c615a1540174899148b355837092b9c04"
+data_git_describe = "v0.0-9514-g7f09574c6"
 data_git_msg = """\
-commit 40c007a05bf96e2413887650bf110c12196322e3
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Tue Oct 19 15:46:28 2021 +0100
+commit 7f09574c615a1540174899148b355837092b9c04
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jan 18 15:44:07 2022 -0800
 
-    [adc_ctrl/dv] Added ADC push pull agents and smoke test
+    [otp_ctrl] Anchor seeds and key output
     
-    - Added test sequence adc_ctrl_smoke_vseq.sv
-    Configures DUT in one-shot mode and ensures ADC data is stored in
-    the sample registers.
-    - Integrated push pull agents into environment to emulate the
-    AST ADC
-    - Added filter configuration fields to config object and configuration
-    task in preparation for other tests.
-    - Added filters_both testpoint to testplan
-    - Added a short delay at the end of adc_ctrl_common_vseq body to
-    allow register CDC to finish and avoid triggering assertions at the
-    end of the test.
+    - Partially address #8983
+    - Adds anchor buffers and flops to otp seeds, constants, scramble keys
+      and derived keys
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
