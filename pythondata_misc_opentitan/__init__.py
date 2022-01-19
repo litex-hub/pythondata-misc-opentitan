@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9604"
-version_tuple = (0, 0, 9604)
+version_str = "0.0.post9608"
+version_tuple = (0, 0, 9608)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9604")
+    pversion = V("0.0.post9608")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9482"
-data_version_tuple = (0, 0, 9482)
+data_version_str = "0.0.post9486"
+data_version_tuple = (0, 0, 9486)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9482")
+    pdata_version = V("0.0.post9486")
 except ImportError:
     pass
-data_git_hash = "df8b8cd626942a121ea6541caafaad4dbd3f14f9"
-data_git_describe = "v0.0-9482-gdf8b8cd62"
+data_git_hash = "bf6c7513e86976b6a6f36792300a173c6819daaa"
+data_git_describe = "v0.0-9486-gbf6c7513e"
 data_git_msg = """\
-commit df8b8cd626942a121ea6541caafaad4dbd3f14f9
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 11 18:03:15 2022 +0000
+commit bf6c7513e86976b6a6f36792300a173c6819daaa
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Jan 13 10:41:47 2022 -0800
 
-    [rom_ctrl,doc] Expand countermeasure list
+    [flash_ctrl] prep work for flash exec value update
     
-    This is going to be the starting point for both the D2S review and
-    also any extra testplan items that go into V2S. Try to explicitly list
-    all the extra tricks we're playing.
+    - Address #10022 with a 32-bit constant value
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
