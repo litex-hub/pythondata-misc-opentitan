@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9624"
-version_tuple = (0, 0, 9624)
+version_str = "0.0.post9626"
+version_tuple = (0, 0, 9626)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9624")
+    pversion = V("0.0.post9626")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9502"
-data_version_tuple = (0, 0, 9502)
+data_version_str = "0.0.post9504"
+data_version_tuple = (0, 0, 9504)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9502")
+    pdata_version = V("0.0.post9504")
 except ImportError:
     pass
-data_git_hash = "73b373ddc161d9d2e2d1809c164cd786ddb123de"
-data_git_describe = "v0.0-9502-g73b373ddc"
+data_git_hash = "f40f3bbb11ef092a0e7fdccd41e950eb156d2806"
+data_git_describe = "v0.0-9504-gf40f3bbb1"
 data_git_msg = """\
-commit 73b373ddc161d9d2e2d1809c164cd786ddb123de
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Dec 15 17:24:28 2021 +0000
+commit f40f3bbb11ef092a0e7fdccd41e950eb156d2806
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Jan 18 07:43:45 2022 -0800
 
-    [sw,otbn] Add scripts for OTBN information-flow analysis.
+    [entropy_src/rtl] return ack sm to idle when disabled
     
-    Adds two scripts based on the recently added information-flow analysis
-    machinery:
-    - check_const_time.py checks if certain secret values can influence the
-    control flow of a subroutine or program
-    - analyze_information_flow.py provides more information, e.g. the full
-    information-flow graph for a subroutine or program or the final secrets
-    given a particular initial set
+    In the case the entropy_src is disabled and a request from CSRNG is pending, the state machine should return to idle and wait to be enabled again.
+    Fixes #10133.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
