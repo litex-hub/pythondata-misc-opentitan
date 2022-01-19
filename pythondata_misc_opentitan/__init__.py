@@ -4,35 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9634"
-version_tuple = (0, 0, 9634)
+version_str = "0.0.post9635"
+version_tuple = (0, 0, 9635)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9634")
+    pversion = V("0.0.post9635")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9512"
-data_version_tuple = (0, 0, 9512)
+data_version_str = "0.0.post9513"
+data_version_tuple = (0, 0, 9513)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9512")
+    pdata_version = V("0.0.post9513")
 except ImportError:
     pass
-data_git_hash = "8102eafac8a1f565e24146ae28536da7718db8fd"
-data_git_describe = "v0.0-9512-g8102eafac"
+data_git_hash = "40c007a05bf96e2413887650bf110c12196322e3"
+data_git_describe = "v0.0-9513-g40c007a05"
 data_git_msg = """\
-commit 8102eafac8a1f565e24146ae28536da7718db8fd
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Jul 16 14:54:21 2020 -0400
+commit 40c007a05bf96e2413887650bf110c12196322e3
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Tue Oct 19 15:46:28 2021 +0100
 
-    [sw/dif] Implement a DIF library for FLASH_CTRL
+    [adc_ctrl/dv] Added ADC push pull agents and smoke test
     
-    Add a DIF library for the flash controller.
+    - Added test sequence adc_ctrl_smoke_vseq.sv
+    Configures DUT in one-shot mode and ensures ADC data is stored in
+    the sample registers.
+    - Integrated push pull agents into environment to emulate the
+    AST ADC
+    - Added filter configuration fields to config object and configuration
+    task in preparation for other tests.
+    - Added filters_both testpoint to testplan
+    - Added a short delay at the end of adc_ctrl_common_vseq body to
+    allow register CDC to finish and avoid triggering assertions at the
+    end of the test.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
-    Co-authored-by: Jon Flatley <jflat@google.com>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
