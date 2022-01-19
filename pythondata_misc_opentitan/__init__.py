@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9619"
-version_tuple = (0, 0, 9619)
+version_str = "0.0.post9620"
+version_tuple = (0, 0, 9620)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9619")
+    pversion = V("0.0.post9620")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9497"
-data_version_tuple = (0, 0, 9497)
+data_version_str = "0.0.post9498"
+data_version_tuple = (0, 0, 9498)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9497")
+    pdata_version = V("0.0.post9498")
 except ImportError:
     pass
-data_git_hash = "998c9bf6deb9ac91d496ba0536a5e3cb0b5200eb"
-data_git_describe = "v0.0-9497-g998c9bf6d"
+data_git_hash = "0510546e5031b7723737bd71903626b315c74dae"
+data_git_describe = "v0.0-9498-g0510546e5"
 data_git_msg = """\
-commit 998c9bf6deb9ac91d496ba0536a5e3cb0b5200eb
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 18 14:55:30 2022 -0800
+commit 0510546e5031b7723737bd71903626b315c74dae
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 14 17:34:27 2022 -0800
 
-    [dv/clkmgr] Add SVA for cg_en_o outputs
+    [dv/jtag] support rv_dm in jtag_riscv_reg_adapter
     
-    Add code to disable exclusions from clkmgr.hjson for IP testing, since
-    they are intended for full chip tests.
-    - Don't call that code since there are unexpected side-effects from
-    exclusion management.
-    Also minor fix in clkmgr_bind.
+    This PR adds a flag in jtag_riscv_agent_cfg to support accessing jtag
+    csr_rd/wr via rv_dm.
     
-    Fixes #9946
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
