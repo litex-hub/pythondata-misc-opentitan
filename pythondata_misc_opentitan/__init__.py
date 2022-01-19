@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9636"
-version_tuple = (0, 0, 9636)
+version_str = "0.0.post9640"
+version_tuple = (0, 0, 9640)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9636")
+    pversion = V("0.0.post9640")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9514"
-data_version_tuple = (0, 0, 9514)
+data_version_str = "0.0.post9518"
+data_version_tuple = (0, 0, 9518)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9514")
+    pdata_version = V("0.0.post9518")
 except ImportError:
     pass
-data_git_hash = "7f09574c615a1540174899148b355837092b9c04"
-data_git_describe = "v0.0-9514-g7f09574c6"
+data_git_hash = "87b2e32abcc9bd9ab5b0e4a1ff3c07de7b17c1f1"
+data_git_describe = "v0.0-9518-g87b2e32ab"
 data_git_msg = """\
-commit 7f09574c615a1540174899148b355837092b9c04
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 18 15:44:07 2022 -0800
+commit 87b2e32abcc9bd9ab5b0e4a1ff3c07de7b17c1f1
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Jan 19 09:37:43 2022 -0800
 
-    [otp_ctrl] Anchor seeds and key output
+    [dv/lc_ctrl] Fix jtag_map related failure
     
-    - Partially address #8983
-    - Adds anchor buffers and flops to otp seeds, constants, scramble keys
-      and derived keys
+    This PR fixes jtag_map null failure by adding a runtime switch.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
