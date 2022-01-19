@@ -4,41 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9617"
-version_tuple = (0, 0, 9617)
+version_str = "0.0.post9619"
+version_tuple = (0, 0, 9619)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9617")
+    pversion = V("0.0.post9619")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9495"
-data_version_tuple = (0, 0, 9495)
+data_version_str = "0.0.post9497"
+data_version_tuple = (0, 0, 9497)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9495")
+    pdata_version = V("0.0.post9497")
 except ImportError:
     pass
-data_git_hash = "3cc8d5a6c5cd222b32ef3ee0464b3650c8b80e15"
-data_git_describe = "v0.0-9495-g3cc8d5a6c"
+data_git_hash = "998c9bf6deb9ac91d496ba0536a5e3cb0b5200eb"
+data_git_describe = "v0.0-9497-g998c9bf6d"
 data_git_msg = """\
-commit 3cc8d5a6c5cd222b32ef3ee0464b3650c8b80e15
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Jan 13 16:36:36 2022 -0800
+commit 998c9bf6deb9ac91d496ba0536a5e3cb0b5200eb
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 18 14:55:30 2022 -0800
 
-    [aes/syn] Update GTECH flow for AES wrapper
+    [dv/clkmgr] Add SVA for cg_en_o outputs
     
-    This separate synthesis target for the AES wrapper is only intended to
-    produce a mapping of the wrapper alone. The motivation for synthesizing
-    AES and the wrapper separately is that we can ensure that no sort of
-    optimization takes place across the hierarchy boundary between them (the
-    wrapper is TB code whereas the AES is actual synthesizable code).
+    Add code to disable exclusions from clkmgr.hjson for IP testing, since
+    they are intended for full chip tests.
+    - Don't call that code since there are unexpected side-effects from
+    exclusion management.
+    Also minor fix in clkmgr_bind.
     
-    In order to achieve this we just remove the aes module from the working
-    lib after elaboration.
+    Fixes #9946
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
