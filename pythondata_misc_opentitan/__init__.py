@@ -4,46 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9615"
-version_tuple = (0, 0, 9615)
+version_str = "0.0.post9617"
+version_tuple = (0, 0, 9617)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9615")
+    pversion = V("0.0.post9617")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9493"
-data_version_tuple = (0, 0, 9493)
+data_version_str = "0.0.post9495"
+data_version_tuple = (0, 0, 9495)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9493")
+    pdata_version = V("0.0.post9495")
 except ImportError:
     pass
-data_git_hash = "aa35abbf0683f2dcbf1e75451d4f5380164908f2"
-data_git_describe = "v0.0-9493-gaa35abbf0"
+data_git_hash = "3cc8d5a6c5cd222b32ef3ee0464b3650c8b80e15"
+data_git_describe = "v0.0-9495-g3cc8d5a6c"
 data_git_msg = """\
-commit aa35abbf0683f2dcbf1e75451d4f5380164908f2
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Thu Jan 6 13:22:09 2022 +0000
+commit 3cc8d5a6c5cd222b32ef3ee0464b3650c8b80e15
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Jan 13 16:36:36 2022 -0800
 
-    [lc_ctrl/dv] Added test lc_ctrl_stress_all
+    [aes/syn] Update GTECH flow for AES wrapper
     
-    - Added test sequences:
-      - lc_ctrl_stress_all_vseq.sv
-     Randomly cycles through the other sequences and randomly choosing
-     TL or JTAG for CSR access for that sequence
-      - lc_ctrl_security_escalation_vseq.sv
-     Randomly triggers an escalation while the process to transition is
-     occuring so as to exercise all the <state> -> escalate arcs of the FSM
-    - Fixed lc_ctrl_smoke_vseq which needed to set cfg.test_phase
-    - Fixed lc_ctrl_errors_vseq so it can be rerun by lc_ctrl_stress_all
-    - Fixed scoreboard for new escalate scenarios
-    to avoid scoreboard errors when run after another sequence.
-    - Added test_sequence_typename string to lc_ctrl_if to aid debugging
-    this is set to to the test sequence typename at the start of each sequence.
+    This separate synthesis target for the AES wrapper is only intended to
+    produce a mapping of the wrapper alone. The motivation for synthesizing
+    AES and the wrapper separately is that we can ensure that no sort of
+    optimization takes place across the hierarchy boundary between them (the
+    wrapper is TB code whereas the AES is actual synthesizable code).
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    In order to achieve this we just remove the aes module from the working
+    lib after elaboration.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
