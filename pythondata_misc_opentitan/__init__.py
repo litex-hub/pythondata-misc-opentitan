@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9628"
-version_tuple = (0, 0, 9628)
+version_str = "0.0.post9634"
+version_tuple = (0, 0, 9634)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9628")
+    pversion = V("0.0.post9634")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9506"
-data_version_tuple = (0, 0, 9506)
+data_version_str = "0.0.post9512"
+data_version_tuple = (0, 0, 9512)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9506")
+    pdata_version = V("0.0.post9512")
 except ImportError:
     pass
-data_git_hash = "cc147faf54de28d8958cc3d23f1925062e0a9c53"
-data_git_describe = "v0.0-9506-gcc147faf5"
+data_git_hash = "8102eafac8a1f565e24146ae28536da7718db8fd"
+data_git_describe = "v0.0-9512-g8102eafac"
 data_git_msg = """\
-commit cc147faf54de28d8958cc3d23f1925062e0a9c53
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jan 13 17:41:23 2022 -0800
+commit 8102eafac8a1f565e24146ae28536da7718db8fd
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Jul 16 14:54:21 2020 -0400
 
-    [dif/alert_handler] Add ping timer enable DIF.
+    [sw/dif] Implement a DIF library for FLASH_CTRL
     
-    The previous commit adds a DIF to configure the ping timer. This DIF can
-    also be used to enable and lock the ping timer too. However, if a user
-    wants to only configure the ping timer, and enable it later, they would
-    have to write to the time out register again too.
+    Add a DIF library for the flash controller.
     
-    This commit adds another DIF that just enables (and locks, if requested)
-    the ping timer. This enables more fine grain configuration of the alert
-    handler's ping timer.
-    
-    This addresses a task in #9899.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
+    Co-authored-by: Jon Flatley <jflat@google.com>
 
 """
 
