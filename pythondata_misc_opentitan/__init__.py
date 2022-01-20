@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9640"
-version_tuple = (0, 0, 9640)
+version_str = "0.0.post9641"
+version_tuple = (0, 0, 9641)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9640")
+    pversion = V("0.0.post9641")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9518"
-data_version_tuple = (0, 0, 9518)
+data_version_str = "0.0.post9519"
+data_version_tuple = (0, 0, 9519)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9518")
+    pdata_version = V("0.0.post9519")
 except ImportError:
     pass
-data_git_hash = "87b2e32abcc9bd9ab5b0e4a1ff3c07de7b17c1f1"
-data_git_describe = "v0.0-9518-g87b2e32ab"
+data_git_hash = "a3a6f0b340543821e2652ab82baf65dfcc95b196"
+data_git_describe = "v0.0-9519-ga3a6f0b34"
 data_git_msg = """\
-commit 87b2e32abcc9bd9ab5b0e4a1ff3c07de7b17c1f1
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jan 19 09:37:43 2022 -0800
+commit a3a6f0b340543821e2652ab82baf65dfcc95b196
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jan 18 18:52:23 2022 -0800
 
-    [dv/lc_ctrl] Fix jtag_map related failure
+    [rv_core_ibex] Add edn connection to rv_core_ibex
     
-    This PR fixes jtag_map null failure by adding a runtime switch.
+    - continuation of #7946
+    - rv_core_ibex automatically talks to edn for random data, which is provided
+      to ibex through a local register.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
