@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9641"
-version_tuple = (0, 0, 9641)
+version_str = "0.0.post9644"
+version_tuple = (0, 0, 9644)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9641")
+    pversion = V("0.0.post9644")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9519"
-data_version_tuple = (0, 0, 9519)
+data_version_str = "0.0.post9522"
+data_version_tuple = (0, 0, 9522)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9519")
+    pdata_version = V("0.0.post9522")
 except ImportError:
     pass
-data_git_hash = "a3a6f0b340543821e2652ab82baf65dfcc95b196"
-data_git_describe = "v0.0-9519-ga3a6f0b34"
+data_git_hash = "677811a92ecc34d214da44236928b6c680985cca"
+data_git_describe = "v0.0-9522-g677811a92"
 data_git_msg = """\
-commit a3a6f0b340543821e2652ab82baf65dfcc95b196
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 18 18:52:23 2022 -0800
+commit 677811a92ecc34d214da44236928b6c680985cca
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Jan 19 10:38:53 2022 -0800
 
-    [rv_core_ibex] Add edn connection to rv_core_ibex
+    [chip dv] Remove xcelium build opt
     
-    - continuation of #7946
-    - rv_core_ibex automatically talks to edn for random data, which is provided
-      to ibex through a local register.
+    This removes the Xcelium opt that was added to fix an issue with the use
+    pf $assertcontrol system task. The opt is removed and $assertcontrol is
+    replaced with $asserton/off.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
