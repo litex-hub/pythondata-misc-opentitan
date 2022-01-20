@@ -334,6 +334,10 @@ module aes_dom_dep_mul_gf2pn #(
   input  logic   [NPower-1:0] a_y,    // Share a of y
   input  logic   [NPower-1:0] b_x,    // Share b of x
   input  logic   [NPower-1:0] b_y,    // Share b of y
+  input  logic   [NPower-1:0] a_x_q,  // Share a of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+  input  logic   [NPower-1:0] a_y_q,  // Share a of y, pipelined (for Pipeline=1)
+  input  logic   [NPower-1:0] b_x_q,  // Share b of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+  input  logic   [NPower-1:0] b_y_q,  // Share b of y, pipelined (for Pipeline=1)
   input  logic   [NPower-1:0] z_0,    // Randomness for blinding
   input  logic   [NPower-1:0] z_1,    // Randomness for resharing
   output logic   [NPower-1:0] a_q,    // Share a of q
@@ -423,40 +427,38 @@ module aes_dom_dep_mul_gf2pn #(
   /////////////////////////
   logic [NPower-1:0] a_x_calc, b_x_calc, a_y_calc, b_y_calc;
 
-  if (Pipeline == 1'b1 && PreDomIndep != 1'b1) begin : gen_pipeline
-    // Add pipeline registers for inputs x and y. This allows accepting new input data every clock
-    // cycle and prevents SCA leakage occurring due to the multiplication of inputs x and y with
-    // d_b belonging to different clock cycles.
+  if (Pipeline == 1'b1 && PreDomIndep != 1'b1) begin : gen_pipeline_use
+    // Use pipelined inputs x and y. This allows accepting new input data every clock cycle and
+    // prevents SCA leakage occurring due to the multiplication of inputs x and y with d_b
+    // belonging to different clock cycles.
     //
-    // The PreDomIndep variant has the required pipeline registers built in already.
-
-    logic [NPower-1:0] a_x_q, b_x_q, a_y_q, b_y_q;
-    prim_flop_en #(
-      .Width      ( 4*NPower ),
-      .ResetValue ( '0       )
-    ) u_prim_flop_ab_xy (
-      .clk_i  ( clk_i                        ),
-      .rst_ni ( rst_ni                       ),
-      .en_i   ( we_i                         ),
-      .d_i    ( {a_x,   b_x,   a_y,   b_y}   ),
-      .q_o    ( {a_x_q, b_x_q, a_y_q, b_y_q} )
-    );
+    // The PreDomIndep variant uses the pipelined inputs directly.
 
     assign a_x_calc = a_x_q;
     assign b_x_calc = b_x_q;
     assign a_y_calc = a_y_q;
     assign b_y_calc = b_y_q;
 
-  end else begin : gen_no_pipeline
-    // Do not add the optional pipeline registers for inputs x and y. This allows to save some area
-    // in case the multiplier does not need to accept new data in every cycle. However, this can
-    // cause SCA leakage as during the clock cycle in which new data arrives, the new x and y
-    // inputs are multiplied with the previous d_b.
+  end else begin : gen_no_pipeline_use
+    // Do not use pipelined inputs x and y. This allows to save some area in case the multiplier
+    // does not need to accept new data in every cycle. However, this can cause SCA leakage as
+    // during the clock cycle in which new data arrives, the new x and y inputs are multiplied
+    // with the previous d_b.
 
     assign a_x_calc = a_x;
     assign b_x_calc = b_x;
     assign a_y_calc = a_y;
     assign b_y_calc = b_y;
+
+    // Tie off unused signals.
+    if (PreDomIndep != 1'b1) begin : gen_ab_x_q
+      logic [NPower-1:0] unused_a_x_q, unused_b_x_q;
+      assign unused_a_x_q = a_x_q;
+      assign unused_b_x_q = b_x_q;
+    end
+    logic [NPower-1:0] unused_a_y_q, unused_b_y_q;
+    assign unused_a_y_q = a_y_q;
+    assign unused_b_y_q = b_y_q;
   end
 
   ///////////////////////////////
@@ -500,19 +502,6 @@ module aes_dom_dep_mul_gf2pn #(
       .en_i   ( we_i                       ),
       .d_i    ( {mul_ax_ay_d, mul_bx_by_d} ),
       .q_o    ( {mul_ax_ay_q, mul_bx_by_q} )
-    );
-
-    // Input Registers
-    logic [NPower-1:0] a_x_q, b_x_q;
-    prim_flop_en #(
-      .Width      ( 2*NPower ),
-      .ResetValue ( '0       )
-    ) u_prim_flop_ab_xy (
-      .clk_i  ( clk_i                ),
-      .rst_ni ( rst_ni               ),
-      .en_i   ( we_i                 ),
-      .d_i    ( {a_x_calc, b_x_calc} ),
-      .q_o    ( {a_x_q,    b_x_q}    )
     );
 
     // _D_y_z0 part: Cross-domain terms: d_x * _D_y_z0
@@ -634,6 +623,18 @@ module aes_dom_inverse_gf2p4 #(
     .q_o    ( {a_gamma_ss_q, b_gamma_ss_q} )
   );
 
+  logic [1:0] a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q;
+  prim_flop_en #(
+    .Width      ( 8  ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_ab_gamma10 (
+    .clk_i  ( clk_i                                            ),
+    .rst_ni ( rst_ni                                           ),
+    .en_i   ( we_i[0]                                          ),
+    .d_i    ( {a_gamma1,   a_gamma0,   b_gamma1,   b_gamma0}   ),
+    .q_o    ( {a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q} )
+  );
+
   logic [3:0] b_gamma10_prd2;
   aes_dom_dep_mul_gf2pn #(
     .NPower      ( 2           ),
@@ -647,42 +648,16 @@ module aes_dom_inverse_gf2p4 #(
     .a_y    ( a_gamma0        ), // Share a of y
     .b_x    ( b_gamma1        ), // Share b of x
     .b_y    ( b_gamma0        ), // Share b of y
+    .a_x_q  ( a_gamma1_q      ), // Share a of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .a_y_q  ( a_gamma0_q      ), // Share a of y, pipelined (for Pipeline=1)
+    .b_x_q  ( b_gamma1_q      ), // Share b of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .b_y_q  ( b_gamma0_q      ), // Share b of y, pipelined (for Pipeline=1)
     .z_0    ( prd_2_i[1:0]    ), // Randomness for blinding
     .z_1    ( prd_2_i[3:2]    ), // Randomness for resharing
     .a_q    ( a_gamma1_gamma0 ), // Share a of q
     .b_q    ( b_gamma1_gamma0 ), // Share b of q
     .prd_o  ( b_gamma10_prd2  )  // Randomness for use in another S-Box instance
   );
-
-  ////////////////
-  // Pipelining //
-  ////////////////
-  logic [1:0] a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q;
-
-  if (PipelineMul == 1'b0) begin: gen_prim_flop_en
-    // Insert pipeline registers to prevent SCA leakage occuring due to the multiplication of
-    // a/b_gamma1 with a/b_omega belonging to different clock cycles.
-
-    prim_flop_en #(
-      .Width      ( 8  ),
-      .ResetValue ( '0 )
-    ) u_prim_flop_ab_gamma10 (
-      .clk_i  ( clk_i                                            ),
-      .rst_ni ( rst_ni                                           ),
-      .en_i   ( we_i[0]                                          ),
-      .d_i    ( {a_gamma1,   a_gamma0,   b_gamma1,   b_gamma0}   ),
-      .q_o    ( {a_gamma1_q, a_gamma0_q, b_gamma1_q, b_gamma0_q} )
-    );
-
-  end else begin : gen_no_prim_flop_en
-    // When using pipelined multipliers, there is no need to insert additional registers here.
-    // Instead, the pipeline registers of the DOM-dep multiplier in Stage 2 can be re-used.
-
-    assign a_gamma1_q = u_aes_dom_mul_gamma1_gamma0.gen_pipeline.a_x_q;
-    assign a_gamma0_q = u_aes_dom_mul_gamma1_gamma0.gen_pipeline.a_y_q;
-    assign b_gamma1_q = u_aes_dom_mul_gamma1_gamma0.gen_pipeline.b_x_q;
-    assign b_gamma0_q = u_aes_dom_mul_gamma1_gamma0.gen_pipeline.b_y_q;
-  end
 
   // Use intermediate results for generating PRD for Stage 3 of another S-Box instance.
   // Use one share only. Directly use output of flops updating with we_i[0].
@@ -716,6 +691,48 @@ module aes_dom_inverse_gf2p4 #(
     .out_o ( {a_omega_buf, b_omega_buf} )
   );
 
+  // Pipeline registers
+  logic [1:0] a_gamma1_qq, a_gamma0_qq, b_gamma1_qq, b_gamma0_qq, a_omega_buf_q, b_omega_buf_q;
+  if (PipelineMul == 1'b1) begin: gen_prim_flop_omega_gamma10
+    // We instantiate the input pipeline registers for the DOM-dep multiplier outside of the
+    // multiplier to enable sharing of pipeline registers where applicable.
+
+    prim_flop_en #(
+      .Width      ( 8  ),
+      .ResetValue ( '0 )
+    ) u_prim_flop_ab_gamma10_q (
+      .clk_i  ( clk_i                                                ),
+      .rst_ni ( rst_ni                                               ),
+      .en_i   ( we_i[1]                                              ),
+      .d_i    ( {a_gamma1_q,  a_gamma0_q,  b_gamma1_q,  b_gamma0_q}  ),
+      .q_o    ( {a_gamma1_qq, a_gamma0_qq, b_gamma1_qq, b_gamma0_qq} )
+    );
+
+    // These inputs are used by both DOM-dep multipliers below.
+    prim_flop_en #(
+      .Width      ( 4  ),
+      .ResetValue ( '0 )
+    ) u_prim_flop_ab_omega_buf (
+      .clk_i  ( clk_i                          ),
+      .rst_ni ( rst_ni                         ),
+      .en_i   ( we_i[1]                        ),
+      .d_i    ( {a_omega_buf,   b_omega_buf}   ),
+      .q_o    ( {a_omega_buf_q, b_omega_buf_q} )
+    );
+
+  end else begin : gen_no_prim_flop_ab_y10
+    // When using un-pipelined multipliers, there is no need to insert additional registers.
+    // We drive the corresponding inputs to 0 to make sure the functionality isn't correct in case
+    // the pipeliend inputs are erroneously used.
+
+    assign a_gamma1_qq = '0;
+    assign a_gamma0_qq = '0;
+    assign b_gamma1_qq = '0;
+    assign b_gamma0_qq = '0;
+    assign a_omega_buf_q = '0;
+    assign b_omega_buf_q = '0;
+  end
+
   // Formulas 16 and 17 in [2].
   logic [3:0] b_gamma1_omega_prd3;
   aes_dom_dep_mul_gf2pn #(
@@ -730,11 +747,15 @@ module aes_dom_inverse_gf2p4 #(
     .a_y    ( a_omega_buf         ), // Share a of y
     .b_x    ( b_gamma1_q          ), // Share b of x
     .b_y    ( b_omega_buf         ), // Share b of y
+    .a_x_q  ( a_gamma1_qq         ), // Share a of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .a_y_q  ( a_omega_buf_q       ), // Share a of y, pipelined (for Pipeline=1)
+    .b_x_q  ( b_gamma1_qq         ), // Share b of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .b_y_q  ( b_omega_buf_q       ), // Share b of y, pipelined (for Pipeline=1)
     .z_0    ( prd_3_i[5:4]        ), // Randomness for blinding
     .z_1    ( prd_3_i[7:6]        ), // Randomness for resharing
     .a_q    ( a_gamma_inv[1:0]    ), // Share a of q
     .b_q    ( b_gamma_inv[1:0]    ), // Share b of q
-    .prd_o  ( b_gamma1_omega_prd3 )
+    .prd_o  ( b_gamma1_omega_prd3 )  // Randomness for use in another S-Box instance
   );
 
   logic [3:0] b_gamma0_omega_prd3;
@@ -750,11 +771,15 @@ module aes_dom_inverse_gf2p4 #(
     .a_y    ( a_gamma0_q          ), // Share a of y
     .b_x    ( b_omega_buf         ), // Share b of x
     .b_y    ( b_gamma0_q          ), // Share b of y
+    .a_x_q  ( a_omega_buf_q       ), // Share a of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .a_y_q  ( a_gamma0_qq         ), // Share a of y, pipelined (for Pipeline=1)
+    .b_x_q  ( b_omega_buf_q       ), // Share b of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .b_y_q  ( b_gamma0_qq         ), // Share b of y, pipelined (for Pipeline=1)
     .z_0    ( prd_3_i[1:0]        ), // Randomness for blinding
     .z_1    ( prd_3_i[3:2]        ), // Randomness for resharing
     .a_q    ( a_gamma_inv[3:2]    ), // Share a of q
     .b_q    ( b_gamma_inv[3:2]    ), // Share b of q
-    .prd_o  ( b_gamma0_omega_prd3 )
+    .prd_o  ( b_gamma0_omega_prd3 )  // Randomness for use in another S-Box instance
   );
 
   // Use intermediate results for generating PRD for Stage 4 of another S-Box instance.
@@ -809,6 +834,33 @@ module aes_dom_inverse_gf2p8 #(
     .q_o    ( {a_y_ss_q, b_y_ss_q} )
   );
 
+  logic [3:0] a_y1_q, a_y0_q, b_y1_q, b_y0_q;
+  if (PipelineMul == 1'b1) begin: gen_prim_flop_ab_y10
+    // We instantiate the input pipeline registers for the DOM-dep multiplier outside of the
+    // multiplier to enable sharing of pipeline registers where applicable.
+
+    prim_flop_en #(
+      .Width      ( 16  ),
+      .ResetValue ( '0  )
+    ) u_prim_flop_ab_y10 (
+      .clk_i  ( clk_i                            ),
+      .rst_ni ( rst_ni                           ),
+      .en_i   ( we_i[0]                          ),
+      .d_i    ( {a_y1,   a_y0,   b_y1,   b_y0}   ),
+      .q_o    ( {a_y1_q, a_y0_q, b_y1_q, b_y0_q} )
+    );
+
+  end else begin : gen_no_prim_flop_ab_y10
+    // When using un-pipelined multipliers, there is no need to insert additional registers.
+    // We drive the corresponding inputs to 0 to make sure the functionality isn't correct in case
+    // the pipeliend inputs are erroneously used.
+
+    assign a_y1_q = '0;
+    assign a_y0_q = '0;
+    assign b_y1_q = '0;
+    assign b_y0_q = '0;
+  end
+
   logic [7:0] b_y10_prd1;
   aes_dom_dep_mul_gf2pn #(
     .NPower      ( 4           ),
@@ -822,6 +874,10 @@ module aes_dom_inverse_gf2p8 #(
     .a_y    ( a_y0             ), // Share a of y
     .b_x    ( b_y1             ), // Share b of x
     .b_y    ( b_y0             ), // Share b of y
+    .a_x_q  ( a_y1_q           ), // Share a of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .a_y_q  ( a_y0_q           ), // Share a of y, pipelined (for Pipeline=1)
+    .b_x_q  ( b_y1_q           ), // Share b of x, pipelined (for Pipeline=1 or PreDomIndep=1)
+    .b_y_q  ( b_y0_q           ), // Share b of y, pipelined (for Pipeline=1)
     .z_0    ( prd_i.prd_1[3:0] ), // Randomness for blinding
     .z_1    ( prd_i.prd_1[7:4] ), // Randomness for resharing
     .a_q    ( a_y1_y0          ), // Share a of q
@@ -878,16 +934,16 @@ module aes_dom_inverse_gf2p8 #(
   /////////////
   // Formulas 18 and 19 in [2].
 
-  logic [3:0] a_y1_q, a_y0_q, b_y1_q, b_y0_q;
+  logic [3:0] a_y1_qqq, a_y0_qqq, b_y1_qqq, b_y0_qqq;
   prim_flop_en #(
     .Width      ( 16 ),
     .ResetValue ( '0 )
-  ) u_prim_flop_ab_y10 (
-    .clk_i  ( clk_i                            ),
-    .rst_ni ( rst_ni                           ),
-    .en_i   ( we_i[2]                          ),
-    .d_i    ( {a_y1,   a_y0,   b_y1,   b_y0}   ),
-    .q_o    ( {a_y1_q, a_y0_q, b_y1_q, b_y0_q} )
+  ) u_prim_flop_ab_y10_qqq (
+    .clk_i  ( clk_i                                    ),
+    .rst_ni ( rst_ni                                   ),
+    .en_i   ( we_i[2]                                  ),
+    .d_i    ( {a_y1,     a_y0,     b_y1,     b_y0}     ),
+    .q_o    ( {a_y1_qqq, a_y0_qqq, b_y1_qqq, b_y0_qqq} )
   );
 
   aes_dom_indep_mul_gf2pn #(
@@ -897,9 +953,9 @@ module aes_dom_inverse_gf2p8 #(
     .clk_i  ( clk_i            ),
     .rst_ni ( rst_ni           ),
     .we_i   ( we_i[3]          ),
-    .a_x    ( a_y1_q           ), // Share a of x
+    .a_x    ( a_y1_qqq         ), // Share a of x
     .a_y    ( a_theta          ), // Share a of y
-    .b_x    ( b_y1_q           ), // Share b of x
+    .b_x    ( b_y1_qqq         ), // Share b of x
     .b_y    ( b_theta          ), // Share b of y
     .z_0    ( prd_i.prd_4[7:4] ), // Randomness for resharing
     .a_q    ( a_y_inv[3:0]     ), // Share a of q
@@ -914,9 +970,9 @@ module aes_dom_inverse_gf2p8 #(
     .rst_ni ( rst_ni           ),
     .we_i   ( we_i[3]          ),
     .a_x    ( a_theta          ), // Share a of x
-    .a_y    ( a_y0_q           ), // Share a of y
+    .a_y    ( a_y0_qqq         ), // Share a of y
     .b_x    ( b_theta          ), // Share b of x
-    .b_y    ( b_y0_q           ), // Share b of y
+    .b_y    ( b_y0_qqq         ), // Share b of y
     .z_0    ( prd_i.prd_4[3:0] ), // Randomness for resharing
     .a_q    ( a_y_inv[7:4]     ), // Share a of q
     .b_q    ( b_y_inv[7:4]     )  // Share b of q
@@ -1009,13 +1065,15 @@ module aes_sbox_dom
   // Buffer and forward PRD for the individual stages. We get 8 bits from the PRNG for usage in the
   // first cycle. Stages 2, 3 and 4 are driven by other S-Box instances.
   assign prd1_d = we[0] ? prd_i[7:0] : prd1_q;
-  always_ff @(posedge clk_i or negedge rst_ni) begin : reg_prd1
-    if (!rst_ni) begin
-      prd1_q <= '0;
-    end else begin
-      prd1_q <= prd1_d;
-    end
-  end
+  prim_flop #(
+    .Width      ( 8  ),
+    .ResetValue ( '0 )
+  ) u_prim_flop_prd1_q (
+    .clk_i  ( clk_i  ),
+    .rst_ni ( rst_ni ),
+    .d_i    ( prd1_d ),
+    .q_o    ( prd1_q )
+  );
   assign in_prd = '{prd_1: prd1_d,
                     prd_2: prd_i[11:8],
                     prd_3: prd_i[19:12],
