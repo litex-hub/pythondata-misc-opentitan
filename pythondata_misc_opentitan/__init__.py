@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9654"
-version_tuple = (0, 0, 9654)
+version_str = "0.0.post9658"
+version_tuple = (0, 0, 9658)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9654")
+    pversion = V("0.0.post9658")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9532"
-data_version_tuple = (0, 0, 9532)
+data_version_str = "0.0.post9536"
+data_version_tuple = (0, 0, 9536)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9532")
+    pdata_version = V("0.0.post9536")
 except ImportError:
     pass
-data_git_hash = "bda359224882cd1740b752999b1e4e2ec4edb123"
-data_git_describe = "v0.0-9532-gbda359224"
+data_git_hash = "b81d0f4e362789b2b066f8b821c7eba2d48f0776"
+data_git_describe = "v0.0-9536-gb81d0f4e3"
 data_git_msg = """\
-commit bda359224882cd1740b752999b1e4e2ec4edb123
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Tue Jan 18 08:25:23 2022 -0800
+commit b81d0f4e362789b2b066f8b821c7eba2d48f0776
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jan 18 13:08:56 2022 -0800
 
-    [entropy_src/rtl] create a pulse for alert signal
+    [dv/chip] reduce jtag_csr_rw runtime
     
-    Verification works best when the main fsm alert signal is a pulse.
-    Fixes #10134.
+    This PR reduces jtag_csr_rw runtime by choosing a subsets of csrs.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
