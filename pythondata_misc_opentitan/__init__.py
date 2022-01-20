@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9653"
-version_tuple = (0, 0, 9653)
+version_str = "0.0.post9654"
+version_tuple = (0, 0, 9654)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9653")
+    pversion = V("0.0.post9654")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9531"
-data_version_tuple = (0, 0, 9531)
+data_version_str = "0.0.post9532"
+data_version_tuple = (0, 0, 9532)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9531")
+    pdata_version = V("0.0.post9532")
 except ImportError:
     pass
-data_git_hash = "46f9bb4a35d6594489ab1992babbfb8dfb24508f"
-data_git_describe = "v0.0-9531-g46f9bb4a3"
+data_git_hash = "bda359224882cd1740b752999b1e4e2ec4edb123"
+data_git_describe = "v0.0-9532-gbda359224"
 data_git_msg = """\
-commit 46f9bb4a35d6594489ab1992babbfb8dfb24508f
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Thu Jan 6 13:24:54 2022 -0800
+commit bda359224882cd1740b752999b1e4e2ec4edb123
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Jan 18 08:25:23 2022 -0800
 
-    [csrng/dv] Updated testplan, Added cfg cover group
+    [entropy_src/rtl] create a pulse for alert signal
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Verification works best when the main fsm alert signal is a pulse.
+    Fixes #10134.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
