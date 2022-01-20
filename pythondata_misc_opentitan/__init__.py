@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9667"
-version_tuple = (0, 0, 9667)
+version_str = "0.0.post9671"
+version_tuple = (0, 0, 9671)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9667")
+    pversion = V("0.0.post9671")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9545"
-data_version_tuple = (0, 0, 9545)
+data_version_str = "0.0.post9549"
+data_version_tuple = (0, 0, 9549)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9545")
+    pdata_version = V("0.0.post9549")
 except ImportError:
     pass
-data_git_hash = "72643363e818f11a292d87913b7b3acc0e002714"
-data_git_describe = "v0.0-9545-g72643363e"
+data_git_hash = "c2f47bc747ebdc9daed7b00e1d603a73a2f1c58b"
+data_git_describe = "v0.0-9549-gc2f47bc74"
 data_git_msg = """\
-commit 72643363e818f11a292d87913b7b3acc0e002714
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jan 20 10:31:44 2022 -0800
+commit c2f47bc747ebdc9daed7b00e1d603a73a2f1c58b
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Jan 20 15:28:27 2022 +0100
 
-    [dv/otp] Two regression fixes
+    [aes/pre_syn] Apply keep_hierarchy constraints to all prims not just buf
     
-    1). Remove test_access because it is replaced by another tlul interface.
-    Actual checking will be done in a separate PR, as we need to ensure it
-    does not break vendor tests.
-    2). Add a few assertion checks for vendor_test related I/Os. The main
-    check should be done in closed-source vendor test.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
