@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9652"
-version_tuple = (0, 0, 9652)
+version_str = "0.0.post9653"
+version_tuple = (0, 0, 9653)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9652")
+    pversion = V("0.0.post9653")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9530"
-data_version_tuple = (0, 0, 9530)
+data_version_str = "0.0.post9531"
+data_version_tuple = (0, 0, 9531)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9530")
+    pdata_version = V("0.0.post9531")
 except ImportError:
     pass
-data_git_hash = "69fb25debbb240548be1305890ad7fe6781e1b33"
-data_git_describe = "v0.0-9530-g69fb25deb"
+data_git_hash = "46f9bb4a35d6594489ab1992babbfb8dfb24508f"
+data_git_describe = "v0.0-9531-g46f9bb4a3"
 data_git_msg = """\
-commit 69fb25debbb240548be1305890ad7fe6781e1b33
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Jan 7 19:30:48 2022 +0000
+commit 46f9bb4a35d6594489ab1992babbfb8dfb24508f
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Thu Jan 6 13:24:54 2022 -0800
 
-    [sw,crypto] Adjust parameters for R^2 algorithm.
+    [csrng/dv] Updated testplan, Added cfg cover group
     
-    Because the operands in this computation are always powers of 2, it is
-    equivalent to square the operand or to perform a certain number of
-    (modular) doublings. For small numbers the doublings are faster and for
-    larger ones the squaring is faster; the cutoff where this happens for
-    our implementation is at 2^96 (empirically determined).
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
