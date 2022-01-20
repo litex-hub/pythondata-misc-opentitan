@@ -4,42 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9645"
-version_tuple = (0, 0, 9645)
+version_str = "0.0.post9647"
+version_tuple = (0, 0, 9647)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9645")
+    pversion = V("0.0.post9647")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9523"
-data_version_tuple = (0, 0, 9523)
+data_version_str = "0.0.post9525"
+data_version_tuple = (0, 0, 9525)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9523")
+    pdata_version = V("0.0.post9525")
 except ImportError:
     pass
-data_git_hash = "2a0f1efbbae9f38cf6e601ff5b06d56cbb9638a3"
-data_git_describe = "v0.0-9523-g2a0f1efbb"
+data_git_hash = "40203d2c65a2b1e1986ed31292bea8e17e9fb4e1"
+data_git_describe = "v0.0-9525-g40203d2c6"
 data_git_msg = """\
-commit 2a0f1efbbae9f38cf6e601ff5b06d56cbb9638a3
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 18 23:20:48 2022 -0800
+commit 40203d2c65a2b1e1986ed31292bea8e17e9fb4e1
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Jan 14 15:29:19 2022 +0100
 
-    [dv/clkmgr] Declare V2
+    [aes] Fix CSR test exclusions for key, IV and data input registers
     
-    The action items from the clkmgr v2 review are taken care of, except
-    the following:
-    - Disable exclusions related to full chip: I coded disabling these
-      exclusions and found many common csr tests failing because of
-      other missing exclusions. It seems due to a bug in exclusion management.
-    - Fix missing coverage in prim_mubi4_sync: I can take care of this once
-      the UNR flow is up, and the missing coverage is obviously unreachable.
-    - Add a test that holds the clock and then releases. It seems unnecessary,
-      since nothing new will really be tested.
+    Just like the data output registers, these are cleared with pseudo-
+    random data after reset meaning they should be excluded from the HW
+    reset tests.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This resolves lowRISC/OpenTitan#10081.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
