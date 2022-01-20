@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9658"
-version_tuple = (0, 0, 9658)
+version_str = "0.0.post9659"
+version_tuple = (0, 0, 9659)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9658")
+    pversion = V("0.0.post9659")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9536"
-data_version_tuple = (0, 0, 9536)
+data_version_str = "0.0.post9537"
+data_version_tuple = (0, 0, 9537)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9536")
+    pdata_version = V("0.0.post9537")
 except ImportError:
     pass
-data_git_hash = "b81d0f4e362789b2b066f8b821c7eba2d48f0776"
-data_git_describe = "v0.0-9536-gb81d0f4e3"
+data_git_hash = "954592a075a4a0fad158a8363715c4b6d12219db"
+data_git_describe = "v0.0-9537-g954592a07"
 data_git_msg = """\
-commit b81d0f4e362789b2b066f8b821c7eba2d48f0776
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jan 18 13:08:56 2022 -0800
+commit 954592a075a4a0fad158a8363715c4b6d12219db
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Wed Jan 19 13:10:24 2022 +0000
 
-    [dv/chip] reduce jtag_csr_rw runtime
+    [adc_ctrl] Excluded adc_en_ctl.adc_enable field from CSR write tests
     
-    This PR reduces jtag_csr_rw runtime by choosing a subsets of csrs.
+    - Updated adc_ctrl.hjson to disable writing to adc_en_ctl.adc_enable
+    during CSR tests this is to prevent unpredictable side effects.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
