@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9650"
-version_tuple = (0, 0, 9650)
+version_str = "0.0.post9652"
+version_tuple = (0, 0, 9652)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9650")
+    pversion = V("0.0.post9652")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9528"
-data_version_tuple = (0, 0, 9528)
+data_version_str = "0.0.post9530"
+data_version_tuple = (0, 0, 9530)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9528")
+    pdata_version = V("0.0.post9530")
 except ImportError:
     pass
-data_git_hash = "2e5e1c3222109f34264b6aea7aa1bb2e19baddf9"
-data_git_describe = "v0.0-9528-g2e5e1c322"
+data_git_hash = "69fb25debbb240548be1305890ad7fe6781e1b33"
+data_git_describe = "v0.0-9530-g69fb25deb"
 data_git_msg = """\
-commit 2e5e1c3222109f34264b6aea7aa1bb2e19baddf9
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Jan 10 12:28:18 2022 +0100
+commit 69fb25debbb240548be1305890ad7fe6781e1b33
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Jan 7 19:30:48 2022 +0000
 
-    [aes] Move to D2
+    [sw,crypto] Adjust parameters for R^2 algorithm.
     
-    All D2 items for AES have been done. Implementation and verification
-    of countermeasures have been moved to D2S and V2S stages, respectively.
-    Thus, it's time to move AES into D2.
+    Because the operands in this computation are always powers of 2, it is
+    equivalent to square the operand or to perform a certain number of
+    (modular) doublings. For small numbers the doublings are faster and for
+    larger ones the squaring is faster; the cutoff where this happens for
+    our implementation is at 2^96 (empirically determined).
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
