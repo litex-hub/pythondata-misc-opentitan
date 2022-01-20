@@ -4,36 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9644"
-version_tuple = (0, 0, 9644)
+version_str = "0.0.post9645"
+version_tuple = (0, 0, 9645)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9644")
+    pversion = V("0.0.post9645")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9522"
-data_version_tuple = (0, 0, 9522)
+data_version_str = "0.0.post9523"
+data_version_tuple = (0, 0, 9523)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9522")
+    pdata_version = V("0.0.post9523")
 except ImportError:
     pass
-data_git_hash = "677811a92ecc34d214da44236928b6c680985cca"
-data_git_describe = "v0.0-9522-g677811a92"
+data_git_hash = "2a0f1efbbae9f38cf6e601ff5b06d56cbb9638a3"
+data_git_describe = "v0.0-9523-g2a0f1efbb"
 data_git_msg = """\
-commit 677811a92ecc34d214da44236928b6c680985cca
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Jan 19 10:38:53 2022 -0800
+commit 2a0f1efbbae9f38cf6e601ff5b06d56cbb9638a3
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 18 23:20:48 2022 -0800
 
-    [chip dv] Remove xcelium build opt
+    [dv/clkmgr] Declare V2
     
-    This removes the Xcelium opt that was added to fix an issue with the use
-    pf $assertcontrol system task. The opt is removed and $assertcontrol is
-    replaced with $asserton/off.
+    The action items from the clkmgr v2 review are taken care of, except
+    the following:
+    - Disable exclusions related to full chip: I coded disabling these
+      exclusions and found many common csr tests failing because of
+      other missing exclusions. It seems due to a bug in exclusion management.
+    - Fix missing coverage in prim_mubi4_sync: I can take care of this once
+      the UNR flow is up, and the missing coverage is obviously unreachable.
+    - Add a test that holds the clock and then releases. It seems unnecessary,
+      since nothing new will really be tested.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
