@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9660"
-version_tuple = (0, 0, 9660)
+version_str = "0.0.post9666"
+version_tuple = (0, 0, 9666)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9660")
+    pversion = V("0.0.post9666")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9538"
-data_version_tuple = (0, 0, 9538)
+data_version_str = "0.0.post9544"
+data_version_tuple = (0, 0, 9544)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9538")
+    pdata_version = V("0.0.post9544")
 except ImportError:
     pass
-data_git_hash = "722d1fa9d62abf1c1a2cc8d06eba7eae0c540c47"
-data_git_describe = "v0.0-9538-g722d1fa9d"
+data_git_hash = "cd01ed7c5d6835840b598215e726aed6add77064"
+data_git_describe = "v0.0-9544-gcd01ed7c5"
 data_git_msg = """\
-commit 722d1fa9d62abf1c1a2cc8d06eba7eae0c540c47
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Jan 18 14:58:14 2022 -0800
+commit cd01ed7c5d6835840b598215e726aed6add77064
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Jan 14 15:42:08 2022 -0500
 
-    [dif/alert_handler] Fix bug in ping timer lock DIFs.
+    [sw/silicon_creator] Harden flash_ctrl_info_page_enum_t
     
-    The DIFs that checked whether the ping timer configuration was locked,
-    and locked it, read-from/wrote-to the wrong CSR (the ping timer enable
-    CSR). This commit fixes these two DIFs to write to the correct ping
-    timer REGWEN CSR.
-    
-    This partially addresses a task in #9899.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
