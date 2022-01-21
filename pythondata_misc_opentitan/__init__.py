@@ -4,34 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9688"
-version_tuple = (0, 0, 9688)
+version_str = "0.0.post9690"
+version_tuple = (0, 0, 9690)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9688")
+    pversion = V("0.0.post9690")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9566"
-data_version_tuple = (0, 0, 9566)
+data_version_str = "0.0.post9568"
+data_version_tuple = (0, 0, 9568)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9566")
+    pdata_version = V("0.0.post9568")
 except ImportError:
     pass
-data_git_hash = "6428c229e2030105a4a06a86284cb161061ee94c"
-data_git_describe = "v0.0-9566-g6428c229e"
+data_git_hash = "ca1abd11608eb7d5f6e41e489bc9519f8bdcf4b7"
+data_git_describe = "v0.0-9568-gca1abd116"
 data_git_msg = """\
-commit 6428c229e2030105a4a06a86284cb161061ee94c
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Jan 19 18:21:49 2022 -0800
+commit ca1abd11608eb7d5f6e41e489bc9519f8bdcf4b7
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Thu Jan 20 12:47:33 2022 +0000
 
-    [hw/test] Enable use of entropy in mask ROM.
+    [rom] Setup watchdog timer in assembly before entropy setup
     
-    This is done by setting CREATOR_SW_CFG_RNG_EN to 0x739.
+    This new code enables the watchdog timer right at the start of mask
+    ROM execution (before entropy setup and SRAM scrambling). This means
+    that unless the watchdog timer is 'petted' (i.e. the
+    aon_timer.WDOG_COUNT register is reset to 0 periodically) the device
+    will eventually reset itself.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    The timeout value is currently the maximum possible (~6 hours assuming
+    a clock of 200KHz). This value should be reduced to something lower,
+    issue #10215 tracks this.
+    
+    This change has been manually tested by setting the timer value to 0
+    and checking that the device is quickly reset.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
