@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9676"
-version_tuple = (0, 0, 9676)
+version_str = "0.0.post9678"
+version_tuple = (0, 0, 9678)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9676")
+    pversion = V("0.0.post9678")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9554"
-data_version_tuple = (0, 0, 9554)
+data_version_str = "0.0.post9556"
+data_version_tuple = (0, 0, 9556)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9554")
+    pdata_version = V("0.0.post9556")
 except ImportError:
     pass
-data_git_hash = "862155839d7ff9b26c5515b49717a34554997b73"
-data_git_describe = "v0.0-9554-g862155839"
+data_git_hash = "2d323d68624f8c426b111908411d6b38a506322c"
+data_git_describe = "v0.0-9556-g2d323d686"
 data_git_msg = """\
-commit 862155839d7ff9b26c5515b49717a34554997b73
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Jan 20 17:34:28 2022 -0800
+commit 2d323d68624f8c426b111908411d6b38a506322c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 20 14:03:34 2022 -0800
 
-    [aes] update AES version in synthesis configs
+    [dv/otp_ctrl] Test access sequence
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This PR connects test access `prim_tl_i/o` to tl_agent.
+    The tool should automatically create this tl_agent, but currently the
+    auto-generated RAL block does not contain any registers, thus we will
+    run into a runtime error.
+    Until the reggen tool is optimized, the current solution is to only
+    manually create a tl_agent for this test_access area without an adapter
+    or RAL.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
