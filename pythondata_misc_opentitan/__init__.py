@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9701"
-version_tuple = (0, 0, 9701)
+version_str = "0.0.post9703"
+version_tuple = (0, 0, 9703)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9701")
+    pversion = V("0.0.post9703")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9579"
-data_version_tuple = (0, 0, 9579)
+data_version_str = "0.0.post9581"
+data_version_tuple = (0, 0, 9581)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9579")
+    pdata_version = V("0.0.post9581")
 except ImportError:
     pass
-data_git_hash = "6e7241ef498148266dc50737ac0fc496a6ba428a"
-data_git_describe = "v0.0-9579-g6e7241ef4"
+data_git_hash = "2e85ff19f1cf83b5c881e1537e0fc280fccfbb32"
+data_git_describe = "v0.0-9581-g2e85ff19f"
 data_git_msg = """\
-commit 6e7241ef498148266dc50737ac0fc496a6ba428a
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 19 17:43:49 2022 -0800
+commit 2e85ff19f1cf83b5c881e1537e0fc280fccfbb32
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Jan 19 14:15:02 2022 -0800
 
-    [flash_ctrl] Documentation updates
+    [dif/alert_handler] Add local alert locking DIFs.
     
-    - Addresses the questions from #10188 and #10189.
+    This commit adds two DIFs to lock the configuration CSRs of a specific
+    local alert, and check if a specific local alert's CSRs are locked. This
+    gives users fine grained control over the locking of a specific local
+    alert's configuration.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This addresses a task in #9899.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
