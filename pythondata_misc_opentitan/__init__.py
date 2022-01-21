@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9681"
-version_tuple = (0, 0, 9681)
+version_str = "0.0.post9683"
+version_tuple = (0, 0, 9683)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9681")
+    pversion = V("0.0.post9683")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9559"
-data_version_tuple = (0, 0, 9559)
+data_version_str = "0.0.post9561"
+data_version_tuple = (0, 0, 9561)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9559")
+    pdata_version = V("0.0.post9561")
 except ImportError:
     pass
-data_git_hash = "ea01517046407fe4f5d524d9cf26a18baf1953d7"
-data_git_describe = "v0.0-9559-gea0151704"
+data_git_hash = "a06044b38635655c59396463d743b7d5bf9dd287"
+data_git_describe = "v0.0-9561-ga06044b38"
 data_git_msg = """\
-commit ea01517046407fe4f5d524d9cf26a18baf1953d7
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Jan 19 16:54:48 2022 +0000
+commit a06044b38635655c59396463d743b7d5bf9dd287
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Tue Jan 18 13:35:36 2022 +0000
 
-    [doc, aon_timer] Clarify when wakeup and interrupt triggered
+    [rom_ctrl, dv] Fixes regression failures in rom_ctrl_passthru_mem_tl_intg_err
     
-    Explicitly state wakeup and watchdog counts must be cleared along with
-    the wakeup and interrupt events to avoid immediate retriggering.
+    Fixes regression failures in rom_ctrl_passthru_mem_tl_intg_err testcase.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
