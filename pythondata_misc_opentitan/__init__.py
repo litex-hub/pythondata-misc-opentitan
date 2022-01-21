@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9694"
-version_tuple = (0, 0, 9694)
+version_str = "0.0.post9698"
+version_tuple = (0, 0, 9698)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9694")
+    pversion = V("0.0.post9698")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9572"
-data_version_tuple = (0, 0, 9572)
+data_version_str = "0.0.post9576"
+data_version_tuple = (0, 0, 9576)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9572")
+    pdata_version = V("0.0.post9576")
 except ImportError:
     pass
-data_git_hash = "fe0aaec7f6129549cc4797def5bf519b6728a477"
-data_git_describe = "v0.0-9572-gfe0aaec7f"
+data_git_hash = "8eac7c0264862cc4f9a92ee522fe753d9b543cbf"
+data_git_describe = "v0.0-9576-g8eac7c026"
 data_git_msg = """\
-commit fe0aaec7f6129549cc4797def5bf519b6728a477
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jan 20 21:45:04 2022 -0800
+commit 8eac7c0264862cc4f9a92ee522fe753d9b543cbf
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Thu Jan 20 16:41:23 2022 -0500
 
-    [dv/pwrmgr] Stimulate the rom inputs
+    [sw/silicon_creator] Add hardened assembly routine for redundant checks
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
