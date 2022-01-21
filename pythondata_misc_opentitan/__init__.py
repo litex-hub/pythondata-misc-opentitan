@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9678"
-version_tuple = (0, 0, 9678)
+version_str = "0.0.post9679"
+version_tuple = (0, 0, 9679)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9678")
+    pversion = V("0.0.post9679")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9556"
-data_version_tuple = (0, 0, 9556)
+data_version_str = "0.0.post9557"
+data_version_tuple = (0, 0, 9557)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9556")
+    pdata_version = V("0.0.post9557")
 except ImportError:
     pass
-data_git_hash = "2d323d68624f8c426b111908411d6b38a506322c"
-data_git_describe = "v0.0-9556-g2d323d686"
+data_git_hash = "001fe330a800777c3a4c13657ac817f5cc5881fa"
+data_git_describe = "v0.0-9557-g001fe330a"
 data_git_msg = """\
-commit 2d323d68624f8c426b111908411d6b38a506322c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jan 20 14:03:34 2022 -0800
+commit 001fe330a800777c3a4c13657ac817f5cc5881fa
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Jan 18 08:30:46 2022 -0800
 
-    [dv/otp_ctrl] Test access sequence
+    [ entropy_src, dv ] Require all seeds to pass at least one round of health checks
     
-    This PR connects test access `prim_tl_i/o` to tl_agent.
-    The tool should automatically create this tl_agent, but currently the
-    auto-generated RAL block does not contain any registers, thus we will
-    run into a runtime error.
-    Until the reggen tool is optimized, the current solution is to only
-    manually create a tl_agent for this test_access area without an adapter
-    or RAL.
+    The DUT does not allow any data to exit if the most recent health checks have failed.
+    This commit updates the scoreboard to note this.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
