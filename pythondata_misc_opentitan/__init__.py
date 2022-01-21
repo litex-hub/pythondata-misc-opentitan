@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9679"
-version_tuple = (0, 0, 9679)
+version_str = "0.0.post9681"
+version_tuple = (0, 0, 9681)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9679")
+    pversion = V("0.0.post9681")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9557"
-data_version_tuple = (0, 0, 9557)
+data_version_str = "0.0.post9559"
+data_version_tuple = (0, 0, 9559)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9557")
+    pdata_version = V("0.0.post9559")
 except ImportError:
     pass
-data_git_hash = "001fe330a800777c3a4c13657ac817f5cc5881fa"
-data_git_describe = "v0.0-9557-g001fe330a"
+data_git_hash = "ea01517046407fe4f5d524d9cf26a18baf1953d7"
+data_git_describe = "v0.0-9559-gea0151704"
 data_git_msg = """\
-commit 001fe330a800777c3a4c13657ac817f5cc5881fa
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Jan 18 08:30:46 2022 -0800
+commit ea01517046407fe4f5d524d9cf26a18baf1953d7
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Jan 19 16:54:48 2022 +0000
 
-    [ entropy_src, dv ] Require all seeds to pass at least one round of health checks
+    [doc, aon_timer] Clarify when wakeup and interrupt triggered
     
-    The DUT does not allow any data to exit if the most recent health checks have failed.
-    This commit updates the scoreboard to note this.
+    Explicitly state wakeup and watchdog counts must be cleared along with
+    the wakeup and interrupt events to avoid immediate retriggering.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
