@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9687"
-version_tuple = (0, 0, 9687)
+version_str = "0.0.post9688"
+version_tuple = (0, 0, 9688)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9687")
+    pversion = V("0.0.post9688")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9565"
-data_version_tuple = (0, 0, 9565)
+data_version_str = "0.0.post9566"
+data_version_tuple = (0, 0, 9566)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9565")
+    pdata_version = V("0.0.post9566")
 except ImportError:
     pass
-data_git_hash = "dce6eb7ea9e842b76e90e2360776bc17a7214f22"
-data_git_describe = "v0.0-9565-gdce6eb7ea"
+data_git_hash = "6428c229e2030105a4a06a86284cb161061ee94c"
+data_git_describe = "v0.0-9566-g6428c229e"
 data_git_msg = """\
-commit dce6eb7ea9e842b76e90e2360776bc17a7214f22
-Author: Daniel Beitel <dbeitel@rivosinc.com>
-Date:   Wed Jan 19 13:18:05 2022 -0800
+commit 6428c229e2030105a4a06a86284cb161061ee94c
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Wed Jan 19 18:21:49 2022 -0800
 
-    [sw,mask_rom] Rename manifest.S so it doesn't collide with manifest.c rule
+    [hw/test] Enable use of entropy in mask ROM.
     
-    Signed-off-by: Daniel Beitel <dbeitel@rivosinc.com>
+    This is done by setting CREATOR_SW_CFG_RNG_EN to 0x739.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
