@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9698"
-version_tuple = (0, 0, 9698)
+version_str = "0.0.post9701"
+version_tuple = (0, 0, 9701)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9698")
+    pversion = V("0.0.post9701")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9576"
-data_version_tuple = (0, 0, 9576)
+data_version_str = "0.0.post9579"
+data_version_tuple = (0, 0, 9579)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9576")
+    pdata_version = V("0.0.post9579")
 except ImportError:
     pass
-data_git_hash = "8eac7c0264862cc4f9a92ee522fe753d9b543cbf"
-data_git_describe = "v0.0-9576-g8eac7c026"
+data_git_hash = "6e7241ef498148266dc50737ac0fc496a6ba428a"
+data_git_describe = "v0.0-9579-g6e7241ef4"
 data_git_msg = """\
-commit 8eac7c0264862cc4f9a92ee522fe753d9b543cbf
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Thu Jan 20 16:41:23 2022 -0500
+commit 6e7241ef498148266dc50737ac0fc496a6ba428a
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jan 19 17:43:49 2022 -0800
 
-    [sw/silicon_creator] Add hardened assembly routine for redundant checks
+    [flash_ctrl] Documentation updates
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    - Addresses the questions from #10188 and #10189.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
