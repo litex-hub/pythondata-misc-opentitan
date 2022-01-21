@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9691"
-version_tuple = (0, 0, 9691)
+version_str = "0.0.post9694"
+version_tuple = (0, 0, 9694)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9691")
+    pversion = V("0.0.post9694")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9569"
-data_version_tuple = (0, 0, 9569)
+data_version_str = "0.0.post9572"
+data_version_tuple = (0, 0, 9572)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9569")
+    pdata_version = V("0.0.post9572")
 except ImportError:
     pass
-data_git_hash = "e408ebf4a40a36a59a79eb67878bcfa7193d7c25"
-data_git_describe = "v0.0-9569-ge408ebf4a"
+data_git_hash = "fe0aaec7f6129549cc4797def5bf519b6728a477"
+data_git_describe = "v0.0-9572-gfe0aaec7f"
 data_git_msg = """\
-commit e408ebf4a40a36a59a79eb67878bcfa7193d7c25
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 18 12:51:51 2022 -0800
+commit fe0aaec7f6129549cc4797def5bf519b6728a477
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jan 20 21:45:04 2022 -0800
 
-    [adc_ctrl] combine current status into new status
+    [dv/pwrmgr] Stimulate the rom inputs
     
-    - or the existing status into the next update to ensure filter
-      match status is not lost
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
