@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9671"
-version_tuple = (0, 0, 9671)
+version_str = "0.0.post9673"
+version_tuple = (0, 0, 9673)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9671")
+    pversion = V("0.0.post9673")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9549"
-data_version_tuple = (0, 0, 9549)
+data_version_str = "0.0.post9551"
+data_version_tuple = (0, 0, 9551)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9549")
+    pdata_version = V("0.0.post9551")
 except ImportError:
     pass
-data_git_hash = "c2f47bc747ebdc9daed7b00e1d603a73a2f1c58b"
-data_git_describe = "v0.0-9549-gc2f47bc74"
+data_git_hash = "6f124bdf1273e671a272acc7fcf5a3091a05a3ef"
+data_git_describe = "v0.0-9551-g6f124bdf1"
 data_git_msg = """\
-commit c2f47bc747ebdc9daed7b00e1d603a73a2f1c58b
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Jan 20 15:28:27 2022 +0100
+commit 6f124bdf1273e671a272acc7fcf5a3091a05a3ef
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Tue Jan 11 16:51:18 2022 +0000
 
-    [aes/pre_syn] Apply keep_hierarchy constraints to all prims not just buf
+    [sw,tests] Adding chip_sw_kmac_app_lc test
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Added entry to cross-reference with chip_sw_lc_ctrl_transition test.
+    
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
