@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9712"
-version_tuple = (0, 0, 9712)
+version_str = "0.0.post9713"
+version_tuple = (0, 0, 9713)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9712")
+    pversion = V("0.0.post9713")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9590"
-data_version_tuple = (0, 0, 9590)
+data_version_str = "0.0.post9591"
+data_version_tuple = (0, 0, 9591)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9590")
+    pdata_version = V("0.0.post9591")
 except ImportError:
     pass
-data_git_hash = "3b291e7be5b0614d14ee97089b3749f7ad81f051"
-data_git_describe = "v0.0-9590-g3b291e7be"
+data_git_hash = "1e47333bb2ff22b05be24cb8068cc9e4de764f9a"
+data_git_describe = "v0.0-9591-g1e47333bb"
 data_git_msg = """\
-commit 3b291e7be5b0614d14ee97089b3749f7ad81f051
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Jan 1 16:56:39 2022 -0800
+commit 1e47333bb2ff22b05be24cb8068cc9e4de764f9a
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Jan 21 17:25:23 2022 -0800
 
-    [ entropy_src/dv ] SB Handling for interrupts, disables and resets
+    [dv/pwrmgr] Fix SVA assertion for spec changes
     
-    - Health test alerts can now be cleared by interrupt handlers for longer
-      simulations
-    - Restructured scoreboard to properly support rest and disable events
-    - Scoreboard bug-fix: it turns out that in ES_TYPE == BYPASS MODE the
-      DUT FSM effectively stays in BOOT mode
+    Expect all clocks off in deep sleep.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-    Co-authored-by: weicaiyang <49293026+weicaiyang@users.noreply.github.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
