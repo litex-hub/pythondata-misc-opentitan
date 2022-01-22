@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9711"
-version_tuple = (0, 0, 9711)
+version_str = "0.0.post9712"
+version_tuple = (0, 0, 9712)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9711")
+    pversion = V("0.0.post9712")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9589"
-data_version_tuple = (0, 0, 9589)
+data_version_str = "0.0.post9590"
+data_version_tuple = (0, 0, 9590)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9589")
+    pdata_version = V("0.0.post9590")
 except ImportError:
     pass
-data_git_hash = "dc40cb5774741bca306f536b1f5abe1f59cb1319"
-data_git_describe = "v0.0-9589-gdc40cb577"
+data_git_hash = "3b291e7be5b0614d14ee97089b3749f7ad81f051"
+data_git_describe = "v0.0-9590-g3b291e7be"
 data_git_msg = """\
-commit dc40cb5774741bca306f536b1f5abe1f59cb1319
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jan 21 15:28:23 2022 -0800
+commit 3b291e7be5b0614d14ee97089b3749f7ad81f051
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Jan 1 16:56:39 2022 -0800
 
-    [dv/otp_ctrl] Add checkings for vendor_test partition
+    [ entropy_src/dv ] SB Handling for interrupts, disables and resets
     
-    This PR adds two items for vendor_test partition:
-    1). Read lock vendor test partition via csr.
-    2). Read out vendor test partition digest value via csrs.
+    - Health test alerts can now be cleared by interrupt handlers for longer
+      simulations
+    - Restructured scoreboard to properly support rest and disable events
+    - Scoreboard bug-fix: it turns out that in ES_TYPE == BYPASS MODE the
+      DUT FSM effectively stays in BOOT mode
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Co-authored-by: weicaiyang <49293026+weicaiyang@users.noreply.github.com>
 
 """
 
