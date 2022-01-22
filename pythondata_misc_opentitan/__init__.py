@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9703"
-version_tuple = (0, 0, 9703)
+version_str = "0.0.post9710"
+version_tuple = (0, 0, 9710)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9703")
+    pversion = V("0.0.post9710")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9581"
-data_version_tuple = (0, 0, 9581)
+data_version_str = "0.0.post9588"
+data_version_tuple = (0, 0, 9588)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9581")
+    pdata_version = V("0.0.post9588")
 except ImportError:
     pass
-data_git_hash = "2e85ff19f1cf83b5c881e1537e0fc280fccfbb32"
-data_git_describe = "v0.0-9581-g2e85ff19f"
+data_git_hash = "8392480045c152992aeb1121df225090fd310252"
+data_git_describe = "v0.0-9588-g839248004"
 data_git_msg = """\
-commit 2e85ff19f1cf83b5c881e1537e0fc280fccfbb32
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Jan 19 14:15:02 2022 -0800
+commit 8392480045c152992aeb1121df225090fd310252
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 21 14:22:36 2022 -0800
 
-    [dif/alert_handler] Add local alert locking DIFs.
+    [dv/otp_ctrl] Fix covergroups
     
-    This commit adds two DIFs to lock the configuration CSRs of a specific
-    local alert, and check if a specific local alert's CSRs are locked. This
-    gives users fine grained control over the locking of a specific local
-    alert's configuration.
+    This PR fixes prim_tl_agent covergroups and small documentation related
+    to vendortest partition.
     
-    This addresses a task in #9899.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
