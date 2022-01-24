@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9719"
-version_tuple = (0, 0, 9719)
+version_str = "0.0.post9722"
+version_tuple = (0, 0, 9722)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9719")
+    pversion = V("0.0.post9722")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9597"
-data_version_tuple = (0, 0, 9597)
+data_version_str = "0.0.post9600"
+data_version_tuple = (0, 0, 9600)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9597")
+    pdata_version = V("0.0.post9600")
 except ImportError:
     pass
-data_git_hash = "e5aa269c0215cb762ac537ea711b2e6318271448"
-data_git_describe = "v0.0-9597-ge5aa269c0"
+data_git_hash = "bf53287bfa8828af45b1caa38a98047af2107cd4"
+data_git_describe = "v0.0-9600-gbf53287bf"
 data_git_msg = """\
-commit e5aa269c0215cb762ac537ea711b2e6318271448
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Jan 24 15:27:02 2022 +0000
+commit bf53287bfa8828af45b1caa38a98047af2107cd4
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jan 24 10:47:34 2022 +0100
 
-    Revert "[flash_ctrl] D2 preparation steps"
+    [aes] Fix wrapper for FI experiments
     
-    This reverts commit f166105, which has broken the CW305 build because
-    Vivado (wrongly?) infers a combo loop on the sparse FSM.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
