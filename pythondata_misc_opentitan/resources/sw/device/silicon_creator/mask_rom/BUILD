@@ -146,6 +146,7 @@ opentitan_functest(
         "//hw/ip/csrng/data:csrng_regs",
         "//hw/ip/edn/data:edn_regs",
         "//hw/ip/entropy_src/data:entropy_src_regs",
+        "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
         "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//hw/ip/sram_ctrl/data:sram_ctrl_regs",
         "//hw/top_earlgrey/ip/ast/data:ast_regs",
@@ -227,6 +228,7 @@ cc_library(
 cc_test(
     name = "sigverify_keys_unittest",
     srcs = [
+        "//sw/device/silicon_creator/lib:sigverify_src_for_keys_unittest",
         "sigverify_keys.c",
         "sigverify_keys.h",
         "sigverify_keys_unittest.cc",
@@ -240,7 +242,6 @@ cc_test(
         "//sw/device/lib/base",
         "//sw/device/silicon_creator/lib:error",
         "//sw/device/silicon_creator/lib:mock_sigverify",
-        "//sw/device/silicon_creator/lib:sigverify",
         "//sw/device/silicon_creator/lib:sigverify_internal",
         "//sw/device/silicon_creator/lib:sigverify_intf",
         "//sw/device/silicon_creator/lib:sigverify_mod_exp_ibex",
