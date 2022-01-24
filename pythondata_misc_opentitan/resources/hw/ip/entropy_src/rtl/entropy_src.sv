@@ -24,7 +24,9 @@ module entropy_src
   output tlul_pkg::tl_d2h_t tl_o,
 
   // OTP Interface
+  // SEC_CM: INTERSIG.MUBI
   input  mubi8_t otp_en_entropy_src_fw_read_i,
+  // SEC_CM: INTERSIG.MUBI
   input  mubi8_t otp_en_entropy_src_fw_over_i,
 
   // RNG Interface
@@ -115,6 +117,9 @@ module entropy_src
 
   logic [NumAlerts-1:0] intg_err_alert;
   assign intg_err_alert[0] = 1'b0;
+
+  // SEC_CM: CONFIG.REGWEN
+  // SEC_CM: TILE_LINK.BUS.INTEGRITY
 
   entropy_src_reg_top u_reg (
     .clk_i,
