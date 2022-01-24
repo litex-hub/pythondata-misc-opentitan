@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9722"
-version_tuple = (0, 0, 9722)
+version_str = "0.0.post9727"
+version_tuple = (0, 0, 9727)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9722")
+    pversion = V("0.0.post9727")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9600"
-data_version_tuple = (0, 0, 9600)
+data_version_str = "0.0.post9605"
+data_version_tuple = (0, 0, 9605)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9600")
+    pdata_version = V("0.0.post9605")
 except ImportError:
     pass
-data_git_hash = "bf53287bfa8828af45b1caa38a98047af2107cd4"
-data_git_describe = "v0.0-9600-gbf53287bf"
+data_git_hash = "7852bf9b79b1372a5571f4a7535b84fda1532cd8"
+data_git_describe = "v0.0-9605-g7852bf9b7"
 data_git_msg = """\
-commit bf53287bfa8828af45b1caa38a98047af2107cd4
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Jan 24 10:47:34 2022 +0100
+commit 7852bf9b79b1372a5571f4a7535b84fda1532cd8
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Tue Jan 18 15:38:28 2022 +0000
 
-    [aes] Fix wrapper for FI experiments
+    [otbn,dv] Add a sequence that drives the lc_escalate_en_i input
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
