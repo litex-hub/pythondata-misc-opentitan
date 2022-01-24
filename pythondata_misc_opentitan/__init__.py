@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9727"
-version_tuple = (0, 0, 9727)
+version_str = "0.0.post9728"
+version_tuple = (0, 0, 9728)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9727")
+    pversion = V("0.0.post9728")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9605"
-data_version_tuple = (0, 0, 9605)
+data_version_str = "0.0.post9606"
+data_version_tuple = (0, 0, 9606)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9605")
+    pdata_version = V("0.0.post9606")
 except ImportError:
     pass
-data_git_hash = "7852bf9b79b1372a5571f4a7535b84fda1532cd8"
-data_git_describe = "v0.0-9605-g7852bf9b7"
+data_git_hash = "c1376765178184f1a3e1b1d5a3941c31fcd9f080"
+data_git_describe = "v0.0-9606-gc13767651"
 data_git_msg = """\
-commit 7852bf9b79b1372a5571f4a7535b84fda1532cd8
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Jan 18 15:38:28 2022 +0000
+commit c1376765178184f1a3e1b1d5a3941c31fcd9f080
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Jan 19 15:51:08 2022 -0800
 
-    [otbn,dv] Add a sequence that drives the lc_escalate_en_i input
+    [dif/alert_handler] Add class locking DIFs.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This commit adds two DIFs to lock the configuration CSRs of a specific
+    alert class, and check if a specific alert class' CSRs are locked. This
+    gives users fine grained control over the locking of a specific alert
+    class' configuration.
+    
+    This addresses a task in #9899.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
