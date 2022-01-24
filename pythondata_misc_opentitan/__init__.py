@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9715"
-version_tuple = (0, 0, 9715)
+version_str = "0.0.post9716"
+version_tuple = (0, 0, 9716)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9715")
+    pversion = V("0.0.post9716")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9593"
-data_version_tuple = (0, 0, 9593)
+data_version_str = "0.0.post9594"
+data_version_tuple = (0, 0, 9594)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9593")
+    pdata_version = V("0.0.post9594")
 except ImportError:
     pass
-data_git_hash = "b603d64c392f0d844697690dd595fd56ae77d677"
-data_git_describe = "v0.0-9593-gb603d64c3"
+data_git_hash = "3bda020dda70d422e115535e29fdf99cc1f6e86f"
+data_git_describe = "v0.0-9594-g3bda020dd"
 data_git_msg = """\
-commit b603d64c392f0d844697690dd595fd56ae77d677
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 19 17:24:31 2022 -0800
+commit 3bda020dda70d422e115535e29fdf99cc1f6e86f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jan 21 22:48:21 2022 -0800
 
-    [pwrmgr, rstmgr] D2S preparation
+    [doc] Add D2S as valid entry in dashboard script
     
-    - convert to new sparse fsms
-    - add addidiontal sparse fsms to reset
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
