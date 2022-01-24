@@ -4,43 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9735"
-version_tuple = (0, 0, 9735)
+version_str = "0.0.post9736"
+version_tuple = (0, 0, 9736)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9735")
+    pversion = V("0.0.post9736")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9613"
-data_version_tuple = (0, 0, 9613)
+data_version_str = "0.0.post9614"
+data_version_tuple = (0, 0, 9614)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9613")
+    pdata_version = V("0.0.post9614")
 except ImportError:
     pass
-data_git_hash = "bc4274a6c61dc642785e7f3f82b6c13a358aa5b4"
-data_git_describe = "v0.0-9613-gbc4274a6c"
+data_git_hash = "c98f979876e2946a3efeb1c816c68a77c3d7e643"
+data_git_describe = "v0.0-9614-gc98f97987"
 data_git_msg = """\
-commit bc4274a6c61dc642785e7f3f82b6c13a358aa5b4
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Jan 12 19:30:33 2022 -0800
+commit c98f979876e2946a3efeb1c816c68a77c3d7e643
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 21 09:55:22 2022 -0800
 
-    [bazel] Add bazel to CI and containers
+    [dv/pwrmgr] Disable escalation ping fcov
     
-    bazel and gcc-9 is added to azure
-    bazel is added to Docker
-    ran buildifier
+    This PR disable the fcov collected by escalation agent regarding the
+    ping coverage. Because pwrmgr stimulus doesn't send out ping request.
+    This feature is covered in alert_handler testbench.
     
-    Updated instructions to ask for at least gcc8 the behavior of which is
-    already depended on by source in this repo.
-    
-    skip verilator in bazel builds and tests in CI
-    skip targets that depend on verilator.
-    add a target so bazel can link it properly in sigverify_dynamic_functest
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
