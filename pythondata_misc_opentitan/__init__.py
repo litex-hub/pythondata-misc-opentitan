@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9718"
-version_tuple = (0, 0, 9718)
+version_str = "0.0.post9719"
+version_tuple = (0, 0, 9719)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9718")
+    pversion = V("0.0.post9719")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9596"
-data_version_tuple = (0, 0, 9596)
+data_version_str = "0.0.post9597"
+data_version_tuple = (0, 0, 9597)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9596")
+    pdata_version = V("0.0.post9597")
 except ImportError:
     pass
-data_git_hash = "0262e24d61f6019199f47c50d34ae8e7aa0acf20"
-data_git_describe = "v0.0-9596-g0262e24d6"
+data_git_hash = "e5aa269c0215cb762ac537ea711b2e6318271448"
+data_git_describe = "v0.0-9597-ge5aa269c0"
 data_git_msg = """\
-commit 0262e24d61f6019199f47c50d34ae8e7aa0acf20
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Sun Jan 23 19:35:14 2022 -0800
+commit e5aa269c0215cb762ac537ea711b2e6318271448
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Jan 24 15:27:02 2022 +0000
 
-    [bazel] fixup dependency in mask_rom_epmp_test
+    Revert "[flash_ctrl] D2 preparation steps"
     
-    didn't commit and push the version of the fix I tested and worked on
-    for #10280. This commit should actually work to build the
-    mask_rom_epmp_test.
+    This reverts commit f166105, which has broken the CW305 build because
+    Vivado (wrongly?) infers a combo loop on the sparse FSM.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
