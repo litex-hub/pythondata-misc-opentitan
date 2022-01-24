@@ -4,36 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9736"
-version_tuple = (0, 0, 9736)
+version_str = "0.0.post9741"
+version_tuple = (0, 0, 9741)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9736")
+    pversion = V("0.0.post9741")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9614"
-data_version_tuple = (0, 0, 9614)
+data_version_str = "0.0.post9619"
+data_version_tuple = (0, 0, 9619)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9614")
+    pdata_version = V("0.0.post9619")
 except ImportError:
     pass
-data_git_hash = "c98f979876e2946a3efeb1c816c68a77c3d7e643"
-data_git_describe = "v0.0-9614-gc98f97987"
+data_git_hash = "8f0feb009e547da8bde9f228403eed2f50ac8ba5"
+data_git_describe = "v0.0-9619-g8f0feb009"
 data_git_msg = """\
-commit c98f979876e2946a3efeb1c816c68a77c3d7e643
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jan 21 09:55:22 2022 -0800
+commit 8f0feb009e547da8bde9f228403eed2f50ac8ba5
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Jan 19 01:04:13 2022 -0800
 
-    [dv/pwrmgr] Disable escalation ping fcov
+    [chip dv] Fix plic_all_irqs_test for Verilator
     
-    This PR disable the fcov collected by escalation agent regarding the
-    ping coverage. Because pwrmgr stimulus doesn't send out ping request.
-    This feature is covered in alert_handler testbench.
+    ...and FPGA.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    The logging mechanism which uses UART0 in Verilator and FPGA setups
+    messes up this test, which is meant to enable and test ALL interrupts
+    from all peripherals in the device, including UART0. The fix is to skip
+    testing UART0 interrupts for Verilator and FPGA.
+    
+    Fixes #8656.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
