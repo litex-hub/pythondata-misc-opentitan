@@ -4,39 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9728"
-version_tuple = (0, 0, 9728)
+version_str = "0.0.post9735"
+version_tuple = (0, 0, 9735)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9728")
+    pversion = V("0.0.post9735")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9606"
-data_version_tuple = (0, 0, 9606)
+data_version_str = "0.0.post9613"
+data_version_tuple = (0, 0, 9613)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9606")
+    pdata_version = V("0.0.post9613")
 except ImportError:
     pass
-data_git_hash = "c1376765178184f1a3e1b1d5a3941c31fcd9f080"
-data_git_describe = "v0.0-9606-gc13767651"
+data_git_hash = "bc4274a6c61dc642785e7f3f82b6c13a358aa5b4"
+data_git_describe = "v0.0-9613-gbc4274a6c"
 data_git_msg = """\
-commit c1376765178184f1a3e1b1d5a3941c31fcd9f080
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Jan 19 15:51:08 2022 -0800
+commit bc4274a6c61dc642785e7f3f82b6c13a358aa5b4
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jan 12 19:30:33 2022 -0800
 
-    [dif/alert_handler] Add class locking DIFs.
+    [bazel] Add bazel to CI and containers
     
-    This commit adds two DIFs to lock the configuration CSRs of a specific
-    alert class, and check if a specific alert class' CSRs are locked. This
-    gives users fine grained control over the locking of a specific alert
-    class' configuration.
+    bazel and gcc-9 is added to azure
+    bazel is added to Docker
+    ran buildifier
     
-    This addresses a task in #9899.
+    Updated instructions to ask for at least gcc8 the behavior of which is
+    already depended on by source in this repo.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    skip verilator in bazel builds and tests in CI
+    skip targets that depend on verilator.
+    add a target so bazel can link it properly in sigverify_dynamic_functest
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
