@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9753"
-version_tuple = (0, 0, 9753)
+version_str = "0.0.post9760"
+version_tuple = (0, 0, 9760)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9753")
+    pversion = V("0.0.post9760")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9631"
-data_version_tuple = (0, 0, 9631)
+data_version_str = "0.0.post9638"
+data_version_tuple = (0, 0, 9638)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9631")
+    pdata_version = V("0.0.post9638")
 except ImportError:
     pass
-data_git_hash = "dc15a395a70512b74dc56a4d2839db7fe1784a3b"
-data_git_describe = "v0.0-9631-gdc15a395a"
+data_git_hash = "608c35c8c0a1aa7c46fdfa7855fad17309c31a4a"
+data_git_describe = "v0.0-9638-g608c35c8c"
 data_git_msg = """\
-commit dc15a395a70512b74dc56a4d2839db7fe1784a3b
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Jan 24 14:36:10 2022 -0800
+commit 608c35c8c0a1aa7c46fdfa7855fad17309c31a4a
+Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+Date:   Wed Dec 15 17:42:30 2021 +0100
 
-    [bazel] fixup #10041 conflict
+    [kmac/entropy_src] added prim_count for keccak_round counter
     
-    it looks like we see a conflict in CI between
-    https://github.com/lowRISC/opentitan/pull/10041 and
-    https://github.com/lowRISC/opentitan/pull/10148
-    
-    this should resolve it and I've tested by building on my workstation
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
 
 """
 
