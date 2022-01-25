@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9779"
-version_tuple = (0, 0, 9779)
+version_str = "0.0.post9786"
+version_tuple = (0, 0, 9786)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9779")
+    pversion = V("0.0.post9786")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9657"
-data_version_tuple = (0, 0, 9657)
+data_version_str = "0.0.post9664"
+data_version_tuple = (0, 0, 9664)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9657")
+    pdata_version = V("0.0.post9664")
 except ImportError:
     pass
-data_git_hash = "60837b92dbc8edf6edfe56c1f2a4c964c3868971"
-data_git_describe = "v0.0-9657-g60837b92d"
+data_git_hash = "9384c5541e47376fa156d234c3aa4b46ef4acb9c"
+data_git_describe = "v0.0-9664-g9384c5541"
 data_git_msg = """\
-commit 60837b92dbc8edf6edfe56c1f2a4c964c3868971
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Dec 21 10:02:45 2021 +0000
+commit 9384c5541e47376fa156d234c3aa4b46ef4acb9c
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Jan 25 10:23:19 2022 -0500
 
-    [sw,crypto] Setup for OTBN utilities.
+    [sw/silicon_creator] Update HARDENED_CHECK comment
     
-    After copying the utilities from silicon_creator, adjust the build logic
-    to include them and do some minor cleanup (e.g. fix headers, remove
-    unused imports).
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
