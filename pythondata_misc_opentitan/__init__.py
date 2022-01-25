@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9791"
-version_tuple = (0, 0, 9791)
+version_str = "0.0.post9796"
+version_tuple = (0, 0, 9796)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9791")
+    pversion = V("0.0.post9796")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9669"
-data_version_tuple = (0, 0, 9669)
+data_version_str = "0.0.post9674"
+data_version_tuple = (0, 0, 9674)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9669")
+    pdata_version = V("0.0.post9674")
 except ImportError:
     pass
-data_git_hash = "cc0f9024cb2aaad7a46b7ff3f6b4e7a24b5e79b6"
-data_git_describe = "v0.0-9669-gcc0f9024c"
+data_git_hash = "89da9f00f08426ca8d1977b0390d68dd33ceddc7"
+data_git_describe = "v0.0-9674-g89da9f00f"
 data_git_msg = """\
-commit cc0f9024cb2aaad7a46b7ff3f6b4e7a24b5e79b6
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Jan 24 20:59:43 2022 -0800
+commit 89da9f00f08426ca8d1977b0390d68dd33ceddc7
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 25 06:47:42 2022 -0800
 
-    [otp_ctrl] Amend documentation for VENDOR_TEST partition
+    [dv/pwrmgr] Fix failure due to timing conflicts
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    The pwrmgr_wakeup_reset sequence occasionally fails because
+    twirl_rom_response waits conflict with other waits for checking
+    wakeup status.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
