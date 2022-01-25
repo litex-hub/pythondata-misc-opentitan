@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9746"
-version_tuple = (0, 0, 9746)
+version_str = "0.0.post9753"
+version_tuple = (0, 0, 9753)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9746")
+    pversion = V("0.0.post9753")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9624"
-data_version_tuple = (0, 0, 9624)
+data_version_str = "0.0.post9631"
+data_version_tuple = (0, 0, 9631)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9624")
+    pdata_version = V("0.0.post9631")
 except ImportError:
     pass
-data_git_hash = "dd26aba348d4308d9e0b057a9dde159154a1c6ed"
-data_git_describe = "v0.0-9624-gdd26aba34"
+data_git_hash = "dc15a395a70512b74dc56a4d2839db7fe1784a3b"
+data_git_describe = "v0.0-9631-gdc15a395a"
 data_git_msg = """\
-commit dd26aba348d4308d9e0b057a9dde159154a1c6ed
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jan 21 22:00:34 2022 -0800
+commit dc15a395a70512b74dc56a4d2839db7fe1784a3b
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Mon Jan 24 14:36:10 2022 -0800
 
-    [reggen] Add standard BUS.INTEGRITY label to generated non-security IPs
+    [bazel] fixup #10041 conflict
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    it looks like we see a conflict in CI between
+    https://github.com/lowRISC/opentitan/pull/10041 and
+    https://github.com/lowRISC/opentitan/pull/10148
+    
+    this should resolve it and I've tested by building on my workstation
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
