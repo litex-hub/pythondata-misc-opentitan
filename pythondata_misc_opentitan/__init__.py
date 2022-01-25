@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9796"
-version_tuple = (0, 0, 9796)
+version_str = "0.0.post9798"
+version_tuple = (0, 0, 9798)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9796")
+    pversion = V("0.0.post9798")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9674"
-data_version_tuple = (0, 0, 9674)
+data_version_str = "0.0.post9676"
+data_version_tuple = (0, 0, 9676)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9674")
+    pdata_version = V("0.0.post9676")
 except ImportError:
     pass
-data_git_hash = "89da9f00f08426ca8d1977b0390d68dd33ceddc7"
-data_git_describe = "v0.0-9674-g89da9f00f"
+data_git_hash = "33007788c8062fee304387e83ea08b56d7d35922"
+data_git_describe = "v0.0-9676-g33007788c"
 data_git_msg = """\
-commit 89da9f00f08426ca8d1977b0390d68dd33ceddc7
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 25 06:47:42 2022 -0800
+commit 33007788c8062fee304387e83ea08b56d7d35922
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Tue Jan 25 08:55:27 2022 -0800
 
-    [dv/pwrmgr] Fix failure due to timing conflicts
+    [edn/rtl] Fix for boot req mode
     
-    The pwrmgr_wakeup_reset sequence occasionally fails because
-    twirl_rom_response waits conflict with other waits for checking
-    wakeup status.
+    Need to make sure the software status bits are not affect by the
+    boot request hardware state machine.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
