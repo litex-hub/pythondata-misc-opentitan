@@ -4,34 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9765"
-version_tuple = (0, 0, 9765)
+version_str = "0.0.post9770"
+version_tuple = (0, 0, 9770)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9765")
+    pversion = V("0.0.post9770")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9643"
-data_version_tuple = (0, 0, 9643)
+data_version_str = "0.0.post9648"
+data_version_tuple = (0, 0, 9648)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9643")
+    pdata_version = V("0.0.post9648")
 except ImportError:
     pass
-data_git_hash = "14b2217fbfe2d3707ce068df06c58f8688139447"
-data_git_describe = "v0.0-9643-g14b2217fb"
+data_git_hash = "5730f0d9ff12ce152b6333aa8cd738c32c419e40"
+data_git_describe = "v0.0-9648-g5730f0d9f"
 data_git_msg = """\
-commit 14b2217fbfe2d3707ce068df06c58f8688139447
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Wed Jan 19 08:15:01 2022 -0800
+commit 5730f0d9ff12ce152b6333aa8cd738c32c419e40
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Jan 24 14:57:51 2022 +0000
 
-    [entropy_src] Fix 1-clk timing error in Bucket Test output
+    [otbn,dv] Commit GPR changes when stalled
     
-    Fixes #10226.  See that issue for motivation.
+    This only really makes a difference for BN.LID instructions like this:
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+        bn.lid x15++, 1184(x22)
+    
+    Here, the RTL increments x15 on the first cycle. If the load triggered
+    an error because the DMEM integrity bits were malformed, all
+    side-effects of the instruction will have been discarded except for
+    the write to x15.
+    
+    Until this change, the ISS committed the GPR change on the second
+    cycle. Of course, this meant that the aborting instruction would not
+    commit the GPR change at all, resulting in a mismatch between RTL and
+    ISS for the final state.
+    
+    Note that this difference isn't actually observable in the design:
+    there's no bus access to register values and we will wipe the register
+    file between operations. But it *did* cause test failures because we
+    have a comparison of post-run dumps. Those should be fixed now.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
