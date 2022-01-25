@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9786"
-version_tuple = (0, 0, 9786)
+version_str = "0.0.post9787"
+version_tuple = (0, 0, 9787)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9786")
+    pversion = V("0.0.post9787")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9664"
-data_version_tuple = (0, 0, 9664)
+data_version_str = "0.0.post9665"
+data_version_tuple = (0, 0, 9665)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9664")
+    pdata_version = V("0.0.post9665")
 except ImportError:
     pass
-data_git_hash = "9384c5541e47376fa156d234c3aa4b46ef4acb9c"
-data_git_describe = "v0.0-9664-g9384c5541"
+data_git_hash = "e99015e644d03768a616d463f4f8c991f07f3bb3"
+data_git_describe = "v0.0-9665-ge99015e64"
 data_git_msg = """\
-commit 9384c5541e47376fa156d234c3aa4b46ef4acb9c
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Jan 25 10:23:19 2022 -0500
+commit e99015e644d03768a616d463f4f8c991f07f3bb3
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Mon Jan 24 18:12:10 2022 -0800
 
-    [sw/silicon_creator] Update HARDENED_CHECK comment
+    [sw/rom] Update bazel rules
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    1. Remove abs and sec_mmio dependencies from their respective mock
+       functions.
+    2. Add OPENTITAN_CPU target to libraries that depend on target specific
+       definitions.
+    3. Fix build issues with sigverify OTBN rules.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
