@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9762"
-version_tuple = (0, 0, 9762)
+version_str = "0.0.post9765"
+version_tuple = (0, 0, 9765)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9762")
+    pversion = V("0.0.post9765")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9640"
-data_version_tuple = (0, 0, 9640)
+data_version_str = "0.0.post9643"
+data_version_tuple = (0, 0, 9643)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9640")
+    pdata_version = V("0.0.post9643")
 except ImportError:
     pass
-data_git_hash = "92fa6f8648ac1e60ec98e18657d9925b47fac3b9"
-data_git_describe = "v0.0-9640-g92fa6f864"
+data_git_hash = "14b2217fbfe2d3707ce068df06c58f8688139447"
+data_git_describe = "v0.0-9643-g14b2217fb"
 data_git_msg = """\
-commit 92fa6f8648ac1e60ec98e18657d9925b47fac3b9
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jan 21 14:58:12 2022 -0800
+commit 14b2217fbfe2d3707ce068df06c58f8688139447
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Wed Jan 19 08:15:01 2022 -0800
 
-    [dv/otp_ctrl] Update auto-generated UNR file
+    [entropy_src] Fix 1-clk timing error in Bucket Test output
     
-    This PR updates the tool generated UNR file. The main impact is that
-    design added a `VendorTest` partition.
+    Fixes #10226.  See that issue for motivation.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
