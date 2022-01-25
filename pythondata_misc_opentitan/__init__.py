@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9741"
-version_tuple = (0, 0, 9741)
+version_str = "0.0.post9746"
+version_tuple = (0, 0, 9746)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9741")
+    pversion = V("0.0.post9746")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9619"
-data_version_tuple = (0, 0, 9619)
+data_version_str = "0.0.post9624"
+data_version_tuple = (0, 0, 9624)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9619")
+    pdata_version = V("0.0.post9624")
 except ImportError:
     pass
-data_git_hash = "8f0feb009e547da8bde9f228403eed2f50ac8ba5"
-data_git_describe = "v0.0-9619-g8f0feb009"
+data_git_hash = "dd26aba348d4308d9e0b057a9dde159154a1c6ed"
+data_git_describe = "v0.0-9624-gdd26aba34"
 data_git_msg = """\
-commit 8f0feb009e547da8bde9f228403eed2f50ac8ba5
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Jan 19 01:04:13 2022 -0800
+commit dd26aba348d4308d9e0b057a9dde159154a1c6ed
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jan 21 22:00:34 2022 -0800
 
-    [chip dv] Fix plic_all_irqs_test for Verilator
+    [reggen] Add standard BUS.INTEGRITY label to generated non-security IPs
     
-    ...and FPGA.
-    
-    The logging mechanism which uses UART0 in Verilator and FPGA setups
-    messes up this test, which is meant to enable and test ALL interrupts
-    from all peripherals in the device, including UART0. The fix is to skip
-    testing UART0 interrupts for Verilator and FPGA.
-    
-    Fixes #8656.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
