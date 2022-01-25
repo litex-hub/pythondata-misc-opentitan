@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9771"
-version_tuple = (0, 0, 9771)
+version_str = "0.0.post9772"
+version_tuple = (0, 0, 9772)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9771")
+    pversion = V("0.0.post9772")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9649"
-data_version_tuple = (0, 0, 9649)
+data_version_str = "0.0.post9650"
+data_version_tuple = (0, 0, 9650)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9649")
+    pdata_version = V("0.0.post9650")
 except ImportError:
     pass
-data_git_hash = "208babdce1622f51bccda1311cf8f7242c1c2222"
-data_git_describe = "v0.0-9649-g208babdce"
+data_git_hash = "4db9450e5d9b92a3c4c6020fba4f9fb639d79423"
+data_git_describe = "v0.0-9650-g4db9450e5"
 data_git_msg = """\
-commit 208babdce1622f51bccda1311cf8f7242c1c2222
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Jan 24 08:17:35 2022 -0800
+commit 4db9450e5d9b92a3c4c6020fba4f9fb639d79423
+Author: Igor Kouznetsov <igor.kouznetsov@wdc.com>
+Date:   Tue Jan 18 14:12:12 2022 -0800
 
-    [dv/rstmgr] Add missing interface signals
+    [i2c, rtl] Removed SDA toggling when sending multiple bits of "1"s.
     
-    Other minor cleanups.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Igor Kouznetsov <igor.kouznetsov@wdc.com>
 
 """
 
