@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9760"
-version_tuple = (0, 0, 9760)
+version_str = "0.0.post9762"
+version_tuple = (0, 0, 9762)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9760")
+    pversion = V("0.0.post9762")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9638"
-data_version_tuple = (0, 0, 9638)
+data_version_str = "0.0.post9640"
+data_version_tuple = (0, 0, 9640)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9638")
+    pdata_version = V("0.0.post9640")
 except ImportError:
     pass
-data_git_hash = "608c35c8c0a1aa7c46fdfa7855fad17309c31a4a"
-data_git_describe = "v0.0-9638-g608c35c8c"
+data_git_hash = "92fa6f8648ac1e60ec98e18657d9925b47fac3b9"
+data_git_describe = "v0.0-9640-g92fa6f864"
 data_git_msg = """\
-commit 608c35c8c0a1aa7c46fdfa7855fad17309c31a4a
-Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
-Date:   Wed Dec 15 17:42:30 2021 +0100
+commit 92fa6f8648ac1e60ec98e18657d9925b47fac3b9
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 21 14:58:12 2022 -0800
 
-    [kmac/entropy_src] added prim_count for keccak_round counter
+    [dv/otp_ctrl] Update auto-generated UNR file
     
-    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+    This PR updates the tool generated UNR file. The main impact is that
+    design added a `VendorTest` partition.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
