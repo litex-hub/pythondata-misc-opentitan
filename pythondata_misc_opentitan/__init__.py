@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9774"
-version_tuple = (0, 0, 9774)
+version_str = "0.0.post9779"
+version_tuple = (0, 0, 9779)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9774")
+    pversion = V("0.0.post9779")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9652"
-data_version_tuple = (0, 0, 9652)
+data_version_str = "0.0.post9657"
+data_version_tuple = (0, 0, 9657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9652")
+    pdata_version = V("0.0.post9657")
 except ImportError:
     pass
-data_git_hash = "cf5bcb704e25ff981c8471078a28ec9be19542a2"
-data_git_describe = "v0.0-9652-gcf5bcb704"
+data_git_hash = "60837b92dbc8edf6edfe56c1f2a4c964c3868971"
+data_git_describe = "v0.0-9657-g60837b92d"
 data_git_msg = """\
-commit cf5bcb704e25ff981c8471078a28ec9be19542a2
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Jan 21 14:55:38 2022 -0800
+commit 60837b92dbc8edf6edfe56c1f2a4c964c3868971
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Dec 21 10:02:45 2021 +0000
 
-    [entropy_src/rtl] Clear stats only on enable
+    [sw,crypto] Setup for OTBN utilities.
     
-    All statistics clear when the main enable is turned off.
-    This is not good for post-processing of health test effectiveness.
-    Fix is clear all when enabling.
-    Fixes #10227.
+    After copying the utilities from silicon_creator, adjust the build logic
+    to include them and do some minor cleanup (e.g. fix headers, remove
+    unused imports).
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
