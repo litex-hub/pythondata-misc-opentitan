@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9808"
-version_tuple = (0, 0, 9808)
+version_str = "0.0.post9813"
+version_tuple = (0, 0, 9813)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9808")
+    pversion = V("0.0.post9813")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9686"
-data_version_tuple = (0, 0, 9686)
+data_version_str = "0.0.post9691"
+data_version_tuple = (0, 0, 9691)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9686")
+    pdata_version = V("0.0.post9691")
 except ImportError:
     pass
-data_git_hash = "d4457de7e3c5a0509d7640e13081d4daf5060750"
-data_git_describe = "v0.0-9686-gd4457de7e"
+data_git_hash = "d6e91619f67258464ec8f3a3ba68dfa19f7319fd"
+data_git_describe = "v0.0-9691-gd6e91619f"
 data_git_msg = """\
-commit d4457de7e3c5a0509d7640e13081d4daf5060750
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jan 25 17:35:31 2022 -0800
+commit d6e91619f67258464ec8f3a3ba68dfa19f7319fd
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Jan 20 19:53:12 2022 -0800
 
-    [dv] Update reset probing to match ast update
+    [sw/rom] Updates to sec_mmio hardening
     
-    - por_ni no longer causes ast to asynchronously reset.
-    - Tweak the sequence to first look for reset de-assertion before
-      looking for assertion
+    * Introduce launder32 and HARDENED_CHECK to sec_mmio.
+    * Remove shutdown callback function.
+    * Remove expensive modulus operation.
+    * Remove direct use of volatile.
+    * Add checks to sec_mmio_init function to ensure counters are properly
+      initialized.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
