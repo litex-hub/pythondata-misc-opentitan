@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9824"
-version_tuple = (0, 0, 9824)
+version_str = "0.0.post9825"
+version_tuple = (0, 0, 9825)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9824")
+    pversion = V("0.0.post9825")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9702"
-data_version_tuple = (0, 0, 9702)
+data_version_str = "0.0.post9703"
+data_version_tuple = (0, 0, 9703)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9702")
+    pdata_version = V("0.0.post9703")
 except ImportError:
     pass
-data_git_hash = "a768d0b30ca8fcb6ea249546280f845ee7ef9710"
-data_git_describe = "v0.0-9702-ga768d0b30"
+data_git_hash = "06d3a28fd6c98a721dc9766268950049a50f67ed"
+data_git_describe = "v0.0-9703-g06d3a28fd"
 data_git_msg = """\
-commit a768d0b30ca8fcb6ea249546280f845ee7ef9710
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Jan 26 07:40:16 2022 -0800
+commit 06d3a28fd6c98a721dc9766268950049a50f67ed
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Thu Jan 20 17:45:46 2022 +0000
 
-    [CODEOWNERS] Extra codeowners for CI
+    [sw,tests] SRAM execution test DV integration
     
-    I solicited extra codeowners for CI tools before seeing that @mcy was
-    already assigned as an owner but a typo kept it from controlling the
-    file that should have assigned it. I've added in the volunteers because
-    I think that will just help with review and situational awareness and I
-    don't think it will change anyone's ability to submit code.
+    Checks whether code can be executed from the SRAM depending on the values
+    of LC_STATE, OTP HW_CFG[IFETCH] and SRAM_CTRL EXEC CSR.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
