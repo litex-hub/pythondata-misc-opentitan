@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9819"
-version_tuple = (0, 0, 9819)
+version_str = "0.0.post9824"
+version_tuple = (0, 0, 9824)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9819")
+    pversion = V("0.0.post9824")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9697"
-data_version_tuple = (0, 0, 9697)
+data_version_str = "0.0.post9702"
+data_version_tuple = (0, 0, 9702)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9697")
+    pdata_version = V("0.0.post9702")
 except ImportError:
     pass
-data_git_hash = "e9c6841f99407e7d844d013cef3e0c12b3828439"
-data_git_describe = "v0.0-9697-ge9c6841f9"
+data_git_hash = "a768d0b30ca8fcb6ea249546280f845ee7ef9710"
+data_git_describe = "v0.0-9702-ga768d0b30"
 data_git_msg = """\
-commit e9c6841f99407e7d844d013cef3e0c12b3828439
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Jan 21 12:12:40 2022 +0000
+commit a768d0b30ca8fcb6ea249546280f845ee7ef9710
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jan 26 07:40:16 2022 -0800
 
-    [sw,crypto] Fix cryptolib tests.
+    [CODEOWNERS] Extra codeowners for CI
     
-    Remaining fixups so that code not only builds but also passes tests and
-    format checks.
+    I solicited extra codeowners for CI tools before seeing that @mcy was
+    already assigned as an owner but a typo kept it from controlling the
+    file that should have assigned it. I've added in the volunteers because
+    I think that will just help with review and situational awareness and I
+    don't think it will change anyone's ability to submit code.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
