@@ -4,40 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9804"
-version_tuple = (0, 0, 9804)
+version_str = "0.0.post9805"
+version_tuple = (0, 0, 9805)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9804")
+    pversion = V("0.0.post9805")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9682"
-data_version_tuple = (0, 0, 9682)
+data_version_str = "0.0.post9683"
+data_version_tuple = (0, 0, 9683)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9682")
+    pdata_version = V("0.0.post9683")
 except ImportError:
     pass
-data_git_hash = "68e86515989c047e28915f6d5d534c578c9bdb3d"
-data_git_describe = "v0.0-9682-g68e865159"
+data_git_hash = "8db83bd9d4cc01fa6c22e85a7190cf5ace9abe86"
+data_git_describe = "v0.0-9683-g8db83bd9d"
 data_git_msg = """\
-commit 68e86515989c047e28915f6d5d534c578c9bdb3d
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Jan 25 10:17:54 2022 -0800
+commit 8db83bd9d4cc01fa6c22e85a7190cf5ace9abe86
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Thu Jan 20 09:59:20 2022 +0000
 
-    [dv/otp_ctrl] Fix prim_tl_agent close source monitor error
+    [rom_ctrl, dv] Fixes regression failure relating to tl accesses
     
-    Due to the current reggen tool, we have an empty prim_tl_o/i interface
-    without any CSRs for test_access. To ensure the connection for
-    read/write works, open source OTP tb creates a temp tl_agent. However,
-    because it hooks up same interface with close source, the monitor will
-    report some runtime error.
-    To avoid this, we introduced a cfg flag that can disable creating this temp
-    tl_agent.
+    There were false failures relating to assertion that checks that all tl
+    accesses before rom check is done are blocked off.
+    This commit fixes the assertion by adding an additional check that if
+    at all d_valid is asserted before the rom check is completed, d_error also
+    must be asserted.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
