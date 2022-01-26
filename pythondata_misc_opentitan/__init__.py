@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9800"
-version_tuple = (0, 0, 9800)
+version_str = "0.0.post9801"
+version_tuple = (0, 0, 9801)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9800")
+    pversion = V("0.0.post9801")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9678"
-data_version_tuple = (0, 0, 9678)
+data_version_str = "0.0.post9679"
+data_version_tuple = (0, 0, 9679)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9678")
+    pdata_version = V("0.0.post9679")
 except ImportError:
     pass
-data_git_hash = "4d7a648fcc5a51a4c89dc8df1fb8ce22a7fae728"
-data_git_describe = "v0.0-9678-g4d7a648fc"
+data_git_hash = "16d1f635fd1165812acee1f6dc94be577824000e"
+data_git_describe = "v0.0-9679-g16d1f635f"
 data_git_msg = """\
-commit 4d7a648fcc5a51a4c89dc8df1fb8ce22a7fae728
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Tue Jan 25 14:15:57 2022 -0800
+commit 16d1f635fd1165812acee1f6dc94be577824000e
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 25 14:40:43 2022 -0800
 
-    [bazel] sigverify_dynamic_functest has more deps
+    [dv/rstmgr] Add reset test
     
-    This part of https://github.com/lowRISC/opentitan/pull/10041 was
-    necessary to correct the building and testing of the
-    sigverify_dynamic_functest. Due to some recent changes it's no longer
-    sufficient.
+    Make changes to the base vseq class to help the reset test.
+    Other minor fixes in rstmgr dv.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
