@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9806"
-version_tuple = (0, 0, 9806)
+version_str = "0.0.post9807"
+version_tuple = (0, 0, 9807)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9806")
+    pversion = V("0.0.post9807")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9684"
-data_version_tuple = (0, 0, 9684)
+data_version_str = "0.0.post9685"
+data_version_tuple = (0, 0, 9685)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9684")
+    pdata_version = V("0.0.post9685")
 except ImportError:
     pass
-data_git_hash = "250a94b38c1aad9b6f5b1f606e0d3f375cd11d16"
-data_git_describe = "v0.0-9684-g250a94b38"
+data_git_hash = "09a20560bfe4048727bcbbd006298f21d9177630"
+data_git_describe = "v0.0-9685-g09a20560b"
 data_git_msg = """\
-commit 250a94b38c1aad9b6f5b1f606e0d3f375cd11d16
+commit 09a20560bfe4048727bcbbd006298f21d9177630
 Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Fri Jan 21 13:23:31 2022 -0800
+Date:   Fri Jan 7 04:58:19 2022 -0800
 
-    [edn/dv] Verify boot_req_mode
+    [entropy_src/edn/dv] Create stress_all vseqs/tests
     
     Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
