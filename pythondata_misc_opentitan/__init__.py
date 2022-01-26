@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9805"
-version_tuple = (0, 0, 9805)
+version_str = "0.0.post9806"
+version_tuple = (0, 0, 9806)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9805")
+    pversion = V("0.0.post9806")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9683"
-data_version_tuple = (0, 0, 9683)
+data_version_str = "0.0.post9684"
+data_version_tuple = (0, 0, 9684)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9683")
+    pdata_version = V("0.0.post9684")
 except ImportError:
     pass
-data_git_hash = "8db83bd9d4cc01fa6c22e85a7190cf5ace9abe86"
-data_git_describe = "v0.0-9683-g8db83bd9d"
+data_git_hash = "250a94b38c1aad9b6f5b1f606e0d3f375cd11d16"
+data_git_describe = "v0.0-9684-g250a94b38"
 data_git_msg = """\
-commit 8db83bd9d4cc01fa6c22e85a7190cf5ace9abe86
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Thu Jan 20 09:59:20 2022 +0000
+commit 250a94b38c1aad9b6f5b1f606e0d3f375cd11d16
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Fri Jan 21 13:23:31 2022 -0800
 
-    [rom_ctrl, dv] Fixes regression failure relating to tl accesses
+    [edn/dv] Verify boot_req_mode
     
-    There were false failures relating to assertion that checks that all tl
-    accesses before rom check is done are blocked off.
-    This commit fixes the assertion by adding an additional check that if
-    at all d_valid is asserted before the rom check is completed, d_error also
-    must be asserted.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
