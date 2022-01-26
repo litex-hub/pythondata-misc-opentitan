@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9807"
-version_tuple = (0, 0, 9807)
+version_str = "0.0.post9808"
+version_tuple = (0, 0, 9808)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9807")
+    pversion = V("0.0.post9808")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9685"
-data_version_tuple = (0, 0, 9685)
+data_version_str = "0.0.post9686"
+data_version_tuple = (0, 0, 9686)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9685")
+    pdata_version = V("0.0.post9686")
 except ImportError:
     pass
-data_git_hash = "09a20560bfe4048727bcbbd006298f21d9177630"
-data_git_describe = "v0.0-9685-g09a20560b"
+data_git_hash = "d4457de7e3c5a0509d7640e13081d4daf5060750"
+data_git_describe = "v0.0-9686-gd4457de7e"
 data_git_msg = """\
-commit 09a20560bfe4048727bcbbd006298f21d9177630
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Fri Jan 7 04:58:19 2022 -0800
+commit d4457de7e3c5a0509d7640e13081d4daf5060750
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jan 25 17:35:31 2022 -0800
 
-    [entropy_src/edn/dv] Create stress_all vseqs/tests
+    [dv] Update reset probing to match ast update
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    - por_ni no longer causes ast to asynchronously reset.
+    - Tweak the sequence to first look for reset de-assertion before
+      looking for assertion
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
