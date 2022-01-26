@@ -4,62 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9815"
-version_tuple = (0, 0, 9815)
+version_str = "0.0.post9819"
+version_tuple = (0, 0, 9819)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9815")
+    pversion = V("0.0.post9819")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9693"
-data_version_tuple = (0, 0, 9693)
+data_version_str = "0.0.post9697"
+data_version_tuple = (0, 0, 9697)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9693")
+    pdata_version = V("0.0.post9697")
 except ImportError:
     pass
-data_git_hash = "51fde5a9830ab1501b01d953c7651c63727a546d"
-data_git_describe = "v0.0-9693-g51fde5a98"
+data_git_hash = "e9c6841f99407e7d844d013cef3e0c12b3828439"
+data_git_describe = "v0.0-9697-ge9c6841f9"
 data_git_msg = """\
-commit 51fde5a9830ab1501b01d953c7651c63727a546d
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Jan 7 14:46:56 2022 -0800
+commit e9c6841f99407e7d844d013cef3e0c12b3828439
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Jan 21 12:12:40 2022 +0000
 
-    [entropy_src/rtl] Modify enable registers
+    [sw,crypto] Fix cryptolib tests.
     
-    This PR makes two broad changes to the entropy_src enable registers:
+    Remaining fixups so that code not only builds but also passes tests and
+    format checks.
     
-    - The conf.enable field has been split into two registers
-      - module_enable.module_enable: for overall activation of the IP in
-        any context (BOOT_ROM or otherwise)
-      - conf.fips_enable: For activation of strict RNG health testing, using
-        stricter CC or FIPS grade health-test thresholds (not recommended
-        for BOOT_ROM driven operation).
-    - For better sequencing control, and error handling capabilities, the
-      module_enable has been split out into its own register, with a
-      separate write enable control (REGWEN_ME vs. REGWEN).
-    
-    Note on Software guidelines following this commit:
-    
-    The appropriate use of these registers depends on whether they are
-    set in the BOOT_ROM or in later (mutable) C-code:
-    
-    - The enable fields should only differ when set by the BOOT ROM, which
-      uses a preliminary set of health test thresholds.  Here, the
-      MODULE_ENABLE should be set _without_ setting the FIPS_ENABLE field.
-      This indicates that the stronger "FIPS" thresholds have not been set,
-      and the IP is not configured for reliable entropy generation.
-    
-    - For all later, DIF-driven software stages we assume that the
-      "Module" enable and the "FIPS" enable are always set together,
-      after the final stricter health test thresholds have been set.
-    
-    Fixes #9637.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
-    Co-authored-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
