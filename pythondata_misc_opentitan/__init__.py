@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9801"
-version_tuple = (0, 0, 9801)
+version_str = "0.0.post9802"
+version_tuple = (0, 0, 9802)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9801")
+    pversion = V("0.0.post9802")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9679"
-data_version_tuple = (0, 0, 9679)
+data_version_str = "0.0.post9680"
+data_version_tuple = (0, 0, 9680)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9679")
+    pdata_version = V("0.0.post9680")
 except ImportError:
     pass
-data_git_hash = "16d1f635fd1165812acee1f6dc94be577824000e"
-data_git_describe = "v0.0-9679-g16d1f635f"
+data_git_hash = "5556d17ed47aeed5ea88a4480d9b4d8fb2aeb751"
+data_git_describe = "v0.0-9680-g5556d17ed"
 data_git_msg = """\
-commit 16d1f635fd1165812acee1f6dc94be577824000e
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jan 25 14:40:43 2022 -0800
+commit 5556d17ed47aeed5ea88a4480d9b4d8fb2aeb751
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Jan 25 15:47:43 2022 -0800
 
-    [dv/rstmgr] Add reset test
+    [spi_device] Update prj.hjson to D2
     
-    Make changes to the base vseq class to help the reset test.
-    Other minor fixes in rstmgr dv.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
