@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9798"
-version_tuple = (0, 0, 9798)
+version_str = "0.0.post9799"
+version_tuple = (0, 0, 9799)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9798")
+    pversion = V("0.0.post9799")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9676"
-data_version_tuple = (0, 0, 9676)
+data_version_str = "0.0.post9677"
+data_version_tuple = (0, 0, 9677)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9676")
+    pdata_version = V("0.0.post9677")
 except ImportError:
     pass
-data_git_hash = "33007788c8062fee304387e83ea08b56d7d35922"
-data_git_describe = "v0.0-9676-g33007788c"
+data_git_hash = "56bb04f9a8a806b36f6f67a9c09fa316fada11b7"
+data_git_describe = "v0.0-9677-g56bb04f9a"
 data_git_msg = """\
-commit 33007788c8062fee304387e83ea08b56d7d35922
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Tue Jan 25 08:55:27 2022 -0800
+commit 56bb04f9a8a806b36f6f67a9c09fa316fada11b7
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Dec 10 13:28:54 2021 -0800
 
-    [edn/rtl] Fix for boot req mode
+    [doc] Update TC list
     
-    Need to make sure the software status bits are not affect by the
-    boot request hardware state machine.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
