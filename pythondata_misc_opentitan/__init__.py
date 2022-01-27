@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9830"
-version_tuple = (0, 0, 9830)
+version_str = "0.0.post9834"
+version_tuple = (0, 0, 9834)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9830")
+    pversion = V("0.0.post9834")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9708"
-data_version_tuple = (0, 0, 9708)
+data_version_str = "0.0.post9712"
+data_version_tuple = (0, 0, 9712)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9708")
+    pdata_version = V("0.0.post9712")
 except ImportError:
     pass
-data_git_hash = "b20f5d5f803cbb89227dd3fc57eadd989cdf0ac0"
-data_git_describe = "v0.0-9708-gb20f5d5f8"
+data_git_hash = "b9597e56af20e0407ea0a5dffd0574d09c6ceec0"
+data_git_describe = "v0.0-9712-gb9597e56a"
 data_git_msg = """\
-commit b20f5d5f803cbb89227dd3fc57eadd989cdf0ac0
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Jan 26 16:31:45 2022 -0800
+commit b9597e56af20e0407ea0a5dffd0574d09c6ceec0
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Jan 25 14:37:06 2022 -0800
 
-    [pinmux/doc] Fix a TODO in the docs
+    [tlul] Move to V2
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    All common TLUL verification items have been completed.
+    Xbar coverage has reached V2 status
+    SCORE   LINE    COND    TOGGLE  FSM     BRANCH  ASSERT  GROUP
+    98.47   100.00  95.59   98.47   --      97.30   99.50   100.00
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
