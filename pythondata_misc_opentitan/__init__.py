@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9841"
-version_tuple = (0, 0, 9841)
+version_str = "0.0.post9842"
+version_tuple = (0, 0, 9842)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9841")
+    pversion = V("0.0.post9842")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9719"
-data_version_tuple = (0, 0, 9719)
+data_version_str = "0.0.post9720"
+data_version_tuple = (0, 0, 9720)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9719")
+    pdata_version = V("0.0.post9720")
 except ImportError:
     pass
-data_git_hash = "48f64de05bb50cb37bf2f69a2d33d86fa3de0ddb"
-data_git_describe = "v0.0-9719-g48f64de05"
+data_git_hash = "b282937c479842af7f87a4a407d3dac7a0ba7faa"
+data_git_describe = "v0.0-9720-gb282937c4"
 data_git_msg = """\
-commit 48f64de05bb50cb37bf2f69a2d33d86fa3de0ddb
-Author: Jon Flatley <jflat@google.com>
-Date:   Thu Jan 6 09:53:40 2022 -0500
+commit b282937c479842af7f87a4a407d3dac7a0ba7faa
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Jan 27 08:58:42 2022 +0000
 
-    [opentitanlib] Add OTP hex file generation.
+    [sw/silicon_creator] Remove dedicated OTBN error type.
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Replace otbn_error_t with a few new cases in rom_error_t.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
