@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9828"
-version_tuple = (0, 0, 9828)
+version_str = "0.0.post9830"
+version_tuple = (0, 0, 9830)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9828")
+    pversion = V("0.0.post9830")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9706"
-data_version_tuple = (0, 0, 9706)
+data_version_str = "0.0.post9708"
+data_version_tuple = (0, 0, 9708)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9706")
+    pdata_version = V("0.0.post9708")
 except ImportError:
     pass
-data_git_hash = "a993c4b23d936609e91b1fbea6d8a3d4001d9bea"
-data_git_describe = "v0.0-9706-ga993c4b23"
+data_git_hash = "b20f5d5f803cbb89227dd3fc57eadd989cdf0ac0"
+data_git_describe = "v0.0-9708-gb20f5d5f8"
 data_git_msg = """\
-commit a993c4b23d936609e91b1fbea6d8a3d4001d9bea
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Jan 25 19:10:19 2022 +0100
+commit b20f5d5f803cbb89227dd3fc57eadd989cdf0ac0
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Jan 26 16:31:45 2022 -0800
 
-    [aes] Fix AscentLint errors
+    [pinmux/doc] Fix a TODO in the docs
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
