@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9836"
-version_tuple = (0, 0, 9836)
+version_str = "0.0.post9840"
+version_tuple = (0, 0, 9840)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9836")
+    pversion = V("0.0.post9840")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9714"
-data_version_tuple = (0, 0, 9714)
+data_version_str = "0.0.post9718"
+data_version_tuple = (0, 0, 9718)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9714")
+    pdata_version = V("0.0.post9718")
 except ImportError:
     pass
-data_git_hash = "553d476ce1dcdd2712399dd25e1f1f534a226be4"
-data_git_describe = "v0.0-9714-g553d476ce"
+data_git_hash = "a5d6d35cc265b5a0e0903fbf32f8df8bd1b7e4d4"
+data_git_describe = "v0.0-9718-ga5d6d35cc"
 data_git_msg = """\
-commit 553d476ce1dcdd2712399dd25e1f1f534a226be4
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jan 26 15:38:00 2022 -0800
+commit a5d6d35cc265b5a0e0903fbf32f8df8bd1b7e4d4
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Jan 26 14:06:06 2022 -0500
 
-    [dv/otp_ctrl] Modify ECC error injection in sequence and scb
+    [sw/silicon_creator] Generate an exception if USE_SW_RSA OTP value is invalid
     
-    This PR continues to deattach ecc error injection from dai_rd.
-    Now we can freely inject ecc error for any read (both dai_rd and tlul_rd).
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
