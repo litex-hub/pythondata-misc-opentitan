@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9825"
-version_tuple = (0, 0, 9825)
+version_str = "0.0.post9827"
+version_tuple = (0, 0, 9827)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9825")
+    pversion = V("0.0.post9827")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9703"
-data_version_tuple = (0, 0, 9703)
+data_version_str = "0.0.post9705"
+data_version_tuple = (0, 0, 9705)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9703")
+    pdata_version = V("0.0.post9705")
 except ImportError:
     pass
-data_git_hash = "06d3a28fd6c98a721dc9766268950049a50f67ed"
-data_git_describe = "v0.0-9703-g06d3a28fd"
+data_git_hash = "a07ba27d992d79b2e77480523232e5e1eadab35f"
+data_git_describe = "v0.0-9705-ga07ba27d9"
 data_git_msg = """\
-commit 06d3a28fd6c98a721dc9766268950049a50f67ed
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Thu Jan 20 17:45:46 2022 +0000
+commit a07ba27d992d79b2e77480523232e5e1eadab35f
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jan 25 08:15:04 2022 -0800
 
-    [sw,tests] SRAM execution test DV integration
+    [sw,tests,pwrmgr] Improve synchronization
     
-    Checks whether code can be executed from the SRAM depending on the values
-    of LC_STATE, OTP HW_CFG[IFETCH] and SRAM_CTRL EXEC CSR.
+    Allow each CSR updates that need to transfer to the slow domain to make
+    synchronization optional.
+    This enables entry into low power to use a single synchronization when
+    it is done with the last update.
+    Update pwrmgr unittests for this change.
+    Change some tests to use pwrmgr_testutils_enable_low_power.
     
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
