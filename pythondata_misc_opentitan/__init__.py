@@ -4,41 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9846"
-version_tuple = (0, 0, 9846)
+version_str = "0.0.post9847"
+version_tuple = (0, 0, 9847)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9846")
+    pversion = V("0.0.post9847")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9722"
-data_version_tuple = (0, 0, 9722)
+data_version_str = "0.0.post9723"
+data_version_tuple = (0, 0, 9723)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9722")
+    pdata_version = V("0.0.post9723")
 except ImportError:
     pass
-data_git_hash = "a1ba95ee32a5e77992da21b0d8230af8e5f7112f"
-data_git_describe = "v0.0-9722-ga1ba95ee3"
+data_git_hash = "79d1e7a4d3e48a817ffa7a5eaa28b07e16969bf0"
+data_git_describe = "v0.0-9723-g79d1e7a4d"
 data_git_msg = """\
-commit a1ba95ee32a5e77992da21b0d8230af8e5f7112f
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Jan 20 19:24:36 2022 -0800
+commit 79d1e7a4d3e48a817ffa7a5eaa28b07e16969bf0
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Jan 24 23:48:35 2022 -0800
 
-    [usbdev] Move sense to an MIO
+    [dif/alert_handler] Add static asserts for multireg layouts.
     
-    The ASIC was missing a connection for the VBUS detection, so the MIO
-    adds that. In addition, the FPGAs connect the two VBUS detection sources
-    to IOR0 and IOR1--Software will have to select the correct I/O based on
-    the `use_uphy` value.
+    Several CSRs for both alerts and local alerts are organized as
+    multiregs, enabling easy DIF development. However, there is currently no
+    mechanism to indicate of the multireg layout of said CSRs ever changes.
+    This commit adds static asserts to check these multireg layouts.
     
-    Moving to an MIO brings straightforward options for a simple constant
-    via periph_insel if OT is completely bus-powered, in addition to
-    making it available to both power domains for usbdev.
+    This partially addresses a task in #9899.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
