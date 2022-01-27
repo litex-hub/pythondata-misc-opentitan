@@ -507,15 +507,34 @@ class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
     // SW CFG window
     end else if ((csr_addr & addr_mask) inside
         {[SW_WINDOW_BASE_ADDR : SW_WINDOW_BASE_ADDR + SW_WINDOW_SIZE]}) begin
-      if (data_phase_read && check_dai_rd_data) begin
-        bit [TL_AW-1:0] otp_addr = (csr_addr & addr_mask - SW_WINDOW_BASE_ADDR) >> 2;
-        // TODO: macro ecc uncorrectable error once mem_bkdr_util supports
-        //`DV_CHECK_EQ(item.d_data, 0,
-        //             $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
-        //             csr_addr, otp_addr << 2))
-        `DV_CHECK_EQ(item.d_data, otp_a[otp_addr],
-                     $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
-                     csr_addr, otp_addr << 2))
+      if (data_phase_read) begin
+        bit [TL_AW-1:0] dai_addr = (csr_addr & addr_mask - SW_WINDOW_BASE_ADDR);
+        bit [TL_AW-1:0] otp_addr = dai_addr >> 2;
+        int part_idx = get_part_index(dai_addr);
+        bit [TL_DW-1:0] read_out;
+        int ecc_err = read_a_word_with_ecc(dai_addr, read_out);
+
+        // ECC uncorrectable errors are gated by `is_tl_mem_access_allowed` function.
+        if (ecc_err != OtpNoEccErr) begin
+          predict_err(part_idx, OtpMacroEccCorrError);
+          if (ecc_err == OtpEccCorrErr) begin
+             `DV_CHECK_EQ(item.d_data, otp_a[otp_addr],
+                         $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
+                         csr_addr, dai_addr))
+          end else begin
+            // This is an exception for vendor test partition, which reports uncorrectable errors
+            // as correctable ECC errors.
+            // Only check the first 16 bits because if ECC readout detects uncorrectable error, it
+            // won't continue read the remaining 16 bits.
+            `DV_CHECK_EQ(item.d_data & 16'hffff, read_out & 16'hffff,
+                       $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
+                       csr_addr, dai_addr))
+          end
+        end else if (ecc_err == OtpNoEccErr) begin
+          `DV_CHECK_EQ(item.d_data, otp_a[otp_addr],
+                      $sformatf("mem read mismatch at TLUL addr %0h, csr_addr %0h",
+                      csr_addr, dai_addr))
+        end
       end
       return;
     end else begin
@@ -620,23 +639,23 @@ class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
                      cfg.otp_ctrl_vif.lc_creator_seed_sw_rw_en_i == lc_ctrl_pkg::Off)) begin
                   predict_err(OtpDaiErrIdx, OtpAccessError);
                   predict_rdata(is_secret(dai_addr) || is_digest(dai_addr), 0, 0);
-                  // DAI interface access error, even though injected ECC error, it won't be read
-                  // out and detected. (TODO: can remove this once ECC is adopted in mem_bkdr_util)
-                  cfg.ecc_err = OtpNoEccErr;
 
                 end else begin
+                  bit [TL_DW-1:0] err_code, read_out;
                   bit [TL_AW-1:0] otp_addr = get_scb_otp_addr();
+
+                  // Backdoor read to check if there is any ECC error.
+                  int ecc_err = read_a_word_with_ecc(dai_addr, read_out);
+                  if (is_secret(dai_addr) || is_digest(dai_addr)) begin
+                    ecc_err = max2(read_a_word_with_ecc(dai_addr + 4, read_out), ecc_err);
+                  end
+
                   // Check if write has any write_blank_error, then potentially read might have ECC
                   // error.
-                  bit [TL_DW-1:0] err_code = `gmv(ral.err_code[0]);
+                  err_code = `gmv(ral.err_code[0]);
+
                   if (get_field_val(ral.err_code[0].err_code[DaiIdx], err_code) ==
-                      OtpMacroWriteBlankError ||
-                      cfg.ecc_err != OtpNoEccErr) begin
-                    bit [TL_DW-1:0] read_out;
-                    int ecc_err = read_a_word_with_ecc(dai_addr, read_out);
-                    if (is_secret(dai_addr) || is_digest(dai_addr)) begin
-                      ecc_err = max2(read_a_word_with_ecc(dai_addr + 4, read_out), ecc_err);
-                    end
+                      OtpMacroWriteBlankError || ecc_err != OtpNoEccErr) begin
 
                     // Some partitions do not trigger ECC uncorrectable fatal error.
                     if (ecc_err == OtpEccCorrErr ||
@@ -646,9 +665,6 @@ class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
                       else                            backdoor_update_otp_array(dai_addr);
                       predict_rdata(is_secret(dai_addr) || is_digest(dai_addr),
                                     otp_a[otp_addr], otp_a[otp_addr+1]);
-                      // In sequence, we backdoor write back to non-error value, so here scb reset
-                      // the ecc_err back to NoErr.
-                      cfg.ecc_err = OtpNoEccErr;
                     end else if (ecc_err == OtpEccUncorrErr) begin
                       predict_err(OtpDaiErrIdx, OtpMacroEccUncorrError);
                       // Max wait 20 clock cycles because scb did not know when exactly OTP will
@@ -1182,8 +1198,12 @@ class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
                                                 output bit mem_byte_access_err,
                                                 output bit mem_wo_err,
                                                 output bit mem_ro_err);
-    // If sw partition is read locked, then access policy changes from RO to no access
     uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+    uvm_reg_addr_t csr_addr   = cfg.ral_models[ral_name].get_word_aligned_addr(item.a_addr);
+    bit [TL_AW-1:0] addr_mask = ral.get_addr_mask();
+    bit [TL_AW-1:0] dai_addr = (csr_addr & addr_mask - SW_WINDOW_BASE_ADDR);
+
+    // If sw partition is read locked, then access policy changes from RO to no access
     if (`gmv(ral.vendor_test_read_lock) == 0 || cfg.otp_ctrl_vif.under_error_states()) begin
       if (addr inside {[cfg.ral_models[ral_name].mem_ranges[0].start_addr + VendorTestOffset :
                         cfg.ral_models[ral_name].mem_ranges[0].start_addr + VendorTestOffset +
@@ -1212,6 +1232,21 @@ class otp_ctrl_scoreboard #(type CFG_T = otp_ctrl_env_cfg)
         `DV_CHECK_EQ(item.d_data, 0,
                      $sformatf("locked mem read mismatch at TLUL addr %0h in OwnerSwCfg", addr))
         return 0;
+      end
+    end
+
+    // Check ECC uncorrectable fatal error.
+    if (dai_addr < LifeCycleOffset) begin
+      int part_idx = get_part_index(dai_addr);
+      bit [TL_DW-1:0] read_out;
+      int ecc_err = read_a_word_with_ecc(dai_addr, read_out);
+      if (ecc_err == OtpEccUncorrErr && !ecc_corr_err_only_part(part_idx)) begin
+          predict_err(part_idx, OtpMacroEccUncorrError);
+          set_exp_alert("fatal_macro_error", 1, 20);
+          `DV_CHECK_EQ(item.d_data, 0,
+                       $sformatf("ECC uncorrectable error exp to readout all 0s at TLUL addr %0h",
+                       addr))
+       return 0;
       end
     end
     return super.is_tl_mem_access_allowed(item, ral_name, mem_byte_access_err, mem_wo_err,
