@@ -151,17 +151,17 @@ dif_result_t dif_alert_handler_configure_alert(
     return kDifLocked;
   }
 
-  // Enable the alert.
-  ptrdiff_t enable_reg_offset =
-      ALERT_HANDLER_ALERT_EN_SHADOWED_0_REG_OFFSET + alert * sizeof(uint32_t);
-  mmio_region_write32_shadowed(alert_handler->base_addr, enable_reg_offset,
-                               0x1);
-
   // Classify the alert.
   ptrdiff_t class_reg_offset = ALERT_HANDLER_ALERT_CLASS_SHADOWED_0_REG_OFFSET +
                                alert * sizeof(uint32_t);
   mmio_region_write32_shadowed(alert_handler->base_addr, class_reg_offset,
                                classification);
+
+  // Enable the alert.
+  ptrdiff_t enable_reg_offset =
+      ALERT_HANDLER_ALERT_EN_SHADOWED_0_REG_OFFSET + alert * sizeof(uint32_t);
+  mmio_region_write32_shadowed(alert_handler->base_addr, enable_reg_offset,
+                               0x1);
 
   // Lock the configuration.
   if (locked == kDifToggleEnabled) {
@@ -211,15 +211,15 @@ dif_result_t dif_alert_handler_configure_local_alert(
     return kDifLocked;
   }
 
+  // Classify the alert.
+  mmio_region_write32_shadowed(alert_handler->base_addr, class_reg_offset,
+                               classification);
+
   // Enable the alert.
   // NOTE: the alert ID corresponds directly to the multireg index.
   // (I.e., alert N has enable multireg N).
   mmio_region_write32_shadowed(alert_handler->base_addr, enable_reg_offset,
                                0x1);
-
-  // Classify the alert.
-  mmio_region_write32_shadowed(alert_handler->base_addr, class_reg_offset,
-                               classification);
 
   // Lock the configuration.
   if (locked == kDifToggleEnabled) {
@@ -364,9 +364,6 @@ dif_result_t dif_alert_handler_configure_class(
     }
   }
 
-  mmio_region_write32_shadowed(alert_handler->base_addr, ctrl_reg_offset,
-                               ctrl_reg);
-
   // Configure the class accumulator threshold.
   mmio_region_write32_shadowed(alert_handler->base_addr,
                                accum_thresh_reg_offset,
@@ -382,6 +379,10 @@ dif_result_t dif_alert_handler_configure_class(
                                crashdump_phase_reg_offset,
                                (uint32_t)(config.crashdump_escalation_phase -
                                           kDifAlertHandlerClassStatePhase0));
+
+  // Configure the class control register last, since this holds the enable bit.
+  mmio_region_write32_shadowed(alert_handler->base_addr, ctrl_reg_offset,
+                               ctrl_reg);
 
   // Lock the configuration.
   if (locked == kDifToggleEnabled) {
@@ -451,87 +452,6 @@ dif_result_t dif_alert_handler_ping_timer_set_enabled(
   if (locked == kDifToggleEnabled) {
     mmio_region_write32(alert_handler->base_addr,
                         ALERT_HANDLER_PING_TIMER_REGWEN_REG_OFFSET, 0);
-  }
-
-  return kDifOk;
-}
-
-// TODO(#9899): make this a testutil function.
-dif_result_t dif_alert_handler_configure(
-    const dif_alert_handler_t *alert_handler, dif_alert_handler_config_t config,
-    dif_toggle_t locked) {
-  if (alert_handler == NULL || !dif_is_valid_toggle(locked)) {
-    return kDifBadArg;
-  }
-
-  // Check lengths of alert, local alert, and class arrays.
-  if ((config.alerts_len == 0 &&
-       (config.alerts != NULL || config.alert_classes != NULL)) ||
-      (config.alerts_len > 0 &&
-       (config.alerts == NULL || config.alert_classes == NULL))) {
-    return kDifBadArg;
-  }
-  if ((config.local_alerts_len == 0 &&
-       (config.local_alerts != NULL || config.local_alert_classes != NULL)) ||
-      (config.local_alerts_len > 0 &&
-       (config.local_alerts == NULL || config.local_alert_classes == NULL))) {
-    return kDifBadArg;
-  }
-  if ((config.classes_len == 0 &&
-       (config.classes != NULL || config.class_configs != NULL)) ||
-      (config.classes_len > 0 &&
-       (config.classes == NULL || config.class_configs == NULL))) {
-    return kDifBadArg;
-  }
-
-  // Check that the provided ping timeout actually fits in the timeout
-  // register, which is smaller than a native word length.
-  if (config.ping_timeout >
-      ALERT_HANDLER_PING_TIMEOUT_CYC_SHADOWED_PING_TIMEOUT_CYC_SHADOWED_MASK) {
-    return kDifBadArg;
-  }
-
-  // Configure and enable the requested alerts.
-  for (int i = 0; i < config.alerts_len; ++i) {
-    // TODO(#9899): replace with CHECK_DIF_OK(...) when the parent function
-    // becomes a testutil function.
-    if (dif_alert_handler_configure_alert(
-            alert_handler, config.alerts[i], config.alert_classes[i],
-            kDifToggleEnabled, locked) != kDifOk) {
-      return kDifError;
-    }
-  }
-
-  // Configure and enable the requested local alerts.
-  // TODO(#9899): replace with CHECK_DIF_OK(...) when the parent function
-  // becomes a testutil function.
-  for (int i = 0; i < config.local_alerts_len; ++i) {
-    if (dif_alert_handler_configure_local_alert(
-            alert_handler, config.local_alerts[i],
-            config.local_alert_classes[i], kDifToggleEnabled,
-            locked) != kDifOk) {
-      return kDifError;
-    }
-  }
-
-  // Configure and enable the requested classes.
-  // TODO(#9899): replace with CHECK_DIF_OK(...) when the parent function
-  // becomes a testutil function.
-  for (int i = 0; i < config.classes_len; ++i) {
-    if (dif_alert_handler_configure_class(
-            alert_handler, config.classes[i], config.class_configs[i],
-            kDifToggleEnabled, locked) != kDifOk) {
-      return kDifError;
-    }
-  }
-
-  // Configure the ping timer.
-  // TODO(#9899): replace with CHECK_DIF_OK(...) when the parent function
-  // becomes a testutil function.
-  if (dif_alert_handler_configure_ping_timer(alert_handler, config.ping_timeout,
-                                             kDifToggleEnabled,
-                                             locked) != kDifOk) {
-    return kDifError;
   }
 
   return kDifOk;
