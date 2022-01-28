@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9868"
-version_tuple = (0, 0, 9868)
+version_str = "0.0.post9880"
+version_tuple = (0, 0, 9880)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9868")
+    pversion = V("0.0.post9880")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9744"
-data_version_tuple = (0, 0, 9744)
+data_version_str = "0.0.post9756"
+data_version_tuple = (0, 0, 9756)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9744")
+    pdata_version = V("0.0.post9756")
 except ImportError:
     pass
-data_git_hash = "384ac7f243ccf6caab658ce9a0a3e6ff74ca2ffd"
-data_git_describe = "v0.0-9744-g384ac7f24"
+data_git_hash = "fd557a694166a981c3e5e3c70a177461d29f3226"
+data_git_describe = "v0.0-9756-gfd557a694"
 data_git_msg = """\
-commit 384ac7f243ccf6caab658ce9a0a3e6ff74ca2ffd
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jan 27 00:39:42 2022 -0800
+commit fd557a694166a981c3e5e3c70a177461d29f3226
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 27 12:33:52 2022 -0800
 
-    [dif/alert_handler] Enable actions after configs
+    [dv/reggen] Adjust hier_path input for close source OTP tb
     
-    This commit alters the functionalities of the configuration DIFs for
-    alerts, local alerts, and classes, by only enabling each feature *after*
-    it has been configured. This is done since as soon as a feature is
-    enabled, it is active.
+    This PR slightly adjust optional input `hier_path` for ip_blocks,
+    by removing the default `u_reg` path, so close source OTP will have
+    the correct hier_path.
     
-    This partially addresses #9899.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
