@@ -4,34 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9851"
-version_tuple = (0, 0, 9851)
+version_str = "0.0.post9852"
+version_tuple = (0, 0, 9852)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9851")
+    pversion = V("0.0.post9852")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9727"
-data_version_tuple = (0, 0, 9727)
+data_version_str = "0.0.post9728"
+data_version_tuple = (0, 0, 9728)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9727")
+    pdata_version = V("0.0.post9728")
 except ImportError:
     pass
-data_git_hash = "95ba869ee4359cdc5627a88046abcc1a11da80e2"
-data_git_describe = "v0.0-9727-g95ba869ee"
+data_git_hash = "eadfa1b1fb98dd4dc094439cd3b8283e125d7002"
+data_git_describe = "v0.0-9728-geadfa1b1f"
 data_git_msg = """\
-commit 95ba869ee4359cdc5627a88046abcc1a11da80e2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 26 19:05:11 2022 -0800
+commit eadfa1b1fb98dd4dc094439cd3b8283e125d7002
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jan 25 21:50:12 2022 -0800
 
-    [keymgr] D2 preparation
+    [dv/hmac] Add wipe secret checking
     
-    - update specific signal to mubi
+    This PR adds a sequence to check the wipe secret functionality.
+    The sequence will randomly issue wipe secret in the following four
+    conditions:
+    1). Before hmac key was input.
+    2). Before hmac start command.
+    3). Before hmac process command.
+    4). Before hmac process is done.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
