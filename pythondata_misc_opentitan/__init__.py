@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9848"
-version_tuple = (0, 0, 9848)
+version_str = "0.0.post9851"
+version_tuple = (0, 0, 9851)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9848")
+    pversion = V("0.0.post9851")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9724"
-data_version_tuple = (0, 0, 9724)
+data_version_str = "0.0.post9727"
+data_version_tuple = (0, 0, 9727)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9724")
+    pdata_version = V("0.0.post9727")
 except ImportError:
     pass
-data_git_hash = "8a35814ef0db693f67549738f46087d57dcb5251"
-data_git_describe = "v0.0-9724-g8a35814ef"
+data_git_hash = "95ba869ee4359cdc5627a88046abcc1a11da80e2"
+data_git_describe = "v0.0-9727-g95ba869ee"
 data_git_msg = """\
-commit 8a35814ef0db693f67549738f46087d57dcb5251
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Jan 26 07:20:04 2022 -0800
+commit 95ba869ee4359cdc5627a88046abcc1a11da80e2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jan 26 19:05:11 2022 -0800
 
-    [bazel] start running in CI and warning
+    [keymgr] D2 preparation
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    - update specific signal to mubi
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
