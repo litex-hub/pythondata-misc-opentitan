@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9880"
-version_tuple = (0, 0, 9880)
+version_str = "0.0.post9881"
+version_tuple = (0, 0, 9881)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9880")
+    pversion = V("0.0.post9881")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9756"
-data_version_tuple = (0, 0, 9756)
+data_version_str = "0.0.post9757"
+data_version_tuple = (0, 0, 9757)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9756")
+    pdata_version = V("0.0.post9757")
 except ImportError:
     pass
-data_git_hash = "fd557a694166a981c3e5e3c70a177461d29f3226"
-data_git_describe = "v0.0-9756-gfd557a694"
+data_git_hash = "1ecb03098e51f1a940a76e9d6e9e4fdc5e9170ad"
+data_git_describe = "v0.0-9757-g1ecb03098"
 data_git_msg = """\
-commit fd557a694166a981c3e5e3c70a177461d29f3226
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jan 27 12:33:52 2022 -0800
+commit 1ecb03098e51f1a940a76e9d6e9e4fdc5e9170ad
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Jan 27 08:44:07 2022 -0800
 
-    [dv/reggen] Adjust hier_path input for close source OTP tb
+    [edn/rtl] Fix for auto-mode
     
-    This PR slightly adjust optional input `hier_path` for ip_blocks,
-    by removing the default `u_reg` path, so close source OTP will have
-    the correct hier_path.
+    A timing delay fix is needed to make both auto_req and boot_req
+    modes work together.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
