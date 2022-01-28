@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9857"
-version_tuple = (0, 0, 9857)
+version_str = "0.0.post9860"
+version_tuple = (0, 0, 9860)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9857")
+    pversion = V("0.0.post9860")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9733"
-data_version_tuple = (0, 0, 9733)
+data_version_str = "0.0.post9736"
+data_version_tuple = (0, 0, 9736)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9733")
+    pdata_version = V("0.0.post9736")
 except ImportError:
     pass
-data_git_hash = "b8141a041a6e1f906cbbdfd538d164695b5bca91"
-data_git_describe = "v0.0-9733-gb8141a041"
+data_git_hash = "968524e4b9dff05b8b23191890c21ea9a02dd032"
+data_git_describe = "v0.0-9736-g968524e4b"
 data_git_msg = """\
-commit b8141a041a6e1f906cbbdfd538d164695b5bca91
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Tue Jan 18 12:15:01 2022 +0000
+commit 968524e4b9dff05b8b23191890c21ea9a02dd032
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Jan 10 16:20:20 2022 -0500
 
-    [aon_timer,dv] V1 Signoff
+    [opentitantool] Add sha256
     
-    All action items from V1 review have been finished and PRs have been merged.
-    
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
