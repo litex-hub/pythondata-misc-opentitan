@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9882"
-version_tuple = (0, 0, 9882)
+version_str = "0.0.post9884"
+version_tuple = (0, 0, 9884)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9882")
+    pversion = V("0.0.post9884")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9758"
-data_version_tuple = (0, 0, 9758)
+data_version_str = "0.0.post9760"
+data_version_tuple = (0, 0, 9760)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9758")
+    pdata_version = V("0.0.post9760")
 except ImportError:
     pass
-data_git_hash = "53cb4ec6cb7b67c42244d492efcb2962826edf43"
-data_git_describe = "v0.0-9758-g53cb4ec6c"
+data_git_hash = "56993601686be6018a0784b963fd0a09b3e1e410"
+data_git_describe = "v0.0-9760-g569936016"
 data_git_msg = """\
-commit 53cb4ec6cb7b67c42244d492efcb2962826edf43
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Jan 28 06:53:10 2022 -0800
+commit 56993601686be6018a0784b963fd0a09b3e1e410
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jan 27 10:42:26 2022 -0800
 
-    [edn/doc] Add CSRNG command format references
+    [dv/hmac] Enhance stress_all_with_rand_reset to reset at target timing
     
-    References to the CSRNG command format added for registers that process
-    these commands.
-    Fixes #10398.
+    Follow the suggestion from PR #10397, thanks Rupert for the feedback!
+    Definitely help reduced a test.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
