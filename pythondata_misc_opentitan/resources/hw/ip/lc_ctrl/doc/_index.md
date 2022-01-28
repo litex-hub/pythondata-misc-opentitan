@@ -93,7 +93,7 @@ It is the only token among those listed that is a global constant and stored in 
 
 All others CAN be device unique and are stored in OTP.
 
-### Token Usage Limits
+### Transition Counter Limits
 
 For conditional transitions, there is a limit to how many times they can be attempted.
 This is to prevent an attacker from brute-forcing any specific token, as this also helps to reduce the overall required token size.
@@ -321,7 +321,7 @@ SEED_HW_RD_EN only becomes active if SECRET2_DIGEST has a nonzero value in DEV, 
 ## Flash Collateral
 
 The flash contains both memory mapped and non-memory mapped partitions.
-As it pertains to life cycle, the flash contains three sets of important collateral.
+As it pertains to life cycle, the flash contains two sets of important collateral.
 They are enumerated in the table below.
 Just as with OTP, the consumer and usage of each is also described.
 
@@ -369,41 +369,43 @@ Parameter                      | Default (Max)         | Top Earlgrey   | Descri
 
 {{< incGenFromIpDesc "../data/lc_ctrl.hjson" "hwcfg" >}}
 
-Signal                       | Direction        | Type                                 | Description
------------------------------|------------------|--------------------------------------|---------------
-`jtag_i`                     | `input`          | `jtag_pkg::jtag_req_t`               | JTAG input signals for life cycle TAP.
-`jtag_o`                     | `output`         | `jtag_pkg::jtag_rsp_t`               | JTAG output signals for life cycle TAP.
-`esc_scrap_state0_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
-`esc_scrap_state0_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
-`esc_scrap_state1_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`             | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
-`esc_scrap_state1_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`             | Escalation feedback to alert handler
-`pwr_lc_i`                   | `input`          | `pwrmgr::pwr_lc_req_t`               | Initialization request coming from power manager.
-`pwr_lc_o`                   | `output`         | `pwrmgr::pwr_lc_rsp_t`               | Initialization response and programming idle state going to power manager.
-`lc_otp_program_o`           | `output`         | `otp_ctrl_pkg::lc_otp_program_req_t` | Life cycle state transition request.
-`lc_otp_program_i`           | `input`          | `otp_ctrl_pkg::lc_otp_program_rsp_t` | Life cycle state transition response.
-`kmac_data_o`                | `output`         | `kmac_pkg::app_req_t`                | Life cycle RAW token hashing request.
-`kmac_data_i`                | `input`          | `kmac_pkg::app_rsp_t`                | Life cycle RAW token hashing response.
-`otp_lc_data_i`              | `input`          | `otp_ctrl_pkg::otp_lc_data_t`        | Life cycle state output holding the current life cycle state, the value of the transition counter and the tokens needed for life cycle transitions.
-`lc_keymgr_div_o`            | `output`         | `lc_keymgr_div_t`                    | Life cycle state group diversification value.
-`lc_flash_rma_seed_o`        | `output`         | `lc_flash_rma_seed_t`                | Seed for flash RMA.
-`otp_device_id_i`            | `input`          | `otp_device_id_t`                    | HW_CFG bits from OTP ({{< regref DEVICE_ID_0 >}}).
-`otp_manuf_state_i`          | `input`          | `otp_manuf_state_t`                  | HW_CFG bits from OTP ({{< regref MANUF_STATE_0 >}}).
-`lc_dft_en_o`                | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_nvm_debug_en_o`          | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_hw_debug_en_o`           | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_cpu_en_o`                | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_creator_seed_sw_rw_en_o` | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_owner_seed_sw_rw_en_o`   | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_iso_part_sw_rd_en_o`     | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_iso_part_sw_wr_en_o`     | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_seed_hw_rd_en_o`         | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_keymgr_en_o`             | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_escalate_en_o`           | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_check_byp_en_o`          | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_clk_byp_req_o`           | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_clk_byp_ack_i`           | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_flash_rma_req_o`         | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
-`lc_flash_rma_ack_i`         | `output`         | `lc_tx_t`                            | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+Signal                       | Direction        | Type                                     | Description
+-----------------------------|------------------|------------------------------------------|---------------
+`jtag_i`                     | `input`          | `jtag_pkg::jtag_req_t`                   | JTAG input signals for life cycle TAP.
+`jtag_o`                     | `output`         | `jtag_pkg::jtag_rsp_t`                   | JTAG output signals for life cycle TAP.
+`esc_scrap_state0_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`                 | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
+`esc_scrap_state0_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`                 | Escalation feedback to alert handler
+`esc_scrap_state1_tx_i`      | `input`          | `prim_esc_pkg::esc_tx_t`                 | Escalation input from alert handler. Moves the life cycle state into an invalid state upon assertion.
+`esc_scrap_state1_rx_o`      | `output`         | `prim_esc_pkg::esc_rx_t`                 | Escalation feedback to alert handler
+`pwr_lc_i`                   | `input`          | `pwrmgr::pwr_lc_req_t`                   | Initialization request coming from power manager.
+`pwr_lc_o`                   | `output`         | `pwrmgr::pwr_lc_rsp_t`                   | Initialization response and programming idle state going to power manager.
+`lc_otp_program_o`           | `output`         | `otp_ctrl_pkg::lc_otp_program_req_t`     | Life cycle state transition request.
+`lc_otp_program_i`           | `input`          | `otp_ctrl_pkg::lc_otp_program_rsp_t`     | Life cycle state transition response.
+`kmac_data_o`                | `output`         | `kmac_pkg::app_req_t`                    | Life cycle RAW token hashing request.
+`kmac_data_i`                | `input`          | `kmac_pkg::app_rsp_t`                    | Life cycle RAW token hashing response.
+`otp_lc_data_i`              | `input`          | `otp_ctrl_pkg::otp_lc_data_t`            | Life cycle state output holding the current life cycle state, the value of the transition counter and the tokens needed for life cycle transitions.
+`lc_keymgr_div_o`            | `output`         | `lc_keymgr_div_t`                        | Life cycle state group diversification value.
+`lc_flash_rma_seed_o`        | `output`         | `lc_flash_rma_seed_t`                    | Seed for flash RMA.
+`otp_device_id_i`            | `input`          | `otp_device_id_t`                        | HW_CFG bits from OTP ({{< regref DEVICE_ID_0 >}}).
+`otp_manuf_state_i`          | `input`          | `otp_manuf_state_t`                      | HW_CFG bits from OTP ({{< regref MANUF_STATE_0 >}}).
+`lc_otp_vendor_test_o`       | `output`         | `otp_ctrl_pkg::lc_otp_vendor_test_req_t` | Vendor-specific test bits to OTP ({{< regref OTP_VENDOR_TEST_CTRL >}}).
+`lc_otp_vendor_test_i`       | `input`          | `otp_ctrl_pkg::lc_otp_vendor_test_rsp_t` | Vendor-specific test bits to OTP ({{< regref OTP_VENDOR_TEST_STATUS >}}).
+`lc_dft_en_o`                | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_nvm_debug_en_o`          | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_hw_debug_en_o`           | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_cpu_en_o`                | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_creator_seed_sw_rw_en_o` | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_owner_seed_sw_rw_en_o`   | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_iso_part_sw_rd_en_o`     | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_iso_part_sw_wr_en_o`     | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_seed_hw_rd_en_o`         | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_keymgr_en_o`             | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_escalate_en_o`           | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_check_byp_en_o`          | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_clk_byp_req_o`           | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_clk_byp_ack_i`           | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_flash_rma_req_o`         | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
+`lc_flash_rma_ack_i`         | `output`         | `lc_tx_t`                                | [Multibit control signal]({{< relref "#life-cycle-decoded-outputs-and-controls" >}}).
 
 #### Power Manager Interface
 
@@ -651,6 +653,7 @@ Hence the following programming sequence applies to both SW running on the devic
 2. Read the {{< regref "LC_STATE" >}} and {{< regref "LC_TRANSITION_CNT" >}} registers to determine which life cycle state the device currently is in, and how many transition attempts are still available.
 
 3. Claim exclusive access to the transition interface by writing 0x5A to the {{< regref "CLAIM_TRANSITION_IF" >}} register, and reading it back. If the value read back equals to 0x5A, the hardware mutex has successfully been claimed and SW can proceed to step 4. If the value read back equals to 0, the mutex has already been claimed by the other interface (either CSR or TAP), and SW should try claiming the mutex again.
+Note that all transition interface registers are protected by the hardware-governed {{< regref "TRANSITION_REGWEN" >}} register, which will only be set to 1 if the mutex has been claimed successfully.
 
 4. Write the desired target state to {{< regref "TRANSITION_TARGET" >}}. For conditional transitions, the corresponding token has to be written to {{< regref "TRANSITION_TOKEN_0" >}}. For all unconditional transitions, the token registers have to be set to zero.
 
@@ -662,7 +665,8 @@ They are ignored in the PROD* and DEV states.
 
 7. Write 1 to the {{< regref "TRANSITION_CMD.START" >}} register to initiate the life cycle transition.
 
-8. Poll the {{< regref "STATUS" >}} register and wait until either {{< regref "STATUS.TRANSITION_SUCCESSFUL" >}} or any of the error bits is asserted.
+8. Poll the {{< regref "STATUS" >}} register and wait until either {{< regref "STATUS.TRANSITION_SUCCESSFUL" >}} or any of the error bits is asserted. 
+The {{< regref "TRANSITION_REGWEN" >}} register will be set to 0 while a transition is in progress in order to prevent any accidental modifications of the transition interface registers during this phase.
 
 Note that any life cycle state transition - no matter whether successful or not - increments the LC_TRANSITION_CNT and moves the life cycle state into the temporary POST_TRANSITION state.
 Hence, step 6. cannot be carried out in case device SW is used to implement the programming sequence above, since the processor is disabled in the POST_TRANSITION life cycle state.

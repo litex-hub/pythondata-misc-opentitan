@@ -19,7 +19,10 @@ module lc_ctrl
   // Random netlist constants
   parameter lc_keymgr_div_t RndCnstLcKeymgrDivInvalid    = LcKeymgrDivWidth'(0),
   parameter lc_keymgr_div_t RndCnstLcKeymgrDivTestDevRma = LcKeymgrDivWidth'(1),
-  parameter lc_keymgr_div_t RndCnstLcKeymgrDivProduction = LcKeymgrDivWidth'(2)
+  parameter lc_keymgr_div_t RndCnstLcKeymgrDivProduction = LcKeymgrDivWidth'(2),
+  parameter lc_token_t RndCnstRmaTokenInvalid        = LcTokenWidth'(8'hAA),
+  parameter lc_token_t RndCnstTestUnlockTokenInvalid = LcTokenWidth'(8'hBB),
+  parameter lc_token_t RndCnstTestExitTokenInvalid   = LcTokenWidth'(8'hCC)
 ) (
   // Life cycle controller clock
   input                                              clk_i,
@@ -331,7 +334,9 @@ module lc_ctrl
     otp_vendor_test_ctrl_d    = otp_vendor_test_ctrl_q;
     use_ext_clock_d           = use_ext_clock_q;
 
-    // TAP mutex claim. This has prio over SW.
+    // Note that the mutex claims from the TAP and SW side could arrive within the same cycle.
+    // In that case we give priority to the TAP mutex claim in order to avoid a race condition.
+    // TAP mutex claim.
     if (mubi8_test_false_loose(sw_claim_transition_if_q) &&
         tap_reg2hw.claim_transition_if.qe) begin
       tap_claim_transition_if_d = mubi8_t'(tap_reg2hw.claim_transition_if.q);
@@ -603,9 +608,12 @@ module lc_ctrl
   ////////////
 
   lc_ctrl_fsm #(
-    .RndCnstLcKeymgrDivInvalid    ( RndCnstLcKeymgrDivInvalid    ),
-    .RndCnstLcKeymgrDivTestDevRma ( RndCnstLcKeymgrDivTestDevRma ),
-    .RndCnstLcKeymgrDivProduction ( RndCnstLcKeymgrDivProduction )
+    .RndCnstLcKeymgrDivInvalid     ( RndCnstLcKeymgrDivInvalid     ),
+    .RndCnstLcKeymgrDivTestDevRma  ( RndCnstLcKeymgrDivTestDevRma  ),
+    .RndCnstLcKeymgrDivProduction  ( RndCnstLcKeymgrDivProduction  ),
+    .RndCnstRmaTokenInvalid        ( RndCnstRmaTokenInvalid        ),
+    .RndCnstTestUnlockTokenInvalid ( RndCnstTestUnlockTokenInvalid ),
+    .RndCnstTestExitTokenInvalid   ( RndCnstTestExitTokenInvalid   )
   ) u_lc_ctrl_fsm (
     .clk_i,
     .rst_ni,

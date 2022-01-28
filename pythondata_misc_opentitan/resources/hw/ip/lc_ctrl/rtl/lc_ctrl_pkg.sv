@@ -34,8 +34,8 @@ package lc_ctrl_pkg;
   parameter int TxWidth = 4;
 
   typedef enum logic [TxWidth-1:0] {
-    On  = 4'b1010,
-    Off = 4'b0101
+    On  = 4'b1001,
+    Off = 4'b0110
   } lc_tx_t;
   parameter lc_tx_t LC_TX_DEFAULT = lc_tx_t'(Off);
 
@@ -174,5 +174,9 @@ package lc_ctrl_pkg;
     {8{RawUnlockTokenIdx,  // -> TEST_UNLOCKED0-7
        InvalidTokenIdx}}   // -> RAW, TEST_LOCKED0-6
   };
+
+  // These macros are only used locally.
+  `undef TEST_LOCKED
+  `undef TEST_UNLOCKED
 
 endpackage : lc_ctrl_pkg
