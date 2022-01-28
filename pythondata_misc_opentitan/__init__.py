@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9852"
-version_tuple = (0, 0, 9852)
+version_str = "0.0.post9854"
+version_tuple = (0, 0, 9854)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9852")
+    pversion = V("0.0.post9854")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9728"
-data_version_tuple = (0, 0, 9728)
+data_version_str = "0.0.post9730"
+data_version_tuple = (0, 0, 9730)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9728")
+    pdata_version = V("0.0.post9730")
 except ImportError:
     pass
-data_git_hash = "eadfa1b1fb98dd4dc094439cd3b8283e125d7002"
-data_git_describe = "v0.0-9728-geadfa1b1f"
+data_git_hash = "74a44cc57118949e5bcbda8175ec2c507fc2414c"
+data_git_describe = "v0.0-9730-g74a44cc57"
 data_git_msg = """\
-commit eadfa1b1fb98dd4dc094439cd3b8283e125d7002
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jan 25 21:50:12 2022 -0800
+commit 74a44cc57118949e5bcbda8175ec2c507fc2414c
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Jan 26 16:31:23 2022 -0800
 
-    [dv/hmac] Add wipe secret checking
+    [lc_ctrl/doc] Update system integration diagram
     
-    This PR adds a sequence to check the wipe secret functionality.
-    The sequence will randomly issue wipe secret in the following four
-    conditions:
-    1). Before hmac key was input.
-    2). Before hmac start command.
-    3). Before hmac process command.
-    4). Before hmac process is done.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
