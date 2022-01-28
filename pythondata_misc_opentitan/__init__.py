@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9856"
-version_tuple = (0, 0, 9856)
+version_str = "0.0.post9857"
+version_tuple = (0, 0, 9857)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9856")
+    pversion = V("0.0.post9857")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9732"
-data_version_tuple = (0, 0, 9732)
+data_version_str = "0.0.post9733"
+data_version_tuple = (0, 0, 9733)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9732")
+    pdata_version = V("0.0.post9733")
 except ImportError:
     pass
-data_git_hash = "369cffc85db0e6d5a667676a6f89987b94210e70"
-data_git_describe = "v0.0-9732-g369cffc85"
+data_git_hash = "b8141a041a6e1f906cbbdfd538d164695b5bca91"
+data_git_describe = "v0.0-9733-gb8141a041"
 data_git_msg = """\
-commit 369cffc85db0e6d5a667676a6f89987b94210e70
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jan 26 15:23:48 2022 -0800
+commit b8141a041a6e1f906cbbdfd538d164695b5bca91
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Tue Jan 18 12:15:01 2022 +0000
 
-    [prim] Update behavior of prim_count
+    [aon_timer,dv] V1 Signoff
     
-    - During cross count, compare is always valid
-    - When a "max value" has not been supplied, the counter always compares
-      the default value of 0 and max count size
-    - When a "max value" is supplied, normal comparisons are made
-    - When the counter is cleared, the counts are restored to the default
-      comparison points.  It is up to the user to supply the max value again.
+    All action items from V1 review have been finished and PRs have been merged.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
