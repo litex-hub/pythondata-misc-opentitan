@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9881"
-version_tuple = (0, 0, 9881)
+version_str = "0.0.post9882"
+version_tuple = (0, 0, 9882)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9881")
+    pversion = V("0.0.post9882")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9757"
-data_version_tuple = (0, 0, 9757)
+data_version_str = "0.0.post9758"
+data_version_tuple = (0, 0, 9758)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9757")
+    pdata_version = V("0.0.post9758")
 except ImportError:
     pass
-data_git_hash = "1ecb03098e51f1a940a76e9d6e9e4fdc5e9170ad"
-data_git_describe = "v0.0-9757-g1ecb03098"
+data_git_hash = "53cb4ec6cb7b67c42244d492efcb2962826edf43"
+data_git_describe = "v0.0-9758-g53cb4ec6c"
 data_git_msg = """\
-commit 1ecb03098e51f1a940a76e9d6e9e4fdc5e9170ad
+commit 53cb4ec6cb7b67c42244d492efcb2962826edf43
 Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Jan 27 08:44:07 2022 -0800
+Date:   Fri Jan 28 06:53:10 2022 -0800
 
-    [edn/rtl] Fix for auto-mode
+    [edn/doc] Add CSRNG command format references
     
-    A timing delay fix is needed to make both auto_req and boot_req
-    modes work together.
+    References to the CSRNG command format added for registers that process
+    these commands.
+    Fixes #10398.
     
     Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
