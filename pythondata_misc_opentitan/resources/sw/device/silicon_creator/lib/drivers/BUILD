@@ -193,6 +193,7 @@ opentitan_functest(
         "//sw/device/lib/dif:kmac",
         "//sw/device/lib/dif:otp_ctrl",
         "//sw/device/lib/dif:pwrmgr",
+        "//sw/device/lib/testing:pwrmgr_testutils",
         "//sw/device/silicon_creator/lib:error",
         "//sw/device/silicon_creator/lib:keymgr_binding",
         "//sw/device/silicon_creator/lib:test_main",
@@ -220,6 +221,27 @@ cc_library(
         ":lifecycle",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest",
+    ],
+)
+
+cc_test(
+    name = "lifecycle_unittest",
+    srcs = [
+        "lifecycle.h",
+        "lifecycle.c",
+        "lifecycle_unittest.cc",
+    ],
+    defines = [
+        "OT_OFF_TARGET_TEST",
+    ],
+    deps = [
+        "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base",
+        "//sw/device/silicon_creator/lib:error",
+        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
+        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "@googletest//:gtest_main",
     ],
 )
 

@@ -42,7 +42,7 @@ volatile sec_mmio_ctx_t sec_mmio_ctx;
 // In-memory copy of the ePMP register configuration.
 epmp_state_t epmp;
 // Life cycle state of the chip.
-lifecycle_state_t lc_state = kLcStateProd;
+lifecycle_state_t lc_state = (lifecycle_state_t)0;
 
 static inline rom_error_t mask_rom_irq_error(void) {
   uint32_t mcause;
@@ -154,6 +154,9 @@ static rom_error_t mask_rom_boot(const manifest_t *manifest,
   // Enable execution of code from flash if signature is verified.
   flash_ctrl_exec_set(flash_exec);
 
+  // Check cached lc_state value aginst the value reported by hardware.
+  HARDENED_CHECK_EQ(lc_state, lifecycle_state_get());
+
   sec_mmio_check_values(rnd_uint32());
   sec_mmio_check_counters(/*expected_check_count=*/3);
 
@@ -199,7 +202,7 @@ void mask_rom_main(void) {
   // TODO(lowrisc/opentitan#7894): What (if anything) should we print at
   // startup?
   log_printf("OpenTitan: \"version-tag\"\r\n");
-  log_printf("lc_state: %s\r\n", lifecycle_state_name_get(lc_state));
+  log_printf("lc_state: 0x%x\r\n", (unsigned int)lifecycle_raw_state_get());
 
   // TODO(lowrisc/opentitan#1513): Switch to EEPROM SPI device bootstrap
   // protocol.
