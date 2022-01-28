@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9860"
-version_tuple = (0, 0, 9860)
+version_str = "0.0.post9866"
+version_tuple = (0, 0, 9866)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9860")
+    pversion = V("0.0.post9866")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9736"
-data_version_tuple = (0, 0, 9736)
+data_version_str = "0.0.post9742"
+data_version_tuple = (0, 0, 9742)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9736")
+    pdata_version = V("0.0.post9742")
 except ImportError:
     pass
-data_git_hash = "968524e4b9dff05b8b23191890c21ea9a02dd032"
-data_git_describe = "v0.0-9736-g968524e4b"
+data_git_hash = "3b45a9f00dff5c04e7b40cf4aa1fbe257c5724bd"
+data_git_describe = "v0.0-9742-g3b45a9f00"
 data_git_msg = """\
-commit 968524e4b9dff05b8b23191890c21ea9a02dd032
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Jan 10 16:20:20 2022 -0500
+commit 3b45a9f00dff5c04e7b40cf4aa1fbe257c5724bd
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Thu Jan 27 13:07:48 2022 -0800
 
-    [opentitantool] Add sha256
+    [bazel] pwrmgr_testutils 2 keymgr_functest deps
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
