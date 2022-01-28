@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9866"
-version_tuple = (0, 0, 9866)
+version_str = "0.0.post9868"
+version_tuple = (0, 0, 9868)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9866")
+    pversion = V("0.0.post9868")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9742"
-data_version_tuple = (0, 0, 9742)
+data_version_str = "0.0.post9744"
+data_version_tuple = (0, 0, 9744)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9742")
+    pdata_version = V("0.0.post9744")
 except ImportError:
     pass
-data_git_hash = "3b45a9f00dff5c04e7b40cf4aa1fbe257c5724bd"
-data_git_describe = "v0.0-9742-g3b45a9f00"
+data_git_hash = "384ac7f243ccf6caab658ce9a0a3e6ff74ca2ffd"
+data_git_describe = "v0.0-9744-g384ac7f24"
 data_git_msg = """\
-commit 3b45a9f00dff5c04e7b40cf4aa1fbe257c5724bd
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu Jan 27 13:07:48 2022 -0800
+commit 384ac7f243ccf6caab658ce9a0a3e6ff74ca2ffd
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Jan 27 00:39:42 2022 -0800
 
-    [bazel] pwrmgr_testutils 2 keymgr_functest deps
+    [dif/alert_handler] Enable actions after configs
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    This commit alters the functionalities of the configuration DIFs for
+    alerts, local alerts, and classes, by only enabling each feature *after*
+    it has been configured. This is done since as soon as a feature is
+    enabled, it is active.
+    
+    This partially addresses #9899.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
