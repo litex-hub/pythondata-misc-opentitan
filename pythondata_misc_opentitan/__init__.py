@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9902"
-version_tuple = (0, 0, 9902)
+version_str = "0.0.post9909"
+version_tuple = (0, 0, 9909)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9902")
+    pversion = V("0.0.post9909")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9778"
-data_version_tuple = (0, 0, 9778)
+data_version_str = "0.0.post9785"
+data_version_tuple = (0, 0, 9785)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9778")
+    pdata_version = V("0.0.post9785")
 except ImportError:
     pass
-data_git_hash = "3b12971e3786ca29ae12a6f5e40bcc98232d49c6"
-data_git_describe = "v0.0-9778-g3b12971e3"
+data_git_hash = "097521294cd43a3e059bed8c0cd2a710b4f7f73e"
+data_git_describe = "v0.0-9785-g097521294"
 data_git_msg = """\
-commit 3b12971e3786ca29ae12a6f5e40bcc98232d49c6
+commit 097521294cd43a3e059bed8c0cd2a710b4f7f73e
 Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Jan 27 20:01:09 2022 -0800
+Date:   Fri Jan 21 22:50:37 2022 -0800
 
-    [otp_ctrl/doc] Update DAI FSM diagram
+    [sram_ctrl] Move into D2S
     
     Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
