@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9913"
-version_tuple = (0, 0, 9913)
+version_str = "0.0.post9914"
+version_tuple = (0, 0, 9914)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9913")
+    pversion = V("0.0.post9914")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9789"
-data_version_tuple = (0, 0, 9789)
+data_version_str = "0.0.post9790"
+data_version_tuple = (0, 0, 9790)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9789")
+    pdata_version = V("0.0.post9790")
 except ImportError:
     pass
-data_git_hash = "bf84a7f6ca66690ed3e2df917b658b222183d756"
-data_git_describe = "v0.0-9789-gbf84a7f6c"
+data_git_hash = "72e83f01dbfda68f3473c3efc97a54d6bf0950c7"
+data_git_describe = "v0.0-9790-g72e83f01d"
 data_git_msg = """\
-commit bf84a7f6ca66690ed3e2df917b658b222183d756
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Jan 28 09:52:52 2022 -0500
+commit 72e83f01dbfda68f3473c3efc97a54d6bf0950c7
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Jan 28 07:49:48 2022 -0800
 
-    [sw/silicon_creator] Harden boot_data_digest_is_valid using shares
+    [edn/rtl] D2S review updates
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Feedback from the D2S review reflected back into the design.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
