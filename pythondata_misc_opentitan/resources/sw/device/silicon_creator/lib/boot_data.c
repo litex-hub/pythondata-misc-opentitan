@@ -57,8 +57,8 @@ typedef struct boot_data_buffer {
  * @param[out] digest Digest of the boot data entry.
  * @return The result of the operation.
  */
-static rom_error_t boot_data_digest_compute(const void *boot_data,
-                                            hmac_digest_t *digest) {
+static void boot_data_digest_compute(const void *boot_data,
+                                     hmac_digest_t *digest) {
   enum {
     kDigestRegionOffset = sizeof((boot_data_t){0}.digest),
     kDigestRegionSize = sizeof(boot_data_t) - kDigestRegionOffset,
@@ -67,31 +67,54 @@ static rom_error_t boot_data_digest_compute(const void *boot_data,
                 "`digest` must be the first field of `boot_data_t`.");
 
   hmac_sha256_init();
-  RETURN_IF_ERROR(hmac_sha256_update(
-      (const char *)boot_data + kDigestRegionOffset, kDigestRegionSize));
-  RETURN_IF_ERROR(hmac_sha256_final(digest));
-  return kErrorOk;
+  hmac_sha256_update((const char *)boot_data + kDigestRegionOffset,
+                     kDigestRegionSize);
+  hmac_sha256_final(digest);
 }
+
+/**
+ * Shares for producing the `is_valid` value in `boot_data_digest_check()`.
+ * First 7 shares are generated using the `sparse-fsm-encode` script while the
+ * last share is `kHardenedBoolTrue ^ kHardenedBoolFalse ^ kDigestShares[0] ^
+ * ... ^ kDigestShares[7]` so that xor'ing all shares with the initial value of
+ * `is_valid`, i.e. `kHardenedBoolFalse`, produces `kHardenedBoolTrue`.
+ *
+ * Encoding generated with
+ * $ ./util/design/sparse-fsm-encode.py -d 6 -m 7 -n 32 \
+ *     -s 266012770 --language=c
+ *
+ * Minimum hamming distance: 12
+ * Maximum hamming distance: 19
+ * Minimum hamming weight: 14
+ * Maximum hamming weight: 23
+ */
+static const uint32_t kDigestShares[kHmacDigestNumWords] = {
+    0x0d0b4d17, 0xcd73e3ff, 0x07a6f2f4, 0xcedfd599,
+    0x54eac5b2, 0x0723ff0a, 0x6e234ee1, 0x34ebfb31,
+};
 
 /**
  * Checks whether the digest of a boot data entry is valid.
  *
  * @param boot_data A buffer that holds a boot data entry.
- * @param[out] is_valid Whether the digest of the entry is valid.
- * @return The result of the operation.
+ * @return Whether the digest of the entry is valid.
  */
-static rom_error_t boot_data_digest_is_valid(
-    const boot_data_buffer_t *boot_data, hardened_bool_t *is_valid) {
+static hardened_bool_t boot_data_digest_is_valid(
+    const boot_data_buffer_t *boot_data) {
   static_assert(offsetof(boot_data_t, digest) == 0,
                 "`digest` must be the first field of `boot_data_t`.");
 
-  *is_valid = kHardenedBoolFalse;
+  hardened_bool_t is_valid = kHardenedBoolFalse;
   hmac_digest_t act_digest;
-  RETURN_IF_ERROR(boot_data_digest_compute(boot_data, &act_digest));
-  if (memcmp(&act_digest, boot_data, sizeof(act_digest.digest)) == 0) {
-    *is_valid = kHardenedBoolTrue;
+  boot_data_digest_compute(boot_data, &act_digest);
+
+  size_t i = 0;
+  for (; launder32(i) < kHmacDigestNumWords; ++i) {
+    is_valid ^= boot_data->data[i] ^ act_digest.digest[i] ^ kDigestShares[i];
   }
-  return kErrorOk;
+  HARDENED_CHECK_EQ(i, kHmacDigestNumWords);
+
+  return is_valid;
 }
 
 /**
@@ -363,10 +386,8 @@ static rom_error_t boot_data_page_info_get_impl(
   for (size_t i = start_index; i < kBootDataEntriesPerPage; --i) {
     // Check the digest only if this entry can be valid.
     if (sniff_results[i] == kBootDataIdentifier) {
-      hardened_bool_t is_valid;
       RETURN_IF_ERROR(boot_data_entry_read(page, i, &buf));
-      RETURN_IF_ERROR(boot_data_digest_is_valid(&buf, &is_valid));
-      if (is_valid == kHardenedBoolTrue) {
+      if (boot_data_digest_is_valid(&buf) == kHardenedBoolTrue) {
         memcpy(&page_info->last_valid_entry, &buf, sizeof(boot_data_t));
         page_info->last_valid_index = i;
         page_info->has_valid_entry = kHardenedBoolTrue;
@@ -509,7 +530,7 @@ rom_error_t boot_data_write(const boot_data_t *boot_data) {
     // Note: Not checking for wraparound since a successful write will
     // invalidate the old entry.
     new_entry.counter = active_page.last_valid_entry.counter + 1;
-    RETURN_IF_ERROR(boot_data_digest_compute(&new_entry, &new_entry.digest));
+    boot_data_digest_compute(&new_entry, &new_entry.digest);
     if (active_page.has_empty_entry == kHardenedBoolTrue) {
       RETURN_IF_ERROR(boot_data_entry_write(active_page.page,
                                             active_page.first_empty_index,
@@ -530,7 +551,7 @@ rom_error_t boot_data_write(const boot_data_t *boot_data) {
     // Erase the first page and write the entry there if the active page cannot
     // be found, i.e. the storage is not initialized yet.
     new_entry.counter = kBootDataDefault.counter + 1;
-    RETURN_IF_ERROR(boot_data_digest_compute(&new_entry, &new_entry.digest));
+    boot_data_digest_compute(&new_entry, &new_entry.digest);
     RETURN_IF_ERROR(
         boot_data_entry_write(kPages[0], 0, &new_entry, kHardenedBoolTrue));
   } else {
