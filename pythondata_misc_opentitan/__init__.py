@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9909"
-version_tuple = (0, 0, 9909)
+version_str = "0.0.post9913"
+version_tuple = (0, 0, 9913)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9909")
+    pversion = V("0.0.post9913")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9785"
-data_version_tuple = (0, 0, 9785)
+data_version_str = "0.0.post9789"
+data_version_tuple = (0, 0, 9789)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9785")
+    pdata_version = V("0.0.post9789")
 except ImportError:
     pass
-data_git_hash = "097521294cd43a3e059bed8c0cd2a710b4f7f73e"
-data_git_describe = "v0.0-9785-g097521294"
+data_git_hash = "bf84a7f6ca66690ed3e2df917b658b222183d756"
+data_git_describe = "v0.0-9789-gbf84a7f6c"
 data_git_msg = """\
-commit 097521294cd43a3e059bed8c0cd2a710b4f7f73e
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jan 21 22:50:37 2022 -0800
+commit bf84a7f6ca66690ed3e2df917b658b222183d756
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Jan 28 09:52:52 2022 -0500
 
-    [sram_ctrl] Move into D2S
+    [sw/silicon_creator] Harden boot_data_digest_is_valid using shares
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
