@@ -174,7 +174,7 @@ The contents must go through periodic integrity checks and therefore the stored 
 ### Life Cycle Partition
 
 The life cycle partition cannot be locked and will therefore not contain a stored digest.
-Note however that only the life cycle controller has access to this partition, i.e., the DAI cannot read nor write from/to the life cycle partition.
+Note however that only the life cycle controller has access to this partition, i.e., the Direct Access Interface (DAI) cannot read nor write from/to the life cycle partition.
 
 ## Secret vs Non-Secret Partitions
 
@@ -345,12 +345,12 @@ Signal                       | Direction        | Type                        | 
 
 The OTP controller contains various interfaces that connect to other comportable IPs within OpenTitan, and these are briefly explained further below.
 
-#### CSRNG Interface
+#### EDN Interface
 
-The entropy request interface that talks to CSRNG in order to fetch fresh entropy for ephemeral SRAM scrambling key derivation and the LFSR counters for background checks.
+The entropy request interface that talks to EDN in order to fetch fresh entropy for ephemeral SRAM scrambling key derivation and the LFSR counters for background checks.
 It is comprised of the `otp_edn_o` and `otp_edn_i` signals and follows a req / ack protocol.
 
-See also [CSRNG documentation]({{< relref "hw/ip/csrng/doc" >}}).
+See also [EDN documentation]({{< relref "hw/ip/edn/doc" >}}).
 
 #### Power Manager Interface
 
@@ -358,7 +358,7 @@ The power manager interface is comprised of three signals overall: an initializa
 
 The power manager asserts `pwr_otp_i.otp_init` in order to signal to the OTP controller that it can start initialization, and the OTP controller signals completion of the initialization sequence by asserting `pwr_otp_o.otp_done` (the signal will remain high until reset).
 
-The idle indication signal `pwr_otp_o.otp_idle` indicates whether there is an ongoing write operation in the DAI or LCI, and the power manager uses that indication to determine whether a power down request needs to be aborted.
+The idle indication signal `pwr_otp_o.otp_idle` indicates whether there is an ongoing write operation in the Direct Access Interface (DAI) or Life Cycle Interface (LCI), and the power manager uses that indication to determine whether a power down request needs to be aborted.
 
 Since the power manager may run in a different clock domain, the `pwr_otp_i.otp_init` signal is synchronized within the OTP controller.
 The power manager is responsible for synchronizing the `pwr_otp_o.otp_done` and `pwr_otp_o.otp_idle` signals.
@@ -390,10 +390,15 @@ A possible sequence for the signals described is illustrated below.
   {name: 'otp_lc_data_o.valid',             wave: '0.|...|.1.|...|...'},
   {name: 'otp_lc_data_o.state',             wave: '03|...|...|...|...'},
   {name: 'otp_lc_data_o.count',             wave: '03|...|...|...|...'},
+  {},
   {name: 'otp_lc_data_o.test_unlock_token', wave: '0.|...|.3.|...|...'},
   {name: 'otp_lc_data_o.test_exit_token',   wave: '0.|...|.3.|...|...'},
-  {name: 'otp_lc_data_o.id_state',          wave: '0.|.3.|...|...|...'},
+  {name: 'otp_lc_data_o.test_tokens_valid', wave: '0.|...|.3.|...|...'},
+  {},
   {name: 'otp_lc_data_o.rma_token',         wave: '0.|.3.|...|...|...'},
+  {name: 'otp_lc_data_o.rma_token_valid',   wave: '0.|.3.|...|...|...'},
+  {},
+  {name: 'otp_lc_data_o.secrets_valid',     wave: '0.|.3.|...|...|...'},
   {},
   {name: 'lc_creator_seed_sw_rw_en_i',      wave: '0.|...|...|.4.|...'},
   {name: 'lc_seed_hw_rd_en_i',              wave: '0.|...|...|.4.|...'},
@@ -404,7 +409,8 @@ A possible sequence for the signals described is illustrated below.
 {{< /wavejson >}}
 
 Note that the `otp_lc_data_o.valid` signal is only asserted after the `LIFE_CYCLE`, `SECRET0` and `SECRET2` partitions have successfully initialized, since the life cycle collateral contains information from all three partitions.
-The `otp_lc_data_o.id_state` signal is set to `lc_ctrl_pkg::Set` iff the `SECRET2` partition containing the root keys has been locked with a digest.
+The `otp_lc_data_o.test_tokens_valid` and `otp_lc_data_o.rma_token_valid` signals are multibit valid signals indicating whether the corresponding tokens are valid.
+The ``otp_lc_data_o.secrets_valid`` signal is a multibit valid signal that is set to `lc_ctrl_pkg::On` iff the `SECRET2` partition containing the root keys has been locked with a digest.
 
 
 ##### State Transitions
@@ -472,7 +478,7 @@ If the scrambling device runs on a significantly slower clock than OTP, an addit
 #### Interfaces to SRAM and OTBN Scramblers
 
 The interfaces to the SRAM and OTBN scrambling devices follow a req / ack protocol, where the scrambling device first requests a new ephemeral key by asserting the request channel (`sram_otp_key_i[*]`, `otbn_otp_key_i`).
-The OTP controller then fetches entropy from CSRNG and derives an ephemeral key using the SRAM_DATA_KEY_SEED and the [PRESENT scrambling data path]({{< relref "#scrambling-datapath" >}}).
+The OTP controller then fetches entropy from EDN and derives an ephemeral key using the SRAM_DATA_KEY_SEED and the [PRESENT scrambling data path]({{< relref "#scrambling-datapath" >}}).
 Finally, the OTP controller returns a fresh ephemeral key via the response channels (`sram_otp_key_o[*]`, `otbn_otp_key_o`), which complete the req / ack handshake.
 The wave diagram below illustrates this process for the OTBN scrambling device.
 
@@ -488,7 +494,7 @@ The wave diagram below illustrates this process for the OTBN scrambling device.
 {{< /wavejson >}}
 
 If the key seeds have not yet been provisioned, the keys are derived from all-zero constants, and the `*.seed_valid` signal will be set to 0 in the response.
-It should be noted that this mechanism requires the CSRNG and entropy distribution network to be operational, and a key derivation request will block if they are not.
+It should be noted that this mechanism requires the EDN and entropy distribution network to be operational, and a key derivation request will block if they are not.
 
 Note that the req/ack protocol runs on the OTP clock.
 It is the task of the scrambling device to perform the synchronization as described in the previous subsection on the [flash scrambler interface]({{< relref "#interface-to-flash-scrambler" >}}).
@@ -511,7 +517,7 @@ The following is a high-level block diagram that illustrates everything that has
 ![OTP Controller Block Diagram](otp_ctrl_blockdiag.svg)
 
 Each of the partitions P0-P7 has its [own controller FSM]({{< relref "#partition-implementations" >}}) that interacts with the OTP wrapper and the [scrambling datapath]({{< relref "#scrambling-datapath" >}}) to fulfill its tasks.
-The partitions expose the address ranges and access control information to the DAI in order to block accesses that go to locked address ranges.
+The partitions expose the address ranges and access control information to the Direct Access Interface (DAI) in order to block accesses that go to locked address ranges.
 Further, the only two blocks that have (conditional) write access to the OTP are the DAI and the Life Cycle Interface (LCI) blocks.
 The partitions can only issue read transactions to the OTP macro.
 Note that the access ranges of the DAI and the LCI are mutually exclusive.
@@ -522,13 +528,13 @@ The CSR node on the left side of this diagram connects to the DAI, the OTP parti
 All connections from the partitions to the CSR node are read-only, and typically only carry a subset of the information available.
 E.g., the secret partitions only expose their digest value via the CSRs.
 
-The Key Derivation Interface (KDI) on the bottom right side interacts with the scrambling datapath, the CSRNG and the partition holding the scrambling root keys in order to derive static and ephemeral scrambling keys for FLASH and SRAM scrambling.
+The Key Derivation Interface (KDI) on the bottom right side interacts with the scrambling datapath, the EDN and the partition holding the scrambling root keys in order to derive static and ephemeral scrambling keys for FLASH and SRAM scrambling.
 
 The test access gate shown at the top of the block diagram is governed by the life cycle qualification signal `dft_en_i`, which is only enabled during the TEST_UNLOCKED* life cycle states.
 Otherwise, test access via this TL-UL window is locked down.
 
 In addition to the blocks mentioned so far, the OTP controller also contains an LFSR timer that creates pseudo-randomly distributed partition check requests, and provides pseudo random data at high bandwidth in the event of a secure erase request due to chip-wide alert escalation.
-For security reasons, the LFSR is periodically reseeded with entropy coming from CSRNG.
+For security reasons, the LFSR is periodically reseeded with entropy coming from EDN.
 
 ### Data Allocation and Packing
 #### Software View
@@ -653,7 +659,7 @@ Note that both the IV as well as the finalization constant are global netlist co
 The key derivation functions for ephemeral SRAM and static FLASH scrambling keys employ a similar construction as the digest calculation function.
 In particular, the keys are derived by repeatedly reducing a (partially random) block of data into a 64bit block, as illustrated in subfigures c) and d).
 
-For ephemeral SRAM scrambling keys, the data block is composed of the 128bit SRAM_DATA_KEY_SEED stored in OTP, as well as 128bit of fresh entropy fetched from the CSRNG.
+For ephemeral SRAM scrambling keys, the data block is composed of the 128bit SRAM_DATA_KEY_SEED stored in OTP, as well as 128bit of fresh entropy fetched from the EDN.
 This process is repeated twice in order to produce a 128bit key.
 
 For static FLASH scrambling keys, the data block is composed of a 128bit part of either the FLASH_DATA_KEY_SEED or the FLASH_ADDR_KEY_SEED stored in OTP.
@@ -891,6 +897,17 @@ The hardware will set {{< regref DIRECT_ACCESS_REGWEN >}} to 0x0 while an operat
 It should also be noted that the effect of locking a partition via the digest only takes effect **after** the next system reset.
 To prevent integrity check failures SW must therefore ensure that no more programming operations are issued to the affected partition after initiating the digest calculation sequence.
 
+### Software Integrity Handling
+
+As opposed to buffered partitions, the digest and integrity handling of unbufferd partitions is entirely up to software.
+The only hardware-assisted feature in unbuffered partitions is the digest lock, which locks write access to an unbuffered partition once a nonzero value has been programmed to the 64bit digest location.
+
+In a similar vein, it should be noted that the system-wide bus-integrity metadata does not travel alongside the data end-to-end in the OTP controller (i.e., the  bus-integrity metadata bits are not stored into the OTP memory array).
+This means that data written to and read from the OTP macro is not protected by the bus integrity feature at all stages.
+In case of buffered partitions this does not pose a concern since data integrity in these partitions is checked via the hardware assisted digest mechanism.
+In case of unbuffered partitions however, the data integrity checking is entirely up to software.
+I.e., if data is read from an unbuffered partition (either through the DAI or CSR windows), software should perform an integrity check on that data.
+
 ## Error Handling
 
 The agents that can access the OTP macro (DAI, LCI, buffered/unbuffered partitions) expose detailed error codes that can be used to root cause any failure.
@@ -902,16 +919,16 @@ Errors that are "recoverable" are less severe and do not cause the FSM to jump i
 
 Note that error codes that originate in the physical OTP macro are prefixed with `Macro*`.
 
-Error Code | Enum Name            | Recoverable | DAI | LCI | Unbuf | Buf   | Description
------------|----------------------|-------------|-----|-----|-------|-------|-------------
-0x0        | NoError              | -           |  x  |  x  |   x   |  x    | No error has occurred.
-0x1        | MacroError           | no          |  x  |  x  |   x   |  x    | Returned if the OTP macro command did not complete successfully due to a macro malfunction.
-0x2        | MacroEccCorrError    | yes         |  x  |  -  |   x   |  x    | A correctable ECC error has occurred during a read operation in the OTP macro.
-0x3        | MacroEccUncorrError  | no          |  x  |  -  |   x   |  x    | An uncorrectable ECC error has occurred during a read operation in the OTP macro.
-0x4        | MacroWriteBlankError | yes         |  x  |  x  |   -   |  -    | This error is returned if a write operation attempted to clear an already programmed bit location.
-0x5        | AccessError          | yes         |  x  |  -  |   x   |  -    | An access error has occurred (e.g. write to write-locked region, or read to a read-locked region).
-0x6        | CheckFailError       | no          |  -  |  -  |   x   |  x    | An unrecoverable ECC, integrity or consistency error has been detected.
-0x7        | FsmStateError        | no          |  x  |  x  |   x   |  x    | The FSM has been glitched into an invalid state, or escalation has been triggered and the FSM has been moved into a terminal error state.
+Error Code | Enum Name              | Recoverable | DAI | LCI | Unbuf | Buf   | Description
+-----------|------------------------|-------------|-----|-----|-------|-------|-------------
+0x0        | `NoError`              | -           |  x  |  x  |   x   |  x    | No error has occurred.
+0x1        | `MacroError`           | no          |  x  |  x  |   x   |  x    | Returned if the OTP macro command did not complete successfully due to a macro malfunction.
+0x2        | `MacroEccCorrError`    | yes         |  x  |  -  |   x   |  x    | A correctable ECC error has occurred during a read operation in the OTP macro.
+0x3        | `MacroEccUncorrError`  | no          |  x  |  -  |   x*  |  x    | An uncorrectable ECC error has occurred during a read operation in the OTP macro. Note (*): This error is collapsed into `MacroEccCorrError` if the partition is a vendor test partition. It then becomes a recoverable error.
+0x4        | `MacroWriteBlankError` | yes / no*   |  x  |  x  |   -   |  -    | This error is returned if a write operation attempted to clear an already programmed bit location. Note (*): This error is recoverable if encountered in the DAI, but unrecoverable if encountered in the LCI.
+0x5        | `AccessError`          | yes         |  x  |  -  |   x   |  -    | An access error has occurred (e.g. write to write-locked region, or read to a read-locked region).
+0x6        | `CheckFailError`       | no          |  -  |  -  |   x   |  x    | An unrecoverable ECC, integrity or consistency error has been detected.
+0x7        | `FsmStateError`        | no          |  x  |  x  |   x   |  x    | The FSM has been glitched into an invalid state, or escalation has been triggered and the FSM has been moved into a terminal error state.
 
 All non-zero error codes listed above trigger an `otp_error` interrupt.
 In addition, all unrecoverable OTP `Macro*` errors (codes 0x1, 0x3) trigger a `fatal_macro_error` alert, while all remaining unrecoverable errors trigger a `fatal_check_error` alert.
@@ -1017,8 +1034,8 @@ Note some properties are worded with "SHALL" and others with "SHOULD".
 - The IP should contain native detectors for fault injection attacks.
 - The IP should contain mechanisms to guard against interrupted programming - either through malicious intent or unexpected power loss and glitched address lines.
 - The IP should contain mechanisms for error corrections (single bit errors).
-- For example ECC or redundant bits voting / or-ing.
-- As error correction mechanisms are technology dependent, that information should not be exposed to the open-source controller, instead the controller should simply receive information on whether a read / program was successful.
+  - For example ECC or redundant bits voting / or-ing.
+  - As error correction mechanisms are technology dependent, that information should not be exposed to the open-source controller, instead the controller should simply receive information on whether a read / program was successful.
 - The IP should have self-test functionality to assess the health of the storage and analog structures.
 - The IP may contain native PUF-like functionality.
 

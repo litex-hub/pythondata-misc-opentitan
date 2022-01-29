@@ -109,6 +109,9 @@ def main() -> int:
     testvecs = hjson.load(args.hjsonfile)
     args.hjsonfile.close()
 
+    # Exclude test vectors with invalid exponents.
+    testvecs = [t for t in testvecs if t['e'] == 65537]
+
     # Convert the 3072-bit numbers n and sig into words expressed in hex
     for t in testvecs:
         t['n_hexwords'] = rsa_3072_int_to_hexwords(t['n'])

@@ -86,10 +86,8 @@ static const sigverify_rsa_key_t kKeyExp65537 = {
             0xbe1bc819,
             0x2b421fae,
         },
-    .exponent = 65537,
 };
 
-// sw/device/silicon_creator/mask_rom/keys/test_key_1_rsa_3072_exp_3.public.der
 static const sigverify_rsa_key_t kKeyExp3 = {
     .n = {{
         0xbd158913, 0xab75ea1a, 0xc04e5292, 0x68f5778a, 0xa71418c7, 0xddc4fc1c,
@@ -120,7 +118,6 @@ static const sigverify_rsa_key_t kKeyExp3 = {
             0x58022be6,
             0x8f8972c9,
         },
-    .exponent = 3,
 };
 
 rom_error_t compute_digest(void) {
@@ -132,10 +129,13 @@ rom_error_t compute_digest(void) {
 
 rom_error_t sigverify_test_exp_3(void) {
   uint32_t flash_exec = 0;
-  rom_error_t result = sigverify_rsa_verify(
-      &kSignatureExp3, &kKeyExp3, &act_digest, kLcStateRma, &flash_exec);
-  CHECK(flash_exec == kSigverifyFlashExec);
-  return result;
+  // Signature verification should fail when using exponent 3.
+  if (sigverify_rsa_verify(&kSignatureExp3, &kKeyExp3, &act_digest, kLcStateRma,
+                           &flash_exec) == kErrorOk) {
+    return kErrorUnknown;
+  }
+  CHECK(flash_exec == UINT32_MAX);
+  return kErrorOk;
 }
 
 rom_error_t sigverify_test_exp_65537(void) {
