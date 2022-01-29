@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9914"
-version_tuple = (0, 0, 9914)
+version_str = "0.0.post9915"
+version_tuple = (0, 0, 9915)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9914")
+    pversion = V("0.0.post9915")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9790"
-data_version_tuple = (0, 0, 9790)
+data_version_str = "0.0.post9791"
+data_version_tuple = (0, 0, 9791)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9790")
+    pdata_version = V("0.0.post9791")
 except ImportError:
     pass
-data_git_hash = "72e83f01dbfda68f3473c3efc97a54d6bf0950c7"
-data_git_describe = "v0.0-9790-g72e83f01d"
+data_git_hash = "deca537cd8e7337c54451c68ceecd599f2c07a0e"
+data_git_describe = "v0.0-9791-gdeca537cd"
 data_git_msg = """\
-commit 72e83f01dbfda68f3473c3efc97a54d6bf0950c7
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Jan 28 07:49:48 2022 -0800
+commit deca537cd8e7337c54451c68ceecd599f2c07a0e
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jan 27 15:14:35 2022 -0800
 
-    [edn/rtl] D2S review updates
+    [dv/rstmgr] Check alert and cpu info in reset test
     
-    Feedback from the D2S review reflected back into the design.
+    Update testplan for the added checks in reset sequence.
+    Fix pwrmgr_rstmgr SVA to ignore checks on pwrmgr rstreqs outputs
+    based on a parameter.
+    Fix rstmgr_sw_rst SVA, especially clocking being per the target
+    peripheral.
+    Fix max_outstanding_req for coverage.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
