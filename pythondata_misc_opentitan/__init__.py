@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9915"
-version_tuple = (0, 0, 9915)
+version_str = "0.0.post9916"
+version_tuple = (0, 0, 9916)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9915")
+    pversion = V("0.0.post9916")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9791"
-data_version_tuple = (0, 0, 9791)
+data_version_str = "0.0.post9792"
+data_version_tuple = (0, 0, 9792)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9791")
+    pdata_version = V("0.0.post9792")
 except ImportError:
     pass
-data_git_hash = "deca537cd8e7337c54451c68ceecd599f2c07a0e"
-data_git_describe = "v0.0-9791-gdeca537cd"
+data_git_hash = "6c29be027779bef87d85d5a69bf1b96afe310f88"
+data_git_describe = "v0.0-9792-g6c29be027"
 data_git_msg = """\
-commit deca537cd8e7337c54451c68ceecd599f2c07a0e
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jan 27 15:14:35 2022 -0800
+commit 6c29be027779bef87d85d5a69bf1b96afe310f88
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jan 28 20:30:29 2022 -0800
 
-    [dv/rstmgr] Check alert and cpu info in reset test
+    [lc_ctrl] Annotate RTL with CM labels
     
-    Update testplan for the added checks in reset sequence.
-    Fix pwrmgr_rstmgr SVA to ignore checks on pwrmgr rstreqs outputs
-    based on a parameter.
-    Fix rstmgr_sw_rst SVA, especially clocking being per the target
-    peripheral.
-    Fix max_outstanding_req for coverage.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
