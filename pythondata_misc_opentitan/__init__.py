@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9918"
-version_tuple = (0, 0, 9918)
+version_str = "0.0.post9920"
+version_tuple = (0, 0, 9920)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9918")
+    pversion = V("0.0.post9920")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9794"
-data_version_tuple = (0, 0, 9794)
+data_version_str = "0.0.post9796"
+data_version_tuple = (0, 0, 9796)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9794")
+    pdata_version = V("0.0.post9796")
 except ImportError:
     pass
-data_git_hash = "791f7d7f5cedb45c112ee99d0c5f410898e38b6d"
-data_git_describe = "v0.0-9794-g791f7d7f5"
+data_git_hash = "442d3deebe4f5ed32960f9260e0b5029bcb06037"
+data_git_describe = "v0.0-9796-g442d3deeb"
 data_git_msg = """\
-commit 791f7d7f5cedb45c112ee99d0c5f410898e38b6d
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Tue Jan 25 15:59:39 2022 +0000
+commit 442d3deebe4f5ed32960f9260e0b5029bcb06037
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Jan 28 17:18:08 2022 +0000
 
-    [kmac_app_agt, dv] Randmoizing agent configuration
+    [ci] Add script to dynamically choose VCS_PARALLEL_BUILDS
     
-    Many of the agent configuration variables are random variables. The
-    agent configuration needs to be randomized for the variables to be
-    initialised to hit all coverage corners.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
