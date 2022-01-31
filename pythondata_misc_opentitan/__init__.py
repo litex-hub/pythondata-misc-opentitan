@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9921"
-version_tuple = (0, 0, 9921)
+version_str = "0.0.post9922"
+version_tuple = (0, 0, 9922)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9921")
+    pversion = V("0.0.post9922")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9797"
-data_version_tuple = (0, 0, 9797)
+data_version_str = "0.0.post9798"
+data_version_tuple = (0, 0, 9798)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9797")
+    pdata_version = V("0.0.post9798")
 except ImportError:
     pass
-data_git_hash = "8cb33a7b336adee07424238215157e0539833df4"
-data_git_describe = "v0.0-9797-g8cb33a7b3"
+data_git_hash = "413b9be0df16e97f6cba1e563fc8613b12e37065"
+data_git_describe = "v0.0-9798-g413b9be0d"
 data_git_msg = """\
-commit 8cb33a7b336adee07424238215157e0539833df4
-Author: David Pudner <davidpudner@protonmail.com>
-Date:   Wed Jan 26 10:49:28 2022 +0000
+commit 413b9be0df16e97f6cba1e563fc8613b12e37065
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jan 28 21:56:59 2022 -0800
 
-    [hw/dv] Changed set_response_queue to be umbounded due to queue overflow issues in Questa
+    [dv/stress_all_with_rand_reset] Add back missing ongoing_reset logic
     
-    As discussed in issue 9514 Questa was running into queue overflow issues when running uart_stress_all_with_rand_reset tests.
-    This is due to the driver put happening earlier than the sequence item get. It was aggreed that the check could be changed to be umbounded. The test now passes.
+    In my previous commit: PR #10417, I modify the wait for reset timing but
+    missed the logic to assign `ongoing_reset` to 1.
+    This PR adds back this logic to ensure when sequence ended, it won't
+    kill the `apply_reset` process.
     
-    Signed-off-by: David Pudner <davidpudner@protonmail.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
