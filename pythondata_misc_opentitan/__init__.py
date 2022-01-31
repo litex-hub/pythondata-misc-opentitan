@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9923"
-version_tuple = (0, 0, 9923)
+version_str = "0.0.post9925"
+version_tuple = (0, 0, 9925)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9923")
+    pversion = V("0.0.post9925")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9799"
-data_version_tuple = (0, 0, 9799)
+data_version_str = "0.0.post9801"
+data_version_tuple = (0, 0, 9801)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9799")
+    pdata_version = V("0.0.post9801")
 except ImportError:
     pass
-data_git_hash = "647f929903e33d2eef25506487522ae13de8296e"
-data_git_describe = "v0.0-9799-g647f92990"
+data_git_hash = "a45456ab3434369c06d62bc249970e5a8669bd70"
+data_git_describe = "v0.0-9801-ga45456ab3"
 data_git_msg = """\
-commit 647f929903e33d2eef25506487522ae13de8296e
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jan 27 22:25:32 2022 -0800
+commit a45456ab3434369c06d62bc249970e5a8669bd70
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Jan 17 10:25:16 2022 +0000
 
-    [top] Verilator enhancements for new ast POR
+    [sw,crypto] Reject large signatures in RSA verification.
     
-    - toggle vcc_supp to emulate power on reset
-    - this ensures AST's internal logic is correctly reset and can accept future por requests
+    Modify sigverify and the crypto library RSA implementation to check that
+    signatures are within bounds and reject them otherwise.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
