@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9922"
-version_tuple = (0, 0, 9922)
+version_str = "0.0.post9923"
+version_tuple = (0, 0, 9923)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9922")
+    pversion = V("0.0.post9923")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9798"
-data_version_tuple = (0, 0, 9798)
+data_version_str = "0.0.post9799"
+data_version_tuple = (0, 0, 9799)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9798")
+    pdata_version = V("0.0.post9799")
 except ImportError:
     pass
-data_git_hash = "413b9be0df16e97f6cba1e563fc8613b12e37065"
-data_git_describe = "v0.0-9798-g413b9be0d"
+data_git_hash = "647f929903e33d2eef25506487522ae13de8296e"
+data_git_describe = "v0.0-9799-g647f92990"
 data_git_msg = """\
-commit 413b9be0df16e97f6cba1e563fc8613b12e37065
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jan 28 21:56:59 2022 -0800
+commit 647f929903e33d2eef25506487522ae13de8296e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Jan 27 22:25:32 2022 -0800
 
-    [dv/stress_all_with_rand_reset] Add back missing ongoing_reset logic
+    [top] Verilator enhancements for new ast POR
     
-    In my previous commit: PR #10417, I modify the wait for reset timing but
-    missed the logic to assign `ongoing_reset` to 1.
-    This PR adds back this logic to ensure when sequence ended, it won't
-    kill the `apply_reset` process.
+    - toggle vcc_supp to emulate power on reset
+    - this ensures AST's internal logic is correctly reset and can accept future por requests
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
