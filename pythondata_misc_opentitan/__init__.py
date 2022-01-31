@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9916"
-version_tuple = (0, 0, 9916)
+version_str = "0.0.post9918"
+version_tuple = (0, 0, 9918)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9916")
+    pversion = V("0.0.post9918")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9792"
-data_version_tuple = (0, 0, 9792)
+data_version_str = "0.0.post9794"
+data_version_tuple = (0, 0, 9794)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9792")
+    pdata_version = V("0.0.post9794")
 except ImportError:
     pass
-data_git_hash = "6c29be027779bef87d85d5a69bf1b96afe310f88"
-data_git_describe = "v0.0-9792-g6c29be027"
+data_git_hash = "791f7d7f5cedb45c112ee99d0c5f410898e38b6d"
+data_git_describe = "v0.0-9794-g791f7d7f5"
 data_git_msg = """\
-commit 6c29be027779bef87d85d5a69bf1b96afe310f88
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jan 28 20:30:29 2022 -0800
+commit 791f7d7f5cedb45c112ee99d0c5f410898e38b6d
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Tue Jan 25 15:59:39 2022 +0000
 
-    [lc_ctrl] Annotate RTL with CM labels
+    [kmac_app_agt, dv] Randmoizing agent configuration
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Many of the agent configuration variables are random variables. The
+    agent configuration needs to be randomized for the variables to be
+    initialised to hit all coverage corners.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
