@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9944"
-version_tuple = (0, 0, 9944)
+version_str = "0.0.post9946"
+version_tuple = (0, 0, 9946)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9944")
+    pversion = V("0.0.post9946")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9820"
-data_version_tuple = (0, 0, 9820)
+data_version_str = "0.0.post9822"
+data_version_tuple = (0, 0, 9822)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9820")
+    pdata_version = V("0.0.post9822")
 except ImportError:
     pass
-data_git_hash = "0e847a6eab9830fa696822b449b54e01514768bb"
-data_git_describe = "v0.0-9820-g0e847a6ea"
+data_git_hash = "e1fe177e2a24d1abaf048c9808e0af9cfdcc8b11"
+data_git_describe = "v0.0-9822-ge1fe177e2"
 data_git_msg = """\
-commit 0e847a6eab9830fa696822b449b54e01514768bb
-Author: Eitan Shapira <eitanshapira89@gmail.com>
-Date:   Thu Jan 27 15:48:32 2022 +0200
+commit e1fe177e2a24d1abaf048c9808e0af9cfdcc8b11
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jan 31 15:38:22 2022 +0100
 
-    [flash_ctrl/dv] Tiny change in tb power_down driving
+    [aes] Use separately buffered copies of lc_escalate_en
     
-    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
+    This is related to lowRISC/OpenTitan#10422.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
