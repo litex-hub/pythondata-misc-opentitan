@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9946"
-version_tuple = (0, 0, 9946)
+version_str = "0.0.post9958"
+version_tuple = (0, 0, 9958)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9946")
+    pversion = V("0.0.post9958")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9822"
-data_version_tuple = (0, 0, 9822)
+data_version_str = "0.0.post9834"
+data_version_tuple = (0, 0, 9834)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9822")
+    pdata_version = V("0.0.post9834")
 except ImportError:
     pass
-data_git_hash = "e1fe177e2a24d1abaf048c9808e0af9cfdcc8b11"
-data_git_describe = "v0.0-9822-ge1fe177e2"
+data_git_hash = "5a668a31d2fe32769d317a3d90178dea76196447"
+data_git_describe = "v0.0-9834-g5a668a31d"
 data_git_msg = """\
-commit e1fe177e2a24d1abaf048c9808e0af9cfdcc8b11
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Jan 31 15:38:22 2022 +0100
+commit 5a668a31d2fe32769d317a3d90178dea76196447
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Jan 31 14:52:22 2022 -0800
 
-    [aes] Use separately buffered copies of lc_escalate_en
+    [rv_dm dv] Remove old testbench components
     
-    This is related to lowRISC/OpenTitan#10422.
+    This commit removes the old testbench components that are up-to-date in
+    the newly added testbench.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    There are still several defunct testbench pieces which will be removed
+    subsequently, as progress towards V1 is made.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
