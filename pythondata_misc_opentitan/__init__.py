@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9967"
-version_tuple = (0, 0, 9967)
+version_str = "0.0.post9972"
+version_tuple = (0, 0, 9972)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9967")
+    pversion = V("0.0.post9972")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9843"
-data_version_tuple = (0, 0, 9843)
+data_version_str = "0.0.post9848"
+data_version_tuple = (0, 0, 9848)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9843")
+    pdata_version = V("0.0.post9848")
 except ImportError:
     pass
-data_git_hash = "c02272adbfb16b67e53b93082b4fb8dec5e29858"
-data_git_describe = "v0.0-9843-gc02272adb"
+data_git_hash = "bd1bae0e7174e2df7306cc10dc370bb7782268ae"
+data_git_describe = "v0.0-9848-gbd1bae0e7"
 data_git_msg = """\
-commit c02272adbfb16b67e53b93082b4fb8dec5e29858
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jan 31 14:35:00 2022 -0800
+commit bd1bae0e7174e2df7306cc10dc370bb7782268ae
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Mon Jan 31 13:32:28 2022 +0000
 
-    [dv/kmac] fifo empty interrupt behavior
+    [rv_dm] Move to D2
     
-    This PR aligns a fifo empty interrupt related behavior:
-    If the read and write pointers are equal, and next clock cycle a write
-    is issued and accepted, the fifo empty interrupt won't fire.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
