@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9960"
-version_tuple = (0, 0, 9960)
+version_str = "0.0.post9964"
+version_tuple = (0, 0, 9964)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9960")
+    pversion = V("0.0.post9964")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9836"
-data_version_tuple = (0, 0, 9836)
+data_version_str = "0.0.post9840"
+data_version_tuple = (0, 0, 9840)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9836")
+    pdata_version = V("0.0.post9840")
 except ImportError:
     pass
-data_git_hash = "bd1c161f1c35f03bf3e603d1aa46c5083640cea2"
-data_git_describe = "v0.0-9836-gbd1c161f1"
+data_git_hash = "315e2f1b3fd1ff35061021e40c8eddc12c443c9b"
+data_git_describe = "v0.0-9840-g315e2f1b3"
 data_git_msg = """\
-commit bd1c161f1c35f03bf3e603d1aa46c5083640cea2
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Tue Feb 1 10:06:21 2022 +0000
+commit 315e2f1b3fd1ff35061021e40c8eddc12c443c9b
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Jan 31 14:45:27 2022 -0800
 
-    [COMMITTERS] Add Timothy Trippel to COMMITTERS list
+    [lc_ctrl] Beef up internal usage of redundant CSR encoding
     
-    The Technical Committee has agreed to make Timothy a committer in the
-    OpenTitan project.
+    The replicated enum encoding of the LC_STATE and TRANSITION_TARGET CSRs
+    has been added in order to ease hardening on the firmware side.
     
-    Congratulations! Thanks for all your hard work on OpenTitan so far.
-    We're really excited to see your future contributions to the project.
+    This patch lists this as an explicit countermeasure, and beefs up the
+    internal usage of this encoding. I.e., the transition logic only checked
+    the TRANSITION_TARGET encoding coming from the CSRs before. With this
+    change, the logic now also makes use of the redundancy present in the
+    decoded state vector. This is useful in particular when indexing the
+    transition matrix LUT (to get the valid bits and token indices), since
+    this indexing operation can now be duplicated.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
