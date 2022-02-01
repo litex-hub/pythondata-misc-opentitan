@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9943"
-version_tuple = (0, 0, 9943)
+version_str = "0.0.post9944"
+version_tuple = (0, 0, 9944)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9943")
+    pversion = V("0.0.post9944")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9819"
-data_version_tuple = (0, 0, 9819)
+data_version_str = "0.0.post9820"
+data_version_tuple = (0, 0, 9820)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9819")
+    pdata_version = V("0.0.post9820")
 except ImportError:
     pass
-data_git_hash = "a40e387cfb5aa154ff6311e0a2101670cf7e52db"
-data_git_describe = "v0.0-9819-ga40e387cf"
+data_git_hash = "0e847a6eab9830fa696822b449b54e01514768bb"
+data_git_describe = "v0.0-9820-g0e847a6ea"
 data_git_msg = """\
-commit a40e387cfb5aa154ff6311e0a2101670cf7e52db
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Jan 27 09:42:24 2022 -0800
+commit 0e847a6eab9830fa696822b449b54e01514768bb
+Author: Eitan Shapira <eitanshapira89@gmail.com>
+Date:   Thu Jan 27 15:48:32 2022 +0200
 
-    [dv] Fix some Xcelium warnings
+    [flash_ctrl/dv] Tiny change in tb power_down driving
     
-    These are some of them:
-    - Imporing packages in classes (only modules and packages can import
-      other packages)
-    - Missing return type on functions
-    - Incorrect signal type
-    - Some code reorg (without changing functionality)
-    - Line length exceeded
-    - Assign integer to unsigned signals
-    - Cast raw signals to enum when assigning to enum literals
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
 
 """
 
