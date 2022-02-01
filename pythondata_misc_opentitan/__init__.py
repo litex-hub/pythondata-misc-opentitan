@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9975"
-version_tuple = (0, 0, 9975)
+version_str = "0.0.post9977"
+version_tuple = (0, 0, 9977)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9975")
+    pversion = V("0.0.post9977")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9851"
-data_version_tuple = (0, 0, 9851)
+data_version_str = "0.0.post9853"
+data_version_tuple = (0, 0, 9853)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9851")
+    pdata_version = V("0.0.post9853")
 except ImportError:
     pass
-data_git_hash = "0409944012596a05d679a976fa2510a5c73ad781"
-data_git_describe = "v0.0-9851-g040994401"
+data_git_hash = "3f7ec1a83a806ddab8ffe655fe40556467929eb5"
+data_git_describe = "v0.0-9853-g3f7ec1a83"
 data_git_msg = """\
-commit 0409944012596a05d679a976fa2510a5c73ad781
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Feb 1 03:35:44 2022 +0000
+commit 3f7ec1a83a806ddab8ffe655fe40556467929eb5
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Fri Jan 28 17:14:18 2022 -0800
 
-    [fpga] Make divided clock constraint more precise
+    [bazel] Add a quick-bazel script to rerun CI
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Script is added and used by azure-pipelines.yml
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
