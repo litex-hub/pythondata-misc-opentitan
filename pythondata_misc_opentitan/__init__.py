@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9959"
-version_tuple = (0, 0, 9959)
+version_str = "0.0.post9960"
+version_tuple = (0, 0, 9960)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9959")
+    pversion = V("0.0.post9960")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9835"
-data_version_tuple = (0, 0, 9835)
+data_version_str = "0.0.post9836"
+data_version_tuple = (0, 0, 9836)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9835")
+    pdata_version = V("0.0.post9836")
 except ImportError:
     pass
-data_git_hash = "553759a3928c85f48d5bf56bc08f32d919eb21f7"
-data_git_describe = "v0.0-9835-g553759a39"
+data_git_hash = "bd1c161f1c35f03bf3e603d1aa46c5083640cea2"
+data_git_describe = "v0.0-9836-gbd1c161f1"
 data_git_msg = """\
-commit 553759a3928c85f48d5bf56bc08f32d919eb21f7
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Jan 28 18:32:37 2022 +0100
+commit bd1c161f1c35f03bf3e603d1aa46c5083640cea2
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Tue Feb 1 10:06:21 2022 +0000
 
-    [aes] Use one-hot encoding for OPERATION field in main control register
+    [COMMITTERS] Add Timothy Trippel to COMMITTERS list
     
-    This is related to lowRISC/OpenTitan#10422.
+    The Technical Committee has agreed to make Timothy a committer in the
+    OpenTitan project.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Congratulations! Thanks for all your hard work on OpenTitan so far.
+    We're really excited to see your future contributions to the project.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
