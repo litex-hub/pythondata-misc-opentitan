@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9958"
-version_tuple = (0, 0, 9958)
+version_str = "0.0.post9959"
+version_tuple = (0, 0, 9959)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9958")
+    pversion = V("0.0.post9959")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9834"
-data_version_tuple = (0, 0, 9834)
+data_version_str = "0.0.post9835"
+data_version_tuple = (0, 0, 9835)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9834")
+    pdata_version = V("0.0.post9835")
 except ImportError:
     pass
-data_git_hash = "5a668a31d2fe32769d317a3d90178dea76196447"
-data_git_describe = "v0.0-9834-g5a668a31d"
+data_git_hash = "553759a3928c85f48d5bf56bc08f32d919eb21f7"
+data_git_describe = "v0.0-9835-g553759a39"
 data_git_msg = """\
-commit 5a668a31d2fe32769d317a3d90178dea76196447
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Jan 31 14:52:22 2022 -0800
+commit 553759a3928c85f48d5bf56bc08f32d919eb21f7
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Jan 28 18:32:37 2022 +0100
 
-    [rv_dm dv] Remove old testbench components
+    [aes] Use one-hot encoding for OPERATION field in main control register
     
-    This commit removes the old testbench components that are up-to-date in
-    the newly added testbench.
+    This is related to lowRISC/OpenTitan#10422.
     
-    There are still several defunct testbench pieces which will be removed
-    subsequently, as progress towards V1 is made.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
