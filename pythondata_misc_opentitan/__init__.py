@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9931"
-version_tuple = (0, 0, 9931)
+version_str = "0.0.post9940"
+version_tuple = (0, 0, 9940)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9931")
+    pversion = V("0.0.post9940")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9807"
-data_version_tuple = (0, 0, 9807)
+data_version_str = "0.0.post9816"
+data_version_tuple = (0, 0, 9816)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9807")
+    pdata_version = V("0.0.post9816")
 except ImportError:
     pass
-data_git_hash = "9ab907b98e275f5bb86f06add43e280b4eb234c6"
-data_git_describe = "v0.0-9807-g9ab907b98"
+data_git_hash = "7648f81c6b7201c000a64faa217d2a0f1d316793"
+data_git_describe = "v0.0-9816-g7648f81c6"
 data_git_msg = """\
-commit 9ab907b98e275f5bb86f06add43e280b4eb234c6
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Thu Jan 13 14:30:20 2022 +0000
+commit 7648f81c6b7201c000a64faa217d2a0f1d316793
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jan 28 19:44:41 2022 -0800
 
-    [flash_ctrl] ADD TEST FOR HOST DIRECT READ DATA
+    [otp_ctrl] Annotate RTL with CM labels
     
-    Add flash_ctrl_host_rd_dir_test. Add randomization
-    for scramble,ecc and he. Add checking host direct read
-    data transactions in scoreboard when scramble is disabled.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
