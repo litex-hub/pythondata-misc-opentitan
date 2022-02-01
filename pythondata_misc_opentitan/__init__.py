@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9977"
-version_tuple = (0, 0, 9977)
+version_str = "0.0.post9978"
+version_tuple = (0, 0, 9978)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9977")
+    pversion = V("0.0.post9978")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9853"
-data_version_tuple = (0, 0, 9853)
+data_version_str = "0.0.post9854"
+data_version_tuple = (0, 0, 9854)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9853")
+    pdata_version = V("0.0.post9854")
 except ImportError:
     pass
-data_git_hash = "3f7ec1a83a806ddab8ffe655fe40556467929eb5"
-data_git_describe = "v0.0-9853-g3f7ec1a83"
+data_git_hash = "349cc4dc7d867e3d4cbaf1ad819bbfaa961b2d0a"
+data_git_describe = "v0.0-9854-g349cc4dc7"
 data_git_msg = """\
-commit 3f7ec1a83a806ddab8ffe655fe40556467929eb5
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Fri Jan 28 17:14:18 2022 -0800
+commit 349cc4dc7d867e3d4cbaf1ad819bbfaa961b2d0a
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Feb 1 11:44:27 2022 -0800
 
-    [bazel] Add a quick-bazel script to rerun CI
+    [dv/reggen] Fix xcelium hdl backdoor path error
     
-    Script is added and used by azure-pipelines.yml
+    When reggen tool set the following entities:
+    1). set_hdl_path_root("tb.dut", "BkdrRegPathRtl");
+    2).       alert_test.add_hdl_path_slice(
+              ".u_reg.u_alert_test_recov_ctrl_update_err.qs",
+              0, 1, 0, "BkdrRegPathRtl");
+    Xcelium will add another `.` while forming the hdl path.
+    This PR removes the extra `.` in front of `u_reg` to avoid xcelilum
+    hdl path error.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
