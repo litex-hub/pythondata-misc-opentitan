@@ -5,7 +5,7 @@
 package rv_dm_test_pkg;
   // dep packages
   import uvm_pkg::*;
-  import dv_lib_pkg::*;
+  import cip_base_pkg::*;
   import rv_dm_env_pkg::*;
 
   // macro includes

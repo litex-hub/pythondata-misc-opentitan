@@ -2,10 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class rv_dm_base_test extends dv_base_test #(
-    .ENV_T(rv_dm_env),
-    .CFG_T(rv_dm_env_cfg)
+class rv_dm_base_test extends cip_base_test #(
+    .CFG_T(rv_dm_env_cfg),
+    .ENV_T(rv_dm_env)
   );
+
   `uvm_component_utils(rv_dm_base_test)
   `uvm_component_new
 
@@ -17,4 +18,3 @@ class rv_dm_base_test extends dv_base_test #(
   // the run_phase; as such, nothing more needs to be done
 
 endclass : rv_dm_base_test
-

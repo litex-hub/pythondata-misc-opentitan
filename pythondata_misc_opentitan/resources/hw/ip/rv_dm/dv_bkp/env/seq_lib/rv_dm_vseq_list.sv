@@ -4,4 +4,4 @@
 
 `include "rv_dm_base_vseq.sv"
 `include "rv_dm_smoke_vseq.sv"
-`include "rv_dm_common_vseq.sv"
+`include "rv_dm_csr_vseq.sv"

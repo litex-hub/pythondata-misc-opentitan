@@ -18,7 +18,6 @@
   fusesoc_core: lowrisc:dv:rv_dm_sim:0.1
 
   // Testplan hjson file.
-  // TODO: no testplan currently exists, need to create if DV moves forward
   testplan: "{proj_root}/hw/ip/rv_dm/data/rv_dm_testplan.hjson"
 
   // RAL spec - used to generate the RAL model.
@@ -29,9 +28,9 @@
                 "{proj_root}/hw/dv/tools/dvsim/common_sim_cfg.hjson",
                 // Common CIP test lists
                 "{proj_root}/hw/dv/tools/dvsim/tests/csr_tests.hjson",
-                "{proj_root}/hw/dv/tools/dvsim/tests/intr_test.hjson",
-                "{proj_root}/hw/dv/tools/dvsim/tests/tl_access_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/mem_tests.hjson",
+                "{proj_root}/hw/dv/tools/dvsim/tests/alert_test.hjson",
+                "{proj_root}/hw/dv/tools/dvsim/tests/tl_access_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"]
 
   // Add additional tops for simulation.

@@ -7,10 +7,11 @@ description: "RV_DM DV sim target"
 filesets:
   files_rtl:
     depend:
-      - lowrisc:ip:rv_dm:0.1
+      - lowrisc:ip:rv_dm
 
   files_dv:
     depend:
+      - lowrisc:dv:rv_dm_env
       - lowrisc:dv:rv_dm_test
       - lowrisc:dv:rv_dm_sva
     files:
@@ -18,9 +19,12 @@ filesets:
     file_type: systemVerilogSource
 
 targets:
-  sim:
+  sim: &sim_target
     toplevel: tb
     filesets:
       - files_rtl
       - files_dv
     default_tool: vcs
+
+  lint:
+    <<: *sim_target
