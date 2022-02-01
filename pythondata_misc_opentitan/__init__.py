@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9940"
-version_tuple = (0, 0, 9940)
+version_str = "0.0.post9943"
+version_tuple = (0, 0, 9943)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9940")
+    pversion = V("0.0.post9943")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9816"
-data_version_tuple = (0, 0, 9816)
+data_version_str = "0.0.post9819"
+data_version_tuple = (0, 0, 9819)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9816")
+    pdata_version = V("0.0.post9819")
 except ImportError:
     pass
-data_git_hash = "7648f81c6b7201c000a64faa217d2a0f1d316793"
-data_git_describe = "v0.0-9816-g7648f81c6"
+data_git_hash = "a40e387cfb5aa154ff6311e0a2101670cf7e52db"
+data_git_describe = "v0.0-9819-ga40e387cf"
 data_git_msg = """\
-commit 7648f81c6b7201c000a64faa217d2a0f1d316793
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jan 28 19:44:41 2022 -0800
+commit a40e387cfb5aa154ff6311e0a2101670cf7e52db
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Jan 27 09:42:24 2022 -0800
 
-    [otp_ctrl] Annotate RTL with CM labels
+    [dv] Fix some Xcelium warnings
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    These are some of them:
+    - Imporing packages in classes (only modules and packages can import
+      other packages)
+    - Missing return type on functions
+    - Incorrect signal type
+    - Some code reorg (without changing functionality)
+    - Line length exceeded
+    - Assign integer to unsigned signals
+    - Cast raw signals to enum when assigning to enum literals
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
