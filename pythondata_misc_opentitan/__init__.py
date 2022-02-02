@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10011"
-version_tuple = (0, 0, 10011)
+version_str = "0.0.post10012"
+version_tuple = (0, 0, 10012)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10011")
+    pversion = V("0.0.post10012")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9887"
-data_version_tuple = (0, 0, 9887)
+data_version_str = "0.0.post9888"
+data_version_tuple = (0, 0, 9888)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9887")
+    pdata_version = V("0.0.post9888")
 except ImportError:
     pass
-data_git_hash = "58b3d670e41910e0c53c1785fa636834dea6b74e"
-data_git_describe = "v0.0-9887-g58b3d670e"
+data_git_hash = "91ceb766586bc98892ba8cf0cbe2aae9a13caa28"
+data_git_describe = "v0.0-9888-g91ceb7665"
 data_git_msg = """\
-commit 58b3d670e41910e0c53c1785fa636834dea6b74e
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Jan 31 18:01:46 2022 -0800
+commit 91ceb766586bc98892ba8cf0cbe2aae9a13caa28
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Feb 1 14:48:07 2022 -0500
 
-    [flash_ctrl] Fix mask calculation request timing
+    [sw/silicon_creator] Harden remaining lc_state switches
     
-    Do not begin mask calculation request until read
-    trasnaction has been accepted.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
