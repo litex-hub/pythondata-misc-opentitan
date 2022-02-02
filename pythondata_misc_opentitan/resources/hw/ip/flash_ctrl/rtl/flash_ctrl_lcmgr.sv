@@ -455,7 +455,6 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
       // Second check for error status:
       // If error status indicates error, jump to invalid terminal state
       // Otherwise assign output to error status;
-      // TODO: consider lengthening the check
       StRmaRsp: begin
         phase = PhaseRma;
         if (err_sts_q != lc_ctrl_pkg::On) begin
@@ -686,9 +685,13 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
         rma_op = FlashOpErase;
         if (done_i) begin
           err_sts_set = |err_i;
-          word_cnt_ld = 1'b1;
-          rma_state_d = StRmaWordSel;
+          rma_state_d = StRmaEraseWait;
         end
+      end
+
+      StRmaEraseWait: begin
+         word_cnt_ld = 1'b1;
+         rma_state_d = StRmaWordSel;
       end
 
       StRmaWordSel: begin
@@ -728,6 +731,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; #(
         rd_cnt_en = 1'b1;
 
         if ((beat_cnt == MaxBeatCnt[BeatCntWidth-1:0]) && done_i) begin
+        //if ((beat_cnt == MaxBeatCnt[BeatCntWidth-1:0])) begin
           beat_cnt_clr = 1'b1;
           word_cnt_incr = 1'b1;
           rma_state_d = StRmaWordSel;

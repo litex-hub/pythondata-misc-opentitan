@@ -7,7 +7,6 @@
 //
 // This module wraps every single flash bank and contains most of the region attribute,
 // scramble, ECC, security and arbitration logic.
-// Most of the items are TODO, at the moment only arbitration logic exists.
 
 module flash_phy_core
   import flash_phy_pkg::*;
@@ -27,7 +26,6 @@ module flash_phy_core
   input                              scramble_en_i,
   input                              ecc_en_i,
   input                              he_en_i,
-  input                              ecc_multi_err_en_i,
   input                              rd_i,
   input                              prog_i,
   input                              pg_erase_i,
@@ -272,7 +270,6 @@ module flash_phy_core
     .clk_i,
     .rst_ni,
     .buf_en_i(rd_buf_en_i),
-    .ecc_multi_err_en_i,
     .req_i(reqs[PhyRead]),
     .instr_type_i(muxed_instr_type),
     .descramble_i(muxed_scramble_en),

@@ -371,7 +371,6 @@ package flash_ctrl_pkg;
     logic                 ecc_en;
     logic                 he_en;
     logic                 rd_buf_en;
-    logic                 ecc_multi_err_en;
     logic                 rd;
     logic                 prog;
     logic                 pg_erase;
@@ -402,7 +401,6 @@ package flash_ctrl_pkg;
     ecc_en:        '0,
     he_en:         '0,
     rd_buf_en:     1'b0,
-    ecc_multi_err_en: '0,
     rd:            '0,
     prog:          '0,
     pg_erase:      '0,
@@ -594,6 +592,7 @@ package flash_ctrl_pkg;
     StRmaIdle        = 10'b1101000011,
     StRmaPageSel     = 10'b0010111001,
     StRmaErase       = 10'b1111010100,
+    StRmaEraseWait   = 10'b0111010101,
     StRmaWordSel     = 10'b0001011111,
     StRmaProgram     = 10'b0110001110,
     StRmaProgramWait = 10'b1000110110,
