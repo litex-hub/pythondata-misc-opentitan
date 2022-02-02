@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9984"
-version_tuple = (0, 0, 9984)
+version_str = "0.0.post9999"
+version_tuple = (0, 0, 9999)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9984")
+    pversion = V("0.0.post9999")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9860"
-data_version_tuple = (0, 0, 9860)
+data_version_str = "0.0.post9875"
+data_version_tuple = (0, 0, 9875)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9860")
+    pdata_version = V("0.0.post9875")
 except ImportError:
     pass
-data_git_hash = "abf1af631b42f482ae60798736ed1c0d03feb9f5"
-data_git_describe = "v0.0-9860-gabf1af631"
+data_git_hash = "9efd6445d44f27bc3e2f39598d4b15148188bee4"
+data_git_describe = "v0.0-9875-g9efd6445d"
 data_git_msg = """\
-commit abf1af631b42f482ae60798736ed1c0d03feb9f5
-Author: Jon Flatley <jflat@google.com>
-Date:   Fri Jan 28 13:38:00 2022 -0500
+commit 9efd6445d44f27bc3e2f39598d4b15148188bee4
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Jan 31 14:28:08 2022 -0500
 
-    [opentitantool] Fix OTP tests to work under bazel
+    [sw/silicon_creator] Additional rollback protection in mask_rom_verify()
     
-    Moves OTP test data to a more appropriate location and adds them to the
-    bazel BUILD file to fix "file not found" errors encountered when running
-    `bazel run //sw/host/opentitanlib:opentitanlib_test`.
+    This change adds an additional rollback protection in mask_rom_verify()
+    that invalidates the digest computed for signature verification if the
+    security version of the manifest is smaller than the minimum required
+    security version.
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
