@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9999"
-version_tuple = (0, 0, 9999)
+version_str = "0.0.post10000"
+version_tuple = (0, 0, 10000)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9999")
+    pversion = V("0.0.post10000")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9875"
-data_version_tuple = (0, 0, 9875)
+data_version_str = "0.0.post9876"
+data_version_tuple = (0, 0, 9876)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9875")
+    pdata_version = V("0.0.post9876")
 except ImportError:
     pass
-data_git_hash = "9efd6445d44f27bc3e2f39598d4b15148188bee4"
-data_git_describe = "v0.0-9875-g9efd6445d"
+data_git_hash = "81ad406770ef1d63f6849527e1c36bfbeb5b1240"
+data_git_describe = "v0.0-9876-g81ad40677"
 data_git_msg = """\
-commit 9efd6445d44f27bc3e2f39598d4b15148188bee4
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Jan 31 14:28:08 2022 -0500
+commit 81ad406770ef1d63f6849527e1c36bfbeb5b1240
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 1 14:02:02 2022 -0800
 
-    [sw/silicon_creator] Additional rollback protection in mask_rom_verify()
+    [clkmgr] D2S checklist preparation
     
-    This change adds an additional rollback protection in mask_rom_verify()
-    that invalidates the digest computed for signature verification if the
-    security version of the manifest is smaller than the minimum required
-    security version.
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
