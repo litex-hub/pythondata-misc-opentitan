@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10013"
-version_tuple = (0, 0, 10013)
+version_str = "0.0.post10014"
+version_tuple = (0, 0, 10014)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10013")
+    pversion = V("0.0.post10014")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9889"
-data_version_tuple = (0, 0, 9889)
+data_version_str = "0.0.post9890"
+data_version_tuple = (0, 0, 9890)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9889")
+    pdata_version = V("0.0.post9890")
 except ImportError:
     pass
-data_git_hash = "199d45626f8a7ae2aef5d9ff73793bf9a4233711"
-data_git_describe = "v0.0-9889-g199d45626"
+data_git_hash = "3daf20973f1a1fcff30a4954880517f8dc12f6af"
+data_git_describe = "v0.0-9890-g3daf20973"
 data_git_msg = """\
-commit 199d45626f8a7ae2aef5d9ff73793bf9a4233711
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Feb 1 23:11:59 2022 -0800
+commit 3daf20973f1a1fcff30a4954880517f8dc12f6af
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Jan 28 11:17:06 2022 -0800
 
-    [dv/rstmgr] Fix some stress_all_with_rand_reset failures
+    [flash_ctrl] Add sva to check for rma prog / rd data match
     
-    The SVA scan reset handling was incorrect.
-    Some assertions needed to succeed if a precondition failed to hold.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
