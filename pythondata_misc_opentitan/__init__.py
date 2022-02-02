@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9978"
-version_tuple = (0, 0, 9978)
+version_str = "0.0.post9980"
+version_tuple = (0, 0, 9980)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9978")
+    pversion = V("0.0.post9980")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9854"
-data_version_tuple = (0, 0, 9854)
+data_version_str = "0.0.post9856"
+data_version_tuple = (0, 0, 9856)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9854")
+    pdata_version = V("0.0.post9856")
 except ImportError:
     pass
-data_git_hash = "349cc4dc7d867e3d4cbaf1ad819bbfaa961b2d0a"
-data_git_describe = "v0.0-9854-g349cc4dc7"
+data_git_hash = "793f62345064f1944db99f1fd3fd490248f0dee3"
+data_git_describe = "v0.0-9856-g793f62345"
 data_git_msg = """\
-commit 349cc4dc7d867e3d4cbaf1ad819bbfaa961b2d0a
+commit 793f62345064f1944db99f1fd3fd490248f0dee3
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Feb 1 11:44:27 2022 -0800
+Date:   Tue Feb 1 14:00:02 2022 -0800
 
-    [dv/reggen] Fix xcelium hdl backdoor path error
+    [dv/kmac] Shadow reg common test
     
-    When reggen tool set the following entities:
-    1). set_hdl_path_root("tb.dut", "BkdrRegPathRtl");
-    2).       alert_test.add_hdl_path_slice(
-              ".u_reg.u_alert_test_recov_ctrl_update_err.qs",
-              0, 1, 0, "BkdrRegPathRtl");
-    Xcelium will add another `.` while forming the hdl path.
-    This PR removes the extra `.` in front of `u_reg` to avoid xcelilum
-    hdl path error.
+    This PR adds shadow reg common tests to kmac.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
