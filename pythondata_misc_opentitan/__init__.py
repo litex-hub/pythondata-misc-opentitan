@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9980"
-version_tuple = (0, 0, 9980)
+version_str = "0.0.post9981"
+version_tuple = (0, 0, 9981)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9980")
+    pversion = V("0.0.post9981")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9856"
-data_version_tuple = (0, 0, 9856)
+data_version_str = "0.0.post9857"
+data_version_tuple = (0, 0, 9857)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9856")
+    pdata_version = V("0.0.post9857")
 except ImportError:
     pass
-data_git_hash = "793f62345064f1944db99f1fd3fd490248f0dee3"
-data_git_describe = "v0.0-9856-g793f62345"
+data_git_hash = "c0b2ef5041e8d34f264b2ddaccc8d5cfdb97b413"
+data_git_describe = "v0.0-9857-gc0b2ef504"
 data_git_msg = """\
-commit 793f62345064f1944db99f1fd3fd490248f0dee3
+commit c0b2ef5041e8d34f264b2ddaccc8d5cfdb97b413
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Feb 1 14:00:02 2022 -0800
+Date:   Tue Feb 1 15:21:03 2022 -0800
 
-    [dv/kmac] Shadow reg common test
+    [fpv] Fix gui mode switch
     
-    This PR adds shadow reg common tests to kmac.
+    This PR fixes the switch to use GUI mode:
+    When `-batch` it will be batch mode;
+    When `` it will be gui mode.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
