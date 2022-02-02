@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10000"
-version_tuple = (0, 0, 10000)
+version_str = "0.0.post10004"
+version_tuple = (0, 0, 10004)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10000")
+    pversion = V("0.0.post10004")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9876"
-data_version_tuple = (0, 0, 9876)
+data_version_str = "0.0.post9880"
+data_version_tuple = (0, 0, 9880)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9876")
+    pdata_version = V("0.0.post9880")
 except ImportError:
     pass
-data_git_hash = "81ad406770ef1d63f6849527e1c36bfbeb5b1240"
-data_git_describe = "v0.0-9876-g81ad40677"
+data_git_hash = "53100f7eacf76361493dbb744a98e6291d0ac748"
+data_git_describe = "v0.0-9880-g53100f7ea"
 data_git_msg = """\
-commit 81ad406770ef1d63f6849527e1c36bfbeb5b1240
+commit 53100f7eacf76361493dbb744a98e6291d0ac748
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 1 14:02:02 2022 -0800
+Date:   Mon Jan 31 19:24:54 2022 -0800
 
-    [clkmgr] D2S checklist preparation
+    [flash_ctrl] Attempt to fix fpga loop inference part 3
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
