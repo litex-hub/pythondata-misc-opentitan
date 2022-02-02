@@ -4,15 +4,40 @@
 
 #include "otbn_trace_entry.h"
 
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <regex>
 #include <sstream>
 
-void OtbnTraceEntry::from_rtl_trace(const std::string &trace) {
+bool OtbnTraceBodyLine::fill_from_string(const std::string &src,
+                                         const std::string &line) {
+  // A valid line matches the following regex
+  std::regex re("(.) ([^:]+): (.+)");
+  std::smatch match;
+
+  if (!std::regex_match(line, match, re)) {
+    std::cerr << "OTBN trace body line from " << src
+              << " does not have expected format. Saw: `" << line << "'.\n";
+    return false;
+  }
+
+  assert(match.size() == 4);
+
+  raw_ = line;
+  type_ = match[1].str()[0];
+  loc_ = match[2].str();
+  value_ = match[3].str();
+  return true;
+}
+
+bool OtbnTraceBodyLine::operator==(const OtbnTraceBodyLine &other) const {
+  return raw_ == other.raw_;
+}
+
+bool OtbnTraceEntry::from_rtl_trace(const std::string &trace) {
   size_t eol = trace.find('\n');
   hdr_ = trace.substr(0, eol);
+  trace_type_ = hdr_to_trace_type(hdr_);
 
   while (eol != std::string::npos) {
     size_t bol = eol + 1;
@@ -20,12 +45,18 @@ void OtbnTraceEntry::from_rtl_trace(const std::string &trace) {
     size_t line_len =
         (eol == std::string::npos) ? std::string::npos : eol - bol;
     std::string line = trace.substr(bol, line_len);
-    if (line.size() > 0 && line[0] == '>')
-      writes_.push_back(line);
+
+    // We're only interested in register writes
+    if (!(line.size() > 0 && line[0] == '>'))
+      continue;
+
+    OtbnTraceBodyLine parsed_line;
+    if (!parsed_line.fill_from_string("RTL", line)) {
+      return false;
+    }
+    writes_[parsed_line.get_loc()] = parsed_line;
   }
-  std::sort(writes_.begin(), writes_.end());
-  auto last = std::unique(writes_.begin(), writes_.end());
-  writes_.erase(last, writes_.end());
+  return true;
 }
 
 bool OtbnTraceEntry::operator==(const OtbnTraceEntry &other) const {
@@ -34,27 +65,18 @@ bool OtbnTraceEntry::operator==(const OtbnTraceEntry &other) const {
 
 void OtbnTraceEntry::print(const std::string &indent, std::ostream &os) const {
   os << indent << hdr_ << "\n";
-  for (const std::string &write : writes_) {
-    os << indent << write << "\n";
+  for (const auto &pr : writes_) {
+    os << indent << pr.second.get_string() << "\n";
   }
 }
 
 void OtbnTraceEntry::take_writes(const OtbnTraceEntry &other) {
   if (!other.writes_.empty()) {
-    for (const std::string &write : other.writes_) {
-      writes_.push_back(write);
+    for (const auto &pr : other.writes_) {
+      writes_[pr.first] = pr.second;
     }
-    std::sort(writes_.begin(), writes_.end());
-    auto last = std::unique(writes_.begin(), writes_.end());
-    writes_.erase(last, writes_.end());
   }
 }
-
-bool OtbnTraceEntry::empty() const { return hdr_.empty(); }
-
-bool OtbnTraceEntry::is_stall() const { return !empty() && hdr_[0] == 'S'; }
-
-bool OtbnTraceEntry::is_exec() const { return !empty() && hdr_[0] == 'E'; }
 
 bool OtbnTraceEntry::is_compatible(const OtbnTraceEntry &prev) const {
   // Two entries are compatible if they might both come from the multi-cycle
@@ -67,6 +89,8 @@ bool OtbnTraceEntry::is_compatible(const OtbnTraceEntry &prev) const {
   // which show an instruction at 0x10 stalling for a cycle and then managing
   // to execute.
   //
+  // Similarly, you might expect to see U followed by U or V.
+  //
   // As an added complication, if we see an IMEM fetch error, the entry will
   // become
   //
@@ -74,6 +98,7 @@ bool OtbnTraceEntry::is_compatible(const OtbnTraceEntry &prev) const {
   //
   // and that's fine. So the rule is:
   //
+  //   - Check the types are compatible (S then S or E; U then U or V)
   //   - Compare the two lines from character 1 onwards.
   //   - If they match: accept.
   //   - Otherwise, if the second line has no '?' then reject.
@@ -83,6 +108,20 @@ bool OtbnTraceEntry::is_compatible(const OtbnTraceEntry &prev) const {
   // (This wrongly accepts some malformed examples, but that's fine: it's just
   // meant as a quick check to make sure our trace machinery isn't dropping
   // entries)
+  bool matching_types;
+  switch (prev.trace_type()) {
+    case Stall:
+      matching_types = (trace_type_ == Stall || trace_type_ == Exec);
+      break;
+    case WipeInProgress:
+      matching_types =
+          (trace_type_ == WipeInProgress || trace_type_ == WipeComplete);
+      break;
+    default:
+      matching_types = false;
+  }
+  if (!matching_types)
+    return false;
 
   bool exact_match =
       0 == hdr_.compare(1, std::string::npos, prev.hdr_, 1, std::string::npos);
@@ -94,6 +133,36 @@ bool OtbnTraceEntry::is_compatible(const OtbnTraceEntry &prev) const {
     return false;
 
   return 0 == hdr_.compare(1, first_qm - 1, prev.hdr_, 1, first_qm - 1);
+}
+
+bool OtbnTraceEntry::is_partial() const {
+  return ((trace_type_ == OtbnTraceEntry::Stall) ||
+          (trace_type_ == OtbnTraceEntry::WipeInProgress));
+}
+
+bool OtbnTraceEntry::is_final() const {
+  return ((trace_type_ == OtbnTraceEntry::Exec) ||
+          (trace_type_ == OtbnTraceEntry::WipeComplete));
+}
+
+OtbnTraceEntry::trace_type_t OtbnTraceEntry::hdr_to_trace_type(
+    const std::string &hdr) {
+  if (hdr.empty()) {
+    return Invalid;
+  }
+
+  switch (hdr[0]) {
+    case 'S':
+      return Stall;
+    case 'E':
+      return Exec;
+    case 'U':
+      return WipeInProgress;
+    case 'V':
+      return WipeComplete;
+    default:
+      return Invalid;
+  }
 }
 
 bool OtbnIssTraceEntry::from_iss_trace(const std::vector<std::string> &lines) {
@@ -108,6 +177,7 @@ bool OtbnIssTraceEntry::from_iss_trace(const std::vector<std::string> &lines) {
     switch (state) {
       case 0:
         hdr_ = line;
+        trace_type_ = hdr_to_trace_type(hdr_);
         state = (!line.empty() && line[0] == 'E') ? 1 : 2;
         break;
 
@@ -137,7 +207,11 @@ bool OtbnIssTraceEntry::from_iss_trace(const std::vector<std::string> &lines) {
         // external register changes, not tracked by the RTL core simulation)
         bool is_bang = (line.size() > 0 && line[0] == '!');
         if (!is_bang) {
-          writes_.push_back(line);
+          OtbnTraceBodyLine parsed_line;
+          if (!parsed_line.fill_from_string("ISS", line)) {
+            return false;
+          }
+          writes_[parsed_line.get_loc()] = parsed_line;
         }
         break;
       }
@@ -152,6 +226,5 @@ bool OtbnIssTraceEntry::from_iss_trace(const std::vector<std::string> &lines) {
     return false;
   }
 
-  std::sort(writes_.begin(), writes_.end());
   return true;
 }

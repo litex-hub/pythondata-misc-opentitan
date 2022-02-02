@@ -24,6 +24,9 @@ module tb;
   wire idle, intr_done;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
 
+  // Configure internal secure wipe
+  localparam bit SecWipeEn  = 1'b0;
+
   // interfaces
   clk_rst_if                    clk_rst_if  (.clk(clk), .rst_n(rst_n));
   tl_if                         tl_if       (.clk(clk), .rst_n(rst_n));
@@ -107,7 +110,8 @@ module tb;
   // dut
   otbn # (
     .RndCnstOtbnKey(TestScrambleKey),
-    .RndCnstOtbnNonce(TestScrambleNonce)
+    .RndCnstOtbnNonce(TestScrambleNonce),
+    .SecWipeEn(SecWipeEn)
   ) dut (
     .clk_i (clk),
     .rst_ni(rst_n),
@@ -149,7 +153,8 @@ module tb;
     .DmemAddrWidth (DmemAddrWidth)
   ) i_otbn_trace_if (.*);
 
-  bind dut.u_otbn_core otbn_tracer u_otbn_tracer(.*, .otbn_trace(i_otbn_trace_if));
+  bind dut.u_otbn_core otbn_tracer #(.SecWipeEn(SecWipeEn))
+    u_otbn_tracer(.*, .otbn_trace(i_otbn_trace_if));
 
   bind dut.u_otbn_core.u_otbn_controller otbn_controller_if i_otbn_controller_if (.*);
 
@@ -208,7 +213,8 @@ module tb;
 
   otbn_core_model #(
     .MemScope     ("..dut"),
-    .DesignScope  ("..dut.u_otbn_core")
+    .DesignScope  ("..dut.u_otbn_core"),
+    .SecWipeEn    (SecWipeEn)
   ) u_model (
     .clk_i        (model_if.clk_i),
     .clk_edn_i    (edn_clk),

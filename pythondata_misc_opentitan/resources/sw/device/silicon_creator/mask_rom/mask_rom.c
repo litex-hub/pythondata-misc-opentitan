@@ -13,6 +13,7 @@
 #include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/stdasm.h"
 #include "sw/device/silicon_creator/lib/base/sec_mmio.h"
+#include "sw/device/silicon_creator/lib/boot_data.h"
 #include "sw/device/silicon_creator/lib/drivers/flash_ctrl.h"
 #include "sw/device/silicon_creator/lib/drivers/keymgr.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
@@ -43,6 +44,8 @@ volatile sec_mmio_ctx_t sec_mmio_ctx;
 epmp_state_t epmp;
 // Life cycle state of the chip.
 lifecycle_state_t lc_state = (lifecycle_state_t)0;
+// Boot data from flash.
+boot_data_t boot_data = {0};
 
 static inline rom_error_t mask_rom_irq_error(void) {
   uint32_t mcause;
@@ -72,7 +75,7 @@ static rom_error_t mask_rom_init(void) {
   uart_init(kUartNCOValue);
   // Initialize the shutdown policy according to lifecycle state.
   lc_state = lifecycle_state_get();
-  RETURN_IF_ERROR(shutdown_init(lc_state));
+  HARDENED_RETURN_IF_ERROR(shutdown_init(lc_state));
   flash_ctrl_init();
   // Initiaize in-memory copy of the ePMP register configuration.
   mask_rom_epmp_state_init(&epmp);
@@ -91,6 +94,9 @@ static rom_error_t mask_rom_init(void) {
   if (bitfield_bit32_read(reset_reasons, kRstmgrReasonPowerOn)) {
     retention_sram_clear();
   }
+
+  // Read boot data from flash
+  HARDENED_RETURN_IF_ERROR(boot_data_read(lc_state, &boot_data));
 
   sec_mmio_check_values(rnd_uint32());
   sec_mmio_check_counters(/*expected_check_count=*/1);
@@ -111,13 +117,23 @@ static rom_error_t mask_rom_init(void) {
 static rom_error_t mask_rom_verify(const manifest_t *manifest,
                                    uint32_t *flash_exec) {
   *flash_exec = 0;
-  RETURN_IF_ERROR(boot_policy_manifest_check(lc_state, manifest));
+  HARDENED_RETURN_IF_ERROR(boot_policy_manifest_check(manifest, &boot_data));
 
   const sigverify_rsa_key_t *key;
-  RETURN_IF_ERROR(sigverify_rsa_key_get(
+  HARDENED_RETURN_IF_ERROR(sigverify_rsa_key_get(
       sigverify_rsa_key_id_get(&manifest->modulus), lc_state, &key));
 
   hmac_sha256_init();
+  // Invalidate the digest if the security version of the manifest is smaller
+  // than the minimum required security version.
+  if (launder32(manifest->security_version) <
+      boot_data.min_security_version_rom_ext) {
+    uint32_t extra_word = UINT32_MAX;
+    hmac_sha256_update(&extra_word, sizeof(extra_word));
+  }
+  HARDENED_CHECK_GE(manifest->security_version,
+                    boot_data.min_security_version_rom_ext);
+
   // Hash usage constraints.
   manifest_usage_constraints_t usage_constraints_from_hw;
   sigverify_usage_constraints_get(manifest->usage_constraints.selector_bits,
@@ -147,23 +163,30 @@ static rom_error_t mask_rom_verify(const manifest_t *manifest,
  */
 static rom_error_t mask_rom_boot(const manifest_t *manifest,
                                  uint32_t flash_exec) {
-  RETURN_IF_ERROR(keymgr_state_check(kKeymgrStateReset));
+  HARDENED_RETURN_IF_ERROR(keymgr_state_check(kKeymgrStateReset));
   keymgr_sw_binding_set(&manifest->binding_value, &manifest->binding_value);
   keymgr_creator_max_ver_set(manifest->max_key_version);
 
-  // Enable execution of code from flash if signature is verified.
-  flash_ctrl_exec_set(flash_exec);
+  // Check cached life cycle state against the value reported by hardware.
+  lifecycle_state_t lc_state_check = lifecycle_state_get();
+  if (launder32(lc_state_check) != lc_state) {
+    return kErrorMaskRomBootFailed;
+  }
+  HARDENED_CHECK_EQ(lc_state_check, lc_state);
 
-  // Check cached lc_state value aginst the value reported by hardware.
-  HARDENED_CHECK_EQ(lc_state, lifecycle_state_get());
+  // Check cached boot data.
+  HARDENED_RETURN_IF_ERROR(boot_data_check(&boot_data));
 
   sec_mmio_check_values(rnd_uint32());
   sec_mmio_check_counters(/*expected_check_count=*/3);
 
   // Unlock execution of ROM_EXT executable code (text) sections.
-  RETURN_IF_ERROR(epmp_state_check(&epmp));
+  HARDENED_RETURN_IF_ERROR(epmp_state_check(&epmp));
   mask_rom_epmp_unlock_rom_ext_rx(&epmp, manifest_code_region_get(manifest));
-  RETURN_IF_ERROR(epmp_state_check(&epmp));
+  HARDENED_RETURN_IF_ERROR(epmp_state_check(&epmp));
+
+  // Enable execution of code from flash if signature is verified.
+  flash_ctrl_exec_set(flash_exec);
 
   // Jump to ROM_EXT entry point.
   uintptr_t entry_point = manifest_entry_point_get(manifest);
@@ -188,7 +211,7 @@ static rom_error_t mask_rom_try_boot(void) {
       continue;
     }
     // Boot fails if a verified ROM_EXT cannot be booted.
-    RETURN_IF_ERROR(mask_rom_boot(manifests.ordered[i], flash_exec));
+    HARDENED_RETURN_IF_ERROR(mask_rom_boot(manifests.ordered[i], flash_exec));
     // `mask_rom_boot()` should never return `kErrorOk`, but if it does
     // we must shut down the chip instead of trying the next ROM_EXT.
     return kErrorMaskRomBootFailed;

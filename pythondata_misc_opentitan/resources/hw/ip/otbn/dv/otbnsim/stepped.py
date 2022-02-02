@@ -14,6 +14,9 @@ prefixed with "0x" if they are hexadecimal.
 
     start                Set the PC to zero and start OTBN
 
+    configure            Enable or disable the secure wipe machinery (this is a
+                         temporary feature until everything works together)
+
     step                 Run one instruction. Print trace information to
                          stdout.
 
@@ -121,6 +124,15 @@ def on_start(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     return None
 
 
+def on_configure(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
+    check_arg_count('configure', 1, args)
+
+    enable = read_word('secure_wipe_en', args[0], 1) != 0
+    sim.configure(enable)
+
+    return None
+
+
 def on_step(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     '''Step one instruction'''
     check_arg_count('step', 0, args)
@@ -128,13 +140,33 @@ def on_step(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
     pc = sim.state.pc
     assert 0 == pc & 3
 
-    insn, changes = sim.step(verbose=False)
+    was_wiping = sim.state.wiping() and sim.state.secure_wipe_enabled
 
-    print('STALL' if insn is None else insn.rtl_trace(pc))
-    for change in changes:
-        entry = change.rtl_trace()
-        if entry is not None:
-            print(entry)
+    insn, changes = sim.step(verbose=False)
+    if insn is not None:
+        hdr = insn.rtl_trace(pc)  # type: Optional[str]
+    elif was_wiping:
+        # The trailing space is a bit naff but matches the behaviour in the RTL
+        # tracer, where it's rather difficult to change.
+        hdr = 'U ' if sim.state.wiping() else 'V '
+    elif (sim.state.running() or
+          (changes and not sim.state.secure_wipe_enabled)):
+        hdr = 'STALL'
+    else:
+        hdr = None
+
+    rtl_changes = []
+    for c in changes:
+        rt = c.rtl_trace()
+        if rt is not None:
+            rtl_changes.append(rt)
+
+    if hdr is None:
+        assert not rtl_changes
+    else:
+        print(hdr)
+        for rt in rtl_changes:
+            print(rt)
 
     return None
 
@@ -354,6 +386,7 @@ def on_send_lc_escalation(sim: OTBNSim, args: List[str]) -> Optional[OTBNSim]:
 
 _HANDLERS = {
     'start': on_start,
+    'configure': on_configure,
     'step': on_step,
     'load_elf': on_load_elf,
     'add_loop_warp': on_add_loop_warp,

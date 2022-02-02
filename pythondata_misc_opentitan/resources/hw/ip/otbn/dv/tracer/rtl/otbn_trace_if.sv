@@ -49,6 +49,11 @@ interface otbn_trace_if
   input logic                      rf_bignum_rd_en_a,
   input logic                      rf_bignum_rd_en_b,
 
+  input logic [1:0]                   rf_bignum_wr_en,
+  input logic [otbn_pkg::WLEN-1:0]    rf_bignum_wr_data_no_intg,
+  input logic [otbn_pkg::ExtWLEN-1:0] rf_bignum_wr_data_intg,
+  input logic                         rf_bignum_wr_data_intg_sel,
+
   input logic [31:0]              insn_fetch_resp_data,
   input logic [ImemAddrWidth-1:0] insn_fetch_resp_addr,
   input logic                     insn_fetch_resp_valid,
@@ -74,7 +79,9 @@ interface otbn_trace_if
 
   input logic [otbn_pkg::WLEN-1:0] urnd_data,
 
-  input logic [1:0][otbn_pkg::SideloadKeyWidth-1:0] sideload_key_shares_i
+  input logic [1:0][otbn_pkg::SideloadKeyWidth-1:0] sideload_key_shares_i,
+
+  input logic secure_wipe_running
 );
   import otbn_pkg::*;
 
@@ -100,7 +107,6 @@ interface otbn_trace_if
 
   logic [WLEN-1:0] rf_bignum_rd_data_a;
   logic [WLEN-1:0] rf_bignum_rd_data_b;
-  logic [WLEN-1:0] rf_bignum_wr_data_no_intg;
 
   assign rf_base_rd_data_a = u_otbn_controller.rf_base_rd_data_a_no_intg;
   assign rf_base_rd_data_b = u_otbn_controller.rf_base_rd_data_b_no_intg;
@@ -110,16 +116,16 @@ interface otbn_trace_if
   assign rf_bignum_rd_data_b = u_otbn_controller.rf_bignum_rd_data_b_no_intg;
 
   // The bignum register file is capable of half register writes. To avoid the tracer having to deal
-  // with this, slightly modified rf_bignum_wr_en and rf_bignum_wr_data signals are provided here.
-  // If there is a half-word write the other half of the register is taken directly from the
-  // register file and both halves are presented as the write data to the tracer. `rf_bignum_wr_en`
-  // becomes a single bit signal because of this.
-  logic            rf_bignum_wr_en;
+  // with this, it should just OR together the bits of rf_bignum_wr_en to get a single "there was a
+  // write" signal.
+  //
+  // We also clean up the (complicated) write data signals here and present them as
+  // rf_bignum_wr_data. Integrity is stripped. If there is a half-word write then the other half of
+  // the register is taken directly from the register file and both halves are presented as the
+  // write data to the tracer.
   logic [WLEN-1:0] rf_bignum_wr_data;
-
-  assign rf_bignum_wr_en = |u_otbn_controller.rf_bignum_wr_en_o;
-
-  logic [WLEN-1:0] rf_bignum_wr_old_data;
+  logic [WLEN-1:0] rf_bignum_wr_data_stripped_intg, rf_bignum_wr_new_data, rf_bignum_wr_old_data;
+  logic [BaseWordsPerWLEN-1:0] unused_bignum_intg_data;
 
   logic [ExtWLEN-1:0] bignum_rf [NWdr];
 
@@ -132,21 +138,32 @@ interface otbn_trace_if
   end
 
   for (genvar i = 0; i < BaseWordsPerWLEN; ++i) begin : g_bignum_rf_strip_intg
-    // u_otbn_rf_bignum.wr_data_no_intg is final write data heading to the register file, which
-    // includes the integrity, this needs to be stripped off for tracing.
-    assign rf_bignum_wr_data_no_intg[i*32 +: 32] =
-        u_otbn_rf_bignum.wr_data_intg_mux_out[i * BaseIntgWidth +: 32];
+    // Strip out integrity bits from rf_bignum_wr_data_intg so that we can use this as a source for
+    // rf_bignum_wr_data_for_trace when rf_bignum_wr_data_intg_sel is set.
+    assign rf_bignum_wr_data_stripped_intg[i*32 +: 32] =
+        rf_bignum_wr_data_intg[i * BaseIntgWidth +: 32];
+
     // Extract data currently in the register file for the current write address, stripping off
     // integrity. This is used to determine the final value for the whole register when doing half
     // register writes.
     assign rf_bignum_wr_old_data[i*32 +: 32] =
         bignum_rf[rf_bignum_wr_addr][i * BaseIntgWidth +: 32];
+
+    // Explicitly ignore the integrity bits
+    assign unused_bignum_intg_data[i] =
+        ^rf_bignum_wr_data_intg[i*BaseIntgWidth+32 +: (BaseIntgWidth - 32)];
   end
 
+  // Use the intg_sel signal to pick where the new write data should come from
+  assign rf_bignum_wr_new_data =
+      rf_bignum_wr_data_intg_sel ? rf_bignum_wr_data_stripped_intg : rf_bignum_wr_data_no_intg;
+
   for (genvar i = 0; i < 2; i++) begin : g_rf_bignum_wr_data
-    assign rf_bignum_wr_data[(WLEN/2)*i +: WLEN/2] = u_otbn_controller.rf_bignum_wr_en_o[i] ?
-      rf_bignum_wr_data_no_intg[(WLEN/2)*i +: WLEN/2] :
-      rf_bignum_wr_old_data[(WLEN/2)*i +: WLEN/2];
+    // Use the write-enable signal to pick whether to use new data or old.
+    assign rf_bignum_wr_data[(WLEN/2)*i +: WLEN/2] =
+        rf_bignum_wr_en[i] ?
+        rf_bignum_wr_new_data[(WLEN/2)*i +: WLEN/2] :
+        rf_bignum_wr_old_data[(WLEN/2)*i +: WLEN/2];
   end
 
   // Take Dmem interface and present it as two separate read and write sets of signals. To ease
@@ -290,6 +307,18 @@ interface otbn_trace_if
 
     assign flags_read_data[i_fg] = u_otbn_alu_bignum.flags_q[i_fg];
   end
+
+  // Detect negative edges of the secure wipe signal
+  logic secure_wipe_running_r, secure_wipe_done;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      secure_wipe_running_r <= 0;
+    end else begin
+      secure_wipe_running_r <= secure_wipe_running;
+    end
+  end
+  assign secure_wipe_done = secure_wipe_running_r & ~secure_wipe_running;
+
 endinterface
 
 `endif // SYNTHESIS

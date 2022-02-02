@@ -59,6 +59,9 @@ class OTBNSim:
         self._next_insn = None
         self.state.start()
 
+    def configure(self, enable_secure_wipe: bool) -> None:
+        self.state.secure_wipe_enabled = enable_secure_wipe
+
     def _fetch(self, pc: int) -> OTBNInsn:
         word_pc = pc >> 2
         if word_pc >= len(self.program):
@@ -155,11 +158,17 @@ class OTBNSim:
             changes = self._on_stall(verbose, fetch_next=False)
             return (None, changes)
 
-        if self.state.fsm_state == FsmState.POST_EXEC:
-            return (None, self._on_stall(verbose, fetch_next=False))
+        if self.state.fsm_state in [FsmState.WIPING_GOOD, FsmState.WIPING_BAD]:
+            assert self.state.wipe_cycles > 0
+            self.state.wipe_cycles -= 1
+            # Wipe all registers and set STATUS on the penultimate cycle.
+            if self.state.wipe_cycles == 1:
+                next_status = (Status.IDLE
+                               if self.state.fsm_state == FsmState.WIPING_GOOD
+                               else Status.LOCKED)
+                self.state.ext_regs.write('STATUS', next_status, True)
+                self.state.wipe()
 
-        if self.state.fsm_state == FsmState.LOCKING:
-            self.state.ext_regs.write('STATUS', Status.LOCKED, True)
             return (None, self._on_stall(verbose, fetch_next=False))
 
         assert self.state.fsm_state == FsmState.EXEC
