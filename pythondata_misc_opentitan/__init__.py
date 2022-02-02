@@ -4,30 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10004"
-version_tuple = (0, 0, 10004)
+version_str = "0.0.post10011"
+version_tuple = (0, 0, 10011)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10004")
+    pversion = V("0.0.post10011")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9880"
-data_version_tuple = (0, 0, 9880)
+data_version_str = "0.0.post9887"
+data_version_tuple = (0, 0, 9887)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9880")
+    pdata_version = V("0.0.post9887")
 except ImportError:
     pass
-data_git_hash = "53100f7eacf76361493dbb744a98e6291d0ac748"
-data_git_describe = "v0.0-9880-g53100f7ea"
+data_git_hash = "58b3d670e41910e0c53c1785fa636834dea6b74e"
+data_git_describe = "v0.0-9887-g58b3d670e"
 data_git_msg = """\
-commit 53100f7eacf76361493dbb744a98e6291d0ac748
+commit 58b3d670e41910e0c53c1785fa636834dea6b74e
 Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Jan 31 19:24:54 2022 -0800
+Date:   Mon Jan 31 18:01:46 2022 -0800
 
-    [flash_ctrl] Attempt to fix fpga loop inference part 3
+    [flash_ctrl] Fix mask calculation request timing
+    
+    Do not begin mask calculation request until read
+    trasnaction has been accepted.
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
