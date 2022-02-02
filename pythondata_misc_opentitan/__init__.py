@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10012"
-version_tuple = (0, 0, 10012)
+version_str = "0.0.post10013"
+version_tuple = (0, 0, 10013)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10012")
+    pversion = V("0.0.post10013")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9888"
-data_version_tuple = (0, 0, 9888)
+data_version_str = "0.0.post9889"
+data_version_tuple = (0, 0, 9889)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9888")
+    pdata_version = V("0.0.post9889")
 except ImportError:
     pass
-data_git_hash = "91ceb766586bc98892ba8cf0cbe2aae9a13caa28"
-data_git_describe = "v0.0-9888-g91ceb7665"
+data_git_hash = "199d45626f8a7ae2aef5d9ff73793bf9a4233711"
+data_git_describe = "v0.0-9889-g199d45626"
 data_git_msg = """\
-commit 91ceb766586bc98892ba8cf0cbe2aae9a13caa28
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Feb 1 14:48:07 2022 -0500
+commit 199d45626f8a7ae2aef5d9ff73793bf9a4233711
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Feb 1 23:11:59 2022 -0800
 
-    [sw/silicon_creator] Harden remaining lc_state switches
+    [dv/rstmgr] Fix some stress_all_with_rand_reset failures
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    The SVA scan reset handling was incorrect.
+    Some assertions needed to succeed if a precondition failed to hold.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
