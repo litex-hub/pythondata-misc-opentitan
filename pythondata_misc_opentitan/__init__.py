@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post9981"
-version_tuple = (0, 0, 9981)
+version_str = "0.0.post9984"
+version_tuple = (0, 0, 9984)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post9981")
+    pversion = V("0.0.post9984")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9857"
-data_version_tuple = (0, 0, 9857)
+data_version_str = "0.0.post9860"
+data_version_tuple = (0, 0, 9860)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9857")
+    pdata_version = V("0.0.post9860")
 except ImportError:
     pass
-data_git_hash = "c0b2ef5041e8d34f264b2ddaccc8d5cfdb97b413"
-data_git_describe = "v0.0-9857-gc0b2ef504"
+data_git_hash = "abf1af631b42f482ae60798736ed1c0d03feb9f5"
+data_git_describe = "v0.0-9860-gabf1af631"
 data_git_msg = """\
-commit c0b2ef5041e8d34f264b2ddaccc8d5cfdb97b413
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Feb 1 15:21:03 2022 -0800
+commit abf1af631b42f482ae60798736ed1c0d03feb9f5
+Author: Jon Flatley <jflat@google.com>
+Date:   Fri Jan 28 13:38:00 2022 -0500
 
-    [fpv] Fix gui mode switch
+    [opentitantool] Fix OTP tests to work under bazel
     
-    This PR fixes the switch to use GUI mode:
-    When `-batch` it will be batch mode;
-    When `` it will be gui mode.
+    Moves OTP test data to a more appropriate location and adds them to the
+    bazel BUILD file to fix "file not found" errors encountered when running
+    `bazel run //sw/host/opentitanlib:opentitanlib_test`.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
