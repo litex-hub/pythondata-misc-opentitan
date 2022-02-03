@@ -4,36 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10031"
-version_tuple = (0, 0, 10031)
+version_str = "0.0.post10034"
+version_tuple = (0, 0, 10034)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10031")
+    pversion = V("0.0.post10034")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9907"
-data_version_tuple = (0, 0, 9907)
+data_version_str = "0.0.post9910"
+data_version_tuple = (0, 0, 9910)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9907")
+    pdata_version = V("0.0.post9910")
 except ImportError:
     pass
-data_git_hash = "e261de277cec8088d1a0165ec8f9c7fcb1e31c28"
-data_git_describe = "v0.0-9907-ge261de277"
+data_git_hash = "c9552e7c9e4ef4bca4ac468ca01902a0b4b17da5"
+data_git_describe = "v0.0-9910-gc9552e7c9"
 data_git_msg = """\
-commit e261de277cec8088d1a0165ec8f9c7fcb1e31c28
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Jan 27 18:09:39 2022 +0000
+commit c9552e7c9e4ef4bca4ac468ca01902a0b4b17da5
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Feb 1 13:21:40 2022 +0100
 
-    [otbn,dv] Dump state in otbn_top_sim before secure wipe
+    [aes] Fix VCS warning
     
-    This will have no effect if secure wipe is disabled (except that the
-    prints will appear a little bit earlier). But when it's enabled, this
-    ensures that we get the internal state before it gets trashed.
+    VCS erroneously thinks below statement would result in an out-of-bounds
+    index:
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+      for (genvar i = 0; i < 4; i++) begin : gen_out
+        assign out[i] = (i == 0) ? {in[3],   in1[i]} :
+                                   {in[i-1], in1[i]};
+      end
+    
+    To avoid this, this commit introduces a function to compute the index
+    rotation and avoid the ternary expression.
+    
+    This resolves lowRISC/OpenTitan#10379.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
