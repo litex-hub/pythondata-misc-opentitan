@@ -36,6 +36,7 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
   input  logic             sp_enc_err_i,
   input  logic             rnd_ctr_err_i,
   input  logic             op_err_i,
+  input  logic             alert_fatal_i,
   output logic             alert_o,
 
   // Control signals for masking PRNG
@@ -60,16 +61,11 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
   input  logic             key_expand_out_req_i,  // Sparsify using multi-rail.
   output logic             key_expand_out_ack_o,  // Sparsify using multi-rail.
   output logic             key_expand_clear_o,
+  output logic [3:0]       rnd_ctr_o,
   output key_words_sel_e   key_words_sel_o,
   output round_key_sel_e   round_key_sel_o,
 
   // Register signals
-  input  logic [3:0]       rnd_ctr_q_i,
-  output logic [3:0]       rnd_ctr_d_o,
-  input  logic [3:0]       rnd_ctr_rem_q_i,
-  output logic [3:0]       rnd_ctr_rem_d_o,
-  input  logic [3:0]       num_rounds_q_i,
-  output logic [3:0]       num_rounds_d_o,
   input  logic             crypt_q_i,             // Sparsify using multi-rail.
   output logic             crypt_d_o,             // Sparsify using multi-rail.
   input  logic             dec_key_gen_q_i,       // Sparsify using multi-rail.
@@ -101,12 +97,10 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     sp_enc_err_i,
     rnd_ctr_err_i,
     op_err_i,
+    alert_fatal_i,
     prng_reseed_ack_i,
     sub_bytes_out_req_i,
     key_expand_out_req_i,
-    rnd_ctr_q_i,
-    rnd_ctr_rem_q_i,
-    num_rounds_q_i,
     crypt_q_i,
     dec_key_gen_q_i,
     prng_reseed_q_i,
@@ -131,12 +125,10 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     sp_enc_err_i,
     rnd_ctr_err_i,
     op_err_i,
+    alert_fatal_i,
     prng_reseed_ack_i,
     sub_bytes_out_req_i,
     key_expand_out_req_i,
-    rnd_ctr_q_i,
-    rnd_ctr_rem_q_i,
-    num_rounds_q_i,
     crypt_q_i,
     dec_key_gen_q_i,
     prng_reseed_q_i,
@@ -168,12 +160,10 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
   logic                 sp_enc_err;
   logic                 rnd_ctr_err;
   logic                 op_err;
+  logic                 alert_fatal;
   logic                 prng_reseed_ack;
   logic                 sub_bytes_out_req;
   logic                 key_expand_out_req;
-  logic [3:0]           rnd_ctr_q;
-  logic [3:0]           rnd_ctr_rem_q;
-  logic [3:0]           num_rounds_q;
   logic                 crypt_q;
   logic                 dec_key_gen_q;
   logic                 prng_reseed_q;
@@ -194,12 +184,10 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
           sp_enc_err,
           rnd_ctr_err,
           op_err,
+          alert_fatal,
           prng_reseed_ack,
           sub_bytes_out_req,
           key_expand_out_req,
-          rnd_ctr_q,
-          rnd_ctr_rem_q,
-          num_rounds_q,
           crypt_q,
           dec_key_gen_q,
           prng_reseed_q,
@@ -226,11 +214,9 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
   logic             key_expand_en;
   logic             key_expand_out_ack;
   logic             key_expand_clear;
+  logic [3:0]       rnd_ctr;
   key_words_sel_e   key_words_sel;
   round_key_sel_e   round_key_sel;
-  logic [3:0]       rnd_ctr_d;
-  logic [3:0]       rnd_ctr_rem_d;
-  logic [3:0]       num_rounds_d;
   logic             crypt_d;
   logic             dec_key_gen_d;
   logic             prng_reseed_d;
@@ -266,6 +252,7 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     .sp_enc_err_i          ( sp_enc_err             ),
     .rnd_ctr_err_i         ( rnd_ctr_err            ),
     .op_err_i              ( op_err                 ),
+    .alert_fatal_i         ( alert_fatal            ),
     .alert_o               ( alert                  ),
 
     .prng_update_o         ( prng_update            ),
@@ -287,15 +274,10 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     .key_expand_out_req_i  ( key_expand_out_req     ),
     .key_expand_out_ack_o  ( key_expand_out_ack     ),
     .key_expand_clear_o    ( key_expand_clear       ),
+    .rnd_ctr_o             ( rnd_ctr                ),
     .key_words_sel_o       ( key_words_sel          ),
     .round_key_sel_o       ( round_key_sel          ),
 
-    .rnd_ctr_q_i           ( rnd_ctr_q              ),
-    .rnd_ctr_d_o           ( rnd_ctr_d              ),
-    .rnd_ctr_rem_q_i       ( rnd_ctr_rem_q          ),
-    .rnd_ctr_rem_d_o       ( rnd_ctr_rem_d          ),
-    .num_rounds_q_i        ( num_rounds_q           ),
-    .num_rounds_d_o        ( num_rounds_d           ),
     .crypt_q_i             ( crypt_q                ),
     .crypt_d_o             ( crypt_d                ),
     .dec_key_gen_q_i       ( dec_key_gen_q          ),
@@ -330,11 +312,9 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     key_expand_en_o,
     key_expand_out_ack_o,
     key_expand_clear_o,
+    rnd_ctr_o,
     key_words_sel_o,
     round_key_sel_o,
-    rnd_ctr_d_o,
-    rnd_ctr_rem_d_o,
-    num_rounds_d_o,
     crypt_d_o,
     dec_key_gen_d_o,
     key_clear_d_o,
@@ -362,11 +342,9 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
     key_expand_en,
     key_expand_out_ack,
     key_expand_clear,
+    rnd_ctr,
     key_words_sel,
     round_key_sel,
-    rnd_ctr_d,
-    rnd_ctr_rem_d,
-    num_rounds_d,
     crypt_d,
     dec_key_gen_d,
     key_clear_d,
@@ -400,11 +378,9 @@ module aes_cipher_control_fsm_p import aes_pkg::*;
           key_expand_en_o,
           key_expand_out_ack_o,
           key_expand_clear_o,
+          rnd_ctr_o,
           key_words_sel_o,
           round_key_sel_o,
-          rnd_ctr_d_o,
-          rnd_ctr_rem_d_o,
-          num_rounds_d_o,
           crypt_d_o,
           dec_key_gen_d_o,
           key_clear_d_o,
