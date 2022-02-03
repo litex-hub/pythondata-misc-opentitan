@@ -4,42 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10045"
-version_tuple = (0, 0, 10045)
+version_str = "0.0.post10049"
+version_tuple = (0, 0, 10049)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10045")
+    pversion = V("0.0.post10049")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9921"
-data_version_tuple = (0, 0, 9921)
+data_version_str = "0.0.post9925"
+data_version_tuple = (0, 0, 9925)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9921")
+    pdata_version = V("0.0.post9925")
 except ImportError:
     pass
-data_git_hash = "fc31f2be84afcaee9c1450f770525e966e6d4e11"
-data_git_describe = "v0.0-9921-gfc31f2be8"
+data_git_hash = "611b1f855f6a631fc8a02844d9029c5e58f4daff"
+data_git_describe = "v0.0-9925-g611b1f855"
 data_git_msg = """\
-commit fc31f2be84afcaee9c1450f770525e966e6d4e11
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Feb 2 17:24:41 2022 -0800
+commit 611b1f855f6a631fc8a02844d9029c5e58f4daff
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Feb 3 17:17:16 2022 +0100
 
-    [dv] Fixes to enable foundry database pwrmgr_smoketest
+    [aes/dv] Fix NIST vector test
     
-    - The old sram randomization scheme did not work because it treated each
-      tile as an independent memory.  This meant if the address scramble caused
-      a word to be relocated to another tile, the write would not work correctly.
+    There were three issues causing this test to fail:
+    1. The test was not correctly configuring the DUT for decryption. This
+       has been introduced recently when modifying the main control
+       register.
+    2. The test did not wait for the DUT to be idle before writing the IV.
+       This has been introduced recently when adding the key-touch-force-
+       reseed feature.
+    3. The IV got not correctly configured. Only the first word was written
+       but to all 4 IV registers.
     
-    - This PR addes some enhancements to calculate the target tile and ensures the
-      scrmabled data is written to the right place.
+    All three issues are solved with this commit.
     
-    - A few helper functions are added to mem_bkdr_util__sram.sv, these should be
-      used locally in the other functions as well to reduce code duplication.
+    This fixes lowRISC/OpenTitan#10544.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
