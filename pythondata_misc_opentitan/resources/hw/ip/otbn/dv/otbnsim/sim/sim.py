@@ -87,7 +87,7 @@ class OTBNSim:
         self.state.commit(sim_stalled=True)
         if fetch_next:
             self._next_insn = self._fetch(self.state.pc)
-        if self.stats is not None:
+        if self.stats is not None and not self.state.wiping():
             self.stats.record_stall()
         if verbose:
             self._print_trace(self.state.pc, '(stall)', changes)
@@ -161,6 +161,11 @@ class OTBNSim:
         if self.state.fsm_state in [FsmState.WIPING_GOOD, FsmState.WIPING_BAD]:
             assert self.state.wipe_cycles > 0
             self.state.wipe_cycles -= 1
+
+            # Clear the WIPE_START register if it was set
+            if self.state.ext_regs.read('WIPE_START', True):
+                self.state.ext_regs.write('WIPE_START', 0, True)
+
             # Wipe all registers and set STATUS on the penultimate cycle.
             if self.state.wipe_cycles == 1:
                 next_status = (Status.IDLE
