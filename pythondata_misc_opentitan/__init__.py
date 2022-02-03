@@ -4,45 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10034"
-version_tuple = (0, 0, 10034)
+version_str = "0.0.post10039"
+version_tuple = (0, 0, 10039)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10034")
+    pversion = V("0.0.post10039")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9910"
-data_version_tuple = (0, 0, 9910)
+data_version_str = "0.0.post9915"
+data_version_tuple = (0, 0, 9915)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9910")
+    pdata_version = V("0.0.post9915")
 except ImportError:
     pass
-data_git_hash = "c9552e7c9e4ef4bca4ac468ca01902a0b4b17da5"
-data_git_describe = "v0.0-9910-gc9552e7c9"
+data_git_hash = "262651b7db24d593b5ac697b6701da0ed3123628"
+data_git_describe = "v0.0-9915-g262651b7d"
 data_git_msg = """\
-commit c9552e7c9e4ef4bca4ac468ca01902a0b4b17da5
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Feb 1 13:21:40 2022 +0100
+commit 262651b7db24d593b5ac697b6701da0ed3123628
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Feb 2 18:31:29 2022 -0800
 
-    [aes] Fix VCS warning
+    [gpio] Waive Reconvergence CDC warning
     
-    VCS erroneously thinks below statement would result in an out-of-bounds
-    index:
+    As GPIO inputs are not assumed as a bus signal, it is OK to just 2FF
+    PAD_IN values.
     
-      for (genvar i = 0; i < 4; i++) begin : gen_out
-        assign out[i] = (i == 0) ? {in[3],   in1[i]} :
-                                   {in[i-1], in1[i]};
-      end
-    
-    To avoid this, this commit introduces a function to compute the index
-    rotation and avoid the ternary expression.
-    
-    This resolves lowRISC/OpenTitan#10379.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
