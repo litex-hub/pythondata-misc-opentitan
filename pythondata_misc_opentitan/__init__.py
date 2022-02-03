@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10024"
-version_tuple = (0, 0, 10024)
+version_str = "0.0.post10031"
+version_tuple = (0, 0, 10031)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10024")
+    pversion = V("0.0.post10031")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9900"
-data_version_tuple = (0, 0, 9900)
+data_version_str = "0.0.post9907"
+data_version_tuple = (0, 0, 9907)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9900")
+    pdata_version = V("0.0.post9907")
 except ImportError:
     pass
-data_git_hash = "09eb5512f3ac7c17f48eaa6abfe89ba5e5ac8dee"
-data_git_describe = "v0.0-9900-g09eb5512f"
+data_git_hash = "e261de277cec8088d1a0165ec8f9c7fcb1e31c28"
+data_git_describe = "v0.0-9907-ge261de277"
 data_git_msg = """\
-commit 09eb5512f3ac7c17f48eaa6abfe89ba5e5ac8dee
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Feb 1 14:19:14 2022 -0800
+commit e261de277cec8088d1a0165ec8f9c7fcb1e31c28
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Jan 27 18:09:39 2022 +0000
 
-    [keymgr/dv] Several DV updates for recent design changes
+    [otbn,dv] Dump state in otbn_top_sim before secure wipe
     
-    several fixes for recent design changes
-    1. add covergroup for control_shadowed
-    2. fix start bit predict
-    3. change to use csr_wr for start reg
-    4. fix shadow reg test. When storage error occurs on control_shadowed,
-       we can't issue operation as the reg is locked
-    5. fix keymgr_direct_to_disabled_vseq. need to program start CSRs
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This will have no effect if secure wipe is disabled (except that the
+    prints will appear a little bit earlier). But when it's enabled, this
+    ensures that we get the internal state before it gets trashed.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
