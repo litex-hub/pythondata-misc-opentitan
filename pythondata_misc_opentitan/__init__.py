@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10023"
-version_tuple = (0, 0, 10023)
+version_str = "0.0.post10024"
+version_tuple = (0, 0, 10024)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10023")
+    pversion = V("0.0.post10024")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9899"
-data_version_tuple = (0, 0, 9899)
+data_version_str = "0.0.post9900"
+data_version_tuple = (0, 0, 9900)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9899")
+    pdata_version = V("0.0.post9900")
 except ImportError:
     pass
-data_git_hash = "92a3f2450f305af825b2887bb7d64e4a14c9b1dd"
-data_git_describe = "v0.0-9899-g92a3f2450"
+data_git_hash = "09eb5512f3ac7c17f48eaa6abfe89ba5e5ac8dee"
+data_git_describe = "v0.0-9900-g09eb5512f"
 data_git_msg = """\
-commit 92a3f2450f305af825b2887bb7d64e4a14c9b1dd
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Thu Jan 13 14:30:20 2022 +0000
+commit 09eb5512f3ac7c17f48eaa6abfe89ba5e5ac8dee
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Feb 1 14:19:14 2022 -0800
 
-    [flash_ctrl] ADD TEST FOR READ BUFFER EVICTION
+    [keymgr/dv] Several DV updates for recent design changes
     
-    Add test for read buffer eviction. All combination read/program/read and
-    read/erase/read are exercised. read can be performed by SW or Host
-    directly which gives in total 8 scenarios.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    several fixes for recent design changes
+    1. add covergroup for control_shadowed
+    2. fix start bit predict
+    3. change to use csr_wr for start reg
+    4. fix shadow reg test. When storage error occurs on control_shadowed,
+       we can't issue operation as the reg is locked
+    5. fix keymgr_direct_to_disabled_vseq. need to program start CSRs
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
