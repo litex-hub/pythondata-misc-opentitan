@@ -4,46 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10049"
-version_tuple = (0, 0, 10049)
+version_str = "0.0.post10051"
+version_tuple = (0, 0, 10051)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10049")
+    pversion = V("0.0.post10051")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9925"
-data_version_tuple = (0, 0, 9925)
+data_version_str = "0.0.post9927"
+data_version_tuple = (0, 0, 9927)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9925")
+    pdata_version = V("0.0.post9927")
 except ImportError:
     pass
-data_git_hash = "611b1f855f6a631fc8a02844d9029c5e58f4daff"
-data_git_describe = "v0.0-9925-g611b1f855"
+data_git_hash = "cd742d11147c817e8f63a49b4e5e83acbe9d7ac8"
+data_git_describe = "v0.0-9927-gcd742d111"
 data_git_msg = """\
-commit 611b1f855f6a631fc8a02844d9029c5e58f4daff
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Feb 3 17:17:16 2022 +0100
+commit cd742d11147c817e8f63a49b4e5e83acbe9d7ac8
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Feb 1 15:01:31 2022 -0800
 
-    [aes/dv] Fix NIST vector test
+    [spi_device] Add flash/passthrouh modes in CFG.MODE
     
-    There were three issues causing this test to fail:
-    1. The test was not correctly configuring the DUT for decryption. This
-       has been introduced recently when modifying the main control
-       register.
-    2. The test did not wait for the DUT to be idle before writing the IV.
-       This has been introduced recently when adding the key-touch-force-
-       reseed feature.
-    3. The IV got not correctly configured. Only the first word was written
-       but to all 4 IV registers.
+    Flash and Passthrough modes are added into CFG.MODE CSR.
     
-    All three issues are solved with this commit.
-    
-    This fixes lowRISC/OpenTitan#10544.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
