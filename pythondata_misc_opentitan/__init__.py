@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10021"
-version_tuple = (0, 0, 10021)
+version_str = "0.0.post10022"
+version_tuple = (0, 0, 10022)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10021")
+    pversion = V("0.0.post10022")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9897"
-data_version_tuple = (0, 0, 9897)
+data_version_str = "0.0.post9898"
+data_version_tuple = (0, 0, 9898)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9897")
+    pdata_version = V("0.0.post9898")
 except ImportError:
     pass
-data_git_hash = "b1f413bf2d4424925cb18116749bb5d1f37562a1"
-data_git_describe = "v0.0-9897-gb1f413bf2"
+data_git_hash = "5e2635e91b6562cb7bb6e5e9da9d8f0043eae75e"
+data_git_describe = "v0.0-9898-g5e2635e91"
 data_git_msg = """\
-commit b1f413bf2d4424925cb18116749bb5d1f37562a1
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 1 14:53:03 2022 -0800
+commit 5e2635e91b6562cb7bb6e5e9da9d8f0043eae75e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sat Jan 29 14:16:22 2022 -0800
 
-    [rstmgr] Prepare D2S counetermeasure items
+    [dv/hmac] Fix hmac fcov bin and a stress_all_with_rand_reset issue
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    1). Fix max outstanding item from 2 to 1.
+    2). Stress_all_with_rand_reset does not use `apply_reset`, so added a
+      line of logic to set back the cfg flag before issuing the concurrent
+      reset.
     
-    [rstmgr] Prepare d2s countermeasures
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
