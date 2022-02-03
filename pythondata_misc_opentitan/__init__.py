@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10022"
-version_tuple = (0, 0, 10022)
+version_str = "0.0.post10023"
+version_tuple = (0, 0, 10023)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10022")
+    pversion = V("0.0.post10023")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9898"
-data_version_tuple = (0, 0, 9898)
+data_version_str = "0.0.post9899"
+data_version_tuple = (0, 0, 9899)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9898")
+    pdata_version = V("0.0.post9899")
 except ImportError:
     pass
-data_git_hash = "5e2635e91b6562cb7bb6e5e9da9d8f0043eae75e"
-data_git_describe = "v0.0-9898-g5e2635e91"
+data_git_hash = "92a3f2450f305af825b2887bb7d64e4a14c9b1dd"
+data_git_describe = "v0.0-9899-g92a3f2450"
 data_git_msg = """\
-commit 5e2635e91b6562cb7bb6e5e9da9d8f0043eae75e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sat Jan 29 14:16:22 2022 -0800
+commit 92a3f2450f305af825b2887bb7d64e4a14c9b1dd
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Thu Jan 13 14:30:20 2022 +0000
 
-    [dv/hmac] Fix hmac fcov bin and a stress_all_with_rand_reset issue
+    [flash_ctrl] ADD TEST FOR READ BUFFER EVICTION
     
-    1). Fix max outstanding item from 2 to 1.
-    2). Stress_all_with_rand_reset does not use `apply_reset`, so added a
-      line of logic to set back the cfg flag before issuing the concurrent
-      reset.
+    Add test for read buffer eviction. All combination read/program/read and
+    read/erase/read are exercised. read can be performed by SW or Host
+    directly which gives in total 8 scenarios.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
