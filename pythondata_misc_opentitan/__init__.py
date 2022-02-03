@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10017"
-version_tuple = (0, 0, 10017)
+version_str = "0.0.post10021"
+version_tuple = (0, 0, 10021)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10017")
+    pversion = V("0.0.post10021")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9893"
-data_version_tuple = (0, 0, 9893)
+data_version_str = "0.0.post9897"
+data_version_tuple = (0, 0, 9897)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9893")
+    pdata_version = V("0.0.post9897")
 except ImportError:
     pass
-data_git_hash = "16b622ff84076e1e024b41303f64b5fcb8fa6822"
-data_git_describe = "v0.0-9893-g16b622ff8"
+data_git_hash = "b1f413bf2d4424925cb18116749bb5d1f37562a1"
+data_git_describe = "v0.0-9897-gb1f413bf2"
 data_git_msg = """\
-commit 16b622ff84076e1e024b41303f64b5fcb8fa6822
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Feb 2 20:00:09 2022 +0000
+commit b1f413bf2d4424925cb18116749bb5d1f37562a1
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 1 14:53:03 2022 -0800
 
-    [prim_max_tree] Remove dedicated FPV TB since all SVAs are embedded
+    [rstmgr] Prepare D2S counetermeasure items
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    [rstmgr] Prepare d2s countermeasures
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
