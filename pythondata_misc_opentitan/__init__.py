@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10014"
-version_tuple = (0, 0, 10014)
+version_str = "0.0.post10017"
+version_tuple = (0, 0, 10017)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10014")
+    pversion = V("0.0.post10017")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9890"
-data_version_tuple = (0, 0, 9890)
+data_version_str = "0.0.post9893"
+data_version_tuple = (0, 0, 9893)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9890")
+    pdata_version = V("0.0.post9893")
 except ImportError:
     pass
-data_git_hash = "3daf20973f1a1fcff30a4954880517f8dc12f6af"
-data_git_describe = "v0.0-9890-g3daf20973"
+data_git_hash = "16b622ff84076e1e024b41303f64b5fcb8fa6822"
+data_git_describe = "v0.0-9893-g16b622ff8"
 data_git_msg = """\
-commit 3daf20973f1a1fcff30a4954880517f8dc12f6af
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Jan 28 11:17:06 2022 -0800
+commit 16b622ff84076e1e024b41303f64b5fcb8fa6822
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Feb 2 20:00:09 2022 +0000
 
-    [flash_ctrl] Add sva to check for rma prog / rd data match
+    [prim_max_tree] Remove dedicated FPV TB since all SVAs are embedded
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
