@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10051"
-version_tuple = (0, 0, 10051)
+version_str = "0.0.post10054"
+version_tuple = (0, 0, 10054)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10051")
+    pversion = V("0.0.post10054")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9927"
-data_version_tuple = (0, 0, 9927)
+data_version_str = "0.0.post9930"
+data_version_tuple = (0, 0, 9930)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9927")
+    pdata_version = V("0.0.post9930")
 except ImportError:
     pass
-data_git_hash = "cd742d11147c817e8f63a49b4e5e83acbe9d7ac8"
-data_git_describe = "v0.0-9927-gcd742d111"
+data_git_hash = "cc8ad6a1db0afdbbe3cd147bc63fda7e9e26ef6e"
+data_git_describe = "v0.0-9930-gcc8ad6a1d"
 data_git_msg = """\
-commit cd742d11147c817e8f63a49b4e5e83acbe9d7ac8
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Feb 1 15:01:31 2022 -0800
+commit cc8ad6a1db0afdbbe3cd147bc63fda7e9e26ef6e
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 3 17:07:49 2022 +0000
 
-    [spi_device] Add flash/passthrouh modes in CFG.MODE
+    [otbn,dv] Wait to come out of reset in the stress_all vseq
     
-    Flash and Passthrough modes are added into CFG.MODE CSR.
+    This sequence is used by otbn_stress_all_with_rand_reset. The
+    sequences that otbn_stress_all_vseq calls all exit immediately when
+    the device goes into reset. We need to make sure we don't immediately
+    start another sequence (when we're still in reset) because that would,
+    in turn exit immediately.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
