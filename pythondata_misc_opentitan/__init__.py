@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10071"
-version_tuple = (0, 0, 10071)
+version_str = "0.0.post10072"
+version_tuple = (0, 0, 10072)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10071")
+    pversion = V("0.0.post10072")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9947"
-data_version_tuple = (0, 0, 9947)
+data_version_str = "0.0.post9948"
+data_version_tuple = (0, 0, 9948)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9947")
+    pdata_version = V("0.0.post9948")
 except ImportError:
     pass
-data_git_hash = "180c2536cd79881638b601e6a9857913dcd87888"
-data_git_describe = "v0.0-9947-g180c2536c"
+data_git_hash = "2b9e1d6126690054fc73799fe017cf2234756dc2"
+data_git_describe = "v0.0-9948-g2b9e1d612"
 data_git_msg = """\
-commit 180c2536cd79881638b601e6a9857913dcd87888
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 3 15:40:18 2022 -0800
+commit 2b9e1d6126690054fc73799fe017cf2234756dc2
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Feb 3 16:01:28 2022 -0800
 
-    [dv] Address 2 comments in sec_cm update PR
+    [reg_tool] Remove unused signals for sw wo access
     
-    For PR #10539
-    1. removed unused CntStyle
-    2. moved sec_cm_alert_name check to the top of the seq
+    For fields using the async parameter, undriven 'qs' signals would be
+    generated, causing linter errors and 'X' origination. Check for read
+    access and limit code generation for 'qs' signals to when that is true.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
