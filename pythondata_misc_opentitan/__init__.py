@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10083"
-version_tuple = (0, 0, 10083)
+version_str = "0.0.post10085"
+version_tuple = (0, 0, 10085)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10083")
+    pversion = V("0.0.post10085")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9959"
-data_version_tuple = (0, 0, 9959)
+data_version_str = "0.0.post9961"
+data_version_tuple = (0, 0, 9961)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9959")
+    pdata_version = V("0.0.post9961")
 except ImportError:
     pass
-data_git_hash = "d255d45f29a6af156a2df2a10e5e53aad777fde4"
-data_git_describe = "v0.0-9959-gd255d45f2"
+data_git_hash = "2d05e9fecdb379eae1a91ba11d8b3ff88002b546"
+data_git_describe = "v0.0-9961-g2d05e9fec"
 data_git_msg = """\
-commit d255d45f29a6af156a2df2a10e5e53aad777fde4
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Feb 4 00:12:57 2022 -0800
+commit 2d05e9fecdb379eae1a91ba11d8b3ff88002b546
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Feb 2 08:28:42 2022 -0800
 
-    [dv/otp_ctrl] Update UNR with blackbox
+    [usbdev] Fix OUT response timeout bug
     
-    This PR updates the UNR module with security modules being blackboxed.
+    The timeout counter has some broken logic, as it can never go down to 0.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
