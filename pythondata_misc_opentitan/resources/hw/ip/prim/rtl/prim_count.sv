@@ -17,7 +17,7 @@
 // In duplicate count mode
 //    - clr_i sets all (internal) counters to 0.
 //    - set_i sets the up_count's starting value to set_cnt_i.
-//      Note: the maximum value is just the max possible value given by the counter's width.
+//      Note: the max_val is just the max possible value given by the counter's width.
 //    - en_i increments the counter by step_i, if neither of the above is set.
 //
 // In cross count mode
@@ -27,9 +27,10 @@
 //      -- err_o is set to 0 (false),
 //      -- cnt_o is either all zero (OutSelDnCnt = 1) or the (running) up_count value
 //         (OutSelDnCnt = 0).
+//    - clr_i sets max_val to the max possible value given by the counter's width.
 //    - set_i sets
 //      -- the up_count to 0 and the down_count to set_cnt_i,
-//      -- the up_count's maximum value to set_cnt_i.
+//      -- the up_count's max_val to set_cnt_i.
 //    - en_i increments/decrements the up_count/down_count by step_i, if neither of the above is
 //      set.
 
@@ -201,7 +202,7 @@ module prim_count import prim_count_pkg::*; #(
   // If the up counter reaches its max value, the value won't increment or change, unless there is
   // a fault injection
   `ASSERT(MaxUpCntStable_A, up_cnt_q[0] == max_val && !clr_i && !set_i |=>
-          $stable(up_cnt_q[0]) || err_o)
+          $stable(up_cnt_q[0]) || err_o || $past(err_o))
 
   // This logic that will be assign to one, when user adds macro
   // ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT to check the error with alert, in case that prim_count
