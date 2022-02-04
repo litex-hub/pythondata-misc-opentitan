@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10062"
-version_tuple = (0, 0, 10062)
+version_str = "0.0.post10064"
+version_tuple = (0, 0, 10064)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10062")
+    pversion = V("0.0.post10064")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9938"
-data_version_tuple = (0, 0, 9938)
+data_version_str = "0.0.post9940"
+data_version_tuple = (0, 0, 9940)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9938")
+    pdata_version = V("0.0.post9940")
 except ImportError:
     pass
-data_git_hash = "752c40cf2eb7d0de3eb63026a4331565865ec4f7"
-data_git_describe = "v0.0-9938-g752c40cf2"
+data_git_hash = "edbd0a0a8dc42d82ad6d36928aad0c7e51eac70d"
+data_git_describe = "v0.0-9940-gedbd0a0a8"
 data_git_msg = """\
-commit 752c40cf2eb7d0de3eb63026a4331565865ec4f7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 3 16:11:51 2022 -0800
+commit edbd0a0a8dc42d82ad6d36928aad0c7e51eac70d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 3 15:49:08 2022 -0800
 
-    [hmac] Clarify hmac module security capability
+    [foundry/CI] Fix close source OTP smoke test timeout
     
-    - Fixes #10470
+    Close source write takes long simulation time so to avoid timeout, we
+    issue less read/write if it is CI check.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
