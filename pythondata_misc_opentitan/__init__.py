@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10061"
-version_tuple = (0, 0, 10061)
+version_str = "0.0.post10062"
+version_tuple = (0, 0, 10062)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10061")
+    pversion = V("0.0.post10062")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9937"
-data_version_tuple = (0, 0, 9937)
+data_version_str = "0.0.post9938"
+data_version_tuple = (0, 0, 9938)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9937")
+    pdata_version = V("0.0.post9938")
 except ImportError:
     pass
-data_git_hash = "00a2a30c6cb4d292b1364d86433e050427cf6f22"
-data_git_describe = "v0.0-9937-g00a2a30c6"
+data_git_hash = "752c40cf2eb7d0de3eb63026a4331565865ec4f7"
+data_git_describe = "v0.0-9938-g752c40cf2"
 data_git_msg = """\
-commit 00a2a30c6cb4d292b1364d86433e050427cf6f22
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Feb 1 09:49:56 2022 -0800
+commit 752c40cf2eb7d0de3eb63026a4331565865ec4f7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Feb 3 16:11:51 2022 -0800
 
-    [kmac] Fix Fatal Alert connection
+    [hmac] Clarify hmac module security capability
     
-    @m-temp reported incorrect connection for the fatal alert in #10516.
-    The alert_sender modules are instantiated in opposit way.
+    - Fixes #10470
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
