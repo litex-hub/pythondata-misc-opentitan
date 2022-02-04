@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10085"
-version_tuple = (0, 0, 10085)
+version_str = "0.0.post10087"
+version_tuple = (0, 0, 10087)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10085")
+    pversion = V("0.0.post10087")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9961"
-data_version_tuple = (0, 0, 9961)
+data_version_str = "0.0.post9963"
+data_version_tuple = (0, 0, 9963)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9961")
+    pdata_version = V("0.0.post9963")
 except ImportError:
     pass
-data_git_hash = "2d05e9fecdb379eae1a91ba11d8b3ff88002b546"
-data_git_describe = "v0.0-9961-g2d05e9fec"
+data_git_hash = "079a63dec851f09b7fe5a10d8691190b8aa11818"
+data_git_describe = "v0.0-9963-g079a63dec"
 data_git_msg = """\
-commit 2d05e9fecdb379eae1a91ba11d8b3ff88002b546
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Feb 2 08:28:42 2022 -0800
+commit 079a63dec851f09b7fe5a10d8691190b8aa11818
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Fri Feb 4 16:21:13 2022 +0000
 
-    [usbdev] Fix OUT response timeout bug
+    [jtag_riscv_agent] Fixed bug in jtag_riscv_monitor
     
-    The timeout counter has some broken logic, as it can never go down to 0.
+    - Small bug injected by PR #10415
+    We need to record the operation field from the initial DMI request
+    as the same field is used by the status transaction to indicate
+    the access has succeded failed or is still in progress.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
