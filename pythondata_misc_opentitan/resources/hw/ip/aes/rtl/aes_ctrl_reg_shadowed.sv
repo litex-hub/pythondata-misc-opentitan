@@ -26,6 +26,7 @@ module aes_ctrl_reg_shadowed
   // Main control
   output logic      qe_o, // software wants to write
   input  logic      we_i, // hardware grants software write
+  output logic      phase_o,
   output aes_op_e   operation_o,
   output aes_mode_e mode_o,
   output key_len_e  key_len_o,
@@ -49,6 +50,13 @@ module aes_ctrl_reg_shadowed
   aes_mode_e mode;
   key_len_e  key_len;
   prs_rate_e prng_reseed_rate;
+  logic      phase_operation;
+  logic      phase_mode;
+  logic      phase_key_len;
+  logic      phase_key_sideload;
+  logic      phase_prng_reseed_rate;
+  logic      phase_manual_operation;
+  logic      phase_force_zero_masks;
   logic      err_update_operation;
   logic      err_update_mode;
   logic      err_update_key_len;
@@ -75,7 +83,7 @@ module aes_ctrl_reg_shadowed
 
   // Get and resolve values from register interface.
   assign op = aes_op_e'(reg2hw_ctrl_i.operation.q);
-  always_comb begin : op_get
+  always_comb begin : operation_get
     unique case (op)
       AES_ENC: ctrl_wd.operation = AES_ENC;
       AES_DEC: ctrl_wd.operation = AES_DEC;
@@ -142,6 +150,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.operation.d),
     .qs         (),
+    .phase      (phase_operation),
     .err_update (err_update_operation),
     .err_storage(err_storage_operation)
   );
@@ -162,6 +171,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.mode.d),
     .qs         (),
+    .phase      (phase_mode),
     .err_update (err_update_mode),
     .err_storage(err_storage_mode)
   );
@@ -182,6 +192,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.key_len.d),
     .qs         (),
+    .phase      (phase_key_len),
     .err_update (err_update_key_len),
     .err_storage(err_storage_key_len)
   );
@@ -202,6 +213,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.sideload.d),
     .qs         (),
+    .phase      (phase_key_sideload),
     .err_update (err_update_sideload),
     .err_storage(err_storage_sideload)
   );
@@ -222,6 +234,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.prng_reseed_rate.d),
     .qs         (),
+    .phase      (phase_prng_reseed_rate),
     .err_update (err_update_prng_reseed_rate),
     .err_storage(err_storage_prng_reseed_rate)
   );
@@ -242,6 +255,7 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.manual_operation.d),
     .qs         (),
+    .phase      (phase_manual_operation),
     .err_update (err_update_manual_operation),
     .err_storage(err_storage_manual_operation)
   );
@@ -262,9 +276,14 @@ module aes_ctrl_reg_shadowed
     .qe         (),
     .q          (hw2reg_ctrl_o.force_zero_masks.d),
     .qs         (),
+    .phase      (phase_force_zero_masks),
     .err_update (err_update_force_zero_masks),
     .err_storage(err_storage_force_zero_masks)
   );
+
+  // Collect phase signals.
+  assign phase_o = phase_operation | phase_mode | phase_key_len | phase_key_sideload |
+      phase_prng_reseed_rate | phase_manual_operation | phase_force_zero_masks;
 
   // Collect alerts.
   assign err_update_o = err_update_operation | err_update_mode | err_update_key_len |

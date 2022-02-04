@@ -853,6 +853,9 @@ module aes_reg_top (
     // to register interface (read)
     .qs     (ctrl_aux_shadowed_qs),
 
+    // Shadow register phase. Relevant for hwext only.
+    .phase  (),
+
     // Shadow register error conditions
     .err_update  (reg2hw.ctrl_aux_shadowed.err_update),
     .err_storage (reg2hw.ctrl_aux_shadowed.err_storage)
@@ -1007,7 +1010,7 @@ module aes_reg_top (
 
     // to internal hardware
     .qe     (),
-    .q      (),
+    .q      (reg2hw.status.idle.q),
 
     // to register interface (read)
     .qs     (status_idle_qs)
