@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10087"
-version_tuple = (0, 0, 10087)
+version_str = "0.0.post10089"
+version_tuple = (0, 0, 10089)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10087")
+    pversion = V("0.0.post10089")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9963"
-data_version_tuple = (0, 0, 9963)
+data_version_str = "0.0.post9965"
+data_version_tuple = (0, 0, 9965)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9963")
+    pdata_version = V("0.0.post9965")
 except ImportError:
     pass
-data_git_hash = "079a63dec851f09b7fe5a10d8691190b8aa11818"
-data_git_describe = "v0.0-9963-g079a63dec"
+data_git_hash = "b4f912be80644aa817f8c10937b60fc7a20b729d"
+data_git_describe = "v0.0-9965-gb4f912be8"
 data_git_msg = """\
-commit 079a63dec851f09b7fe5a10d8691190b8aa11818
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Fri Feb 4 16:21:13 2022 +0000
+commit b4f912be80644aa817f8c10937b60fc7a20b729d
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Feb 3 13:58:50 2022 -0800
 
-    [jtag_riscv_agent] Fixed bug in jtag_riscv_monitor
+    [dv] Fix 2 coverage holes
     
-    - Small bug injected by PR #10415
-    We need to record the operation field from the initial DMI request
-    as the same field is used by the status transaction to indicate
-    the access has succeded failed or is still in progress.
-    
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    1. Fixed wrong conditon for enabling byte access error
+    2. Fixed never issuing byte write to memory for integrity error
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
