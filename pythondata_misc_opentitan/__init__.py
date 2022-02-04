@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10079"
-version_tuple = (0, 0, 10079)
+version_str = "0.0.post10082"
+version_tuple = (0, 0, 10082)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10079")
+    pversion = V("0.0.post10082")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9955"
-data_version_tuple = (0, 0, 9955)
+data_version_str = "0.0.post9958"
+data_version_tuple = (0, 0, 9958)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9955")
+    pdata_version = V("0.0.post9958")
 except ImportError:
     pass
-data_git_hash = "6d12a3861c6db1caea19277178200077569d3e69"
-data_git_describe = "v0.0-9955-g6d12a3861"
+data_git_hash = "ca6dabfa85d0c8702f9d99f057a3778fb96f2637"
+data_git_describe = "v0.0-9958-gca6dabfa8"
 data_git_msg = """\
-commit 6d12a3861c6db1caea19277178200077569d3e69
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 3 17:18:52 2022 -0800
+commit ca6dabfa85d0c8702f9d99f057a3778fb96f2637
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Jan 17 14:57:46 2022 -0800
 
-    [entropy_src] related software updates
+    [csrng/rtl] d2s review updates
     
-    - update disable register write
-    - update expected values
+    RTL and documentation updates based on D2S review feedback.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    
+    [csrng/rtl] D2S review items update
+    
+    Based on feedback from the D2S review, several items were updated
+    in the PR for the csrng entropy block.
+    See #10095 for details.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
