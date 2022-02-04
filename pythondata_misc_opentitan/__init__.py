@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10072"
-version_tuple = (0, 0, 10072)
+version_str = "0.0.post10076"
+version_tuple = (0, 0, 10076)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10072")
+    pversion = V("0.0.post10076")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9948"
-data_version_tuple = (0, 0, 9948)
+data_version_str = "0.0.post9952"
+data_version_tuple = (0, 0, 9952)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9948")
+    pdata_version = V("0.0.post9952")
 except ImportError:
     pass
-data_git_hash = "2b9e1d6126690054fc73799fe017cf2234756dc2"
-data_git_describe = "v0.0-9948-g2b9e1d612"
+data_git_hash = "e1e90cdc36b1b4003926212f04ea54eb62ad3044"
+data_git_describe = "v0.0-9952-ge1e90cdc3"
 data_git_msg = """\
-commit 2b9e1d6126690054fc73799fe017cf2234756dc2
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Feb 3 16:01:28 2022 -0800
+commit e1e90cdc36b1b4003926212f04ea54eb62ad3044
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Feb 4 10:01:32 2022 +0100
 
-    [reg_tool] Remove unused signals for sw wo access
+    [aes] Update sideload key on second write to the shadowed ctrl reg only
     
-    For fields using the async parameter, undriven 'qs' signals would be
-    generated, causing linter errors and 'X' origination. Check for read
-    access and limit code generation for 'qs' signals to when that is true.
+    Updating the sideload key on every write to the shadow register can
+    trigger PRNG reseed operations in the middle of a control register
+    update complicating software and DV. For this reason, this commit
+    forwards the phase of the shadow register to the main controller to
+    only trigger the sideload key update on the second write.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    This is related to lowRISC/OpenTitan#10518.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
