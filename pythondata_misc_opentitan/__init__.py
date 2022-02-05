@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10089"
-version_tuple = (0, 0, 10089)
+version_str = "0.0.post10092"
+version_tuple = (0, 0, 10092)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10089")
+    pversion = V("0.0.post10092")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9965"
-data_version_tuple = (0, 0, 9965)
+data_version_str = "0.0.post9968"
+data_version_tuple = (0, 0, 9968)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9965")
+    pdata_version = V("0.0.post9968")
 except ImportError:
     pass
-data_git_hash = "b4f912be80644aa817f8c10937b60fc7a20b729d"
-data_git_describe = "v0.0-9965-gb4f912be8"
+data_git_hash = "e2400ae71311eb3d91b5760b13c26b9c1abbe43c"
+data_git_describe = "v0.0-9968-ge2400ae71"
 data_git_msg = """\
-commit b4f912be80644aa817f8c10937b60fc7a20b729d
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 3 13:58:50 2022 -0800
+commit e2400ae71311eb3d91b5760b13c26b9c1abbe43c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 16 11:31:03 2021 -0800
 
-    [dv] Fix 2 coverage holes
+    [fpv/prim_count] Inject fault to ensure counter errors are hit
     
-    1. Fixed wrong conditon for enabling byte access error
-    2. Fixed never issuing byte write to memory for integrity error
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR injects errors by inserting stopat to make sure the counters hit
+    proper error assertions.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
