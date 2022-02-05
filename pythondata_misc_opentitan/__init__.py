@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10092"
-version_tuple = (0, 0, 10092)
+version_str = "0.0.post10093"
+version_tuple = (0, 0, 10093)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10092")
+    pversion = V("0.0.post10093")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9968"
-data_version_tuple = (0, 0, 9968)
+data_version_str = "0.0.post9969"
+data_version_tuple = (0, 0, 9969)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9968")
+    pdata_version = V("0.0.post9969")
 except ImportError:
     pass
-data_git_hash = "e2400ae71311eb3d91b5760b13c26b9c1abbe43c"
-data_git_describe = "v0.0-9968-ge2400ae71"
+data_git_hash = "0b1c23022f1d1f2d7e5836379d3dc30d2dc91d86"
+data_git_describe = "v0.0-9969-g0b1c23022"
 data_git_msg = """\
-commit e2400ae71311eb3d91b5760b13c26b9c1abbe43c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 16 11:31:03 2021 -0800
+commit 0b1c23022f1d1f2d7e5836379d3dc30d2dc91d86
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Feb 4 10:23:42 2022 -0800
 
-    [fpv/prim_count] Inject fault to ensure counter errors are hit
+    [entropy_src/rtl] Use mubi4_test_false_loose
     
-    This PR injects errors by inserting stopat to make sure the counters hit
-    proper error assertions.
+    Changing the mubi check to "false_loose" for the register lock
+    function.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
