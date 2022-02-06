@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10093"
-version_tuple = (0, 0, 10093)
+version_str = "0.0.post10094"
+version_tuple = (0, 0, 10094)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10093")
+    pversion = V("0.0.post10094")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9969"
-data_version_tuple = (0, 0, 9969)
+data_version_str = "0.0.post9970"
+data_version_tuple = (0, 0, 9970)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9969")
+    pdata_version = V("0.0.post9970")
 except ImportError:
     pass
-data_git_hash = "0b1c23022f1d1f2d7e5836379d3dc30d2dc91d86"
-data_git_describe = "v0.0-9969-g0b1c23022"
+data_git_hash = "7ff8990d4eb390d268005e4a0aca3689fc84c503"
+data_git_describe = "v0.0-9970-g7ff8990d4"
 data_git_msg = """\
-commit 0b1c23022f1d1f2d7e5836379d3dc30d2dc91d86
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Feb 4 10:23:42 2022 -0800
+commit 7ff8990d4eb390d268005e4a0aca3689fc84c503
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Feb 4 15:10:04 2022 -0800
 
-    [entropy_src/rtl] Use mubi4_test_false_loose
+    [fpv/script] Mark unreachable as failures
     
-    Changing the mubi check to "false_loose" for the register lock
-    function.
+    Previously `unreachables` are marked as failure only in `cov_rate`.
+    However, certain assertions can be unreachabled, and we should
+    categorize that as failure.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
