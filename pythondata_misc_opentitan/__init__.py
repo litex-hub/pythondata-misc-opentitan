@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10105"
-version_tuple = (0, 0, 10105)
+version_str = "0.0.post10110"
+version_tuple = (0, 0, 10110)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10105")
+    pversion = V("0.0.post10110")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9981"
-data_version_tuple = (0, 0, 9981)
+data_version_str = "0.0.post9986"
+data_version_tuple = (0, 0, 9986)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9981")
+    pdata_version = V("0.0.post9986")
 except ImportError:
     pass
-data_git_hash = "e87d92e0e4dd66291272e70357dabbe2dfd87ca8"
-data_git_describe = "v0.0-9981-ge87d92e0e"
+data_git_hash = "8eb1639b9a7b3709705b46e20f246c7bb5693de2"
+data_git_describe = "v0.0-9986-g8eb1639b9"
 data_git_msg = """\
-commit e87d92e0e4dd66291272e70357dabbe2dfd87ca8
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Feb 2 14:01:24 2022 -0800
+commit 8eb1639b9a7b3709705b46e20f246c7bb5693de2
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Feb 4 14:41:56 2022 -0800
 
-    [edn/rtl] Add filter to cmd_req_done status
+    [dv] Clean up mem_bkdr_util__sram
     
-    When the hardware interfaces run (boot or auto request modes) the
-    cmd_req_done status bit should not be set.
-    Only in response to a software command should this status bit be set.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    1. Use the new get_addr function as Tim suggested #10613
+    2. clean up unused write/read functions. Only the read32/write32_integ
+       is applicable
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
