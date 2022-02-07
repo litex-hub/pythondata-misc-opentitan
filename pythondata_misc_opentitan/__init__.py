@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10094"
-version_tuple = (0, 0, 10094)
+version_str = "0.0.post10095"
+version_tuple = (0, 0, 10095)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10094")
+    pversion = V("0.0.post10095")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9970"
-data_version_tuple = (0, 0, 9970)
+data_version_str = "0.0.post9971"
+data_version_tuple = (0, 0, 9971)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9970")
+    pdata_version = V("0.0.post9971")
 except ImportError:
     pass
-data_git_hash = "7ff8990d4eb390d268005e4a0aca3689fc84c503"
-data_git_describe = "v0.0-9970-g7ff8990d4"
+data_git_hash = "62fca6299474fe9b75124952d46ac6defa2e2ad7"
+data_git_describe = "v0.0-9971-g62fca6299"
 data_git_msg = """\
-commit 7ff8990d4eb390d268005e4a0aca3689fc84c503
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Feb 4 15:10:04 2022 -0800
+commit 62fca6299474fe9b75124952d46ac6defa2e2ad7
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Sun Feb 6 11:17:21 2022 +0000
 
-    [fpv/script] Mark unreachable as failures
+    [flash_ctrl] SMALL SCOREBOARD KNOB CHANGE
     
-    Previously `unreachables` are marked as failure only in `cov_rate`.
-    However, certain assertions can be unreachabled, and we should
-    categorize that as failure.
+    Add small knob change for control of host read operations.
+    Change name of knob and invert value. Change tests host read
+    direct and read buffer evict since they are affected.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
