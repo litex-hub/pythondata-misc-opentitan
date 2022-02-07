@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10103"
-version_tuple = (0, 0, 10103)
+version_str = "0.0.post10105"
+version_tuple = (0, 0, 10105)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10103")
+    pversion = V("0.0.post10105")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9979"
-data_version_tuple = (0, 0, 9979)
+data_version_str = "0.0.post9981"
+data_version_tuple = (0, 0, 9981)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9979")
+    pdata_version = V("0.0.post9981")
 except ImportError:
     pass
-data_git_hash = "2babd940e9b65794cabd1351c112e7b016475d57"
-data_git_describe = "v0.0-9979-g2babd940e"
+data_git_hash = "e87d92e0e4dd66291272e70357dabbe2dfd87ca8"
+data_git_describe = "v0.0-9981-ge87d92e0e"
 data_git_msg = """\
-commit 2babd940e9b65794cabd1351c112e7b016475d57
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Feb 4 20:19:18 2022 -0800
+commit e87d92e0e4dd66291272e70357dabbe2dfd87ca8
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Feb 2 14:01:24 2022 -0800
 
-    [sysrst_ctrl] Add some more details regarding combo actions
+    [edn/rtl] Add filter to cmd_req_done status
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    When the hardware interfaces run (boot or auto request modes) the
+    cmd_req_done status bit should not be set.
+    Only in response to a software command should this status bit be set.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
