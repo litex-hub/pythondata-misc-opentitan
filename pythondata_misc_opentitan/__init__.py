@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10110"
-version_tuple = (0, 0, 10110)
+version_str = "0.0.post10115"
+version_tuple = (0, 0, 10115)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10110")
+    pversion = V("0.0.post10115")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9986"
-data_version_tuple = (0, 0, 9986)
+data_version_str = "0.0.post9991"
+data_version_tuple = (0, 0, 9991)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9986")
+    pdata_version = V("0.0.post9991")
 except ImportError:
     pass
-data_git_hash = "8eb1639b9a7b3709705b46e20f246c7bb5693de2"
-data_git_describe = "v0.0-9986-g8eb1639b9"
+data_git_hash = "99263a63f3eec22e1d34ebeef039a74c1ea7ec2b"
+data_git_describe = "v0.0-9991-g99263a63f"
 data_git_msg = """\
-commit 8eb1639b9a7b3709705b46e20f246c7bb5693de2
+commit 99263a63f3eec22e1d34ebeef039a74c1ea7ec2b
 Author: Weicai Yang <weicai@google.com>
-Date:   Fri Feb 4 14:41:56 2022 -0800
+Date:   Mon Feb 7 13:39:25 2022 -0800
 
-    [dv] Clean up mem_bkdr_util__sram
+    [dv] Enable xcelium to include X for toggle coverage
     
-    1. Use the new get_addr function as Tim suggested #10613
-    2. clean up unused write/read functions. Only the read32/write32_integ
-       is applicable
+    Address #10332
     Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
