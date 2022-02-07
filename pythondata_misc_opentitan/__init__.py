@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10095"
-version_tuple = (0, 0, 10095)
+version_str = "0.0.post10096"
+version_tuple = (0, 0, 10096)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10095")
+    pversion = V("0.0.post10096")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9971"
-data_version_tuple = (0, 0, 9971)
+data_version_str = "0.0.post9972"
+data_version_tuple = (0, 0, 9972)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9971")
+    pdata_version = V("0.0.post9972")
 except ImportError:
     pass
-data_git_hash = "62fca6299474fe9b75124952d46ac6defa2e2ad7"
-data_git_describe = "v0.0-9971-g62fca6299"
+data_git_hash = "f8391443973820b26e9cdca77a569b7ff5e5b12a"
+data_git_describe = "v0.0-9972-gf83914439"
 data_git_msg = """\
-commit 62fca6299474fe9b75124952d46ac6defa2e2ad7
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Sun Feb 6 11:17:21 2022 +0000
+commit f8391443973820b26e9cdca77a569b7ff5e5b12a
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Sun Feb 6 10:35:02 2022 -0800
 
-    [flash_ctrl] SMALL SCOREBOARD KNOB CHANGE
+    [aes/dv] added nist vectors to testplan
     
-    Add small knob change for control of host read operations.
-    Change name of knob and invert value. Change tests host read
-    direct and read buffer evict since they are affected.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
