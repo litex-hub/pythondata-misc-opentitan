@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10096"
-version_tuple = (0, 0, 10096)
+version_str = "0.0.post10097"
+version_tuple = (0, 0, 10097)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10096")
+    pversion = V("0.0.post10097")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post9972"
-data_version_tuple = (0, 0, 9972)
+data_version_str = "0.0.post9973"
+data_version_tuple = (0, 0, 9973)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post9972")
+    pdata_version = V("0.0.post9973")
 except ImportError:
     pass
-data_git_hash = "f8391443973820b26e9cdca77a569b7ff5e5b12a"
-data_git_describe = "v0.0-9972-gf83914439"
+data_git_hash = "9ac60548b86f3e5aad1fd4fdc753a79504599aee"
+data_git_describe = "v0.0-9973-g9ac60548b"
 data_git_msg = """\
-commit f8391443973820b26e9cdca77a569b7ff5e5b12a
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Sun Feb 6 10:35:02 2022 -0800
+commit 9ac60548b86f3e5aad1fd4fdc753a79504599aee
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jan 10 15:40:48 2022 +0100
 
-    [aes/dv] added nist vectors to testplan
+    [aes] Add list of countermeasures for D2S sign-off
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
