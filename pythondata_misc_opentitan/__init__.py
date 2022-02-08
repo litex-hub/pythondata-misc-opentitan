@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10153"
-version_tuple = (0, 0, 10153)
+version_str = "0.0.post10157"
+version_tuple = (0, 0, 10157)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10153")
+    pversion = V("0.0.post10157")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10029"
-data_version_tuple = (0, 0, 10029)
+data_version_str = "0.0.post10033"
+data_version_tuple = (0, 0, 10033)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10029")
+    pdata_version = V("0.0.post10033")
 except ImportError:
     pass
-data_git_hash = "70a87d59de608797b212202d1225e79653ef6a92"
-data_git_describe = "v0.0-10029-g70a87d59d"
+data_git_hash = "09b10ba9937cf6d502d4a9a726b51784265b04f1"
+data_git_describe = "v0.0-10033-g09b10ba99"
 data_git_msg = """\
-commit 70a87d59de608797b212202d1225e79653ef6a92
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Feb 4 15:23:44 2022 -0800
+commit 09b10ba9937cf6d502d4a9a726b51784265b04f1
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Feb 8 10:36:45 2022 -0800
 
-    [sysrst_ctrl/fpv] Add an FPV target for the entire IP
+    [prim] Add stub flops to remove lint warnings
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    - for prim_mubi_sync/sender modules, when the AsynOn option is 0, the clk/rst_n inputs are used only for assertions.
+    - this causes the lint tools to throw a CLOCK_USE error as there are no valid loads on the clock.
+    - this commit adds unused stub logic that makes use of the clock and removes the lint error without having to add to individual waiver files.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
