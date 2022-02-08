@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10151"
-version_tuple = (0, 0, 10151)
+version_str = "0.0.post10153"
+version_tuple = (0, 0, 10153)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10151")
+    pversion = V("0.0.post10153")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10027"
-data_version_tuple = (0, 0, 10027)
+data_version_str = "0.0.post10029"
+data_version_tuple = (0, 0, 10029)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10027")
+    pdata_version = V("0.0.post10029")
 except ImportError:
     pass
-data_git_hash = "cdc4bd4c821fce7a32367ee7450358d0f9a7f0d2"
-data_git_describe = "v0.0-10027-gcdc4bd4c8"
+data_git_hash = "70a87d59de608797b212202d1225e79653ef6a92"
+data_git_describe = "v0.0-10029-g70a87d59d"
 data_git_msg = """\
-commit cdc4bd4c821fce7a32367ee7450358d0f9a7f0d2
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Sun Feb 6 22:33:21 2022 -0800
+commit 70a87d59de608797b212202d1225e79653ef6a92
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Feb 4 15:23:44 2022 -0800
 
-    [sw/test_rom] Add AST init to test ROM
+    [sysrst_ctrl/fpv] Add an FPV target for the entire IP
     
-    This commit adds the blind-data-copy initialization code to the test ROM
-    to enable testing the AST in chip-level tests.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
