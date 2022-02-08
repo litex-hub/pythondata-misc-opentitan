@@ -4,40 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10129"
-version_tuple = (0, 0, 10129)
+version_str = "0.0.post10137"
+version_tuple = (0, 0, 10137)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10129")
+    pversion = V("0.0.post10137")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10005"
-data_version_tuple = (0, 0, 10005)
+data_version_str = "0.0.post10013"
+data_version_tuple = (0, 0, 10013)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10005")
+    pdata_version = V("0.0.post10013")
 except ImportError:
     pass
-data_git_hash = "0fad9274ebb110c755db2fa936aab0baf422c21c"
-data_git_describe = "v0.0-10005-g0fad9274e"
+data_git_hash = "9ba75ebe576524fcf1cf0228947db70bdddd0df1"
+data_git_describe = "v0.0-10013-g9ba75ebe5"
 data_git_msg = """\
-commit 0fad9274ebb110c755db2fa936aab0baf422c21c
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 3 07:52:41 2022 +0000
+commit 9ba75ebe576524fcf1cf0228947db70bdddd0df1
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Feb 4 13:07:52 2022 -0500
 
-    [otbn,dv] Fix assertion in RND FSM checking
+    [sw/silicon_creator] Harden boot_data read functions
     
-    If we are prefetching and a response comes in from the
-    EDN (edn_rnd_ack_i) at the same time as an instruction reads from
-    RND (rnd_req_i), we go to the "full" state, not the "reading" state.
+    This change slightly simplifies and hardens
+    `boot_data_page_info_update_impl()` along with other functions in the
+    boot_data read path by adding hardened checks for `rom_error_t` and
+    `hardened_bool_t` values and loop counters.
     
-    The FSM I'd sketched out in the assertions was bogus: when both of
-    those signals are asserted at the same time, we can't go into both
-    READING and FULL states!
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
