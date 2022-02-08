@@ -34,6 +34,9 @@ class aes_message_item extends uvm_sequence_item;
   bit               fixed_operation_en   = 0;
   // fixed IV
   bit               fixed_iv_en          = 0;
+  // sideload
+  int               sideload_pct         = 0;
+  rand bit          sideload_en          = 0;
 
   // clear register percentage
   // percentage of items that will try to clear
@@ -106,9 +109,9 @@ class aes_message_item extends uvm_sequence_item;
   // Constraints                       //
   ///////////////////////////////////////
 
-  constraint c_data { message_length inside { [message_len_min:message_len_max] };}
+  constraint data_c { message_length inside { [message_len_min:message_len_max] };}
 
-  constraint c_keylen {
+  constraint keylen_c {
     solve has_config_error before aes_keylen;
     solve cfg_error_type before aes_keylen;
     if (!(has_config_error && cfg_error_type.key_len) ) {
@@ -127,26 +130,26 @@ class aes_message_item extends uvm_sequence_item;
     };
   }
 
-  constraint c_key {
+  constraint key_c {
     if (fixed_key_en) {
       aes_key[0] == fixed_key[0],
       aes_key[1] == fixed_key[1]
     };
   }
 
-  constraint c_iv {
+  constraint iv_c {
     if (fixed_iv_en) {
       aes_iv == fixed_iv
     };
   }
 
-  constraint c_operation {
+  constraint operation_c {
      if (fixed_operation_en) {
          aes_operation == fixed_operation
      };
   }
 
-  constraint c_mode {
+  constraint mode_c {
     solve has_config_error before aes_mode;
     solve cfg_error_type before aes_mode;
     if (!(has_config_error && cfg_error_type.mode)) {
@@ -162,7 +165,7 @@ class aes_message_item extends uvm_sequence_item;
      }
    }
 
-  constraint c_has_config_error {
+  constraint has_config_error_c {
     if (error_types.cfg)
       {
       has_config_error dist { 0 :/ (100 - config_error_pct),
@@ -172,19 +175,31 @@ class aes_message_item extends uvm_sequence_item;
   }
 
 
-  constraint c_config_error_type {
+  constraint config_error_type_c {
     solve has_config_error before cfg_error_type;
-    if (has_config_error) {
+    solve sideload_en before cfg_error_type;
+    if (has_config_error & !sideload_en) {
       cfg_error_type inside {[1:3]};
     } else {
       cfg_error_type == 2'b00;
     }
   }
 
-   constraint c_manual_operation {
-                  manual_operation dist { 0:/ (100 - manual_operation_pct),
-                                          1:/ manual_operation_pct};
-   }
+  constraint sideload_c {
+    sideload_en dist{ 0:/(100-sideload_pct),
+                      1:/sideload_pct};
+  }
+
+  constraint manual_operation_c {
+    solve sideload_en before manual_operation;
+    if (!sideload_en) {
+      manual_operation dist { 0:/ (100 - manual_operation_pct),
+                              1:/ manual_operation_pct};
+    } else {
+      manual_operation == 0 ;
+    }
+
+  }
 
 
   function void add_data_item(aes_seq_item item);
@@ -253,13 +268,14 @@ class aes_message_item extends uvm_sequence_item;
     for (int i=0; i <8; i++) begin
       str = {str, $sformatf("%h ",aes_key[1][i])};
     end
-    str = {str,  $sformatf("\n\t ----| Key Mask:  \t  \t %0b                               |----\t ",
+    str = {str,  $sformatf("\n\t ----| Key Mask:  \t  \t %0b                             |----\t ",
                            keymask)};
      str = {str,  $sformatf("\n\t ----| Initializaion vector:     \t    \t ")};
     for (int i=0; i <4; i++) begin
       str = {str, $sformatf("%h ",aes_iv[i])};
     end
     str = {str,  $sformatf("\n\t ----| Manual Mode : %b      \t   \t ", manual_operation)};
+    str = {str,  $sformatf("\n\t ----| SideLoad En : %b      \t   \t ", sideload_en)};
     str = {str,  $sformatf("\n\t ----| errors types enabled: %b      \t   \t ", error_types)};
     str = {str,  $sformatf("\n\t ----| CFB Weight: %d       \t \t ", cfb_weight)};
     str = {str,  $sformatf("\n\t ----| OFB Weight: %d       \t \t ", ofb_weight)};
@@ -278,7 +294,7 @@ class aes_message_item extends uvm_sequence_item;
    virtual function string print_data();
      string txt="";
 
-     txt = $sformatf("\n\t ----| Printing message data \n\t ----| data length: %d", input_msg.size());
+     txt = $sformatf("\n\t ---| Printing message data \n\t ---| data length: %d", input_msg.size());
      foreach (input_msg[i]) begin
        txt = {txt, $sformatf("\n\t ----| [%0d] 0x%0h \t 0x%0h",i, input_msg[i], output_msg[i])};
      end
@@ -318,5 +334,6 @@ class aes_message_item extends uvm_sequence_item;
     fixed_data       = rhs_.fixed_data;
     fixed_iv_en      = rhs_.fixed_iv_en;
     skip_msg         = rhs_.skip_msg;
+    sideload_en      = rhs_.sideload_en;
   endfunction // copy
 endclass
