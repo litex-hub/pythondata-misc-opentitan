@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10140"
-version_tuple = (0, 0, 10140)
+version_str = "0.0.post10146"
+version_tuple = (0, 0, 10146)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10140")
+    pversion = V("0.0.post10146")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10016"
-data_version_tuple = (0, 0, 10016)
+data_version_str = "0.0.post10022"
+data_version_tuple = (0, 0, 10022)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10016")
+    pdata_version = V("0.0.post10022")
 except ImportError:
     pass
-data_git_hash = "6f7e546d8152f0d0714259917d0084de0ef2e00f"
-data_git_describe = "v0.0-10016-g6f7e546d8"
+data_git_hash = "5dfe96ba8da3c19400ceeebed338e5ab665521f0"
+data_git_describe = "v0.0-10022-g5dfe96ba8"
 data_git_msg = """\
-commit 6f7e546d8152f0d0714259917d0084de0ef2e00f
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Feb 7 16:43:53 2022 -0800
+commit 5dfe96ba8da3c19400ceeebed338e5ab665521f0
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Feb 3 17:12:39 2022 -0800
 
-    [tlul] Return all-one upon all data read errors
+    [cdc] Working version of CDC waivers
     
-    Fixes #10611
+    * Waiver should not have spaces between the status braces.
+      changed to `-status {Waived}`
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    * `[info exists ...]` should use variable name not the value of variable
+      changed to `[info exists modules]` in `cdc_waivers.tcl`
+    
+    * waiver directory is used to source individual waiver files.
+      defined `CDC_WAIVERS_DIR
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
