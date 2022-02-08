@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10128"
-version_tuple = (0, 0, 10128)
+version_str = "0.0.post10129"
+version_tuple = (0, 0, 10129)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10128")
+    pversion = V("0.0.post10129")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10004"
-data_version_tuple = (0, 0, 10004)
+data_version_str = "0.0.post10005"
+data_version_tuple = (0, 0, 10005)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10004")
+    pdata_version = V("0.0.post10005")
 except ImportError:
     pass
-data_git_hash = "cc159e919757a96b2ece03b1099139978e248380"
-data_git_describe = "v0.0-10004-gcc159e919"
+data_git_hash = "0fad9274ebb110c755db2fa936aab0baf422c21c"
+data_git_describe = "v0.0-10005-g0fad9274e"
 data_git_msg = """\
-commit cc159e919757a96b2ece03b1099139978e248380
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Feb 2 20:57:01 2022 -0800
+commit 0fad9274ebb110c755db2fa936aab0baf422c21c
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 3 07:52:41 2022 +0000
 
-    [sw/rom] Remove sec_mmio_write_increment function.
+    [otbn,dv] Fix assertion in RND FSM checking
     
-    Remove sec_mmio_write_increment function as it is only replaced by a
-    macro.
+    If we are prefetching and a response comes in from the
+    EDN (edn_rnd_ack_i) at the same time as an instruction reads from
+    RND (rnd_req_i), we go to the "full" state, not the "reading" state.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    The FSM I'd sketched out in the assertions was bogus: when both of
+    those signals are asserted at the same time, we can't go into both
+    READING and FULL states!
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
