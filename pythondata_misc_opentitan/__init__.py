@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10137"
-version_tuple = (0, 0, 10137)
+version_str = "0.0.post10138"
+version_tuple = (0, 0, 10138)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10137")
+    pversion = V("0.0.post10138")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10013"
-data_version_tuple = (0, 0, 10013)
+data_version_str = "0.0.post10014"
+data_version_tuple = (0, 0, 10014)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10013")
+    pdata_version = V("0.0.post10014")
 except ImportError:
     pass
-data_git_hash = "9ba75ebe576524fcf1cf0228947db70bdddd0df1"
-data_git_describe = "v0.0-10013-g9ba75ebe5"
+data_git_hash = "e76d655047f596d7ba11c89ffb5ff83b7f356bc4"
+data_git_describe = "v0.0-10014-ge76d65504"
 data_git_msg = """\
-commit 9ba75ebe576524fcf1cf0228947db70bdddd0df1
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Feb 4 13:07:52 2022 -0500
+commit e76d655047f596d7ba11c89ffb5ff83b7f356bc4
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Feb 7 15:20:50 2022 -0800
 
-    [sw/silicon_creator] Harden boot_data read functions
+    [lc_ctrl, dv] Add lc_ctrl_jtag_smoke to smoke regr
     
-    This change slightly simplifies and hardens
-    `boot_data_page_info_update_impl()` along with other functions in the
-    boot_data read path by adding hardened checks for `rom_error_t` and
-    `hardened_bool_t` values and loop counters.
+    This PR adds LC ctrl JTAG smoke test to the smoke suite run in CI. The
+    reason for this addition is to ensure changes to the JTAG agent which is
+    shared with other testbenches do not break the LC ctrl testbench.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
