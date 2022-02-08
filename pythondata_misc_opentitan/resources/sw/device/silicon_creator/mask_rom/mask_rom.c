@@ -76,7 +76,10 @@ static rom_error_t mask_rom_init(void) {
   // Initialize the shutdown policy according to lifecycle state.
   lc_state = lifecycle_state_get();
   HARDENED_RETURN_IF_ERROR(shutdown_init(lc_state));
+
   flash_ctrl_init();
+  SEC_MMIO_WRITE_INCREMENT(kFlashCtrlSecMmioInit);
+
   // Initiaize in-memory copy of the ePMP register configuration.
   mask_rom_epmp_state_init(&epmp);
 
@@ -166,6 +169,8 @@ static rom_error_t mask_rom_boot(const manifest_t *manifest,
   HARDENED_RETURN_IF_ERROR(keymgr_state_check(kKeymgrStateReset));
   keymgr_sw_binding_set(&manifest->binding_value, &manifest->binding_value);
   keymgr_creator_max_ver_set(manifest->max_key_version);
+  SEC_MMIO_WRITE_INCREMENT(kKeymgrSecMmioSwBindingSet +
+                           kKeymgrSecMmioCreatorMaxVerSet);
 
   // Check cached life cycle state against the value reported by hardware.
   lifecycle_state_t lc_state_check = lifecycle_state_get();
@@ -187,6 +192,9 @@ static rom_error_t mask_rom_boot(const manifest_t *manifest,
 
   // Enable execution of code from flash if signature is verified.
   flash_ctrl_exec_set(flash_exec);
+  SEC_MMIO_WRITE_INCREMENT(kFlashCtrlSecMmioExecSet);
+
+  sec_mmio_check_counters(/*expected_check_count=*/4);
 
   // Jump to ROM_EXT entry point.
   uintptr_t entry_point = manifest_entry_point_get(manifest);

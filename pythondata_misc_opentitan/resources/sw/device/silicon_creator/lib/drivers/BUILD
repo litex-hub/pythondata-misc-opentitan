@@ -10,6 +10,7 @@ cc_library(
     name = "alert",
     srcs = ["alert.c"],
     hdrs = ["alert.h"],
+    target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/top_earlgrey:alert_handler_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -32,11 +33,16 @@ cc_library(
 
 cc_test(
     name = "alert_unittest",
-    srcs = ["alert_unittest.cc"],
+    srcs = [
+        "alert.h",
+        "alert.c",
+        "alert_unittest.cc",
+    ],
     deps = [
-        ":alert",
         "//hw/top_earlgrey:alert_handler_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base",
+        "//sw/device/silicon_creator/lib:error",
         "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
         "@googletest//:gtest_main",
     ],
@@ -152,6 +158,7 @@ cc_library(
     name = "keymgr",
     srcs = ["keymgr.c"],
     hdrs = ["keymgr.h"],
+    target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/ip/keymgr/data:keymgr_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -166,12 +173,17 @@ cc_library(
 
 cc_test(
     name = "keymgr_unittest",
-    srcs = ["keymgr_unittest.cc"],
+    srcs = [
+        "keymgr.h",
+        "keymgr.c",
+        "keymgr_unittest.cc"
+    ],
     deps = [
-        ":keymgr",
+        "//hw/ip/keymgr/data:keymgr_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/testing:pwrmgr_testutils",
+        "//sw/device/lib/base/freestanding",
         "//sw/device/silicon_creator/lib:error",
+        "//sw/device/silicon_creator/lib:keymgr_binding",
         "//sw/device/silicon_creator/lib/base:mock_abs_mmio",
         "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
         "@googletest//:gtest_main",
@@ -274,6 +286,7 @@ cc_library(
     name = "otp",
     srcs = ["otp.c"],
     hdrs = ["otp.h"],
+    target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -298,9 +311,13 @@ cc_library(
 
 cc_test(
     name = "otp_unittest",
-    srcs = ["otp_unittest.cc"],
+    srcs = [
+        "otp.h",
+        "otp.c",
+        "otp_unittest.cc",
+    ],
     deps = [
-        ":otp",
+        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base",
         "//sw/device/silicon_creator/lib:error",
