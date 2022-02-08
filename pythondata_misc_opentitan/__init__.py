@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10138"
-version_tuple = (0, 0, 10138)
+version_str = "0.0.post10140"
+version_tuple = (0, 0, 10140)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10138")
+    pversion = V("0.0.post10140")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10014"
-data_version_tuple = (0, 0, 10014)
+data_version_str = "0.0.post10016"
+data_version_tuple = (0, 0, 10016)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10014")
+    pdata_version = V("0.0.post10016")
 except ImportError:
     pass
-data_git_hash = "e76d655047f596d7ba11c89ffb5ff83b7f356bc4"
-data_git_describe = "v0.0-10014-ge76d65504"
+data_git_hash = "6f7e546d8152f0d0714259917d0084de0ef2e00f"
+data_git_describe = "v0.0-10016-g6f7e546d8"
 data_git_msg = """\
-commit e76d655047f596d7ba11c89ffb5ff83b7f356bc4
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Feb 7 15:20:50 2022 -0800
+commit 6f7e546d8152f0d0714259917d0084de0ef2e00f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Feb 7 16:43:53 2022 -0800
 
-    [lc_ctrl, dv] Add lc_ctrl_jtag_smoke to smoke regr
+    [tlul] Return all-one upon all data read errors
     
-    This PR adds LC ctrl JTAG smoke test to the smoke suite run in CI. The
-    reason for this addition is to ensure changes to the JTAG agent which is
-    shared with other testbenches do not break the LC ctrl testbench.
+    Fixes #10611
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
