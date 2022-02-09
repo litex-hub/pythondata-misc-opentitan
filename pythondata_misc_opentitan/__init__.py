@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10189"
-version_tuple = (0, 0, 10189)
+version_str = "0.0.post10201"
+version_tuple = (0, 0, 10201)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10189")
+    pversion = V("0.0.post10201")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10065"
-data_version_tuple = (0, 0, 10065)
+data_version_str = "0.0.post10077"
+data_version_tuple = (0, 0, 10077)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10065")
+    pdata_version = V("0.0.post10077")
 except ImportError:
     pass
-data_git_hash = "db0ffc00954f03d9e6e5dcaa7c54cad52077f4bd"
-data_git_describe = "v0.0-10065-gdb0ffc009"
+data_git_hash = "500391bdb9ac5fc7de833689d775de8b88b17e6d"
+data_git_describe = "v0.0-10077-g500391bdb"
 data_git_msg = """\
-commit db0ffc00954f03d9e6e5dcaa7c54cad52077f4bd
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 4 15:35:32 2022 -0800
+commit 500391bdb9ac5fc7de833689d775de8b88b17e6d
+Author: Alexander Williams <awill@google.com>
+Date:   Tue Feb 8 08:34:09 2022 -0800
 
-    [flash_ctrl] D2S checklist and rtl annotation
+    [usbdev] Add TODO to handle missing SOF packets
     
-    - Also add an anchor buffer to integrity error
+    A device must not expect valid SOF packets for every frame. SOF
+    packets may be lost due to random bit errors, but isochronous
+    endpoints especially still need to keep up.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Currently, the IP does not handle this correctly.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
