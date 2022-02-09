@@ -4,60 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10175"
-version_tuple = (0, 0, 10175)
+version_str = "0.0.post10179"
+version_tuple = (0, 0, 10179)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10175")
+    pversion = V("0.0.post10179")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10051"
-data_version_tuple = (0, 0, 10051)
+data_version_str = "0.0.post10055"
+data_version_tuple = (0, 0, 10055)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10051")
+    pdata_version = V("0.0.post10055")
 except ImportError:
     pass
-data_git_hash = "563312c8cabd3f135c58df639634e741e241d638"
-data_git_describe = "v0.0-10051-g563312c8c"
+data_git_hash = "40848841bd43fecd1048c3fbe9cf2b2da02e9cc3"
+data_git_describe = "v0.0-10055-g40848841b"
 data_git_msg = """\
-commit 563312c8cabd3f135c58df639634e741e241d638
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Feb 2 15:10:28 2022 -0800
+commit 40848841bd43fecd1048c3fbe9cf2b2da02e9cc3
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Jan 25 16:59:10 2022 +0100
 
-    [sw/ottf] Rename test_rom_ext to ottf_start
+    [aes/pre_sca] Specify tool versions known to work with the Alma flow
     
-    Previously the boot sequence for chip level tests looked like:
-    
-    chip reset --> test_rom --> test_rom_ext --> ottf --> test_main()
-    
-    In the above sequence the `test_rom_ext` was really just an ASM file
-    that performed initializations prior to jumping to the OTTF `main()`.
-    However, as we refactor the OTTF to enable running chip-level tests at
-    various boot stages (e.g., ROM_EXT and BL0, see #10498), it makes more
-    sense to model the combined OTTF and test bundle as its own boot stage
-    that can be run in inplace of the ROM_EXT or BL0.
-    
-    Therefore, this commit renames/consolidates the test_rom_ext into a
-    component of the OTTF, called the `ottf_start`. The `ottf_start` is kept
-    as a separate static library from the `ottf` to enable running tests
-    that do not use the OTTF, i.e. the crt_test (which tests the
-    functionality of the `ottf_start` library), and the "Hello World"
-    example programs. However, when test images are built, both the
-    `ottf_start` and `ottf` are linked with the test library itself, to
-    create one cohesive "test boot stage".
-    
-    The new boot sequence for a test will look like:
-    
-    chip reset --> test_rom --> ottf --> test_main(),
-    
-    where OTTF = (ottf_start --> OTTF).
-    
-    This partially addresses a task in #10498.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
