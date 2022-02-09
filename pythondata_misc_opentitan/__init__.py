@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10181"
-version_tuple = (0, 0, 10181)
+version_str = "0.0.post10183"
+version_tuple = (0, 0, 10183)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10181")
+    pversion = V("0.0.post10183")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10057"
-data_version_tuple = (0, 0, 10057)
+data_version_str = "0.0.post10059"
+data_version_tuple = (0, 0, 10059)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10057")
+    pdata_version = V("0.0.post10059")
 except ImportError:
     pass
-data_git_hash = "34370722d926bc6912222ca41d178db00006ac8a"
-data_git_describe = "v0.0-10057-g34370722d"
+data_git_hash = "d980684e2586a03c852196780c1e2ccd6467cf6b"
+data_git_describe = "v0.0-10059-gd980684e2"
 data_git_msg = """\
-commit 34370722d926bc6912222ca41d178db00006ac8a
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Mon Feb 7 05:31:47 2022 -0800
+commit d980684e2586a03c852196780c1e2ccd6467cf6b
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Feb 8 09:22:45 2022 -0800
 
-    [aes/dv] updated testplan with functional coverpoints
+    [pwm/rtl] Handle rounding errors in pwm_chan
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    This commit simplifies the duty_cycle rounding arithmetic in pwm_chan.
+    The solution (as before) is to zero out unused bits in either the
+    commanded phase_delay or the actual duty cycle.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
