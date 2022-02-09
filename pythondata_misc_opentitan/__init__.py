@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10203"
-version_tuple = (0, 0, 10203)
+version_str = "0.0.post10205"
+version_tuple = (0, 0, 10205)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10203")
+    pversion = V("0.0.post10205")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10079"
-data_version_tuple = (0, 0, 10079)
+data_version_str = "0.0.post10081"
+data_version_tuple = (0, 0, 10081)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10079")
+    pdata_version = V("0.0.post10081")
 except ImportError:
     pass
-data_git_hash = "411856a57b97156ea8f5fa9a5f7e2a3993ebe67b"
-data_git_describe = "v0.0-10079-g411856a57"
+data_git_hash = "ffa395e7ab856be45e0fc759bde6f64efe2eb4c6"
+data_git_describe = "v0.0-10081-gffa395e7a"
 data_git_msg = """\
-commit 411856a57b97156ea8f5fa9a5f7e2a3993ebe67b
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Feb 8 12:25:12 2022 -0800
+commit ffa395e7ab856be45e0fc759bde6f64efe2eb4c6
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Feb 9 20:39:14 2022 +0000
 
-    [spi_host] Fix bug around invalid direction detection.
+    [usbdev, rtl] Fix auto-generated files
     
-    Dual and Qual mode transactions are invalid if the are bidirectional.
-    Previously this code flagged an error if such segments were anything
-    but bidirectional.
-    
-    Bug first noted in #10680.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
