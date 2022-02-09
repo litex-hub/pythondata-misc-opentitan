@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10179"
-version_tuple = (0, 0, 10179)
+version_str = "0.0.post10181"
+version_tuple = (0, 0, 10181)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10179")
+    pversion = V("0.0.post10181")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10055"
-data_version_tuple = (0, 0, 10055)
+data_version_str = "0.0.post10057"
+data_version_tuple = (0, 0, 10057)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10055")
+    pdata_version = V("0.0.post10057")
 except ImportError:
     pass
-data_git_hash = "40848841bd43fecd1048c3fbe9cf2b2da02e9cc3"
-data_git_describe = "v0.0-10055-g40848841b"
+data_git_hash = "34370722d926bc6912222ca41d178db00006ac8a"
+data_git_describe = "v0.0-10057-g34370722d"
 data_git_msg = """\
-commit 40848841bd43fecd1048c3fbe9cf2b2da02e9cc3
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Jan 25 16:59:10 2022 +0100
+commit 34370722d926bc6912222ca41d178db00006ac8a
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Mon Feb 7 05:31:47 2022 -0800
 
-    [aes/pre_sca] Specify tool versions known to work with the Alma flow
+    [aes/dv] updated testplan with functional coverpoints
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
