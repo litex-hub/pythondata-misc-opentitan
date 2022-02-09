@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10171"
-version_tuple = (0, 0, 10171)
+version_str = "0.0.post10173"
+version_tuple = (0, 0, 10173)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10171")
+    pversion = V("0.0.post10173")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10047"
-data_version_tuple = (0, 0, 10047)
+data_version_str = "0.0.post10049"
+data_version_tuple = (0, 0, 10049)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10047")
+    pdata_version = V("0.0.post10049")
 except ImportError:
     pass
-data_git_hash = "d23fb67c3859c4e900c204331d09a1119cd9b0de"
-data_git_describe = "v0.0-10047-gd23fb67c3"
+data_git_hash = "2bc4edbd859334dd3edd253ab9c12deb05d003df"
+data_git_describe = "v0.0-10049-g2bc4edbd8"
 data_git_msg = """\
-commit d23fb67c3859c4e900c204331d09a1119cd9b0de
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 8 15:38:37 2022 -0800
+commit 2bc4edbd859334dd3edd253ab9c12deb05d003df
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Feb 8 00:12:57 2022 -0800
 
-    [pwrmgr] Update default value
+    [dv/rstmgr] Add test for sw_rst and hw reset race
     
-    - fixes #4694
+    Create a test that sends sw_rst and hardware resets in close temporal
+    proximity.
+    Add UNR generated exclusion file.
+    Exclude rstmgr_cnsty_chk from coverage since it is tested separately.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
