@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10157"
-version_tuple = (0, 0, 10157)
+version_str = "0.0.post10168"
+version_tuple = (0, 0, 10168)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10157")
+    pversion = V("0.0.post10168")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10033"
-data_version_tuple = (0, 0, 10033)
+data_version_str = "0.0.post10044"
+data_version_tuple = (0, 0, 10044)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10033")
+    pdata_version = V("0.0.post10044")
 except ImportError:
     pass
-data_git_hash = "09b10ba9937cf6d502d4a9a726b51784265b04f1"
-data_git_describe = "v0.0-10033-g09b10ba99"
+data_git_hash = "6acdfbdc3349765949e83055849cbb6ac97756b4"
+data_git_describe = "v0.0-10044-g6acdfbdc3"
 data_git_msg = """\
-commit 09b10ba9937cf6d502d4a9a726b51784265b04f1
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Feb 8 10:36:45 2022 -0800
+commit 6acdfbdc3349765949e83055849cbb6ac97756b4
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Oct 8 20:22:22 2021 -0700
 
-    [prim] Add stub flops to remove lint warnings
+    [doc] Introduce Secure Hardware Design Guidelines
     
-    - for prim_mubi_sync/sender modules, when the AsynOn option is 0, the clk/rst_n inputs are used only for assertions.
-    - this causes the lint tools to throw a CLOCK_USE error as there are no valid loads on the clock.
-    - this commit adds unused stub logic that makes use of the clock and removes the lint error without having to add to individual waiver files.
+    Commits the first version of the Secure Hardware Design Guidelines
+    authored by @cdgori and @tjaychen with various contributions from the
+    OpenTitan community.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
