@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10169"
-version_tuple = (0, 0, 10169)
+version_str = "0.0.post10171"
+version_tuple = (0, 0, 10171)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10169")
+    pversion = V("0.0.post10171")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10045"
-data_version_tuple = (0, 0, 10045)
+data_version_str = "0.0.post10047"
+data_version_tuple = (0, 0, 10047)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10045")
+    pdata_version = V("0.0.post10047")
 except ImportError:
     pass
-data_git_hash = "d7475c68dfd864117543843bdae1bf956b642011"
-data_git_describe = "v0.0-10045-gd7475c68d"
+data_git_hash = "d23fb67c3859c4e900c204331d09a1119cd9b0de"
+data_git_describe = "v0.0-10047-gd23fb67c3"
 data_git_msg = """\
-commit d7475c68dfd864117543843bdae1bf956b642011
+commit d23fb67c3859c4e900c204331d09a1119cd9b0de
 Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 4 13:21:37 2022 -0800
+Date:   Tue Feb 8 15:38:37 2022 -0800
 
-    [flash_ctral] Various security item clean-up
+    [pwrmgr] Update default value
     
-    - harden rma_wipe_idx with prim_count
-    - connect seed_err
-    - minor documentation clean-up
+    - fixes #4694
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
