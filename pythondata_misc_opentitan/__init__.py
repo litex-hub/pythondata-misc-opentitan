@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10183"
-version_tuple = (0, 0, 10183)
+version_str = "0.0.post10189"
+version_tuple = (0, 0, 10189)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10183")
+    pversion = V("0.0.post10189")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10059"
-data_version_tuple = (0, 0, 10059)
+data_version_str = "0.0.post10065"
+data_version_tuple = (0, 0, 10065)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10059")
+    pdata_version = V("0.0.post10065")
 except ImportError:
     pass
-data_git_hash = "d980684e2586a03c852196780c1e2ccd6467cf6b"
-data_git_describe = "v0.0-10059-gd980684e2"
+data_git_hash = "db0ffc00954f03d9e6e5dcaa7c54cad52077f4bd"
+data_git_describe = "v0.0-10065-gdb0ffc009"
 data_git_msg = """\
-commit d980684e2586a03c852196780c1e2ccd6467cf6b
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Feb 8 09:22:45 2022 -0800
+commit db0ffc00954f03d9e6e5dcaa7c54cad52077f4bd
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 4 15:35:32 2022 -0800
 
-    [pwm/rtl] Handle rounding errors in pwm_chan
+    [flash_ctrl] D2S checklist and rtl annotation
     
-    This commit simplifies the duty_cycle rounding arithmetic in pwm_chan.
-    The solution (as before) is to zero out unused bits in either the
-    commanded phase_delay or the actual duty cycle.
+    - Also add an anchor buffer to integrity error
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
