@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10205"
-version_tuple = (0, 0, 10205)
+version_str = "0.0.post10206"
+version_tuple = (0, 0, 10206)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10205")
+    pversion = V("0.0.post10206")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10081"
-data_version_tuple = (0, 0, 10081)
+data_version_str = "0.0.post10082"
+data_version_tuple = (0, 0, 10082)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10081")
+    pdata_version = V("0.0.post10082")
 except ImportError:
     pass
-data_git_hash = "ffa395e7ab856be45e0fc759bde6f64efe2eb4c6"
-data_git_describe = "v0.0-10081-gffa395e7a"
+data_git_hash = "96ec26e144a62986d8be33a3ba1be85d1eab088b"
+data_git_describe = "v0.0-10082-g96ec26e14"
 data_git_msg = """\
-commit ffa395e7ab856be45e0fc759bde6f64efe2eb4c6
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Feb 9 20:39:14 2022 +0000
+commit 96ec26e144a62986d8be33a3ba1be85d1eab088b
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Wed Feb 2 20:03:56 2022 +0000
 
-    [usbdev, rtl] Fix auto-generated files
+    [flash_ctrl] ADD TEST FOR PHY ARBITRATION
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Add test for arbitration between host reads and controller operations.
+    Test has three scenarios: 1. arbitration is tested on the
+    different banks, 2. arbitration is tested on the same bank and
+    3. lost of host reads priority.
+    
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
