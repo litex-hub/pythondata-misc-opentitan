@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10168"
-version_tuple = (0, 0, 10168)
+version_str = "0.0.post10169"
+version_tuple = (0, 0, 10169)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10168")
+    pversion = V("0.0.post10169")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10044"
-data_version_tuple = (0, 0, 10044)
+data_version_str = "0.0.post10045"
+data_version_tuple = (0, 0, 10045)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10044")
+    pdata_version = V("0.0.post10045")
 except ImportError:
     pass
-data_git_hash = "6acdfbdc3349765949e83055849cbb6ac97756b4"
-data_git_describe = "v0.0-10044-g6acdfbdc3"
+data_git_hash = "d7475c68dfd864117543843bdae1bf956b642011"
+data_git_describe = "v0.0-10045-gd7475c68d"
 data_git_msg = """\
-commit 6acdfbdc3349765949e83055849cbb6ac97756b4
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Oct 8 20:22:22 2021 -0700
+commit d7475c68dfd864117543843bdae1bf956b642011
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 4 13:21:37 2022 -0800
 
-    [doc] Introduce Secure Hardware Design Guidelines
+    [flash_ctral] Various security item clean-up
     
-    Commits the first version of the Secure Hardware Design Guidelines
-    authored by @cdgori and @tjaychen with various contributions from the
-    OpenTitan community.
+    - harden rma_wipe_idx with prim_count
+    - connect seed_err
+    - minor documentation clean-up
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
