@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10202"
-version_tuple = (0, 0, 10202)
+version_str = "0.0.post10203"
+version_tuple = (0, 0, 10203)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10202")
+    pversion = V("0.0.post10203")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10078"
-data_version_tuple = (0, 0, 10078)
+data_version_str = "0.0.post10079"
+data_version_tuple = (0, 0, 10079)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10078")
+    pdata_version = V("0.0.post10079")
 except ImportError:
     pass
-data_git_hash = "0fd4e2e92240b74015b4c0031e345d07630126fa"
-data_git_describe = "v0.0-10078-g0fd4e2e92"
+data_git_hash = "411856a57b97156ea8f5fa9a5f7e2a3993ebe67b"
+data_git_describe = "v0.0-10079-g411856a57"
 data_git_msg = """\
-commit 0fd4e2e92240b74015b4c0031e345d07630126fa
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Feb 7 14:42:07 2022 +0000
+commit 411856a57b97156ea8f5fa9a5f7e2a3993ebe67b
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Feb 8 12:25:12 2022 -0800
 
-    [sw] Add build/ to .bazelignore.
+    [spi_host] Fix bug around invalid direction detection.
     
-    Fixes build errors generated when running bazel after building docs with
-    meson.
+    Dual and Qual mode transactions are invalid if the are bidirectional.
+    Previously this code flagged an error if such segments were anything
+    but bidirectional.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Bug first noted in #10680.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
