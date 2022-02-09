@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10201"
-version_tuple = (0, 0, 10201)
+version_str = "0.0.post10202"
+version_tuple = (0, 0, 10202)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10201")
+    pversion = V("0.0.post10202")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10077"
-data_version_tuple = (0, 0, 10077)
+data_version_str = "0.0.post10078"
+data_version_tuple = (0, 0, 10078)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10077")
+    pdata_version = V("0.0.post10078")
 except ImportError:
     pass
-data_git_hash = "500391bdb9ac5fc7de833689d775de8b88b17e6d"
-data_git_describe = "v0.0-10077-g500391bdb"
+data_git_hash = "0fd4e2e92240b74015b4c0031e345d07630126fa"
+data_git_describe = "v0.0-10078-g0fd4e2e92"
 data_git_msg = """\
-commit 500391bdb9ac5fc7de833689d775de8b88b17e6d
-Author: Alexander Williams <awill@google.com>
-Date:   Tue Feb 8 08:34:09 2022 -0800
+commit 0fd4e2e92240b74015b4c0031e345d07630126fa
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Feb 7 14:42:07 2022 +0000
 
-    [usbdev] Add TODO to handle missing SOF packets
+    [sw] Add build/ to .bazelignore.
     
-    A device must not expect valid SOF packets for every frame. SOF
-    packets may be lost due to random bit errors, but isochronous
-    endpoints especially still need to keep up.
+    Fixes build errors generated when running bazel after building docs with
+    meson.
     
-    Currently, the IP does not handle this correctly.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
