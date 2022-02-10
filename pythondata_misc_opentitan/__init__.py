@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10232"
-version_tuple = (0, 0, 10232)
+version_str = "0.0.post10233"
+version_tuple = (0, 0, 10233)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10232")
+    pversion = V("0.0.post10233")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10108"
-data_version_tuple = (0, 0, 10108)
+data_version_str = "0.0.post10109"
+data_version_tuple = (0, 0, 10109)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10108")
+    pdata_version = V("0.0.post10109")
 except ImportError:
     pass
-data_git_hash = "44c554de31ec1d30878ef2ea90881d9e92dae469"
-data_git_describe = "v0.0-10108-g44c554de3"
+data_git_hash = "8a3b308ddcf348a89e5546e13b61ce13dad06f3e"
+data_git_describe = "v0.0-10109-g8a3b308dd"
 data_git_msg = """\
-commit 44c554de31ec1d30878ef2ea90881d9e92dae469
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Feb 9 13:20:28 2022 -0800
+commit 8a3b308ddcf348a89e5546e13b61ce13dad06f3e
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Wed Feb 9 04:20:27 2022 -0800
 
-    [usbdev] Fix the VBUS-is-on event's source
+    [aes/dv] added deinit test to verify correct deinitialization of read regs
     
-    Attach the interrupt to the power sense instead of the link state FSM.
-    
-    Also rename the connected interrupt to powered, to better reflect the
-    event in USB parlance.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
