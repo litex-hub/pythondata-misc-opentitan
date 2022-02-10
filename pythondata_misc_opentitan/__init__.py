@@ -4,44 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10224"
-version_tuple = (0, 0, 10224)
+version_str = "0.0.post10228"
+version_tuple = (0, 0, 10228)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10224")
+    pversion = V("0.0.post10228")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10100"
-data_version_tuple = (0, 0, 10100)
+data_version_str = "0.0.post10104"
+data_version_tuple = (0, 0, 10104)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10100")
+    pdata_version = V("0.0.post10104")
 except ImportError:
     pass
-data_git_hash = "018dac54829f0309e6cd215f63e670c933e3fa6e"
-data_git_describe = "v0.0-10100-g018dac548"
+data_git_hash = "d77447877a7e516ec5067f89554f6a12d6f4844f"
+data_git_describe = "v0.0-10104-gd77447877"
 data_git_msg = """\
-commit 018dac54829f0309e6cd215f63e670c933e3fa6e
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 3 11:31:46 2022 +0000
+commit d77447877a7e516ec5067f89554f6a12d6f4844f
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sun Jan 23 14:40:31 2022 -0800
 
-    [otbn,dv] Properly represent DMEM store latency in ISS
+    [entropy_src/dv] Add env. support for FW_OV pathway
     
-    This wouldn't matter except that we want to support a test where we
-    invalidate the whole of DMEM (to trigger integrity errors) at some
-    arbitrary point in the run.
+    - Introduce scoreboarding checks for reading the "observe" FIFO
+    - Creates an fw_ov test to probe this functionality
+       - Currently only reads from the observe FIFO
     
-    If we're unlucky and happen to do this just after executing a store
-    then the RTL will apply the store on the following cycle (leaving
-    valid integrity bits) but the ISS, which had applied the store
-    already, would mark the location as having bad integrity.
-    
-    The correct fix is easy enough: keep an extra "pending" queue that
-    only gets applied on the following cycle.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
