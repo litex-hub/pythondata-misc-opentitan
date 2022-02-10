@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10234"
-version_tuple = (0, 0, 10234)
+version_str = "0.0.post10237"
+version_tuple = (0, 0, 10237)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10234")
+    pversion = V("0.0.post10237")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10110"
-data_version_tuple = (0, 0, 10110)
+data_version_str = "0.0.post10113"
+data_version_tuple = (0, 0, 10113)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10110")
+    pdata_version = V("0.0.post10113")
 except ImportError:
     pass
-data_git_hash = "8ae9bce3fabcda7b7c18f515f5ecf3de264c6c95"
-data_git_describe = "v0.0-10110-g8ae9bce3f"
+data_git_hash = "f86fcb99fe1cb1359c12876e208ff4853eafc0b5"
+data_git_describe = "v0.0-10113-gf86fcb99f"
 data_git_msg = """\
-commit 8ae9bce3fabcda7b7c18f515f5ecf3de264c6c95
-Author: TIM EWINS <tim.ewins@ensilica.com>
-Date:   Wed Feb 2 15:32:36 2022 +0000
+commit f86fcb99fe1cb1359c12876e208ff4853eafc0b5
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 10 10:05:32 2022 -0800
 
-    [flash_ctrl] ADD TEST FOR SECRET PARTITIONS
+    [dv/shadow_reg] Move shadow_reg to V2S
     
-    Test Secret Partitions Seeds to Key Manager
-    and OTP Keys to Scramble function.
-    tb.sv - Add VIF connections for OTP Key Model.
+    This PR cleans up the shadow reg testplan to move them to V2S.
     
-    Signed-off-by: TIM EWINS <tim.ewins@ensilica.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
