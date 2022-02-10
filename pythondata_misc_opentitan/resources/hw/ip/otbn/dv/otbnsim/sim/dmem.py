@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import struct
-from typing import List, Sequence, Optional
+from typing import Dict, List, Sequence, Optional
 
 from shared.mem_layout import get_memory_layout
 
@@ -45,22 +45,30 @@ class Dmem:
             raise RuntimeError('Implausibly large DMEM size: {}'
                                .format(dmem_size))
 
-        # We're going to store DMEM as an array of 32-byte words (the native
-        # width for the OTBN wide side). Of course, that means dmem_size needs
-        # to be divisible by 32.
+        # The native width for the OTBN wide side is 256 bits. This means that
+        # dmem_size needs to be divisible by 32.
         if dmem_size % 32:
             raise RuntimeError('DMEM size ({}) is not divisible by 32.'
                                .format(dmem_size))
 
+        # We represent the contents of DMEM as a list of 32-bit words (unlike
+        # the RTL, which uses a 256-bit array). An entry in self.data is None
+        # if the word has invalid integrity bits and we'll get an error if we
+        # try to read it. Otherwise, we store the integer value.
         num_words = dmem_size // 4
+        self.data = [None] * num_words  # type: List[Optional[int]]
 
-        # Initialise the memory to an arbitrary "bad" constant (here,
-        # 0xdeadbeef). We could initialise to a random value, but maybe it's
-        # more helpful to generate something recognisable for now.
-        uninit = 0xdeadbeef
-
-        self.data = [uninit] * num_words  # type: List[Optional[int]]
+        # Because it's an actual memory, stores to DMEM take two cycles in the
+        # RTL. We wouldn't need to model this except that a DMEM invalidation
+        # (used by the testbench to model integrity errors) shouldn't trash
+        # pending writes. We do things in two steps: firstly, we do the
+        # trace/commit dance that all the other blocks do. A memory write will
+        # generate a trace entry which will appear in changes() at the end of
+        # this cycle. However, the first commit() will then move it to the
+        # self.pending list. Entries here will only make it to self.data on the
+        # next commit().
         self.trace = []  # type: List[TraceDmemStore]
+        self.pending = {}  # type: Dict[int, int]
 
     def _load_5byte_le_words(self, data: bytes) -> None:
         '''Replace the start of memory with data
@@ -93,10 +101,7 @@ class Dmem:
                 raise ValueError('The validity byte for 32-bit word {} '
                                  'in the input data is {}, not 0 or 1.'
                                  .format(idx32, vld))
-
-            # TODO: Take account of validity bit here!
-
-            self.data[idx32] = u32
+            self.data[idx32] = u32 if vld else None
 
     def _load_4byte_le_words(self, data: bytes) -> None:
         '''Replace the start of memory with data
@@ -163,7 +168,7 @@ class Dmem:
         assert self.is_valid_256b_addr(addr)
         ret_data = 0
         for i in range(256 // 32):
-            rd_data = self.data[(addr // 4) + i]
+            rd_data = self.load_u32(addr + 4 * i)
             if rd_data is None:
                 return None
             ret_data = ret_data | (rd_data << (i * 32))
@@ -199,6 +204,13 @@ class Dmem:
         assert addr >= 0
         assert self.is_valid_32b_addr(addr)
 
+        idx = addr // 4
+
+        # Handle "read under write" hazards properly
+        pending_val = self.pending.get(idx)
+        if pending_val is not None:
+            return pending_val
+
         return self.data[addr // 4]
 
     def store_u32(self, addr: int, value: int) -> None:
@@ -216,21 +228,28 @@ class Dmem:
     def changes(self) -> Sequence[Trace]:
         return self.trace
 
-    def _commit_store(self, item: TraceDmemStore) -> None:
+    def _commit_trace_entry(self, item: TraceDmemStore) -> None:
+        '''Apply a trace entry to self.pending'''
         if item.is_wide:
             assert 0 <= item.value < (1 << 256)
             mask = (1 << 32) - 1
             for i in range(256 // 32):
                 wr_data = (item.value >> (i * 32)) & mask
-                self.data[(item.addr // 4) + i] = wr_data
+                self.pending[(item.addr // 4) + i] = wr_data
 
         else:
             assert 0 <= item.value <= (1 << 32) - 1
-            self.data[item.addr // 4] = item.value
+            self.pending[item.addr // 4] = item.value
 
     def commit(self) -> None:
+        # Move items from self.pending to self.data
+        for idx, value in self.pending.items():
+            self.data[idx] = value
+        self.pending = {}
+
+        # Apply trace entries to self.pending
         for item in self.trace:
-            self._commit_store(item)
+            self._commit_trace_entry(item)
         self.trace = []
 
     def abort(self) -> None:
