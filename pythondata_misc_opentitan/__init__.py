@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10230"
-version_tuple = (0, 0, 10230)
+version_str = "0.0.post10232"
+version_tuple = (0, 0, 10232)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10230")
+    pversion = V("0.0.post10232")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10106"
-data_version_tuple = (0, 0, 10106)
+data_version_str = "0.0.post10108"
+data_version_tuple = (0, 0, 10108)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10106")
+    pdata_version = V("0.0.post10108")
 except ImportError:
     pass
-data_git_hash = "08d3b8b5fec118437aab51a69d9189b9b6cea79e"
-data_git_describe = "v0.0-10106-g08d3b8b5f"
+data_git_hash = "44c554de31ec1d30878ef2ea90881d9e92dae469"
+data_git_describe = "v0.0-10108-g44c554de3"
 data_git_msg = """\
-commit 08d3b8b5fec118437aab51a69d9189b9b6cea79e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 9 18:24:41 2022 -0800
+commit 44c554de31ec1d30878ef2ea90881d9e92dae469
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Feb 9 13:20:28 2022 -0800
 
-    [dv/aes] ctrl_shadowed register update
+    [usbdev] Fix the VBUS-is-on event's source
     
-    This PR updates shadow reg in AES:
-    1). There are more than one shadow reg in AES, need to gate the
-      customized write to only apply to `ctrl_shadowed``
-    2). Ctrl_shadowed register has some field update, this PR aligns it in
-      DV.
+    Attach the interrupt to the power sense instead of the link state FSM.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Also rename the connected interrupt to powered, to better reflect the
+    event in USB parlance.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
