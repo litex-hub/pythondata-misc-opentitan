@@ -4,44 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10211"
-version_tuple = (0, 0, 10211)
+version_str = "0.0.post10214"
+version_tuple = (0, 0, 10214)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10211")
+    pversion = V("0.0.post10214")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10087"
-data_version_tuple = (0, 0, 10087)
+data_version_str = "0.0.post10090"
+data_version_tuple = (0, 0, 10090)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10087")
+    pdata_version = V("0.0.post10090")
 except ImportError:
     pass
-data_git_hash = "cb96560f187f6af9b5461d55eaf18ab3f5515901"
-data_git_describe = "v0.0-10087-gcb96560f1"
+data_git_hash = "29c829a9e7eef8cb8af7e552933d365d80f2f23f"
+data_git_describe = "v0.0-10090-g29c829a9e"
 data_git_msg = """\
-commit cb96560f187f6af9b5461d55eaf18ab3f5515901
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Feb 8 15:41:47 2022 -0800
+commit 29c829a9e7eef8cb8af7e552933d365d80f2f23f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 9 12:09:17 2022 -0800
 
-    [sw/ottf] Add manifest to OTTF so mask ROM can (eventually) boot it
+    [dv/kmac] Fix TL integrity sequence error
     
-    This adds a manifest field to any test images that are run via the
-    ottf_start.S assembly. This includes any tests that use the OTTF itself
-    (e.g., chip-level tests), and tests with a `main()` entrypoint (e.g.,
-    "Hello World" example programs).
+    Because fatal alert can lock up `cfg_regwen`, and push sha3 fsm to error
+    state. So we add these two fields to kmac_env_cfg.
     
-    Note, this just adds the manifest fields to OTTF test binaries, and sets
-    the default entry point to `_ottf_start`. It does not place the manifest
-    in the correct location such that it can be loaded and verified by the
-    mask ROM. That will come in a subsequent commit.
-    
-    This addresses task in #10498.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
