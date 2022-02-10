@@ -4,35 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10214"
-version_tuple = (0, 0, 10214)
+version_str = "0.0.post10216"
+version_tuple = (0, 0, 10216)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10214")
+    pversion = V("0.0.post10216")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10090"
-data_version_tuple = (0, 0, 10090)
+data_version_str = "0.0.post10092"
+data_version_tuple = (0, 0, 10092)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10090")
+    pdata_version = V("0.0.post10092")
 except ImportError:
     pass
-data_git_hash = "29c829a9e7eef8cb8af7e552933d365d80f2f23f"
-data_git_describe = "v0.0-10090-g29c829a9e"
+data_git_hash = "610b263796030b80a8ee1f218127deedbe22dc33"
+data_git_describe = "v0.0-10092-g610b26379"
 data_git_msg = """\
-commit 29c829a9e7eef8cb8af7e552933d365d80f2f23f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 9 12:09:17 2022 -0800
+commit 610b263796030b80a8ee1f218127deedbe22dc33
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Feb 8 23:36:02 2022 -0800
 
-    [dv/kmac] Fix TL integrity sequence error
+    [sw/ottf] move OTTF to flash address space
     
-    Because fatal alert can lock up `cfg_regwen`, and push sha3 fsm to error
-    state. So we add these two fields to kmac_env_cfg.
+    To demonstrate the flash translation capabilities of the Ibex core
+    wrapper, the OTTF was loaded at the virtual flash address space and the
+    Ibex wrapper IP's address translation features were used to map the
+    virtual flash address space to the physical address space.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Unfortunately, in order to run OTTF-launched tests with mask ROM (vs
+    test ROM), the OTTF manifest and entry point must be in the ROM_EXT slot
+    a (or b, though we load (currently) load slot a only for simplicity)
+    address space, wich is the beginning of the physical flash address space.
+    
+    If the mask ROM evolves to make use of these translation features, then
+    the OTTF and test ROM can be updated to follow suit. This is captured in
+    issue #10712.
+    
+    This partially addresses a task in #10498.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
