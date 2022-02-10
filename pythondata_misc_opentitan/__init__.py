@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10233"
-version_tuple = (0, 0, 10233)
+version_str = "0.0.post10234"
+version_tuple = (0, 0, 10234)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10233")
+    pversion = V("0.0.post10234")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10109"
-data_version_tuple = (0, 0, 10109)
+data_version_str = "0.0.post10110"
+data_version_tuple = (0, 0, 10110)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10109")
+    pdata_version = V("0.0.post10110")
 except ImportError:
     pass
-data_git_hash = "8a3b308ddcf348a89e5546e13b61ce13dad06f3e"
-data_git_describe = "v0.0-10109-g8a3b308dd"
+data_git_hash = "8ae9bce3fabcda7b7c18f515f5ecf3de264c6c95"
+data_git_describe = "v0.0-10110-g8ae9bce3f"
 data_git_msg = """\
-commit 8a3b308ddcf348a89e5546e13b61ce13dad06f3e
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Wed Feb 9 04:20:27 2022 -0800
+commit 8ae9bce3fabcda7b7c18f515f5ecf3de264c6c95
+Author: TIM EWINS <tim.ewins@ensilica.com>
+Date:   Wed Feb 2 15:32:36 2022 +0000
 
-    [aes/dv] added deinit test to verify correct deinitialization of read regs
+    [flash_ctrl] ADD TEST FOR SECRET PARTITIONS
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Test Secret Partitions Seeds to Key Manager
+    and OTP Keys to Scramble function.
+    tb.sv - Add VIF connections for OTP Key Model.
+    
+    Signed-off-by: TIM EWINS <tim.ewins@ensilica.com>
 
 """
 
