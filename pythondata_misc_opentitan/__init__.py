@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10217"
-version_tuple = (0, 0, 10217)
+version_str = "0.0.post10218"
+version_tuple = (0, 0, 10218)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10217")
+    pversion = V("0.0.post10218")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10093"
-data_version_tuple = (0, 0, 10093)
+data_version_str = "0.0.post10094"
+data_version_tuple = (0, 0, 10094)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10093")
+    pdata_version = V("0.0.post10094")
 except ImportError:
     pass
-data_git_hash = "150283a774a5c4ab6c4174d20310c16abcc5f650"
-data_git_describe = "v0.0-10093-g150283a77"
+data_git_hash = "8c4d8136d974855ad1c1608a5363605921f5d376"
+data_git_describe = "v0.0-10094-g8c4d8136d"
 data_git_msg = """\
-commit 150283a774a5c4ab6c4174d20310c16abcc5f650
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Feb 8 16:45:46 2022 +0100
+commit 8c4d8136d974855ad1c1608a5363605921f5d376
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Feb 9 13:03:22 2022 +0000
 
-    [aes] Stop clearing status and trigger register to zero on fatal alerts
+    [rom_ctrl] Connect up error signal from KMAC
     
-    This is related to lowRISC/OpenTitan#8460.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
