@@ -4,48 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10216"
-version_tuple = (0, 0, 10216)
+version_str = "0.0.post10217"
+version_tuple = (0, 0, 10217)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10216")
+    pversion = V("0.0.post10217")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10092"
-data_version_tuple = (0, 0, 10092)
+data_version_str = "0.0.post10093"
+data_version_tuple = (0, 0, 10093)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10092")
+    pdata_version = V("0.0.post10093")
 except ImportError:
     pass
-data_git_hash = "610b263796030b80a8ee1f218127deedbe22dc33"
-data_git_describe = "v0.0-10092-g610b26379"
+data_git_hash = "150283a774a5c4ab6c4174d20310c16abcc5f650"
+data_git_describe = "v0.0-10093-g150283a77"
 data_git_msg = """\
-commit 610b263796030b80a8ee1f218127deedbe22dc33
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Feb 8 23:36:02 2022 -0800
+commit 150283a774a5c4ab6c4174d20310c16abcc5f650
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Feb 8 16:45:46 2022 +0100
 
-    [sw/ottf] move OTTF to flash address space
+    [aes] Stop clearing status and trigger register to zero on fatal alerts
     
-    To demonstrate the flash translation capabilities of the Ibex core
-    wrapper, the OTTF was loaded at the virtual flash address space and the
-    Ibex wrapper IP's address translation features were used to map the
-    virtual flash address space to the physical address space.
+    This is related to lowRISC/OpenTitan#8460.
     
-    Unfortunately, in order to run OTTF-launched tests with mask ROM (vs
-    test ROM), the OTTF manifest and entry point must be in the ROM_EXT slot
-    a (or b, though we load (currently) load slot a only for simplicity)
-    address space, wich is the beginning of the physical flash address space.
-    
-    If the mask ROM evolves to make use of these translation features, then
-    the OTTF and test ROM can be updated to follow suit. This is captured in
-    issue #10712.
-    
-    This partially addresses a task in #10498.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
