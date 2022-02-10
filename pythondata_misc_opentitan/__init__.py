@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10228"
-version_tuple = (0, 0, 10228)
+version_str = "0.0.post10230"
+version_tuple = (0, 0, 10230)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10228")
+    pversion = V("0.0.post10230")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10104"
-data_version_tuple = (0, 0, 10104)
+data_version_str = "0.0.post10106"
+data_version_tuple = (0, 0, 10106)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10104")
+    pdata_version = V("0.0.post10106")
 except ImportError:
     pass
-data_git_hash = "d77447877a7e516ec5067f89554f6a12d6f4844f"
-data_git_describe = "v0.0-10104-gd77447877"
+data_git_hash = "08d3b8b5fec118437aab51a69d9189b9b6cea79e"
+data_git_describe = "v0.0-10106-g08d3b8b5f"
 data_git_msg = """\
-commit d77447877a7e516ec5067f89554f6a12d6f4844f
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sun Jan 23 14:40:31 2022 -0800
+commit 08d3b8b5fec118437aab51a69d9189b9b6cea79e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 9 18:24:41 2022 -0800
 
-    [entropy_src/dv] Add env. support for FW_OV pathway
+    [dv/aes] ctrl_shadowed register update
     
-    - Introduce scoreboarding checks for reading the "observe" FIFO
-    - Creates an fw_ov test to probe this functionality
-       - Currently only reads from the observe FIFO
+    This PR updates shadow reg in AES:
+    1). There are more than one shadow reg in AES, need to gate the
+      customized write to only apply to `ctrl_shadowed``
+    2). Ctrl_shadowed register has some field update, this PR aligns it in
+      DV.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
