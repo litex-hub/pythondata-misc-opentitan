@@ -560,7 +560,7 @@ TEST_F(ShutdownTest, InitializeManufacturing) {
 class ShutdownDeathTest : public ShutdownTest {};
 
 TEST_F(ShutdownDeathTest, InitializeInvalid) {
-  ASSERT_DEATH(
+  EXPECT_DEATH(
       {
         SetupOtpReads();
         shutdown_init(static_cast<lifecycle_state_t>(0));
@@ -599,8 +599,12 @@ TEST_F(ShutdownTest, FlashKill) {
 TEST_F(ShutdownTest, ShutdownIfErrorOk) { SHUTDOWN_IF_ERROR(kErrorOk); }
 
 TEST_F(ShutdownTest, ShutdownIfErrorUnknown) {
-  ExpectFinalize(kErrorUnknown);
-  SHUTDOWN_IF_ERROR(kErrorUnknown);
+  EXPECT_DEATH(
+      {
+        ExpectFinalize(kErrorUnknown);
+        SHUTDOWN_IF_ERROR(kErrorUnknown);
+      },
+      "");
 }
 
 TEST_F(ShutdownTest, SoftwareEscalate) {
