@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10255"
-version_tuple = (0, 0, 10255)
+version_str = "0.0.post10257"
+version_tuple = (0, 0, 10257)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10255")
+    pversion = V("0.0.post10257")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10131"
-data_version_tuple = (0, 0, 10131)
+data_version_str = "0.0.post10133"
+data_version_tuple = (0, 0, 10133)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10131")
+    pdata_version = V("0.0.post10133")
 except ImportError:
     pass
-data_git_hash = "971bb82ed72a996d71236107e0932ac184cd9749"
-data_git_describe = "v0.0-10131-g971bb82ed"
+data_git_hash = "c15bbbfd478af1e335c1fc30c58ce03ee8c9ef98"
+data_git_describe = "v0.0-10133-gc15bbbfd4"
 data_git_msg = """\
-commit 971bb82ed72a996d71236107e0932ac184cd9749
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Feb 10 10:17:17 2022 -0500
+commit c15bbbfd478af1e335c1fc30c58ce03ee8c9ef98
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Feb 11 09:42:24 2022 -0800
 
-    [sw/silicon_creator] Directly use UART in shutdown_report_error()
+    [rtl/rstmgr] Remove superfluous assertion
     
-    This change adds `shutdown_print()` that replaces usages of
-    `log_printf()` in `shutdown_report_error()`.  `shutdown_report_error()`
-    is also updated such that UART TX fifo is reset and TX is enabled before
-    transmission. As a result, shutdown module no longer depends on the log
-    library.
+    It caused trouble in some corner cases, and adds little value.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
