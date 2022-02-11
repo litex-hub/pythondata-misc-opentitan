@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10257"
-version_tuple = (0, 0, 10257)
+version_str = "0.0.post10263"
+version_tuple = (0, 0, 10263)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10257")
+    pversion = V("0.0.post10263")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10133"
-data_version_tuple = (0, 0, 10133)
+data_version_str = "0.0.post10139"
+data_version_tuple = (0, 0, 10139)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10133")
+    pdata_version = V("0.0.post10139")
 except ImportError:
     pass
-data_git_hash = "c15bbbfd478af1e335c1fc30c58ce03ee8c9ef98"
-data_git_describe = "v0.0-10133-gc15bbbfd4"
+data_git_hash = "3f05591fd2eec3638309e70836ef3c3af62aa998"
+data_git_describe = "v0.0-10139-g3f05591fd"
 data_git_msg = """\
-commit c15bbbfd478af1e335c1fc30c58ce03ee8c9ef98
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 11 09:42:24 2022 -0800
+commit 3f05591fd2eec3638309e70836ef3c3af62aa998
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Feb 11 10:49:35 2022 -0800
 
-    [rtl/rstmgr] Remove superfluous assertion
+    [opentitantoo] Move backend/ into opentitanlib
     
-    It caused trouble in some corner cases, and adds little value.
+    The backend/ directory contains logic for processing command line
+    arguments and constructing an instance of the Transport trait
+    accordingly.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This functionality will be needed outside of opentitantool proper.
+    Both in dedicated test programs using a Verilator backend, and for the
+    new session support for opentitantool.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I197176efb9e46af107f38e2f66f395b6aa92648b
 
 """
 
