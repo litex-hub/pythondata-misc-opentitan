@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10246"
-version_tuple = (0, 0, 10246)
+version_str = "0.0.post10248"
+version_tuple = (0, 0, 10248)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10246")
+    pversion = V("0.0.post10248")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10122"
-data_version_tuple = (0, 0, 10122)
+data_version_str = "0.0.post10124"
+data_version_tuple = (0, 0, 10124)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10122")
+    pdata_version = V("0.0.post10124")
 except ImportError:
     pass
-data_git_hash = "1a2c4ec9327c24d2ee9bcba4c2a08983ed7a79c7"
-data_git_describe = "v0.0-10122-g1a2c4ec93"
+data_git_hash = "490776858ecc183874bc15df0ae8ccf5a5399332"
+data_git_describe = "v0.0-10124-g490776858"
 data_git_msg = """\
-commit 1a2c4ec9327c24d2ee9bcba4c2a08983ed7a79c7
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Thu Feb 10 04:44:08 2022 -0800
+commit 490776858ecc183874bc15df0ae8ccf5a5399332
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Feb 2 13:24:22 2022 -0500
 
-    [aes/dv] fixed compile errors introduced with new rtl
+    [sw/silicon_creator] Use EXPECT_DEATH in unit tests
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Fixes #10549
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
