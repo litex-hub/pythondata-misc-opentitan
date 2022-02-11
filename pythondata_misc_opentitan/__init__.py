@@ -4,41 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10244"
-version_tuple = (0, 0, 10244)
+version_str = "0.0.post10245"
+version_tuple = (0, 0, 10245)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10244")
+    pversion = V("0.0.post10245")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10120"
-data_version_tuple = (0, 0, 10120)
+data_version_str = "0.0.post10121"
+data_version_tuple = (0, 0, 10121)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10120")
+    pdata_version = V("0.0.post10121")
 except ImportError:
     pass
-data_git_hash = "5fbb8f72677bf48ef034222a514913c09ce61c6e"
-data_git_describe = "v0.0-10120-g5fbb8f726"
+data_git_hash = "ca221a00278b20c82d3d0ffa092a52782c1c0b0d"
+data_git_describe = "v0.0-10121-gca221a002"
 data_git_msg = """\
-commit 5fbb8f72677bf48ef034222a514913c09ce61c6e
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Thu Feb 10 09:58:16 2022 +0000
+commit ca221a00278b20c82d3d0ffa092a52782c1c0b0d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 10 10:21:48 2022 -0800
 
-    [lc_ctrl/dv] Addressed comments in #10246
+    [dv/kmac] Fix kmac TL integrity error failure
     
-    - Deleted lc_ctrl_cov_if.sv:
-    https://github.com/lowRISC/opentitan/pull/10246#discussion_r802079172
-    - Updated type of otp_vendor_test_ctrl and otp_vendor_test_status in lc_ctrl_env_cfg.sv:
-    https://github.com/lowRISC/opentitan/pull/10246#discussion_r802082681
-    - Updated error message to UVM_MEDIUM:
-    https://github.com/lowRISC/opentitan/pull/10246#discussion_r802084957
-    - Added back port toggle coverage for RV_TAP:
-    https://github.com/lowRISC/opentitan/pull/10246#discussion_r803431294
+    When kmac TL integrity error triggers, kmac will lock its internal
+    states and also lock `cfg_regwen` register. Because the `cfg_regwen` is
+    a `ro` register, RAL model won't lock its lockable registers
+    automatically.
+    So I separate out a task in common sequence, and override it in
+    kmac_common_seq to lock the lockable regs
+    immediately after tl integrity error is triggered.
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
