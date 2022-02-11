@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10251"
-version_tuple = (0, 0, 10251)
+version_str = "0.0.post10255"
+version_tuple = (0, 0, 10255)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10251")
+    pversion = V("0.0.post10255")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10127"
-data_version_tuple = (0, 0, 10127)
+data_version_str = "0.0.post10131"
+data_version_tuple = (0, 0, 10131)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10127")
+    pdata_version = V("0.0.post10131")
 except ImportError:
     pass
-data_git_hash = "dbe7801fe1635cb930cc5a63d06555b3e7a2f4ab"
-data_git_describe = "v0.0-10127-gdbe7801fe"
+data_git_hash = "971bb82ed72a996d71236107e0932ac184cd9749"
+data_git_describe = "v0.0-10131-g971bb82ed"
 data_git_msg = """\
-commit dbe7801fe1635cb930cc5a63d06555b3e7a2f4ab
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Feb 10 16:22:09 2022 -0800
+commit 971bb82ed72a996d71236107e0932ac184cd9749
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Feb 10 10:17:17 2022 -0500
 
-    [pinmux/sw] Replace hard-coded with named constant
+    [sw/silicon_creator] Directly use UART in shutdown_report_error()
     
-    Use the named constant in this pre-DIF software.
+    This change adds `shutdown_print()` that replaces usages of
+    `log_printf()` in `shutdown_report_error()`.  `shutdown_report_error()`
+    is also updated such that UART TX fifo is reset and TX is enabled before
+    transmission. As a result, shutdown module no longer depends on the log
+    library.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
