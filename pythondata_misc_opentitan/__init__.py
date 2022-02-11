@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10237"
-version_tuple = (0, 0, 10237)
+version_str = "0.0.post10243"
+version_tuple = (0, 0, 10243)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10237")
+    pversion = V("0.0.post10243")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10113"
-data_version_tuple = (0, 0, 10113)
+data_version_str = "0.0.post10119"
+data_version_tuple = (0, 0, 10119)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10113")
+    pdata_version = V("0.0.post10119")
 except ImportError:
     pass
-data_git_hash = "f86fcb99fe1cb1359c12876e208ff4853eafc0b5"
-data_git_describe = "v0.0-10113-gf86fcb99f"
+data_git_hash = "4360bf23629d1d5771f0340b6d4772ebdd1f6f5a"
+data_git_describe = "v0.0-10119-g4360bf236"
 data_git_msg = """\
-commit f86fcb99fe1cb1359c12876e208ff4853eafc0b5
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Feb 10 10:05:32 2022 -0800
+commit 4360bf23629d1d5771f0340b6d4772ebdd1f6f5a
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Feb 9 16:12:43 2022 -0800
 
-    [dv/shadow_reg] Move shadow_reg to V2S
+    [clkmgr] Add secure buffers for clkmgr byp_req
     
-    This PR cleans up the shadow reg testplan to move them to V2S.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
