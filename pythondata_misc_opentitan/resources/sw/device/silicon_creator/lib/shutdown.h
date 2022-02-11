@@ -58,42 +58,6 @@ rom_error_t shutdown_init(lifecycle_state_t lc_state);
  * $ ./util/design/sparse-fsm-encode.py -d 5 -m 4 -n 32 \
  *     -s 208548646 --language=c
  *
- * Hamming distance histogram:
- *
- *  0: --
- *  1: --
- *  2: --
- *  3: --
- *  4: --
- *  5: --
- *  6: --
- *  7: --
- *  8: --
- *  9: --
- * 10: --
- * 11: --
- * 12: --
- * 13: --
- * 14: |||||||||| (16.67%)
- * 15: |||||||||||||||||||| (33.33%)
- * 16: --
- * 17: |||||||||||||||||||| (33.33%)
- * 18: |||||||||| (16.67%)
- * 19: --
- * 20: --
- * 21: --
- * 22: --
- * 23: --
- * 24: --
- * 25: --
- * 26: --
- * 27: --
- * 28: --
- * 29: --
- * 30: --
- * 31: --
- * 32: --
- *
  * Minimum Hamming distance: 14
  * Maximum Hamming distance: 18
  * Minimum Hamming weight: 13
@@ -105,6 +69,25 @@ typedef enum shutdown_error_redact {
   kShutdownErrorRedactModule = 0x1e791123,
   kShutdownErrorRedactAll = 0x48eb4bd9,
 } shutdown_error_redact_t;
+
+/**
+ * Helper macro for encoding a 4 character prefix as a 32-bit value. The
+ * resulting prefix is the concatenation of the given characters and '_'.
+ */
+#define LOG_PREFIX_(a_, b_, c_) ('_' << 24 | (c_) << 16 | (b_) << 8 | (a_))
+
+/**
+ * Prefixes for error messages printed over UART.
+ *
+ * Note: Defined here for future use. These values are currently used only by
+ * this module internally.
+ *
+ * See `ERROR_PREFIX_()`.
+ */
+typedef enum shutdown_log_prefix {
+  kShutdownLogPrefixBootFault = LOG_PREFIX_('B', 'F', 'V'),
+  kShutdownLogPrefixLifecycle = LOG_PREFIX_('L', 'C', 'V'),
+} shutdown_log_prefix_t;
 
 /**
  * Calculate the error redaction level required given the current lifecycle

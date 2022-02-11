@@ -6,16 +6,18 @@
 
 #include <assert.h>
 
+#include "sw/device/lib/arch/device.h"
 #include "sw/device/lib/base/abs_mmio.h"
 #include "sw/device/lib/base/bitfield.h"
+#include "sw/device/lib/base/csr.h"
 #include "sw/device/lib/base/hardened.h"
 #include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/memory.h"
+#include "sw/device/lib/base/multibits.h"
 #include "sw/device/lib/base/stdasm.h"
 #include "sw/device/silicon_creator/lib/drivers/alert.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
 #include "sw/device/silicon_creator/lib/drivers/otp.h"
-#include "sw/device/silicon_creator/lib/log.h"
 
 #include "alert_handler_regs.h"
 #include "flash_ctrl_regs.h"
@@ -23,8 +25,10 @@
 #include "keymgr_regs.h"
 #include "lc_ctrl_regs.h"
 #include "otp_ctrl_regs.h"
+#include "rstmgr_regs.h"
 #include "rv_core_ibex_regs.h"
 #include "sram_ctrl_regs.h"
+#include "uart_regs.h"
 
 static_assert(ALERT_HANDLER_ALERT_CLASS_SHADOWED_MULTIREG_COUNT <=
                   OTP_CTRL_PARAM_ROM_ALERT_CLASSIFICATION_SIZE / 4,
@@ -255,6 +259,57 @@ shutdown_error_redact_t shutdown_redact_policy(void) {
   return shutdown_redact_policy_inline(raw_state);
 }
 
+enum {
+  /**
+   * Length of the hexadecimal representation.
+   */
+  kHexStrLen = 8,
+  /**
+   * Total message length.
+   *
+   * This includes 4 character prefix before the hex string '\n' at the end of
+   * the message.
+   */
+  kErrorMsgLen = kHexStrLen + 5,
+  /**
+   * Base address of UART.
+   */
+  kUartBase = TOP_EARLGREY_UART0_BASE_ADDR,
+  /**
+   * UART TX FIFO size.
+   */
+  kUartFifoSize = 32,
+};
+
+/**
+ * Prints a fixed-length (`kErrorMsgLen`) error message.
+ *
+ * The error message is a concatenation of a 4 character `prefix` (encoded as a
+ * 32-bit value), the hexadecimal representation of `val`, and '\n'.
+ *
+ * @param prefix Prefix encoded as a 32-bit value.
+ * @param val Integer to print.
+ */
+static ALWAYS_INLINE void shutdown_print(shutdown_log_prefix_t prefix,
+                                         uint32_t val) {
+  // Print the 4 character `prefix`.
+  abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, prefix);
+  abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, prefix >> 8);
+  abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, prefix >> 16);
+  abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, prefix >> 24);
+
+  // Print the hex representation of `val`.
+  const char kHexTable[16] = "0123456789abcdef";
+  // `kHexStrLen` is laundered so that it is loaded to a register at every
+  // iteration.
+  for (size_t i = 0; i < launder32(kHexStrLen); ++i) {
+    uint8_t nibble = bitfield_field32_read(
+        val, (bitfield_field32_t){.mask = 0xf, .index = (7 - i) * 4});
+    abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, kHexTable[nibble]);
+  }
+  abs_mmio_write32(kUartBase + UART_WDATA_REG_OFFSET, '\n');
+}
+
 SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_report_error(rom_error_t reason)) {
   uint32_t raw_state =
       bitfield_field32_read(abs_mmio_read32(TOP_EARLGREY_LC_CTRL_BASE_ADDR +
@@ -269,12 +324,32 @@ SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_report_error(rom_error_t reason)) {
   // that we won't jump to a different function.
   uint32_t redacted_error = shutdown_redact_inline(reason, policy);
 
-  // TODO(lowrisc/opentitan#7894): What (if anything) should we print at
-  // startup?
-  log_printf("lc_state: 0x%x\n\r", (unsigned int)raw_state);
+  // Reset UART TX fifo and enable TX.
+  abs_mmio_write32(kUartBase + UART_FIFO_CTRL_REG_OFFSET,
+                   bitfield_bit32_write(0, UART_FIFO_CTRL_TXRST_BIT, true));
+  uint32_t uart_ctrl_reg = abs_mmio_read32(kUartBase + UART_CTRL_REG_OFFSET);
+  uart_ctrl_reg = bitfield_bit32_write(uart_ctrl_reg, UART_CTRL_TX_BIT, true);
+  abs_mmio_write32(kUartBase + UART_CTRL_REG_OFFSET, uart_ctrl_reg);
 
-  // TODO(lowRISC/opentitan#8236): log_printf is in the .text section.
-  log_printf("boot_fault: 0x%x\n", (unsigned int)redacted_error);
+  // Print the error message and the raw life cycle state as reported by the
+  // hardware.
+  shutdown_print(kShutdownLogPrefixBootFault, redacted_error);
+  shutdown_print(kShutdownLogPrefixLifecycle, raw_state);
+
+#ifdef OT_PLATFORM_RV32
+  // Wait until UART TX is complete.
+  static_assert(2 * kErrorMsgLen <= kUartFifoSize,
+                "Total message length must be less than TX FIFO size.");
+  CSR_WRITE(CSR_REG_MCYCLE, 0);
+  uint32_t mcycle;
+  bool tx_idle;
+  do {
+    tx_idle =
+        bitfield_bit32_read(abs_mmio_read32(kUartBase + UART_STATUS_REG_OFFSET),
+                            UART_STATUS_TXIDLE_BIT);
+    CSR_READ(CSR_REG_MCYCLE, &mcycle);
+  } while (mcycle < kUartTxFifoCpuCycles && !tx_idle);
+#endif
 }
 
 SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_software_escalate(void)) {
@@ -306,9 +381,16 @@ SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_flash_kill(void)) {
 }
 
 SHUTDOWN_FUNC(noreturn, shutdown_hang(void)) {
-  enum { kSramCtrlBase = TOP_EARLGREY_SRAM_CTRL_MAIN_REGS_BASE_ADDR };
+  enum {
+    kSramCtrlBase = TOP_EARLGREY_SRAM_CTRL_MAIN_REGS_BASE_ADDR,
+    kRstmgrBase = TOP_EARLGREY_RSTMGR_AON_BASE_ADDR,
+  };
 
   // Disable SRAM execution and lock the register.
+  // Note: In addition to this register, which is disabled by default at reset,
+  // SRAM execution is gated by the lifecycle state
+  // (SRAM_CTRL.INSTR.BUS.LC_GATED) and EN_SRAM_IFETCH item in the HW_CFG OTP
+  // partition.
   abs_mmio_write32(kSramCtrlBase + SRAM_CTRL_EXEC_EN_OFFSET, 0);
   abs_mmio_write32(kSramCtrlBase + SRAM_CTRL_EXEC_REGWEN_REG_OFFSET, 0);
 
@@ -316,9 +398,11 @@ SHUTDOWN_FUNC(noreturn, shutdown_hang(void)) {
 #ifdef OT_PLATFORM_RV32
   while (true) {
     asm volatile(
-        // Request a new scrambling key, then lock the SRAM control register.
-        "sw %[kRenewKey], %[kCtrlOffset](%[kMainRamCtrlBase]);"
-        "sw zero, %[kRegWriteEn](%[kMainRamCtrlBase]);"
+        "1:"
+        // Request a new scrambling key.
+        "sw %[kSramRenewKey], %[kSramCtrlCtrlReg](%[kSramCtrlBase]);"
+        // Request a system reset.
+        "sw %[kMultiBitBool4True], %[kRstmgrResetReqReg](%[kRstmgrBase]);"
 
         // TODO(lowRISC/opentitan#7148): restrict the ePMP such that only
         // ROM may execute.  mundaym's suggestion: set entry 2 as a NAPOT
@@ -327,16 +411,17 @@ SHUTDOWN_FUNC(noreturn, shutdown_hang(void)) {
         // any further modifications.
 
         // Generate a halt-maze.
-        "1:"
         "wfi; wfi; wfi; wfi; j 1b;"
         "wfi; wfi; j 1b;"
         "wfi; j 1b;"
         "wfi;"
         :
-        : [kRenewKey] "r"(1 << SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT),
-          [kCtrlOffset] "I"(SRAM_CTRL_CTRL_REG_OFFSET),
-          [kMainRamCtrlBase] "r"(kSramCtrlBase),
-          [kRegWriteEn] "I"(SRAM_CTRL_CTRL_REGWEN_REG_OFFSET));
+        : [kSramRenewKey] "r"(1 << SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT),
+          [kSramCtrlCtrlReg] "I"(SRAM_CTRL_CTRL_REG_OFFSET),
+          [kSramCtrlBase] "r"(kSramCtrlBase),
+          [kMultiBitBool4True] "r"(kMultiBitBool4True),
+          [kRstmgrBase] "r"(kRstmgrBase),
+          [kRstmgrResetReqReg] "I"(RSTMGR_RESET_REQ_REG_OFFSET));
   }
 #endif
 }
