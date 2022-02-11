@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10248"
-version_tuple = (0, 0, 10248)
+version_str = "0.0.post10251"
+version_tuple = (0, 0, 10251)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10248")
+    pversion = V("0.0.post10251")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10124"
-data_version_tuple = (0, 0, 10124)
+data_version_str = "0.0.post10127"
+data_version_tuple = (0, 0, 10127)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10124")
+    pdata_version = V("0.0.post10127")
 except ImportError:
     pass
-data_git_hash = "490776858ecc183874bc15df0ae8ccf5a5399332"
-data_git_describe = "v0.0-10124-g490776858"
+data_git_hash = "dbe7801fe1635cb930cc5a63d06555b3e7a2f4ab"
+data_git_describe = "v0.0-10127-gdbe7801fe"
 data_git_msg = """\
-commit 490776858ecc183874bc15df0ae8ccf5a5399332
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Feb 2 13:24:22 2022 -0500
+commit dbe7801fe1635cb930cc5a63d06555b3e7a2f4ab
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Feb 10 16:22:09 2022 -0800
 
-    [sw/silicon_creator] Use EXPECT_DEATH in unit tests
+    [pinmux/sw] Replace hard-coded with named constant
     
-    Fixes #10549
+    Use the named constant in this pre-DIF software.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
