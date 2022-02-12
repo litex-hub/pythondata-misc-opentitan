@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10266"
-version_tuple = (0, 0, 10266)
+version_str = "0.0.post10270"
+version_tuple = (0, 0, 10270)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10266")
+    pversion = V("0.0.post10270")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10142"
-data_version_tuple = (0, 0, 10142)
+data_version_str = "0.0.post10146"
+data_version_tuple = (0, 0, 10146)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10142")
+    pdata_version = V("0.0.post10146")
 except ImportError:
     pass
-data_git_hash = "e98fba4dcf4aa84327bda9865791890e64ac8c41"
-data_git_describe = "v0.0-10142-ge98fba4dc"
+data_git_hash = "5082c23ec1589ea7d90938c25b845526864a0dca"
+data_git_describe = "v0.0-10146-g5082c23ec"
 data_git_msg = """\
-commit e98fba4dcf4aa84327bda9865791890e64ac8c41
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Feb 11 12:14:17 2022 -0800
+commit 5082c23ec1589ea7d90938c25b845526864a0dca
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Feb 9 16:45:39 2022 -0800
 
-    [dv/kmac] Add a kmac_if interface
+    [dv] corresponding sva update for reset timing change
     
-    Add a kmac_if interface to:
-    1). Drive lc_escalation input.
-    2). Replace the extra pin `idle` and add it to kmac interface.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
