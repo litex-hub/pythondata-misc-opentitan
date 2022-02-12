@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10270"
-version_tuple = (0, 0, 10270)
+version_str = "0.0.post10273"
+version_tuple = (0, 0, 10273)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10270")
+    pversion = V("0.0.post10273")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10146"
-data_version_tuple = (0, 0, 10146)
+data_version_str = "0.0.post10149"
+data_version_tuple = (0, 0, 10149)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10146")
+    pdata_version = V("0.0.post10149")
 except ImportError:
     pass
-data_git_hash = "5082c23ec1589ea7d90938c25b845526864a0dca"
-data_git_describe = "v0.0-10146-g5082c23ec"
+data_git_hash = "e0349bb3391d3d6cbb8eb7288b0f21d819cc0e9b"
+data_git_describe = "v0.0-10149-ge0349bb33"
 data_git_msg = """\
-commit 5082c23ec1589ea7d90938c25b845526864a0dca
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Feb 9 16:45:39 2022 -0800
+commit e0349bb3391d3d6cbb8eb7288b0f21d819cc0e9b
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Feb 10 15:21:47 2022 -0500
 
-    [dv] corresponding sva update for reset timing change
+    [sw/silicon_creator] Add a redundant check for lc_shift in shutdown_init()
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
