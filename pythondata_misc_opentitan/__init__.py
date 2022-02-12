@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10264"
-version_tuple = (0, 0, 10264)
+version_str = "0.0.post10266"
+version_tuple = (0, 0, 10266)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10264")
+    pversion = V("0.0.post10266")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10140"
-data_version_tuple = (0, 0, 10140)
+data_version_str = "0.0.post10142"
+data_version_tuple = (0, 0, 10142)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10140")
+    pdata_version = V("0.0.post10142")
 except ImportError:
     pass
-data_git_hash = "5d8c0e8e44c5c0e853d25deef6ac7863a98cece7"
-data_git_describe = "v0.0-10140-g5d8c0e8e4"
+data_git_hash = "e98fba4dcf4aa84327bda9865791890e64ac8c41"
+data_git_describe = "v0.0-10142-ge98fba4dc"
 data_git_msg = """\
-commit 5d8c0e8e44c5c0e853d25deef6ac7863a98cece7
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 11 09:42:24 2022 -0800
+commit e98fba4dcf4aa84327bda9865791890e64ac8c41
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Feb 11 12:14:17 2022 -0800
 
-    [rtl/rstmgr] Remove superfluous assertion
+    [dv/kmac] Add a kmac_if interface
     
-    It caused trouble in some corner cases, and adds little value.
+    Add a kmac_if interface to:
+    1). Drive lc_escalation input.
+    2). Replace the extra pin `idle` and add it to kmac interface.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
