@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10275"
-version_tuple = (0, 0, 10275)
+version_str = "0.0.post10276"
+version_tuple = (0, 0, 10276)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10275")
+    pversion = V("0.0.post10276")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10149"
-data_version_tuple = (0, 0, 10149)
+data_version_str = "0.0.post10150"
+data_version_tuple = (0, 0, 10150)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10149")
+    pdata_version = V("0.0.post10150")
 except ImportError:
     pass
-data_git_hash = "e0349bb3391d3d6cbb8eb7288b0f21d819cc0e9b"
-data_git_describe = "v0.0-10149-ge0349bb33"
+data_git_hash = "7f5112a95ae059cb6af5fd6a84772e2c463af509"
+data_git_describe = "v0.0-10150-g7f5112a95"
 data_git_msg = """\
-commit e0349bb3391d3d6cbb8eb7288b0f21d819cc0e9b
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Feb 10 15:21:47 2022 -0500
+commit 7f5112a95ae059cb6af5fd6a84772e2c463af509
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Sat Feb 5 00:18:48 2022 +0000
 
-    [sw/silicon_creator] Add a redundant check for lc_shift in shutdown_init()
+    [silicon_creator] Harden epmp_state_check return value
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Use a counter rather than a bool to track whether a mismatch has
+    been detected.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
