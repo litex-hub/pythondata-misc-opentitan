@@ -26,9 +26,18 @@ extern "C" {
  * ```
  */
 enum {
-  kWatchdogSecMmioEnable = 4,
+  kWatchdogSecMmioInit = 4,
+  kWatchdogSecMmioConfigure = 4,
   kWatchdogSecMmioDisable = 1,
-  kWatchdogSecMmioInit = kWatchdogSecMmioEnable,
+};
+
+/**
+ * Minimum watchdog threshold. Watchdog will not be enabled if the value in the
+ * OTP is less than this value.
+ */
+enum {
+  // TODO(#10808): Determine this value.
+  kWatchdogMinThreshold = 1,
 };
 
 /**
