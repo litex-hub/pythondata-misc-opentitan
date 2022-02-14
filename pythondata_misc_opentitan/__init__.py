@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10283"
-version_tuple = (0, 0, 10283)
+version_str = "0.0.post10284"
+version_tuple = (0, 0, 10284)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10283")
+    pversion = V("0.0.post10284")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10157"
-data_version_tuple = (0, 0, 10157)
+data_version_str = "0.0.post10158"
+data_version_tuple = (0, 0, 10158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10157")
+    pdata_version = V("0.0.post10158")
 except ImportError:
     pass
-data_git_hash = "ed80fa070e410aeaba10d5858e4689baf9772534"
-data_git_describe = "v0.0-10157-ged80fa070"
+data_git_hash = "55294c968f6e8afd35ad225122a1bc950566e7ee"
+data_git_describe = "v0.0-10158-g55294c968"
 data_git_msg = """\
-commit ed80fa070e410aeaba10d5858e4689baf9772534
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Sun Feb 13 16:46:34 2022 +0000
+commit 55294c968f6e8afd35ad225122a1bc950566e7ee
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Feb 10 17:38:17 2022 +0100
 
-    [mask_rom] Add support for (but do not enable) hardened shadow stack
+    [aes, kmac] Fix Yosys synthesis flow
     
-    This change allows the mask ROM to be built with the hardened shadow
-    stack enabled. For the time being the feature needs to be enabled
-    manually as only the ROM supports it and it requires a patched LLVM
-    toolchain.
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
