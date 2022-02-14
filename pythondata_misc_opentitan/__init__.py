@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10284"
-version_tuple = (0, 0, 10284)
+version_str = "0.0.post10286"
+version_tuple = (0, 0, 10286)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10284")
+    pversion = V("0.0.post10286")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10158"
-data_version_tuple = (0, 0, 10158)
+data_version_str = "0.0.post10160"
+data_version_tuple = (0, 0, 10160)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10158")
+    pdata_version = V("0.0.post10160")
 except ImportError:
     pass
-data_git_hash = "55294c968f6e8afd35ad225122a1bc950566e7ee"
-data_git_describe = "v0.0-10158-g55294c968"
+data_git_hash = "b50baf99ef5921a3b135cc70f7e1f8094fee80b0"
+data_git_describe = "v0.0-10160-gb50baf99e"
 data_git_msg = """\
-commit 55294c968f6e8afd35ad225122a1bc950566e7ee
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Feb 10 17:38:17 2022 +0100
+commit b50baf99ef5921a3b135cc70f7e1f8094fee80b0
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Fri Feb 11 02:51:51 2022 -0800
 
-    [aes, kmac] Fix Yosys synthesis flow
+    [aes/dv] added idle assert check
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
