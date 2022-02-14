@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10277"
-version_tuple = (0, 0, 10277)
+version_str = "0.0.post10281"
+version_tuple = (0, 0, 10281)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10277")
+    pversion = V("0.0.post10281")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10151"
-data_version_tuple = (0, 0, 10151)
+data_version_str = "0.0.post10155"
+data_version_tuple = (0, 0, 10155)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10151")
+    pdata_version = V("0.0.post10155")
 except ImportError:
     pass
-data_git_hash = "65ab4c15c77e98f228642e05cb6c6b509cb9bb5d"
-data_git_describe = "v0.0-10151-g65ab4c15c"
+data_git_hash = "1e28703e3e1644bb8ca772fef8d306d1d0b5e595"
+data_git_describe = "v0.0-10155-g1e28703e3"
 data_git_msg = """\
-commit 65ab4c15c77e98f228642e05cb6c6b509cb9bb5d
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Thu Jan 20 14:48:22 2022 +0000
+commit 1e28703e3e1644bb8ca772fef8d306d1d0b5e595
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Sun Feb 13 12:26:14 2022 -0500
 
-    [mask_rom] Configure watchdog using OTP value
+    [sw/silicon_creator] Move watchdog calls to primitive_bootstrap()
     
-    Configure the watchdog timer using an OTP value when in the DEV,
-    PROD and PROD_END lifecycle states. Otherwise disable it.
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
