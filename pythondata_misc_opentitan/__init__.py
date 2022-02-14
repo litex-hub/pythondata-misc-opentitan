@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10286"
-version_tuple = (0, 0, 10286)
+version_str = "0.0.post10288"
+version_tuple = (0, 0, 10288)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10286")
+    pversion = V("0.0.post10288")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10160"
-data_version_tuple = (0, 0, 10160)
+data_version_str = "0.0.post10162"
+data_version_tuple = (0, 0, 10162)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10160")
+    pdata_version = V("0.0.post10162")
 except ImportError:
     pass
-data_git_hash = "b50baf99ef5921a3b135cc70f7e1f8094fee80b0"
-data_git_describe = "v0.0-10160-gb50baf99e"
+data_git_hash = "c70cf753c543a1c409c3c299d27558f7525f0037"
+data_git_describe = "v0.0-10162-gc70cf753c"
 data_git_msg = """\
-commit b50baf99ef5921a3b135cc70f7e1f8094fee80b0
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Fri Feb 11 02:51:51 2022 -0800
+commit c70cf753c543a1c409c3c299d27558f7525f0037
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Feb 11 17:07:36 2022 -0800
 
-    [aes/dv] added idle assert check
+    [dv/rstmgr] Test rst_cpu_i input
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    This input affects reset recording functionality.
+    Introduce a controllable responder that automatically sets
+    rst_cpu_n input in response to resets_o.rst_sys_n.
+    Disable this responder to check the capture functionality
+    controlled by rst_cpu_n.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
