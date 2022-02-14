@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10288"
-version_tuple = (0, 0, 10288)
+version_str = "0.0.post10289"
+version_tuple = (0, 0, 10289)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10288")
+    pversion = V("0.0.post10289")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10162"
-data_version_tuple = (0, 0, 10162)
+data_version_str = "0.0.post10163"
+data_version_tuple = (0, 0, 10163)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10162")
+    pdata_version = V("0.0.post10163")
 except ImportError:
     pass
-data_git_hash = "c70cf753c543a1c409c3c299d27558f7525f0037"
-data_git_describe = "v0.0-10162-gc70cf753c"
+data_git_hash = "82b618f23564cde97fb21271d7d3cfdcb95826d2"
+data_git_describe = "v0.0-10163-g82b618f23"
 data_git_msg = """\
-commit c70cf753c543a1c409c3c299d27558f7525f0037
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 11 17:07:36 2022 -0800
+commit 82b618f23564cde97fb21271d7d3cfdcb95826d2
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Feb 9 15:56:31 2022 -0800
 
-    [dv/rstmgr] Test rst_cpu_i input
+    [dv] add mubi coverage for CSR and update reggen
     
-    This input affects reset recording functionality.
-    Introduce a controllable responder that automatically sets
-    rst_cpu_n input in response to resets_o.rst_sys_n.
-    Disable this responder to check the capture functionality
-    controlled by rst_cpu_n.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    1. reggen is udpated to know if this reg field is mubi or not
+    2. add functional coverage for mubi type CSRs
+    3. disable sampling mubi covergroup in CSR tests as CSR tests won't
+       really take the effect of CSRs
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
