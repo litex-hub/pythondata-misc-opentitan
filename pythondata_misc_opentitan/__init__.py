@@ -4,38 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10292"
-version_tuple = (0, 0, 10292)
+version_str = "0.0.post10295"
+version_tuple = (0, 0, 10295)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10292")
+    pversion = V("0.0.post10295")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10166"
-data_version_tuple = (0, 0, 10166)
+data_version_str = "0.0.post10169"
+data_version_tuple = (0, 0, 10169)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10166")
+    pdata_version = V("0.0.post10169")
 except ImportError:
     pass
-data_git_hash = "bc1f42e264cc1c2f203fc2b80d9253e7761f01a8"
-data_git_describe = "v0.0-10166-gbc1f42e26"
+data_git_hash = "a89805ede8763de8f23b585684f540c86a66f39e"
+data_git_describe = "v0.0-10169-ga89805ede"
 data_git_msg = """\
-commit bc1f42e264cc1c2f203fc2b80d9253e7761f01a8
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 14 17:22:05 2022 +0000
+commit a89805ede8763de8f23b585684f540c86a66f39e
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Feb 11 15:35:49 2022 -0800
 
-    [tlul] Send blanking data unless we have rdata in tlul_adapter_sram
+    [kmac] Address the D2S review A.Is
     
-    This ensures that we respond with error_blanking_data rather than '0
-    in the case of a TL read that fails its integrity check. The previous
-    code didn't do that because vld_rd_rsp depends on rdata_i which, in
-    turn, depends on req_o that we suppress when the transaction is
-    ill-formed.
+    - Name changed to CFG_SHADOWED from CONFIG
+    - LFSR.REDUN to explicitly say `prim_double_lfsr` not `prim_lfsr`
+    - The description of LFSR.REDUN in RTL is revised. LFSR mismatch is
+      reported to the alert_handler not FSM
+    - CTR.REDUN: `prim_counter` -> `prim_count` / `redundency` ->
+      `redundancy`.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
