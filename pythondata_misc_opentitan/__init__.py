@@ -4,40 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10290"
-version_tuple = (0, 0, 10290)
+version_str = "0.0.post10292"
+version_tuple = (0, 0, 10292)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10290")
+    pversion = V("0.0.post10292")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10164"
-data_version_tuple = (0, 0, 10164)
+data_version_str = "0.0.post10166"
+data_version_tuple = (0, 0, 10166)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10164")
+    pdata_version = V("0.0.post10166")
 except ImportError:
     pass
-data_git_hash = "686e47a3f7c2f72cb6b915209921a98a857652ed"
-data_git_describe = "v0.0-10164-g686e47a3f"
+data_git_hash = "bc1f42e264cc1c2f203fc2b80d9253e7761f01a8"
+data_git_describe = "v0.0-10166-gbc1f42e26"
 data_git_msg = """\
-commit 686e47a3f7c2f72cb6b915209921a98a857652ed
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Tue Oct 19 15:46:28 2021 +0100
+commit bc1f42e264cc1c2f203fc2b80d9253e7761f01a8
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Feb 14 17:22:05 2022 +0000
 
-    [adc_ctrl/dv] Added adc_ctrl_filters_polled test
+    [tlul] Send blanking data unless we have rdata in tlul_adapter_sram
     
-    - Added test adc_ctrl_filters_polled
-    - Added test sequence adc_ctrl_filters_polled_vseq.sv
-    Configures DUT in mormal power mode and ensures filter_status register
-    works accoring to the model in the scoreboard
-    - Added filters model to the scoreboard
-    - Added power up time assertion and control
-    - Temporary disable of power up time assertion for smoke test
+    This ensures that we respond with error_blanking_data rather than '0
+    in the case of a TL read that fails its integrity check. The previous
+    code didn't do that because vld_rd_rsp depends on rdata_i which, in
+    turn, depends on req_o that we suppress when the transaction is
+    ill-formed.
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
