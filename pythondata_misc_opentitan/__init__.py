@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10281"
-version_tuple = (0, 0, 10281)
+version_str = "0.0.post10283"
+version_tuple = (0, 0, 10283)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10281")
+    pversion = V("0.0.post10283")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10155"
-data_version_tuple = (0, 0, 10155)
+data_version_str = "0.0.post10157"
+data_version_tuple = (0, 0, 10157)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10155")
+    pdata_version = V("0.0.post10157")
 except ImportError:
     pass
-data_git_hash = "1e28703e3e1644bb8ca772fef8d306d1d0b5e595"
-data_git_describe = "v0.0-10155-g1e28703e3"
+data_git_hash = "ed80fa070e410aeaba10d5858e4689baf9772534"
+data_git_describe = "v0.0-10157-ged80fa070"
 data_git_msg = """\
-commit 1e28703e3e1644bb8ca772fef8d306d1d0b5e595
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Sun Feb 13 12:26:14 2022 -0500
+commit ed80fa070e410aeaba10d5858e4689baf9772534
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Sun Feb 13 16:46:34 2022 +0000
 
-    [sw/silicon_creator] Move watchdog calls to primitive_bootstrap()
+    [mask_rom] Add support for (but do not enable) hardened shadow stack
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    This change allows the mask ROM to be built with the hardened shadow
+    stack enabled. For the time being the feature needs to be enabled
+    manually as only the ROM supports it and it requires a patched LLVM
+    toolchain.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
