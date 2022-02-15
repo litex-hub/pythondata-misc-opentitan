@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10301"
-version_tuple = (0, 0, 10301)
+version_str = "0.0.post10303"
+version_tuple = (0, 0, 10303)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10301")
+    pversion = V("0.0.post10303")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10175"
-data_version_tuple = (0, 0, 10175)
+data_version_str = "0.0.post10177"
+data_version_tuple = (0, 0, 10177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10175")
+    pdata_version = V("0.0.post10177")
 except ImportError:
     pass
-data_git_hash = "752e9c90a8cbc524274c771e3858c90e0b10e1e5"
-data_git_describe = "v0.0-10175-g752e9c90a"
+data_git_hash = "166d7afd7b8744c72e6d6da7a4456c8574ddfd84"
+data_git_describe = "v0.0-10177-g166d7afd7"
 data_git_msg = """\
-commit 752e9c90a8cbc524274c771e3858c90e0b10e1e5
+commit 166d7afd7b8744c72e6d6da7a4456c8574ddfd84
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sat Feb 12 12:26:00 2022 -0800
+Date:   Fri Feb 11 14:48:44 2022 -0800
 
-    [dv/lc_ctrl] Add unr file
+    [dv/kmac] Add lc_escalation seq
     
-    This PR adds VC Formal generated unr file to LC testbench.
+    This PR adds lc_escalation seq in DV:
+    It randomly issue lc_escalate_en in the middle of a Kmac operation,
+    Then check if Kmac is in terminal state.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
