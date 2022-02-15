@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10295"
-version_tuple = (0, 0, 10295)
+version_str = "0.0.post10299"
+version_tuple = (0, 0, 10299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10295")
+    pversion = V("0.0.post10299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10169"
-data_version_tuple = (0, 0, 10169)
+data_version_str = "0.0.post10173"
+data_version_tuple = (0, 0, 10173)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10169")
+    pdata_version = V("0.0.post10173")
 except ImportError:
     pass
-data_git_hash = "a89805ede8763de8f23b585684f540c86a66f39e"
-data_git_describe = "v0.0-10169-ga89805ede"
+data_git_hash = "37674c060e3658e035fab8901641344fb1a16741"
+data_git_describe = "v0.0-10173-g37674c060"
 data_git_msg = """\
-commit a89805ede8763de8f23b585684f540c86a66f39e
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Feb 11 15:35:49 2022 -0800
+commit 37674c060e3658e035fab8901641344fb1a16741
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Feb 11 16:28:22 2022 -0800
 
-    [kmac] Address the D2S review A.Is
+    [dv] exclude d_user.rsp_intg[6] for xcelium
     
-    - Name changed to CFG_SHADOWED from CONFIG
-    - LFSR.REDUN to explicitly say `prim_double_lfsr` not `prim_lfsr`
-    - The description of LFSR.REDUN in RTL is revised. LFSR mismatch is
-      reported to the alert_handler not FSM
-    - CTR.REDUN: `prim_counter` -> `prim_count` / `redundency` ->
-      `redundancy`.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
