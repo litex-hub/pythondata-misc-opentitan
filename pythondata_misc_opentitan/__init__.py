@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10313"
-version_tuple = (0, 0, 10313)
+version_str = "0.0.post10314"
+version_tuple = (0, 0, 10314)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10313")
+    pversion = V("0.0.post10314")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10187"
-data_version_tuple = (0, 0, 10187)
+data_version_str = "0.0.post10188"
+data_version_tuple = (0, 0, 10188)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10187")
+    pdata_version = V("0.0.post10188")
 except ImportError:
     pass
-data_git_hash = "b045dd85812fca0746fa839f389ffa26744591d1"
-data_git_describe = "v0.0-10187-gb045dd858"
+data_git_hash = "10e82b8449dcdc700deb307c0c8fc6d30f69c8c0"
+data_git_describe = "v0.0-10188-g10e82b844"
 data_git_msg = """\
-commit b045dd85812fca0746fa839f389ffa26744591d1
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Feb 15 11:29:24 2022 +0000
+commit 10e82b8449dcdc700deb307c0c8fc6d30f69c8c0
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Feb 14 17:14:58 2022 -0800
 
-    [ci] Introduce dedicated ROM & OTP sw build job
+    [dv/kmac] kmac key not valid case
     
-    CW310 FPGA synthesis requires ROM and OTP binaries. Add a CI job to
-    build them specifically to avoid FPGA synthesis waiting on full software
-    build, reducing the critical CI path.
+    This PR separates the key not valid case from key_errors because it is
+    quite complicate for scb to handle it.
+    The following PR will clean up kmac scb and add this sequence to
+    stress_all sequence list.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
