@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10299"
-version_tuple = (0, 0, 10299)
+version_str = "0.0.post10301"
+version_tuple = (0, 0, 10301)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10299")
+    pversion = V("0.0.post10301")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10173"
-data_version_tuple = (0, 0, 10173)
+data_version_str = "0.0.post10175"
+data_version_tuple = (0, 0, 10175)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10173")
+    pdata_version = V("0.0.post10175")
 except ImportError:
     pass
-data_git_hash = "37674c060e3658e035fab8901641344fb1a16741"
-data_git_describe = "v0.0-10173-g37674c060"
+data_git_hash = "752e9c90a8cbc524274c771e3858c90e0b10e1e5"
+data_git_describe = "v0.0-10175-g752e9c90a"
 data_git_msg = """\
-commit 37674c060e3658e035fab8901641344fb1a16741
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Feb 11 16:28:22 2022 -0800
+commit 752e9c90a8cbc524274c771e3858c90e0b10e1e5
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sat Feb 12 12:26:00 2022 -0800
 
-    [dv] exclude d_user.rsp_intg[6] for xcelium
+    [dv/lc_ctrl] Add unr file
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This PR adds VC Formal generated unr file to LC testbench.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
