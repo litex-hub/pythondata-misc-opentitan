@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10309"
-version_tuple = (0, 0, 10309)
+version_str = "0.0.post10311"
+version_tuple = (0, 0, 10311)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10309")
+    pversion = V("0.0.post10311")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10183"
-data_version_tuple = (0, 0, 10183)
+data_version_str = "0.0.post10185"
+data_version_tuple = (0, 0, 10185)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10183")
+    pdata_version = V("0.0.post10185")
 except ImportError:
     pass
-data_git_hash = "d88f78d913e10314322727bb4982ca9ea1c496be"
-data_git_describe = "v0.0-10183-gd88f78d91"
+data_git_hash = "09508586de27b82b2b43b051e5effefeed66d0a4"
+data_git_describe = "v0.0-10185-g09508586d"
 data_git_msg = """\
-commit d88f78d913e10314322727bb4982ca9ea1c496be
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Fri Feb 11 16:45:16 2022 +0000
+commit 09508586de27b82b2b43b051e5effefeed66d0a4
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Wed Feb 9 11:56:42 2022 +0000
 
-    [aon_timer,dv] Waiving UVM_WARNING for intr_enable
+    [sw, dif, aes] Refactor dif_aes_start function
     
-    This commit includes a demotion of UVM_WARNING into UVM_INFO about
-    not having an intr_enable register for AON timer. We don't need
-    intr_enable because it is directly tied to the enables of timers
-    themselves.
+     - Replace all the aes start functions for a single function.
+     - Add unit test for decrypt.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
