@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10308"
-version_tuple = (0, 0, 10308)
+version_str = "0.0.post10309"
+version_tuple = (0, 0, 10309)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10308")
+    pversion = V("0.0.post10309")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10182"
-data_version_tuple = (0, 0, 10182)
+data_version_str = "0.0.post10183"
+data_version_tuple = (0, 0, 10183)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10182")
+    pdata_version = V("0.0.post10183")
 except ImportError:
     pass
-data_git_hash = "b1e181b4ff83e60f4ee3a567bf358721d5336ad8"
-data_git_describe = "v0.0-10182-gb1e181b4f"
+data_git_hash = "d88f78d913e10314322727bb4982ca9ea1c496be"
+data_git_describe = "v0.0-10183-gd88f78d91"
 data_git_msg = """\
-commit b1e181b4ff83e60f4ee3a567bf358721d5336ad8
-Author: Alexander Williams <awill@google.com>
-Date:   Mon Feb 14 06:53:27 2022 -0800
+commit d88f78d913e10314322727bb4982ca9ea1c496be
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Fri Feb 11 16:45:16 2022 +0000
 
-    [usbdev] Remove unused qe bits in usbctrl reg
+    [aon_timer,dv] Waiving UVM_WARNING for intr_enable
     
-    These were causing linter warnings, as they were unread.
+    This commit includes a demotion of UVM_WARNING into UVM_INFO about
+    not having an intr_enable register for AON timer. We don't need
+    intr_enable because it is directly tied to the enables of timers
+    themselves.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
