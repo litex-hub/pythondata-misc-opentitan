@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10322"
-version_tuple = (0, 0, 10322)
+version_str = "0.0.post10323"
+version_tuple = (0, 0, 10323)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10322")
+    pversion = V("0.0.post10323")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10196"
-data_version_tuple = (0, 0, 10196)
+data_version_str = "0.0.post10197"
+data_version_tuple = (0, 0, 10197)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10196")
+    pdata_version = V("0.0.post10197")
 except ImportError:
     pass
-data_git_hash = "c0e30c5b698d5a62a90101fe52fa04009657cf76"
-data_git_describe = "v0.0-10196-gc0e30c5b6"
+data_git_hash = "a4e8721132e8e259d0bcf9359fc90244a9d3637e"
+data_git_describe = "v0.0-10197-ga4e872113"
 data_git_msg = """\
-commit c0e30c5b698d5a62a90101fe52fa04009657cf76
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Feb 14 17:28:50 2022 -0800
+commit a4e8721132e8e259d0bcf9359fc90244a9d3637e
+Author: Alexander Williams <awill@google.com>
+Date:   Tue Feb 15 09:06:24 2022 -0800
 
-    [rv_dm] Enumerate all countermeasure IDs and annotate RTL
+    [flash_ctrl/dif] Fix word_count handling for erase
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    The word_count / words_remaining handling was forbidding erase
+    operations from completing, as the transaction functions required a
+    nonzero word_count and activity on the FIFOs to reduce it to 0 before
+    completion.
+    
+    Exempt erase operations from needing any specific word_count, and set
+    words_remaining to 0.
+    
+    Co-authored-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
