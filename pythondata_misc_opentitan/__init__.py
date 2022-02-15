@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10304"
-version_tuple = (0, 0, 10304)
+version_str = "0.0.post10306"
+version_tuple = (0, 0, 10306)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10304")
+    pversion = V("0.0.post10306")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10178"
-data_version_tuple = (0, 0, 10178)
+data_version_str = "0.0.post10180"
+data_version_tuple = (0, 0, 10180)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10178")
+    pdata_version = V("0.0.post10180")
 except ImportError:
     pass
-data_git_hash = "2ff8a74d5ac6a5d028a1da0e093739950514207f"
-data_git_describe = "v0.0-10178-g2ff8a74d5"
+data_git_hash = "f6a2774f0636997d524d44680eb185f10cec74ab"
+data_git_describe = "v0.0-10180-gf6a2774f0"
 data_git_msg = """\
-commit 2ff8a74d5ac6a5d028a1da0e093739950514207f
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Thu Feb 10 12:24:45 2022 +0000
+commit f6a2774f0636997d524d44680eb185f10cec74ab
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Feb 10 17:59:56 2022 +0100
 
-    [lc_ctrl] Moved to V2
+    [aes] Use prim_sec_anchor_buf for signals relevant for status tracking
     
-    - Updated project to V2
-    - Updated note regarding RV_TAP
-    - Added caveat regarding condition coverage to checklist
-    
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
