@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10316"
-version_tuple = (0, 0, 10316)
+version_str = "0.0.post10320"
+version_tuple = (0, 0, 10320)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10316")
+    pversion = V("0.0.post10320")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10190"
-data_version_tuple = (0, 0, 10190)
+data_version_str = "0.0.post10194"
+data_version_tuple = (0, 0, 10194)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10190")
+    pdata_version = V("0.0.post10194")
 except ImportError:
     pass
-data_git_hash = "640c1f1b9bea5e5b77704539a3b05cdcceac48c1"
-data_git_describe = "v0.0-10190-g640c1f1b9"
+data_git_hash = "b29822d679fd46c2652a534f25934d3b7d075201"
+data_git_describe = "v0.0-10194-gb29822d67"
 data_git_msg = """\
-commit 640c1f1b9bea5e5b77704539a3b05cdcceac48c1
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Feb 14 15:02:09 2022 -0800
+commit b29822d679fd46c2652a534f25934d3b7d075201
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Feb 14 23:02:15 2022 -0800
 
-    [csrng/rtl] Change cs_aes_halt_o to a pulse
+    [sram/dv] Minor update for lc_esc
     
-    To be able to reuse the DV req/ack module for this simple interface,
-    the cs_aes_halt_o will be a single clock in pulse size.
+    Update sequence to use random value to enable lc_esc, rather than always
+    use `On`.
+    Also  update scb to treat other values as `On`
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
