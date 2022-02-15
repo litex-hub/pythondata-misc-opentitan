@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10306"
-version_tuple = (0, 0, 10306)
+version_str = "0.0.post10308"
+version_tuple = (0, 0, 10308)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10306")
+    pversion = V("0.0.post10308")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10180"
-data_version_tuple = (0, 0, 10180)
+data_version_str = "0.0.post10182"
+data_version_tuple = (0, 0, 10182)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10180")
+    pdata_version = V("0.0.post10182")
 except ImportError:
     pass
-data_git_hash = "f6a2774f0636997d524d44680eb185f10cec74ab"
-data_git_describe = "v0.0-10180-gf6a2774f0"
+data_git_hash = "b1e181b4ff83e60f4ee3a567bf358721d5336ad8"
+data_git_describe = "v0.0-10182-gb1e181b4f"
 data_git_msg = """\
-commit f6a2774f0636997d524d44680eb185f10cec74ab
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Feb 10 17:59:56 2022 +0100
+commit b1e181b4ff83e60f4ee3a567bf358721d5336ad8
+Author: Alexander Williams <awill@google.com>
+Date:   Mon Feb 14 06:53:27 2022 -0800
 
-    [aes] Use prim_sec_anchor_buf for signals relevant for status tracking
+    [usbdev] Remove unused qe bits in usbctrl reg
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    These were causing linter warnings, as they were unread.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
