@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10314"
-version_tuple = (0, 0, 10314)
+version_str = "0.0.post10316"
+version_tuple = (0, 0, 10316)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10314")
+    pversion = V("0.0.post10316")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10188"
-data_version_tuple = (0, 0, 10188)
+data_version_str = "0.0.post10190"
+data_version_tuple = (0, 0, 10190)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10188")
+    pdata_version = V("0.0.post10190")
 except ImportError:
     pass
-data_git_hash = "10e82b8449dcdc700deb307c0c8fc6d30f69c8c0"
-data_git_describe = "v0.0-10188-g10e82b844"
+data_git_hash = "640c1f1b9bea5e5b77704539a3b05cdcceac48c1"
+data_git_describe = "v0.0-10190-g640c1f1b9"
 data_git_msg = """\
-commit 10e82b8449dcdc700deb307c0c8fc6d30f69c8c0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Feb 14 17:14:58 2022 -0800
+commit 640c1f1b9bea5e5b77704539a3b05cdcceac48c1
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Feb 14 15:02:09 2022 -0800
 
-    [dv/kmac] kmac key not valid case
+    [csrng/rtl] Change cs_aes_halt_o to a pulse
     
-    This PR separates the key not valid case from key_errors because it is
-    quite complicate for scb to handle it.
-    The following PR will clean up kmac scb and add this sequence to
-    stress_all sequence list.
+    To be able to reuse the DV req/ack module for this simple interface,
+    the cs_aes_halt_o will be a single clock in pulse size.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
