@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10311"
-version_tuple = (0, 0, 10311)
+version_str = "0.0.post10313"
+version_tuple = (0, 0, 10313)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10311")
+    pversion = V("0.0.post10313")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10185"
-data_version_tuple = (0, 0, 10185)
+data_version_str = "0.0.post10187"
+data_version_tuple = (0, 0, 10187)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10185")
+    pdata_version = V("0.0.post10187")
 except ImportError:
     pass
-data_git_hash = "09508586de27b82b2b43b051e5effefeed66d0a4"
-data_git_describe = "v0.0-10185-g09508586d"
+data_git_hash = "b045dd85812fca0746fa839f389ffa26744591d1"
+data_git_describe = "v0.0-10187-gb045dd858"
 data_git_msg = """\
-commit 09508586de27b82b2b43b051e5effefeed66d0a4
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed Feb 9 11:56:42 2022 +0000
+commit b045dd85812fca0746fa839f389ffa26744591d1
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Feb 15 11:29:24 2022 +0000
 
-    [sw, dif, aes] Refactor dif_aes_start function
+    [ci] Introduce dedicated ROM & OTP sw build job
     
-     - Replace all the aes start functions for a single function.
-     - Add unit test for decrypt.
+    CW310 FPGA synthesis requires ROM and OTP binaries. Add a CI job to
+    build them specifically to avoid FPGA synthesis waiting on full software
+    build, reducing the critical CI path.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
