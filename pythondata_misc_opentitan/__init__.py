@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10320"
-version_tuple = (0, 0, 10320)
+version_str = "0.0.post10321"
+version_tuple = (0, 0, 10321)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10320")
+    pversion = V("0.0.post10321")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10194"
-data_version_tuple = (0, 0, 10194)
+data_version_str = "0.0.post10195"
+data_version_tuple = (0, 0, 10195)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10194")
+    pdata_version = V("0.0.post10195")
 except ImportError:
     pass
-data_git_hash = "b29822d679fd46c2652a534f25934d3b7d075201"
-data_git_describe = "v0.0-10194-gb29822d67"
+data_git_hash = "424a57d046d85e9cc854c63167d966d7558ccbf9"
+data_git_describe = "v0.0-10195-g424a57d04"
 data_git_msg = """\
-commit b29822d679fd46c2652a534f25934d3b7d075201
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Feb 14 23:02:15 2022 -0800
+commit 424a57d046d85e9cc854c63167d966d7558ccbf9
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Feb 15 16:33:00 2022 +0000
 
-    [sram/dv] Minor update for lc_esc
+    [ci] Move Verilator build to ci-public pool
     
-    Update sequence to use random value to enable lc_esc, rather than always
-    use `On`.
-    Also  update scb to treat other values as `On`
+    Previously this used azure agents, which are slow. Using ci-public
+    should improve the speed of the verilator build.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
