@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10321"
-version_tuple = (0, 0, 10321)
+version_str = "0.0.post10322"
+version_tuple = (0, 0, 10322)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10321")
+    pversion = V("0.0.post10322")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10195"
-data_version_tuple = (0, 0, 10195)
+data_version_str = "0.0.post10196"
+data_version_tuple = (0, 0, 10196)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10195")
+    pdata_version = V("0.0.post10196")
 except ImportError:
     pass
-data_git_hash = "424a57d046d85e9cc854c63167d966d7558ccbf9"
-data_git_describe = "v0.0-10195-g424a57d04"
+data_git_hash = "c0e30c5b698d5a62a90101fe52fa04009657cf76"
+data_git_describe = "v0.0-10196-gc0e30c5b6"
 data_git_msg = """\
-commit 424a57d046d85e9cc854c63167d966d7558ccbf9
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Feb 15 16:33:00 2022 +0000
+commit c0e30c5b698d5a62a90101fe52fa04009657cf76
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon Feb 14 17:28:50 2022 -0800
 
-    [ci] Move Verilator build to ci-public pool
+    [rv_dm] Enumerate all countermeasure IDs and annotate RTL
     
-    Previously this used azure agents, which are slow. Using ci-public
-    should improve the speed of the verilator build.
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
