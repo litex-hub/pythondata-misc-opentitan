@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10342"
-version_tuple = (0, 0, 10342)
+version_str = "0.0.post10343"
+version_tuple = (0, 0, 10343)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10342")
+    pversion = V("0.0.post10343")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10216"
-data_version_tuple = (0, 0, 10216)
+data_version_str = "0.0.post10217"
+data_version_tuple = (0, 0, 10217)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10216")
+    pdata_version = V("0.0.post10217")
 except ImportError:
     pass
-data_git_hash = "f8cde5d2c5be085429c9f5bcb71e5f9f546aa08e"
-data_git_describe = "v0.0-10216-gf8cde5d2c"
+data_git_hash = "966ca78eef4b08728ba8b818566ea0ca35a18c45"
+data_git_describe = "v0.0-10217-g966ca78ee"
 data_git_msg = """\
-commit f8cde5d2c5be085429c9f5bcb71e5f9f546aa08e
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Thu Feb 3 21:03:37 2022 +0000
+commit 966ca78eef4b08728ba8b818566ea0ca35a18c45
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Wed Feb 9 10:16:47 2022 +0000
 
-    [otbn, test] Add secure wipe to smoke test
+    [rom_ctrl, dv] Added kmac_err_chk testcase
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    kmac_err_chk testcase added to the testplan along with changes necessary
+    to run the test.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
