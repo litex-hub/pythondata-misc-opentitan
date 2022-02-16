@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10343"
-version_tuple = (0, 0, 10343)
+version_str = "0.0.post10347"
+version_tuple = (0, 0, 10347)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10343")
+    pversion = V("0.0.post10347")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10217"
-data_version_tuple = (0, 0, 10217)
+data_version_str = "0.0.post10221"
+data_version_tuple = (0, 0, 10221)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10217")
+    pdata_version = V("0.0.post10221")
 except ImportError:
     pass
-data_git_hash = "966ca78eef4b08728ba8b818566ea0ca35a18c45"
-data_git_describe = "v0.0-10217-g966ca78ee"
+data_git_hash = "a79607b660924d016e70ffe8893a30c91e15c91c"
+data_git_describe = "v0.0-10221-ga79607b66"
 data_git_msg = """\
-commit 966ca78eef4b08728ba8b818566ea0ca35a18c45
+commit a79607b660924d016e70ffe8893a30c91e15c91c
 Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Wed Feb 9 10:16:47 2022 +0000
+Date:   Mon Jan 24 11:30:09 2022 +0000
 
-    [rom_ctrl, dv] Added kmac_err_chk testcase
+    [rom_ctrl, dv] Checklist edited to reflect V2 status
     
-    kmac_err_chk testcase added to the testplan along with changes necessary
-    to run the test.
+    All the AIs from V2 review meeting have been completed and hence V2 targets are reached.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
     
     Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
