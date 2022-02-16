@@ -14,7 +14,10 @@
 // Based on usb_fs_pe.v from the TinyFPGA-Bootloader project but
 // this version contains no packet buffers
 
+`include "prim_assert.sv"
+
 module usb_fs_nb_pe #(
+  // Currently only accepts NumOutEps == NumInEps
   parameter int unsigned NumOutEps = 2,
   parameter int unsigned NumInEps = 2,
   parameter int unsigned MaxPktSizeByte = 32,
@@ -98,6 +101,10 @@ module usb_fs_nb_pe #(
 
   import usb_consts_pkg::*;
 
+  // The code below assumes the number of OUT endpoints and IN endpoints are
+  // interchangeable. Require them to be equal.
+  `ASSERT_INIT(NumOutEpsEqualsNumInEps_A, NumOutEps == NumInEps)
+
   // rx interface
   logic bit_strobe;
   logic rx_pkt_start;
@@ -131,6 +138,10 @@ module usb_fs_nb_pe #(
   assign frame_index_o = rx_frame_num;
   assign usb_oe_o = usb_oe;
 
+  // IN ep type configuration
+  logic [NumInEps-1:0] in_ep_iso_not_control;
+  assign in_ep_iso_not_control = in_ep_iso_i & ~out_ep_control_i;
+
   usb_fs_nb_in_pe #(
     .NumInEps           (NumInEps),
     .MaxInPktSizeByte   (MaxPktSizeByte)
@@ -153,7 +164,7 @@ module usb_fs_nb_pe #(
     .in_ep_has_data_i      (in_ep_has_data_i),
     .in_ep_data_i          (in_ep_data_i),
     .in_ep_data_done_i     (in_ep_data_done_i),
-    .in_ep_iso_i           (in_ep_iso_i),
+    .in_ep_iso_i           (in_ep_iso_not_control),
 
     .data_toggle_clear_i   (data_toggle_clear_i),
 
