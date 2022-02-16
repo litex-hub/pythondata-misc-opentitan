@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10347"
-version_tuple = (0, 0, 10347)
+version_str = "0.0.post10354"
+version_tuple = (0, 0, 10354)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10347")
+    pversion = V("0.0.post10354")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10221"
-data_version_tuple = (0, 0, 10221)
+data_version_str = "0.0.post10228"
+data_version_tuple = (0, 0, 10228)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10221")
+    pdata_version = V("0.0.post10228")
 except ImportError:
     pass
-data_git_hash = "a79607b660924d016e70ffe8893a30c91e15c91c"
-data_git_describe = "v0.0-10221-ga79607b66"
+data_git_hash = "bbb36c003493e88fe4c1160594bd5ad686177e8c"
+data_git_describe = "v0.0-10228-gbbb36c003"
 data_git_msg = """\
-commit a79607b660924d016e70ffe8893a30c91e15c91c
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Mon Jan 24 11:30:09 2022 +0000
+commit bbb36c003493e88fe4c1160594bd5ad686177e8c
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Fri Feb 11 09:17:50 2022 -0800
 
-    [rom_ctrl, dv] Checklist edited to reflect V2 status
+    [csrng/dv] Verify lc_hw_debug_en and cs_aes_halt
     
-    All the AIs from V2 review meeting have been completed and hence V2 targets are reached.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
