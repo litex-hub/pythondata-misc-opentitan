@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10340"
-version_tuple = (0, 0, 10340)
+version_str = "0.0.post10342"
+version_tuple = (0, 0, 10342)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10340")
+    pversion = V("0.0.post10342")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10214"
-data_version_tuple = (0, 0, 10214)
+data_version_str = "0.0.post10216"
+data_version_tuple = (0, 0, 10216)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10214")
+    pdata_version = V("0.0.post10216")
 except ImportError:
     pass
-data_git_hash = "87d485a80468a6e64a3267a50cbbf2a4a3d8c259"
-data_git_describe = "v0.0-10214-g87d485a80"
+data_git_hash = "f8cde5d2c5be085429c9f5bcb71e5f9f546aa08e"
+data_git_describe = "v0.0-10216-gf8cde5d2c"
 data_git_msg = """\
-commit 87d485a80468a6e64a3267a50cbbf2a4a3d8c259
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Feb 11 15:18:16 2022 -0800
+commit f8cde5d2c5be085429c9f5bcb71e5f9f546aa08e
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Feb 3 21:03:37 2022 +0000
 
-    [dif/csrng] Update DIF milestones and move to S1
+    [otbn, test] Add secure wipe to smoke test
     
-    This commit updates the DIF milestones for the CSRNG DIF library to
-    reflect the current state of the SW.
-    
-    This addresses a task in #10504.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
