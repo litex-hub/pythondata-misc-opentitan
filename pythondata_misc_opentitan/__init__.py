@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10363"
-version_tuple = (0, 0, 10363)
+version_str = "0.0.post10371"
+version_tuple = (0, 0, 10371)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10363")
+    pversion = V("0.0.post10371")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10237"
-data_version_tuple = (0, 0, 10237)
+data_version_str = "0.0.post10245"
+data_version_tuple = (0, 0, 10245)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10237")
+    pdata_version = V("0.0.post10245")
 except ImportError:
     pass
-data_git_hash = "85dbfb665b5f813d01ed979d997039cd3dd50de3"
-data_git_describe = "v0.0-10237-g85dbfb665"
+data_git_hash = "7ff7336b02695bb0961cfeb4e98b103ade4fe692"
+data_git_describe = "v0.0-10245-g7ff7336b0"
 data_git_msg = """\
-commit 85dbfb665b5f813d01ed979d997039cd3dd50de3
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Feb 14 21:59:33 2022 -0800
+commit 7ff7336b02695bb0961cfeb4e98b103ade4fe692
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Feb 15 10:02:16 2022 -0800
 
-    [prim] Move sec_cm assertion to an include file in prim_assert
+    [rv_dm dv] Drive DUT inputs to known values
     
-    Addressed problem raised in #10248 - Yosys only allows macros to be in
-    an included file
+    - Initialize the inputs to the DUT with some random values
+    - Constrain the inputs in the common seqeunce with amenable values
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
