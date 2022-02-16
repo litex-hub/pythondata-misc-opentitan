@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10331"
-version_tuple = (0, 0, 10331)
+version_str = "0.0.post10332"
+version_tuple = (0, 0, 10332)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10331")
+    pversion = V("0.0.post10332")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10205"
-data_version_tuple = (0, 0, 10205)
+data_version_str = "0.0.post10206"
+data_version_tuple = (0, 0, 10206)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10205")
+    pdata_version = V("0.0.post10206")
 except ImportError:
     pass
-data_git_hash = "b8e70c002ff2f34de0cb321db9c459f2e1908d45"
-data_git_describe = "v0.0-10205-gb8e70c002"
+data_git_hash = "48a9fb73f951577cd69421cb1c6ff4c6f53f532b"
+data_git_describe = "v0.0-10206-g48a9fb73f"
 data_git_msg = """\
-commit b8e70c002ff2f34de0cb321db9c459f2e1908d45
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Feb 15 16:08:43 2022 -0800
+commit 48a9fb73f951577cd69421cb1c6ff4c6f53f532b
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Feb 10 22:36:40 2022 -0800
 
-    [dv] Add macro DV_LC_TX_DIST and update get_rand_lc_tx_val
+    [dif] Update DIF milestones and descriptions
     
-    lc_tx_pkg::On/Off is different than Mubi4True/False
-    Add a macro so that users can use `DV_LC_TX_DIST` in constraint
-    And update `get_rand_lc_tx_val` to use this constraint macro
+    The DIF milestones were out of date. This commit addresses (and a task
+    in #10504).
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
