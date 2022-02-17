@@ -92,10 +92,12 @@ package kmac_pkg;
 
   // entropy lfsr related
   parameter int unsigned EntropyLfsrW = 64;
+  typedef logic [EntropyLfsrW-1:0] lfsr_seed_t;
   typedef logic [EntropyLfsrW-1:0][$clog2(EntropyLfsrW)-1:0] lfsr_perm_t;
+  parameter lfsr_seed_t RndCnstLfsrSeedDefault = 64'h47e808241ebaa563;
   parameter lfsr_perm_t RndCnstLfsrPermDefault = {
-    128'h810970222da1b1b1187551c3ff94574a,
-    256'h970d171aa41948cbe3a58167d3b47c268acfcbb2fa627b9c0a2fdf578f4ed32b
+    128'hc4ffd50080c2bba9a263211ef56f8d4b,
+    256'h9da89ed97481a32c5d9a4650abeb9388fcedcab36df411849df5c057473812d3
   };
 
   // These LFSR parameters have been generated with
@@ -186,11 +188,30 @@ package kmac_pkg;
 
   // Exporting the app internal mux selection enum into the package. So that DV
   // can use this enum in its scoreboard.
-  typedef enum logic [2:0] {
-    SelNone   = 3'b 000,
-    SelApp    = 3'b 101,
-    SelOutLen = 3'b 110,
-    SelSw     = 3'b 010
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 4 -n 5 \
+  //      -s 713832113 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||||||||||||| (66.67%)
+  //  4: |||||||||| (33.33%)
+  //  5: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 4
+  // Minimum Hamming weight: 1
+  // Maximum Hamming weight: 4
+  //
+  localparam int AppMuxWidth = 5;
+  typedef enum logic [AppMuxWidth-1:0] {
+    SelNone   = 5'b10100,
+    SelApp    = 5'b11001,
+    SelOutLen = 5'b00010,
+    SelSw     = 5'b01111
   } app_mux_sel_e ;
 
 

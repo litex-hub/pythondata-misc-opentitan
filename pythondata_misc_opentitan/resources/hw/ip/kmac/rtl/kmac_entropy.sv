@@ -8,7 +8,8 @@
 
 module kmac_entropy
   import kmac_pkg::*; #(
-  parameter lfsr_perm_t RndCnstLfsrPerm = RndCnstLfsrPermDefault
+  parameter lfsr_perm_t RndCnstLfsrPerm = RndCnstLfsrPermDefault,
+  parameter lfsr_seed_t RndCnstLfsrSeed = RndCnstLfsrSeedDefault
 ) (
   input clk_i,
   input rst_ni,
@@ -299,14 +300,8 @@ module kmac_entropy
   // LFSR =====================================================================
   //// FSM controls the seed enable signal `lfsr_seed_en`.
   //// Seed selection
-  always_comb begin
-    unique case (mode_q)
-      EntropyModeNone: lfsr_seed = '0;
-      EntropyModeEdn:  lfsr_seed = entropy_data_i;
-      EntropyModeSw:   lfsr_seed = seed_data_i;
-      default:         lfsr_seed = '0;
-    endcase
-  end
+  //// Default value to entropy data_i
+  assign lfsr_seed = (mode_q == EntropyModeSw) ? seed_data_i : entropy_data_i ;
   `ASSERT_KNOWN(ModeKnown_A, mode_i)
 
   // We employ two redundant LFSRs to guard against FI attacks.
@@ -319,6 +314,7 @@ module kmac_entropy
     .StateOutDw(EntropyLfsrW),
     .StatePermEn(1'b1),
     .StatePerm(RndCnstLfsrPerm),
+    .DefaultSeed(RndCnstLfsrSeed),
     .NonLinearOut(1'b1)
   ) u_lfsr (
     .clk_i,

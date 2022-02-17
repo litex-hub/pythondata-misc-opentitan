@@ -5123,13 +5123,23 @@
           name_top: SecKmacIdleAcceptSwMsg
         }
         {
+          name: RndCnstLfsrSeed
+          desc: Compile-time random data for LFSR default seed
+          type: kmac_pkg::lfsr_seed_t
+          randcount: 64
+          randtype: data
+          name_top: RndCnstKmacLfsrSeed
+          default: 0x2e658548c5420be5
+          randwidth: 64
+        }
+        {
           name: RndCnstLfsrPerm
           desc: Compile-time random permutation for LFSR output
           type: kmac_pkg::lfsr_perm_t
           randcount: 64
           randtype: perm
           name_top: RndCnstKmacLfsrPerm
-          default: 0x58560fbde2b6ca5ec0360ab98e1f13c1cd1ff9b890459ffdb129d5a5ad41aeecf11e430e0d4dc2a26e08e8b76d184257
+          default: 0x60a70d8ab7859f7ce38655c03f06fab96f537d1a60649431fbcff556a6b606cbf4c8790c3835380a89b923b2ddb46112
           randwidth: 384
         }
         {
@@ -5139,7 +5149,7 @@
           randcount: 64
           randtype: perm
           name_top: RndCnstKmacMsgPerm
-          default: 0xb611ea5a679945f8efcd75159e5c4eb1ceeb0da136bba3fd48133074b4f463f279a5b206dfce22175340fb280a402928
+          default: 0x515e0f5e7b6b69cf6cc634475aa9b339997e783b84e6f85f09204cf1d2d3d98a09d296c81b0e90ee2175dcd024cbf2a0
           randwidth: 384
         }
       ]
@@ -5305,7 +5315,7 @@
           randcount: 256
           randtype: data
           name_top: RndCnstOtbnUrndPrngSeed
-          default: 0x4093f0ec256b2646079c10f2f41f73af3fc6afbec695054a0407221fb798ab78
+          default: 0x471a7a682a6260eb4093f0ec256b2646079c10f2f41f73af3fc6afbec695054a
           randwidth: 256
         }
         {
@@ -5315,7 +5325,7 @@
           randcount: 128
           randtype: data
           name_top: RndCnstOtbnOtbnKey
-          default: 0xeefa4d4c2e269435471a7a682a6260eb
+          default: 0xf4e341f211c9d00beefa4d4c2e269435
           randwidth: 128
         }
         {
@@ -5325,7 +5335,7 @@
           randcount: 64
           randtype: data
           name_top: RndCnstOtbnOtbnNonce
-          default: 0xf4e341f211c9d00b
+          default: 0x8a789bdc189f345c
           randwidth: 64
         }
       ]
@@ -5496,7 +5506,7 @@
           randcount: 64
           randtype: data
           name_top: RndCnstKeymgrLfsrSeed
-          default: 0x8a789bdc189f345c
+          default: 0x9df4de1e830f9365
           randwidth: 64
         }
         {
@@ -11232,6 +11242,17 @@
         glob_idx: 11
       }
       {
+        name: sysrst_ctrl_aon_flash_wp_l
+        width: 1
+        type: inout
+        idx: -1
+        pad: IOR9
+        attr: BidirOd
+        connection: direct
+        desc: ""
+        glob_idx: 12
+      }
+      {
         name: spi_device_sck
         width: 1
         type: input
@@ -11240,7 +11261,7 @@
         attr: InputStd
         connection: direct
         desc: ""
-        glob_idx: 12
+        glob_idx: 13
       }
       {
         name: spi_device_csb
@@ -11251,7 +11272,7 @@
         attr: InputStd
         connection: direct
         desc: ""
-        glob_idx: 13
+        glob_idx: 14
       }
       {
         name: uart0_rx
@@ -11427,7 +11448,7 @@
         attr: BidirStd
         connection: direct
         desc: ""
-        glob_idx: 14
+        glob_idx: 15
       }
       {
         name: spi_host0_csb
@@ -11438,7 +11459,7 @@
         attr: BidirStd
         connection: direct
         desc: ""
-        glob_idx: 15
+        glob_idx: 16
       }
       {
         name: usbdev_se0
@@ -11449,7 +11470,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 16
+        glob_idx: 17
       }
       {
         name: usbdev_dp_pullup
@@ -11460,7 +11481,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 17
+        glob_idx: 18
       }
       {
         name: usbdev_dn_pullup
@@ -11471,7 +11492,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 18
+        glob_idx: 19
       }
       {
         name: usbdev_tx_mode_se
@@ -11482,7 +11503,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 19
+        glob_idx: 20
       }
       {
         name: usbdev_suspend
@@ -11493,7 +11514,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 20
+        glob_idx: 21
       }
       {
         name: usbdev_rx_enable
@@ -11504,7 +11525,7 @@
         attr: BidirTol
         connection: manual
         desc: ""
-        glob_idx: 21
+        glob_idx: 22
       }
       {
         name: uart0_tx
@@ -11815,17 +11836,6 @@
         glob_idx: 69
       }
       {
-        name: sysrst_ctrl_aon_flash_wp_l
-        width: 1
-        type: output
-        idx: -1
-        pad: IOR9
-        attr: BidirOd
-        connection: direct
-        desc: ""
-        glob_idx: 22
-      }
-      {
         name: sysrst_ctrl_aon_key0_out
         width: 1
         type: output
@@ -11885,9 +11895,9 @@
     {
       dedicated:
       {
-        inouts: 12
+        inouts: 13
         inputs: 2
-        outputs: 9
+        outputs: 8
         pads: 23
       }
       muxed:
@@ -12143,13 +12153,13 @@
             name: tck
             pad: SPI_DEV_CLK
             desc: JTAG tck signal, overlaid on SPI_DEV.
-            idx: 59
+            idx: 60
           }
           {
             name: tms
             pad: SPI_DEV_CS_L
             desc: JTAG tms signal, overlaid on SPI_DEV.
-            idx: 60
+            idx: 61
           }
           {
             name: trst_n
@@ -12325,13 +12335,13 @@
             name: tck
             pad: SPI_DEV_CLK
             desc: JTAG tck signal, overlaid on SPI_DEV.
-            idx: 59
+            idx: 60
           }
           {
             name: tms
             pad: SPI_DEV_CS_L
             desc: JTAG tms signal, overlaid on SPI_DEV.
-            idx: 60
+            idx: 61
           }
           {
             name: trst_n
