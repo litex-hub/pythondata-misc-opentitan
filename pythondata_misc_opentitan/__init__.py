@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10393"
-version_tuple = (0, 0, 10393)
+version_str = "0.0.post10394"
+version_tuple = (0, 0, 10394)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10393")
+    pversion = V("0.0.post10394")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10267"
-data_version_tuple = (0, 0, 10267)
+data_version_str = "0.0.post10268"
+data_version_tuple = (0, 0, 10268)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10267")
+    pdata_version = V("0.0.post10268")
 except ImportError:
     pass
-data_git_hash = "9e39bd5e5d18aad6b392d41e96801614b3412126"
-data_git_describe = "v0.0-10267-g9e39bd5e5"
+data_git_hash = "c8b6231addeafba7cbccf3cef98800eae1042787"
+data_git_describe = "v0.0-10268-gc8b6231ad"
 data_git_msg = """\
-commit 9e39bd5e5d18aad6b392d41e96801614b3412126
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Wed Feb 16 22:29:16 2022 +0000
+commit c8b6231addeafba7cbccf3cef98800eae1042787
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Feb 15 11:55:23 2022 +0100
 
-    [doc] Update technical committee information
+    [aes] Convert Masking and SBoxImpl parameters to Sec parameters
     
-    Adding Rupert to list of technical committee members and removing
-    Alex. Also marking Michael Schaffner as chair.
+    These two parameters are security critical and we should reduce the risk
+    of accidentally setting non-default values for these for tapeouts.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
