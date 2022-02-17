@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10396"
-version_tuple = (0, 0, 10396)
+version_str = "0.0.post10403"
+version_tuple = (0, 0, 10403)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10396")
+    pversion = V("0.0.post10403")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10270"
-data_version_tuple = (0, 0, 10270)
+data_version_str = "0.0.post10277"
+data_version_tuple = (0, 0, 10277)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10270")
+    pdata_version = V("0.0.post10277")
 except ImportError:
     pass
-data_git_hash = "4809deffb9cfbd4c326ad534375571c001144593"
-data_git_describe = "v0.0-10270-g4809deffb"
+data_git_hash = "dcf148872e2ce013d33b8fba51a8c33dedd1fca9"
+data_git_describe = "v0.0-10277-gdcf148872"
 data_git_msg = """\
-commit 4809deffb9cfbd4c326ad534375571c001144593
-Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Feb 10 10:39:04 2022 +0000
+commit dcf148872e2ce013d33b8fba51a8c33dedd1fca9
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Feb 10 12:31:53 2022 -0800
 
-    [sw/silicon_creator] Use GlobalMock from device/lib.
+    [top] Update relevant core files to use alternate pmp reset values
     
-    Remove now-duplicate GlobalMock from silicon_creator and change all
-    mocks and tests to use it from its new location in
-    device/lib/base/testing.
+    - add alternate pmp reset file
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
