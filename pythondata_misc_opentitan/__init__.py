@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10394"
-version_tuple = (0, 0, 10394)
+version_str = "0.0.post10396"
+version_tuple = (0, 0, 10396)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10394")
+    pversion = V("0.0.post10396")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10268"
-data_version_tuple = (0, 0, 10268)
+data_version_str = "0.0.post10270"
+data_version_tuple = (0, 0, 10270)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10268")
+    pdata_version = V("0.0.post10270")
 except ImportError:
     pass
-data_git_hash = "c8b6231addeafba7cbccf3cef98800eae1042787"
-data_git_describe = "v0.0-10268-gc8b6231ad"
+data_git_hash = "4809deffb9cfbd4c326ad534375571c001144593"
+data_git_describe = "v0.0-10270-g4809deffb"
 data_git_msg = """\
-commit c8b6231addeafba7cbccf3cef98800eae1042787
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Feb 15 11:55:23 2022 +0100
+commit 4809deffb9cfbd4c326ad534375571c001144593
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Feb 10 10:39:04 2022 +0000
 
-    [aes] Convert Masking and SBoxImpl parameters to Sec parameters
+    [sw/silicon_creator] Use GlobalMock from device/lib.
     
-    These two parameters are security critical and we should reduce the risk
-    of accidentally setting non-default values for these for tapeouts.
+    Remove now-duplicate GlobalMock from silicon_creator and change all
+    mocks and tests to use it from its new location in
+    device/lib/base/testing.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
