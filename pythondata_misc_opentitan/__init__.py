@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10382"
-version_tuple = (0, 0, 10382)
+version_str = "0.0.post10384"
+version_tuple = (0, 0, 10384)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10382")
+    pversion = V("0.0.post10384")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10256"
-data_version_tuple = (0, 0, 10256)
+data_version_str = "0.0.post10258"
+data_version_tuple = (0, 0, 10258)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10256")
+    pdata_version = V("0.0.post10258")
 except ImportError:
     pass
-data_git_hash = "3d4b2f528dea1191fcfc340b4482ae0acd598b65"
-data_git_describe = "v0.0-10256-g3d4b2f528"
+data_git_hash = "79e6216d6531cd72e276dadb72e3871e3bfc03c6"
+data_git_describe = "v0.0-10258-g79e6216d6"
 data_git_msg = """\
-commit 3d4b2f528dea1191fcfc340b4482ae0acd598b65
-Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
-Date:   Thu Feb 10 14:04:39 2022 +0100
+commit 79e6216d6531cd72e276dadb72e3871e3bfc03c6
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Feb 15 21:59:58 2022 -0800
 
-    [kmac] increased HD of mux_sel
+    [dv/kmac] Add entropy_mode error support
     
-    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+    This PR creates error case when entropy_mode is configured incorrectly.
+    Then it will check err_code, interrupt, and make sure kmac can operate
+    correct afterwards.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
