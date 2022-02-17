@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10371"
-version_tuple = (0, 0, 10371)
+version_str = "0.0.post10382"
+version_tuple = (0, 0, 10382)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10371")
+    pversion = V("0.0.post10382")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10245"
-data_version_tuple = (0, 0, 10245)
+data_version_str = "0.0.post10256"
+data_version_tuple = (0, 0, 10256)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10245")
+    pdata_version = V("0.0.post10256")
 except ImportError:
     pass
-data_git_hash = "7ff7336b02695bb0961cfeb4e98b103ade4fe692"
-data_git_describe = "v0.0-10245-g7ff7336b0"
+data_git_hash = "3d4b2f528dea1191fcfc340b4482ae0acd598b65"
+data_git_describe = "v0.0-10256-g3d4b2f528"
 data_git_msg = """\
-commit 7ff7336b02695bb0961cfeb4e98b103ade4fe692
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Feb 15 10:02:16 2022 -0800
+commit 3d4b2f528dea1191fcfc340b4482ae0acd598b65
+Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+Date:   Thu Feb 10 14:04:39 2022 +0100
 
-    [rv_dm dv] Drive DUT inputs to known values
+    [kmac] increased HD of mux_sel
     
-    - Initialize the inputs to the DUT with some random values
-    - Constrain the inputs in the common seqeunce with amenable values
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
 
 """
 
