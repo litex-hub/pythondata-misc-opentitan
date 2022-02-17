@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10390"
-version_tuple = (0, 0, 10390)
+version_str = "0.0.post10392"
+version_tuple = (0, 0, 10392)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10390")
+    pversion = V("0.0.post10392")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10264"
-data_version_tuple = (0, 0, 10264)
+data_version_str = "0.0.post10266"
+data_version_tuple = (0, 0, 10266)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10264")
+    pdata_version = V("0.0.post10266")
 except ImportError:
     pass
-data_git_hash = "dfe2e4e635d3ec62cdcf811e40bcca892a03e161"
-data_git_describe = "v0.0-10264-gdfe2e4e63"
+data_git_hash = "20429db23426f994186e7775f5440dbc8897829d"
+data_git_describe = "v0.0-10266-g20429db23"
 data_git_msg = """\
-commit dfe2e4e635d3ec62cdcf811e40bcca892a03e161
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Feb 14 15:45:38 2022 +0100
+commit 20429db23426f994186e7775f5440dbc8897829d
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 10 17:34:00 2022 +0000
 
-    [aes] Fix AscentLint errors
+    [otbn] Don't send RND requests on an IMEM error
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    If the check bits for an instruction are invalid, we shouldn't take
+    any outwardly observable action. In this case, we weren't squashing
+    the RND request from a CSRRW that wrote to RND_PREFETCH.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
