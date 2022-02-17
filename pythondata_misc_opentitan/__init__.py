@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10403"
-version_tuple = (0, 0, 10403)
+version_str = "0.0.post10407"
+version_tuple = (0, 0, 10407)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10403")
+    pversion = V("0.0.post10407")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10277"
-data_version_tuple = (0, 0, 10277)
+data_version_str = "0.0.post10281"
+data_version_tuple = (0, 0, 10281)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10277")
+    pdata_version = V("0.0.post10281")
 except ImportError:
     pass
-data_git_hash = "dcf148872e2ce013d33b8fba51a8c33dedd1fca9"
-data_git_describe = "v0.0-10277-gdcf148872"
+data_git_hash = "3fc70360b5e814b3ce183bfff653cfe0e03b3675"
+data_git_describe = "v0.0-10281-g3fc70360b"
 data_git_msg = """\
-commit dcf148872e2ce013d33b8fba51a8c33dedd1fca9
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 10 12:31:53 2022 -0800
+commit 3fc70360b5e814b3ce183bfff653cfe0e03b3675
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Feb 16 12:41:59 2022 +0000
 
-    [top] Update relevant core files to use alternate pmp reset values
+    [dv] Add rv_core_ibex chip level tests to testplan
     
-    - add alternate pmp reset file
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
