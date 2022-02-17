@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10384"
-version_tuple = (0, 0, 10384)
+version_str = "0.0.post10387"
+version_tuple = (0, 0, 10387)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10384")
+    pversion = V("0.0.post10387")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10258"
-data_version_tuple = (0, 0, 10258)
+data_version_str = "0.0.post10261"
+data_version_tuple = (0, 0, 10261)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10258")
+    pdata_version = V("0.0.post10261")
 except ImportError:
     pass
-data_git_hash = "79e6216d6531cd72e276dadb72e3871e3bfc03c6"
-data_git_describe = "v0.0-10258-g79e6216d6"
+data_git_hash = "e1292d6a93f6b7d64c76bff8ff4597b80764520a"
+data_git_describe = "v0.0-10261-ge1292d6a9"
 data_git_msg = """\
-commit 79e6216d6531cd72e276dadb72e3871e3bfc03c6
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Feb 15 21:59:58 2022 -0800
+commit e1292d6a93f6b7d64c76bff8ff4597b80764520a
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Feb 14 22:50:59 2022 +0000
 
-    [dv/kmac] Add entropy_mode error support
+    [otbn,dv] Include pending stores in ISS DMEM dumps
     
-    This PR creates error case when entropy_mode is configured incorrectly.
-    Then it will check err_code, interrupt, and make sure kmac can operate
-    correct afterwards.
+    This matches the timing that we see on the RTL side, fixing
+    some (honestly very confusing!) mismatches that came up in a stress
+    test.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
