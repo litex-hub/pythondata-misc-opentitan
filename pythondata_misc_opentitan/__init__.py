@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10392"
-version_tuple = (0, 0, 10392)
+version_str = "0.0.post10393"
+version_tuple = (0, 0, 10393)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10392")
+    pversion = V("0.0.post10393")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10266"
-data_version_tuple = (0, 0, 10266)
+data_version_str = "0.0.post10267"
+data_version_tuple = (0, 0, 10267)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10266")
+    pdata_version = V("0.0.post10267")
 except ImportError:
     pass
-data_git_hash = "20429db23426f994186e7775f5440dbc8897829d"
-data_git_describe = "v0.0-10266-g20429db23"
+data_git_hash = "9e39bd5e5d18aad6b392d41e96801614b3412126"
+data_git_describe = "v0.0-10267-g9e39bd5e5"
 data_git_msg = """\
-commit 20429db23426f994186e7775f5440dbc8897829d
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 10 17:34:00 2022 +0000
+commit 9e39bd5e5d18aad6b392d41e96801614b3412126
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Wed Feb 16 22:29:16 2022 +0000
 
-    [otbn] Don't send RND requests on an IMEM error
+    [doc] Update technical committee information
     
-    If the check bits for an instruction are invalid, we shouldn't take
-    any outwardly observable action. In this case, we weren't squashing
-    the RND request from a CSRRW that wrote to RND_PREFETCH.
+    Adding Rupert to list of technical committee members and removing
+    Alex. Also marking Michael Schaffner as chair.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
