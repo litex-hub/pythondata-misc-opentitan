@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10387"
-version_tuple = (0, 0, 10387)
+version_str = "0.0.post10390"
+version_tuple = (0, 0, 10390)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10387")
+    pversion = V("0.0.post10390")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10261"
-data_version_tuple = (0, 0, 10261)
+data_version_str = "0.0.post10264"
+data_version_tuple = (0, 0, 10264)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10261")
+    pdata_version = V("0.0.post10264")
 except ImportError:
     pass
-data_git_hash = "e1292d6a93f6b7d64c76bff8ff4597b80764520a"
-data_git_describe = "v0.0-10261-ge1292d6a9"
+data_git_hash = "dfe2e4e635d3ec62cdcf811e40bcca892a03e161"
+data_git_describe = "v0.0-10264-gdfe2e4e63"
 data_git_msg = """\
-commit e1292d6a93f6b7d64c76bff8ff4597b80764520a
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 14 22:50:59 2022 +0000
+commit dfe2e4e635d3ec62cdcf811e40bcca892a03e161
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Feb 14 15:45:38 2022 +0100
 
-    [otbn,dv] Include pending stores in ISS DMEM dumps
+    [aes] Fix AscentLint errors
     
-    This matches the timing that we see on the RTL side, fixing
-    some (honestly very confusing!) mismatches that came up in a stress
-    test.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
