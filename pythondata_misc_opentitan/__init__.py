@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10423"
-version_tuple = (0, 0, 10423)
+version_str = "0.0.post10438"
+version_tuple = (0, 0, 10438)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10423")
+    pversion = V("0.0.post10438")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10297"
-data_version_tuple = (0, 0, 10297)
+data_version_str = "0.0.post10312"
+data_version_tuple = (0, 0, 10312)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10297")
+    pdata_version = V("0.0.post10312")
 except ImportError:
     pass
-data_git_hash = "b555ffa9b461f2e4b513e0d6d538c2f6475b9911"
-data_git_describe = "v0.0-10297-gb555ffa9b"
+data_git_hash = "92173aa54ac2fba4c68b2362eb0bf7b563b09cfb"
+data_git_describe = "v0.0-10312-g92173aa54"
 data_git_msg = """\
-commit b555ffa9b461f2e4b513e0d6d538c2f6475b9911
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Feb 17 15:09:34 2022 -0800
+commit 92173aa54ac2fba4c68b2362eb0bf7b563b09cfb
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Feb 15 23:41:41 2022 -0800
 
-    [conn] Update csv files
+    [bazel] Add signing rule to `opentitan_binary` macro
     
-    1). Update rv_core_ibex path because it uses `prim_ram_1p_adv`.
-    2). Update otbn ast connection to avoid width mismatch warning.
+    `opentitan_binary` images must be signed in order to be launched by the
+    mask ROM, and therefore, facilitate E2E mask ROM testing. This commit
+    adds a rule to the `rules/opentitan.bzl` and an option to sign
+    opentitan binaries.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This addresses a task in #10864.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
