@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10414"
-version_tuple = (0, 0, 10414)
+version_str = "0.0.post10415"
+version_tuple = (0, 0, 10415)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10414")
+    pversion = V("0.0.post10415")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10288"
-data_version_tuple = (0, 0, 10288)
+data_version_str = "0.0.post10289"
+data_version_tuple = (0, 0, 10289)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10288")
+    pdata_version = V("0.0.post10289")
 except ImportError:
     pass
-data_git_hash = "41594d6d76f2f2eeb639ae1b45f22f4f4a7587c0"
-data_git_describe = "v0.0-10288-g41594d6d7"
+data_git_hash = "9e0c16ad01c788c14350770a7465c4886771a865"
+data_git_describe = "v0.0-10289-g9e0c16ad0"
 data_git_msg = """\
-commit 41594d6d76f2f2eeb639ae1b45f22f4f4a7587c0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 16 22:41:59 2022 -0800
+commit 9e0c16ad01c788c14350770a7465c4886771a865
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Thu Feb 17 17:16:31 2022 -0800
 
-    [dv/kmac] Drive entropy related CSRs
+    [entropy_src/dv] Program thresholds before enabling
     
-    This PR drives entropy related CSRs to refresh entropy.
+    The health test thresholds (which are configured by test-specific
+    routines) must be programmed before the module_enable or sw_regupd
+    registers.  This commit fixes the rng vseq to postpone the base vseq
+    initialization (the bulk of the register configuration) until after
+    the thresholds have been loaded.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
