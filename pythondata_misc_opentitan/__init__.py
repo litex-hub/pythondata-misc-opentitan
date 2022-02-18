@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10413"
-version_tuple = (0, 0, 10413)
+version_str = "0.0.post10414"
+version_tuple = (0, 0, 10414)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10413")
+    pversion = V("0.0.post10414")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10287"
-data_version_tuple = (0, 0, 10287)
+data_version_str = "0.0.post10288"
+data_version_tuple = (0, 0, 10288)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10287")
+    pdata_version = V("0.0.post10288")
 except ImportError:
     pass
-data_git_hash = "5cb04a7b86aa50a091f27f2a14d3a9f6bb569d60"
-data_git_describe = "v0.0-10287-g5cb04a7b8"
+data_git_hash = "41594d6d76f2f2eeb639ae1b45f22f4f4a7587c0"
+data_git_describe = "v0.0-10288-g41594d6d7"
 data_git_msg = """\
-commit 5cb04a7b86aa50a091f27f2a14d3a9f6bb569d60
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Feb 12 17:11:33 2022 -0800
+commit 41594d6d76f2f2eeb639ae1b45f22f4f4a7587c0
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 16 22:41:59 2022 -0800
 
-    [entropy_src] Document & Implement THRESHOLD_SCOPE
+    [dv/kmac] Drive entropy related CSRs
     
-    - Documents the THRESHOLD_SCOPE register
-    - Updates the AdaptP and Markov health tests.  The tests now operate on
-      the same scope (either by-line or by-sum) depending on the value of
-      THRESHOLD_SCOPE.
-    - Adds new DV environment configurations and scoreboarding updates to
-      reflect the new RTL changes.
+    This PR drives entropy related CSRs to refresh entropy.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-    Co-authored-by: rasmus-madsen <53917183+rasmus-madsen@users.noreply.github.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
