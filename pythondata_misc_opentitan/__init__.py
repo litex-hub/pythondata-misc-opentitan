@@ -4,38 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10415"
-version_tuple = (0, 0, 10415)
+version_str = "0.0.post10418"
+version_tuple = (0, 0, 10418)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10415")
+    pversion = V("0.0.post10418")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10289"
-data_version_tuple = (0, 0, 10289)
+data_version_str = "0.0.post10292"
+data_version_tuple = (0, 0, 10292)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10289")
+    pdata_version = V("0.0.post10292")
 except ImportError:
     pass
-data_git_hash = "9e0c16ad01c788c14350770a7465c4886771a865"
-data_git_describe = "v0.0-10289-g9e0c16ad0"
+data_git_hash = "334a1d7732c8df74af636c966cd4eb231cf08c9e"
+data_git_describe = "v0.0-10292-g334a1d773"
 data_git_msg = """\
-commit 9e0c16ad01c788c14350770a7465c4886771a865
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Feb 17 17:16:31 2022 -0800
+commit 334a1d7732c8df74af636c966cd4eb231cf08c9e
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Feb 17 07:13:23 2022 -0800
 
-    [entropy_src/dv] Program thresholds before enabling
+    [entropy_src/rtl] Remove gating on err_code status register
     
-    The health test thresholds (which are configured by test-specific
-    routines) must be programmed before the module_enable or sw_regupd
-    registers.  This commit fixes the rng vseq to postpone the base vseq
-    initialization (the bulk of the register configuration) until after
-    the thresholds have been loaded.
+    The REGWEN change has created conflicting conditions for testing the ERR_CODE register.
+    Two possible ways to resolve, either remove the redundant gating, or remove the
+    REGWEN keyword on the ERROR_CODE_TEST register.
+    Removing the enable gating makes it consistant with other bits in this register.
+    Removing the REGWEN keyword seems to be a system exposure so not doing that.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
