@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10411"
-version_tuple = (0, 0, 10411)
+version_str = "0.0.post10413"
+version_tuple = (0, 0, 10413)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10411")
+    pversion = V("0.0.post10413")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10285"
-data_version_tuple = (0, 0, 10285)
+data_version_str = "0.0.post10287"
+data_version_tuple = (0, 0, 10287)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10285")
+    pdata_version = V("0.0.post10287")
 except ImportError:
     pass
-data_git_hash = "47b50cbcbb9ae8a331310e4ea4befca0c2c130a4"
-data_git_describe = "v0.0-10285-g47b50cbcb"
+data_git_hash = "5cb04a7b86aa50a091f27f2a14d3a9f6bb569d60"
+data_git_describe = "v0.0-10287-g5cb04a7b8"
 data_git_msg = """\
-commit 47b50cbcbb9ae8a331310e4ea4befca0c2c130a4
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Feb 17 12:20:08 2022 -0800
+commit 5cb04a7b86aa50a091f27f2a14d3a9f6bb569d60
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Feb 12 17:11:33 2022 -0800
 
-    [kmac] Regenerate TOP Earlgrey
+    [entropy_src] Document & Implement THRESHOLD_SCOPE
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    - Documents the THRESHOLD_SCOPE register
+    - Updates the AdaptP and Markov health tests.  The tests now operate on
+      the same scope (either by-line or by-sum) depending on the value of
+      THRESHOLD_SCOPE.
+    - Adds new DV environment configurations and scoreboarding updates to
+      reflect the new RTL changes.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Co-authored-by: rasmus-madsen <53917183+rasmus-madsen@users.noreply.github.com>
 
 """
 
