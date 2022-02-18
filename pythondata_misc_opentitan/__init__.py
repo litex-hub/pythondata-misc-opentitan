@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10418"
-version_tuple = (0, 0, 10418)
+version_str = "0.0.post10423"
+version_tuple = (0, 0, 10423)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10418")
+    pversion = V("0.0.post10423")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10292"
-data_version_tuple = (0, 0, 10292)
+data_version_str = "0.0.post10297"
+data_version_tuple = (0, 0, 10297)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10292")
+    pdata_version = V("0.0.post10297")
 except ImportError:
     pass
-data_git_hash = "334a1d7732c8df74af636c966cd4eb231cf08c9e"
-data_git_describe = "v0.0-10292-g334a1d773"
+data_git_hash = "b555ffa9b461f2e4b513e0d6d538c2f6475b9911"
+data_git_describe = "v0.0-10297-gb555ffa9b"
 data_git_msg = """\
-commit 334a1d7732c8df74af636c966cd4eb231cf08c9e
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Feb 17 07:13:23 2022 -0800
+commit b555ffa9b461f2e4b513e0d6d538c2f6475b9911
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 17 15:09:34 2022 -0800
 
-    [entropy_src/rtl] Remove gating on err_code status register
+    [conn] Update csv files
     
-    The REGWEN change has created conflicting conditions for testing the ERR_CODE register.
-    Two possible ways to resolve, either remove the redundant gating, or remove the
-    REGWEN keyword on the ERROR_CODE_TEST register.
-    Removing the enable gating makes it consistant with other bits in this register.
-    Removing the REGWEN keyword seems to be a system exposure so not doing that.
+    1). Update rv_core_ibex path because it uses `prim_ram_1p_adv`.
+    2). Update otbn ast connection to avoid width mismatch warning.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
