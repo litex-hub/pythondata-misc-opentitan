@@ -4,39 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10438"
-version_tuple = (0, 0, 10438)
+version_str = "0.0.post10439"
+version_tuple = (0, 0, 10439)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10438")
+    pversion = V("0.0.post10439")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10312"
-data_version_tuple = (0, 0, 10312)
+data_version_str = "0.0.post10313"
+data_version_tuple = (0, 0, 10313)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10312")
+    pdata_version = V("0.0.post10313")
 except ImportError:
     pass
-data_git_hash = "92173aa54ac2fba4c68b2362eb0bf7b563b09cfb"
-data_git_describe = "v0.0-10312-g92173aa54"
+data_git_hash = "b1855ecc53e3be62f3153219dee2d0cb9a592618"
+data_git_describe = "v0.0-10313-gb1855ecc5"
 data_git_msg = """\
-commit 92173aa54ac2fba4c68b2362eb0bf7b563b09cfb
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Feb 15 23:41:41 2022 -0800
+commit b1855ecc53e3be62f3153219dee2d0cb9a592618
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Fri Feb 18 17:31:30 2022 +0000
 
-    [bazel] Add signing rule to `opentitan_binary` macro
+    [COMMITTERS] Update committers list
     
-    `opentitan_binary` images must be signed in order to be launched by the
-    mask ROM, and therefore, facilitate E2E mask ROM testing. This commit
-    adds a rule to the `rules/opentitan.bzl` and an option to sign
-    opentitan binaries.
+    Add Jade Philipoom to the committers list as agreed by the
+    technical committee.
     
-    This addresses a task in #10864.
+    Thanks for all your contributions Jade!
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
