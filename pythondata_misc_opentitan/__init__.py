@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10439"
-version_tuple = (0, 0, 10439)
+version_str = "0.0.post10443"
+version_tuple = (0, 0, 10443)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10439")
+    pversion = V("0.0.post10443")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10313"
-data_version_tuple = (0, 0, 10313)
+data_version_str = "0.0.post10317"
+data_version_tuple = (0, 0, 10317)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10313")
+    pdata_version = V("0.0.post10317")
 except ImportError:
     pass
-data_git_hash = "b1855ecc53e3be62f3153219dee2d0cb9a592618"
-data_git_describe = "v0.0-10313-gb1855ecc5"
+data_git_hash = "5ee89951047ce0f3efe6a3b663451c20305e6faf"
+data_git_describe = "v0.0-10317-g5ee899510"
 data_git_msg = """\
-commit b1855ecc53e3be62f3153219dee2d0cb9a592618
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Fri Feb 18 17:31:30 2022 +0000
+commit 5ee89951047ce0f3efe6a3b663451c20305e6faf
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Feb 18 14:10:44 2022 -0800
 
-    [COMMITTERS] Update committers list
+    [lint] Increase the unroll count
     
-    Add Jade Philipoom to the committers list as agreed by the
-    technical committee.
+    This commit increases Ascentlint max unroll count from 1024 (default) to
+    3200 (max Kmac state x2)
     
-    Thanks for all your contributions Jade!
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
