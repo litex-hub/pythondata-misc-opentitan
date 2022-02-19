@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10445"
-version_tuple = (0, 0, 10445)
+version_str = "0.0.post10449"
+version_tuple = (0, 0, 10449)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10445")
+    pversion = V("0.0.post10449")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10319"
-data_version_tuple = (0, 0, 10319)
+data_version_str = "0.0.post10323"
+data_version_tuple = (0, 0, 10323)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10319")
+    pdata_version = V("0.0.post10323")
 except ImportError:
     pass
-data_git_hash = "cf1c301d96ac9242f974972c65026c3a71cb86a7"
-data_git_describe = "v0.0-10319-gcf1c301d9"
+data_git_hash = "a5566a4de46aa0e951bd6e1e1658b13354f7b6bd"
+data_git_describe = "v0.0-10323-ga5566a4de"
 data_git_msg = """\
-commit cf1c301d96ac9242f974972c65026c3a71cb86a7
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Thu Feb 10 15:10:05 2022 +0000
+commit a5566a4de46aa0e951bd6e1e1658b13354f7b6bd
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Feb 16 14:54:08 2022 -0800
 
-    [flash_ctrl] ADD ERASE SUSPEND TEST
+    [reggen] Minor cm check fix
     
-    Test erase suspend while random erase is in progress and also when there is
-    no erase at all. Added support for backdoor reading of erased bank and page.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
