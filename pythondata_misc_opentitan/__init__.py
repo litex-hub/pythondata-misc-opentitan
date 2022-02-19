@@ -4,38 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10450"
-version_tuple = (0, 0, 10450)
+version_str = "0.0.post10451"
+version_tuple = (0, 0, 10451)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10450")
+    pversion = V("0.0.post10451")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10324"
-data_version_tuple = (0, 0, 10324)
+data_version_str = "0.0.post10325"
+data_version_tuple = (0, 0, 10325)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10324")
+    pdata_version = V("0.0.post10325")
 except ImportError:
     pass
-data_git_hash = "143ebe944b7b67117d339f83146229dc52b3efb2"
-data_git_describe = "v0.0-10324-g143ebe944"
+data_git_hash = "2f11710ed27371762bf118e634d13d81caf729c5"
+data_git_describe = "v0.0-10325-g2f11710ed"
 data_git_msg = """\
-commit 143ebe944b7b67117d339f83146229dc52b3efb2
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 16 14:22:21 2022 -0800
+commit 2f11710ed27371762bf118e634d13d81caf729c5
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Feb 18 11:49:51 2022 -0800
 
-    [dv/jtag] Fix close source JTAG error
+    [opentitantool] Use Result<> on all Transport methods
     
-    This PR fixes close source JTAG error due to extra simulation delays
-    in JTAG external clock.
-    To avoid this issue, we will drive JTAG input at negedge.
-    This PR also adds a max attempt to activate RV_DM to avoid simulation
-    hanging.
+    As we plan to introduce a Transport implementation backed by a network
+    protocol, I/O errors could occur even for the simplest methods (such
+    as "get baud rate").
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This change ensures that every single method in the Transport trait
+    and its delegates return their value through a transport::Result<...>
+    to accomodate this future.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I88b3a48a1910cb3a5211c3dc6e84a8553300c53b
 
 """
 
