@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10451"
-version_tuple = (0, 0, 10451)
+version_str = "0.0.post10453"
+version_tuple = (0, 0, 10453)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10451")
+    pversion = V("0.0.post10453")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10325"
-data_version_tuple = (0, 0, 10325)
+data_version_str = "0.0.post10327"
+data_version_tuple = (0, 0, 10327)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10325")
+    pdata_version = V("0.0.post10327")
 except ImportError:
     pass
-data_git_hash = "2f11710ed27371762bf118e634d13d81caf729c5"
-data_git_describe = "v0.0-10325-g2f11710ed"
+data_git_hash = "93d120cbfd7207b75010cefa9ac61f9a717631b9"
+data_git_describe = "v0.0-10327-g93d120cbf"
 data_git_msg = """\
-commit 2f11710ed27371762bf118e634d13d81caf729c5
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Feb 18 11:49:51 2022 -0800
+commit 93d120cbfd7207b75010cefa9ac61f9a717631b9
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Fri Feb 18 08:50:16 2022 -0800
 
-    [opentitantool] Use Result<> on all Transport methods
+    [edn/rtl/doc] Update doc and debug state machine reg
     
-    As we plan to introduce a Transport implementation backed by a network
-    protocol, I/O errors could occur even for the simplest methods (such
-    as "get baud rate").
+    Some edn register cleanup, along with adding the
+    complete main state machine to be read-only.
     
-    This change ensures that every single method in the Transport trait
-    and its delegates return their value through a transport::Result<...>
-    to accomodate this future.
-    
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
-    Change-Id: I88b3a48a1910cb3a5211c3dc6e84a8553300c53b
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
