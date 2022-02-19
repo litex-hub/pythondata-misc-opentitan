@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10449"
-version_tuple = (0, 0, 10449)
+version_str = "0.0.post10450"
+version_tuple = (0, 0, 10450)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10449")
+    pversion = V("0.0.post10450")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10323"
-data_version_tuple = (0, 0, 10323)
+data_version_str = "0.0.post10324"
+data_version_tuple = (0, 0, 10324)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10323")
+    pdata_version = V("0.0.post10324")
 except ImportError:
     pass
-data_git_hash = "a5566a4de46aa0e951bd6e1e1658b13354f7b6bd"
-data_git_describe = "v0.0-10323-ga5566a4de"
+data_git_hash = "143ebe944b7b67117d339f83146229dc52b3efb2"
+data_git_describe = "v0.0-10324-g143ebe944"
 data_git_msg = """\
-commit a5566a4de46aa0e951bd6e1e1658b13354f7b6bd
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Feb 16 14:54:08 2022 -0800
+commit 143ebe944b7b67117d339f83146229dc52b3efb2
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 16 14:22:21 2022 -0800
 
-    [reggen] Minor cm check fix
+    [dv/jtag] Fix close source JTAG error
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    This PR fixes close source JTAG error due to extra simulation delays
+    in JTAG external clock.
+    To avoid this issue, we will drive JTAG input at negedge.
+    This PR also adds a max attempt to activate RV_DM to avoid simulation
+    hanging.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
