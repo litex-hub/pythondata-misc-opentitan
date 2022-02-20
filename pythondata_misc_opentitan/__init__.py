@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10453"
-version_tuple = (0, 0, 10453)
+version_str = "0.0.post10454"
+version_tuple = (0, 0, 10454)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10453")
+    pversion = V("0.0.post10454")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10327"
-data_version_tuple = (0, 0, 10327)
+data_version_str = "0.0.post10328"
+data_version_tuple = (0, 0, 10328)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10327")
+    pdata_version = V("0.0.post10328")
 except ImportError:
     pass
-data_git_hash = "93d120cbfd7207b75010cefa9ac61f9a717631b9"
-data_git_describe = "v0.0-10327-g93d120cbf"
+data_git_hash = "bef5e3faab1cecfe04aacdbd8e73fe8f52790fe5"
+data_git_describe = "v0.0-10328-gbef5e3faa"
 data_git_msg = """\
-commit 93d120cbfd7207b75010cefa9ac61f9a717631b9
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Fri Feb 18 08:50:16 2022 -0800
+commit bef5e3faab1cecfe04aacdbd8e73fe8f52790fe5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 18 13:06:07 2022 -0800
 
-    [edn/rtl/doc] Update doc and debug state machine reg
+    [top] Hook-up flash/otp control and observation bus to ast
     
-    Some edn register cleanup, along with adding the
-    complete main state machine to be read-only.
-    
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
