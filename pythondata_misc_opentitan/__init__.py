@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10458"
-version_tuple = (0, 0, 10458)
+version_str = "0.0.post10459"
+version_tuple = (0, 0, 10459)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10458")
+    pversion = V("0.0.post10459")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10332"
-data_version_tuple = (0, 0, 10332)
+data_version_str = "0.0.post10333"
+data_version_tuple = (0, 0, 10333)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10332")
+    pdata_version = V("0.0.post10333")
 except ImportError:
     pass
-data_git_hash = "a1d15ef5e8954da1cdc8dc6171a8afb5747eb925"
-data_git_describe = "v0.0-10332-ga1d15ef5e"
+data_git_hash = "3281bd3cf497853245a7d59678ae5ceeb4d411c7"
+data_git_describe = "v0.0-10333-g3281bd3cf"
 data_git_msg = """\
-commit a1d15ef5e8954da1cdc8dc6171a8afb5747eb925
+commit 3281bd3cf497853245a7d59678ae5ceeb4d411c7
 Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Feb 21 09:18:25 2022 +0100
+Date:   Mon Feb 21 14:19:12 2022 +0100
 
-    [csrng] Update AscentLint waiver
+    [aes] Allow de-asserting EDN request upon fatal alerts
     
-    CSRNG uses an unmasked AES cipher core intentionally. We can thus waive
-    all the lint errors related to non-default values for the SecMasking
-    and SecSBoxImpl parameters.
-    
-    This is related to lowRISC/OpenTitan#10844.
+    This fixes lowRISC/OpenTitan#10991.
     
     Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
