@@ -4,32 +4,53 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10454"
-version_tuple = (0, 0, 10454)
+version_str = "0.0.post10457"
+version_tuple = (0, 0, 10457)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10454")
+    pversion = V("0.0.post10457")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10328"
-data_version_tuple = (0, 0, 10328)
+data_version_str = "0.0.post10331"
+data_version_tuple = (0, 0, 10331)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10328")
+    pdata_version = V("0.0.post10331")
 except ImportError:
     pass
-data_git_hash = "bef5e3faab1cecfe04aacdbd8e73fe8f52790fe5"
-data_git_describe = "v0.0-10328-gbef5e3faa"
+data_git_hash = "9e14e830adf072f8c766278c855308e6a830f6fb"
+data_git_describe = "v0.0-10331-g9e14e830a"
 data_git_msg = """\
-commit bef5e3faab1cecfe04aacdbd8e73fe8f52790fe5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 18 13:06:07 2022 -0800
+commit 9e14e830adf072f8c766278c855308e6a830f6fb
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Fri Feb 18 15:01:37 2022 +0000
 
-    [top] Hook-up flash/otp control and observation bus to ast
+    [ibex] Set ePMP reset values (ROM: LRX, MMIO: LRW, MMWP=1, RLB=1)
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    After reset ePMP will be configured as follows:
+    
+     | Entry | Address Space | Encoding | Permissions |
+     |-------|---------------|----------|-------------|
+     | 2     | ROM           | NAPOT    | LRX         |
+     | 11    | MMIO          | TOR      | LRW         |
+    
+    Machine mode whitelist policy (MMWP) and rule locking bypass (RLB)
+    will also be enabled.
+    
+    This change also modifies the test ROM so that it sets up the ePMP
+    configuration such that read, write and execute accesses are
+    permitted anywhere in the address space to match the pre-existing
+    behavior.
+    
+    Finally some ePMP configuration done by the mask ROM is redundant
+    and so has been removed. The mask ROM checks the ePMP configuration
+    is as expected and this code is not changed.
+    
+    Fixes #7834.
+    
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
