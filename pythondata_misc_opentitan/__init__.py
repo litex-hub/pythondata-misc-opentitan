@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10461"
-version_tuple = (0, 0, 10461)
+version_str = "0.0.post10462"
+version_tuple = (0, 0, 10462)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10461")
+    pversion = V("0.0.post10462")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10335"
-data_version_tuple = (0, 0, 10335)
+data_version_str = "0.0.post10336"
+data_version_tuple = (0, 0, 10336)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10335")
+    pdata_version = V("0.0.post10336")
 except ImportError:
     pass
-data_git_hash = "5170831073729eb0874cf924fb324140084601e1"
-data_git_describe = "v0.0-10335-g517083107"
+data_git_hash = "0d2da6b2eb9910952b006295c5a674c2389edb27"
+data_git_describe = "v0.0-10336-g0d2da6b2e"
 data_git_msg = """\
-commit 5170831073729eb0874cf924fb324140084601e1
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Feb 18 12:49:33 2022 -0800
+commit 0d2da6b2eb9910952b006295c5a674c2389edb27
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Feb 17 15:08:53 2022 -0800
 
-    [doc/kmac] Update kmac dv doc
+    [sram/dv] Update scb
     
-    Two minor updates on kmac dv doc:
-    1). update the link for testplan.
-    2). update the functional coverage section to refer to testplan.
+    No real function update. Only remove unused functions and create a
+    function `reset_key_nonce` to reduce replication
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
