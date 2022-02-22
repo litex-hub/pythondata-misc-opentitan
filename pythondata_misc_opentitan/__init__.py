@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10462"
-version_tuple = (0, 0, 10462)
+version_str = "0.0.post10463"
+version_tuple = (0, 0, 10463)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10462")
+    pversion = V("0.0.post10463")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10336"
-data_version_tuple = (0, 0, 10336)
+data_version_str = "0.0.post10337"
+data_version_tuple = (0, 0, 10337)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10336")
+    pdata_version = V("0.0.post10337")
 except ImportError:
     pass
-data_git_hash = "0d2da6b2eb9910952b006295c5a674c2389edb27"
-data_git_describe = "v0.0-10336-g0d2da6b2e"
+data_git_hash = "61fe79cf053e6ef66aa60335de358d847566bd91"
+data_git_describe = "v0.0-10337-g61fe79cf0"
 data_git_msg = """\
-commit 0d2da6b2eb9910952b006295c5a674c2389edb27
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 17 15:08:53 2022 -0800
+commit 61fe79cf053e6ef66aa60335de358d847566bd91
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Feb 21 23:43:34 2022 +0000
 
-    [sram/dv] Update scb
+    Remove incorrect byte count from comment
     
-    No real function update. Only remove unused functions and create a
-    function `reset_key_nonce` to reduce replication
+    The 896 here is correct and matches a comment about scratchpad memory
+    layout at the top of p384_verify.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
