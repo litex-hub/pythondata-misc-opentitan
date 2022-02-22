@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10465"
-version_tuple = (0, 0, 10465)
+version_str = "0.0.post10466"
+version_tuple = (0, 0, 10466)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10465")
+    pversion = V("0.0.post10466")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10339"
-data_version_tuple = (0, 0, 10339)
+data_version_str = "0.0.post10340"
+data_version_tuple = (0, 0, 10340)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10339")
+    pdata_version = V("0.0.post10340")
 except ImportError:
     pass
-data_git_hash = "8bb8cc98c47a3b63e4a528005f3fdbd3b728fdb2"
-data_git_describe = "v0.0-10339-g8bb8cc98c"
+data_git_hash = "4fd50137f7dfac40a8c392c6069a2956d18f3c46"
+data_git_describe = "v0.0-10340-g4fd50137f"
 data_git_msg = """\
-commit 8bb8cc98c47a3b63e4a528005f3fdbd3b728fdb2
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Tue Feb 22 11:12:23 2022 +0000
+commit 4fd50137f7dfac40a8c392c6069a2956d18f3c46
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Fri Jan 7 12:13:58 2022 +0000
 
-    [rom_ctrl, dv] Fix for rom_ctrl_kmac_err_chk regression failure
+    [sysrst_ctrl,dv] Add flash write prot output test
     
-    Fatal alert is not triggered unless error response is signalled from
-    Kmac. Kmac signals an error only after kmac_data_o.last is asserted.
-    Last is asserted after all the address spaces in the rom is read and
-    sent to KMAC. Ths depends on the delay between ready-valid handshake.
-    Therefore, delay to expect the alert has been increased to ensure that
-    we wait till last has been asserted.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
