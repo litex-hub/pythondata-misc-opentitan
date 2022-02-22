@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10474"
-version_tuple = (0, 0, 10474)
+version_str = "0.0.post10480"
+version_tuple = (0, 0, 10480)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10474")
+    pversion = V("0.0.post10480")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10348"
-data_version_tuple = (0, 0, 10348)
+data_version_str = "0.0.post10354"
+data_version_tuple = (0, 0, 10354)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10348")
+    pdata_version = V("0.0.post10354")
 except ImportError:
     pass
-data_git_hash = "aa91c773d6a787c9776d51392ad6475dfad2bb6c"
-data_git_describe = "v0.0-10348-gaa91c773d"
+data_git_hash = "4b470bc12e5da64e6c9c7eed538962d71cd698a4"
+data_git_describe = "v0.0-10354-g4b470bc12"
 data_git_msg = """\
-commit aa91c773d6a787c9776d51392ad6475dfad2bb6c
-Author: Jon Flatley <jflat@google.com>
-Date:   Wed Feb 16 17:00:27 2022 -0500
+commit 4b470bc12e5da64e6c9c7eed538962d71cd698a4
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Tue Feb 22 01:10:04 2022 +0000
 
-    [sw] Move rust version to 1.58.0
+    [kmac,dv] Using Key Sideload with parameters
     
-    Currently using rust 1.55.0 in CI and Docker, and it the version listed
-    in the tool requirements. Bazel is currently building with rust 1.53.0.
-    Move everything to use rust 1.58.0.
+    This commit includes using parameters when calling key sideload.
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
