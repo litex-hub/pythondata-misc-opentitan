@@ -4,48 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10460"
-version_tuple = (0, 0, 10460)
+version_str = "0.0.post10461"
+version_tuple = (0, 0, 10461)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10460")
+    pversion = V("0.0.post10461")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10334"
-data_version_tuple = (0, 0, 10334)
+data_version_str = "0.0.post10335"
+data_version_tuple = (0, 0, 10335)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10334")
+    pdata_version = V("0.0.post10335")
 except ImportError:
     pass
-data_git_hash = "01b2cace65124bcbd9fc63acc44eb686c67ff1b3"
-data_git_describe = "v0.0-10334-g01b2cace6"
+data_git_hash = "5170831073729eb0874cf924fb324140084601e1"
+data_git_describe = "v0.0-10335-g517083107"
 data_git_msg = """\
-commit 01b2cace65124bcbd9fc63acc44eb686c67ff1b3
-Author: Luís Marques <luismarques@lowrisc.org>
-Date:   Thu Feb 10 21:48:11 2022 +0000
+commit 5170831073729eb0874cf924fb324140084601e1
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Feb 18 12:49:33 2022 -0800
 
-    Update toolchain to release 20220210-1 with bitmanip support
+    [doc/kmac] Update kmac dv doc
     
-    This release updates the meson cross files to make the toolchains more
-    easily configurable. The tool versions for the bitmanip variant are:
+    Two minor updates on kmac dv doc:
+    1). update the link for testplan.
+    2). update the functional coverage section to refer to testplan.
     
-    - Binutils 2.35
-    - GCC: 10.2.0
-    - Clang/LLVM: 13.0.1
-    - GDB 11.1
-    
-    - Binutils: `7c9dd840fbb6a1171a51feb08afb859288615137`
-      (riscv-binutils-2.35-rvb) with Pirmin's bitmanip 1.00+0.93 PR patch
-      (https://github.com/riscv-collab/riscv-binutils-gdb/pull/267).
-    - GCC: `73055647d33c0b63a3125c372019d1dac0f8ac34` (RISC-V bitmanip fork,
-      branch riscv-gcc-10.2.0-rvb, commit 73055647d33 from 2021-07-09)
-    - Clang/LLVM: 13.0.1
-    - GDB 11.1
-    
-    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
