@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10473"
-version_tuple = (0, 0, 10473)
+version_str = "0.0.post10474"
+version_tuple = (0, 0, 10474)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10473")
+    pversion = V("0.0.post10474")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10347"
-data_version_tuple = (0, 0, 10347)
+data_version_str = "0.0.post10348"
+data_version_tuple = (0, 0, 10348)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10347")
+    pdata_version = V("0.0.post10348")
 except ImportError:
     pass
-data_git_hash = "7d1bf1e3cb81ac75ea0a966d0178064b1b6d2c12"
-data_git_describe = "v0.0-10347-g7d1bf1e3c"
+data_git_hash = "aa91c773d6a787c9776d51392ad6475dfad2bb6c"
+data_git_describe = "v0.0-10348-gaa91c773d"
 data_git_msg = """\
-commit 7d1bf1e3cb81ac75ea0a966d0178064b1b6d2c12
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 17 15:13:47 2022 -0800
+commit aa91c773d6a787c9776d51392ad6475dfad2bb6c
+Author: Jon Flatley <jflat@google.com>
+Date:   Wed Feb 16 17:00:27 2022 -0500
 
-    [sramd/dv] Enable sec_cm test for sram
+    [sw] Move rust version to 1.58.0
     
-    Add additional checks
-     - Check alert and `status.init_error` is set.
-     -  After injecting faults, reading any address should return 0. #10909
+    Currently using rust 1.55.0 in CI and Docker, and it the version listed
+    in the tool requirements. Bazel is currently building with rust 1.53.0.
+    Move everything to use rust 1.58.0.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
