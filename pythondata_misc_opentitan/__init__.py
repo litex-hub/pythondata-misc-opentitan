@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10466"
-version_tuple = (0, 0, 10466)
+version_str = "0.0.post10469"
+version_tuple = (0, 0, 10469)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10466")
+    pversion = V("0.0.post10469")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10340"
-data_version_tuple = (0, 0, 10340)
+data_version_str = "0.0.post10343"
+data_version_tuple = (0, 0, 10343)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10340")
+    pdata_version = V("0.0.post10343")
 except ImportError:
     pass
-data_git_hash = "4fd50137f7dfac40a8c392c6069a2956d18f3c46"
-data_git_describe = "v0.0-10340-g4fd50137f"
+data_git_hash = "ae81bdd2c53d743d20accaf6b12040e07595370e"
+data_git_describe = "v0.0-10343-gae81bdd2c"
 data_git_msg = """\
-commit 4fd50137f7dfac40a8c392c6069a2956d18f3c46
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Fri Jan 7 12:13:58 2022 +0000
+commit ae81bdd2c53d743d20accaf6b12040e07595370e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 18 21:06:14 2022 -0800
 
-    [sysrst_ctrl,dv] Add flash write prot output test
+    [rstmgr, dv] corresponding dv updates for crash_dump change
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
