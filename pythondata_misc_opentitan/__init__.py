@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10463"
-version_tuple = (0, 0, 10463)
+version_str = "0.0.post10464"
+version_tuple = (0, 0, 10464)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10463")
+    pversion = V("0.0.post10464")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10337"
-data_version_tuple = (0, 0, 10337)
+data_version_str = "0.0.post10338"
+data_version_tuple = (0, 0, 10338)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10337")
+    pdata_version = V("0.0.post10338")
 except ImportError:
     pass
-data_git_hash = "61fe79cf053e6ef66aa60335de358d847566bd91"
-data_git_describe = "v0.0-10337-g61fe79cf0"
+data_git_hash = "75e2a78669091adf5dcab7bb7e4e1bbfb3484886"
+data_git_describe = "v0.0-10338-g75e2a7866"
 data_git_msg = """\
-commit 61fe79cf053e6ef66aa60335de358d847566bd91
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Feb 21 23:43:34 2022 +0000
+commit 75e2a78669091adf5dcab7bb7e4e1bbfb3484886
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Mon Feb 21 11:35:44 2022 +0000
 
-    Remove incorrect byte count from comment
+    [flash_ctrl] Small fix of rd buff eviction test
     
-    The 896 here is correct and matches a comment about scratchpad memory
-    layout at the top of p384_verify.
+    Due to update of flash read backdoor function, this test was failing
+    in regression. Simple fix is implemented to directly modify flash operations
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
