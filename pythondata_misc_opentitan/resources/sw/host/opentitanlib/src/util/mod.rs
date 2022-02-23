@@ -5,7 +5,7 @@
 pub mod bigint;
 pub mod bitfield;
 pub mod file;
-pub mod image;
+pub mod num_de;
 pub mod parse_int;
 pub mod present;
 pub mod usb;
