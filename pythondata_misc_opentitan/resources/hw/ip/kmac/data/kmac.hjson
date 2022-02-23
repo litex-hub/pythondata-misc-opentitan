@@ -178,9 +178,15 @@
     { name: "BUS.INTEGRITY",
       desc: "End-to-end bus integrity scheme."
     }
+    { name: "LC_ESCALATE_EN.INTERSIG.MUBI"
+      desc: "The global escalation input signal from the life cycle is multibit encoded"
+    }
     { name: "SW_KEY.KEY.MASKING"
       desc: '''Data storage and secret key are two share to guard against 1st
         order attack.'''
+    }
+    { name: "KEY.SIDELOAD"
+      desc: "Key from KeyMgr is sideloaded."
     }
     { name: "CFG_SHADOWED.CONFIG.SHADOW"
       desc: "Shadowed CFG register."
@@ -193,6 +199,9 @@
     }
     { name: "CTR.REDUN"
       desc: "Round and hash counter use prim_count for redundancy"
+    }
+    { name: "CFG_SHADOWED.CONFIG.REGWEN"
+      desc: "CFG_SHADOWED is protected by REGWEN"
     }
   ]
   regwidth: "32"
