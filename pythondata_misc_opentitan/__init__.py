@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10494"
-version_tuple = (0, 0, 10494)
+version_str = "0.0.post10500"
+version_tuple = (0, 0, 10500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10494")
+    pversion = V("0.0.post10500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10368"
-data_version_tuple = (0, 0, 10368)
+data_version_str = "0.0.post10374"
+data_version_tuple = (0, 0, 10374)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10368")
+    pdata_version = V("0.0.post10374")
 except ImportError:
     pass
-data_git_hash = "db0bba351980251bc2775e5af8dacaf8b6085f09"
-data_git_describe = "v0.0-10368-gdb0bba351"
+data_git_hash = "e940d67869c5b8386154010f47c3ad70655d3722"
+data_git_describe = "v0.0-10374-ge940d6786"
 data_git_msg = """\
-commit db0bba351980251bc2775e5af8dacaf8b6085f09
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Sat Feb 19 14:45:46 2022 -0800
+commit e940d67869c5b8386154010f47c3ad70655d3722
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Tue Feb 22 14:00:41 2022 -0800
 
-    [edn/rtl] fix bug on auto req mode cmd valid
+    [opentitantool] Remove unused conf structs, and compiler fixes
     
-    When a reworking of the main state machine was done, a
-    bug was created on the CSRNG command valid signal.
+    Fix compiler warning about semicolons in macros, and remove some
+    unused declarations from configuration file format.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I67252086410731d847ef1048084c240939d93a99
 
 """
 
