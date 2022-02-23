@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10483"
-version_tuple = (0, 0, 10483)
+version_str = "0.0.post10484"
+version_tuple = (0, 0, 10484)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10483")
+    pversion = V("0.0.post10484")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10357"
-data_version_tuple = (0, 0, 10357)
+data_version_str = "0.0.post10358"
+data_version_tuple = (0, 0, 10358)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10357")
+    pdata_version = V("0.0.post10358")
 except ImportError:
     pass
-data_git_hash = "7232a368d292fd9df69e38f85a6222e13be2f230"
-data_git_describe = "v0.0-10357-g7232a368d"
+data_git_hash = "b5ecf74d27e1fce04e16d739897d18be7acb6236"
+data_git_describe = "v0.0-10358-gb5ecf74d2"
 data_git_msg = """\
-commit 7232a368d292fd9df69e38f85a6222e13be2f230
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Wed Feb 16 15:15:27 2022 +0000
+commit b5ecf74d27e1fce04e16d739897d18be7acb6236
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Feb 22 12:23:51 2022 -0800
 
-    [flash_ctrl] ADD V2S TESTS
+    [tools/xcelium] updated common coverage exclusions to exclude single bit correctly
     
-    Add label V2S for tests. Add new fetch test to V2. Remove obb error test.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
