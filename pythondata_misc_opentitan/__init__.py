@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10493"
-version_tuple = (0, 0, 10493)
+version_str = "0.0.post10494"
+version_tuple = (0, 0, 10494)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10493")
+    pversion = V("0.0.post10494")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10367"
-data_version_tuple = (0, 0, 10367)
+data_version_str = "0.0.post10368"
+data_version_tuple = (0, 0, 10368)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10367")
+    pdata_version = V("0.0.post10368")
 except ImportError:
     pass
-data_git_hash = "fd1d80fd914472aa14f57ed80a7b24e20a723f7b"
-data_git_describe = "v0.0-10367-gfd1d80fd9"
+data_git_hash = "db0bba351980251bc2775e5af8dacaf8b6085f09"
+data_git_describe = "v0.0-10368-gdb0bba351"
 data_git_msg = """\
-commit fd1d80fd914472aa14f57ed80a7b24e20a723f7b
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Feb 22 17:58:49 2022 -0800
+commit db0bba351980251bc2775e5af8dacaf8b6085f09
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Sat Feb 19 14:45:46 2022 -0800
 
-    [fpv] V2S formal support
+    [edn/rtl] fix bug on auto req mode cmd valid
     
-    This PR sets up the FPV environment to support V2S formal:
-    1). Add a `task` enviornment input to indicate which subsets of
-      assertions to run.
-    2). Relax original `prim_assert_sec_cm.svh` alert timing because FPV
-      might trigger other fatal alerts.
-    3). Enable the FPV checks in sram_ctrl.
+    When a reworking of the main state machine was done, a
+    bug was created on the CSRNG command valid signal.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
