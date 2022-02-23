@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10481"
-version_tuple = (0, 0, 10481)
+version_str = "0.0.post10482"
+version_tuple = (0, 0, 10482)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10481")
+    pversion = V("0.0.post10482")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10355"
-data_version_tuple = (0, 0, 10355)
+data_version_str = "0.0.post10356"
+data_version_tuple = (0, 0, 10356)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10355")
+    pdata_version = V("0.0.post10356")
 except ImportError:
     pass
-data_git_hash = "7ad8245637fc54499cd55daba356cda304ee8af5"
-data_git_describe = "v0.0-10355-g7ad824563"
+data_git_hash = "e5a3f30b286f1d659333165c1c221184a18fbfb1"
+data_git_describe = "v0.0-10356-ge5a3f30b2"
 data_git_msg = """\
-commit 7ad8245637fc54499cd55daba356cda304ee8af5
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Feb 21 18:24:41 2022 -0800
+commit e5a3f30b286f1d659333165c1c221184a18fbfb1
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Feb 2 17:12:09 2022 +0000
 
-    [dv/kmac] KMAC reaches V2
+    [mask_rom/e2e_tests] Mask ROM E2E testplan
     
-    This PR finishes the checklist for KMAC V2 status.
+    This commit adds the initial list of testpoints for end-to-end testing
+    of the Mask ROM.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
