@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10486"
-version_tuple = (0, 0, 10486)
+version_str = "0.0.post10492"
+version_tuple = (0, 0, 10492)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10486")
+    pversion = V("0.0.post10492")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10360"
-data_version_tuple = (0, 0, 10360)
+data_version_str = "0.0.post10366"
+data_version_tuple = (0, 0, 10366)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10360")
+    pdata_version = V("0.0.post10366")
 except ImportError:
     pass
-data_git_hash = "1e16f2cc2c78182d93c3276731f67110223247d4"
-data_git_describe = "v0.0-10360-g1e16f2cc2"
+data_git_hash = "f5e710ca42580ab9c43c5b1e7d0a1f88fd8bd37f"
+data_git_describe = "v0.0-10366-gf5e710ca4"
 data_git_msg = """\
-commit 1e16f2cc2c78182d93c3276731f67110223247d4
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Tue Feb 22 18:06:24 2022 +0000
+commit f5e710ca42580ab9c43c5b1e7d0a1f88fd8bd37f
+Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
+Date:   Mon Feb 21 13:53:52 2022 +0000
 
-    [sw,tests] Verify that the data within the retention SRAM survives low power entry-exit
+    Command filtering passthrough and start of scb for it
     
-    For test: chip_sw_sleep_sram_ret_contents.
-    
-    This test writes data to the retention SRAM and then enters low power mode. Upon wake
-    from low power the data is read back and checked against the original data written.
-    
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
 
 """
 
