@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10482"
-version_tuple = (0, 0, 10482)
+version_str = "0.0.post10483"
+version_tuple = (0, 0, 10483)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10482")
+    pversion = V("0.0.post10483")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10356"
-data_version_tuple = (0, 0, 10356)
+data_version_str = "0.0.post10357"
+data_version_tuple = (0, 0, 10357)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10356")
+    pdata_version = V("0.0.post10357")
 except ImportError:
     pass
-data_git_hash = "e5a3f30b286f1d659333165c1c221184a18fbfb1"
-data_git_describe = "v0.0-10356-ge5a3f30b2"
+data_git_hash = "7232a368d292fd9df69e38f85a6222e13be2f230"
+data_git_describe = "v0.0-10357-g7232a368d"
 data_git_msg = """\
-commit e5a3f30b286f1d659333165c1c221184a18fbfb1
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Feb 2 17:12:09 2022 +0000
+commit 7232a368d292fd9df69e38f85a6222e13be2f230
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Wed Feb 16 15:15:27 2022 +0000
 
-    [mask_rom/e2e_tests] Mask ROM E2E testplan
+    [flash_ctrl] ADD V2S TESTS
     
-    This commit adds the initial list of testpoints for end-to-end testing
-    of the Mask ROM.
+    Add label V2S for tests. Add new fetch test to V2. Remove obb error test.
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
