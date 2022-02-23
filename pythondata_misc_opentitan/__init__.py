@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10485"
-version_tuple = (0, 0, 10485)
+version_str = "0.0.post10486"
+version_tuple = (0, 0, 10486)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10485")
+    pversion = V("0.0.post10486")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10359"
-data_version_tuple = (0, 0, 10359)
+data_version_str = "0.0.post10360"
+data_version_tuple = (0, 0, 10360)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10359")
+    pdata_version = V("0.0.post10360")
 except ImportError:
     pass
-data_git_hash = "ef5c29e8514a6a771df0dee275f23f1b0e08b136"
-data_git_describe = "v0.0-10359-gef5c29e85"
+data_git_hash = "1e16f2cc2c78182d93c3276731f67110223247d4"
+data_git_describe = "v0.0-10360-g1e16f2cc2"
 data_git_msg = """\
-commit ef5c29e8514a6a771df0dee275f23f1b0e08b136
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Feb 23 12:23:17 2022 +0000
+commit 1e16f2cc2c78182d93c3276731f67110223247d4
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Tue Feb 22 18:06:24 2022 +0000
 
-    [otbn,dv] Bump some reseed counts as discussed in V2 meeting
+    [sw,tests] Verify that the data within the retention SRAM survives low power entry-exit
     
-    This commit also adds/edits some comments explaining the reasoning
-    behind the chosen reseed counts.
+    For test: chip_sw_sleep_sram_ret_contents.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This test writes data to the retention SRAM and then enters low power mode. Upon wake
+    from low power the data is read back and checked against the original data written.
+    
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
