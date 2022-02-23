@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10484"
-version_tuple = (0, 0, 10484)
+version_str = "0.0.post10485"
+version_tuple = (0, 0, 10485)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10484")
+    pversion = V("0.0.post10485")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10358"
-data_version_tuple = (0, 0, 10358)
+data_version_str = "0.0.post10359"
+data_version_tuple = (0, 0, 10359)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10358")
+    pdata_version = V("0.0.post10359")
 except ImportError:
     pass
-data_git_hash = "b5ecf74d27e1fce04e16d739897d18be7acb6236"
-data_git_describe = "v0.0-10358-gb5ecf74d2"
+data_git_hash = "ef5c29e8514a6a771df0dee275f23f1b0e08b136"
+data_git_describe = "v0.0-10359-gef5c29e85"
 data_git_msg = """\
-commit b5ecf74d27e1fce04e16d739897d18be7acb6236
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Feb 22 12:23:51 2022 -0800
+commit ef5c29e8514a6a771df0dee275f23f1b0e08b136
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Feb 23 12:23:17 2022 +0000
 
-    [tools/xcelium] updated common coverage exclusions to exclude single bit correctly
+    [otbn,dv] Bump some reseed counts as discussed in V2 meeting
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    This commit also adds/edits some comments explaining the reasoning
+    behind the chosen reseed counts.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
