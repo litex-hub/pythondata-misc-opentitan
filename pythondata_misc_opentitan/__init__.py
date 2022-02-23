@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10492"
-version_tuple = (0, 0, 10492)
+version_str = "0.0.post10493"
+version_tuple = (0, 0, 10493)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10492")
+    pversion = V("0.0.post10493")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10366"
-data_version_tuple = (0, 0, 10366)
+data_version_str = "0.0.post10367"
+data_version_tuple = (0, 0, 10367)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10366")
+    pdata_version = V("0.0.post10367")
 except ImportError:
     pass
-data_git_hash = "f5e710ca42580ab9c43c5b1e7d0a1f88fd8bd37f"
-data_git_describe = "v0.0-10366-gf5e710ca4"
+data_git_hash = "fd1d80fd914472aa14f57ed80a7b24e20a723f7b"
+data_git_describe = "v0.0-10367-gfd1d80fd9"
 data_git_msg = """\
-commit f5e710ca42580ab9c43c5b1e7d0a1f88fd8bd37f
-Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
-Date:   Mon Feb 21 13:53:52 2022 +0000
+commit fd1d80fd914472aa14f57ed80a7b24e20a723f7b
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Feb 22 17:58:49 2022 -0800
 
-    Command filtering passthrough and start of scb for it
+    [fpv] V2S formal support
     
-    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
+    This PR sets up the FPV environment to support V2S formal:
+    1). Add a `task` enviornment input to indicate which subsets of
+      assertions to run.
+    2). Relax original `prim_assert_sec_cm.svh` alert timing because FPV
+      might trigger other fatal alerts.
+    3). Enable the FPV checks in sram_ctrl.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
