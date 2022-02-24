@@ -4,36 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10500"
-version_tuple = (0, 0, 10500)
+version_str = "0.0.post10505"
+version_tuple = (0, 0, 10505)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10500")
+    pversion = V("0.0.post10505")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10374"
-data_version_tuple = (0, 0, 10374)
+data_version_str = "0.0.post10379"
+data_version_tuple = (0, 0, 10379)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10374")
+    pdata_version = V("0.0.post10379")
 except ImportError:
     pass
-data_git_hash = "e940d67869c5b8386154010f47c3ad70655d3722"
-data_git_describe = "v0.0-10374-ge940d6786"
+data_git_hash = "df0596a177a1c5c6f249db7858a054ff343cf7f2"
+data_git_describe = "v0.0-10379-gdf0596a17"
 data_git_msg = """\
-commit e940d67869c5b8386154010f47c3ad70655d3722
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Tue Feb 22 14:00:41 2022 -0800
+commit df0596a177a1c5c6f249db7858a054ff343cf7f2
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Thu Feb 17 16:45:16 2022 -0800
 
-    [opentitantool] Remove unused conf structs, and compiler fixes
+    [sram_ctrl] Align behavior of global and local escalation
     
-    Fix compiler warning about semicolons in macros, and remove some
-    unused declarations from configuration file format.
+    Before, global escalation caused the sram_ctrl to block transactions on
+    top of other defenses (like scrapping the key, blanking return data).
+    Local escalation on the other hand did not cause the sram_ctrl to block
+    transactions.
     
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
-    Change-Id: I67252086410731d847ef1048084c240939d93a99
+    This patch aligns the behavior of both escalations (block transactions),
+    since both are fatal conditions.
+    
+    See #10909 for context.
+    
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
