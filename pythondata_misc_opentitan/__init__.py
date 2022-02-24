@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10506"
-version_tuple = (0, 0, 10506)
+version_str = "0.0.post10508"
+version_tuple = (0, 0, 10508)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10506")
+    pversion = V("0.0.post10508")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10380"
-data_version_tuple = (0, 0, 10380)
+data_version_str = "0.0.post10382"
+data_version_tuple = (0, 0, 10382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10380")
+    pdata_version = V("0.0.post10382")
 except ImportError:
     pass
-data_git_hash = "19d4f9a4f817e4c379c8b48d678a2eaf6ad335a6"
-data_git_describe = "v0.0-10380-g19d4f9a4f"
+data_git_hash = "57044d8ed02e20a8267e07323606b463b7270e5a"
+data_git_describe = "v0.0-10382-g57044d8ed"
 data_git_msg = """\
-commit 19d4f9a4f817e4c379c8b48d678a2eaf6ad335a6
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 17 18:06:07 2022 -0800
+commit 57044d8ed02e20a8267e07323606b463b7270e5a
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Feb 22 17:27:10 2022 -0800
 
-    [usbdev] Remove aon_usb_events_active from async reset
+    [otp_ctrl/lc_ctrl] Fix VCS ENUMASSIGN warnings
     
-    - fixes #10879
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
