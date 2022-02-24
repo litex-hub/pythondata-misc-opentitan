@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10508"
-version_tuple = (0, 0, 10508)
+version_str = "0.0.post10510"
+version_tuple = (0, 0, 10510)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10508")
+    pversion = V("0.0.post10510")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10382"
-data_version_tuple = (0, 0, 10382)
+data_version_str = "0.0.post10384"
+data_version_tuple = (0, 0, 10384)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10382")
+    pdata_version = V("0.0.post10384")
 except ImportError:
     pass
-data_git_hash = "57044d8ed02e20a8267e07323606b463b7270e5a"
-data_git_describe = "v0.0-10382-g57044d8ed"
+data_git_hash = "c34153e9f90e44bda2e8644a5242d219a0a0b6be"
+data_git_describe = "v0.0-10384-gc34153e9f"
 data_git_msg = """\
-commit 57044d8ed02e20a8267e07323606b463b7270e5a
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue Feb 22 17:27:10 2022 -0800
+commit c34153e9f90e44bda2e8644a5242d219a0a0b6be
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Feb 21 14:46:00 2022 +0100
 
-    [otp_ctrl/lc_ctrl] Fix VCS ENUMASSIGN warnings
+    [aes] Make IV register readable for software
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This is required to support IV save/restore flows in the software
+    implementation of the crypto library.
+    
+    This is related to lowRISC/OpenTitan#10532.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
