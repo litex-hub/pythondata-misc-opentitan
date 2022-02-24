@@ -4,33 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10523"
-version_tuple = (0, 0, 10523)
+version_str = "0.0.post10525"
+version_tuple = (0, 0, 10525)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10523")
+    pversion = V("0.0.post10525")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10397"
-data_version_tuple = (0, 0, 10397)
+data_version_str = "0.0.post10399"
+data_version_tuple = (0, 0, 10399)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10397")
+    pdata_version = V("0.0.post10399")
 except ImportError:
     pass
-data_git_hash = "40201ee8231700e49b089ee04aa453d3208223d1"
-data_git_describe = "v0.0-10397-g40201ee82"
+data_git_hash = "0978ab3285b5a66ebe6166295f16b7668b99929c"
+data_git_describe = "v0.0-10399-g0978ab328"
 data_git_msg = """\
-commit 40201ee8231700e49b089ee04aa453d3208223d1
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Feb 17 14:23:39 2022 -0800
+commit 0978ab3285b5a66ebe6166295f16b7668b99929c
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Feb 24 10:05:05 2022 -0800
 
-    [sram/dv] Update sec_cm testplan
+    [util/dvsim] Fix confusing error message
     
-    Add details in description and link tests
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    The error emitted when there are circular includes is confusing, making
+    diagnosis more difficult.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
