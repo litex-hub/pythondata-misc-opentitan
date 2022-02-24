@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10513"
-version_tuple = (0, 0, 10513)
+version_str = "0.0.post10514"
+version_tuple = (0, 0, 10514)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10513")
+    pversion = V("0.0.post10514")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10387"
-data_version_tuple = (0, 0, 10387)
+data_version_str = "0.0.post10388"
+data_version_tuple = (0, 0, 10388)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10387")
+    pdata_version = V("0.0.post10388")
 except ImportError:
     pass
-data_git_hash = "4efcabef8b88e2eec9560e5700fbfb322100c97e"
-data_git_describe = "v0.0-10387-g4efcabef8"
+data_git_hash = "3ca54ba03fd6fbddeefb7a8fc4df07c61f1a94b8"
+data_git_describe = "v0.0-10388-g3ca54ba03"
 data_git_msg = """\
-commit 4efcabef8b88e2eec9560e5700fbfb322100c97e
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Feb 22 09:08:35 2022 -0800
+commit 3ca54ba03fd6fbddeefb7a8fc4df07c61f1a94b8
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Feb 23 10:20:19 2022 +0000
 
-    [aes/dv] enable masking
+    [otbn,rtl] Lint Fix
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Changes dmem(imem)_key_sel_otp type to logic.
+    
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
