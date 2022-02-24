@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10514"
-version_tuple = (0, 0, 10514)
+version_str = "0.0.post10518"
+version_tuple = (0, 0, 10518)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10514")
+    pversion = V("0.0.post10518")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10388"
-data_version_tuple = (0, 0, 10388)
+data_version_str = "0.0.post10392"
+data_version_tuple = (0, 0, 10392)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10388")
+    pdata_version = V("0.0.post10392")
 except ImportError:
     pass
-data_git_hash = "3ca54ba03fd6fbddeefb7a8fc4df07c61f1a94b8"
-data_git_describe = "v0.0-10388-g3ca54ba03"
+data_git_hash = "b9d1c04cdc1f4e2d054f18eb8c8955f0e0df2370"
+data_git_describe = "v0.0-10392-gb9d1c04cd"
 data_git_msg = """\
-commit 3ca54ba03fd6fbddeefb7a8fc4df07c61f1a94b8
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Feb 23 10:20:19 2022 +0000
+commit b9d1c04cdc1f4e2d054f18eb8c8955f0e0df2370
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Feb 23 12:17:38 2022 -0800
 
-    [otbn,rtl] Lint Fix
+    [syn] Add an elaboration-only synthesis target
     
-    Changes dmem(imem)_key_sel_otp type to logic.
-    
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
