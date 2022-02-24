@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10526"
-version_tuple = (0, 0, 10526)
+version_str = "0.0.post10530"
+version_tuple = (0, 0, 10530)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10526")
+    pversion = V("0.0.post10530")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10400"
-data_version_tuple = (0, 0, 10400)
+data_version_str = "0.0.post10404"
+data_version_tuple = (0, 0, 10404)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10400")
+    pdata_version = V("0.0.post10404")
 except ImportError:
     pass
-data_git_hash = "8484c811f5061be7da39093df19c887248c3927b"
-data_git_describe = "v0.0-10400-g8484c811f"
+data_git_hash = "11ff5c933d91a510661e2ea09c20cf6fbc835d49"
+data_git_describe = "v0.0-10404-g11ff5c933"
 data_git_msg = """\
-commit 8484c811f5061be7da39093df19c887248c3927b
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 23 11:38:42 2022 -0800
+commit 11ff5c933d91a510661e2ea09c20cf6fbc835d49
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Thu Jan 6 14:21:46 2022 +0000
 
-    [fpv/pinmux] Update pinmux IOs
+    [sysrst_ctrl,dv] Add sysrst_ctrl EC power-on-reset test
     
-    This PR updates pinmux testbench IOs related to usb change.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
