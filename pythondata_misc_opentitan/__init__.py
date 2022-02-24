@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10518"
-version_tuple = (0, 0, 10518)
+version_str = "0.0.post10520"
+version_tuple = (0, 0, 10520)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10518")
+    pversion = V("0.0.post10520")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10392"
-data_version_tuple = (0, 0, 10392)
+data_version_str = "0.0.post10394"
+data_version_tuple = (0, 0, 10394)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10392")
+    pdata_version = V("0.0.post10394")
 except ImportError:
     pass
-data_git_hash = "b9d1c04cdc1f4e2d054f18eb8c8955f0e0df2370"
-data_git_describe = "v0.0-10392-gb9d1c04cd"
+data_git_hash = "049c47288cfd48548b9afa80091e9774dc5dc721"
+data_git_describe = "v0.0-10394-g049c47288"
 data_git_msg = """\
-commit b9d1c04cdc1f4e2d054f18eb8c8955f0e0df2370
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Feb 23 12:17:38 2022 -0800
+commit 049c47288cfd48548b9afa80091e9774dc5dc721
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Tue Feb 22 10:44:52 2022 +0100
 
-    [syn] Add an elaboration-only synthesis target
+    [fpga, clkmgr] Use global clock buffer for KMAC
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    KMAC keeps growing in size, especially with masking turned on it barely
+    fits a single clock region. For this reason, this commit uses a global
+    clock buffer for KMAC to give Vivado more freedom in placing and routing
+    KMAC.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
