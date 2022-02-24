@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10511"
-version_tuple = (0, 0, 10511)
+version_str = "0.0.post10513"
+version_tuple = (0, 0, 10513)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10511")
+    pversion = V("0.0.post10513")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10385"
-data_version_tuple = (0, 0, 10385)
+data_version_str = "0.0.post10387"
+data_version_tuple = (0, 0, 10387)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10385")
+    pdata_version = V("0.0.post10387")
 except ImportError:
     pass
-data_git_hash = "cc975ae1c05f4c06796d90444d7aaaf9b308d3e8"
-data_git_describe = "v0.0-10385-gcc975ae1c"
+data_git_hash = "4efcabef8b88e2eec9560e5700fbfb322100c97e"
+data_git_describe = "v0.0-10387-g4efcabef8"
 data_git_msg = """\
-commit cc975ae1c05f4c06796d90444d7aaaf9b308d3e8
-Author: Daniel Beitel <dbeitel@rivosinc.com>
-Date:   Wed Jan 19 09:40:22 2022 -0800
+commit 4efcabef8b88e2eec9560e5700fbfb322100c97e
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Feb 22 09:08:35 2022 -0800
 
-    [meson,sw] Support Meson build on MacOS
+    [aes/dv] enable masking
     
-    Signed-off-by: Daniel Beitel <dbeitel@rivosinc.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
