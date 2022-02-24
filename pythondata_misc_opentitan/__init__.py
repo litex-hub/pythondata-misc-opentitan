@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10525"
-version_tuple = (0, 0, 10525)
+version_str = "0.0.post10526"
+version_tuple = (0, 0, 10526)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10525")
+    pversion = V("0.0.post10526")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10399"
-data_version_tuple = (0, 0, 10399)
+data_version_str = "0.0.post10400"
+data_version_tuple = (0, 0, 10400)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10399")
+    pdata_version = V("0.0.post10400")
 except ImportError:
     pass
-data_git_hash = "0978ab3285b5a66ebe6166295f16b7668b99929c"
-data_git_describe = "v0.0-10399-g0978ab328"
+data_git_hash = "8484c811f5061be7da39093df19c887248c3927b"
+data_git_describe = "v0.0-10400-g8484c811f"
 data_git_msg = """\
-commit 0978ab3285b5a66ebe6166295f16b7668b99929c
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Feb 24 10:05:05 2022 -0800
+commit 8484c811f5061be7da39093df19c887248c3927b
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 23 11:38:42 2022 -0800
 
-    [util/dvsim] Fix confusing error message
+    [fpv/pinmux] Update pinmux IOs
     
-    The error emitted when there are circular includes is confusing, making
-    diagnosis more difficult.
+    This PR updates pinmux testbench IOs related to usb change.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
