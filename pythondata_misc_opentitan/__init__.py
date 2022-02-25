@@ -4,42 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10536"
-version_tuple = (0, 0, 10536)
+version_str = "0.0.post10537"
+version_tuple = (0, 0, 10537)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10536")
+    pversion = V("0.0.post10537")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10410"
-data_version_tuple = (0, 0, 10410)
+data_version_str = "0.0.post10411"
+data_version_tuple = (0, 0, 10411)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10410")
+    pdata_version = V("0.0.post10411")
 except ImportError:
     pass
-data_git_hash = "27b4f9065fdfb60079b0ad0ddb26a81020d5593e"
-data_git_describe = "v0.0-10410-g27b4f9065"
+data_git_hash = "2ee2bec3c70e4cbbab00084313fe5c02972f3c0a"
+data_git_describe = "v0.0-10411-g2ee2bec3c"
 data_git_msg = """\
-commit 27b4f9065fdfb60079b0ad0ddb26a81020d5593e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Feb 24 13:47:42 2022 -0800
+commit 2ee2bec3c70e4cbbab00084313fe5c02972f3c0a
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Feb 24 17:53:39 2022 -0800
 
-    [dv/otp] fix memory access error
+    [dv/rstmgr] Fix incorrect SVA for cascading resets
     
-    This PR fixes OTP memory access error. OTP has to override
-    `is_tl_mem_access_allowed` because in two other cases we will see a
-    d_error in memory access:
-    1). Memory read access is locked because the `read_lock` register is
-      set.
-    2). Memory read access is locked because read has ECC uncorrectble
-      error.
-    To make sure these two errors are reflected in `exp_d_error`, I added
-    another output `customized_err`
+    The previous assertion for a falling parent reset was just wrong,
+    and was never attempted, causing low assertion coverage.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
