@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10530"
-version_tuple = (0, 0, 10530)
+version_str = "0.0.post10535"
+version_tuple = (0, 0, 10535)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10530")
+    pversion = V("0.0.post10535")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10404"
-data_version_tuple = (0, 0, 10404)
+data_version_str = "0.0.post10409"
+data_version_tuple = (0, 0, 10409)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10404")
+    pdata_version = V("0.0.post10409")
 except ImportError:
     pass
-data_git_hash = "11ff5c933d91a510661e2ea09c20cf6fbc835d49"
-data_git_describe = "v0.0-10404-g11ff5c933"
+data_git_hash = "426665cb960a5b9741031c0f8e34f137abc21459"
+data_git_describe = "v0.0-10409-g426665cb9"
 data_git_msg = """\
-commit 11ff5c933d91a510661e2ea09c20cf6fbc835d49
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Thu Jan 6 14:21:46 2022 +0000
+commit 426665cb960a5b9741031c0f8e34f137abc21459
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Feb 18 12:01:26 2022 -0800
 
-    [sysrst_ctrl,dv] Add sysrst_ctrl EC power-on-reset test
+    [opentitantool] Proxy transport implementation
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Add a new implementation of the Transport trait, which forwards every
+    method invocation via a network protocol to a separate session proxy
+    process.
+    
+    This is to be used either with the session process being a software
+    emulator of sorts, or with the session process managing a USB
+    connection to a debugger device connected to hardware.
+    
+    This is one of the steps outlined in issue #10889.  Implementation of
+    the session process is in PR #11054.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I6d4cd777a122e3017763704df6632f6f769991fd
 
 """
 
