@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10555"
-version_tuple = (0, 0, 10555)
+version_str = "0.0.post10556"
+version_tuple = (0, 0, 10556)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10555")
+    pversion = V("0.0.post10556")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10429"
-data_version_tuple = (0, 0, 10429)
+data_version_str = "0.0.post10430"
+data_version_tuple = (0, 0, 10430)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10429")
+    pdata_version = V("0.0.post10430")
 except ImportError:
     pass
-data_git_hash = "455ccc505c475b3c2b73aff8686359a1414076cc"
-data_git_describe = "v0.0-10429-g455ccc505"
+data_git_hash = "7e5ab7acc603347b7926e3d5f1bdba2764bd68d9"
+data_git_describe = "v0.0-10430-g7e5ab7acc"
 data_git_msg = """\
-commit 455ccc505c475b3c2b73aff8686359a1414076cc
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Feb 24 16:16:19 2022 -0800
+commit 7e5ab7acc603347b7926e3d5f1bdba2764bd68d9
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Feb 23 17:24:51 2022 -0800
 
-    [fpv/rom_ctrl] Check connectivity for alerts in rom_ctrl
+    [rstmgr] documentation updates based on d2s feedback
     
-    This PR checks connectivity for sparse fsm alerts in rom_ctrl.
-    This PR only brings up the script for rom_ctrl, but formal does not accept "$cast" function,
-    so still need some work to make this property passing.
+    - there is a separate readability feedback that will be done in a different PR.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
