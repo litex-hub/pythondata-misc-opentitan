@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10540"
-version_tuple = (0, 0, 10540)
+version_str = "0.0.post10541"
+version_tuple = (0, 0, 10541)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10540")
+    pversion = V("0.0.post10541")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10414"
-data_version_tuple = (0, 0, 10414)
+data_version_str = "0.0.post10415"
+data_version_tuple = (0, 0, 10415)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10414")
+    pdata_version = V("0.0.post10415")
 except ImportError:
     pass
-data_git_hash = "f2ee5f1e5f864514ad60ee85d5bee07e45c69417"
-data_git_describe = "v0.0-10414-gf2ee5f1e5"
+data_git_hash = "a3defd07c170d5e2841b899933b8e4676bf9d4ec"
+data_git_describe = "v0.0-10415-ga3defd07c"
 data_git_msg = """\
-commit f2ee5f1e5f864514ad60ee85d5bee07e45c69417
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 24 23:26:47 2022 +0000
+commit a3defd07c170d5e2841b899933b8e4676bf9d4ec
+Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+Date:   Tue Feb 15 11:26:48 2022 +0100
 
-    [otbn,rtl] Remove (unused) part of decoder supporting AUIPC
+    [kmac] declared CTR.REDUN for key index and sentmsg_count
     
-    We don't actually have that instruction! Spotted by a coverage hole.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
 
 """
 
