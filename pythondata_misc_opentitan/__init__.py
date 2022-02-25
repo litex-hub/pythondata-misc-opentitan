@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10554"
-version_tuple = (0, 0, 10554)
+version_str = "0.0.post10555"
+version_tuple = (0, 0, 10555)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10554")
+    pversion = V("0.0.post10555")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10428"
-data_version_tuple = (0, 0, 10428)
+data_version_str = "0.0.post10429"
+data_version_tuple = (0, 0, 10429)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10428")
+    pdata_version = V("0.0.post10429")
 except ImportError:
     pass
-data_git_hash = "6497101e7a591c70c535822e09f8e324cea97455"
-data_git_describe = "v0.0-10428-g6497101e7"
+data_git_hash = "455ccc505c475b3c2b73aff8686359a1414076cc"
+data_git_describe = "v0.0-10429-g455ccc505"
 data_git_msg = """\
-commit 6497101e7a591c70c535822e09f8e324cea97455
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 11 09:47:00 2022 -0800
+commit 455ccc505c475b3c2b73aff8686359a1414076cc
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 24 16:16:19 2022 -0800
 
-    [doc/flash_crtl] Fix some of the wording
+    [fpv/rom_ctrl] Check connectivity for alerts in rom_ctrl
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This PR checks connectivity for sparse fsm alerts in rom_ctrl.
+    This PR only brings up the script for rom_ctrl, but formal does not accept "$cast" function,
+    so still need some work to make this property passing.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
