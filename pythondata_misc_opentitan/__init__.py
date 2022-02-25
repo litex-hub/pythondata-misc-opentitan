@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10541"
-version_tuple = (0, 0, 10541)
+version_str = "0.0.post10542"
+version_tuple = (0, 0, 10542)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10541")
+    pversion = V("0.0.post10542")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10415"
-data_version_tuple = (0, 0, 10415)
+data_version_str = "0.0.post10416"
+data_version_tuple = (0, 0, 10416)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10415")
+    pdata_version = V("0.0.post10416")
 except ImportError:
     pass
-data_git_hash = "a3defd07c170d5e2841b899933b8e4676bf9d4ec"
-data_git_describe = "v0.0-10415-ga3defd07c"
+data_git_hash = "0b725cd8ccd980e0dd8b2168de766bc4c34368ea"
+data_git_describe = "v0.0-10416-g0b725cd8c"
 data_git_msg = """\
-commit a3defd07c170d5e2841b899933b8e4676bf9d4ec
-Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
-Date:   Tue Feb 15 11:26:48 2022 +0100
+commit 0b725cd8ccd980e0dd8b2168de766bc4c34368ea
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Feb 3 13:57:13 2022 +0000
 
-    [kmac] declared CTR.REDUN for key index and sentmsg_count
+    [sw,crypto] Test vector setup for ECDSA-P256 verify.
     
-    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+    Based on the existing setup for RSA-3072, this should allow us to easily
+    switch out test vector sets and produce random test vectors. For now,
+    there are just two simple tests as the hard-coded defaults.
+    
+    Also add Bazel rules to build the ECDSA-P256 tests (not yet possible for
+    RSA due to build conflicts in the OTBN code).
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
