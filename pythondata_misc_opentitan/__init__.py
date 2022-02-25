@@ -4,44 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10535"
-version_tuple = (0, 0, 10535)
+version_str = "0.0.post10536"
+version_tuple = (0, 0, 10536)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10535")
+    pversion = V("0.0.post10536")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10409"
-data_version_tuple = (0, 0, 10409)
+data_version_str = "0.0.post10410"
+data_version_tuple = (0, 0, 10410)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10409")
+    pdata_version = V("0.0.post10410")
 except ImportError:
     pass
-data_git_hash = "426665cb960a5b9741031c0f8e34f137abc21459"
-data_git_describe = "v0.0-10409-g426665cb9"
+data_git_hash = "27b4f9065fdfb60079b0ad0ddb26a81020d5593e"
+data_git_describe = "v0.0-10410-g27b4f9065"
 data_git_msg = """\
-commit 426665cb960a5b9741031c0f8e34f137abc21459
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Feb 18 12:01:26 2022 -0800
+commit 27b4f9065fdfb60079b0ad0ddb26a81020d5593e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 24 13:47:42 2022 -0800
 
-    [opentitantool] Proxy transport implementation
+    [dv/otp] fix memory access error
     
-    Add a new implementation of the Transport trait, which forwards every
-    method invocation via a network protocol to a separate session proxy
-    process.
+    This PR fixes OTP memory access error. OTP has to override
+    `is_tl_mem_access_allowed` because in two other cases we will see a
+    d_error in memory access:
+    1). Memory read access is locked because the `read_lock` register is
+      set.
+    2). Memory read access is locked because read has ECC uncorrectble
+      error.
+    To make sure these two errors are reflected in `exp_d_error`, I added
+    another output `customized_err`
     
-    This is to be used either with the session process being a software
-    emulator of sorts, or with the session process managing a USB
-    connection to a debugger device connected to hardware.
-    
-    This is one of the steps outlined in issue #10889.  Implementation of
-    the session process is in PR #11054.
-    
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
-    Change-Id: I6d4cd777a122e3017763704df6632f6f769991fd
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
