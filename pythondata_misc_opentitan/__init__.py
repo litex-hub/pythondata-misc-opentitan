@@ -4,39 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10542"
-version_tuple = (0, 0, 10542)
+version_str = "0.0.post10543"
+version_tuple = (0, 0, 10543)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10542")
+    pversion = V("0.0.post10543")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10416"
-data_version_tuple = (0, 0, 10416)
+data_version_str = "0.0.post10417"
+data_version_tuple = (0, 0, 10417)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10416")
+    pdata_version = V("0.0.post10417")
 except ImportError:
     pass
-data_git_hash = "0b725cd8ccd980e0dd8b2168de766bc4c34368ea"
-data_git_describe = "v0.0-10416-g0b725cd8c"
+data_git_hash = "3b9f3d078eb3c8c947889bfc3a3d30af1b0b3b1a"
+data_git_describe = "v0.0-10417-g3b9f3d078"
 data_git_msg = """\
-commit 0b725cd8ccd980e0dd8b2168de766bc4c34368ea
-Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Feb 3 13:57:13 2022 +0000
+commit 3b9f3d078eb3c8c947889bfc3a3d30af1b0b3b1a
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 24 15:47:43 2022 +0000
 
-    [sw,crypto] Test vector setup for ECDSA-P256 verify.
+    [otbn,dv] Extend window at end of IMEM error sequence
     
-    Based on the existing setup for RSA-3072, this should allow us to easily
-    switch out test vector sets and produce random test vectors. For now,
-    there are just two simple tests as the hard-coded defaults.
+    This is all about an awkward situation where we happen to inject an
+    IMEM error just after we've fetched the last instruction that we were
+    going to execute. In this case, there will be no error, which is fine,
+    but I'd mis-calculated how long you need to wait to figure out whether
+    it's happened. Fix that.
     
-    Also add Bazel rules to build the ECDSA-P256 tests (not yet possible for
-    RSA due to build conflicts in the OTBN code).
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
