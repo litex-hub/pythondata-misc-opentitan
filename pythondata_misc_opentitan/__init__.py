@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10544"
-version_tuple = (0, 0, 10544)
+version_str = "0.0.post10546"
+version_tuple = (0, 0, 10546)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10544")
+    pversion = V("0.0.post10546")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10418"
-data_version_tuple = (0, 0, 10418)
+data_version_str = "0.0.post10420"
+data_version_tuple = (0, 0, 10420)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10418")
+    pdata_version = V("0.0.post10420")
 except ImportError:
     pass
-data_git_hash = "9ef0f05416b238d590e2e506c52eadfd0ceda96e"
-data_git_describe = "v0.0-10418-g9ef0f0541"
+data_git_hash = "bf77c5f2ae1ac443d75b47498484f1a458ce0538"
+data_git_describe = "v0.0-10420-gbf77c5f2a"
 data_git_msg = """\
-commit 9ef0f05416b238d590e2e506c52eadfd0ceda96e
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Feb 24 22:47:49 2022 +0100
+commit bf77c5f2ae1ac443d75b47498484f1a458ce0538
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Feb 23 15:18:22 2022 +0000
 
-    [prim] Add prim_and2 primitive
+    [otbn,dv] Check DMEM to happen at start of wipe
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    This commit ensures that the DMEM checking only happens
+    when we have just started wiping (checks with the old key)
+    
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
