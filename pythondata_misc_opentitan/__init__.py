@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10537"
-version_tuple = (0, 0, 10537)
+version_str = "0.0.post10538"
+version_tuple = (0, 0, 10538)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10537")
+    pversion = V("0.0.post10538")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10411"
-data_version_tuple = (0, 0, 10411)
+data_version_str = "0.0.post10412"
+data_version_tuple = (0, 0, 10412)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10411")
+    pdata_version = V("0.0.post10412")
 except ImportError:
     pass
-data_git_hash = "2ee2bec3c70e4cbbab00084313fe5c02972f3c0a"
-data_git_describe = "v0.0-10411-g2ee2bec3c"
+data_git_hash = "876015a60772359128bfb687b6e71abc99f12573"
+data_git_describe = "v0.0-10412-g876015a60"
 data_git_msg = """\
-commit 2ee2bec3c70e4cbbab00084313fe5c02972f3c0a
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Feb 24 17:53:39 2022 -0800
+commit 876015a60772359128bfb687b6e71abc99f12573
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Feb 24 12:54:19 2022 -0800
 
-    [dv/rstmgr] Fix incorrect SVA for cascading resets
+    [sw/test_rom] Re-enable SW-gateable clocks after reset
     
-    The previous assertion for a falling parent reset was just wrong,
-    and was never attempted, causing low assertion coverage.
+    As #11081 points out, if a SW-gateable clock is gated, and the chip is
+    only partially reset (i.e., reset is NOT a POR), peripherals that the
+    test ROM uses (i.e., UART for logging and HMAC for bootstrap) could be
+    rendered in-operable.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This commit partially addresses #11081 (w.r.t. to the test ROM) by
+    resetting all SW-gateable clocks to their default POR values.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
