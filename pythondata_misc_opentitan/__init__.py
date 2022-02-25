@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10538"
-version_tuple = (0, 0, 10538)
+version_str = "0.0.post10540"
+version_tuple = (0, 0, 10540)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10538")
+    pversion = V("0.0.post10540")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10412"
-data_version_tuple = (0, 0, 10412)
+data_version_str = "0.0.post10414"
+data_version_tuple = (0, 0, 10414)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10412")
+    pdata_version = V("0.0.post10414")
 except ImportError:
     pass
-data_git_hash = "876015a60772359128bfb687b6e71abc99f12573"
-data_git_describe = "v0.0-10412-g876015a60"
+data_git_hash = "f2ee5f1e5f864514ad60ee85d5bee07e45c69417"
+data_git_describe = "v0.0-10414-gf2ee5f1e5"
 data_git_msg = """\
-commit 876015a60772359128bfb687b6e71abc99f12573
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Feb 24 12:54:19 2022 -0800
+commit f2ee5f1e5f864514ad60ee85d5bee07e45c69417
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 24 23:26:47 2022 +0000
 
-    [sw/test_rom] Re-enable SW-gateable clocks after reset
+    [otbn,rtl] Remove (unused) part of decoder supporting AUIPC
     
-    As #11081 points out, if a SW-gateable clock is gated, and the chip is
-    only partially reset (i.e., reset is NOT a POR), peripherals that the
-    test ROM uses (i.e., UART for logging and HMAC for bootstrap) could be
-    rendered in-operable.
+    We don't actually have that instruction! Spotted by a coverage hole.
     
-    This commit partially addresses #11081 (w.r.t. to the test ROM) by
-    resetting all SW-gateable clocks to their default POR values.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
