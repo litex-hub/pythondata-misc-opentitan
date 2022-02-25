@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10546"
-version_tuple = (0, 0, 10546)
+version_str = "0.0.post10550"
+version_tuple = (0, 0, 10550)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10546")
+    pversion = V("0.0.post10550")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10420"
-data_version_tuple = (0, 0, 10420)
+data_version_str = "0.0.post10424"
+data_version_tuple = (0, 0, 10424)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10420")
+    pdata_version = V("0.0.post10424")
 except ImportError:
     pass
-data_git_hash = "bf77c5f2ae1ac443d75b47498484f1a458ce0538"
-data_git_describe = "v0.0-10420-gbf77c5f2a"
+data_git_hash = "be42c349621dfc9d8d2cbb1e949a70d28462b7e0"
+data_git_describe = "v0.0-10424-gbe42c3496"
 data_git_msg = """\
-commit bf77c5f2ae1ac443d75b47498484f1a458ce0538
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Feb 23 15:18:22 2022 +0000
+commit be42c349621dfc9d8d2cbb1e949a70d28462b7e0
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Feb 24 18:12:18 2022 -0800
 
-    [otbn,dv] Check DMEM to happen at start of wipe
+    [dv/rstmgr] Fix handling cpu dump info
     
-    This commit ensures that the DMEM checking only happens
-    when we have just started wiping (checks with the old key)
+    Enhance the cpu dump info check to go through all words.
+    Consistently use rv_core_ibex_pkg instead of ibex_pkg for the dump info.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
