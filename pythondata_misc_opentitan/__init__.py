@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10550"
-version_tuple = (0, 0, 10550)
+version_str = "0.0.post10552"
+version_tuple = (0, 0, 10552)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10550")
+    pversion = V("0.0.post10552")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10424"
-data_version_tuple = (0, 0, 10424)
+data_version_str = "0.0.post10426"
+data_version_tuple = (0, 0, 10426)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10424")
+    pdata_version = V("0.0.post10426")
 except ImportError:
     pass
-data_git_hash = "be42c349621dfc9d8d2cbb1e949a70d28462b7e0"
-data_git_describe = "v0.0-10424-gbe42c3496"
+data_git_hash = "419d7b14251c2aa8f81b71ff8efde9b31223f52f"
+data_git_describe = "v0.0-10426-g419d7b142"
 data_git_msg = """\
-commit be42c349621dfc9d8d2cbb1e949a70d28462b7e0
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Feb 24 18:12:18 2022 -0800
+commit 419d7b14251c2aa8f81b71ff8efde9b31223f52f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 23 17:14:04 2022 -0800
 
-    [dv/rstmgr] Fix handling cpu dump info
+    [fpv/pinmux] Pinmux FPV tb fix
     
-    Enhance the cpu dump info check to go through all words.
-    Consistently use rv_core_ibex_pkg instead of ibex_pkg for the dump info.
+    This PR fixes pinmux FPV:
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    1). Blackbox usb module because we only check connectivity here.
+    2). Disable assertions for `SyncCheckTransients*` because in formal we
+      do not constraint inputs.
+    3). Updated lc_ctrl_pkg::On/Off to not use `mubi4_test_true_strict`
+      function.
+    4). Update a few design input related assertions to use assumptions.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
