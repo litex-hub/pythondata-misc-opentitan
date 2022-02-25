@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10543"
-version_tuple = (0, 0, 10543)
+version_str = "0.0.post10544"
+version_tuple = (0, 0, 10544)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10543")
+    pversion = V("0.0.post10544")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10417"
-data_version_tuple = (0, 0, 10417)
+data_version_str = "0.0.post10418"
+data_version_tuple = (0, 0, 10418)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10417")
+    pdata_version = V("0.0.post10418")
 except ImportError:
     pass
-data_git_hash = "3b9f3d078eb3c8c947889bfc3a3d30af1b0b3b1a"
-data_git_describe = "v0.0-10417-g3b9f3d078"
+data_git_hash = "9ef0f05416b238d590e2e506c52eadfd0ceda96e"
+data_git_describe = "v0.0-10418-g9ef0f0541"
 data_git_msg = """\
-commit 3b9f3d078eb3c8c947889bfc3a3d30af1b0b3b1a
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 24 15:47:43 2022 +0000
+commit 9ef0f05416b238d590e2e506c52eadfd0ceda96e
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Feb 24 22:47:49 2022 +0100
 
-    [otbn,dv] Extend window at end of IMEM error sequence
+    [prim] Add prim_and2 primitive
     
-    This is all about an awkward situation where we happen to inject an
-    IMEM error just after we've fetched the last instruction that we were
-    going to execute. In this case, there will be no error, which is fine,
-    but I'd mis-calculated how long you need to wait to figure out whether
-    it's happened. Fix that.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
