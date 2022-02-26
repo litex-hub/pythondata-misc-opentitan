@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10562"
-version_tuple = (0, 0, 10562)
+version_str = "0.0.post10566"
+version_tuple = (0, 0, 10566)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10562")
+    pversion = V("0.0.post10566")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10436"
-data_version_tuple = (0, 0, 10436)
+data_version_str = "0.0.post10440"
+data_version_tuple = (0, 0, 10440)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10436")
+    pdata_version = V("0.0.post10440")
 except ImportError:
     pass
-data_git_hash = "8073b2262a3970fca87dfdee1e624235f618f2bd"
-data_git_describe = "v0.0-10436-g8073b2262"
+data_git_hash = "f23cfa98e3931f4e939c9ab19bb371e8b4f53ff3"
+data_git_describe = "v0.0-10440-gf23cfa98e"
 data_git_msg = """\
-commit 8073b2262a3970fca87dfdee1e624235f618f2bd
-Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
-Date:   Thu Feb 24 16:16:33 2022 +0000
+commit f23cfa98e3931f4e939c9ab19bb371e8b4f53ff3
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Feb 25 11:40:06 2022 -0800
 
-    Address and payload passthrough swap scenarios
+    [kmac] Add config knob to CFG_SHADOWED
     
-    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
+    This commit adds `en_unsupported_modestrength` config knob to
+    CFG_SHADOWED CSR and connect to the signal in the top-level.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
