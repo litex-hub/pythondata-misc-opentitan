@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10566"
-version_tuple = (0, 0, 10566)
+version_str = "0.0.post10567"
+version_tuple = (0, 0, 10567)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10566")
+    pversion = V("0.0.post10567")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10440"
-data_version_tuple = (0, 0, 10440)
+data_version_str = "0.0.post10441"
+data_version_tuple = (0, 0, 10441)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10440")
+    pdata_version = V("0.0.post10441")
 except ImportError:
     pass
-data_git_hash = "f23cfa98e3931f4e939c9ab19bb371e8b4f53ff3"
-data_git_describe = "v0.0-10440-gf23cfa98e"
+data_git_hash = "f5d229f75cff57803fe1dd445528317257527f2c"
+data_git_describe = "v0.0-10441-gf5d229f75"
 data_git_msg = """\
-commit f23cfa98e3931f4e939c9ab19bb371e8b4f53ff3
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Feb 25 11:40:06 2022 -0800
+commit f5d229f75cff57803fe1dd445528317257527f2c
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Feb 25 15:03:47 2022 +0000
 
-    [kmac] Add config knob to CFG_SHADOWED
+    [dv,top,pwm] Add initial place holder for pwm test
     
-    This commit adds `en_unsupported_modestrength` config knob to
-    CFG_SHADOWED CSR and connect to the signal in the top-level.
+    add a new c test and sequence for pwm test.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
