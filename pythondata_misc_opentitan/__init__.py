@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10571"
-version_tuple = (0, 0, 10571)
+version_str = "0.0.post10573"
+version_tuple = (0, 0, 10573)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10571")
+    pversion = V("0.0.post10573")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10445"
-data_version_tuple = (0, 0, 10445)
+data_version_str = "0.0.post10447"
+data_version_tuple = (0, 0, 10447)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10445")
+    pdata_version = V("0.0.post10447")
 except ImportError:
     pass
-data_git_hash = "60ed869c9b4267b274e655dffaa709b6c116d4b2"
-data_git_describe = "v0.0-10445-g60ed869c9"
+data_git_hash = "66876bd5585ab8895aeef97d9b9a3e1f2df5755b"
+data_git_describe = "v0.0-10447-g66876bd55"
 data_git_msg = """\
-commit 60ed869c9b4267b274e655dffaa709b6c116d4b2
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Feb 24 18:17:25 2022 -0800
+commit 66876bd5585ab8895aeef97d9b9a3e1f2df5755b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Feb 23 16:22:58 2022 -0800
 
-    [conn] Add two AST related connectivity tests
+    [pwrmgr] Various documentation updates
     
-    This PR adds two connectivity tests between ast and flash, ast and
-    spi_device.
+    - clarify usage of flash macro and flash_ctrl
+    - clarify the trade-offs of normal sleep
+    - better explain fall through and aborted low power entry
+    - update fsm diagram
+    - update SYNC description
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
