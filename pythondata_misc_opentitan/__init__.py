@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10569"
-version_tuple = (0, 0, 10569)
+version_str = "0.0.post10571"
+version_tuple = (0, 0, 10571)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10569")
+    pversion = V("0.0.post10571")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10443"
-data_version_tuple = (0, 0, 10443)
+data_version_str = "0.0.post10445"
+data_version_tuple = (0, 0, 10445)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10443")
+    pdata_version = V("0.0.post10445")
 except ImportError:
     pass
-data_git_hash = "e151655e8b335f78051a73b7578715e7caba0e53"
-data_git_describe = "v0.0-10443-ge151655e8"
+data_git_hash = "60ed869c9b4267b274e655dffaa709b6c116d4b2"
+data_git_describe = "v0.0-10445-g60ed869c9"
 data_git_msg = """\
-commit e151655e8b335f78051a73b7578715e7caba0e53
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 24 20:22:02 2022 -0800
+commit 60ed869c9b4267b274e655dffaa709b6c116d4b2
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Feb 24 18:17:25 2022 -0800
 
-    [sw, dv] Minor updates to allow rom copy of ast init
+    [conn] Add two AST related connectivity tests
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This PR adds two connectivity tests between ast and flash, ast and
+    spi_device.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
