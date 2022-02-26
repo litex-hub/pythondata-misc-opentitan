@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10567"
-version_tuple = (0, 0, 10567)
+version_str = "0.0.post10569"
+version_tuple = (0, 0, 10569)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10567")
+    pversion = V("0.0.post10569")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10441"
-data_version_tuple = (0, 0, 10441)
+data_version_str = "0.0.post10443"
+data_version_tuple = (0, 0, 10443)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10441")
+    pdata_version = V("0.0.post10443")
 except ImportError:
     pass
-data_git_hash = "f5d229f75cff57803fe1dd445528317257527f2c"
-data_git_describe = "v0.0-10441-gf5d229f75"
+data_git_hash = "e151655e8b335f78051a73b7578715e7caba0e53"
+data_git_describe = "v0.0-10443-ge151655e8"
 data_git_msg = """\
-commit f5d229f75cff57803fe1dd445528317257527f2c
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Feb 25 15:03:47 2022 +0000
+commit e151655e8b335f78051a73b7578715e7caba0e53
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Feb 24 20:22:02 2022 -0800
 
-    [dv,top,pwm] Add initial place holder for pwm test
+    [sw, dv] Minor updates to allow rom copy of ast init
     
-    add a new c test and sequence for pwm test.
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
