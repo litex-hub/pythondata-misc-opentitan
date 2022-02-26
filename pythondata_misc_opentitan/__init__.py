@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10573"
-version_tuple = (0, 0, 10573)
+version_str = "0.0.post10581"
+version_tuple = (0, 0, 10581)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10573")
+    pversion = V("0.0.post10581")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10447"
-data_version_tuple = (0, 0, 10447)
+data_version_str = "0.0.post10455"
+data_version_tuple = (0, 0, 10455)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10447")
+    pdata_version = V("0.0.post10455")
 except ImportError:
     pass
-data_git_hash = "66876bd5585ab8895aeef97d9b9a3e1f2df5755b"
-data_git_describe = "v0.0-10447-g66876bd55"
+data_git_hash = "d8c1e9c230d93910593472bf1f0962aa7d351a41"
+data_git_describe = "v0.0-10455-gd8c1e9c23"
 data_git_msg = """\
-commit 66876bd5585ab8895aeef97d9b9a3e1f2df5755b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Feb 23 16:22:58 2022 -0800
+commit d8c1e9c230d93910593472bf1f0962aa7d351a41
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Feb 18 12:41:34 2022 -0800
 
-    [pwrmgr] Various documentation updates
+    [dv] Add rv_dm to regressions
     
-    - clarify usage of flash macro and flash_ctrl
-    - clarify the trade-offs of normal sleep
-    - better explain fall through and aborted low power entry
-    - update fsm diagram
-    - update SYNC description
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
