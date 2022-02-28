@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10600"
-version_tuple = (0, 0, 10600)
+version_str = "0.0.post10601"
+version_tuple = (0, 0, 10601)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10600")
+    pversion = V("0.0.post10601")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10474"
-data_version_tuple = (0, 0, 10474)
+data_version_str = "0.0.post10475"
+data_version_tuple = (0, 0, 10475)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10474")
+    pdata_version = V("0.0.post10475")
 except ImportError:
     pass
-data_git_hash = "c4eb9a456c28fd6c5fabec293a908cfa2ba73022"
-data_git_describe = "v0.0-10474-gc4eb9a456"
+data_git_hash = "536092a26c5f5dc7f24a87c48d4849c5a2eb972d"
+data_git_describe = "v0.0-10475-g536092a26"
 data_git_msg = """\
-commit c4eb9a456c28fd6c5fabec293a908cfa2ba73022
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Feb 16 08:30:19 2022 -0800
+commit 536092a26c5f5dc7f24a87c48d4849c5a2eb972d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Feb 28 12:06:11 2022 -0800
 
-    [usbdev] Clean up confusing uses of "differential"
+    [fpv/csr] Support rw0c
     
-    Explicitly refer to a receiver wherever "differential" is used with
-    "rx".
+    This PR supports adding assertions for RW0C regs followed the
+    implementation of PR #11122
     
-    Previously, the term on RX would mean that an *external* differential
-    receiver would be used, delivering a *single-ended* data signal to the
-    IP. However, this top-level definition causes too much confusion.
-    
-    Similarly, for TX, avoid using "differential" altogether, as neither the
-    driver nor the signals are truly differential. Instead, refer to the two
-    interfaces by the component signal names.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
