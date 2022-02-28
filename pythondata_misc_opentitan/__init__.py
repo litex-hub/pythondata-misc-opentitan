@@ -4,32 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10593"
-version_tuple = (0, 0, 10593)
+version_str = "0.0.post10600"
+version_tuple = (0, 0, 10600)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10593")
+    pversion = V("0.0.post10600")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10467"
-data_version_tuple = (0, 0, 10467)
+data_version_str = "0.0.post10474"
+data_version_tuple = (0, 0, 10474)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10467")
+    pdata_version = V("0.0.post10474")
 except ImportError:
     pass
-data_git_hash = "9ea6c5e2ba297e113a221b4d7c0c7cbfd3c1a22f"
-data_git_describe = "v0.0-10467-g9ea6c5e2b"
+data_git_hash = "c4eb9a456c28fd6c5fabec293a908cfa2ba73022"
+data_git_describe = "v0.0-10474-gc4eb9a456"
 data_git_msg = """\
-commit 9ea6c5e2ba297e113a221b4d7c0c7cbfd3c1a22f
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Feb 25 17:52:36 2022 +0000
+commit c4eb9a456c28fd6c5fabec293a908cfa2ba73022
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Feb 16 08:30:19 2022 -0800
 
-    [tlul_sram_byte] Fix width mismatch
+    [usbdev] Clean up confusing uses of "differential"
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Explicitly refer to a receiver wherever "differential" is used with
+    "rx".
+    
+    Previously, the term on RX would mean that an *external* differential
+    receiver would be used, delivering a *single-ended* data signal to the
+    IP. However, this top-level definition causes too much confusion.
+    
+    Similarly, for TX, avoid using "differential" altogether, as neither the
+    driver nor the signals are truly differential. Instead, refer to the two
+    interfaces by the component signal names.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
