@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10581"
-version_tuple = (0, 0, 10581)
+version_str = "0.0.post10583"
+version_tuple = (0, 0, 10583)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10581")
+    pversion = V("0.0.post10583")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10455"
-data_version_tuple = (0, 0, 10455)
+data_version_str = "0.0.post10457"
+data_version_tuple = (0, 0, 10457)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10455")
+    pdata_version = V("0.0.post10457")
 except ImportError:
     pass
-data_git_hash = "d8c1e9c230d93910593472bf1f0962aa7d351a41"
-data_git_describe = "v0.0-10455-gd8c1e9c23"
+data_git_hash = "0540f242cd078472e9a57042f19800973b4a9148"
+data_git_describe = "v0.0-10457-g0540f242c"
 data_git_msg = """\
-commit d8c1e9c230d93910593472bf1f0962aa7d351a41
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Feb 18 12:41:34 2022 -0800
+commit 0540f242cd078472e9a57042f19800973b4a9148
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Fri Feb 18 03:49:59 2022 -0800
 
-    [dv] Add rv_dm to regressions
+    [aes/dv] updated deinit to include trying to trigger start after clear
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
