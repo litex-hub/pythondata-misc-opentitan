@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10585"
-version_tuple = (0, 0, 10585)
+version_str = "0.0.post10593"
+version_tuple = (0, 0, 10593)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10585")
+    pversion = V("0.0.post10593")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10459"
-data_version_tuple = (0, 0, 10459)
+data_version_str = "0.0.post10467"
+data_version_tuple = (0, 0, 10467)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10459")
+    pdata_version = V("0.0.post10467")
 except ImportError:
     pass
-data_git_hash = "bd8902f33ead32f83e65715e3cda99b95b51bfd4"
-data_git_describe = "v0.0-10459-gbd8902f33"
+data_git_hash = "9ea6c5e2ba297e113a221b4d7c0c7cbfd3c1a22f"
+data_git_describe = "v0.0-10467-g9ea6c5e2b"
 data_git_msg = """\
-commit bd8902f33ead32f83e65715e3cda99b95b51bfd4
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Feb 24 15:22:29 2022 +0100
+commit 9ea6c5e2ba297e113a221b4d7c0c7cbfd3c1a22f
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Feb 25 17:52:36 2022 +0000
 
-    [aes] Hold EDN request until acknowledgment in case of fatal alerts
+    [tlul_sram_byte] Fix width mismatch
     
-    Previously, AES would drop a potentially asserted EDN request signal in
-    case of a fatal alert which could leave the EDN interface including CDC
-    in a weird state. With this commit, the request signal is always kept
-    asserted until acknowledgment which is similar to what other entropy
-    consumers do.
-    
-    This is related to lowRISC/OpenTitan#10991.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
