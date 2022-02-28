@@ -36,10 +36,6 @@ enum {
    * Base address of the flash_ctrl registers.
    */
   kBase = TOP_EARLGREY_FLASH_CTRL_CORE_BASE_ADDR,
-  /**
-   * Base address of the flash memory.
-   */
-  kMemBase = TOP_EARLGREY_FLASH_CTRL_MEM_BASE_ADDR,
 };
 
 /**
@@ -94,7 +90,19 @@ static void transaction_start(transaction_params_t params) {
       bitfield_bit32_read(params.partition, FLASH_CTRL_PARTITION_BIT_IS_INFO);
   const uint32_t info_type = bitfield_field32_read(
       params.partition, FLASH_CTRL_PARTITION_FIELD_INFO_TYPE);
-  const bool bank_erase = params.erase_type == kFlashCtrlEraseTypeBank;
+  bool bank_erase = true;
+  switch (launder32(params.erase_type)) {
+    case kFlashCtrlEraseTypeBank:
+      HARDENED_CHECK_EQ(params.erase_type, kFlashCtrlEraseTypeBank);
+      bank_erase = true;
+      break;
+    case kFlashCtrlEraseTypePage:
+      HARDENED_CHECK_EQ(params.erase_type, kFlashCtrlEraseTypePage);
+      bank_erase = false;
+      break;
+    default:
+      HARDENED_UNREACHABLE();
+  }
   uint32_t reg = bitfield_bit32_write(0, FLASH_CTRL_CONTROL_START_BIT, true);
   reg =
       bitfield_field32_write(reg, FLASH_CTRL_CONTROL_OP_FIELD, params.op_type);
@@ -211,10 +219,10 @@ static rom_error_t write(uint32_t addr, flash_ctrl_partition_t partition,
  * @return Base address of the given page.
  */
 static uint32_t info_page_addr(flash_ctrl_info_page_t info_page) {
-#define INFO_PAGE_ADDR_CASE_(name_, value_, bank_, page_)       \
-  case (name_):                                                 \
-    HARDENED_CHECK_EQ(launder32(info_page), (name_));           \
-    return kMemBase + (bank_)*FLASH_CTRL_PARAM_BYTES_PER_BANK + \
+#define INFO_PAGE_ADDR_CASE_(name_, value_, bank_, page_) \
+  case (name_):                                           \
+    HARDENED_CHECK_EQ(launder32(info_page), (name_));     \
+    return (bank_)*FLASH_CTRL_PARAM_BYTES_PER_BANK +      \
            (page_)*FLASH_CTRL_PARAM_BYTES_PER_PAGE;
 
   switch (launder32(info_page)) {
@@ -390,6 +398,50 @@ rom_error_t flash_ctrl_data_erase(uint32_t addr,
       .word_count = 1,
   });
   return wait_for_done(kErrorFlashCtrlDataErase);
+}
+
+rom_error_t flash_ctrl_data_erase_verify(uint32_t addr,
+                                         flash_ctrl_erase_type_t erase_type) {
+  static_assert(__builtin_popcount(FLASH_CTRL_PARAM_BYTES_PER_BANK) == 1,
+                "Bytes per bank must be a power of two.");
+  static_assert(__builtin_popcount(FLASH_CTRL_PARAM_BYTES_PER_PAGE) == 1,
+                "Bytes per page must be a power of two.");
+
+  size_t byte_count;
+  rom_error_t error = kErrorFlashCtrlDataEraseVerify;
+  switch (launder32(erase_type)) {
+    case kFlashCtrlEraseTypeBank:
+      HARDENED_CHECK_EQ(erase_type, kFlashCtrlEraseTypeBank);
+      byte_count = FLASH_CTRL_PARAM_BYTES_PER_BANK;
+      error = kErrorOk ^ (byte_count - 1);
+      break;
+    case kFlashCtrlEraseTypePage:
+      HARDENED_CHECK_EQ(erase_type, kFlashCtrlEraseTypePage);
+      byte_count = FLASH_CTRL_PARAM_BYTES_PER_PAGE;
+      error = kErrorOk ^ (byte_count - 1);
+      break;
+    default:
+      HARDENED_UNREACHABLE();
+  }
+
+  // Truncate to the closest lower bank/page aligned address.
+  addr &= ~byte_count + 1;
+  uint32_t mask = kFlashCtrlErasedWord;
+  size_t i = 0;
+  for (; launder32(i) < byte_count; i += sizeof(uint32_t)) {
+    uint32_t word =
+        abs_mmio_read32(TOP_EARLGREY_FLASH_CTRL_MEM_BASE_ADDR + addr + i);
+    mask &= word;
+    error &= word;
+  }
+  HARDENED_CHECK_EQ(i, byte_count);
+
+  if (launder32(mask) == kFlashCtrlErasedWord) {
+    HARDENED_CHECK_EQ(mask, kFlashCtrlErasedWord);
+    return error ^ (byte_count - 1);
+  }
+
+  return kErrorFlashCtrlDataEraseVerify;
 }
 
 rom_error_t flash_ctrl_info_erase(flash_ctrl_info_page_t info_page,

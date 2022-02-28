@@ -308,7 +308,7 @@ package usbdev_reg_pkg;
     } oe_o;
     struct packed {
       logic        q;
-    } tx_mode_se_o;
+    } tx_use_d_se0_o;
     struct packed {
       logic        q;
     } dp_pullup_en_o;
@@ -326,10 +326,10 @@ package usbdev_reg_pkg;
   typedef struct packed {
     struct packed {
       logic        q;
-    } rx_differential_mode;
+    } use_diff_rcvr;
     struct packed {
       logic        q;
-    } tx_differential_mode;
+    } tx_use_d_se0;
     struct packed {
       logic        q;
     } eop_single_bit;
