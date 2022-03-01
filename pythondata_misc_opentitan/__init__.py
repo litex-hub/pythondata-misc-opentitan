@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10601"
-version_tuple = (0, 0, 10601)
+version_str = "0.0.post10603"
+version_tuple = (0, 0, 10603)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10601")
+    pversion = V("0.0.post10603")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10475"
-data_version_tuple = (0, 0, 10475)
+data_version_str = "0.0.post10477"
+data_version_tuple = (0, 0, 10477)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10475")
+    pdata_version = V("0.0.post10477")
 except ImportError:
     pass
-data_git_hash = "536092a26c5f5dc7f24a87c48d4849c5a2eb972d"
-data_git_describe = "v0.0-10475-g536092a26"
+data_git_hash = "8d91bec38a7606e6418785e9de718c9063f61242"
+data_git_describe = "v0.0-10477-g8d91bec38"
 data_git_msg = """\
-commit 536092a26c5f5dc7f24a87c48d4849c5a2eb972d
+commit 8d91bec38a7606e6418785e9de718c9063f61242
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Feb 28 12:06:11 2022 -0800
+Date:   Fri Feb 25 18:17:13 2022 -0800
 
-    [fpv/csr] Support rw0c
+    [fpv/sec] Add some workaround logic for $cast keyword
     
-    This PR supports adding assertions for RW0C regs followed the
-    implementation of PR #11122
+    Because FPV does not accept $cast keyword, this PR adds some workaround
+    logic to bypass that.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
