@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10622"
-version_tuple = (0, 0, 10622)
+version_str = "0.0.post10625"
+version_tuple = (0, 0, 10625)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10622")
+    pversion = V("0.0.post10625")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10496"
-data_version_tuple = (0, 0, 10496)
+data_version_str = "0.0.post10499"
+data_version_tuple = (0, 0, 10499)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10496")
+    pdata_version = V("0.0.post10499")
 except ImportError:
     pass
-data_git_hash = "739099ccbb05f6b2aaeee15b8acdb5cc3b798d2a"
-data_git_describe = "v0.0-10496-g739099ccb"
+data_git_hash = "fb5194f6f7838e92667f2f01e9f87bdaea87aa6f"
+data_git_describe = "v0.0-10499-gfb5194f6f"
 data_git_msg = """\
-commit 739099ccbb05f6b2aaeee15b8acdb5cc3b798d2a
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Feb 28 15:00:38 2022 -0800
+commit fb5194f6f7838e92667f2f01e9f87bdaea87aa6f
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Feb 25 10:20:59 2022 -0800
 
-    [flash_ctrl] Correct erase suspend interface behavior
+    [dv/rstmgr] Add missing covergroups
     
-    - fixes #11143
+    Also fix related dv doc mistakes.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Fixes #10687
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
