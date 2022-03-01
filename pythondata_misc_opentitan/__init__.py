@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10603"
-version_tuple = (0, 0, 10603)
+version_str = "0.0.post10604"
+version_tuple = (0, 0, 10604)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10603")
+    pversion = V("0.0.post10604")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10477"
-data_version_tuple = (0, 0, 10477)
+data_version_str = "0.0.post10478"
+data_version_tuple = (0, 0, 10478)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10477")
+    pdata_version = V("0.0.post10478")
 except ImportError:
     pass
-data_git_hash = "8d91bec38a7606e6418785e9de718c9063f61242"
-data_git_describe = "v0.0-10477-g8d91bec38"
+data_git_hash = "d1b0f96fabe132c6a87001281e5b2847606635d0"
+data_git_describe = "v0.0-10478-gd1b0f96fa"
 data_git_msg = """\
-commit 8d91bec38a7606e6418785e9de718c9063f61242
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Feb 25 18:17:13 2022 -0800
+commit d1b0f96fabe132c6a87001281e5b2847606635d0
+Author: Jayesh Patel <jayesh@aarishtech.com>
+Date:   Mon Feb 28 09:19:53 2022 -0500
 
-    [fpv/sec] Add some workaround logic for $cast keyword
+    Correct documentation typo
     
-    Because FPV does not accept $cast keyword, this PR adds some workaround
-    logic to bypass that.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jayesh Patel <jayesh@aarishtech.com>
 
 """
 
