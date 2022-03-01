@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10612"
-version_tuple = (0, 0, 10612)
+version_str = "0.0.post10622"
+version_tuple = (0, 0, 10622)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10612")
+    pversion = V("0.0.post10622")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10486"
-data_version_tuple = (0, 0, 10486)
+data_version_str = "0.0.post10496"
+data_version_tuple = (0, 0, 10496)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10486")
+    pdata_version = V("0.0.post10496")
 except ImportError:
     pass
-data_git_hash = "059578e555cb1319577dda5042163406d83368e8"
-data_git_describe = "v0.0-10486-g059578e55"
+data_git_hash = "739099ccbb05f6b2aaeee15b8acdb5cc3b798d2a"
+data_git_describe = "v0.0-10496-g739099ccb"
 data_git_msg = """\
-commit 059578e555cb1319577dda5042163406d83368e8
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Feb 25 20:04:55 2022 -0800
+commit 739099ccbb05f6b2aaeee15b8acdb5cc3b798d2a
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Feb 28 15:00:38 2022 -0800
 
-    [dif/alert_handler] Fix DIF doxygen comments
+    [flash_ctrl] Correct erase suspend interface behavior
     
-    This fixes some typos in a handful of alert_handler DIF comments that
-    get rendered as API documentation via doxygen.
+    - fixes #11143
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
