@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10625"
-version_tuple = (0, 0, 10625)
+version_str = "0.0.post10629"
+version_tuple = (0, 0, 10629)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10625")
+    pversion = V("0.0.post10629")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10499"
-data_version_tuple = (0, 0, 10499)
+data_version_str = "0.0.post10503"
+data_version_tuple = (0, 0, 10503)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10499")
+    pdata_version = V("0.0.post10503")
 except ImportError:
     pass
-data_git_hash = "fb5194f6f7838e92667f2f01e9f87bdaea87aa6f"
-data_git_describe = "v0.0-10499-gfb5194f6f"
+data_git_hash = "9bd33908d2e9fda9977257151eaa3e048566797e"
+data_git_describe = "v0.0-10503-g9bd33908d"
 data_git_msg = """\
-commit fb5194f6f7838e92667f2f01e9f87bdaea87aa6f
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 25 10:20:59 2022 -0800
+commit 9bd33908d2e9fda9977257151eaa3e048566797e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Feb 25 13:46:26 2022 -0800
 
-    [dv/rstmgr] Add missing covergroups
+    [rstmgr] unr related clean-up
     
-    Also fix related dv doc mistakes.
+    - fixes #11121
     
-    Fixes #10687
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
