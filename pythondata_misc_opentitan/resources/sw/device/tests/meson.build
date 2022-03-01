@@ -276,6 +276,31 @@ sw_tests += {
   }
 }
 
+clkmgr_peri_off_test_lib = declare_dependency(
+  link_with: static_library(
+    'clkmgr_peri_off_test_lib',
+    sources: ['clkmgr_peri_off_test.c'],
+    dependencies: [
+      sw_lib_dif_aon_timer,
+      sw_lib_dif_clkmgr,
+      sw_lib_dif_pwrmgr,
+      sw_lib_dif_rstmgr,
+      sw_lib_dif_uart,
+      sw_lib_mmio,
+      sw_lib_runtime_log,
+      sw_lib_runtime_ibex,
+      sw_lib_testing_aon_timer_testutils,
+      sw_lib_testing_rstmgr_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'clkmgr_peri_off_test': {
+    'library': clkmgr_peri_off_test_lib,
+  }
+}
+
 clkmgr_jitter_test_lib = declare_dependency(
   link_with: static_library(
     'clkmgr_jitter_test_lib',
@@ -761,7 +786,6 @@ aon_timer_irq_test = declare_dependency(
       sw_lib_dif_rstmgr,
       sw_lib_dif_aon_timer,
       sw_lib_dif_rv_timer,
-      sw_lib_dif_pwrmgr,
       sw_lib_dif_rv_plic,
       sw_lib_runtime_log,
       sw_lib_runtime_ibex,
@@ -850,6 +874,36 @@ pwm_test_lib = declare_dependency(
 sw_tests += {
   'pwm_test': {
     'library': pwm_test_lib,
+  }
+}
+
+# AON Timer wdog lc escalate test.
+aon_timer_wdog_lc_escalate_test = declare_dependency(
+  link_with: static_library(
+    'aon_timer_wdog_lc_escalate_test',
+    sources: [
+      hw_ip_rstmgr_reg_h,
+      'aon_timer_wdog_lc_escalate_test.c',
+    ],
+    dependencies: [
+      sw_lib_dif_rstmgr,
+      sw_lib_dif_aon_timer,
+      sw_lib_dif_alert_handler,
+      sw_lib_dif_pwrmgr,
+      sw_lib_dif_rv_plic,
+      sw_lib_runtime_log,
+      sw_lib_runtime_ibex,
+      sw_lib_testing_aon_timer_testutils,
+      sw_lib_testing_alert_handler_testutils,
+      sw_lib_testing_rstmgr_testutils,
+      sw_lib_testing_rv_plic_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'aon_timer_wdog_lc_escalate_test': {
+    'library': aon_timer_wdog_lc_escalate_test,
   }
 }
 
