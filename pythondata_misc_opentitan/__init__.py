@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10606"
-version_tuple = (0, 0, 10606)
+version_str = "0.0.post10611"
+version_tuple = (0, 0, 10611)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10606")
+    pversion = V("0.0.post10611")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10480"
-data_version_tuple = (0, 0, 10480)
+data_version_str = "0.0.post10485"
+data_version_tuple = (0, 0, 10485)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10480")
+    pdata_version = V("0.0.post10485")
 except ImportError:
     pass
-data_git_hash = "b4e64196eaf1d3844b27e5ac7e5ddeebccb50236"
-data_git_describe = "v0.0-10480-gb4e64196e"
+data_git_hash = "07eee9d8ed75473309090c5a35de545d5cecdbf6"
+data_git_describe = "v0.0-10485-g07eee9d8e"
 data_git_msg = """\
-commit b4e64196eaf1d3844b27e5ac7e5ddeebccb50236
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri Feb 25 14:17:15 2022 +0000
+commit 07eee9d8ed75473309090c5a35de545d5cecdbf6
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Mon Feb 7 14:41:42 2022 +0000
 
-    [rom_ctrl, dv] Added testcase for verifying sparse FSM
+    [spi_host/dv] Enhanced Smoke Test
     
-    Testcase required to test the sparse FSMs inside rom_ctrl module is
-    enabled in this commit.
+    - Added Speed Test
+    - Added Constraints to Segment Item
+    - Added Quad And Dual To Device Resp Seq
+    - Added Tag For Cover Points To Speed Test
+    - Added Sw Reset Test
+    - Added Performance Test
+    - Added Spi Monitor Update Dual And Quad Mode
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
