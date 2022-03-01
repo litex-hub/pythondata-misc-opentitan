@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10611"
-version_tuple = (0, 0, 10611)
+version_str = "0.0.post10612"
+version_tuple = (0, 0, 10612)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10611")
+    pversion = V("0.0.post10612")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10485"
-data_version_tuple = (0, 0, 10485)
+data_version_str = "0.0.post10486"
+data_version_tuple = (0, 0, 10486)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10485")
+    pdata_version = V("0.0.post10486")
 except ImportError:
     pass
-data_git_hash = "07eee9d8ed75473309090c5a35de545d5cecdbf6"
-data_git_describe = "v0.0-10485-g07eee9d8e"
+data_git_hash = "059578e555cb1319577dda5042163406d83368e8"
+data_git_describe = "v0.0-10486-g059578e55"
 data_git_msg = """\
-commit 07eee9d8ed75473309090c5a35de545d5cecdbf6
-Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
-Date:   Mon Feb 7 14:41:42 2022 +0000
+commit 059578e555cb1319577dda5042163406d83368e8
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Feb 25 20:04:55 2022 -0800
 
-    [spi_host/dv] Enhanced Smoke Test
+    [dif/alert_handler] Fix DIF doxygen comments
     
-    - Added Speed Test
-    - Added Constraints to Segment Item
-    - Added Quad And Dual To Device Resp Seq
-    - Added Tag For Cover Points To Speed Test
-    - Added Sw Reset Test
-    - Added Performance Test
-    - Added Spi Monitor Update Dual And Quad Mode
+    This fixes some typos in a handful of alert_handler DIF comments that
+    get rendered as API documentation via doxygen.
     
-    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
