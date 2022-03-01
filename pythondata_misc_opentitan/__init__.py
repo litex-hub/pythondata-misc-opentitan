@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10604"
-version_tuple = (0, 0, 10604)
+version_str = "0.0.post10605"
+version_tuple = (0, 0, 10605)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10604")
+    pversion = V("0.0.post10605")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10478"
-data_version_tuple = (0, 0, 10478)
+data_version_str = "0.0.post10479"
+data_version_tuple = (0, 0, 10479)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10478")
+    pdata_version = V("0.0.post10479")
 except ImportError:
     pass
-data_git_hash = "d1b0f96fabe132c6a87001281e5b2847606635d0"
-data_git_describe = "v0.0-10478-gd1b0f96fa"
+data_git_hash = "c36d777512db6e70c5f230e4c84cea473acd5f73"
+data_git_describe = "v0.0-10479-gc36d77751"
 data_git_msg = """\
-commit d1b0f96fabe132c6a87001281e5b2847606635d0
-Author: Jayesh Patel <jayesh@aarishtech.com>
-Date:   Mon Feb 28 09:19:53 2022 -0500
+commit c36d777512db6e70c5f230e4c84cea473acd5f73
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Feb 3 12:49:59 2022 +0000
 
-    Correct documentation typo
+    [otbn,dv] Make sure we're writing bad data in otbn_*mem_err_vseq
     
-    Signed-off-by: Jayesh Patel <jayesh@aarishtech.com>
+    This sometimes caused a problem when chaining dmem/imem error
+    sequences in a stress sequence. It seems that we were managing to undo
+    a previous corruption, leaving some words correct again. Oops!
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
