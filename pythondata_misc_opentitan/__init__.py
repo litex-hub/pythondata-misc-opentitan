@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10605"
-version_tuple = (0, 0, 10605)
+version_str = "0.0.post10606"
+version_tuple = (0, 0, 10606)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10605")
+    pversion = V("0.0.post10606")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10479"
-data_version_tuple = (0, 0, 10479)
+data_version_str = "0.0.post10480"
+data_version_tuple = (0, 0, 10480)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10479")
+    pdata_version = V("0.0.post10480")
 except ImportError:
     pass
-data_git_hash = "c36d777512db6e70c5f230e4c84cea473acd5f73"
-data_git_describe = "v0.0-10479-gc36d77751"
+data_git_hash = "b4e64196eaf1d3844b27e5ac7e5ddeebccb50236"
+data_git_describe = "v0.0-10480-gb4e64196e"
 data_git_msg = """\
-commit c36d777512db6e70c5f230e4c84cea473acd5f73
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 3 12:49:59 2022 +0000
+commit b4e64196eaf1d3844b27e5ac7e5ddeebccb50236
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Fri Feb 25 14:17:15 2022 +0000
 
-    [otbn,dv] Make sure we're writing bad data in otbn_*mem_err_vseq
+    [rom_ctrl, dv] Added testcase for verifying sparse FSM
     
-    This sometimes caused a problem when chaining dmem/imem error
-    sequences in a stress sequence. It seems that we were managing to undo
-    a previous corruption, leaving some words correct again. Oops!
+    Testcase required to test the sparse FSMs inside rom_ctrl module is
+    enabled in this commit.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
