@@ -35,7 +35,7 @@
                 "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"]
 
   // Add additional tops for simulation.
-  sim_tops: ["adc_ctrl_bind"]
+  sim_tops: ["adc_ctrl_bind", "adc_ctrl_cov_bind"]
 
   // Default iterations for all tests - each test entry can override this.
   reseed: 50
@@ -71,6 +71,17 @@
     {
       name: adc_ctrl_filters_interrupt_fixed
       uvm_test_seq: adc_ctrl_filters_interrupt_vseq
+      run_opts: ["+filters_fixed=1"]
+    }
+
+    {
+      name: adc_ctrl_filters_wakeup
+      uvm_test_seq: adc_ctrl_filters_wakeup_vseq
+    }
+
+    {
+      name: adc_ctrl_filters_wakeup_fixed
+      uvm_test_seq: adc_ctrl_filters_wakeup_vseq
       run_opts: ["+filters_fixed=1"]
     }
     // TODO: add more tests here
