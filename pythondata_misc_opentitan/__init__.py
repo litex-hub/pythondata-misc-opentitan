@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10642"
-version_tuple = (0, 0, 10642)
+version_str = "0.0.post10644"
+version_tuple = (0, 0, 10644)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10642")
+    pversion = V("0.0.post10644")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10516"
-data_version_tuple = (0, 0, 10516)
+data_version_str = "0.0.post10518"
+data_version_tuple = (0, 0, 10518)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10516")
+    pdata_version = V("0.0.post10518")
 except ImportError:
     pass
-data_git_hash = "52fdb718f4c91640caf0f1fe31282b1c79d3e921"
-data_git_describe = "v0.0-10516-g52fdb718f"
+data_git_hash = "b04083ba8b2b5c671f962654b02457ca2dbe936a"
+data_git_describe = "v0.0-10518-gb04083ba8"
 data_git_msg = """\
-commit 52fdb718f4c91640caf0f1fe31282b1c79d3e921
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Mar 1 14:52:09 2022 -0800
+commit b04083ba8b2b5c671f962654b02457ca2dbe936a
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Mon Feb 21 17:08:54 2022 +0000
 
-    [dv/otp_ctrl] Further reduce otp smoke test iteration to avoid timeout
+    [rv_core_ibex, rtl] Add local escalation path to disable fetch
     
-    This PR futher reduces OTP_CTRL smoke test runtime, because in close
-    source it takes a long time to simulate OTP read/write.
+    When a major core error is seen the local escalation path immediately
+    shuts down fetch enable in addition to raising a fatal alert.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
