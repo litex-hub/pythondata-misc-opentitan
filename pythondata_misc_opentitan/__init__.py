@@ -4,30 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10657"
-version_tuple = (0, 0, 10657)
+version_str = "0.0.post10660"
+version_tuple = (0, 0, 10660)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10657")
+    pversion = V("0.0.post10660")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10531"
-data_version_tuple = (0, 0, 10531)
+data_version_str = "0.0.post10534"
+data_version_tuple = (0, 0, 10534)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10531")
+    pdata_version = V("0.0.post10534")
 except ImportError:
     pass
-data_git_hash = "cea29efc4334108479e2a9aa2ef81126763ef16b"
-data_git_describe = "v0.0-10531-gcea29efc4"
+data_git_hash = "071283e7b1ed675807077751e689c94ed3707b87"
+data_git_describe = "v0.0-10534-g071283e7b"
 data_git_msg = """\
-commit cea29efc4334108479e2a9aa2ef81126763ef16b
+commit 071283e7b1ed675807077751e689c94ed3707b87
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 1 16:41:28 2022 -0800
+Date:   Fri Feb 18 18:45:48 2022 -0800
 
-    [prim] Minor lint fixes for unused clocks / resets
+    [pwrmgr] Address several d2s review items
+    
+    - convert entire rom_ctrl logic to mubi4
+    - change countermeasure name
+    - fix _index.md to makes sure countermeasure list is generated
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
