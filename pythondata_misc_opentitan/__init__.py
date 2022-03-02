@@ -4,39 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10633"
-version_tuple = (0, 0, 10633)
+version_str = "0.0.post10639"
+version_tuple = (0, 0, 10639)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10633")
+    pversion = V("0.0.post10639")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10507"
-data_version_tuple = (0, 0, 10507)
+data_version_str = "0.0.post10513"
+data_version_tuple = (0, 0, 10513)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10507")
+    pdata_version = V("0.0.post10513")
 except ImportError:
     pass
-data_git_hash = "36fe734974502c11b8cbcdbd43d8da9a489f800d"
-data_git_describe = "v0.0-10507-g36fe73497"
+data_git_hash = "c0b2772f39876dd924bf1a33a120cadc5d52e40a"
+data_git_describe = "v0.0-10513-gc0b2772f3"
 data_git_msg = """\
-commit 36fe734974502c11b8cbcdbd43d8da9a489f800d
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Feb 17 12:24:17 2022 -0800
+commit c0b2772f39876dd924bf1a33a120cadc5d52e40a
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Feb 22 17:56:42 2022 -0800
 
-    [adc_ctrl] Various fixes to better conform to spec
+    [dv] Flag illegal ENUMASSIGN warnings as errors
     
-    - fixes #10779
-    - fixes #10843
+    Illegal ENUM assignments can cause LEC warnings later down the road.
+    The warning is therefore promoted to an error in simulations in
+    order to catch this as early as possible.
     
-    - filter status updates and filterinterrupt generation are done only on a match change
-    - de-couple interrupt generation from filter status
-    - update interrupt control to only latch interrupt status when enabled
+    See #10083, #10952 for context.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
