@@ -4,46 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10656"
-version_tuple = (0, 0, 10656)
+version_str = "0.0.post10657"
+version_tuple = (0, 0, 10657)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10656")
+    pversion = V("0.0.post10657")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10530"
-data_version_tuple = (0, 0, 10530)
+data_version_str = "0.0.post10531"
+data_version_tuple = (0, 0, 10531)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10530")
+    pdata_version = V("0.0.post10531")
 except ImportError:
     pass
-data_git_hash = "2ed086ff5f6667491b9c019de2e6122ad6fa2572"
-data_git_describe = "v0.0-10530-g2ed086ff5"
+data_git_hash = "cea29efc4334108479e2a9aa2ef81126763ef16b"
+data_git_describe = "v0.0-10531-gcea29efc4"
 data_git_msg = """\
-commit 2ed086ff5f6667491b9c019de2e6122ad6fa2572
+commit cea29efc4334108479e2a9aa2ef81126763ef16b
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 1 16:05:16 2022 -0800
+Date:   Tue Mar 1 16:41:28 2022 -0800
 
-    [tlul] adjust tlul_sram_byte enable condition
-    
-    Previously, the tlul_sram_byte module was enabled whenever an adapter sram
-    allowed both byte access and checked for integrity.
-    
-    This is not the correct enable condition. The tlul_sram_byte is meant to
-    generate correct integrity when the downstream memory actually stores
-    full word integrity and requires a read modified write for byte accesses.
-    
-    If a module simply checks for integrity, it does not say anything about
-    whether the downstream module stores integrity and whether byte writes require
-    a read modified write.
-    
-    Instead, change the condition to byte access AND data integrity passthrough are
-    enabled. Data integrity passthrough implies the downstream memory will make use of
-    extra integrity in some way and thus requires correct read modified write handling
-    on byte accesses.
+    [prim] Minor lint fixes for unused clocks / resets
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
