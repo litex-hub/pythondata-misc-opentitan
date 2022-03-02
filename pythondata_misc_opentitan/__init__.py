@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10660"
-version_tuple = (0, 0, 10660)
+version_str = "0.0.post10665"
+version_tuple = (0, 0, 10665)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10660")
+    pversion = V("0.0.post10665")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10534"
-data_version_tuple = (0, 0, 10534)
+data_version_str = "0.0.post10539"
+data_version_tuple = (0, 0, 10539)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10534")
+    pdata_version = V("0.0.post10539")
 except ImportError:
     pass
-data_git_hash = "071283e7b1ed675807077751e689c94ed3707b87"
-data_git_describe = "v0.0-10534-g071283e7b"
+data_git_hash = "8eb2bc0879d85d0cd25aa3f6bbfb85f0bef69fb9"
+data_git_describe = "v0.0-10539-g8eb2bc087"
 data_git_msg = """\
-commit 071283e7b1ed675807077751e689c94ed3707b87
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 18 18:45:48 2022 -0800
+commit 8eb2bc0879d85d0cd25aa3f6bbfb85f0bef69fb9
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Mar 1 14:29:09 2022 -0800
 
-    [pwrmgr] Address several d2s review items
+    [full_chip,clkmgr] Bind clkmgr SVA in full chip
     
-    - convert entire rom_ctrl logic to mubi4
-    - change countermeasure name
-    - fix _index.md to makes sure countermeasure list is generated
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
