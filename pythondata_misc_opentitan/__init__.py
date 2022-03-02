@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10629"
-version_tuple = (0, 0, 10629)
+version_str = "0.0.post10630"
+version_tuple = (0, 0, 10630)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10629")
+    pversion = V("0.0.post10630")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10503"
-data_version_tuple = (0, 0, 10503)
+data_version_str = "0.0.post10504"
+data_version_tuple = (0, 0, 10504)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10503")
+    pdata_version = V("0.0.post10504")
 except ImportError:
     pass
-data_git_hash = "9bd33908d2e9fda9977257151eaa3e048566797e"
-data_git_describe = "v0.0-10503-g9bd33908d"
+data_git_hash = "538963449db03df4ee9dd61715fa8d261e4cdfe3"
+data_git_describe = "v0.0-10504-g538963449"
 data_git_msg = """\
-commit 9bd33908d2e9fda9977257151eaa3e048566797e
+commit 538963449db03df4ee9dd61715fa8d261e4cdfe3
 Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Feb 25 13:46:26 2022 -0800
+Date:   Mon Feb 28 10:54:27 2022 -0800
 
-    [rstmgr] unr related clean-up
+    [adc_ctrl] Documentation update for pwrup timing
     
-    - fixes #11121
+    - fixes #10782
+    - clarify that after adc power up complete, the internal fsm mechanism
+      takes two more cycles before an adc channel is selected
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
