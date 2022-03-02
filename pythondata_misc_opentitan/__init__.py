@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10630"
-version_tuple = (0, 0, 10630)
+version_str = "0.0.post10633"
+version_tuple = (0, 0, 10633)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10630")
+    pversion = V("0.0.post10633")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10504"
-data_version_tuple = (0, 0, 10504)
+data_version_str = "0.0.post10507"
+data_version_tuple = (0, 0, 10507)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10504")
+    pdata_version = V("0.0.post10507")
 except ImportError:
     pass
-data_git_hash = "538963449db03df4ee9dd61715fa8d261e4cdfe3"
-data_git_describe = "v0.0-10504-g538963449"
+data_git_hash = "36fe734974502c11b8cbcdbd43d8da9a489f800d"
+data_git_describe = "v0.0-10507-g36fe73497"
 data_git_msg = """\
-commit 538963449db03df4ee9dd61715fa8d261e4cdfe3
+commit 36fe734974502c11b8cbcdbd43d8da9a489f800d
 Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Feb 28 10:54:27 2022 -0800
+Date:   Thu Feb 17 12:24:17 2022 -0800
 
-    [adc_ctrl] Documentation update for pwrup timing
+    [adc_ctrl] Various fixes to better conform to spec
     
-    - fixes #10782
-    - clarify that after adc power up complete, the internal fsm mechanism
-      takes two more cycles before an adc channel is selected
+    - fixes #10779
+    - fixes #10843
+    
+    - filter status updates and filterinterrupt generation are done only on a match change
+    - de-couple interrupt generation from filter status
+    - update interrupt control to only latch interrupt status when enabled
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
