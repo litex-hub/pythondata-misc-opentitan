@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10641"
-version_tuple = (0, 0, 10641)
+version_str = "0.0.post10642"
+version_tuple = (0, 0, 10642)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10641")
+    pversion = V("0.0.post10642")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10515"
-data_version_tuple = (0, 0, 10515)
+data_version_str = "0.0.post10516"
+data_version_tuple = (0, 0, 10516)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10515")
+    pdata_version = V("0.0.post10516")
 except ImportError:
     pass
-data_git_hash = "331d4826bc18069d25fe207c088dfcd99fe3cd57"
-data_git_describe = "v0.0-10515-g331d4826b"
+data_git_hash = "52fdb718f4c91640caf0f1fe31282b1c79d3e921"
+data_git_describe = "v0.0-10516-g52fdb718f"
 data_git_msg = """\
-commit 331d4826bc18069d25fe207c088dfcd99fe3cd57
-Author: Alexander Williams <awill@google.com>
-Date:   Tue Mar 1 13:18:26 2022 -0800
+commit 52fdb718f4c91640caf0f1fe31282b1c79d3e921
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Mar 1 14:52:09 2022 -0800
 
-    [entropy_src/dif] Disable flaky smoke test
+    [dv/otp_ctrl] Further reduce otp smoke test iteration to avoid timeout
     
-    entropy_src_smoketest performs an invalid check against a hard-coded
-    constant. It reads the data from entropy_src, but it does not control
-    the environment that generates that data. Consequently, various factors
-    can cause CI to break from this test spuriously failing.
+    This PR futher reduces OTP_CTRL smoke test runtime, because in close
+    source it takes a long time to simulate OTP read/write.
     
-    Disable the test and downgrade the DIF to S0 until a replacement
-    strategy is implemented.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
