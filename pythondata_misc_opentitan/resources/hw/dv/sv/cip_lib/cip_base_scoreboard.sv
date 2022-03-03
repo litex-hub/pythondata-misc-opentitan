@@ -506,7 +506,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
   // (third party 'vendored-in' code). The end result is - the TL adapter prevents non-word writes
   // to the entire region. See issue #10765 for more details.
   virtual function bit is_tl_access_unsupported_byte_wr(tl_seq_item item, string ral_name);
-    // TODO: We should infer byte enable support from TL reg adapter attached to the interface (i.e.
+    // TODO: We should infer byte enable support from the adapter attached to the interface (i.e.
     // the map) instead. To do that, more extensive changes may be needed, because we do not know
     // which map to pick - we only know the ral_name of the interface. For now,
     // dv_base_reg_block::supports_byte_enable serves this need.
@@ -531,6 +531,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
   // check if csr write size greater or equal to csr width
   virtual function bit is_tl_csr_write_size_gte_csr_width(tl_seq_item item, string ral_name);
     if (!is_tl_access_mapped_addr(item, ral_name) || is_mem_addr(item, ral_name)) return 1;
+    if (cfg.ral_models[ral_name].get_supports_sub_word_csr_writes()) return 1;
     if (item.is_write()) begin
       dv_base_reg    csr;
       uvm_reg_addr_t addr = cfg.ral_models[ral_name].get_normalized_addr(item.a_addr);
