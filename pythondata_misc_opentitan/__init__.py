@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10680"
-version_tuple = (0, 0, 10680)
+version_str = "0.0.post10684"
+version_tuple = (0, 0, 10684)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10680")
+    pversion = V("0.0.post10684")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10554"
-data_version_tuple = (0, 0, 10554)
+data_version_str = "0.0.post10558"
+data_version_tuple = (0, 0, 10558)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10554")
+    pdata_version = V("0.0.post10558")
 except ImportError:
     pass
-data_git_hash = "34e37876127b2fcb4c12fc80daf0fbb60f07f056"
-data_git_describe = "v0.0-10554-g34e378761"
+data_git_hash = "b45d6a63201b60554facb96d1799cd48ab0ea35e"
+data_git_describe = "v0.0-10558-gb45d6a632"
 data_git_msg = """\
-commit 34e37876127b2fcb4c12fc80daf0fbb60f07f056
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Feb 24 06:05:36 2022 -0800
+commit b45d6a63201b60554facb96d1799cd48ab0ea35e
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Feb 18 14:37:48 2022 -0800
 
-    [entropy_src/data] Remove exclusions to increase coverage
+    [dv/pwrmgr] Fix lc/sys reset handshake SVAs
     
-    Certain exclusion tags have been removed from the hjson file
-    so that coverage can increase while avoiding false miscompares.
+    Add support for a change in the request.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
