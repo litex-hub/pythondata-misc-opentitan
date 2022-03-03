@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10668"
-version_tuple = (0, 0, 10668)
+version_str = "0.0.post10674"
+version_tuple = (0, 0, 10674)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10668")
+    pversion = V("0.0.post10674")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10542"
-data_version_tuple = (0, 0, 10542)
+data_version_str = "0.0.post10548"
+data_version_tuple = (0, 0, 10548)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10542")
+    pdata_version = V("0.0.post10548")
 except ImportError:
     pass
-data_git_hash = "74ac920f83f99385ddbc710b943633c8a6347729"
-data_git_describe = "v0.0-10542-g74ac920f8"
+data_git_hash = "7f5aca5cc0b0a08d69e242661a8afd320a184e94"
+data_git_describe = "v0.0-10548-g7f5aca5cc"
 data_git_msg = """\
-commit 74ac920f83f99385ddbc710b943633c8a6347729
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Mar 2 15:45:55 2022 -0800
+commit 7f5aca5cc0b0a08d69e242661a8afd320a184e94
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Mar 2 17:23:14 2022 -0800
 
-    [dvsim] Fix pass/fail status for synthesis regression
+    [rv_dm dv] Add rv_dm SBA access test
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This commit updates the RV DM env and adds the SBA access test.
+    There is no checking at the moment- the checks will be implemented
+    in the scoreboard, which will be updated in the next PR.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
