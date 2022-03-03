@@ -814,7 +814,8 @@ module entropy_src_core import entropy_src_pkg::*; #(
   // state machine status
   assign hw2reg.debug_status.main_sm_idle.d = es_main_sm_idle;
   assign hw2reg.debug_status.main_sm_boot_done.d = boot_phase_done;
-  assign hw2reg.debug_status.main_sm_state.d = es_main_sm_state;
+  assign hw2reg.main_sm_state.de = 1'b1;
+  assign hw2reg.main_sm_state.d = es_main_sm_state;
 
   // fw override wr data status indication
   assign fw_ov_wr_fifo_full = fw_ov_mode_entropy_insert && !pfifo_precon_not_full;
@@ -1336,7 +1337,7 @@ module entropy_src_core import entropy_src_pkg::*; #(
   assign es_bypass_mode = (!fips_enable_pfe) || (es_bypass_to_sw && es_route_to_sw);
 
   // send off to AST RNG for possibly faster entropy generation
-  assign rng_fips_o = es_bypass_mode;
+  assign rng_fips_o = !es_bypass_mode;
 
   //--------------------------------------------
   // common health test window counter
