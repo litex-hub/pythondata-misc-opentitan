@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10676"
-version_tuple = (0, 0, 10676)
+version_str = "0.0.post10680"
+version_tuple = (0, 0, 10680)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10676")
+    pversion = V("0.0.post10680")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10550"
-data_version_tuple = (0, 0, 10550)
+data_version_str = "0.0.post10554"
+data_version_tuple = (0, 0, 10554)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10550")
+    pdata_version = V("0.0.post10554")
 except ImportError:
     pass
-data_git_hash = "196b79a1748d641d0ed237f763f4d47fdaf5e0e7"
-data_git_describe = "v0.0-10550-g196b79a17"
+data_git_hash = "34e37876127b2fcb4c12fc80daf0fbb60f07f056"
+data_git_describe = "v0.0-10554-g34e378761"
 data_git_msg = """\
-commit 196b79a1748d641d0ed237f763f4d47fdaf5e0e7
-Author: Alex Bradbury <asb@lowrisc.org>
-Date:   Thu Mar 3 07:49:37 2022 +0000
+commit 34e37876127b2fcb4c12fc80daf0fbb60f07f056
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Feb 24 06:05:36 2022 -0800
 
-    [misc] Remove myself from COMMITTERS/CODEOWNERS
+    [entropy_src/data] Remove exclusions to increase coverage
     
-    Signed-off-by: Alex Bradbury <asb@lowrisc.org>
+    Certain exclusion tags have been removed from the hjson file
+    so that coverage can increase while avoiding false miscompares.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
