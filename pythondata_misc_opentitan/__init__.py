@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10684"
-version_tuple = (0, 0, 10684)
+version_str = "0.0.post10688"
+version_tuple = (0, 0, 10688)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10684")
+    pversion = V("0.0.post10688")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10558"
-data_version_tuple = (0, 0, 10558)
+data_version_str = "0.0.post10562"
+data_version_tuple = (0, 0, 10562)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10558")
+    pdata_version = V("0.0.post10562")
 except ImportError:
     pass
-data_git_hash = "b45d6a63201b60554facb96d1799cd48ab0ea35e"
-data_git_describe = "v0.0-10558-gb45d6a632"
+data_git_hash = "2c374e07cb5af04dc16ae8cb0fc0ad56eade4949"
+data_git_describe = "v0.0-10562-g2c374e07c"
 data_git_msg = """\
-commit b45d6a63201b60554facb96d1799cd48ab0ea35e
+commit 2c374e07cb5af04dc16ae8cb0fc0ad56eade4949
 Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Feb 18 14:37:48 2022 -0800
+Date:   Wed Mar 2 23:46:05 2022 -0800
 
-    [dv/pwrmgr] Fix lc/sys reset handshake SVAs
+    [sw/runtime] Fix ibex_timeout_check
     
-    Add support for a change in the request.
+    The return value should match the function documentation.
+    Fix the IBEX_SPIN_FOR macro to match.
     
     Signed-off-by: Guillermo Maturana <maturana@google.com>
 
