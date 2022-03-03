@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10690"
-version_tuple = (0, 0, 10690)
+version_str = "0.0.post10692"
+version_tuple = (0, 0, 10692)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10690")
+    pversion = V("0.0.post10692")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10564"
-data_version_tuple = (0, 0, 10564)
+data_version_str = "0.0.post10566"
+data_version_tuple = (0, 0, 10566)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10564")
+    pdata_version = V("0.0.post10566")
 except ImportError:
     pass
-data_git_hash = "6b03a2f69bb053c331256b3bbff75d1d85a51a87"
-data_git_describe = "v0.0-10564-g6b03a2f69"
+data_git_hash = "c50edd875c6d1e8de623a6029ca3d0b11af770a1"
+data_git_describe = "v0.0-10566-gc50edd875"
 data_git_msg = """\
-commit 6b03a2f69bb053c331256b3bbff75d1d85a51a87
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Mar 2 19:53:33 2022 -0800
+commit c50edd875c6d1e8de623a6029ca3d0b11af770a1
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 3 17:05:34 2022 +0000
 
-    [dif/pwm] Implement remaining DIFs
+    [keymgr] OR together signals differently to avoid Xcelium warnings
     
-    This commit implements all remaining DIFs for the PWM IP, including all
-    get/set enablement DIFs and lock(ing) DIFs. Additionally this commit
-    updates the DIF checklist to reflect these changes.
+    The previous syntax triggered the "DUPBWO" warning ("error prone
+    bit-wise OR sequence detected"). Using |{a, b} instead of "|a | |b"
+    silences the warning and is maybe a bit easier to understand anyway.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
