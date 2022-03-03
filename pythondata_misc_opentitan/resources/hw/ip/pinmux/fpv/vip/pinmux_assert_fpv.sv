@@ -103,11 +103,19 @@ module pinmux_assert_fpv
           !((periph_insel.q - 2) inside {TargetCfg.tck_idx, TargetCfg.tms_idx, TargetCfg.trst_idx,
                                          TargetCfg.tdi_idx, TargetCfg.tdo_idx}) |->
           mio_to_periph_o[periph_sel_i] == mio_in_i[periph_insel.q - 2])
-   `ASSERT(InSelOOB_A, periph_insel.q >= (pinmux_reg_pkg::NMioPads + 2) |->
+  `ASSERT(InSelOOB_A, periph_insel.q >= (pinmux_reg_pkg::NMioPads + 2) |->
           mio_to_periph_o[periph_sel_i] == 0)
-  // TODO: fix and uncomment the assertion below
-  //`ASSERT(MioToPeriphO_A, ##1 !$stable(mio_to_periph_o[periph_sel_i]) |->
-  //        !$stable(mio_in_i[periph_insel.q - 2]) || !$stable(periph_insel.q))
+
+  `ASSERT(MioToPeriph0Backward_A, mio_to_periph_o[periph_sel_i] == 0 |->
+          (periph_insel.q == 0) ||
+          ((periph_insel.q > 1 && periph_insel.q < (pinmux_reg_pkg::NMioPads + 2) &&
+           (pinmux.u_pinmux_strap_sampling.jtag_en || mio_in_i[periph_insel.q - 2] == 0)) ||
+           periph_insel.q >= (pinmux_reg_pkg::NMioPads + 2)))
+
+  `ASSERT(MioToPeriph1Backward_A, mio_to_periph_o[periph_sel_i] == 1 |->
+          (periph_insel.q == 1) ||
+          (periph_insel.q > 1 && periph_insel.q < (pinmux_reg_pkg::NMioPads + 2) &&
+          (mio_in_i[periph_insel.q - 2] == 1 || pinmux.u_pinmux_strap_sampling.jtag_en)))
 
   `ASSERT(DioInSelN_A, dio_to_periph_o == dio_in_i)
 
@@ -126,9 +134,20 @@ module pinmux_assert_fpv
           !mio_pad_sleep_status.q |-> mio_out_o[mio_sel_i] == periph_to_mio_i[mio_outsel.q - 3])
   `ASSERT(OutSelOOB_A, mio_outsel.q >= (pinmux_reg_pkg::NMioPeriphOut + 3) &&
           !mio_pad_sleep_status.q |-> mio_out_o[mio_sel_i] == 0)
-  // TODO: fix and uncomment the assertion below
-  //`ASSERT(MioOutO_A, ##1 !$stable(mio_out_o[mio_sel_i]) |->
-  //        !$stable(mio_outsel.q) || !$stable(periph_to_mio_i[mio_outsel.q - 3]))
+
+  `ASSERT(MioOut0Backward_A, mio_out_o[mio_sel_i] == 0 |->
+          mio_pad_sleep_status.q ||
+          mio_outsel.q inside {0, 2} ||
+          mio_outsel.q >= (pinmux_reg_pkg::NMioPeriphOut + 3) ||
+          (mio_outsel.q > 2 && mio_outsel.q < (pinmux_reg_pkg::NMioPeriphOut + 3) &&
+           periph_to_mio_i[mio_outsel.q - 3] == 0))
+
+  `ASSERT(MioOut1Backward_A, mio_out_o[mio_sel_i] == 1 |->
+          mio_pad_sleep_status.q ||
+          mio_outsel.q == 1 ||
+          mio_outsel.q > (pinmux_reg_pkg::NMioPeriphOut + 3) ||
+          (mio_outsel.q > 2 && mio_outsel.q < (pinmux_reg_pkg::NMioPeriphOut + 3) &&
+           periph_to_mio_i[mio_outsel.q - 3] == 1))
 
   `ASSERT(OutSelOe0_A, mio_outsel.q == 0 && !mio_pad_sleep_status.q |->
           mio_oe_o[mio_sel_i] == 1'b1)
@@ -140,9 +159,20 @@ module pinmux_assert_fpv
           !mio_pad_sleep_status.q |-> mio_oe_o[mio_sel_i] == periph_to_mio_oe_i[mio_outsel.q - 3])
   `ASSERT(OutSelOeOOB_A, mio_outsel.q >= (pinmux_reg_pkg::NMioPeriphOut + 3) &&
           !mio_pad_sleep_status.q |-> mio_oe_o[mio_sel_i] == 0)
-  // TODO: fix and uncomment the assertion below
-  //`ASSERT(MioOeO_A, ##1 !$stable(mio_oe_o[mio_sel_i]) |->
-  //    !$stable(mio_outsel.q) || !$stable(periph_to_mio_oe_i[mio_outsel.q - 3]))
+
+  `ASSERT(MioOe0Backward_A, mio_oe_o[mio_sel_i] == 0 |->
+          mio_pad_sleep_status.q ||
+          mio_outsel.q == 2 ||
+          mio_outsel.q >= (pinmux_reg_pkg::NMioPeriphOut + 3) ||
+          (mio_outsel.q > 2 && mio_outsel.q < (pinmux_reg_pkg::NMioPeriphOut + 3) &&
+           periph_to_mio_oe_i[mio_outsel.q - 3] == 0))
+
+  `ASSERT(MioOe1Backward_A, mio_oe_o[mio_sel_i] == 1 |->
+          mio_pad_sleep_status.q ||
+          mio_outsel.q inside {0, 1} ||
+          mio_outsel.q > (pinmux_reg_pkg::NMioPeriphOut + 3) ||
+          (mio_outsel.q > 2 && mio_outsel.q < (pinmux_reg_pkg::NMioPeriphOut + 3) &&
+           periph_to_mio_oe_i[mio_outsel.q - 3] == 1))
 
   // ------ Mio sleep behavior assertions ------
   pinmux_reg_pkg::pinmux_reg2hw_mio_pad_sleep_en_mreg_t mio_pad_sleep_en;
@@ -199,6 +229,51 @@ module pinmux_assert_fpv
           // Ensure SW does not write to sleep status register to clear sleep status.
           ##1 mio_pad_sleep_status.q |->
           $stable(mio_oe_o[mio_sel_i]))
+
+  // ------Mio sleep enabled backward assertions ------
+  `ASSERT(MioSleep0Backward_A, mio_out_o[mio_sel_i] == 0 |->
+          mio_pad_sleep_status.q == 0 ||
+          // Sleep mode set to 0 and 2.
+          $past(mio_pad_sleep_mode.q) inside {0, 2} ||
+          // Previous value is 0 and sleep mode is set to 3.
+          ($past(mio_out_o[mio_sel_i]) == 0) &&
+           ($past(mio_pad_sleep_mode.q) == 3 ||
+            // Previous value is 0 and sleep mode selection is disabled either by sleep_en_i input
+            // or sleep_en CSR.
+            ($past(!$rose(sleep_en_i) || !mio_pad_sleep_en.q) && mio_pad_sleep_status.q)))
+
+  `ASSERT(MioSleep1Backward_A, mio_out_o[mio_sel_i] == 1 |->
+          mio_pad_sleep_status.q == 0 ||
+          // Sleep mode set to 1.
+          $past(mio_pad_sleep_mode.q) == 1 ||
+          // Previous value is 1 and sleep mode is set to 3.
+          ($past(mio_out_o[mio_sel_i]) == 1) &&
+           ($past(mio_pad_sleep_mode.q) == 3 ||
+            // Previous value is 1 and sleep mode selection is disabled either by sleep_en_i input
+            // or sleep_en CSR.
+            ($past(!$rose(sleep_en_i) || !mio_pad_sleep_en.q) && mio_pad_sleep_status.q)))
+
+  `ASSERT(MioOeSleep0Backward_A, mio_oe_o[mio_sel_i] == 0 |->
+          mio_pad_sleep_status.q == 0 ||
+          // Sleep mode set to 2.
+          $past(mio_pad_sleep_mode.q) == 2 ||
+          // Previous value is 0 and sleep mode is set to 3.
+          ($past(mio_oe_o[mio_sel_i]) == 0) &&
+           ($past(mio_pad_sleep_mode.q) == 3 ||
+            // Previous value is 0 and sleep mode selection is disabled either by sleep_en_i input
+            // or sleep_en CSR.
+            ($past(!$rose(sleep_en_i) || !mio_pad_sleep_en.q) && mio_pad_sleep_status.q)))
+
+  `ASSERT(MioOeSleep1Backward_A, mio_oe_o[mio_sel_i] == 1 |->
+          mio_pad_sleep_status.q == 0 ||
+          // Sleep mode set to 0 or 1.
+          $past(mio_pad_sleep_mode.q) inside {0, 1} ||
+          // Previous value is 1 and sleep mode is set to 3.
+          ($past(mio_oe_o[mio_sel_i]) == 1) &&
+           ($past(mio_pad_sleep_mode.q) == 3 ||
+            // Previous value is 1 and sleep mode selection is disabled either by sleep_en_i input
+            // or sleep_en CSR.
+            ($past(!$rose(sleep_en_i) || !mio_pad_sleep_en.q) && mio_pad_sleep_status.q)))
 
   // ------ Mio_attr_o ------
   pinmux_reg_pkg::pinmux_reg2hw_mio_pad_attr_mreg_t mio_pad_attr;
@@ -367,10 +442,18 @@ module pinmux_assert_fpv
   assign wkup_detector_cnt_th = pinmux.reg2hw.wkup_detector_cnt_th[wkup_sel_i];
   pinmux_reg2hw_wkup_detector_padsel_mreg_t wkup_detector_padsel;
   assign wkup_detector_padsel = pinmux.reg2hw.wkup_detector_padsel[wkup_sel_i];
-  pinmux_reg2hw_wkup_cause_mreg_t wkup_cause;
-  assign wkup_cause = pinmux.reg2hw.wkup_cause[wkup_sel_i];
+  pinmux_hw2reg_wkup_cause_mreg_t wkup_cause;
+  assign wkup_cause = pinmux.hw2reg.wkup_cause[wkup_sel_i];
+  pinmux_reg2hw_wkup_cause_mreg_t wkup_cause_reg2hw;
 
-  // Get pin value based on Mio and Dio selection.
+  // Variable to gether all wkup causes.
+  assign wkup_cause_reg2hw = pinmux.reg2hw.wkup_cause[wkup_sel_i];
+  logic[pinmux_reg_pkg::NWkupDetect-1:0]  wkup_cause_q;
+  for (genvar i = 0; i < pinmux_reg_pkg::NWkupDetect; i++) begin : gen_wkup_cause_q
+    assign wkup_cause_q[i] = pinmux.reg2hw.wkup_cause[i].q;
+  end
+
+  // Retrieve pin value based on Mio and Dio selection.
   logic pin_val;
   assign pin_val = wkup_detector.miodio.q ?
                    (wkup_detector_padsel.q >= pinmux_reg_pkg::NDioPads ? 0 :
@@ -380,19 +463,31 @@ module pinmux_assert_fpv
                     wkup_detector_padsel == 1 ? 1 :
                     mio_in_i[wkup_detector_padsel.q - 2]);
 
-  // Get filterd pin value.
+  // Retrieve filterd pin value with a 2 aon_clock synchronizer.
   logic [3:0] filter_vals;
+  logic pin_val_sync_1, pin_val_sync_2;
+
+  always_ff @(posedge clk_aon_i or negedge rst_aon_ni) begin
+     if (!rst_aon_ni) begin
+       pin_val_sync_1 <= 1'b0;
+       pin_val_sync_2 <= 1'b0;
+      end else begin
+        pin_val_sync_1 <= pin_val;
+        pin_val_sync_2 <= pin_val_sync_1;
+      end
+  end
+
   always_ff @(posedge clk_aon_i or negedge rst_aon_ni) begin
     if (!rst_aon_ni) begin
       filter_vals <= 4'b0;
-    end else if (pin_val == filter_vals[0]) begin
-      filter_vals <= (filter_vals << 1) | pin_val;
+    end else if (pin_val_sync_2 == filter_vals[0]) begin
+      filter_vals <= (filter_vals << 1) | pin_val_sync_2;
     end else begin
-      filter_vals <= {filter_vals[3], filter_vals[3], filter_vals[3], pin_val};
+      filter_vals <= {filter_vals[3], filter_vals[3], filter_vals[3], pin_val_sync_2};
     end
   end
 
-  logic final_pin_val = wkup_detector.filter.q ? filter_vals[3] : pin_val;
+  logic final_pin_val = wkup_detector.filter.q ? filter_vals[3] : pin_val_sync_2;
 
   // Threshold counters.
   // Adding one more bit for the counters to check overflow case.
@@ -403,14 +498,14 @@ module pinmux_assert_fpv
       low_cnter  <= 0;
     end else if (wkup_detector.mode.q == 3) begin
       low_cnter <= 0;
-      if ($past(final_pin_val, 2) && (high_cnter < wkup_detector_cnt_th.q)) begin
+      if (final_pin_val && (high_cnter < wkup_detector_cnt_th.q)) begin
         high_cnter <= high_cnter + 1;
       end else begin
         high_cnter <= 0;
       end
     end else if (wkup_detector.mode.q == 4) begin
       high_cnter  <= 0;
-      if (!$past(final_pin_val, 2) && (low_cnter < wkup_detector_cnt_th.q)) begin
+      if (!final_pin_val && (low_cnter < wkup_detector_cnt_th.q)) begin
         low_cnter <= low_cnter + 1;
       end else begin
         low_cnter <= 0;
@@ -422,27 +517,47 @@ module pinmux_assert_fpv
   end
 
   `ASSERT(WkupPosedge_A, wkup_detector_en.q && wkup_detector.mode.q == 0 &&
-          $rose($past(final_pin_val, 2)) |=>
-          wkup_cause.q || $past(u_reg.aon_wkup_cause_we),
+          $rose(final_pin_val) |-> wkup_cause.de,
           clk_aon_i, !rst_aon_ni)
   `ASSERT(WkupNegedge_A, wkup_detector_en.q && wkup_detector.mode.q == 1 &&
-          $fell($past(final_pin_val, 2)) |=>
-          wkup_cause.q || $past(u_reg.aon_wkup_cause_we),
+          $fell(final_pin_val) |-> wkup_cause.de,
           clk_aon_i, !rst_aon_ni)
   `ASSERT(WkupEdge_A, wkup_detector_en.q && wkup_detector.mode.q == 2 &&
-          ($fell($past(final_pin_val, 2)) || $rose($past(final_pin_val, 2))) |=>
-          wkup_cause.q || $past(u_reg.aon_wkup_cause_we),
+          ($fell(final_pin_val) || $rose(final_pin_val)) |-> wkup_cause.de,
           clk_aon_i, !rst_aon_ni)
+  // TODO(#11194): The two assertions below will have cex.
   `ASSERT(WkupTimedHigh_A, (high_cnter >= wkup_detector_cnt_th.q) && wkup_detector_en.q &&
-          wkup_detector.mode.q == 3 |=>
-          wkup_cause.q || $past(u_reg.aon_wkup_cause_we),
+          wkup_detector.mode.q == 3 |-> wkup_cause.de,
           clk_aon_i, !rst_aon_ni)
   `ASSERT(WkupTimedLow_A, (low_cnter >= wkup_detector_cnt_th.q) && wkup_detector_en.q &&
-          wkup_detector.mode.q == 4 |=>
-          wkup_cause.q || $past(u_reg.aon_wkup_cause_we),
+          wkup_detector.mode.q == 4 |-> wkup_cause.de,
           clk_aon_i, !rst_aon_ni)
 
-  `ASSERT(AonWkupO_A, wkup_cause.q |-> pin_wkup_req_o, clk_aon_i, !rst_aon_ni)
+  `ASSERT(WkupCauseQ_A, wkup_cause.de && !u_reg.aon_wkup_cause_we |=>
+          wkup_cause_reg2hw.q, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(AonWkupO_A, |wkup_cause_q <-> pin_wkup_req_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(WkupCause0_A, wkup_cause.de == 0 |->
+          (wkup_detector_en.q == 0) ||
+          (wkup_detector_en.q == 1 &&
+           ((wkup_detector.mode.q == 0 && !$rose(final_pin_val)) ||
+            (wkup_detector.mode.q > 4 && !$rose(final_pin_val)) ||
+            (wkup_detector.mode.q == 1 && !$fell(final_pin_val)) ||
+            (wkup_detector.mode.q == 2 && !$changed(final_pin_val)) ||
+            (wkup_detector.mode.q == 3 && (high_cnter < wkup_detector_cnt_th.q)) ||
+            (wkup_detector.mode.q == 4 && (low_cnter < wkup_detector_cnt_th.q)))),
+          clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(WkupCause1_A, wkup_cause.de == 1 |->
+          wkup_detector_en.q == 1 &&
+           ((wkup_detector.mode.q == 0 && $rose(final_pin_val)) ||
+            (wkup_detector.mode.q > 4 && $rose(final_pin_val)) ||
+            (wkup_detector.mode.q == 1 && $fell(final_pin_val)) ||
+            (wkup_detector.mode.q == 2 && $changed(final_pin_val)) ||
+            (wkup_detector.mode.q == 3 && (high_cnter >= wkup_detector_cnt_th.q)) ||
+            (wkup_detector.mode.q == 4 && (low_cnter >= wkup_detector_cnt_th.q))),
+          clk_aon_i, !rst_aon_ni)
 
   // ------ JTAG pinmux input assertions ------
   `ASSERT(LcJtagOWoScanmode_A, u_pinmux_strap_sampling.tap_strap == pinmux_pkg::LcTapSel &&
@@ -462,6 +577,13 @@ module pinmux_assert_fpv
           $stable(lc_jtag_o))
   `ASSERT(LcJtagODefault_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::LcTapSel |->
           lc_jtag_o == '0)
+
+  `ASSERT(LcJtagBackward_A,
+          lc_jtag_o[0] == mio_in_i[TargetCfg.tdi_idx] &&
+          lc_jtag_o[1] inside {mio_in_i[TargetCfg.trst_idx], rst_ni } &&
+          lc_jtag_o[2] == mio_in_i[TargetCfg.tms_idx] &&
+          lc_jtag_o[3] == mio_in_i[TargetCfg.tck_idx] |->
+          u_pinmux_strap_sampling.tap_strap == pinmux_pkg::LcTapSel || lc_jtag_o == 0)
 
   // Lc_hw_debug_en_i signal goes through a two clock cycle synchronizer.
   `ASSERT(RvJtagOWoScanmode_A, u_pinmux_strap_sampling.tap_strap == pinmux_pkg::RvTapSel &&
@@ -487,6 +609,14 @@ module pinmux_assert_fpv
           $past(lc_hw_debug_en_i, 2) != lc_ctrl_pkg::On |->
           rv_jtag_o == '0)
 
+  `ASSERT(RvJtagBackward_A,
+          rv_jtag_o[0] == mio_in_i[TargetCfg.tdi_idx] &&
+          rv_jtag_o[1] inside {mio_in_i[TargetCfg.trst_idx], rst_ni } &&
+          rv_jtag_o[2] == mio_in_i[TargetCfg.tms_idx] &&
+          rv_jtag_o[3] == mio_in_i[TargetCfg.tck_idx] |->
+          (u_pinmux_strap_sampling.tap_strap == pinmux_pkg::RvTapSel &&
+           $past(lc_hw_debug_en_i, 2) == lc_ctrl_pkg::On) || rv_jtag_o == 0)
+
   // Lc_dft_en_i signal goes through a two clock cycle synchronizer.
   `ASSERT(DftJtagOWoScanmode_A, u_pinmux_strap_sampling.tap_strap == pinmux_pkg::DftTapSel &&
           !prim_mubi_pkg::mubi4_test_true_strict(scanmode_i) &&
@@ -510,6 +640,14 @@ module pinmux_assert_fpv
   `ASSERT(DftJtagODefault_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::DftTapSel ||
           $past(lc_dft_en_i, 2) != lc_ctrl_pkg::On |->
           dft_jtag_o == '0)
+
+  `ASSERT(DftJtagBackward_A,
+          dft_jtag_o[0] == mio_in_i[TargetCfg.tdi_idx] &&
+          dft_jtag_o[1] inside {mio_in_i[TargetCfg.trst_idx], rst_ni } &&
+          dft_jtag_o[2] == mio_in_i[TargetCfg.tms_idx] &&
+          dft_jtag_o[3] == mio_in_i[TargetCfg.tck_idx] |->
+          (u_pinmux_strap_sampling.tap_strap == pinmux_pkg::DftTapSel &&
+           $past(lc_dft_en_i, 2) == lc_ctrl_pkg::On) || dft_jtag_o == 0)
 
   `ASSERT(TapStrap_A, ##2 ((!dft_hold_tap_sel_i && $past(lc_dft_en_i, 2) == lc_ctrl_pkg::On) ||
           strap_en_i) && $past(lc_hw_debug_en_i, 2) == lc_ctrl_pkg::On |=>
