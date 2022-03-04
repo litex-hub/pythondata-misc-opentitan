@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10709"
-version_tuple = (0, 0, 10709)
+version_str = "0.0.post10710"
+version_tuple = (0, 0, 10710)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10709")
+    pversion = V("0.0.post10710")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10583"
-data_version_tuple = (0, 0, 10583)
+data_version_str = "0.0.post10584"
+data_version_tuple = (0, 0, 10584)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10583")
+    pdata_version = V("0.0.post10584")
 except ImportError:
     pass
-data_git_hash = "41742aa9b19b44e0fe81fc14fec2be0649c8a45d"
-data_git_describe = "v0.0-10583-g41742aa9b"
+data_git_hash = "75d648378a9d274fe6ef45e172cebc8b0577f15f"
+data_git_describe = "v0.0-10584-g75d648378"
 data_git_msg = """\
-commit 41742aa9b19b44e0fe81fc14fec2be0649c8a45d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Mar 3 12:32:12 2022 -0800
+commit 75d648378a9d274fe6ef45e172cebc8b0577f15f
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Wed Mar 2 16:58:47 2022 -0800
 
-    [fpv/pinmux] Add an missing assertion from testplan
+    [entropy_src/dv] Properly predict fips_mode signal
     
-    Add a missing assertion `MioJtagAttrO_A`.
+    RNG single bit mode is not considered FIPS compliant by the DUT.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This commit reflects that in the scoreboard.
+    It also includes scoreboard diagnostics to help detect similar errors.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
