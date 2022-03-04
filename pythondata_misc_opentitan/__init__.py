@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10712"
-version_tuple = (0, 0, 10712)
+version_str = "0.0.post10716"
+version_tuple = (0, 0, 10716)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10712")
+    pversion = V("0.0.post10716")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10586"
-data_version_tuple = (0, 0, 10586)
+data_version_str = "0.0.post10590"
+data_version_tuple = (0, 0, 10590)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10586")
+    pdata_version = V("0.0.post10590")
 except ImportError:
     pass
-data_git_hash = "819c80665ca1c7e586a7598c5bc5097060d36cd7"
-data_git_describe = "v0.0-10586-g819c80665"
+data_git_hash = "19270bbccdac0de939e677360b9abf40339099af"
+data_git_describe = "v0.0-10590-g19270bbcc"
 data_git_msg = """\
-commit 819c80665ca1c7e586a7598c5bc5097060d36cd7
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 3 16:36:52 2022 +0000
+commit 19270bbccdac0de939e677360b9abf40339099af
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Thu Mar 3 10:56:25 2022 -0500
 
-    [flash_ctrl] Use an unsigned type for ExecEn
+    [sw, base] Remove _ATTR_ from the attribute macros that have it, for consistency
     
-    This 32-bit value has its top bit set, so assigning it to an "int"
-    causes sign overflow warnings.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
