@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10720"
-version_tuple = (0, 0, 10720)
+version_str = "0.0.post10723"
+version_tuple = (0, 0, 10723)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10720")
+    pversion = V("0.0.post10723")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10594"
-data_version_tuple = (0, 0, 10594)
+data_version_str = "0.0.post10597"
+data_version_tuple = (0, 0, 10597)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10594")
+    pdata_version = V("0.0.post10597")
 except ImportError:
     pass
-data_git_hash = "291d911f3bc8d4c2cc00628ca493eb6d32b7722c"
-data_git_describe = "v0.0-10594-g291d911f3"
+data_git_hash = "84cc7496453e30790b5da4f4c5313c704a4f73c9"
+data_git_describe = "v0.0-10597-g84cc74964"
 data_git_msg = """\
-commit 291d911f3bc8d4c2cc00628ca493eb6d32b7722c
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Fri Mar 4 15:05:17 2022 +0200
+commit 84cc7496453e30790b5da4f4c5313c704a4f73c9
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Thu Mar 3 11:01:54 2022 -0500
 
-    [AST] Change clk_src_io_48m_o to mubi
+    [sw] Replace uses of _Static_assert with the macro in assert.h
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
