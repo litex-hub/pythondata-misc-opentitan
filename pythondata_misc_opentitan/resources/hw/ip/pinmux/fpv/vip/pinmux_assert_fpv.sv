@@ -297,6 +297,13 @@ module pinmux_assert_fpv
 
   `ASSERT(MioAttrO_A, mio_attr_o[mio_sel_i] == (mio_pad_attr & mio_pad_attr_mask))
 
+  `ASSERT(MioJtagAttrO_A, pinmux.u_pinmux_strap_sampling.jtag_en |->
+                          mio_attr_o[TargetCfg.tck_idx] == 0 &&
+                          mio_attr_o[TargetCfg.tms_idx] == 0 &&
+                          mio_attr_o[TargetCfg.trst_idx] == 0 &&
+                          mio_attr_o[TargetCfg.tdi_idx] == 0 &&
+                          mio_attr_o[TargetCfg.tdo_idx] == 0)
+
   // ------ Dio_attr_o ------
   pinmux_reg_pkg::pinmux_reg2hw_dio_pad_attr_mreg_t dio_pad_attr;
   assign dio_pad_attr = pinmux.dio_pad_attr_q[dio_sel_i];
@@ -572,9 +579,6 @@ module pinmux_assert_fpv
                         mio_in_i[TargetCfg.tms_idx],
                         rst_ni,
                         mio_in_i[TargetCfg.tdi_idx]})
-  `ASSERT(LcJtagOStable_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::LcTapSel &&
-          $past(u_pinmux_strap_sampling.tap_strap) != pinmux_pkg::LcTapSel |->
-          $stable(lc_jtag_o))
   `ASSERT(LcJtagODefault_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::LcTapSel |->
           lc_jtag_o == '0)
 
@@ -600,11 +604,6 @@ module pinmux_assert_fpv
                         mio_in_i[TargetCfg.tms_idx],
                         rst_ni,
                         mio_in_i[TargetCfg.tdi_idx]})
-  `ASSERT(RvJtagOStable_A, (u_pinmux_strap_sampling.tap_strap != pinmux_pkg::RvTapSel &&
-          $past(u_pinmux_strap_sampling.tap_strap) != pinmux_pkg::RvTapSel) ||
-          ($past(lc_hw_debug_en_i, 2) != lc_ctrl_pkg::On &&
-           $past(lc_hw_debug_en_i, 3) != lc_ctrl_pkg::On) |->
-          $stable(rv_jtag_o))
   `ASSERT(RvJtagODefault_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::RvTapSel ||
           $past(lc_hw_debug_en_i, 2) != lc_ctrl_pkg::On |->
           rv_jtag_o == '0)
@@ -632,11 +631,6 @@ module pinmux_assert_fpv
                          mio_in_i[TargetCfg.tms_idx],
                          rst_ni,
                          mio_in_i[TargetCfg.tdi_idx]})
-  `ASSERT(DftJtagOStable_A, (u_pinmux_strap_sampling.tap_strap != pinmux_pkg::DftTapSel &&
-          $past(u_pinmux_strap_sampling.tap_strap) != pinmux_pkg::DftTapSel) ||
-          ($past(lc_dft_en_i, 2) != lc_ctrl_pkg::On &&
-           $past(lc_dft_en_i, 3) != lc_ctrl_pkg::On) |->
-          $stable(dft_jtag_o))
   `ASSERT(DftJtagODefault_A, u_pinmux_strap_sampling.tap_strap != pinmux_pkg::DftTapSel ||
           $past(lc_dft_en_i, 2) != lc_ctrl_pkg::On |->
           dft_jtag_o == '0)
@@ -685,5 +679,47 @@ module pinmux_assert_fpv
           $stable(dft_strap_test_o.straps) ||
           (dft_strap_test_o.straps == $past({mio_in_i[TargetCfg.dft_strap1_idx],
                                              mio_in_i[TargetCfg.dft_strap0_idx]})))
+
+  // ------ Check USB connectivity ------
+  // TODO: the ones that added ##1 delays have cex, which might related to USB module being
+  // black-boxed. Working on solving these cexs.
+  `ASSERT(UsbSleepEnI_A, sleep_en_i <->
+          u_usbdev_aon_wake.low_power_alw_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbDppullupEnUpwrI_A, usb_dppullup_en_upwr_i <->
+          u_usbdev_aon_wake.usb_dppullup_en_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbDnpullupEnUpwrI_A, usb_dnpullup_en_upwr_i <->
+          u_usbdev_aon_wake.usb_dnpullup_en_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbDppullupEnO_A, ##1 usb_dppullup_en_o <->
+          u_usbdev_aon_wake.usb_dppullup_en_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbDnpullupEnO_A, ##1 usb_dnpullup_en_o <->
+          u_usbdev_aon_wake.usb_dnpullup_en_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbOutOfRstI_A, usb_out_of_rst_i <->
+          u_usbdev_aon_wake.usb_out_of_rst_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbAonWakeEnUpwrI_A, usb_aon_wake_en_i <->
+          u_usbdev_aon_wake.usb_aon_wake_en_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbAonWakeAckUpwrI_A, usb_aon_wake_ack_i <->
+          u_usbdev_aon_wake.usb_aon_woken_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbSuspendI_A, ##1 usb_suspend_i <->
+          u_usbdev_aon_wake.usb_suspend_upwr_i, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbWkupReqO_A, usb_wkup_req_o <->
+          u_usbdev_aon_wake.wake_req_alw_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbBusResetO_A, ##1 usb_bus_reset_o <->
+          u_usbdev_aon_wake.bus_reset_alw_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbSenseLostO_A, ##1 usb_sense_lost_o <->
+          u_usbdev_aon_wake.bus_lost_alw_o, clk_aon_i, !rst_aon_ni)
+
+  `ASSERT(UsbStateDebugO_A, ##1 usb_state_debug_o <->
+          u_usbdev_aon_wake.bus_debug_o, clk_aon_i, !rst_aon_ni)
 
 endmodule : pinmux_assert_fpv
