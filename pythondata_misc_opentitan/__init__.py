@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10710"
-version_tuple = (0, 0, 10710)
+version_str = "0.0.post10712"
+version_tuple = (0, 0, 10712)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10710")
+    pversion = V("0.0.post10712")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10584"
-data_version_tuple = (0, 0, 10584)
+data_version_str = "0.0.post10586"
+data_version_tuple = (0, 0, 10586)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10584")
+    pdata_version = V("0.0.post10586")
 except ImportError:
     pass
-data_git_hash = "75d648378a9d274fe6ef45e172cebc8b0577f15f"
-data_git_describe = "v0.0-10584-g75d648378"
+data_git_hash = "819c80665ca1c7e586a7598c5bc5097060d36cd7"
+data_git_describe = "v0.0-10586-g819c80665"
 data_git_msg = """\
-commit 75d648378a9d274fe6ef45e172cebc8b0577f15f
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Wed Mar 2 16:58:47 2022 -0800
+commit 819c80665ca1c7e586a7598c5bc5097060d36cd7
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 3 16:36:52 2022 +0000
 
-    [entropy_src/dv] Properly predict fips_mode signal
+    [flash_ctrl] Use an unsigned type for ExecEn
     
-    RNG single bit mode is not considered FIPS compliant by the DUT.
+    This 32-bit value has its top bit set, so assigning it to an "int"
+    causes sign overflow warnings.
     
-    This commit reflects that in the scoreboard.
-    It also includes scoreboard diagnostics to help detect similar errors.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
