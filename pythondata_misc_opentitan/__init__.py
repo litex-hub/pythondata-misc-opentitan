@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10692"
-version_tuple = (0, 0, 10692)
+version_str = "0.0.post10709"
+version_tuple = (0, 0, 10709)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10692")
+    pversion = V("0.0.post10709")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10566"
-data_version_tuple = (0, 0, 10566)
+data_version_str = "0.0.post10583"
+data_version_tuple = (0, 0, 10583)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10566")
+    pdata_version = V("0.0.post10583")
 except ImportError:
     pass
-data_git_hash = "c50edd875c6d1e8de623a6029ca3d0b11af770a1"
-data_git_describe = "v0.0-10566-gc50edd875"
+data_git_hash = "41742aa9b19b44e0fe81fc14fec2be0649c8a45d"
+data_git_describe = "v0.0-10583-g41742aa9b"
 data_git_msg = """\
-commit c50edd875c6d1e8de623a6029ca3d0b11af770a1
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 3 17:05:34 2022 +0000
+commit 41742aa9b19b44e0fe81fc14fec2be0649c8a45d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 3 12:32:12 2022 -0800
 
-    [keymgr] OR together signals differently to avoid Xcelium warnings
+    [fpv/pinmux] Add an missing assertion from testplan
     
-    The previous syntax triggered the "DUPBWO" warning ("error prone
-    bit-wise OR sequence detected"). Using |{a, b} instead of "|a | |b"
-    silences the warning and is maybe a bit easier to understand anyway.
+    Add a missing assertion `MioJtagAttrO_A`.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
