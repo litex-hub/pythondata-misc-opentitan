@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10716"
-version_tuple = (0, 0, 10716)
+version_str = "0.0.post10720"
+version_tuple = (0, 0, 10720)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10716")
+    pversion = V("0.0.post10720")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10590"
-data_version_tuple = (0, 0, 10590)
+data_version_str = "0.0.post10594"
+data_version_tuple = (0, 0, 10594)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10590")
+    pdata_version = V("0.0.post10594")
 except ImportError:
     pass
-data_git_hash = "19270bbccdac0de939e677360b9abf40339099af"
-data_git_describe = "v0.0-10590-g19270bbcc"
+data_git_hash = "291d911f3bc8d4c2cc00628ca493eb6d32b7722c"
+data_git_describe = "v0.0-10594-g291d911f3"
 data_git_msg = """\
-commit 19270bbccdac0de939e677360b9abf40339099af
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Thu Mar 3 10:56:25 2022 -0500
+commit 291d911f3bc8d4c2cc00628ca493eb6d32b7722c
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Fri Mar 4 15:05:17 2022 +0200
 
-    [sw, base] Remove _ATTR_ from the attribute macros that have it, for consistency
+    [AST] Change clk_src_io_48m_o to mubi
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
