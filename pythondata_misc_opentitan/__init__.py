@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10723"
-version_tuple = (0, 0, 10723)
+version_str = "0.0.post10725"
+version_tuple = (0, 0, 10725)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10723")
+    pversion = V("0.0.post10725")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10597"
-data_version_tuple = (0, 0, 10597)
+data_version_str = "0.0.post10599"
+data_version_tuple = (0, 0, 10599)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10597")
+    pdata_version = V("0.0.post10599")
 except ImportError:
     pass
-data_git_hash = "84cc7496453e30790b5da4f4c5313c704a4f73c9"
-data_git_describe = "v0.0-10597-g84cc74964"
+data_git_hash = "988d400251c547fd0b41bf7b8feb8543174d0ee5"
+data_git_describe = "v0.0-10599-g988d40025"
 data_git_msg = """\
-commit 84cc7496453e30790b5da4f4c5313c704a4f73c9
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Thu Mar 3 11:01:54 2022 -0500
+commit 988d400251c547fd0b41bf7b8feb8543174d0ee5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 3 16:21:53 2022 -0800
 
-    [sw] Replace uses of _Static_assert with the macro in assert.h
+    [flash_ctrl] Fix init_busy glitches
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    - identified by weicai in #11235
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
