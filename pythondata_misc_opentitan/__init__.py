@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10728"
-version_tuple = (0, 0, 10728)
+version_str = "0.0.post10730"
+version_tuple = (0, 0, 10730)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10728")
+    pversion = V("0.0.post10730")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10602"
-data_version_tuple = (0, 0, 10602)
+data_version_str = "0.0.post10604"
+data_version_tuple = (0, 0, 10604)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10602")
+    pdata_version = V("0.0.post10604")
 except ImportError:
     pass
-data_git_hash = "620a9d1b32a73d9c35f859e04eddc99d36cc04f9"
-data_git_describe = "v0.0-10602-g620a9d1b3"
+data_git_hash = "3020470fc56252bd8db4a898a628d1ff761beeab"
+data_git_describe = "v0.0-10604-g3020470fc"
 data_git_msg = """\
-commit 620a9d1b32a73d9c35f859e04eddc99d36cc04f9
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 4 12:16:00 2022 -0800
+commit 3020470fc56252bd8db4a898a628d1ff761beeab
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 4 11:10:23 2022 +0000
 
-    [conn/top] Add lc_escalate_en connectivity checks
+    [ipgen] Mark the --config-file argument as required
     
-    This PR finishes a TODO in #11208
+    The script unconditionally reads the configuration file (not
+    unreasonable: this tells it what to do!), so that argument must be
+    given.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
