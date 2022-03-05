@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10726"
-version_tuple = (0, 0, 10726)
+version_str = "0.0.post10728"
+version_tuple = (0, 0, 10728)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10726")
+    pversion = V("0.0.post10728")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10600"
-data_version_tuple = (0, 0, 10600)
+data_version_str = "0.0.post10602"
+data_version_tuple = (0, 0, 10602)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10600")
+    pdata_version = V("0.0.post10602")
 except ImportError:
     pass
-data_git_hash = "4e0e44a3c86943209c7002d2b54aac0821c89a3d"
-data_git_describe = "v0.0-10600-g4e0e44a3c"
+data_git_hash = "620a9d1b32a73d9c35f859e04eddc99d36cc04f9"
+data_git_describe = "v0.0-10602-g620a9d1b3"
 data_git_msg = """\
-commit 4e0e44a3c86943209c7002d2b54aac0821c89a3d
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Mar 2 15:13:58 2022 -0800
+commit 620a9d1b32a73d9c35f859e04eddc99d36cc04f9
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Mar 4 12:16:00 2022 -0800
 
-    [pinmux] Update docs
+    [conn/top] Add lc_escalate_en connectivity checks
     
-    Fix #11194
+    This PR finishes a TODO in #11208
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
