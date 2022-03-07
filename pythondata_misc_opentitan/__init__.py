@@ -4,44 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10753"
-version_tuple = (0, 0, 10753)
+version_str = "0.0.post10756"
+version_tuple = (0, 0, 10756)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10753")
+    pversion = V("0.0.post10756")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10627"
-data_version_tuple = (0, 0, 10627)
+data_version_str = "0.0.post10630"
+data_version_tuple = (0, 0, 10630)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10627")
+    pdata_version = V("0.0.post10630")
 except ImportError:
     pass
-data_git_hash = "befb772694c1be1cf3e7fb9ad323c115a94e91e8"
-data_git_describe = "v0.0-10627-gbefb77269"
+data_git_hash = "ae67983f67cf343e1a233b325f5470c693439a2f"
+data_git_describe = "v0.0-10630-gae67983f6"
 data_git_msg = """\
-commit befb772694c1be1cf3e7fb9ad323c115a94e91e8
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Mar 4 14:34:41 2022 -0800
+commit ae67983f67cf343e1a233b325f5470c693439a2f
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Mar 3 16:42:01 2022 -0800
 
-    [opentitantool] Refactor TCP port search
+    [dv/rstmgr] Remove first_reset support in tests
     
-    When attempting to find an available TCP port to bind to, the current
-    code catches any error from the JsonSocketServer constructor and
-    handles it by calling the constructor again with the next candidate
-    port.
+    The RTL recently took out the rst_cpu_n input and associated
+    functionality. Fix the reset test to match.
     
-    This change makes sure that unrelated errors to not get handled as
-    above.  The constructor is changed to take a ready TcpListener, and
-    the loop over available ports can then happen before the constructor
-    is called, and any Err() return from the constructor is now treated as
-    a fatal exception.
-    
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
-    Change-Id: I765ba8897c2e7d20004056de92e260ef274144fd
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
