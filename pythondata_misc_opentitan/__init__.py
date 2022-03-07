@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10737"
-version_tuple = (0, 0, 10737)
+version_str = "0.0.post10738"
+version_tuple = (0, 0, 10738)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10737")
+    pversion = V("0.0.post10738")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10611"
-data_version_tuple = (0, 0, 10611)
+data_version_str = "0.0.post10612"
+data_version_tuple = (0, 0, 10612)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10611")
+    pdata_version = V("0.0.post10612")
 except ImportError:
     pass
-data_git_hash = "88661666fe205af9f8e10ee72c18e5002d092234"
-data_git_describe = "v0.0-10611-g88661666f"
+data_git_hash = "54b21340f7f41f5ff378033e0ae4480333e14291"
+data_git_describe = "v0.0-10612-g54b21340f"
 data_git_msg = """\
-commit 88661666fe205af9f8e10ee72c18e5002d092234
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Mar 4 18:16:20 2022 -0800
+commit 54b21340f7f41f5ff378033e0ae4480333e14291
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 7 10:41:11 2022 +0000
 
-    [aes] Restore placement constraints
+    Revert "[adc_ctrl/dv] Added counter tests"
     
-    clkmgr changed hierarchies, causing the AES placement constraints to
-    be dropped. Restore these to bring back down FPGA build times.
+    This reverts commit fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e, which
+    breaks CI.
     
-    Also promote to an error the message about adding an empty list of cells
-    to a pblock.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
