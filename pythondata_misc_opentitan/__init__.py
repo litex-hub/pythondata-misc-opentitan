@@ -4,54 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10735"
-version_tuple = (0, 0, 10735)
+version_str = "0.0.post10737"
+version_tuple = (0, 0, 10737)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10735")
+    pversion = V("0.0.post10737")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10609"
-data_version_tuple = (0, 0, 10609)
+data_version_str = "0.0.post10611"
+data_version_tuple = (0, 0, 10611)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10609")
+    pdata_version = V("0.0.post10611")
 except ImportError:
     pass
-data_git_hash = "fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e"
-data_git_describe = "v0.0-10609-gfe294ca0b"
+data_git_hash = "88661666fe205af9f8e10ee72c18e5002d092234"
+data_git_describe = "v0.0-10611-g88661666f"
 data_git_msg = """\
-commit fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Fri Mar 4 15:36:35 2022 +0000
+commit 88661666fe205af9f8e10ee72c18e5002d092234
+Author: Alexander Williams <awill@google.com>
+Date:   Fri Mar 4 18:16:20 2022 -0800
 
-    [adc_ctrl/dv] Added counter tests
+    [aes] Restore placement constraints
     
-    - Added tests
-      - adc_ctrl_poweron_counter
-      - adc_ctrl_lowpower_counter
-    - Added test sequences
-      - adc_ctrl_counter_vseq
-        Randomize wakeup_time powerup_time and low/high/one shot power mode, wait for data then repeat.
-      - adc_ctrl_poweron_counter_vseq
-        Extends adc_ctrl_counter_vseq for normal and one shot mode.
-      - adc_ctrl_lowpower_counter_vseq
-        Extends adc_ctrl_counter_vseq for low power mode.
-    - Added assertions
-      - WakeupTime_A - checks wakeup timing in low power mode
-      - EnterLowPower_A - Checks ADC controller enters low power mode
-    - Updated model
-      - Updated to latest spec / RTL
-      - Modelled adc_fsm_reset register
-      - Modelled interrupt registers for One Shot mode.
-    - Updated adc_ctrl_filters_polled_vseq to perform FSM reset at the end of each iteration as
-    to make sure model and RTL are synchronised before each new configuration
-    - Updated PwrupTime_A to new spec (programmed value + 2) cycles
-    - Enabled PwrupTime_A for all tests and removed plusarg control
+    clkmgr changed hierarchies, causing the AES placement constraints to
+    be dropped. Restore these to bring back down FPGA build times.
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Also promote to an error the message about adding an empty list of cells
+    to a pblock.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
