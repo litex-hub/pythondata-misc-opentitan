@@ -30,11 +30,14 @@ using ::testing::StartsWith;
 class PrintfTest : public testing::Test {
  protected:
   void SetUp() override {
-    base_set_stdout({/*data=*/static_cast<void *>(&buf_),
-                     /*sink=*/+[](void *data, const char *buf, size_t len) {
-                       static_cast<std::string *>(data)->append(buf, len);
-                       return len;
-                     }});
+    base_set_stdout({
+        .data = static_cast<void *>(&buf_),
+        .sink =
+            +[](void *data, const char *buf, size_t len) {
+              static_cast<std::string *>(data)->append(buf, len);
+              return len;
+            },
+    });
   }
 
   std::string buf_;
@@ -73,18 +76,66 @@ TEST_F(PrintfTest, StringWithNul) {
 }
 
 TEST_F(PrintfTest, StringWithLen) {
-  EXPECT_EQ(base_printf("Hello, %z!\n", 6, "abcxyz"), 15);
+  EXPECT_EQ(base_printf("Hello, %!s!\n", 6, "abcxyz"), 15);
   EXPECT_EQ(buf_, "Hello, abcxyz!\n");
 }
 
 TEST_F(PrintfTest, StringWithLenPrefix) {
-  EXPECT_EQ(base_printf("Hello, %z!\n", 3, "abcxyz"), 12);
+  EXPECT_EQ(base_printf("Hello, %!s!\n", 3, "abcxyz"), 12);
   EXPECT_EQ(buf_, "Hello, abc!\n");
 }
 
 TEST_F(PrintfTest, StringWithLenZeroLen) {
-  EXPECT_EQ(base_printf("Hello, %z!\n", 0, "abcxyz"), 9);
+  EXPECT_EQ(base_printf("Hello, %!s!\n", 0, "abcxyz"), 9);
   EXPECT_EQ(buf_, "Hello, !\n");
+}
+
+TEST_F(PrintfTest, HexStringWithLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!x!\n", 4, &val), 17);
+  EXPECT_EQ(buf_, "Hello, deadbeef!\n");
+}
+
+TEST_F(PrintfTest, HexStringWithLenPrefix) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!x!\n", 1, &val), 11);
+  EXPECT_EQ(buf_, "Hello, ef!\n");
+}
+
+TEST_F(PrintfTest, HexStringWithLenZeroLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!x!\n", 0, &val), 9);
+  EXPECT_EQ(buf_, "Hello, !\n");
+}
+
+TEST_F(PrintfTest, UpperHexStringWithLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!X!\n", 4, &val), 17);
+  EXPECT_EQ(buf_, "Hello, DEADBEEF!\n");
+}
+
+TEST_F(PrintfTest, UpperHexStringWithLenPrefix) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!X!\n", 1, &val), 11);
+  EXPECT_EQ(buf_, "Hello, EF!\n");
+}
+
+TEST_F(PrintfTest, UpperHexStringWithLenZeroLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!X!\n", 0, &val), 9);
+  EXPECT_EQ(buf_, "Hello, !\n");
+}
+
+TEST_F(PrintfTest, LeHexStringWithLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!y!\n", 4, &val), 17);
+  EXPECT_EQ(buf_, "Hello, efbeadde!\n");
+}
+
+TEST_F(PrintfTest, UpperLeHexStringWithLen) {
+  uint32_t val = 0xdeadbeef;
+  EXPECT_EQ(base_printf("Hello, %!Y!\n", 4, &val), 17);
+  EXPECT_EQ(buf_, "Hello, EFBEADDE!\n");
 }
 
 TEST_F(PrintfTest, SignedInt) {
@@ -104,11 +155,21 @@ TEST_F(PrintfTest, SignedIntNegative) {
 
 TEST_F(PrintfTest, SignedIntWithWidth) {
   EXPECT_EQ(base_printf("Hello, %3i!\n", 42), 12);
-  EXPECT_EQ(buf_, "Hello, 042!\n");
+  EXPECT_EQ(buf_, "Hello,  42!\n");
 }
 
 TEST_F(PrintfTest, SignedIntWithWidthTooShort) {
   EXPECT_EQ(base_printf("Hello, %3i!\n", 9001), 13);
+  EXPECT_EQ(buf_, "Hello, 9001!\n");
+}
+
+TEST_F(PrintfTest, SignedIntWithZeros) {
+  EXPECT_EQ(base_printf("Hello, %03i!\n", 42), 12);
+  EXPECT_EQ(buf_, "Hello, 042!\n");
+}
+
+TEST_F(PrintfTest, SignedIntWithZerosTooShort) {
+  EXPECT_EQ(base_printf("Hello, %03i!\n", 9001), 13);
   EXPECT_EQ(buf_, "Hello, 9001!\n");
 }
 
@@ -128,7 +189,7 @@ TEST_F(PrintfTest, HexFromDec) {
 }
 
 TEST_F(PrintfTest, HexFromDecWithWidth) {
-  EXPECT_EQ(base_printf("Hello, %8x!\n", 1024), 17);
+  EXPECT_EQ(base_printf("Hello, %08x!\n", 1024), 17);
   EXPECT_EQ(buf_, "Hello, 00000400!\n");
 }
 
@@ -199,7 +260,7 @@ TEST_F(PrintfTest, Binary) {
 }
 
 TEST_F(PrintfTest, BinaryWithWidth) {
-  EXPECT_EQ(base_printf("Hello, %32b!\n", 0b1010'1010), 41);
+  EXPECT_EQ(base_printf("Hello, %032b!\n", 0b1010'1010), 41);
   EXPECT_EQ(buf_, "Hello, 00000000000000000000000010101010!\n");
 }
 

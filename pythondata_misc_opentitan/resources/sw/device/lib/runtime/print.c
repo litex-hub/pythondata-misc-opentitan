@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/memory.h"
 
 // This is declared as an enum to force the values to be
@@ -33,7 +34,8 @@ enum {
   kSvHexHigh = 'H',
 
   // Other non-standard specifiers.
-  kSizedStr = 'z',
+  kHexLeLow = 'y',
+  kHexLeHigh = 'Y',
 };
 
 // NOTE: all of the lengths of the strings below are given so that the NUL
@@ -163,6 +165,8 @@ static bool consume_until_percent(buffer_sink_t out, const char **format,
 typedef struct format_specifier {
   char type;
   size_t width;
+  char padding;
+  bool is_nonstd;
 } format_specifier_t;
 
 /**
@@ -182,11 +186,20 @@ static bool consume_format_specifier(buffer_sink_t out, const char **format,
   // Consume the percent sign.
   ++(*format);
 
+  // Parse a ! to detect an OpenTitan-specific extension (that isn't one
+  // of the Verilog ones...).
+  if ((*format)[0] == '!') {
+    spec->is_nonstd = true;
+    ++(*format);
+  }
+
   // Attempt to parse out an unsigned, decimal number, a "width",
   // after the percent sign; the format specifier is the character
   // immediately after this width.
+  //
+  // `spec->padding` is used to indicate whether we've seen a width;
+  // if nonzero, we have an actual width.
   size_t spec_len = 0;
-  bool has_width = false;
   while (true) {
     char c = (*format)[spec_len];
     if (c == '\0') {
@@ -196,13 +209,20 @@ static bool consume_format_specifier(buffer_sink_t out, const char **format,
     if (c < '0' || c > '9') {
       break;
     }
-    has_width = true;
+    if (spec->padding == 0) {
+      if (c == '0') {
+        spec->padding = '0';
+        ++spec_len;
+        continue;
+      }
+      spec->padding = ' ';
+    }
     spec->width *= 10;
     spec->width += (c - '0');
     ++spec_len;
   }
 
-  if ((spec->width == 0 && has_width) || spec->width > 32) {
+  if ((spec->width == 0 && spec->padding != 0) || spec->width > 32) {
     *bytes_written += out.sink(out.data, kErrorTooWide, sizeof(kErrorTooWide));
     return false;
   }
@@ -225,7 +245,7 @@ static bool consume_format_specifier(buffer_sink_t out, const char **format,
  * @return the number of bytes written.
  */
 static size_t write_digits(buffer_sink_t out, uint32_t value, uint32_t width,
-                           uint32_t base, const char *glyphs) {
+                           char padding, uint32_t base, const char *glyphs) {
   // All allocations are done relative to a buffer that could hold the longest
   // textual representation of a number: ~0x0 in base 2, i.e., 32 ones.
   static const int kWordBits = sizeof(uint32_t) * 8;
@@ -241,10 +261,58 @@ static size_t write_digits(buffer_sink_t out, uint32_t value, uint32_t width,
   width = width == 0 ? 1 : width;
   width = width > kWordBits ? kWordBits : width;
   while (len < width) {
-    buffer[kWordBits - len - 1] = '0';
+    buffer[kWordBits - len - 1] = padding;
     ++len;
   }
   return out.sink(out.data, buffer + (kWordBits - len), len);
+}
+
+/**
+ * Hexdumps `bytes` onto `out`.
+ *
+ * @param out the sink to write bytes to.
+ * @param bytes the bytes to dump.
+ * @param len the number of bytes to dump.
+ * @param width the minimum width to print; going below will result in writing
+ *        out zeroes.
+ * @param padding the character to use for padding.
+ * @param big_endian whether to print in big-endian order (i.e. as %x would).
+ * @param glyphs an array of characters to use as the digits of a number, which
+ *        should be at least ast long as `base`.
+ * @return the number of bytes written.
+ */
+static size_t hex_dump(buffer_sink_t out, const char *bytes, size_t len,
+                       uint32_t width, char padding, bool big_endian,
+                       const char *glyphs) {
+  size_t bytes_written = 0;
+  char buf[32];
+  size_t buffered = 0;
+  if (len < width) {
+    width -= len;
+    memset(buf, padding, sizeof(buf));
+    while (width > 0) {
+      size_t to_write = width > ARRAYSIZE(buf) ? 32 : width;
+      bytes_written += out.sink(out.data, buf, to_write);
+      width -= to_write;
+    }
+  }
+
+  for (size_t i = 0; i < len; ++i) {
+    size_t idx = big_endian ? len - i - 1 : i;
+    buf[buffered] = glyphs[(bytes[idx] >> 4) & 0xf];
+    buf[buffered + 1] = glyphs[bytes[idx] & 0xf];
+    buffered += 2;
+
+    if (buffered == ARRAYSIZE(buf)) {
+      bytes_written += out.sink(out.data, buf, buffered);
+      buffered = 0;
+    }
+  }
+
+  if (buffered != 0) {
+    bytes_written += out.sink(out.data, buf, buffered);
+  }
+  return bytes_written;
 }
 
 /**
@@ -265,45 +333,63 @@ static void process_specifier(buffer_sink_t out, format_specifier_t spec,
   // missing, the caller has caused UB.
   switch (spec.type) {
     case kPercent: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       *bytes_written += out.sink(out.data, "%", 1);
       break;
     }
     case kCharacter: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       char value = (char)va_arg(*args, uint32_t);
       *bytes_written += out.sink(out.data, &value, 1);
       break;
     }
     case kString: {
-      char *value = va_arg(*args, char *);
       size_t len = 0;
-      while (value[len] != '\0') {
+      if (spec.is_nonstd) {
+        // This implements %!s.
+        len = va_arg(*args, size_t);
+      }
+
+      char *value = va_arg(*args, char *);
+      while (!spec.is_nonstd && value[len] != '\0') {
+        // This implements %s.
         ++len;
       }
-      *bytes_written += out.sink(out.data, value, len);
-      break;
-    }
-    case kSizedStr: {
-      size_t len = va_arg(*args, size_t);
-      char *value = va_arg(*args, char *);
+
       *bytes_written += out.sink(out.data, value, len);
       break;
     }
     case kSignedDec1:
     case kSignedDec2: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       uint32_t value = va_arg(*args, uint32_t);
       if (((int32_t)value) < 0) {
         *bytes_written += out.sink(out.data, "-", 1);
         value = -value;
       }
-      *bytes_written += write_digits(out, value, spec.width, 10, kDigitsLow);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 10, kDigitsLow);
       break;
     }
     case kUnsignedOct: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       uint32_t value = va_arg(*args, uint32_t);
-      *bytes_written += write_digits(out, value, spec.width, 8, kDigitsLow);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 8, kDigitsLow);
       break;
     }
     case kPointer: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       // Pointers are formatted as 0x<hex digits>, where the width is always
       // set to the number necessary to represent a pointer on the current
       // platform, that is, the size of uintptr_t in nybbles. For example, on
@@ -313,31 +399,78 @@ static void process_specifier(buffer_sink_t out, format_specifier_t spec,
       *bytes_written += out.sink(out.data, "0x", 2);
       uintptr_t value = va_arg(*args, uintptr_t);
       *bytes_written +=
-          write_digits(out, value, sizeof(uintptr_t) * 2, 16, kDigitsLow);
+          write_digits(out, value, sizeof(uintptr_t) * 2, '0', 16, kDigitsLow);
       break;
     }
-    case kSvHexLow:
-    case kUnsignedHexLow: {
+    case kUnsignedHexLow:
+      if (spec.is_nonstd) {
+        size_t len = va_arg(*args, size_t);
+        char *value = va_arg(*args, char *);
+        *bytes_written += hex_dump(out, value, len, spec.width, spec.padding,
+                                   /*big_endian=*/true, kDigitsLow);
+        break;
+      }
+      OT_FALLTHROUGH_INTENDED;
+    case kSvHexLow: {
       uint32_t value = va_arg(*args, uint32_t);
-      *bytes_written += write_digits(out, value, spec.width, 16, kDigitsLow);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 16, kDigitsLow);
       break;
     }
-    case kSvHexHigh:
-    case kUnsignedHexHigh: {
+    case kUnsignedHexHigh:
+      if (spec.is_nonstd) {
+        size_t len = va_arg(*args, size_t);
+        char *value = va_arg(*args, char *);
+        *bytes_written += hex_dump(out, value, len, spec.width, spec.padding,
+                                   /*big_endian=*/true, kDigitsHigh);
+        break;
+      }
+      OT_FALLTHROUGH_INTENDED;
+    case kSvHexHigh: {
       uint32_t value = va_arg(*args, uint32_t);
-      *bytes_written += write_digits(out, value, spec.width, 16, kDigitsHigh);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 16, kDigitsHigh);
+      break;
+    }
+    case kHexLeLow: {
+      if (!spec.is_nonstd) {
+        goto bad_spec;
+      }
+      size_t len = va_arg(*args, size_t);
+      char *value = va_arg(*args, char *);
+      *bytes_written += hex_dump(out, value, len, spec.width, spec.padding,
+                                 /*big_endian=*/false, kDigitsLow);
+      break;
+    }
+    case kHexLeHigh: {
+      if (!spec.is_nonstd) {
+        goto bad_spec;
+      }
+      size_t len = va_arg(*args, size_t);
+      char *value = va_arg(*args, char *);
+      *bytes_written += hex_dump(out, value, len, spec.width, spec.padding,
+                                 /*big_endian=*/false, kDigitsHigh);
       break;
     }
     case kUnsignedDec: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       uint32_t value = va_arg(*args, uint32_t);
-      *bytes_written += write_digits(out, value, spec.width, 10, kDigitsLow);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 10, kDigitsLow);
       break;
     }
     case kSvBinary: {
+      if (spec.is_nonstd) {
+        goto bad_spec;
+      }
       uint32_t value = va_arg(*args, uint32_t);
-      *bytes_written += write_digits(out, value, spec.width, 2, kDigitsLow);
+      *bytes_written +=
+          write_digits(out, value, spec.width, spec.padding, 2, kDigitsLow);
       break;
     }
+    bad_spec:  // Used with `goto` to bail out early.
     default: {
       *bytes_written += out.sink(out.data, kUnknownSpec, sizeof(kUnknownSpec));
     }
