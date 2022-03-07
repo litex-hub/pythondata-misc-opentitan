@@ -4,36 +4,54 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10734"
-version_tuple = (0, 0, 10734)
+version_str = "0.0.post10735"
+version_tuple = (0, 0, 10735)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10734")
+    pversion = V("0.0.post10735")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10608"
-data_version_tuple = (0, 0, 10608)
+data_version_str = "0.0.post10609"
+data_version_tuple = (0, 0, 10609)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10608")
+    pdata_version = V("0.0.post10609")
 except ImportError:
     pass
-data_git_hash = "caac850c7a837ecbfcc1027197d856d696f902ae"
-data_git_describe = "v0.0-10608-gcaac850c7"
+data_git_hash = "fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e"
+data_git_describe = "v0.0-10609-gfe294ca0b"
 data_git_msg = """\
-commit caac850c7a837ecbfcc1027197d856d696f902ae
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 4 15:33:34 2022 -0800
+commit fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Fri Mar 4 15:36:35 2022 +0000
 
-    [prim/security] Improve the code for prim_sparse_fsm security check
+    [adc_ctrl/dv] Added counter tests
     
-    According to the discussion in PR #11129, we update the enum checks from
-    generate block to a function.
-    JasperGold does support simple function syntax.
+    - Added tests
+      - adc_ctrl_poweron_counter
+      - adc_ctrl_lowpower_counter
+    - Added test sequences
+      - adc_ctrl_counter_vseq
+        Randomize wakeup_time powerup_time and low/high/one shot power mode, wait for data then repeat.
+      - adc_ctrl_poweron_counter_vseq
+        Extends adc_ctrl_counter_vseq for normal and one shot mode.
+      - adc_ctrl_lowpower_counter_vseq
+        Extends adc_ctrl_counter_vseq for low power mode.
+    - Added assertions
+      - WakeupTime_A - checks wakeup timing in low power mode
+      - EnterLowPower_A - Checks ADC controller enters low power mode
+    - Updated model
+      - Updated to latest spec / RTL
+      - Modelled adc_fsm_reset register
+      - Modelled interrupt registers for One Shot mode.
+    - Updated adc_ctrl_filters_polled_vseq to perform FSM reset at the end of each iteration as
+    to make sure model and RTL are synchronised before each new configuration
+    - Updated PwrupTime_A to new spec (programmed value + 2) cycles
+    - Enabled PwrupTime_A for all tests and removed plusarg control
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
