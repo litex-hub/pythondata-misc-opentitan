@@ -4,37 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10748"
-version_tuple = (0, 0, 10748)
+version_str = "0.0.post10753"
+version_tuple = (0, 0, 10753)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10748")
+    pversion = V("0.0.post10753")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10622"
-data_version_tuple = (0, 0, 10622)
+data_version_str = "0.0.post10627"
+data_version_tuple = (0, 0, 10627)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10622")
+    pdata_version = V("0.0.post10627")
 except ImportError:
     pass
-data_git_hash = "f20ce2ae6f95448305ef88a9a43349364feb4f34"
-data_git_describe = "v0.0-10622-gf20ce2ae6"
+data_git_hash = "befb772694c1be1cf3e7fb9ad323c115a94e91e8"
+data_git_describe = "v0.0-10627-gbefb77269"
 data_git_msg = """\
-commit f20ce2ae6f95448305ef88a9a43349364feb4f34
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Mar 3 16:32:52 2022 -0800
+commit befb772694c1be1cf3e7fb9ad323c115a94e91e8
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Mar 4 14:34:41 2022 -0800
 
-    [Entropy_src/dv] Flesh out test plan more fully
+    [opentitantool] Refactor TCP port search
     
-    - Adds many more cover points for all registers and usage models
-    - Minor updates & formatting fixes to testplan
+    When attempting to find an available TCP port to bind to, the current
+    code catches any error from the JsonSocketServer constructor and
+    handles it by calling the constructor again with the next candidate
+    port.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-    Co-authored-by: cindychip <cindy.chen0316@gmail.com>
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    This change makes sure that unrelated errors to not get handled as
+    above.  The constructor is changed to take a ready TcpListener, and
+    the loop over available ports can then happen before the constructor
+    is called, and any Err() return from the constructor is now treated as
+    a fatal exception.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I765ba8897c2e7d20004056de92e260ef274144fd
 
 """
 
