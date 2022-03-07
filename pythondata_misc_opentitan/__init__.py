@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10738"
-version_tuple = (0, 0, 10738)
+version_str = "0.0.post10742"
+version_tuple = (0, 0, 10742)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10738")
+    pversion = V("0.0.post10742")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10612"
-data_version_tuple = (0, 0, 10612)
+data_version_str = "0.0.post10616"
+data_version_tuple = (0, 0, 10616)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10612")
+    pdata_version = V("0.0.post10616")
 except ImportError:
     pass
-data_git_hash = "54b21340f7f41f5ff378033e0ae4480333e14291"
-data_git_describe = "v0.0-10612-g54b21340f"
+data_git_hash = "2b37bc7b9c0a3574ac71bdb3b0afe27425a629e9"
+data_git_describe = "v0.0-10616-g2b37bc7b9"
 data_git_msg = """\
-commit 54b21340f7f41f5ff378033e0ae4480333e14291
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 7 10:41:11 2022 +0000
+commit 2b37bc7b9c0a3574ac71bdb3b0afe27425a629e9
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Mar 4 17:27:08 2022 -0800
 
-    Revert "[adc_ctrl/dv] Added counter tests"
+    [dif/pwm] Make X macro names consistent across DIF libs
     
-    This reverts commit fe294ca0b6e02ff8f3f9d87e9ba54579139edc0e, which
-    breaks CI.
+    This commit aims to make then names of X macros (used for code gen)
+    consistent across DIF libraries. X macros simplify maintenance of DIF
+    libraries that rely on a specific number of resources (e.g., pins,
+    channels, alerts, etc.) to be available in the HW.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
