@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10733"
-version_tuple = (0, 0, 10733)
+version_str = "0.0.post10734"
+version_tuple = (0, 0, 10734)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10733")
+    pversion = V("0.0.post10734")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10607"
-data_version_tuple = (0, 0, 10607)
+data_version_str = "0.0.post10608"
+data_version_tuple = (0, 0, 10608)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10607")
+    pdata_version = V("0.0.post10608")
 except ImportError:
     pass
-data_git_hash = "a44bb9681ea186fb8ca2171fdceee86efa35d272"
-data_git_describe = "v0.0-10607-ga44bb9681"
+data_git_hash = "caac850c7a837ecbfcc1027197d856d696f902ae"
+data_git_describe = "v0.0-10608-gcaac850c7"
 data_git_msg = """\
-commit a44bb9681ea186fb8ca2171fdceee86efa35d272
+commit caac850c7a837ecbfcc1027197d856d696f902ae
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 4 16:45:07 2022 -0800
+Date:   Fri Mar 4 15:33:34 2022 -0800
 
-    [fpv/sec cm] Update the list of sec IPs
+    [prim/security] Improve the code for prim_sparse_fsm security check
     
-    This PR updates the IPs that has security countermeasures.
+    According to the discussion in PR #11129, we update the enum checks from
+    generate block to a function.
+    JasperGold does support simple function syntax.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
