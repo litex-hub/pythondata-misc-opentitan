@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10747"
-version_tuple = (0, 0, 10747)
+version_str = "0.0.post10748"
+version_tuple = (0, 0, 10748)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10747")
+    pversion = V("0.0.post10748")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10621"
-data_version_tuple = (0, 0, 10621)
+data_version_str = "0.0.post10622"
+data_version_tuple = (0, 0, 10622)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10621")
+    pdata_version = V("0.0.post10622")
 except ImportError:
     pass
-data_git_hash = "54b949255a8c463ea365126d90c39cd26c462638"
-data_git_describe = "v0.0-10621-g54b949255"
+data_git_hash = "f20ce2ae6f95448305ef88a9a43349364feb4f34"
+data_git_describe = "v0.0-10622-gf20ce2ae6"
 data_git_msg = """\
-commit 54b949255a8c463ea365126d90c39cd26c462638
-Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
-Date:   Mon Feb 28 16:36:53 2022 +0100
+commit f20ce2ae6f95448305ef88a9a43349364feb4f34
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Thu Mar 3 16:32:52 2022 -0800
 
-    [kmac] changed hash-threshold reg to shadow reg
+    [Entropy_src/dv] Flesh out test plan more fully
     
-    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+    - Adds many more cover points for all registers and usage models
+    - Minor updates & formatting fixes to testplan
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Co-authored-by: cindychip <cindy.chen0316@gmail.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
