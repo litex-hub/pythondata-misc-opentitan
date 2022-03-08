@@ -4,48 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10783"
-version_tuple = (0, 0, 10783)
+version_str = "0.0.post10784"
+version_tuple = (0, 0, 10784)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10783")
+    pversion = V("0.0.post10784")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10657"
-data_version_tuple = (0, 0, 10657)
+data_version_str = "0.0.post10658"
+data_version_tuple = (0, 0, 10658)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10657")
+    pdata_version = V("0.0.post10658")
 except ImportError:
     pass
-data_git_hash = "7d681e5cfe327d0e348325faaadcaa9f9d1b472b"
-data_git_describe = "v0.0-10657-g7d681e5cf"
+data_git_hash = "76e0ccbb4cdcab0e177884c0975cc510cb26d290"
+data_git_describe = "v0.0-10658-g76e0ccbb4"
 data_git_msg = """\
-commit 7d681e5cfe327d0e348325faaadcaa9f9d1b472b
-Author: Alexander Williams <awill@google.com>
-Date:   Mon Feb 14 07:56:08 2022 -0800
+commit 76e0ccbb4cdcab0e177884c0975cc510cb26d290
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Mar 7 14:59:20 2022 -0800
 
-    [usbdev] Enable defaulting to NAK for OUT transactions
+    [fpv/tlul_assert] Support d_error[Part1]
     
-    Add a bit to change the behavior for OUT transactions to default to NAK
-    without software intervention, for safe communication of responses to
-    the host.
-    Before this commit, the device could incorrectly communicate acceptance
-    of a packet to the host if the firmware did not take action in time.
-    Defaulting to NAK gives the firmware time, since this is a nonbinding
-    condition--The device is merely saying, "Please try again later."
+    This PR supports common d_errors in `tlul_assert.sv`:
+    1). legalAOpcodeErr
+    2). sizeGTEMaskErr
+    3). sizeMatchesMaskErr
+    4). addrSizeAlignedErr
+    The rest of errors I will cover them in generated csr assertions.
     
-    Clear the rxenable_out bit in hardware when a packet is received. Update
-    software code to match.
-    
-    This change could have deleterious effects on performance in some cases,
-    but priority is given to safe handling of responses. For interfaces that
-    may perform transactions when a buffer is available, do not set the
-    set_nak_out bit for the corresponding endpoints.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
