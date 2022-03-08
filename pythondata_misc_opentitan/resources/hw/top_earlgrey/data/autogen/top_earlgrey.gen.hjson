@@ -1101,6 +1101,10 @@
           domain: "0"
         }
       }
+      param_decl:
+      {
+        RcvrWakeTimeUs: "100"
+      }
       clock_connections:
       {
         clk_i: clkmgr_aon_clocks.clk_io_div4_peri
@@ -1111,8 +1115,18 @@
       [
         "0"
       ]
-      param_decl: {}
-      param_list: []
+      memory: {}
+      param_list:
+      [
+        {
+          name: RcvrWakeTimeUs
+          desc: Maximum number of microseconds for the differential receiver to become operational
+          type: int
+          default: "100"
+          expose: "true"
+          name_top: UsbdevRcvrWakeTimeUs
+        }
+      ]
       inter_signal_list:
       [
         {

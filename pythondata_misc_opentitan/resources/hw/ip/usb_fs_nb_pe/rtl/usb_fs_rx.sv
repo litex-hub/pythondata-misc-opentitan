@@ -13,6 +13,7 @@ module usb_fs_rx (
   // configuration
   input  logic cfg_eop_single_bit_i,
   input  logic cfg_use_diff_rcvr_i,
+  input  logic diff_rx_ok_i,
 
   // USB data+ and data- lines (synchronous)
   input  logic usb_d_i,
@@ -46,7 +47,7 @@ module usb_fs_rx (
   output logic valid_packet_o,
 
   // line status for the status detection (actual rx bits after clock recovery)
-  output logic rx_jjj_det_o,
+  output logic rx_idle_det_o,
   output logic rx_j_det_o,
 
   // Error detection
@@ -290,8 +291,12 @@ module usb_fs_rx (
 
   always_comb begin : proc_packet_valid_d
     if (line_state_valid) begin
+      // If the differential K and J symbols are not valid, reject the
+      // containing packet as invalid.
+      if (~diff_rx_ok_i) begin
+        packet_valid_d = 0;
       // check for packet start: KJKJKK, we use the last 6 bits
-      if (!packet_valid_q && line_history_q[11:0] == 12'b011001100101) begin
+      end else if (!packet_valid_q && line_history_q[11:0] == 12'b011001100101) begin
         packet_valid_d = 1;
       end
 
@@ -326,11 +331,22 @@ module usb_fs_rx (
     end
   end
 
-  // mask out jjj detection when transmitting (because rx is forced to J)
-  assign rx_jjj_det_o = ~tx_en_i & (line_history_q[5:0] == 6'b101010); // three Js
+  // mask out idle detection when transmitting (because rx may be forced to
+  // J and look like an idle symbol)
+  logic rx_idle_det_d, rx_idle_det_q;
+  assign rx_idle_det_d = (~tx_en_i & line_state_valid) ? (line_state_q == DJ) : rx_idle_det_q;
+  assign rx_idle_det_o = rx_idle_det_q;
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin : proc_reg_idle_det
+    if (!rst_ni) begin
+      rx_idle_det_q <= 1'b0;
+    end else begin
+      rx_idle_det_q <= rx_idle_det_d;
+    end
+  end
 
   // Used for seeing a J after the completion of resume signaling
-  assign rx_j_det_o = ~tx_en_i & (line_history_q[1:0] == 2'b10);
+  assign rx_j_det_o = diff_rx_ok_i & ~tx_en_i & (line_history_q[1:0] == 2'b10);
 
   /////////////////
   // NRZI decode //
