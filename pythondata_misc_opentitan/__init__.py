@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10756"
-version_tuple = (0, 0, 10756)
+version_str = "0.0.post10761"
+version_tuple = (0, 0, 10761)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10756")
+    pversion = V("0.0.post10761")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10630"
-data_version_tuple = (0, 0, 10630)
+data_version_str = "0.0.post10635"
+data_version_tuple = (0, 0, 10635)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10630")
+    pdata_version = V("0.0.post10635")
 except ImportError:
     pass
-data_git_hash = "ae67983f67cf343e1a233b325f5470c693439a2f"
-data_git_describe = "v0.0-10630-gae67983f6"
+data_git_hash = "42b6418983636ae28f4f7de2b25380bd7543277a"
+data_git_describe = "v0.0-10635-g42b641898"
 data_git_msg = """\
-commit ae67983f67cf343e1a233b325f5470c693439a2f
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Mar 3 16:42:01 2022 -0800
+commit 42b6418983636ae28f4f7de2b25380bd7543277a
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Mar 7 13:52:56 2022 -0800
 
-    [dv/rstmgr] Remove first_reset support in tests
+    [kmac] Lint fix
     
-    The RTL recently took out the rst_cpu_n input and associated
-    functionality. Fix the reset test to match.
+    entropy_refresh_threshold_shadowed q and qe were AND-ed, which results
+    the signal becomes 1 bit signal. `qe` signal has been removed in this
+    commit.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
