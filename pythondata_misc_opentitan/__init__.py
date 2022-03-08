@@ -4,41 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10782"
-version_tuple = (0, 0, 10782)
+version_str = "0.0.post10783"
+version_tuple = (0, 0, 10783)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10782")
+    pversion = V("0.0.post10783")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10656"
-data_version_tuple = (0, 0, 10656)
+data_version_str = "0.0.post10657"
+data_version_tuple = (0, 0, 10657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10656")
+    pdata_version = V("0.0.post10657")
 except ImportError:
     pass
-data_git_hash = "1938c40267b74458d3f0a7b80892ac9921424bd9"
-data_git_describe = "v0.0-10656-g1938c4026"
+data_git_hash = "7d681e5cfe327d0e348325faaadcaa9f9d1b472b"
+data_git_describe = "v0.0-10657-g7d681e5cf"
 data_git_msg = """\
-commit 1938c40267b74458d3f0a7b80892ac9921424bd9
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 1 16:33:44 2022 -0800
+commit 7d681e5cfe327d0e348325faaadcaa9f9d1b472b
+Author: Alexander Williams <awill@google.com>
+Date:   Mon Feb 14 07:56:08 2022 -0800
 
-    [clkmgr, top] clkmgr and top updates to better support ast external clock
+    [usbdev] Enable defaulting to NAK for OUT transactions
     
-    - ast provides a direct indication whether clock dividers should be stepped
-      down during an external switch.
+    Add a bit to change the behavior for OUT transactions to default to NAK
+    without software intervention, for safe communication of responses to
+    the host.
+    Before this commit, the device could incorrectly communicate acceptance
+    of a packet to the host if the firmware did not take action in time.
+    Defaulting to NAK gives the firmware time, since this is a nonbinding
+    condition--The device is merely saying, "Please try again later."
     
-    - clkmgr can make use of this mechanism directly without having to piece
-      separate logic together.
+    Clear the rxenable_out bit in hardware when a packet is received. Update
+    software code to match.
     
-    - This PR may be incomplete at the moment because the relevant signals are
-      in an async domain, this may be changed by an AST update.
+    This change could have deleterious effects on performance in some cases,
+    but priority is given to safe handling of responses. For interfaces that
+    may perform transactions when a buffer is available, do not set the
+    set_nak_out bit for the corresponding endpoints.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
