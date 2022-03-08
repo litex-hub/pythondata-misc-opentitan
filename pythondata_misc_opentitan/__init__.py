@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10785"
-version_tuple = (0, 0, 10785)
+version_str = "0.0.post10786"
+version_tuple = (0, 0, 10786)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10785")
+    pversion = V("0.0.post10786")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10659"
-data_version_tuple = (0, 0, 10659)
+data_version_str = "0.0.post10660"
+data_version_tuple = (0, 0, 10660)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10659")
+    pdata_version = V("0.0.post10660")
 except ImportError:
     pass
-data_git_hash = "f17bca818ba15f769ec1b8f4d398bdae69f6e052"
-data_git_describe = "v0.0-10659-gf17bca818"
+data_git_hash = "09ef94e1a7a3f8d99854537f2e201b219e39fefc"
+data_git_describe = "v0.0-10660-g09ef94e1a"
 data_git_msg = """\
-commit f17bca818ba15f769ec1b8f4d398bdae69f6e052
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Mar 8 11:12:41 2022 -0800
+commit 09ef94e1a7a3f8d99854537f2e201b219e39fefc
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Mon Mar 7 15:39:22 2022 -0800
 
-    [bazel] Fix scrambled flash VMEM file name
+    Fix UART timeout issues
     
-    This removes an additional "." that was included in the file extension
-    of scrambled flash VMEM files by accident.
+    1. Fix timeout detection for the verilator UART.
+    2. Add timeout detection for the common-case UART.
+    3. Print backtraces if available.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
