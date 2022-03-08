@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10784"
-version_tuple = (0, 0, 10784)
+version_str = "0.0.post10785"
+version_tuple = (0, 0, 10785)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10784")
+    pversion = V("0.0.post10785")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10658"
-data_version_tuple = (0, 0, 10658)
+data_version_str = "0.0.post10659"
+data_version_tuple = (0, 0, 10659)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10658")
+    pdata_version = V("0.0.post10659")
 except ImportError:
     pass
-data_git_hash = "76e0ccbb4cdcab0e177884c0975cc510cb26d290"
-data_git_describe = "v0.0-10658-g76e0ccbb4"
+data_git_hash = "f17bca818ba15f769ec1b8f4d398bdae69f6e052"
+data_git_describe = "v0.0-10659-gf17bca818"
 data_git_msg = """\
-commit 76e0ccbb4cdcab0e177884c0975cc510cb26d290
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Mar 7 14:59:20 2022 -0800
+commit f17bca818ba15f769ec1b8f4d398bdae69f6e052
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Mar 8 11:12:41 2022 -0800
 
-    [fpv/tlul_assert] Support d_error[Part1]
+    [bazel] Fix scrambled flash VMEM file name
     
-    This PR supports common d_errors in `tlul_assert.sv`:
-    1). legalAOpcodeErr
-    2). sizeGTEMaskErr
-    3). sizeMatchesMaskErr
-    4). addrSizeAlignedErr
-    The rest of errors I will cover them in generated csr assertions.
+    This removes an additional "." that was included in the file extension
+    of scrambled flash VMEM files by accident.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
