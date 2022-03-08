@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10761"
-version_tuple = (0, 0, 10761)
+version_str = "0.0.post10762"
+version_tuple = (0, 0, 10762)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10761")
+    pversion = V("0.0.post10762")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10635"
-data_version_tuple = (0, 0, 10635)
+data_version_str = "0.0.post10636"
+data_version_tuple = (0, 0, 10636)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10635")
+    pdata_version = V("0.0.post10636")
 except ImportError:
     pass
-data_git_hash = "42b6418983636ae28f4f7de2b25380bd7543277a"
-data_git_describe = "v0.0-10635-g42b641898"
+data_git_hash = "8fd175f44f327a0f815ef89ecbbca28e3da145b4"
+data_git_describe = "v0.0-10636-g8fd175f44"
 data_git_msg = """\
-commit 42b6418983636ae28f4f7de2b25380bd7543277a
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Mar 7 13:52:56 2022 -0800
+commit 8fd175f44f327a0f815ef89ecbbca28e3da145b4
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Feb 23 21:27:17 2022 -0800
 
-    [kmac] Lint fix
+    [dv] Update V2S checklist
     
-    entropy_refresh_threshold_shadowed q and qe were AND-ed, which results
-    the signal becomes 1 bit signal. `qe` signal has been removed in this
-    commit.
+    Add an item - SIM_COVERAGE_REVIEWED
+    Also clean up some TODO
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
