@@ -4,35 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10762"
-version_tuple = (0, 0, 10762)
+version_str = "0.0.post10763"
+version_tuple = (0, 0, 10763)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10762")
+    pversion = V("0.0.post10763")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10636"
-data_version_tuple = (0, 0, 10636)
+data_version_str = "0.0.post10637"
+data_version_tuple = (0, 0, 10637)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10636")
+    pdata_version = V("0.0.post10637")
 except ImportError:
     pass
-data_git_hash = "8fd175f44f327a0f815ef89ecbbca28e3da145b4"
-data_git_describe = "v0.0-10636-g8fd175f44"
+data_git_hash = "c126c1716037643fe31b6f08875e25bf1bc51c95"
+data_git_describe = "v0.0-10637-gc126c1716"
 data_git_msg = """\
-commit 8fd175f44f327a0f815ef89ecbbca28e3da145b4
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Feb 23 21:27:17 2022 -0800
+commit c126c1716037643fe31b6f08875e25bf1bc51c95
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Mar 4 13:35:16 2022 -0800
 
-    [dv] Update V2S checklist
+    [opentitantool] Pass capabilities via proxy protocol
     
-    Add an item - SIM_COVERAGE_REVIEWED
-    Also clean up some TODO
+    Until now, the Proxy implementation of Transport has claimed to
+    support all of GPIO, SPI, I2C, etc.  And if a user attempted to get
+    e.g. an SPI instance and the remote session process had an underlying
+    Transport which did not support SPI, a TransportError would be
+    returned.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This change adds a GetCapabilities request/response to the protocol,
+    so that the Proxy object can properly advertise what the caller can
+    expect to be able to use it for.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I3391f4dfb739c0ec45dbcb7754a3494d18dc2138
 
 """
 
