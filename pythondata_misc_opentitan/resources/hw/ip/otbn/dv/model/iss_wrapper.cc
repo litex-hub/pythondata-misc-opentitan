@@ -224,8 +224,6 @@ static void read_ext_reg(const std::string &reg_name,
   std::regex re("! otbn\\." + reg_name + ": 0x([0-9a-f]{8})");
   std::smatch match;
 
-  uint32_t val = 0;
-
   for (const auto &line : lines) {
     if (std::regex_match(line, match, re)) {
       // Ahah! We have a match. We have captured exactly 8 hex digits, so know
@@ -425,7 +423,6 @@ void ISSWrapper::set_keymgr_value(const std::array<uint32_t, 12> &key0_arr,
 
 int ISSWrapper::step(bool gen_trace) {
   std::vector<std::string> lines;
-  bool error = false;
 
   run_command("step\n", &lines);
   if (gen_trace && lines.size()) {
@@ -471,7 +468,7 @@ uint32_t ISSWrapper::step_crc(const std::array<uint8_t, 6> &item,
 
   std::ostringstream oss;
   oss << std::hex << "step_crc 0x" << std::setfill('0');
-  for (int i = 0; i < item.size(); ++i) {
+  for (size_t i = 0; i < item.size(); ++i) {
     oss << std::setw(2) << (int)item[5 - i];
   }
   oss << " 0x" << std::setw(8) << state << "\n";
