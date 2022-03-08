@@ -4,40 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10771"
-version_tuple = (0, 0, 10771)
+version_str = "0.0.post10773"
+version_tuple = (0, 0, 10773)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10771")
+    pversion = V("0.0.post10773")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10645"
-data_version_tuple = (0, 0, 10645)
+data_version_str = "0.0.post10647"
+data_version_tuple = (0, 0, 10647)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10645")
+    pdata_version = V("0.0.post10647")
 except ImportError:
     pass
-data_git_hash = "7c4f8b3fde4bb625ac3330ff52d3f66507190fe5"
-data_git_describe = "v0.0-10645-g7c4f8b3fd"
+data_git_hash = "ff1944cca2954721cebfa8e9f90087f955a308a9"
+data_git_describe = "v0.0-10647-gff1944cca"
 data_git_msg = """\
-commit 7c4f8b3fde4bb625ac3330ff52d3f66507190fe5
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Mar 7 12:41:52 2022 +0000
+commit ff1944cca2954721cebfa8e9f90087f955a308a9
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Mar 8 12:43:38 2022 +0000
 
-    [dv,lc_ctrl] Make two static functions automatic
+    [sw,crypto] Bazel target for non-mask-ROM RSA-3072 entrypoint.
     
-    These functions are marked static but I don't think there's any
-    particular reason to do so. They each have local
-    variables (err_inj_idx) and Xcelium issues a warning because these
-    aren't also explicitly marked as static. A good warning, because it's
-    a "foot gun" just waiting to catch you out!
+    Now that OTBN binaries can have shared dependencies, use that new
+    ability to create an additional target for the RSA-3072 executable that
+    is not specialized to mask ROM.
     
-    Let's just make the functions automatic and not worry about it.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
