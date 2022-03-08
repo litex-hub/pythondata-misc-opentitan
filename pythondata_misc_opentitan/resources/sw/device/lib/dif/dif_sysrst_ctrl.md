@@ -1,8 +1,8 @@
 ---
-title: "SRAM Controller DIF Checklist"
+title: "System Reset Controller DIF Checklist"
 ---
 
-This checklist is for [Development Stage]({{< relref "/doc/project/development_stages.md" >}}) transitions for the [SRAM Controller DIF]({{< relref "hw/ip/sram_ctrl/doc" >}}).
+This checklist is for [Development Stage]({{< relref "/doc/project/development_stages.md" >}}) transitions for the [System Reset Controller DIF]({{< relref "hw/ip/sysrst_ctrl/doc" >}}).
 All checklist items refer to the content in the [Checklist]({{< relref "/doc/project/checklist.md" >}}).
 
 <h2>DIF Checklist</h2>
@@ -11,9 +11,9 @@ All checklist items refer to the content in the [Checklist]({{< relref "/doc/pro
 
 Type           | Item                 | Resolution  | Note/Collaterals
 ---------------|----------------------|-------------|------------------
-Implementation | [DIF_EXISTS][]       | Done        |
-Implementation | [DIF_USED_IN_TREE][] | Done        |
-Tests          | [DIF_TEST_SMOKE][]   | Done        |
+Implementation | [DIF_EXISTS][]       | In Progress |
+Implementation | [DIF_USED_IN_TREE][] | In Progress |
+Tests          | [DIF_TEST_SMOKE][]   | Not Started |
 
 [DIF_EXISTS]:       {{< relref "/doc/project/checklist.md#dif_exists" >}}
 [DIF_USED_IN_TREE]: {{< relref "/doc/project/checklist.md#dif_used_in_tree" >}}
@@ -25,7 +25,7 @@ Type           | Item                        | Resolution  | Note/Collaterals
 ---------------|-----------------------------|-------------|------------------
 Coordination   | [DIF_HW_FEATURE_COMPLETE][] | Done        | [HW Dashboard]({{< relref "hw" >}})
 Implementation | [DIF_FEATURES][]            | In Progress |
-Coordination   | [DIF_DV_TESTS][]            | Done        |
+Coordination   | [DIF_DV_TESTS][]            | Not Started |
 
 [DIF_HW_FEATURE_COMPLETE]: {{< relref "/doc/project/checklist.md#dif_hw_feature_complete" >}}
 [DIF_FEATURES]:            {{< relref "/doc/project/checklist.md#dif_features" >}}
