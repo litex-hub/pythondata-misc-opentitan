@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10791"
-version_tuple = (0, 0, 10791)
+version_str = "0.0.post10793"
+version_tuple = (0, 0, 10793)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10791")
+    pversion = V("0.0.post10793")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10665"
-data_version_tuple = (0, 0, 10665)
+data_version_str = "0.0.post10667"
+data_version_tuple = (0, 0, 10667)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10665")
+    pdata_version = V("0.0.post10667")
 except ImportError:
     pass
-data_git_hash = "e5b4eda44e53a5950716a3993d397d5374f1af95"
-data_git_describe = "v0.0-10665-ge5b4eda44"
+data_git_hash = "4fbaa7a37781fee4bc2d8f4b84e0dd28152424f3"
+data_git_describe = "v0.0-10667-g4fbaa7a37"
 data_git_msg = """\
-commit e5b4eda44e53a5950716a3993d397d5374f1af95
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Mar 8 15:51:00 2022 -0800
+commit 4fbaa7a37781fee4bc2d8f4b84e0dd28152424f3
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Tue Mar 1 17:07:26 2022 +0000
 
-    [dv] Update checklist for all blocks
+    [doc, sram_ctrl] Bump DIF SRAM CTRL to S2
     
-    A follow-up update for #11053
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
