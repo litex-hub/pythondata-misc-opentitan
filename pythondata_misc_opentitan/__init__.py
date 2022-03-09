@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10793"
-version_tuple = (0, 0, 10793)
+version_str = "0.0.post10796"
+version_tuple = (0, 0, 10796)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10793")
+    pversion = V("0.0.post10796")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10667"
-data_version_tuple = (0, 0, 10667)
+data_version_str = "0.0.post10670"
+data_version_tuple = (0, 0, 10670)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10667")
+    pdata_version = V("0.0.post10670")
 except ImportError:
     pass
-data_git_hash = "4fbaa7a37781fee4bc2d8f4b84e0dd28152424f3"
-data_git_describe = "v0.0-10667-g4fbaa7a37"
+data_git_hash = "d99759ae91ff9cf618a9682673eb78fead6d5331"
+data_git_describe = "v0.0-10670-gd99759ae9"
 data_git_msg = """\
-commit 4fbaa7a37781fee4bc2d8f4b84e0dd28152424f3
+commit d99759ae91ff9cf618a9682673eb78fead6d5331
 Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Tue Mar 1 17:07:26 2022 +0000
+Date:   Thu Feb 17 11:36:16 2022 +0000
 
-    [doc, sram_ctrl] Bump DIF SRAM CTRL to S2
+    [hmac, tests] Create HMAC testutils and factor out common func
     
     Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
