@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10796"
-version_tuple = (0, 0, 10796)
+version_str = "0.0.post10800"
+version_tuple = (0, 0, 10800)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10796")
+    pversion = V("0.0.post10800")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10670"
-data_version_tuple = (0, 0, 10670)
+data_version_str = "0.0.post10674"
+data_version_tuple = (0, 0, 10674)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10670")
+    pdata_version = V("0.0.post10674")
 except ImportError:
     pass
-data_git_hash = "d99759ae91ff9cf618a9682673eb78fead6d5331"
-data_git_describe = "v0.0-10670-gd99759ae9"
+data_git_hash = "b067c3927d260cc1efac0f8b0564610d510697bb"
+data_git_describe = "v0.0-10674-gb067c3927"
 data_git_msg = """\
-commit d99759ae91ff9cf618a9682673eb78fead6d5331
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Thu Feb 17 11:36:16 2022 +0000
+commit b067c3927d260cc1efac0f8b0564610d510697bb
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 3 14:39:23 2022 -0800
 
-    [hmac, tests] Create HMAC testutils and factor out common func
+    [fpv/pinmux] V2 checklist
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
