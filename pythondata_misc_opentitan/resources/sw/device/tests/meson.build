@@ -118,9 +118,10 @@ hmac_smoketest_lib = declare_dependency(
     sources: ['hmac_smoketest.c'],
     dependencies: [
       sw_lib_dif_hmac,
-      sw_lib_runtime_log,
       sw_lib_mmio,
       sw_lib_runtime_hart,
+      sw_lib_runtime_log,
+      sw_lib_testing_hmac_testutils,
     ],
   ),
 )
@@ -904,6 +905,30 @@ aon_timer_wdog_lc_escalate_test = declare_dependency(
 sw_tests += {
   'aon_timer_wdog_lc_escalate_test': {
     'library': aon_timer_wdog_lc_escalate_test,
+  }
+}
+
+hmac_enc_irq_test_lib = declare_dependency(
+  link_with: static_library(
+    'hmac_enc_irq_test_lib',
+    sources: ['hmac_enc_irq_test.c'],
+    dependencies: [
+      sw_lib_dif_hmac,
+      sw_lib_dif_rv_plic,
+      sw_lib_irq,
+      sw_lib_mmio,
+      sw_lib_runtime_ibex,
+      sw_lib_runtime_log,
+      sw_lib_testing_hmac_testutils,
+      sw_lib_testing_isr_testutils,
+      sw_lib_testing_rv_plic_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'hmac_enc_irq_test': {
+    'library': hmac_enc_irq_test_lib,
   }
 }
 
