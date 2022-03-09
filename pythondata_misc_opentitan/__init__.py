@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10786"
-version_tuple = (0, 0, 10786)
+version_str = "0.0.post10788"
+version_tuple = (0, 0, 10788)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10786")
+    pversion = V("0.0.post10788")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10660"
-data_version_tuple = (0, 0, 10660)
+data_version_str = "0.0.post10662"
+data_version_tuple = (0, 0, 10662)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10660")
+    pdata_version = V("0.0.post10662")
 except ImportError:
     pass
-data_git_hash = "09ef94e1a7a3f8d99854537f2e201b219e39fefc"
-data_git_describe = "v0.0-10660-g09ef94e1a"
+data_git_hash = "8ccce1c64a9cd0ce6039e33050ac1e8fad83bbb6"
+data_git_describe = "v0.0-10662-g8ccce1c64"
 data_git_msg = """\
-commit 09ef94e1a7a3f8d99854537f2e201b219e39fefc
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Mon Mar 7 15:39:22 2022 -0800
+commit 8ccce1c64a9cd0ce6039e33050ac1e8fad83bbb6
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Mar 8 11:33:17 2022 -0800
 
-    Fix UART timeout issues
+    [dv/shadow_reg] Minor update on shadow_reg reset
     
-    1. Fix timeout detection for the verilator UART.
-    2. Add timeout detection for the common-case UART.
-    3. Print backtraces if available.
+    When we glitch reset in shadowed_regs, we predict error status before
+    reset is issued, that might cause scb to clear the predicted value.
+    So in this PR, we moved the error prediction after reset is finished.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
