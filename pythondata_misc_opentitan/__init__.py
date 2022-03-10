@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10821"
-version_tuple = (0, 0, 10821)
+version_str = "0.0.post10825"
+version_tuple = (0, 0, 10825)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10821")
+    pversion = V("0.0.post10825")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10695"
-data_version_tuple = (0, 0, 10695)
+data_version_str = "0.0.post10699"
+data_version_tuple = (0, 0, 10699)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10695")
+    pdata_version = V("0.0.post10699")
 except ImportError:
     pass
-data_git_hash = "f999d5515d774136880a666677f370f694c0e801"
-data_git_describe = "v0.0-10695-gf999d5515"
+data_git_hash = "12c30efd875dec2ae46c39bbd3b813dd40e0cfd0"
+data_git_describe = "v0.0-10699-g12c30efd8"
 data_git_msg = """\
-commit f999d5515d774136880a666677f370f694c0e801
-Author: Olof Kindgren <olof.kindgren@gmail.com>
-Date:   Thu Mar 10 10:34:05 2022 +0000
+commit 12c30efd875dec2ae46c39bbd3b813dd40e0cfd0
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Mar 9 13:52:44 2022 -0800
 
-    [util] Allow specifying hjson file in current directory
+    [tlul] Alternative implementation to blanking
     
-    Specifying a hjson in the current directory
-    (e.g. ../../../../util/regtool.py uart.hjson) causes a pathlib error
-    because parents[1] doesn't exist.
+    - This actually reduces the number of cells used for FPGA
     
-    Signed-off-by: Olof Kindgren <olof.kindgren@gmail.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
