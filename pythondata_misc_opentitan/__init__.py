@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10811"
-version_tuple = (0, 0, 10811)
+version_str = "0.0.post10817"
+version_tuple = (0, 0, 10817)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10811")
+    pversion = V("0.0.post10817")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10685"
-data_version_tuple = (0, 0, 10685)
+data_version_str = "0.0.post10691"
+data_version_tuple = (0, 0, 10691)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10685")
+    pdata_version = V("0.0.post10691")
 except ImportError:
     pass
-data_git_hash = "ad92b6f0a347f967cb82e06e508ddd6d08afa936"
-data_git_describe = "v0.0-10685-gad92b6f0a"
+data_git_hash = "1432b8cd9c33815045547a550df5e25c9ea22918"
+data_git_describe = "v0.0-10691-g1432b8cd9"
 data_git_msg = """\
-commit ad92b6f0a347f967cb82e06e508ddd6d08afa936
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 8 18:33:43 2022 -0800
+commit 1432b8cd9c33815045547a550df5e25c9ea22918
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Mar 7 13:43:18 2022 -0800
 
-    [top] auto generate
+    [kmac] Make alert status stay
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    In issue #10760, @cindychip found that the alert status does not keep
+    its value as the status register is set to external register. As
+    `alert_operation` just asserts one cycle, the STATUS value becomes zero
+    at the next cycle.
+    
+    In this commit, reg is defined to keep the value. It can be reset by
+    err_processed (not the alert but the STATUS value) for recoverable
+    error but the fatal error remains high until the IP is being reset.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
