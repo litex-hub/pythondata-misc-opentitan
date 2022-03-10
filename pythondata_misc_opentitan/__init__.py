@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10803"
-version_tuple = (0, 0, 10803)
+version_str = "0.0.post10811"
+version_tuple = (0, 0, 10811)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10803")
+    pversion = V("0.0.post10811")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10677"
-data_version_tuple = (0, 0, 10677)
+data_version_str = "0.0.post10685"
+data_version_tuple = (0, 0, 10685)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10677")
+    pdata_version = V("0.0.post10685")
 except ImportError:
     pass
-data_git_hash = "5babc8f790ee9ccfeac94031526ab30a305b21f1"
-data_git_describe = "v0.0-10677-g5babc8f79"
+data_git_hash = "ad92b6f0a347f967cb82e06e508ddd6d08afa936"
+data_git_describe = "v0.0-10685-gad92b6f0a"
 data_git_msg = """\
-commit 5babc8f790ee9ccfeac94031526ab30a305b21f1
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Mar 9 11:28:52 2022 -0800
+commit ad92b6f0a347f967cb82e06e508ddd6d08afa936
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 8 18:33:43 2022 -0800
 
-    [usbdev] Remove USB reset qualification of low_power
+    [top] auto generate
     
-    The low_power signal does not need to be held off by the USB reset
-    status, so remove it. The AON module is activated and deactivated by
-    signals coming from the USB IP, and internal state changes only need
-    depend on the signal from the pwrmgr.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
