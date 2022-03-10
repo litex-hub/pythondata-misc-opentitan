@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10830"
-version_tuple = (0, 0, 10830)
+version_str = "0.0.post10831"
+version_tuple = (0, 0, 10831)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10830")
+    pversion = V("0.0.post10831")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10704"
-data_version_tuple = (0, 0, 10704)
+data_version_str = "0.0.post10705"
+data_version_tuple = (0, 0, 10705)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10704")
+    pdata_version = V("0.0.post10705")
 except ImportError:
     pass
-data_git_hash = "fc179870ee04daba0275b0920d73c46bf1d207ef"
-data_git_describe = "v0.0-10704-gfc179870e"
+data_git_hash = "de5926469c2d14a6427896a6e7b9040eeb4e65ce"
+data_git_describe = "v0.0-10705-gde5926469"
 data_git_msg = """\
-commit fc179870ee04daba0275b0920d73c46bf1d207ef
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 9 19:21:19 2022 -0800
+commit de5926469c2d14a6427896a6e7b9040eeb4e65ce
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Mar 7 21:45:26 2022 -0800
 
-    [keymgr] Detect spurious done's from kmac as a fault
+    [sw/runtime] Add return code in CHECK_DIF_OK
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
