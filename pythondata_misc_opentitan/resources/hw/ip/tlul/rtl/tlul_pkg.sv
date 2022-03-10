@@ -76,10 +76,19 @@ package tlul_pkg;
     logic                         d_ready;
   } tl_h2d_t;
 
+  // The choice of all 1's as the blanked value is deliberate.
+  // It is assumed that most security features of the design are opt-in instead
+  // of opt-out.
+  // Given the opt-in nature, if a 0 were to propagate, the feature would be turned
+  // off.  Whereas if a 1 were to propagate, it would either stay on or be turned on.
+  // There is however no perfect value for this purpose.
+  localparam logic [top_pkg::TL_DW-1:0] BlankedAData = {top_pkg::TL_DW{1'b1}};
+
   localparam tl_h2d_t TL_H2D_DEFAULT = '{
     d_ready:  1'b1,
     a_opcode: tl_a_op_e'('0),
     a_user:   TL_A_USER_DEFAULT,
+    a_data:   BlankedAData,
     default:  '0
   };
 
@@ -177,5 +186,19 @@ package tlul_pkg;
     {data_intg, unused_data} = prim_secded_pkg::prim_secded_inv_39_32_enc(data);
     return data_intg;
   endfunction  // get_data_intg
+
+  // return inverted integrity for command payload
+  function automatic logic [H2DCmdIntgWidth-1:0] get_bad_cmd_intg(tl_h2d_t tl);
+    logic [H2DCmdIntgWidth-1:0] cmd_intg;
+    cmd_intg = get_cmd_intg(tl);
+    return ~cmd_intg;
+  endfunction // get_bad_cmd_intg
+
+  // return inverted integrity for data payload
+  function automatic logic [H2DCmdIntgWidth-1:0] get_bad_data_intg(logic [top_pkg::TL_DW-1:0] data);
+    logic [H2DCmdIntgWidth-1:0] data_intg;
+    data_intg = get_data_intg(data);
+    return ~data_intg;
+  endfunction // get_bad_data_intg
 
 endpackage
