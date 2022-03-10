@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10825"
-version_tuple = (0, 0, 10825)
+version_str = "0.0.post10830"
+version_tuple = (0, 0, 10830)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10825")
+    pversion = V("0.0.post10830")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10699"
-data_version_tuple = (0, 0, 10699)
+data_version_str = "0.0.post10704"
+data_version_tuple = (0, 0, 10704)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10699")
+    pdata_version = V("0.0.post10704")
 except ImportError:
     pass
-data_git_hash = "12c30efd875dec2ae46c39bbd3b813dd40e0cfd0"
-data_git_describe = "v0.0-10699-g12c30efd8"
+data_git_hash = "fc179870ee04daba0275b0920d73c46bf1d207ef"
+data_git_describe = "v0.0-10704-gfc179870e"
 data_git_msg = """\
-commit 12c30efd875dec2ae46c39bbd3b813dd40e0cfd0
+commit fc179870ee04daba0275b0920d73c46bf1d207ef
 Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 9 13:52:44 2022 -0800
+Date:   Wed Mar 9 19:21:19 2022 -0800
 
-    [tlul] Alternative implementation to blanking
-    
-    - This actually reduces the number of cells used for FPGA
+    [keymgr] Detect spurious done's from kmac as a fault
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
