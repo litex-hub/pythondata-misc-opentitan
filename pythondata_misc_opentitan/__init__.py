@@ -4,51 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10820"
-version_tuple = (0, 0, 10820)
+version_str = "0.0.post10821"
+version_tuple = (0, 0, 10821)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10820")
+    pversion = V("0.0.post10821")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10694"
-data_version_tuple = (0, 0, 10694)
+data_version_str = "0.0.post10695"
+data_version_tuple = (0, 0, 10695)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10694")
+    pdata_version = V("0.0.post10695")
 except ImportError:
     pass
-data_git_hash = "a6f0f3a4c6b80ccfea7bc8462d0797267bef5d22"
-data_git_describe = "v0.0-10694-ga6f0f3a4c"
+data_git_hash = "f999d5515d774136880a666677f370f694c0e801"
+data_git_describe = "v0.0-10695-gf999d5515"
 data_git_msg = """\
-commit a6f0f3a4c6b80ccfea7bc8462d0797267bef5d22
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Mar 9 13:19:22 2022 -0800
+commit f999d5515d774136880a666677f370f694c0e801
+Author: Olof Kindgren <olof.kindgren@gmail.com>
+Date:   Thu Mar 10 10:34:05 2022 +0000
 
-    [chip dv] Add AST initialization routine
+    [util] Allow specifying hjson file in current directory
     
-    This commit adds the initialization routine to:
-    - Backdoor load the AST configuration partion in OTP with data that will
-      be read by the test/mask ROM and written to the AST rega registers,
-      for the SW tests
+    Specifying a hjson in the current directory
+    (e.g. ../../../../util/regtool.py uart.hjson) causes a pathlib error
+    because parents[1] doesn't exist.
     
-    - Do the same for non-SW tests, but also manually write the AST
-      registers via the TLUL interface in dut_init(), before the tests
-      begin.
-    
-    - This AST cfg data is added to chip_env_cfg, which can either be set to
-      the correct values in the closed source extended partner_chip_env_cfg,
-      or it can be set via plusarg.
-    
-    - The chip_base_test is updated to be templated, so that it can be
-      overridden with a custom extension of chip_env_cfg, that can house the
-      correct programming data for AST.
-    
-    This is an alternate approach to the PR #11275.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Olof Kindgren <olof.kindgren@gmail.com>
 
 """
 
