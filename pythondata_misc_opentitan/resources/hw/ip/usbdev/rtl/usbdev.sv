@@ -14,9 +14,10 @@ module usbdev
   import prim_util_pkg::vbits;
 #(
   parameter logic [NumAlerts-1:0] AlertAsyncOn = {NumAlerts{1'b1}},
-  parameter int RcvrWakeTimeUs = 1 // Max time (in microseconds) from rx_enable_o high to the
-                                   // external differential receiver outputting valid data (when
-                                   // configured to use one).
+  // Max time (in microseconds) from rx_enable_o high to the
+  // external differential receiver outputting valid data (when
+  // configured to use one).
+  parameter int unsigned RcvrWakeTimeUs = 1
 ) (
   input  logic       clk_i,
   input  logic       rst_ni,
@@ -1134,15 +1135,15 @@ module usbdev
     // When don't need to use a differential receiver, RX is always ready
     usb_rcvr_ok_counter_d = '0;
     if (usb_use_diff_rcvr & !usb_rx_enable_o) begin
-      usb_rcvr_ok_counter_d = RcvrWakeTimeUs[0 +: RcvrWakeTimeWidth] + '1;
+      usb_rcvr_ok_counter_d = RcvrWakeTimeUs[0 +: RcvrWakeTimeWidth] + 1;
     end else if (us_tick && (usb_rcvr_ok_counter_q > '0)) begin
-      usb_rcvr_ok_counter_d = usb_rcvr_ok_counter_q - '1;
+      usb_rcvr_ok_counter_d = usb_rcvr_ok_counter_q - 1;
     end
   end
 
   always_ff @(posedge clk_usb_48mhz_i or negedge rst_usb_48mhz_ni) begin
     if (!rst_usb_48mhz_ni) begin
-      usb_rcvr_ok_counter_q <= RcvrWakeTimeUs[0 +: RcvrWakeTimeWidth] + '1;
+      usb_rcvr_ok_counter_q <= RcvrWakeTimeUs[0 +: RcvrWakeTimeWidth] + 1;
     end else begin
       usb_rcvr_ok_counter_q <= usb_rcvr_ok_counter_d;
     end
