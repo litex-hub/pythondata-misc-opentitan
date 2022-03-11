@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10839"
-version_tuple = (0, 0, 10839)
+version_str = "0.0.post10843"
+version_tuple = (0, 0, 10843)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10839")
+    pversion = V("0.0.post10843")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10713"
-data_version_tuple = (0, 0, 10713)
+data_version_str = "0.0.post10717"
+data_version_tuple = (0, 0, 10717)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10713")
+    pdata_version = V("0.0.post10717")
 except ImportError:
     pass
-data_git_hash = "aa4ade1ae62e31d40ad4ea7301998b51f4764515"
-data_git_describe = "v0.0-10713-gaa4ade1ae"
+data_git_hash = "5e07d95e2102e1392d2b2c4552a415a44f4b1638"
+data_git_describe = "v0.0-10717-g5e07d95e2"
 data_git_msg = """\
-commit aa4ade1ae62e31d40ad4ea7301998b51f4764515
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Mar 10 17:09:35 2022 -0800
+commit 5e07d95e2102e1392d2b2c4552a415a44f4b1638
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 10 09:36:48 2022 +0000
 
-    [spi_device] Adding sck_ prefix
+    Point fusesoc/edalize dependencies at a tag, not a branch
     
-    To clarify the signal clock domain, adding `sck_` to the BUSY set and
-    broadcast signal.
+    Historically, these have pointed at the tip of the 'ot' branch, which
+    seems like a bad idea for reproducibility. These "ot-0.1" tags point
+    at where the branch is at the moment, and we can then switch to
+    "ot-0.2" or whatever when we want to make changes.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
