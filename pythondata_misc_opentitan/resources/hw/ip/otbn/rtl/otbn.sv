@@ -93,7 +93,7 @@ module otbn
 
   logic start_d, start_q;
   logic busy_execute_d, busy_execute_q;
-  logic done, locked, idle;
+  logic done, done_core, locked, idle;
   logic illegal_bus_access_d, illegal_bus_access_q;
   logic dmem_sec_wipe_d, dmem_sec_wipe_q;
   logic imem_sec_wipe_d, imem_sec_wipe_q;
@@ -127,14 +127,28 @@ module otbn
   // The clock can be gated and some registers can be updated as long as OTBN isn't currently
   // running. Other registers can only be updated when OTBN is in the Idle state (which also implies
   // !locked).
-  logic is_not_running;
-  assign is_not_running = ~busy_execute_q;
+  logic is_not_running, is_not_running_r;
+  logic otbn_dmem_scramble_key_req_busy, otbn_imem_scramble_key_req_busy;
+
+  assign is_not_running =
+    ~(busy_execute_q | otbn_dmem_scramble_key_req_busy | otbn_imem_scramble_key_req_busy);
+
+  // Add a register stage so we have an `is_not_running_r` which changes with the same timing as
+  // `status.q`. Without this `idle_o` will be asserted a cycle before `status.q` changes resulting
+  // in bad interrupt timing where the interrupt is seen the cycle after `idle_o`.
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if(!rst_ni) begin
+      is_not_running_r <= 1'b1;
+    end else begin
+      is_not_running_r <= is_not_running;
+    end
+  end
 
   // Inter-module signals ======================================================
 
   // Note: This is not the same thing as STATUS == IDLE. For example, we want to allow clock gating
   // when locked.
-  assign idle_o = prim_mubi_pkg::mubi4_bool_to_mubi(is_not_running);
+  assign idle_o = prim_mubi_pkg::mubi4_bool_to_mubi(is_not_running_r);
 
   // Lifecycle ==================================================================
 
@@ -154,8 +168,12 @@ module otbn
 
   // Interrupts ================================================================
 
+  assign done = is_busy_status(status_e'(reg2hw.status.q)) &
+    !is_busy_status(status_e'(hw2reg.status.d));
+
   prim_intr_hw #(
-    .Width(1)
+    .Width(1),
+    .FlopOutput(0)
   ) u_intr_hw_done (
     .clk_i,
     .rst_ni                (rst_n),
@@ -226,13 +244,11 @@ module otbn
   otp_ctrl_pkg::otbn_key_t otbn_imem_scramble_key;
   otbn_imem_nonce_t        otbn_imem_scramble_nonce;
   logic                    otbn_imem_scramble_valid;
-  logic                    otbn_imem_scramble_key_req_busy;
   logic                    unused_otbn_imem_scramble_key_seed_valid;
 
   otp_ctrl_pkg::otbn_key_t otbn_dmem_scramble_key;
   otbn_dmem_nonce_t        otbn_dmem_scramble_nonce;
   logic                    otbn_dmem_scramble_valid;
-  logic                    otbn_dmem_scramble_key_req_busy;
   logic                    unused_otbn_dmem_scramble_key_seed_valid;
 
 
@@ -745,7 +761,7 @@ module otbn
 
   assign err_bits_clear = reg2hw.err_bits.bad_data_addr.qe & is_not_running;
   assign err_bits_d = err_bits_clear ? '0 : err_bits;
-  assign err_bits_en = err_bits_clear | done;
+  assign err_bits_en = err_bits_clear | done_core;
 
   logic unused_reg2hw_err_bits;
 
@@ -790,7 +806,7 @@ module otbn
   assign hw2reg.fatal_alert_cause.illegal_bus_access.d = illegal_bus_access_d;
   assign hw2reg.fatal_alert_cause.lifecycle_escalation.de = lifecycle_escalation;
   assign hw2reg.fatal_alert_cause.lifecycle_escalation.d = lifecycle_escalation;
-  assign hw2reg.fatal_alert_cause.fatal_software.de = done;
+  assign hw2reg.fatal_alert_cause.fatal_software.de = done_core;
   assign hw2reg.fatal_alert_cause.fatal_software.d = err_bits_d.fatal_software;
 
   // INSN_CNT register
@@ -817,7 +833,7 @@ module otbn
                               lifecycle_escalation |
                               err_bits.fatal_software;
 
-  assign alerts[AlertRecov] = recoverable_err & done;
+  assign alerts[AlertRecov] = recoverable_err & done_core;
 
   for (genvar i = 0; i < NumAlerts; i++) begin : gen_alert_tx
     prim_alert_sender #(
@@ -888,7 +904,7 @@ module otbn
       busy_execute_q <= busy_execute_d;
     end
   end
-  assign busy_execute_d = (busy_execute_q | start_d) & ~done;
+  assign busy_execute_d = (busy_execute_q | start_d) & ~done_core;
 
   otbn_core #(
     .RegFile(RegFile),
@@ -901,7 +917,7 @@ module otbn
     .rst_ni                      (rst_n),
 
     .start_i                     (start_q),
-    .done_o                      (done),
+    .done_o                      (done_core),
     .locked_o                    (locked),
 
     .err_bits_o                  (err_bits),
