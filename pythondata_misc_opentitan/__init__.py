@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10836"
-version_tuple = (0, 0, 10836)
+version_str = "0.0.post10838"
+version_tuple = (0, 0, 10838)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10836")
+    pversion = V("0.0.post10838")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10710"
-data_version_tuple = (0, 0, 10710)
+data_version_str = "0.0.post10712"
+data_version_tuple = (0, 0, 10712)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10710")
+    pdata_version = V("0.0.post10712")
 except ImportError:
     pass
-data_git_hash = "5a2a27100b6233739b821139141d0071bd84a773"
-data_git_describe = "v0.0-10710-g5a2a27100"
+data_git_hash = "d361da6a10ba99cf7c67798f362d324b1ef0885f"
+data_git_describe = "v0.0-10712-gd361da6a1"
 data_git_msg = """\
-commit 5a2a27100b6233739b821139141d0071bd84a773
+commit d361da6a10ba99cf7c67798f362d324b1ef0885f
 Author: Michael Schaffner <msf@google.com>
-Date:   Thu Mar 10 13:42:34 2022 -0800
+Date:   Thu Mar 10 16:19:05 2022 -0800
 
-    [kmac] Add missing CM IDs and sec buffer
+    [tlul_lc_gate] Fix gating condition
     
     Signed-off-by: Michael Schaffner <msf@google.com>
 
