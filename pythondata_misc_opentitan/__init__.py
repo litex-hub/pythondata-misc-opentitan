@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10833"
-version_tuple = (0, 0, 10833)
+version_str = "0.0.post10836"
+version_tuple = (0, 0, 10836)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10833")
+    pversion = V("0.0.post10836")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10707"
-data_version_tuple = (0, 0, 10707)
+data_version_str = "0.0.post10710"
+data_version_tuple = (0, 0, 10710)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10707")
+    pdata_version = V("0.0.post10710")
 except ImportError:
     pass
-data_git_hash = "57cc44f6f5d166a2b4d9079811d6c1aca4675252"
-data_git_describe = "v0.0-10707-g57cc44f6f"
+data_git_hash = "5a2a27100b6233739b821139141d0071bd84a773"
+data_git_describe = "v0.0-10710-g5a2a27100"
 data_git_msg = """\
-commit 57cc44f6f5d166a2b4d9079811d6c1aca4675252
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Feb 23 09:04:33 2022 -0800
+commit 5a2a27100b6233739b821139141d0071bd84a773
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Mar 10 13:42:34 2022 -0800
 
-    [usbdev] Move pinflip and dp_o/dn_o to usb_fs_nb_pe
+    [kmac] Add missing CM IDs and sec buffer
     
-    Handle the interface changes and alternate TX interface in logic, before
-    the final register. Prior to this change, the pinflip was sometimes
-    handled in clock muxes, on the I/O side of the first/final registers,
-    and the dp_o/dn_o interface was only done in behavioral logic. Move this
-    all inside the USB clock domain, and perform only the pin overrides with
-    clock muxes.
-    
-    Add override for rx_enable and remove the redundant one for
-    tx_use_d_se0.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
