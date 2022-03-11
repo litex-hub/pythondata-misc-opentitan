@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10843"
-version_tuple = (0, 0, 10843)
+version_str = "0.0.post10847"
+version_tuple = (0, 0, 10847)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10843")
+    pversion = V("0.0.post10847")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10717"
-data_version_tuple = (0, 0, 10717)
+data_version_str = "0.0.post10721"
+data_version_tuple = (0, 0, 10721)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10717")
+    pdata_version = V("0.0.post10721")
 except ImportError:
     pass
-data_git_hash = "5e07d95e2102e1392d2b2c4552a415a44f4b1638"
-data_git_describe = "v0.0-10717-g5e07d95e2"
+data_git_hash = "951a93e8f41193439d0121cf89afc39da56a4e7e"
+data_git_describe = "v0.0-10721-g951a93e8f"
 data_git_msg = """\
-commit 5e07d95e2102e1392d2b2c4552a415a44f4b1638
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 10 09:36:48 2022 +0000
+commit 951a93e8f41193439d0121cf89afc39da56a4e7e
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Mar 1 18:28:32 2022 +0000
 
-    Point fusesoc/edalize dependencies at a tag, not a branch
+    [sw, aes] Add unit test for AES status register
     
-    Historically, these have pointed at the tip of the 'ot' branch, which
-    seems like a bad idea for reproducibility. These "ot-0.1" tags point
-    at where the branch is at the moment, and we can then switch to
-    "ot-0.2" or whatever when we want to make changes.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
