@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10852"
-version_tuple = (0, 0, 10852)
+version_str = "0.0.post10853"
+version_tuple = (0, 0, 10853)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10852")
+    pversion = V("0.0.post10853")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10726"
-data_version_tuple = (0, 0, 10726)
+data_version_str = "0.0.post10727"
+data_version_tuple = (0, 0, 10727)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10726")
+    pdata_version = V("0.0.post10727")
 except ImportError:
     pass
-data_git_hash = "9b93f1bfe4340757eb7a6fb3f2a8e646e64f196f"
-data_git_describe = "v0.0-10726-g9b93f1bfe"
+data_git_hash = "b0fd9bf680319c101c16c9f0bc50909b1d9acfc4"
+data_git_describe = "v0.0-10727-gb0fd9bf68"
 data_git_msg = """\
-commit 9b93f1bfe4340757eb7a6fb3f2a8e646e64f196f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 11 10:23:02 2022 +0000
+commit b0fd9bf680319c101c16c9f0bc50909b1d9acfc4
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 10 12:31:01 2022 -0800
 
-    [fpv] Don't import uvm_pkg at global scope
+    [rstmgr/rtl] Swap alert_test alerts orders
     
-    This was causing warnings in the VCS build.
+    I believe the order of alert_test is swapped.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
