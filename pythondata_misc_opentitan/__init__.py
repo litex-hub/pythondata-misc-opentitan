@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10856"
-version_tuple = (0, 0, 10856)
+version_str = "0.0.post10860"
+version_tuple = (0, 0, 10860)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10856")
+    pversion = V("0.0.post10860")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10730"
-data_version_tuple = (0, 0, 10730)
+data_version_str = "0.0.post10734"
+data_version_tuple = (0, 0, 10734)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10730")
+    pdata_version = V("0.0.post10734")
 except ImportError:
     pass
-data_git_hash = "266a448c729b0207cbbe17b383257e68d8c3b481"
-data_git_describe = "v0.0-10730-g266a448c7"
+data_git_hash = "1891e9dc5a9bbbb1768ef494651d7881f9ce8087"
+data_git_describe = "v0.0-10734-g1891e9dc5"
 data_git_msg = """\
-commit 266a448c729b0207cbbe17b383257e68d8c3b481
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Mar 7 19:07:23 2022 -0800
+commit 1891e9dc5a9bbbb1768ef494651d7881f9ce8087
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 10 18:10:34 2022 -0800
 
-    [dif/clkmgr] Add support for count measurements
+    [keymgr] Changing fault wiping behavior
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    - change key manager wiping from operation boundary aligned to immediate.
+    - this addresses an item in #11387
+    - this change causes keymgr to enter wiping state much earlier than usual.
+    - the wiping stage outputs random data to kmac and causes a push-pull assertion failure.
+    - disable the assertion in the test
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
