@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10860"
-version_tuple = (0, 0, 10860)
+version_str = "0.0.post10864"
+version_tuple = (0, 0, 10864)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10860")
+    pversion = V("0.0.post10864")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10734"
-data_version_tuple = (0, 0, 10734)
+data_version_str = "0.0.post10738"
+data_version_tuple = (0, 0, 10738)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10734")
+    pdata_version = V("0.0.post10738")
 except ImportError:
     pass
-data_git_hash = "1891e9dc5a9bbbb1768ef494651d7881f9ce8087"
-data_git_describe = "v0.0-10734-g1891e9dc5"
+data_git_hash = "b6fa2203f834c88ad6aae9d459d2683e4f948753"
+data_git_describe = "v0.0-10738-gb6fa2203f"
 data_git_msg = """\
-commit 1891e9dc5a9bbbb1768ef494651d7881f9ce8087
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 10 18:10:34 2022 -0800
+commit b6fa2203f834c88ad6aae9d459d2683e4f948753
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Mon Mar 14 13:36:51 2022 -0400
 
-    [keymgr] Changing fault wiping behavior
+    [sw, dif] Add style mandate for new EXPECT_DIF_* macros
     
-    - change key manager wiping from operation boundary aligned to immediate.
-    - this addresses an item in #11387
-    - this change causes keymgr to enter wiping state much earlier than usual.
-    - the wiping stage outputs random data to kmac and causes a push-pull assertion failure.
-    - disable the assertion in the test
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
