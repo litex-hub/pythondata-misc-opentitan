@@ -4,41 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10865"
-version_tuple = (0, 0, 10865)
+version_str = "0.0.post10866"
+version_tuple = (0, 0, 10866)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10865")
+    pversion = V("0.0.post10866")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10739"
-data_version_tuple = (0, 0, 10739)
+data_version_str = "0.0.post10740"
+data_version_tuple = (0, 0, 10740)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10739")
+    pdata_version = V("0.0.post10740")
 except ImportError:
     pass
-data_git_hash = "2f33ce93cade409b32739570882199cc1d850e16"
-data_git_describe = "v0.0-10739-g2f33ce93c"
+data_git_hash = "b72a638b010b936a2ba79024ce25d8e629a3bec6"
+data_git_describe = "v0.0-10740-gb72a638b0"
 data_git_msg = """\
-commit 2f33ce93cade409b32739570882199cc1d850e16
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Thu Mar 3 10:20:38 2022 -0500
+commit b72a638b010b936a2ba79024ce25d8e629a3bec6
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Tue Mar 8 15:15:49 2022 +0000
 
-    [sw, base] Add a macro for creating addressable code labels
+    [sw,tests] Verify flash_idle signaling to pwrmgr
     
-    This macro is intended for writing chip-level tests that want to check
-    that some kind of exception-ey thing happened in a range of program
-    counters. It is a maximally compiler-portable implementation that won't
-    be optimization-hostile like GCC's label references (&&label), whose
-    support in LLVM is... not something we should rely on.
+    For test: chip_sw_flash_idle_low_power.
     
-    This macro is mostly made of caveats, but it has a narrow use
-    regardless.
+    Checks that when low power entry is enabled and a flash operation is in progress that the
+    low power entry is cancelled upon receiving the WFI instruction.
+    The watchdog timer barks to exit the WFI and a check is done to ensure the flash operation has completed.
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
