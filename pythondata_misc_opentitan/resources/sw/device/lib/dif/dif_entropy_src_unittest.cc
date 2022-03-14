@@ -9,6 +9,7 @@
 #include "sw/device/lib/base/multibits.h"
 #include "sw/device/lib/base/testing/mock_mmio.h"
 #include "sw/device/lib/dif/dif_base.h"
+#include "sw/device/lib/dif/dif_test_base.h"
 
 #include "entropy_src_regs.h"  // Generated
 
@@ -40,18 +41,18 @@ class ConfigTest : public DifEntropySrcTest {
 };
 
 TEST_F(ConfigTest, NullArgs) {
-  EXPECT_EQ(dif_entropy_src_configure(nullptr, {}), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_entropy_src_configure(nullptr, {}));
 }
 
 TEST_F(ConfigTest, InvalidFifoThreshold) {
   config_.fw_override.buffer_threshold = 65;
-  EXPECT_EQ(dif_entropy_src_configure(&entropy_src_, config_), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_entropy_src_configure(&entropy_src_, config_));
 }
 
 TEST_F(ConfigTest, InvalidFwOverrideSettings) {
   config_.fw_override.enable = false;
   config_.fw_override.entropy_insert_enable = true;
-  EXPECT_EQ(dif_entropy_src_configure(&entropy_src_, config_), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_entropy_src_configure(&entropy_src_, config_));
 }
 
 struct ConfigParams {
@@ -124,7 +125,7 @@ TEST_P(ConfigTestAllParams, ValidConfigurationMode) {
                      {ENTROPY_SRC_MODULE_ENABLE_MODULE_ENABLE_OFFSET, enable},
                  });
 
-  EXPECT_EQ(dif_entropy_src_configure(&entropy_src_, config_), kDifOk);
+  EXPECT_DIF_OK(dif_entropy_src_configure(&entropy_src_, config_));
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -162,11 +163,11 @@ class ReadTest : public DifEntropySrcTest {};
 
 TEST_F(ReadTest, EntropyBadArg) {
   uint32_t word;
-  EXPECT_EQ(dif_entropy_src_read(nullptr, &word), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_entropy_src_read(nullptr, &word));
 }
 
 TEST_F(ReadTest, WordBadArg) {
-  EXPECT_EQ(dif_entropy_src_read(&entropy_src_, nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_entropy_src_read(&entropy_src_, nullptr));
 }
 
 TEST_F(ReadTest, ReadDataUnAvailable) {
@@ -186,7 +187,7 @@ TEST_F(ReadTest, ReadOk) {
                  {{ENTROPY_SRC_INTR_STATE_ES_ENTROPY_VALID_BIT, true}});
 
   uint32_t got_word;
-  EXPECT_EQ(dif_entropy_src_read(&entropy_src_, &got_word), kDifOk);
+  EXPECT_DIF_OK(dif_entropy_src_read(&entropy_src_, &got_word));
   EXPECT_EQ(got_word, expected_word);
 }
 

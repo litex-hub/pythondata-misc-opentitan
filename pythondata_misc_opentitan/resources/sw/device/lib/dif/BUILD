@@ -6,15 +6,21 @@ package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "base",
-    srcs = [
-        "dif_base.c",
-    ],
-    hdrs = [
-        "dif_base.h",
-    ],
+    srcs = ["dif_base.c"],
+    hdrs = ["dif_base.h"],
     deps = [
         "//sw/device/lib/base",
     ],
+)
+
+cc_library(
+    name = "test_base",
+    hdrs = ["dif_test_base.h"],
+    deps = [
+        ":base",
+        "@googletest//:gtest",
+    ],
+    testonly = True,
 )
 
 cc_library(
@@ -42,6 +48,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/adc_ctrl/data:adc_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -79,6 +86,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/top_earlgrey/ip/clkmgr/data/autogen:clkmgr_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -118,6 +126,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/csrng/data:csrng_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -156,6 +165,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/edn/data:edn_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -193,6 +203,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/uart/data:uart_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -232,6 +243,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/top_earlgrey:rv_plic_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -271,6 +283,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/gpio/data:gpio_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -310,6 +323,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/spi_device/data:spi_device_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -349,6 +363,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/spi_host/data:spi_host_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -389,6 +404,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/rv_timer/data:rv_timer_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -428,6 +444,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/i2c/data:i2c_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -466,6 +483,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/usbdev/data:usbdev_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -504,6 +522,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/hmac/data:hmac_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -543,6 +562,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/kmac/data:kmac_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -582,6 +602,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/otbn/data:otbn_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -621,6 +642,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/top_earlgrey/ip/rstmgr/data/autogen:rstmgr_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -660,6 +682,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/top_earlgrey:alert_handler_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -699,6 +722,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/top_earlgrey/ip/pwrmgr/data/autogen:pwrmgr_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -738,6 +762,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/keymgr/data:keymgr_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -777,6 +802,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -809,6 +835,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/pattgen/data:pattgen_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -848,6 +875,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -887,6 +915,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/aon_timer/data:aon_timer_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -926,6 +955,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/entropy_src/data:entropy_src_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -963,6 +993,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -1002,6 +1033,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/aes/data:aes_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -1040,6 +1072,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/pinmux/data:pinmux_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -1078,6 +1111,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/pwm/data:pwm_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -1117,6 +1151,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/sram_ctrl/data:sram_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",
@@ -1149,6 +1184,7 @@ cc_test(
     ],
     deps = [
         ":base",
+        ":test_base",
         "//hw/ip/sysrst_ctrl/data:sysrst_ctrl_regs",
         "//sw/device/lib/base",
         "//sw/device/lib/base/testing",

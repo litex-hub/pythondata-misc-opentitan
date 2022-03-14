@@ -12,6 +12,7 @@
 #include "gtest/gtest.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/base/testing/mock_mmio.h"
+#include "sw/device/lib/dif/dif_test_base.h"
 
 #include "rv_timer_regs.h"  // Generated.
 
@@ -50,9 +51,8 @@ TEST(ApproximateParamsTest, Success) {
                                          .prescale = 49,
                                          .tick_step = 1,
                                      };
-  EXPECT_EQ(
-      dif_rv_timer_approximate_tick_params(kClockSpeed, kSlowTimer, &params),
-      kDifOk);
+  EXPECT_DIF_OK(
+      dif_rv_timer_approximate_tick_params(kClockSpeed, kSlowTimer, &params));
   EXPECT_EQ(params, expected);
 }
 
@@ -62,9 +62,8 @@ TEST(ApproximateParamsTest, WithStep) {
                                          .prescale = 4,
                                          .tick_step = 12,
                                      };
-  EXPECT_EQ(
-      dif_rv_timer_approximate_tick_params(kClockSpeed, kFastTimer, &params),
-      kDifOk);
+  EXPECT_DIF_OK(
+      dif_rv_timer_approximate_tick_params(kClockSpeed, kFastTimer, &params));
   EXPECT_EQ(params, expected);
 }
 
@@ -73,24 +72,21 @@ TEST(ApproximateParamsTest, UnrepresenableTooSlow) {
   // frequencies is 1, so the prescale is the clock speed, which does not fit in
   // a u12.
   dif_rv_timer_tick_params_t params;
-  EXPECT_EQ(dif_rv_timer_approximate_tick_params(kFastClockSpeed,
-                                                 kSluggishTimer, &params),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_approximate_tick_params(
+      kFastClockSpeed, kSluggishTimer, &params));
 }
 
 TEST(ApproximateParamsTest, UnrepresenableTooFast) {
   // This freqncy is unrepresentable; the GCD is 50, meaning that the step must
   // be 2'400'000, which does not fit into a u8.
   dif_rv_timer_tick_params_t params;
-  EXPECT_EQ(dif_rv_timer_approximate_tick_params(kSlowClockSpeed, kFastTimer,
-                                                 &params),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_approximate_tick_params(kSlowClockSpeed,
+                                                         kFastTimer, &params));
 }
 
 TEST(ApproximateParamsTest, NullArgs) {
-  EXPECT_EQ(dif_rv_timer_approximate_tick_params(kSlowClockSpeed, kFastTimer,
-                                                 nullptr),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_approximate_tick_params(kSlowClockSpeed,
+                                                         kFastTimer, nullptr));
 }
 
 class TimerTest : public testing::Test, public MmioTest {
@@ -135,12 +131,10 @@ TEST_F(ResetTest, Success) {
   EXPECT_WRITE32(RegForHart(0, RV_TIMER_TIMER_V_LOWER0_REG_OFFSET), 0x0);
   EXPECT_WRITE32(RegForHart(0, RV_TIMER_TIMER_V_UPPER0_REG_OFFSET), 0x0);
 
-  EXPECT_EQ(dif_rv_timer_reset(&rv_timer_), kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_reset(&rv_timer_));
 }
 
-TEST_F(ResetTest, NullArgs) {
-  EXPECT_EQ(dif_rv_timer_reset(nullptr), kDifBadArg);
-}
+TEST_F(ResetTest, NullArgs) { EXPECT_DIF_BADARG(dif_rv_timer_reset(nullptr)); }
 
 class SetTickParamsTest : public TimerTest {};
 
@@ -149,21 +143,18 @@ TEST_F(SetTickParamsTest, Success) {
       RegForHart(0, RV_TIMER_CFG0_REG_OFFSET),
       {{RV_TIMER_CFG0_PRESCALE_OFFSET, 400}, {RV_TIMER_CFG0_STEP_OFFSET, 25}});
 
-  EXPECT_EQ(dif_rv_timer_set_tick_params(&rv_timer_, 0,
-                                         {.prescale = 400, .tick_step = 25}),
-            kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_set_tick_params(
+      &rv_timer_, 0, {.prescale = 400, .tick_step = 25}));
 }
 
 TEST_F(SetTickParamsTest, NullArgs) {
-  EXPECT_EQ(dif_rv_timer_set_tick_params(nullptr, 0,
-                                         {.prescale = 400, .tick_step = 25}),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_set_tick_params(
+      nullptr, 0, {.prescale = 400, .tick_step = 25}));
 }
 
 TEST_F(SetTickParamsTest, BadHartId) {
-  EXPECT_EQ(dif_rv_timer_set_tick_params(&rv_timer_, RV_TIMER_PARAM_N_HARTS,
-                                         {.prescale = 400, .tick_step = 25}),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_set_tick_params(
+      &rv_timer_, RV_TIMER_PARAM_N_HARTS, {.prescale = 400, .tick_step = 25}));
 }
 
 class CounterSetEnabledTest : public TimerTest {};
@@ -171,19 +162,18 @@ class CounterSetEnabledTest : public TimerTest {};
 TEST_F(CounterSetEnabledTest, Success) {
   EXPECT_MASK32(RV_TIMER_CTRL_REG_OFFSET,
                 {{/*offset=*/0, /*mask=*/1, /*value=*/1}});
-  EXPECT_EQ(dif_rv_timer_counter_set_enabled(&rv_timer_, 0, kDifToggleEnabled),
-            kDifOk);
+  EXPECT_DIF_OK(
+      dif_rv_timer_counter_set_enabled(&rv_timer_, 0, kDifToggleEnabled));
 }
 
 TEST_F(CounterSetEnabledTest, NullArgs) {
-  EXPECT_EQ(dif_rv_timer_counter_set_enabled(nullptr, 0, kDifToggleEnabled),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(
+      dif_rv_timer_counter_set_enabled(nullptr, 0, kDifToggleEnabled));
 }
 
 TEST_F(CounterSetEnabledTest, BadHartId) {
-  EXPECT_EQ(dif_rv_timer_counter_set_enabled(&rv_timer_, RV_TIMER_PARAM_N_HARTS,
-                                             kDifToggleEnabled),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_counter_set_enabled(
+      &rv_timer_, RV_TIMER_PARAM_N_HARTS, kDifToggleEnabled));
 }
 
 class CounterReadTest : public TimerTest {};
@@ -194,7 +184,7 @@ TEST_F(CounterReadTest, Success) {
   EXPECT_READ32(RegForHart(0, RV_TIMER_TIMER_V_UPPER0_REG_OFFSET), 0x0222'0222);
 
   uint64_t value;
-  EXPECT_EQ(dif_rv_timer_counter_read(&rv_timer_, 0, &value), kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_counter_read(&rv_timer_, 0, &value));
   EXPECT_EQ(value, 0x0222'0222'0333'0333);
 }
 
@@ -208,21 +198,20 @@ TEST_F(CounterReadTest, Overflow) {
   EXPECT_READ32(RegForHart(0, RV_TIMER_TIMER_V_UPPER0_REG_OFFSET), 0x0222'0223);
 
   uint64_t value;
-  EXPECT_EQ(dif_rv_timer_counter_read(&rv_timer_, 0, &value), kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_counter_read(&rv_timer_, 0, &value));
   EXPECT_EQ(value, 0x0222'0223'0333'0444);
 }
 
 TEST_F(CounterReadTest, NullArgs) {
   uint64_t value;
-  EXPECT_EQ(dif_rv_timer_counter_read(nullptr, 0, &value), kDifBadArg);
-  EXPECT_EQ(dif_rv_timer_counter_read(&rv_timer_, 0, nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_counter_read(nullptr, 0, &value));
+  EXPECT_DIF_BADARG(dif_rv_timer_counter_read(&rv_timer_, 0, nullptr));
 }
 
 TEST_F(CounterReadTest, BadHartId) {
   uint64_t value;
-  EXPECT_EQ(
-      dif_rv_timer_counter_read(&rv_timer_, RV_TIMER_PARAM_N_HARTS, &value),
-      kDifBadArg);
+  EXPECT_DIF_BADARG(
+      dif_rv_timer_counter_read(&rv_timer_, RV_TIMER_PARAM_N_HARTS, &value));
 }
 
 class CounterWriteTest : public TimerTest {};
@@ -237,19 +226,18 @@ TEST_F(CounterWriteTest, Success) {
   EXPECT_WRITE32(RV_TIMER_CTRL_REG_OFFSET, 0x0000'0001);
 
   uint64_t count = 0xCAFE'FEED'DEAD'BEEF;
-  EXPECT_EQ(dif_rv_timer_counter_write(&rv_timer_, 0, count), kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_counter_write(&rv_timer_, 0, count));
 }
 
 TEST_F(CounterWriteTest, NullArgs) {
   uint64_t count = 0xCAFE'FEED'DEAD'BEEF;
-  EXPECT_EQ(dif_rv_timer_counter_write(nullptr, 0, count), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_counter_write(nullptr, 0, count));
 }
 
 TEST_F(CounterWriteTest, BadHartId) {
   uint64_t count = 0xCAFE'FEED'DEAD'BEEF;
-  EXPECT_EQ(
-      dif_rv_timer_counter_write(&rv_timer_, RV_TIMER_PARAM_N_HARTS, count),
-      kDifBadArg);
+  EXPECT_DIF_BADARG(
+      dif_rv_timer_counter_write(&rv_timer_, RV_TIMER_PARAM_N_HARTS, count));
 }
 
 class ArmTest : public TimerTest {};
@@ -262,23 +250,21 @@ TEST_F(ArmTest, Success) {
   EXPECT_WRITE32(lower_reg, 0x0444'0555);
   EXPECT_WRITE32(upper_reg, 0x0222'0333);
 
-  EXPECT_EQ(dif_rv_timer_arm(&rv_timer_, 0, 0, 0x0222'0333'0444'0555), kDifOk);
+  EXPECT_DIF_OK(dif_rv_timer_arm(&rv_timer_, 0, 0, 0x0222'0333'0444'0555));
 }
 
 TEST_F(ArmTest, NullArgs) {
-  EXPECT_EQ(dif_rv_timer_arm(nullptr, 0, 0, 0x0222'0333'0444'0555), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_arm(nullptr, 0, 0, 0x0222'0333'0444'0555));
 }
 
 TEST_F(ArmTest, BadHartIdBadCompId) {
-  EXPECT_EQ(dif_rv_timer_arm(&rv_timer_, RV_TIMER_PARAM_N_HARTS, 0,
-                             0x0222'0333'0444'0555),
-            kDifBadArg);
-  EXPECT_EQ(dif_rv_timer_arm(&rv_timer_, 0, RV_TIMER_PARAM_N_TIMERS,
-                             0x0222'0333'0444'0555),
-            kDifBadArg);
-  EXPECT_EQ(dif_rv_timer_arm(&rv_timer_, RV_TIMER_PARAM_N_HARTS,
-                             RV_TIMER_PARAM_N_TIMERS, 0x0222'0333'0444'0555),
-            kDifBadArg);
+  EXPECT_DIF_BADARG(dif_rv_timer_arm(&rv_timer_, RV_TIMER_PARAM_N_HARTS, 0,
+                                     0x0222'0333'0444'0555));
+  EXPECT_DIF_BADARG(dif_rv_timer_arm(&rv_timer_, 0, RV_TIMER_PARAM_N_TIMERS,
+                                     0x0222'0333'0444'0555));
+  EXPECT_DIF_BADARG(dif_rv_timer_arm(&rv_timer_, RV_TIMER_PARAM_N_HARTS,
+                                     RV_TIMER_PARAM_N_TIMERS,
+                                     0x0222'0333'0444'0555));
 }
 
 }  // namespace

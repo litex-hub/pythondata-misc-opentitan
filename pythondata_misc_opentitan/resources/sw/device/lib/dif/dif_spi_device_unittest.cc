@@ -9,6 +9,7 @@
 #include "gtest/gtest.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/base/testing/mock_mmio.h"
+#include "sw/device/lib/dif/dif_test_base.h"
 
 #include "spi_device_regs.h"  // Generated.
 
@@ -62,7 +63,7 @@ TEST_F(AbortTest, Immediate) {
   EXPECT_READ32(SPI_DEVICE_STATUS_REG_OFFSET,
                 {{SPI_DEVICE_STATUS_ABORT_DONE_BIT, 0x1}});
 
-  EXPECT_EQ(dif_spi_device_abort(&spi_), kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_abort(&spi_));
 }
 
 TEST_F(AbortTest, Delayed) {
@@ -77,11 +78,11 @@ TEST_F(AbortTest, Delayed) {
   EXPECT_READ32(SPI_DEVICE_STATUS_REG_OFFSET,
                 {{SPI_DEVICE_STATUS_ABORT_DONE_BIT, 0x1}});
 
-  EXPECT_EQ(dif_spi_device_abort(&spi_), kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_abort(&spi_));
 }
 
 TEST_F(AbortTest, NullArgs) {
-  EXPECT_EQ(dif_spi_device_abort(nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_abort(nullptr));
 }
 
 class ConfigTest : public SpiTest {};
@@ -106,7 +107,7 @@ TEST_F(ConfigTest, BasicInit) {
                      {SPI_DEVICE_TXF_ADDR_LIMIT_OFFSET, 0x1000 - 1},
                  });
 
-  EXPECT_EQ(dif_spi_device_configure(&spi_, &config_), kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_configure(&spi_, &config_));
 }
 
 TEST_F(ConfigTest, ComplexInit) {
@@ -139,18 +140,18 @@ TEST_F(ConfigTest, ComplexInit) {
                      {SPI_DEVICE_TXF_ADDR_LIMIT_OFFSET, 0x823},
                  });
 
-  EXPECT_EQ(dif_spi_device_configure(&spi_, &config_), kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_configure(&spi_, &config_));
 }
 
 TEST_F(ConfigTest, NullArgs) {
-  EXPECT_EQ(dif_spi_device_configure(nullptr, &config_), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_configure(&spi_, nullptr), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_configure(nullptr, nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_configure(nullptr, &config_));
+  EXPECT_DIF_BADARG(dif_spi_device_configure(&spi_, nullptr));
+  EXPECT_DIF_BADARG(dif_spi_device_configure(nullptr, nullptr));
 }
 
 TEST_F(ConfigTest, InitSramOverflow) {
   config_.rx_fifo_len = 0x1000;
-  EXPECT_EQ(dif_spi_device_configure(&spi_, &config_), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_configure(&spi_, &config_));
 }
 
 class IrqTest : public SpiTest {};
@@ -159,11 +160,11 @@ TEST_F(IrqTest, Levels) {
   EXPECT_WRITE32(SPI_DEVICE_FIFO_LEVEL_REG_OFFSET,
                  {{SPI_DEVICE_FIFO_LEVEL_RXLVL_OFFSET, 42},
                   {SPI_DEVICE_FIFO_LEVEL_TXLVL_OFFSET, 123}});
-  EXPECT_EQ(dif_spi_device_set_irq_levels(&spi_, 42, 123), kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_set_irq_levels(&spi_, 42, 123));
 }
 
 TEST_F(IrqTest, LevelsNull) {
-  EXPECT_EQ(dif_spi_device_set_irq_levels(nullptr, 123, 456), kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_set_irq_levels(nullptr, 123, 456));
 }
 
 class RxPendingTest : public SpiTest {};
@@ -173,8 +174,7 @@ TEST_F(RxPendingTest, BothZero) {
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, 0x0},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, 0x0}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0);
 }
 
@@ -183,8 +183,7 @@ TEST_F(RxPendingTest, InPhaseEmpty) {
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, FifoPtr(0x42, true)},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0);
 }
 
@@ -193,8 +192,7 @@ TEST_F(RxPendingTest, InPhase) {
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, FifoPtr(0x57, true)},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x15);
 }
 
@@ -203,8 +201,7 @@ TEST_F(RxPendingTest, OutOfPhaseFull) {
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, FifoPtr(0x42, false)},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x800);
 }
 
@@ -213,22 +210,21 @@ TEST_F(RxPendingTest, OutOfPhase) {
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, FifoPtr(0x42, false)},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, FifoPtr(0x57, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_rx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x7eb);
 }
 
 TEST_F(RxPendingTest, NullArgs) {
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_rx_pending(nullptr, &config_, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, nullptr, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, &config_, nullptr), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_rx_pending(nullptr, nullptr, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_rx_pending(&spi_, nullptr, nullptr), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_rx_pending(nullptr, nullptr, nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(
+      dif_spi_device_rx_pending(nullptr, &config_, &bytes_remaining));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_rx_pending(&spi_, nullptr, &bytes_remaining));
+  EXPECT_DIF_BADARG(dif_spi_device_rx_pending(&spi_, &config_, nullptr));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_rx_pending(nullptr, nullptr, &bytes_remaining));
+  EXPECT_DIF_BADARG(dif_spi_device_rx_pending(&spi_, nullptr, nullptr));
+  EXPECT_DIF_BADARG(dif_spi_device_rx_pending(nullptr, nullptr, nullptr));
 }
 
 class TxPendingTest : public SpiTest {};
@@ -238,8 +234,7 @@ TEST_F(TxPendingTest, BothZero) {
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, 0x0},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, 0x0}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0);
 }
 
@@ -248,8 +243,7 @@ TEST_F(TxPendingTest, InPhaseEmpty) {
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, FifoPtr(0x42, true)},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0);
 }
 
@@ -258,8 +252,7 @@ TEST_F(TxPendingTest, InPhase) {
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, FifoPtr(0x57, true)},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x15);
 }
 
@@ -268,8 +261,7 @@ TEST_F(TxPendingTest, OutOfPhaseFull) {
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, FifoPtr(0x42, false)},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x42, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x800);
 }
 
@@ -278,22 +270,21 @@ TEST_F(TxPendingTest, OutOfPhase) {
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, FifoPtr(0x42, false)},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x57, true)}});
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_tx_pending(&spi_, &config_, &bytes_remaining));
   EXPECT_EQ(bytes_remaining, 0x7eb);
 }
 
 TEST_F(TxPendingTest, NullArgs) {
   size_t bytes_remaining;
-  EXPECT_EQ(dif_spi_device_tx_pending(nullptr, &config_, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, nullptr, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, &config_, nullptr), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_tx_pending(nullptr, nullptr, &bytes_remaining),
-            kDifBadArg);
-  EXPECT_EQ(dif_spi_device_tx_pending(&spi_, nullptr, nullptr), kDifBadArg);
-  EXPECT_EQ(dif_spi_device_tx_pending(nullptr, nullptr, nullptr), kDifBadArg);
+  EXPECT_DIF_BADARG(
+      dif_spi_device_tx_pending(nullptr, &config_, &bytes_remaining));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_tx_pending(&spi_, nullptr, &bytes_remaining));
+  EXPECT_DIF_BADARG(dif_spi_device_tx_pending(&spi_, &config_, nullptr));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_tx_pending(nullptr, nullptr, &bytes_remaining));
+  EXPECT_DIF_BADARG(dif_spi_device_tx_pending(&spi_, nullptr, nullptr));
+  EXPECT_DIF_BADARG(dif_spi_device_tx_pending(nullptr, nullptr, nullptr));
 }
 
 class RecvTest : public SpiTest {};
@@ -305,9 +296,8 @@ TEST_F(RecvTest, EmptyFifo) {
 
   std::string buf(16, '\0');
   size_t recv_len = 0;
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, 0);
   buf.resize(recv_len);
   EXPECT_EQ(buf, "");
@@ -332,9 +322,8 @@ TEST_F(RecvTest, FullFifoAligned) {
   std::vector<char> buf;
   buf.resize(message.size() * 2);
   size_t recv_len = 0;
-  EXPECT_EQ(
-      dif_spi_device_recv(&spi_, &config_, buf.data(), buf.size(), &recv_len),
-      kDifOk);
+  EXPECT_DIF_OK(
+      dif_spi_device_recv(&spi_, &config_, buf.data(), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, message.size());
   buf.resize(recv_len);
   EXPECT_EQ(buf, message);
@@ -362,9 +351,8 @@ TEST_F(RecvTest, FullFifoSmallBuf) {
   std::vector<char> buf;
   buf.resize(buf_len);
   size_t recv_len = 0;
-  EXPECT_EQ(
-      dif_spi_device_recv(&spi_, &config_, buf.data(), buf.size(), &recv_len),
-      kDifOk);
+  EXPECT_DIF_OK(
+      dif_spi_device_recv(&spi_, &config_, buf.data(), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, buf_len);
   buf.resize(recv_len);
   message.resize(recv_len);
@@ -392,9 +380,8 @@ TEST_F(RecvTest, FullyAligned) {
 
   std::string buf(message.size() * 2, '\0');
   size_t recv_len = 0;
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, message.size());
   buf.resize(recv_len);
   EXPECT_EQ(buf, message);
@@ -421,9 +408,8 @@ TEST_F(RecvTest, UnalignedMessage) {
 
   std::string buf(message.size() * 2, '\0');
   size_t recv_len = 0;
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, cropped_len);
 
   buf.resize(message.size());
@@ -456,9 +442,8 @@ TEST_F(RecvTest, UnalignedStart) {
 
   std::string buf(message.size() * 2, '\0');
   size_t recv_len = 0;
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, cropped_len - cropped_start);
 
   buf.resize(message.size());
@@ -489,9 +474,8 @@ TEST_F(RecvTest, UnalignedSmall) {
 
   std::string buf(message.size() * 2, '\0');
   size_t recv_len = 0;
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), &recv_len));
   EXPECT_EQ(recv_len, cropped_len - cropped_start);
 
   buf.resize(message.size());
@@ -505,23 +489,19 @@ TEST_F(RecvTest, NullArgs) {
   std::string buf(16, '\0');
   size_t recv_len;
 
-  EXPECT_EQ(
-      dif_spi_device_recv(nullptr, &config_, const_cast<char *>(buf.data()),
-                          buf.size(), &recv_len),
-      kDifBadArg);
-  EXPECT_EQ(dif_spi_device_recv(&spi_, nullptr, const_cast<char *>(buf.data()),
-                                buf.size(), &recv_len),
-            kDifBadArg);
-  EXPECT_EQ(
-      dif_spi_device_recv(&spi_, &config_, nullptr, buf.size(), &recv_len),
-      kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_recv(nullptr, &config_,
+                                        const_cast<char *>(buf.data()),
+                                        buf.size(), &recv_len));
+  EXPECT_DIF_BADARG(dif_spi_device_recv(
+      &spi_, nullptr, const_cast<char *>(buf.data()), buf.size(), &recv_len));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_recv(&spi_, &config_, nullptr, buf.size(), &recv_len));
 
   EXPECT_READ32(SPI_DEVICE_RXF_PTR_REG_OFFSET,
                 {{SPI_DEVICE_RXF_PTR_WPTR_OFFSET, FifoPtr(0x5a, false)},
                  {SPI_DEVICE_RXF_PTR_RPTR_OFFSET, FifoPtr(0x5a, false)}});
-  EXPECT_EQ(dif_spi_device_recv(&spi_, &config_, const_cast<char *>(buf.data()),
-                                buf.size(), nullptr),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_recv(
+      &spi_, &config_, const_cast<char *>(buf.data()), buf.size(), nullptr));
 }
 
 class SendTest : public SpiTest {};
@@ -533,9 +513,8 @@ TEST_F(SendTest, FullFifo) {
 
   std::string message = "Hello, SPI!!";
   size_t send_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), message.size(),
-                                &send_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    message.size(), &send_len));
   EXPECT_EQ(send_len, 0);
 }
 
@@ -556,9 +535,8 @@ TEST_F(SendTest, EmptyToFull) {
                   {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x50, true)}});
 
   size_t sent_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), message.size(),
-                                &sent_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    message.size(), &sent_len));
   EXPECT_EQ(sent_len, message.size());
 }
 
@@ -579,9 +557,8 @@ TEST_F(SendTest, AlmostFull) {
                   {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x50, false)}});
 
   size_t sent_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), message.size(),
-                                &sent_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    message.size(), &sent_len));
   EXPECT_EQ(sent_len, 2);
 }
 
@@ -604,9 +581,8 @@ TEST_F(SendTest, FullyAligned) {
        {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x0, false)}});
 
   size_t send_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), message.size(),
-                                &send_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    message.size(), &send_len));
   EXPECT_EQ(send_len, message.size());
 }
 
@@ -632,9 +608,8 @@ TEST_F(SendTest, UnalignedMessage) {
                   {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x0, false)}});
 
   size_t send_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), cropped_len,
-                                &send_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    cropped_len, &send_len));
   EXPECT_EQ(send_len, cropped_len);
 }
 
@@ -667,9 +642,8 @@ TEST_F(SendTest, UnalignedStart) {
        {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(cropped_start, false)}});
 
   size_t send_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), cropped_len,
-                                &send_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    cropped_len, &send_len));
   EXPECT_EQ(send_len, cropped_len);
 }
 
@@ -697,9 +671,8 @@ TEST_F(SendTest, UnalignedSmall) {
        {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(cropped_start, false)}});
 
   size_t send_len = 0;
-  EXPECT_EQ(dif_spi_device_send(&spi_, &config_, message.data(), cropped_len,
-                                &send_len),
-            kDifOk);
+  EXPECT_DIF_OK(dif_spi_device_send(&spi_, &config_, message.data(),
+                                    cropped_len, &send_len));
   EXPECT_EQ(send_len, cropped_len);
 }
 
@@ -707,22 +680,18 @@ TEST_F(SendTest, NullArgs) {
   std::string buf(16, '\0');
   size_t recv_len;
 
-  EXPECT_EQ(
-      dif_spi_device_send(nullptr, &config_, buf.data(), buf.size(), &recv_len),
-      kDifBadArg);
-  EXPECT_EQ(
-      dif_spi_device_send(&spi_, nullptr, buf.data(), buf.size(), &recv_len),
-      kDifBadArg);
-  EXPECT_EQ(
-      dif_spi_device_send(&spi_, &config_, nullptr, buf.size(), &recv_len),
-      kDifBadArg);
+  EXPECT_DIF_BADARG(dif_spi_device_send(nullptr, &config_, buf.data(),
+                                        buf.size(), &recv_len));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_send(&spi_, nullptr, buf.data(), buf.size(), &recv_len));
+  EXPECT_DIF_BADARG(
+      dif_spi_device_send(&spi_, &config_, nullptr, buf.size(), &recv_len));
 
   EXPECT_READ32(SPI_DEVICE_TXF_PTR_REG_OFFSET,
                 {{SPI_DEVICE_TXF_PTR_WPTR_OFFSET, FifoPtr(0x5a, true)},
                  {SPI_DEVICE_TXF_PTR_RPTR_OFFSET, FifoPtr(0x5a, false)}});
-  EXPECT_EQ(
-      dif_spi_device_send(&spi_, &config_, buf.data(), buf.size(), nullptr),
-      kDifOk);
+  EXPECT_DIF_OK(
+      dif_spi_device_send(&spi_, &config_, buf.data(), buf.size(), nullptr));
 }
 }  // namespace
 }  // namespace dif_spi_device_unittest
