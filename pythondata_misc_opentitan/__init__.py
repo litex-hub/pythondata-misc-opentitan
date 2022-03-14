@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10868"
-version_tuple = (0, 0, 10868)
+version_str = "0.0.post10882"
+version_tuple = (0, 0, 10882)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10868")
+    pversion = V("0.0.post10882")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10742"
-data_version_tuple = (0, 0, 10742)
+data_version_str = "0.0.post10756"
+data_version_tuple = (0, 0, 10756)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10742")
+    pdata_version = V("0.0.post10756")
 except ImportError:
     pass
-data_git_hash = "91938337a5966c83a0c3826dd853aa329207a84e"
-data_git_describe = "v0.0-10742-g91938337a"
+data_git_hash = "74606dcd1d0f0d175d651b8e5e1046329f3d4a1c"
+data_git_describe = "v0.0-10756-g74606dcd1"
 data_git_msg = """\
-commit 91938337a5966c83a0c3826dd853aa329207a84e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Mar 9 20:48:31 2022 -0800
+commit 74606dcd1d0f0d175d651b8e5e1046329f3d4a1c
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 11 23:21:51 2022 +0000
 
-    [dv/kmac] Update shadow reg
+    [otbn,dv] Allow traced changes from ISS when no operation is running
     
-    As fix #11307 is merged, this PR updates and fixes a few corner cases in
-    shadow reg.
-    1). Clear shadowed reg update eror when `err_processed` is set.
-    2). Disable a few assertions when storage error happened.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
