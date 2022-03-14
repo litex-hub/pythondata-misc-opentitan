@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10866"
-version_tuple = (0, 0, 10866)
+version_str = "0.0.post10868"
+version_tuple = (0, 0, 10868)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10866")
+    pversion = V("0.0.post10868")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10740"
-data_version_tuple = (0, 0, 10740)
+data_version_str = "0.0.post10742"
+data_version_tuple = (0, 0, 10742)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10740")
+    pdata_version = V("0.0.post10742")
 except ImportError:
     pass
-data_git_hash = "b72a638b010b936a2ba79024ce25d8e629a3bec6"
-data_git_describe = "v0.0-10740-gb72a638b0"
+data_git_hash = "91938337a5966c83a0c3826dd853aa329207a84e"
+data_git_describe = "v0.0-10742-g91938337a"
 data_git_msg = """\
-commit b72a638b010b936a2ba79024ce25d8e629a3bec6
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Tue Mar 8 15:15:49 2022 +0000
+commit 91938337a5966c83a0c3826dd853aa329207a84e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Mar 9 20:48:31 2022 -0800
 
-    [sw,tests] Verify flash_idle signaling to pwrmgr
+    [dv/kmac] Update shadow reg
     
-    For test: chip_sw_flash_idle_low_power.
+    As fix #11307 is merged, this PR updates and fixes a few corner cases in
+    shadow reg.
+    1). Clear shadowed reg update eror when `err_processed` is set.
+    2). Disable a few assertions when storage error happened.
     
-    Checks that when low power entry is enabled and a flash operation is in progress that the
-    low power entry is cancelled upon receiving the WFI instruction.
-    The watchdog timer barks to exit the WFI and a check is done to ensure the flash operation has completed.
-    
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
