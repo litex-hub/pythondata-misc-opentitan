@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10883"
-version_tuple = (0, 0, 10883)
+version_str = "0.0.post10884"
+version_tuple = (0, 0, 10884)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10883")
+    pversion = V("0.0.post10884")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10757"
-data_version_tuple = (0, 0, 10757)
+data_version_str = "0.0.post10758"
+data_version_tuple = (0, 0, 10758)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10757")
+    pdata_version = V("0.0.post10758")
 except ImportError:
     pass
-data_git_hash = "2cba533b1e02a9396dfdc031c62e3b82c9aeb318"
-data_git_describe = "v0.0-10757-g2cba533b1"
+data_git_hash = "8d95e28682ff4d70f11d6b8b663969768daa7ff1"
+data_git_describe = "v0.0-10758-g8d95e2868"
 data_git_msg = """\
-commit 2cba533b1e02a9396dfdc031c62e3b82c9aeb318
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 10 18:54:15 2022 -0800
+commit 8d95e28682ff4d70f11d6b8b663969768daa7ff1
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Thu Mar 10 13:36:16 2022 -0800
 
-    [keymgr] various d2s fixes
+    [entropy_src, dv] Fix data integrity issue in entropy_src interrupt/error test
     
-    - addresses several items in #11387
+      - Fix the data integrity error when forcing esrng fifo write error in entropy_src interrupt/error test
+      - Fix some health test bugs
+      - Fixes #11144
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
