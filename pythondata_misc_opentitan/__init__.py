@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10900"
-version_tuple = (0, 0, 10900)
+version_str = "0.0.post10901"
+version_tuple = (0, 0, 10901)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10900")
+    pversion = V("0.0.post10901")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10774"
-data_version_tuple = (0, 0, 10774)
+data_version_str = "0.0.post10775"
+data_version_tuple = (0, 0, 10775)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10774")
+    pdata_version = V("0.0.post10775")
 except ImportError:
     pass
-data_git_hash = "009aa4b83fc2a229fa97b36f433c5e63d36d689e"
-data_git_describe = "v0.0-10774-g009aa4b83"
+data_git_hash = "d1f4de94d527b90e4950e3cf1773cb3b10ff8df8"
+data_git_describe = "v0.0-10775-gd1f4de94d"
 data_git_msg = """\
-commit 009aa4b83fc2a229fa97b36f433c5e63d36d689e
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Mar 15 09:27:09 2022 -0700
+commit d1f4de94d527b90e4950e3cf1773cb3b10ff8df8
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Mar 14 19:55:12 2022 -0700
 
-    [dv/rstmgr] Declare V2
+    [spi_device] Move CSb edge detector to top
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This commit moves CSb synchronizer and assertion/ de-assertion checker
+    to the SPI_DEVICE TOP. The synchronizer and edge detectors have existed
+    at the TOP module already. This commit is to combine the synchronizer to
+    the TOP so that it removes chance of reconvergence issues.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
