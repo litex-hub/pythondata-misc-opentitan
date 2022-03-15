@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10884"
-version_tuple = (0, 0, 10884)
+version_str = "0.0.post10886"
+version_tuple = (0, 0, 10886)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10884")
+    pversion = V("0.0.post10886")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10758"
-data_version_tuple = (0, 0, 10758)
+data_version_str = "0.0.post10760"
+data_version_tuple = (0, 0, 10760)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10758")
+    pdata_version = V("0.0.post10760")
 except ImportError:
     pass
-data_git_hash = "8d95e28682ff4d70f11d6b8b663969768daa7ff1"
-data_git_describe = "v0.0-10758-g8d95e2868"
+data_git_hash = "be0f83a7d7a8238a0e5a4411818b05c7379761a0"
+data_git_describe = "v0.0-10760-gbe0f83a7d"
 data_git_msg = """\
-commit 8d95e28682ff4d70f11d6b8b663969768daa7ff1
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Thu Mar 10 13:36:16 2022 -0800
+commit be0f83a7d7a8238a0e5a4411818b05c7379761a0
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Mar 10 09:22:36 2022 -0800
 
-    [entropy_src, dv] Fix data integrity issue in entropy_src interrupt/error test
+    chip dv] Fix AST initialization routine
     
-      - Fix the data integrity error when forcing esrng fifo write error in entropy_src interrupt/error test
-      - Fix some health test bugs
-      - Fixes #11144
+    Use absolute address range of AST rather than reference the AST CSRs via
+    RAL, because those structures do not exist in the closed source.
     
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
