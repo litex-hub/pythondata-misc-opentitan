@@ -4,46 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10893"
-version_tuple = (0, 0, 10893)
+version_str = "0.0.post10896"
+version_tuple = (0, 0, 10896)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10893")
+    pversion = V("0.0.post10896")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10767"
-data_version_tuple = (0, 0, 10767)
+data_version_str = "0.0.post10770"
+data_version_tuple = (0, 0, 10770)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10767")
+    pdata_version = V("0.0.post10770")
 except ImportError:
     pass
-data_git_hash = "d8492a38f89ed28328e1bf08dcef4507a7801e81"
-data_git_describe = "v0.0-10767-gd8492a38f"
+data_git_hash = "cb8755cbd9acc1d1ce4281c0d6d6e32f399987bc"
+data_git_describe = "v0.0-10770-gcb8755cbd"
 data_git_msg = """\
-commit d8492a38f89ed28328e1bf08dcef4507a7801e81
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Mar 14 13:22:43 2022 -0700
+commit cb8755cbd9acc1d1ce4281c0d6d6e32f399987bc
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Mar 14 15:38:05 2022 -0700
 
-    [keymgr] d2s configuration cross checks
+    [dv/clkmgr] Fix trans unit handling
     
-    - Addresses the cross check item in #11387
+    The RTL removed a trans unit and changed each idle input to be mubi.
+    This caused a major breakage in dv. This updates dv to handle the new
+    interface.
     
-    - dest_sel cross check
-      - check that when a sideload key operation is written, the original
-        register configuration and the final select used are consistent
-    
-    - operation cross check
-      - check that after the one hot command check, the "deployed" command
-        value is continuously checked with the original configuration.
-      - check that when the main fsm changes state into one of the key states,
-        it was due to an advancted type command
-      - check that if the operational state is in generate or advanced, it is
-        consistent with the original configuration input
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
