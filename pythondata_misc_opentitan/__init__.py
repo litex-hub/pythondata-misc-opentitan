@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10901"
-version_tuple = (0, 0, 10901)
+version_str = "0.0.post10902"
+version_tuple = (0, 0, 10902)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10901")
+    pversion = V("0.0.post10902")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10775"
-data_version_tuple = (0, 0, 10775)
+data_version_str = "0.0.post10776"
+data_version_tuple = (0, 0, 10776)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10775")
+    pdata_version = V("0.0.post10776")
 except ImportError:
     pass
-data_git_hash = "d1f4de94d527b90e4950e3cf1773cb3b10ff8df8"
-data_git_describe = "v0.0-10775-gd1f4de94d"
+data_git_hash = "d00f90249ca5008689420f7cc79a9d40b703bff4"
+data_git_describe = "v0.0-10776-gd00f90249"
 data_git_msg = """\
-commit d1f4de94d527b90e4950e3cf1773cb3b10ff8df8
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Mar 14 19:55:12 2022 -0700
+commit d00f90249ca5008689420f7cc79a9d40b703bff4
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Mar 14 16:57:27 2022 -0700
 
-    [spi_device] Move CSb edge detector to top
+    [conn] Update conn csv tests
     
-    This commit moves CSb synchronizer and assertion/ de-assertion checker
-    to the SPI_DEVICE TOP. The synchronizer and edge detectors have existed
-    at the TOP module already. This commit is to combine the synchronizer to
-    the TOP so that it removes chance of reconvergence issues.
+    This PR cleans up the conn csv format:
+    1). Implemented ports from src to dst
+    2). Add spaces for readability
+    3). Update some namings so it is easier to debug
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
