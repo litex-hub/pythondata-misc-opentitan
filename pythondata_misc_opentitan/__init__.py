@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10882"
-version_tuple = (0, 0, 10882)
+version_str = "0.0.post10883"
+version_tuple = (0, 0, 10883)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10882")
+    pversion = V("0.0.post10883")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10756"
-data_version_tuple = (0, 0, 10756)
+data_version_str = "0.0.post10757"
+data_version_tuple = (0, 0, 10757)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10756")
+    pdata_version = V("0.0.post10757")
 except ImportError:
     pass
-data_git_hash = "74606dcd1d0f0d175d651b8e5e1046329f3d4a1c"
-data_git_describe = "v0.0-10756-g74606dcd1"
+data_git_hash = "2cba533b1e02a9396dfdc031c62e3b82c9aeb318"
+data_git_describe = "v0.0-10757-g2cba533b1"
 data_git_msg = """\
-commit 74606dcd1d0f0d175d651b8e5e1046329f3d4a1c
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 11 23:21:51 2022 +0000
+commit 2cba533b1e02a9396dfdc031c62e3b82c9aeb318
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 10 18:54:15 2022 -0800
 
-    [otbn,dv] Allow traced changes from ISS when no operation is running
+    [keymgr] various d2s fixes
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    - addresses several items in #11387
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
