@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10898"
-version_tuple = (0, 0, 10898)
+version_str = "0.0.post10900"
+version_tuple = (0, 0, 10900)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10898")
+    pversion = V("0.0.post10900")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10772"
-data_version_tuple = (0, 0, 10772)
+data_version_str = "0.0.post10774"
+data_version_tuple = (0, 0, 10774)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10772")
+    pdata_version = V("0.0.post10774")
 except ImportError:
     pass
-data_git_hash = "e3a148bc38ccf5e555d3644682b714e21d185042"
-data_git_describe = "v0.0-10772-ge3a148bc3"
+data_git_hash = "009aa4b83fc2a229fa97b36f433c5e63d36d689e"
+data_git_describe = "v0.0-10774-g009aa4b83"
 data_git_msg = """\
-commit e3a148bc38ccf5e555d3644682b714e21d185042
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Tue Mar 15 14:21:02 2022 +0000
+commit 009aa4b83fc2a229fa97b36f433c5e63d36d689e
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Mar 15 09:27:09 2022 -0700
 
-    [flash_ctrl] Small fix for flash_ctrl_phy_arb test
+    [dv/rstmgr] Declare V2
     
-    Enabling creator and owner pages for sw rw access.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
