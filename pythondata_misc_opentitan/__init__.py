@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10896"
-version_tuple = (0, 0, 10896)
+version_str = "0.0.post10898"
+version_tuple = (0, 0, 10898)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10896")
+    pversion = V("0.0.post10898")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10770"
-data_version_tuple = (0, 0, 10770)
+data_version_str = "0.0.post10772"
+data_version_tuple = (0, 0, 10772)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10770")
+    pdata_version = V("0.0.post10772")
 except ImportError:
     pass
-data_git_hash = "cb8755cbd9acc1d1ce4281c0d6d6e32f399987bc"
-data_git_describe = "v0.0-10770-gcb8755cbd"
+data_git_hash = "e3a148bc38ccf5e555d3644682b714e21d185042"
+data_git_describe = "v0.0-10772-ge3a148bc3"
 data_git_msg = """\
-commit cb8755cbd9acc1d1ce4281c0d6d6e32f399987bc
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Mar 14 15:38:05 2022 -0700
+commit e3a148bc38ccf5e555d3644682b714e21d185042
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Tue Mar 15 14:21:02 2022 +0000
 
-    [dv/clkmgr] Fix trans unit handling
+    [flash_ctrl] Small fix for flash_ctrl_phy_arb test
     
-    The RTL removed a trans unit and changed each idle input to be mubi.
-    This caused a major breakage in dv. This updates dv to handle the new
-    interface.
+    Enabling creator and owner pages for sw rw access.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
