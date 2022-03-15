@@ -4,35 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10892"
-version_tuple = (0, 0, 10892)
+version_str = "0.0.post10893"
+version_tuple = (0, 0, 10893)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10892")
+    pversion = V("0.0.post10893")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10766"
-data_version_tuple = (0, 0, 10766)
+data_version_str = "0.0.post10767"
+data_version_tuple = (0, 0, 10767)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10766")
+    pdata_version = V("0.0.post10767")
 except ImportError:
     pass
-data_git_hash = "ef51081c8a8e39519287b17c1fadb2edd4c7b141"
-data_git_describe = "v0.0-10766-gef51081c8"
+data_git_hash = "d8492a38f89ed28328e1bf08dcef4507a7801e81"
+data_git_describe = "v0.0-10767-gd8492a38f"
 data_git_msg = """\
-commit ef51081c8a8e39519287b17c1fadb2edd4c7b141
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 9 15:53:29 2022 +0000
+commit d8492a38f89ed28328e1bf08dcef4507a7801e81
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 14 13:22:43 2022 -0700
 
-    [otbn,dv] Refactor step method in ISS
+    [keymgr] d2s configuration cross checks
     
-    We now have a separate method per FSM state, which I think should make
-    things a bit easier to follow.
+    - Addresses the cross check item in #11387
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    - dest_sel cross check
+      - check that when a sideload key operation is written, the original
+        register configuration and the final select used are consistent
+    
+    - operation cross check
+      - check that after the one hot command check, the "deployed" command
+        value is continuously checked with the original configuration.
+      - check that when the main fsm changes state into one of the key states,
+        it was due to an advancted type command
+      - check that if the operational state is in generate or advanced, it is
+        consistent with the original configuration input
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
