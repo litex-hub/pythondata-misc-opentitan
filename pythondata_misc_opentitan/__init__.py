@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10902"
-version_tuple = (0, 0, 10902)
+version_str = "0.0.post10906"
+version_tuple = (0, 0, 10906)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10902")
+    pversion = V("0.0.post10906")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10776"
-data_version_tuple = (0, 0, 10776)
+data_version_str = "0.0.post10780"
+data_version_tuple = (0, 0, 10780)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10776")
+    pdata_version = V("0.0.post10780")
 except ImportError:
     pass
-data_git_hash = "d00f90249ca5008689420f7cc79a9d40b703bff4"
-data_git_describe = "v0.0-10776-gd00f90249"
+data_git_hash = "ccffc9806b894c0c6e865af12a5b8c71a1419ae3"
+data_git_describe = "v0.0-10780-gccffc9806"
 data_git_msg = """\
-commit d00f90249ca5008689420f7cc79a9d40b703bff4
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Mar 14 16:57:27 2022 -0700
+commit ccffc9806b894c0c6e865af12a5b8c71a1419ae3
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Mar 8 17:58:35 2022 -0800
 
-    [conn] Update conn csv tests
+    [dv/full_chip] Add clkmgr_external_clk_src_for_sw
     
-    This PR cleans up the conn csv format:
-    1). Implemented ports from src to dst
-    2). Add spaces for readability
-    3). Update some namings so it is easier to debug
+    Fix chip external clock frequency: set it to 100 MHz by default, and add
+    option to set it to either 100 or 48 MHz via "extclk_freq_mhz" plusargs.
+    Create clkmgr_testutils_enable_clock_count_measurement testutils for
+    this test.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
