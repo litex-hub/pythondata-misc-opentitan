@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10886"
-version_tuple = (0, 0, 10886)
+version_str = "0.0.post10889"
+version_tuple = (0, 0, 10889)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10886")
+    pversion = V("0.0.post10889")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10760"
-data_version_tuple = (0, 0, 10760)
+data_version_str = "0.0.post10763"
+data_version_tuple = (0, 0, 10763)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10760")
+    pdata_version = V("0.0.post10763")
 except ImportError:
     pass
-data_git_hash = "be0f83a7d7a8238a0e5a4411818b05c7379761a0"
-data_git_describe = "v0.0-10760-gbe0f83a7d"
+data_git_hash = "6813c96838d2aa989fcadd9381b6a4bba9c80bcf"
+data_git_describe = "v0.0-10763-g6813c9683"
 data_git_msg = """\
-commit be0f83a7d7a8238a0e5a4411818b05c7379761a0
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Mar 10 09:22:36 2022 -0800
+commit 6813c96838d2aa989fcadd9381b6a4bba9c80bcf
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Mon Feb 21 02:23:04 2022 -0800
 
-    chip dv] Fix AST initialization routine
+    [aes/cover] added cover sample to scoreboad
     
-    Use absolute address range of AST rather than reference the AST CSRs via
-    RAL, because those structures do not exist in the closed source.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
