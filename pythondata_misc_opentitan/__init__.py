@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10889"
-version_tuple = (0, 0, 10889)
+version_str = "0.0.post10890"
+version_tuple = (0, 0, 10890)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10889")
+    pversion = V("0.0.post10890")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10763"
-data_version_tuple = (0, 0, 10763)
+data_version_str = "0.0.post10764"
+data_version_tuple = (0, 0, 10764)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10763")
+    pdata_version = V("0.0.post10764")
 except ImportError:
     pass
-data_git_hash = "6813c96838d2aa989fcadd9381b6a4bba9c80bcf"
-data_git_describe = "v0.0-10763-g6813c9683"
+data_git_hash = "f4e384542ae19c85e3573caabb17dc1dc8cf2bbb"
+data_git_describe = "v0.0-10764-gf4e384542"
 data_git_msg = """\
-commit 6813c96838d2aa989fcadd9381b6a4bba9c80bcf
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Mon Feb 21 02:23:04 2022 -0800
+commit f4e384542ae19c85e3573caabb17dc1dc8cf2bbb
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Mar 10 11:12:33 2022 +0000
 
-    [aes/cover] added cover sample to scoreboad
+    [test, aon_timer] Fix bug on the aon bite reset test
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+     - The bug was caused by a delay of 3 cycles between the matching of timer counter with the threshold and the irq state register to rise, which becomes more evident when the cpu clock is higher.
+    
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
