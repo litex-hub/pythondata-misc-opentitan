@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10890"
-version_tuple = (0, 0, 10890)
+version_str = "0.0.post10892"
+version_tuple = (0, 0, 10892)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10890")
+    pversion = V("0.0.post10892")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10764"
-data_version_tuple = (0, 0, 10764)
+data_version_str = "0.0.post10766"
+data_version_tuple = (0, 0, 10766)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10764")
+    pdata_version = V("0.0.post10766")
 except ImportError:
     pass
-data_git_hash = "f4e384542ae19c85e3573caabb17dc1dc8cf2bbb"
-data_git_describe = "v0.0-10764-gf4e384542"
+data_git_hash = "ef51081c8a8e39519287b17c1fadb2edd4c7b141"
+data_git_describe = "v0.0-10766-gef51081c8"
 data_git_msg = """\
-commit f4e384542ae19c85e3573caabb17dc1dc8cf2bbb
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Mar 10 11:12:33 2022 +0000
+commit ef51081c8a8e39519287b17c1fadb2edd4c7b141
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Mar 9 15:53:29 2022 +0000
 
-    [test, aon_timer] Fix bug on the aon bite reset test
+    [otbn,dv] Refactor step method in ISS
     
-     - The bug was caused by a delay of 3 cycles between the matching of timer counter with the threshold and the irq state register to rise, which becomes more evident when the cpu clock is higher.
+    We now have a separate method per FSM state, which I think should make
+    things a bit easier to follow.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
