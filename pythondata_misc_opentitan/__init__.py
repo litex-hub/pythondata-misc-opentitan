@@ -4,32 +4,53 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10931"
-version_tuple = (0, 0, 10931)
+version_str = "0.0.post10932"
+version_tuple = (0, 0, 10932)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10931")
+    pversion = V("0.0.post10932")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10805"
-data_version_tuple = (0, 0, 10805)
+data_version_str = "0.0.post10806"
+data_version_tuple = (0, 0, 10806)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10805")
+    pdata_version = V("0.0.post10806")
 except ImportError:
     pass
-data_git_hash = "0f337102132a1bb0209f93414d1a3cd0b2734c85"
-data_git_describe = "v0.0-10805-g0f3371021"
+data_git_hash = "aa9daa1b8696412230a6d81bd1651fd8ae672d12"
+data_git_describe = "v0.0-10806-gaa9daa1b8"
 data_git_msg = """\
-commit 0f337102132a1bb0209f93414d1a3cd0b2734c85
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 16 14:55:09 2022 -0400
+commit aa9daa1b8696412230a6d81bd1651fd8ae672d12
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Mar 15 18:15:58 2022 -0700
 
-    Add #include clarifications in freestading/README.md
+    [rtl/otp] Some workaround for FPV security countermeasure assertions
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Hi Michael,
+    I do not think they are necessary RTL functional changes, but related to
+    how formal checks these security countermeasure assertions.
+    What we did are:
+    - blackbox prim_counts and prim_lfsrs
+    - stop at the logic with sparse_fsm outputs
+    The side-effects of these manual injections are - at some cases,
+    `state_q <= state_d` does not work anymore.
+    
+    So if the prim_counter has err_o, sometimes it only propogates to
+    state_d but not state_q. So it will never trigger a `fsm_err_o`. Please
+    see the waves attached.
+    
+    Because of that, I think maybe this workaround would work?
+    If you do not want it to be in the acutal RTL code, I can also add a
+    ifdef `FPV_SEC_CM_ON` to only include these code in FPV.
+    Please let me know what you think.
+    
+    Thanks
+    Cindy
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
