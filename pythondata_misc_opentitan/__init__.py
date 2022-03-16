@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10906"
-version_tuple = (0, 0, 10906)
+version_str = "0.0.post10908"
+version_tuple = (0, 0, 10908)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10906")
+    pversion = V("0.0.post10908")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10780"
-data_version_tuple = (0, 0, 10780)
+data_version_str = "0.0.post10782"
+data_version_tuple = (0, 0, 10782)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10780")
+    pdata_version = V("0.0.post10782")
 except ImportError:
     pass
-data_git_hash = "ccffc9806b894c0c6e865af12a5b8c71a1419ae3"
-data_git_describe = "v0.0-10780-gccffc9806"
+data_git_hash = "9dddbb0e1a2724578954a30762c18450ef0d4fca"
+data_git_describe = "v0.0-10782-g9dddbb0e1"
 data_git_msg = """\
-commit ccffc9806b894c0c6e865af12a5b8c71a1419ae3
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Mar 8 17:58:35 2022 -0800
+commit 9dddbb0e1a2724578954a30762c18450ef0d4fca
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Mar 9 16:20:30 2022 -0800
 
-    [dv/full_chip] Add clkmgr_external_clk_src_for_sw
+    [dif/pattgen] Add implementations of all DIFs
     
-    Fix chip external clock frequency: set it to 100 MHz by default, and add
-    option to set it to either 100 or 48 MHz via "extclk_freq_mhz" plusargs.
-    Create clkmgr_testutils_enable_clock_count_measurement testutils for
-    this test.
+    This adds implementations (and unittests) of all DIFs for the PATTGEN
+    IP.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
