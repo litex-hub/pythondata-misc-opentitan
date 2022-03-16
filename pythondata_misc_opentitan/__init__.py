@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10919"
-version_tuple = (0, 0, 10919)
+version_str = "0.0.post10923"
+version_tuple = (0, 0, 10923)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10919")
+    pversion = V("0.0.post10923")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10793"
-data_version_tuple = (0, 0, 10793)
+data_version_str = "0.0.post10797"
+data_version_tuple = (0, 0, 10797)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10793")
+    pdata_version = V("0.0.post10797")
 except ImportError:
     pass
-data_git_hash = "2d9bfa749da6e11ef64bc95173906654d2cd2b36"
-data_git_describe = "v0.0-10793-g2d9bfa749"
+data_git_hash = "6ee413aab2a7d3f59fcb1c7bdd62f14cf8b14ade"
+data_git_describe = "v0.0-10797-g6ee413aab"
 data_git_msg = """\
-commit 2d9bfa749da6e11ef64bc95173906654d2cd2b36
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Tue Mar 15 11:51:39 2022 -0400
+commit 6ee413aab2a7d3f59fcb1c7bdd62f14cf8b14ade
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Wed Mar 16 08:31:23 2022 +0000
 
-    [lib] Don't make anything in lib depend on the base:base rule
+    [opentitan] Remove Silvestrs from committers
     
-    This excludes a couple of deprecated targets that aren't worth fixing.
-    
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
