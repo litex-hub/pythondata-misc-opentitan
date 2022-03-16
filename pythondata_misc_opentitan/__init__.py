@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10916"
-version_tuple = (0, 0, 10916)
+version_str = "0.0.post10919"
+version_tuple = (0, 0, 10919)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10916")
+    pversion = V("0.0.post10919")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10790"
-data_version_tuple = (0, 0, 10790)
+data_version_str = "0.0.post10793"
+data_version_tuple = (0, 0, 10793)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10790")
+    pdata_version = V("0.0.post10793")
 except ImportError:
     pass
-data_git_hash = "7c2486520585a8aad6d7c96ccde811540c206ed6"
-data_git_describe = "v0.0-10790-g7c2486520"
+data_git_hash = "2d9bfa749da6e11ef64bc95173906654d2cd2b36"
+data_git_describe = "v0.0-10793-g2d9bfa749"
 data_git_msg = """\
-commit 7c2486520585a8aad6d7c96ccde811540c206ed6
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 10 14:32:44 2022 +0000
+commit 2d9bfa749da6e11ef64bc95173906654d2cd2b36
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Tue Mar 15 11:51:39 2022 -0400
 
-    [otbn,dv] Still print final instruction on escalation when running
+    [lib] Don't make anything in lib depend on the base:base rule
     
-    We run on_lc_escalation() earlier in the cycle than step(), but we
-    want to make sure that we still generate a trace item for executing an
-    instruction on that cycle (even though it will be cancelled).
+    This excludes a couple of deprecated targets that aren't worth fixing.
     
-    This commit adds explicit "pending error bits" to the state to make
-    that possible.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
