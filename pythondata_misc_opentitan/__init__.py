@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10908"
-version_tuple = (0, 0, 10908)
+version_str = "0.0.post10910"
+version_tuple = (0, 0, 10910)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10908")
+    pversion = V("0.0.post10910")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10782"
-data_version_tuple = (0, 0, 10782)
+data_version_str = "0.0.post10784"
+data_version_tuple = (0, 0, 10784)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10782")
+    pdata_version = V("0.0.post10784")
 except ImportError:
     pass
-data_git_hash = "9dddbb0e1a2724578954a30762c18450ef0d4fca"
-data_git_describe = "v0.0-10782-g9dddbb0e1"
+data_git_hash = "94ce41a785d3d72b49694696785cb76a2d773908"
+data_git_describe = "v0.0-10784-g94ce41a78"
 data_git_msg = """\
-commit 9dddbb0e1a2724578954a30762c18450ef0d4fca
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Mar 9 16:20:30 2022 -0800
+commit 94ce41a785d3d72b49694696785cb76a2d773908
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Mar 14 09:50:54 2022 -0700
 
-    [dif/pattgen] Add implementations of all DIFs
+    [dv/clkmgr] Populate sec_cm testplan
     
-    This adds implementations (and unittests) of all DIFs for the PATTGEN
-    IP.
+    Add existing and auto-generated tests to sec_cm testplan.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
