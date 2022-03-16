@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10913"
-version_tuple = (0, 0, 10913)
+version_str = "0.0.post10916"
+version_tuple = (0, 0, 10916)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10913")
+    pversion = V("0.0.post10916")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10787"
-data_version_tuple = (0, 0, 10787)
+data_version_str = "0.0.post10790"
+data_version_tuple = (0, 0, 10790)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10787")
+    pdata_version = V("0.0.post10790")
 except ImportError:
     pass
-data_git_hash = "998bb559bfd720bacc3cbecc5a0dec45902dfafe"
-data_git_describe = "v0.0-10787-g998bb559b"
+data_git_hash = "7c2486520585a8aad6d7c96ccde811540c206ed6"
+data_git_describe = "v0.0-10790-g7c2486520"
 data_git_msg = """\
-commit 998bb559bfd720bacc3cbecc5a0dec45902dfafe
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Mar 14 15:49:19 2022 -0700
+commit 7c2486520585a8aad6d7c96ccde811540c206ed6
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 10 14:32:44 2022 +0000
 
-    [dv] Add valid/ready req/ack coverage for push_pull agent
+    [otbn,dv] Still print final instruction on escalation when running
     
-    Sample all the combination of valid/ready or req/ack
+    We run on_lc_escalation() earlier in the cycle than step(), but we
+    want to make sure that we still generate a trace item for executing an
+    instruction on that cycle (even though it will be cancelled).
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit adds explicit "pending error bits" to the state to make
+    that possible.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
