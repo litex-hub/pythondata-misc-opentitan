@@ -86,6 +86,11 @@ class OTBNSim:
                   verbose: bool,
                   fetch_next: bool) -> List[Trace]:
         '''This is run on a stall cycle'''
+        if self.state.pending_halt:
+            # We've reached the end of the run because of some error. Register
+            # it on the next cycle.
+            self.state.stop()
+
         changes = self.state.changes()
         self.state.commit(sim_stalled=True)
         if fetch_next:
@@ -94,6 +99,7 @@ class OTBNSim:
             self.stats.record_stall()
         if verbose:
             self._print_trace(self.state.pc, '(stall)', changes)
+
         return changes
 
     def _on_retire(self,
@@ -106,7 +112,9 @@ class OTBNSim:
         if self.stats is not None:
             self.stats.record_insn(insn, self.state)
 
-        if self.state.pending_halt:
+        halting = self.state.pending_halt
+
+        if halting:
             # We've reached the end of the run (either because of an ECALL
             # instruction or an error).
             self.state.stop()
@@ -119,7 +127,7 @@ class OTBNSim:
 
         # Fetch the next instruction unless we're done or this instruction had
         # `has_fetch_stall` set (in which case we inject a single cycle stall).
-        no_fetch = self.state.pending_halt or insn.has_fetch_stall
+        no_fetch = halting or insn.has_fetch_stall
         self._next_insn = None if no_fetch else self._fetch(self.state.pc)
 
         disasm = insn.disassemble(pc_before)
@@ -138,20 +146,34 @@ class OTBNSim:
         '''
         fsm_state = self.state.get_fsm_state()
 
+        # Pairs: (stepper, handles_injected_err). If handles_injected_err is
+        # False then the generic code here will deal with any pending errors in
+        # self.state.injected_err_bits. If True, then we expect the stepper
+        # function to handle them.
         steppers = {
-            FsmState.IDLE: self._step_idle,
-            FsmState.PRE_EXEC: self._step_pre_exec,
-            FsmState.FETCH_WAIT: self._step_fetch_wait,
-            FsmState.EXEC: self._step_exec,
-            FsmState.WIPING_GOOD: self._step_wiping,
-            FsmState.WIPING_BAD: self._step_wiping,
-            FsmState.LOCKED: self._step_idle
+            FsmState.IDLE: (self._step_idle, False),
+            FsmState.PRE_EXEC: (self._step_pre_exec, False),
+            FsmState.FETCH_WAIT: (self._step_fetch_wait, False),
+            FsmState.EXEC: (self._step_exec, True),
+            FsmState.WIPING_GOOD: (self._step_wiping, False),
+            FsmState.WIPING_BAD: (self._step_wiping, False),
+            FsmState.LOCKED: (self._step_idle, False)
         }
 
-        return steppers[fsm_state](verbose)
+        stepper, handles_injected_err = steppers[fsm_state]
+
+        if not handles_injected_err:
+            self.state.take_injected_err_bits()
+
+        return stepper(verbose)
 
     def _step_idle(self, verbose: bool) -> StepRes:
         '''Step the simulation when OTBN is IDLE or LOCKED'''
+        if self.state.pending_halt:
+            # We've reached the end of the run because of some error. Register
+            # it on the next cycle.
+            self.state.stop()
+
         changes = self.state.changes()
         self.state.commit(sim_stalled=True)
         return (None, changes)
@@ -191,6 +213,7 @@ class OTBNSim:
 
         insn = self._next_insn
         if insn is None:
+            self.state.take_injected_err_bits()
             return (None, self._on_stall(verbose, fetch_next=True))
 
         # Whether or not we're currently executing an instruction, we fetched
@@ -220,6 +243,11 @@ class OTBNSim:
                 next(self._execute_generator)
             except StopIteration:
                 self._execute_generator = None
+
+        # Handle any pending injected error. Note that this has to run after
+        # we've executed any instruction, to ensure we get a trace entry for
+        # that instruction before it gets shot down.
+        self.state.take_injected_err_bits()
 
         sim_stalled = (self._execute_generator is not None)
         if not sim_stalled:
@@ -268,4 +296,4 @@ class OTBNSim:
 
     def on_lc_escalation(self) -> None:
         '''React to a lifecycle controller escalation signal'''
-        self.state.stop_at_end_of_cycle(ErrBits.LIFECYCLE_ESCALATION)
+        self.state.injected_err_bits |= ErrBits.LIFECYCLE_ESCALATION

@@ -125,6 +125,14 @@ class OTBNState:
         # number. Initialise to -1 to catch bugs if we forget to set it.
         self.wipe_cycles = -1
 
+        # If this is nonzero, there's been an error injected from outside. The
+        # Sim.step function will OR these bits into err_bits and stop at the
+        # end of the next cycle. (We don't just call stop_at_end_of_cycle
+        # because this runs earlier in the cycle than step(), which would mean
+        # we wouldn't see the final instruction get executed and then
+        # cancelled).
+        self.injected_err_bits = 0
+
     def get_next_pc(self) -> int:
         if self._pc_next_override is not None:
             return self._pc_next_override
@@ -421,6 +429,9 @@ class OTBNState:
                                 else FsmState.WIPING_GOOD)
         self.wipe_cycles = (_WIPE_CYCLES if self.secure_wipe_enabled else 1)
 
+        # Clear the "we should stop soon" flag
+        self.pending_halt = False
+
     def get_fsm_state(self) -> FsmState:
         return self._fsm_state
 
@@ -514,3 +525,9 @@ class OTBNState:
         self.wdrs.wipe()
         self.wsrs.wipe()
         self.csrs.wipe()
+
+    def take_injected_err_bits(self) -> None:
+        '''Apply any injected errors, stopping at the end of the cycle'''
+        if self.injected_err_bits != 0:
+            self.stop_at_end_of_cycle(self.injected_err_bits)
+            self.injected_err_bits = 0
