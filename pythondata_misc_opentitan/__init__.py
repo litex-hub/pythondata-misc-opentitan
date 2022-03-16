@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10911"
-version_tuple = (0, 0, 10911)
+version_str = "0.0.post10913"
+version_tuple = (0, 0, 10913)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10911")
+    pversion = V("0.0.post10913")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10785"
-data_version_tuple = (0, 0, 10785)
+data_version_str = "0.0.post10787"
+data_version_tuple = (0, 0, 10787)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10785")
+    pdata_version = V("0.0.post10787")
 except ImportError:
     pass
-data_git_hash = "0eef86cff5b94f577153640ac78a9fa4f56ccc54"
-data_git_describe = "v0.0-10785-g0eef86cff"
+data_git_hash = "998bb559bfd720bacc3cbecc5a0dec45902dfafe"
+data_git_describe = "v0.0-10787-g998bb559b"
 data_git_msg = """\
-commit 0eef86cff5b94f577153640ac78a9fa4f56ccc54
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Mar 14 19:27:12 2022 -0700
+commit 998bb559bfd720bacc3cbecc5a0dec45902dfafe
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Mar 14 15:49:19 2022 -0700
 
-    [keymgr] Minor refactor for long files
+    [dv] Add valid/ready req/ack coverage for push_pull agent
     
-    - move data fsm, op fsm and error collection into their own
-      separate modules.
-    - also some minor clean-up.
+    Sample all the combination of valid/ready or req/ack
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
