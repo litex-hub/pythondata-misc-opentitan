@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10923"
-version_tuple = (0, 0, 10923)
+version_str = "0.0.post10925"
+version_tuple = (0, 0, 10925)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10923")
+    pversion = V("0.0.post10925")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10797"
-data_version_tuple = (0, 0, 10797)
+data_version_str = "0.0.post10799"
+data_version_tuple = (0, 0, 10799)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10797")
+    pdata_version = V("0.0.post10799")
 except ImportError:
     pass
-data_git_hash = "6ee413aab2a7d3f59fcb1c7bdd62f14cf8b14ade"
-data_git_describe = "v0.0-10797-g6ee413aab"
+data_git_hash = "121ea53a3955779cc46a66a149ce870e7f8b6c15"
+data_git_describe = "v0.0-10799-g121ea53a3"
 data_git_msg = """\
-commit 6ee413aab2a7d3f59fcb1c7bdd62f14cf8b14ade
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Wed Mar 16 08:31:23 2022 +0000
+commit 121ea53a3955779cc46a66a149ce870e7f8b6c15
+Author: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
+Date:   Wed Feb 16 17:00:51 2022 +0100
 
-    [opentitan] Remove Silvestrs from committers
+    [kmac] Added errorcode for fatal-fault #10804
     
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Michael Tempelmeier <michael.tempelmeier@gi-de.com>
 
 """
 
