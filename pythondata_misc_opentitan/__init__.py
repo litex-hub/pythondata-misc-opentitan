@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10910"
-version_tuple = (0, 0, 10910)
+version_str = "0.0.post10911"
+version_tuple = (0, 0, 10911)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10910")
+    pversion = V("0.0.post10911")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10784"
-data_version_tuple = (0, 0, 10784)
+data_version_str = "0.0.post10785"
+data_version_tuple = (0, 0, 10785)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10784")
+    pdata_version = V("0.0.post10785")
 except ImportError:
     pass
-data_git_hash = "94ce41a785d3d72b49694696785cb76a2d773908"
-data_git_describe = "v0.0-10784-g94ce41a78"
+data_git_hash = "0eef86cff5b94f577153640ac78a9fa4f56ccc54"
+data_git_describe = "v0.0-10785-g0eef86cff"
 data_git_msg = """\
-commit 94ce41a785d3d72b49694696785cb76a2d773908
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Mar 14 09:50:54 2022 -0700
+commit 0eef86cff5b94f577153640ac78a9fa4f56ccc54
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 14 19:27:12 2022 -0700
 
-    [dv/clkmgr] Populate sec_cm testplan
+    [keymgr] Minor refactor for long files
     
-    Add existing and auto-generated tests to sec_cm testplan.
+    - move data fsm, op fsm and error collection into their own
+      separate modules.
+    - also some minor clean-up.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
