@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10952"
-version_tuple = (0, 0, 10952)
+version_str = "0.0.post10955"
+version_tuple = (0, 0, 10955)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10952")
+    pversion = V("0.0.post10955")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10826"
-data_version_tuple = (0, 0, 10826)
+data_version_str = "0.0.post10829"
+data_version_tuple = (0, 0, 10829)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10826")
+    pdata_version = V("0.0.post10829")
 except ImportError:
     pass
-data_git_hash = "770fb8f3eeb952097e7d2d6319bc74311910c169"
-data_git_describe = "v0.0-10826-g770fb8f3e"
+data_git_hash = "cbe41e0de3047b1fec8cdaac21ac11910df1859b"
+data_git_describe = "v0.0-10829-gcbe41e0de"
 data_git_msg = """\
-commit 770fb8f3eeb952097e7d2d6319bc74311910c169
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 16 15:12:42 2022 -0400
+commit cbe41e0de3047b1fec8cdaac21ac11910df1859b
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Mar 14 15:43:33 2022 -0700
 
-    [sw, style] Replace LLVM-style X macro guidance
+    [dv/clkmgr] Fix external clock handling
     
-    The new guidance is consistent with the far more common practice
-    throughout the project; we also eliminate the sole LLVM-style X macro.
+    The RTL handling of external clock was recently changed.
+    Update DV to match interface changes.
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
