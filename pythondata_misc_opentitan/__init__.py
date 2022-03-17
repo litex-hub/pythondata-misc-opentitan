@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10951"
-version_tuple = (0, 0, 10951)
+version_str = "0.0.post10952"
+version_tuple = (0, 0, 10952)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10951")
+    pversion = V("0.0.post10952")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10825"
-data_version_tuple = (0, 0, 10825)
+data_version_str = "0.0.post10826"
+data_version_tuple = (0, 0, 10826)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10825")
+    pdata_version = V("0.0.post10826")
 except ImportError:
     pass
-data_git_hash = "c4e9f84094831bae578803be809a827667f28c80"
-data_git_describe = "v0.0-10825-gc4e9f8409"
+data_git_hash = "770fb8f3eeb952097e7d2d6319bc74311910c169"
+data_git_describe = "v0.0-10826-g770fb8f3e"
 data_git_msg = """\
-commit c4e9f84094831bae578803be809a827667f28c80
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Mar 9 15:33:12 2022 +0000
+commit 770fb8f3eeb952097e7d2d6319bc74311910c169
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 16 15:12:42 2022 -0400
 
-    [rv_core_ibex] Move to D2S and bump version to 1.0
+    [sw, style] Replace LLVM-style X macro guidance
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    The new guidance is consistent with the far more common practice
+    throughout the project; we also eliminate the sole LLVM-style X macro.
+    
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
