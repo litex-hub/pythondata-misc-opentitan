@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10950"
-version_tuple = (0, 0, 10950)
+version_str = "0.0.post10951"
+version_tuple = (0, 0, 10951)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10950")
+    pversion = V("0.0.post10951")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10824"
-data_version_tuple = (0, 0, 10824)
+data_version_str = "0.0.post10825"
+data_version_tuple = (0, 0, 10825)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10824")
+    pdata_version = V("0.0.post10825")
 except ImportError:
     pass
-data_git_hash = "019c184896f5b7f7c8e30751f67745ba6267e566"
-data_git_describe = "v0.0-10824-g019c18489"
+data_git_hash = "c4e9f84094831bae578803be809a827667f28c80"
+data_git_describe = "v0.0-10825-gc4e9f8409"
 data_git_msg = """\
-commit 019c184896f5b7f7c8e30751f67745ba6267e566
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Mar 16 09:05:52 2022 -0700
+commit c4e9f84094831bae578803be809a827667f28c80
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Mar 9 15:33:12 2022 +0000
 
-    [usbdev] Update checklist for reaching D2S
+    [rv_core_ibex] Move to D2S and bump version to 1.0
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
