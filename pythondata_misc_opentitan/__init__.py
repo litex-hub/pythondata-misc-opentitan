@@ -4,36 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10935"
-version_tuple = (0, 0, 10935)
+version_str = "0.0.post10936"
+version_tuple = (0, 0, 10936)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10935")
+    pversion = V("0.0.post10936")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10809"
-data_version_tuple = (0, 0, 10809)
+data_version_str = "0.0.post10810"
+data_version_tuple = (0, 0, 10810)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10809")
+    pdata_version = V("0.0.post10810")
 except ImportError:
     pass
-data_git_hash = "30d626cc8a5ccdf74b13ca57e87291fd0ead9aed"
-data_git_describe = "v0.0-10809-g30d626cc8"
+data_git_hash = "f25122dedbb3350b3765345955c81335db912fe3"
+data_git_describe = "v0.0-10810-gf25122ded"
 data_git_msg = """\
-commit 30d626cc8a5ccdf74b13ca57e87291fd0ead9aed
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Wed Mar 16 19:00:34 2022 -0700
+commit f25122dedbb3350b3765345955c81335db912fe3
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Mar 16 10:25:35 2022 +0000
 
-    [chip dv] Testplan mapping fixes
+    Update lowrisc_ibex to lowRISC/ibex@f7724adc
     
-    Fix incorrect test mapping that result in unmapped tests in the report.
-    Remove _test suffix in tests specified in the hjson, since it is not
-    needed.
+    Update code from upstream repository
+    https://github.com/lowRISC/ibex.git to revision
+    f7724adcc76bea0bd909c2ac28cf11226d5cbefe
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    * [rtl] Move memory ECC checks and generation into core (Greg
+      Chadwick)
+    * Fix port list in top_artya7 example (Rupert Swarbrick)
+    * [doc] Add examples info to README (Greg Chadwick)
+    * [icache, dv] Made changes required to make TB compatible with
+      Xcelium (Prajwala Puttappa)
+    * Update lowrisc_ip to lowRISC/opentitan@7c4f8b3fd (Prajwala Puttappa)
+    * [ibex, dv] Added a sequence to toggle fetch_enable_i pin (Prajwala
+      Puttappa)
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
