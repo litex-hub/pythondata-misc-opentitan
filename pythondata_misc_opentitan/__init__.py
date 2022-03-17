@@ -4,53 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10932"
-version_tuple = (0, 0, 10932)
+version_str = "0.0.post10933"
+version_tuple = (0, 0, 10933)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10932")
+    pversion = V("0.0.post10933")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10806"
-data_version_tuple = (0, 0, 10806)
+data_version_str = "0.0.post10807"
+data_version_tuple = (0, 0, 10807)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10806")
+    pdata_version = V("0.0.post10807")
 except ImportError:
     pass
-data_git_hash = "aa9daa1b8696412230a6d81bd1651fd8ae672d12"
-data_git_describe = "v0.0-10806-gaa9daa1b8"
+data_git_hash = "933bb16ca024f77d40614280075a028e5741507f"
+data_git_describe = "v0.0-10807-g933bb16ca"
 data_git_msg = """\
-commit aa9daa1b8696412230a6d81bd1651fd8ae672d12
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Mar 15 18:15:58 2022 -0700
+commit 933bb16ca024f77d40614280075a028e5741507f
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Mar 15 00:00:19 2022 -0700
 
-    [rtl/otp] Some workaround for FPV security countermeasure assertions
+    [dif/adc_ctrl] Implement configuration DIFs
     
-    Hi Michael,
-    I do not think they are necessary RTL functional changes, but related to
-    how formal checks these security countermeasure assertions.
-    What we did are:
-    - blackbox prim_counts and prim_lfsrs
-    - stop at the logic with sparse_fsm outputs
-    The side-effects of these manual injections are - at some cases,
-    `state_q <= state_d` does not work anymore.
+    This adds implementations (and unit tests) for the two configuration
+    DIFs for the ADC Controller, including:
     
-    So if the prim_counter has err_o, sometimes it only propogates to
-    state_d but not state_q. So it will never trigger a `fsm_err_o`. Please
-    see the waves attached.
+    1. the block-level configuration DIF, and
+    2. the filter configuration DIF.
     
-    Because of that, I think maybe this workaround would work?
-    If you do not want it to be in the acutal RTL code, I can also add a
-    ifdef `FPV_SEC_CM_ON` to only include these code in FPV.
-    Please let me know what you think.
-    
-    Thanks
-    Cindy
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
