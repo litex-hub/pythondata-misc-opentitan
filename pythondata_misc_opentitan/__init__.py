@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10939"
-version_tuple = (0, 0, 10939)
+version_str = "0.0.post10941"
+version_tuple = (0, 0, 10941)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10939")
+    pversion = V("0.0.post10941")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10813"
-data_version_tuple = (0, 0, 10813)
+data_version_str = "0.0.post10815"
+data_version_tuple = (0, 0, 10815)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10813")
+    pdata_version = V("0.0.post10815")
 except ImportError:
     pass
-data_git_hash = "5857c501eb04b8cbd1b90f5b146fb84e8b9d7e0b"
-data_git_describe = "v0.0-10813-g5857c501e"
+data_git_hash = "fd0df25d021a94d23436f142b67f1ee2a4fcf0b7"
+data_git_describe = "v0.0-10815-gfd0df25d0"
 data_git_msg = """\
-commit 5857c501eb04b8cbd1b90f5b146fb84e8b9d7e0b
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Mar 16 15:21:26 2022 -0700
+commit fd0df25d021a94d23436f142b67f1ee2a4fcf0b7
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Mar 16 22:54:01 2022 -0700
 
-    [dv/otp] sec_cm
+    [dv] Enable tlul_assert for CSR tests
     
-    This PR update security countermeasure tasks:
-    1). Update exp_status_val when injecting fault on DV
-    2). After fault injected, this PR checks if otp is blocked by accessing
-      the OTP.
-    3). Disable assertions due to index OOB.
+    Some assert coverage can be only covered in CSR tests, such as b2b same
+    address request.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
