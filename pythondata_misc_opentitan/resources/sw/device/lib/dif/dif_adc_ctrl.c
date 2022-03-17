@@ -334,3 +334,72 @@ dif_result_t dif_adc_ctrl_filter_get_enabled(const dif_adc_ctrl_t *adc_ctrl,
 
   return kDifOk;
 }
+
+dif_result_t dif_adc_ctrl_get_triggered_value(const dif_adc_ctrl_t *adc_ctrl,
+                                              dif_adc_ctrl_channel_t channel,
+                                              uint16_t *value) {
+  if (adc_ctrl == NULL || value == NULL) {
+    return kDifBadArg;
+  }
+
+  uint32_t value_reg;
+
+#define DIF_ADC_CTRL_CHANNEL_TRIG_VALUE_CASE_(channel_)                           \
+  case kDifAdcCtrlChannel##channel_:                                              \
+    value_reg = mmio_region_read32(                                               \
+        adc_ctrl->base_addr, ADC_CTRL_ADC_CHN_VAL_##channel_##_REG_OFFSET);       \
+    *value = bitfield_field32_read(                                               \
+        value_reg,                                                                \
+        ADC_CTRL_ADC_CHN_VAL_##channel_##_ADC_CHN_VALUE_INTR_##channel_##_FIELD); \
+    break;
+
+  switch (channel) {
+    DIF_ADC_CTRL_CHANNEL_LIST(DIF_ADC_CTRL_CHANNEL_TRIG_VALUE_CASE_)
+    default:
+      return kDifBadArg;
+  }
+
+#undef DIF_ADC_CTRL_CHANNEL_TRIG_VALUE_CASE_
+
+  return kDifOk;
+}
+
+dif_result_t dif_adc_ctrl_get_latest_value(const dif_adc_ctrl_t *adc_ctrl,
+                                           dif_adc_ctrl_channel_t channel,
+                                           uint16_t *value) {
+  if (adc_ctrl == NULL || value == NULL) {
+    return kDifBadArg;
+  }
+
+  uint32_t value_reg;
+
+#define DIF_ADC_CTRL_CHANNEL_LATEST_VALUE_CASE_(channel_)                    \
+  case kDifAdcCtrlChannel##channel_:                                         \
+    value_reg = mmio_region_read32(                                          \
+        adc_ctrl->base_addr, ADC_CTRL_ADC_CHN_VAL_##channel_##_REG_OFFSET);  \
+    *value = bitfield_field32_read(                                          \
+        value_reg,                                                           \
+        ADC_CTRL_ADC_CHN_VAL_##channel_##_ADC_CHN_VALUE_##channel_##_FIELD); \
+    break;
+
+  switch (channel) {
+    DIF_ADC_CTRL_CHANNEL_LIST(DIF_ADC_CTRL_CHANNEL_LATEST_VALUE_CASE_)
+    default:
+      return kDifBadArg;
+  }
+
+#undef DIF_ADC_CTRL_CHANNEL_LATEST_VALUE_CASE_
+
+  return kDifOk;
+}
+
+dif_result_t dif_adc_ctrl_reset(const dif_adc_ctrl_t *adc_ctrl) {
+  if (adc_ctrl == NULL) {
+    return kDifBadArg;
+  }
+
+  mmio_region_write32(adc_ctrl->base_addr, ADC_CTRL_ADC_FSM_RST_REG_OFFSET, 1);
+  mmio_region_write32(adc_ctrl->base_addr, ADC_CTRL_ADC_FSM_RST_REG_OFFSET, 0);
+
+  return kDifOk;
+}
