@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10937"
-version_tuple = (0, 0, 10937)
+version_str = "0.0.post10938"
+version_tuple = (0, 0, 10938)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10937")
+    pversion = V("0.0.post10938")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10811"
-data_version_tuple = (0, 0, 10811)
+data_version_str = "0.0.post10812"
+data_version_tuple = (0, 0, 10812)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10811")
+    pdata_version = V("0.0.post10812")
 except ImportError:
     pass
-data_git_hash = "be2a187152275c826463744b4fa8691c79b865e2"
-data_git_describe = "v0.0-10811-gbe2a18715"
+data_git_hash = "ef7251a509edea71b16b00af64c363f72e224dd8"
+data_git_describe = "v0.0-10812-gef7251a50"
 data_git_msg = """\
-commit be2a187152275c826463744b4fa8691c79b865e2
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Mar 16 23:04:43 2022 +0000
+commit ef7251a509edea71b16b00af64c363f72e224dd8
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 16 14:58:37 2022 -0400
 
-    [chip,dv] Remove chip_sw_rom_ctrl_reset_glitch from testplan
+    [sw] Get rid of bespoke *_WARN_UNUSED_RESULT macros
     
-    This test is to verify functionality that we never got around to
-    adding to KMAC and has been ICEBOXed.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
