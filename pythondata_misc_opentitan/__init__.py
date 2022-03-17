@@ -4,47 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10934"
-version_tuple = (0, 0, 10934)
+version_str = "0.0.post10935"
+version_tuple = (0, 0, 10935)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10934")
+    pversion = V("0.0.post10935")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10808"
-data_version_tuple = (0, 0, 10808)
+data_version_str = "0.0.post10809"
+data_version_tuple = (0, 0, 10809)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10808")
+    pdata_version = V("0.0.post10809")
 except ImportError:
     pass
-data_git_hash = "4c75bf9687c490f7eebc5d524c7d66a21dafcced"
-data_git_describe = "v0.0-10808-g4c75bf968"
+data_git_hash = "30d626cc8a5ccdf74b13ca57e87291fd0ead9aed"
+data_git_describe = "v0.0-10809-g30d626cc8"
 data_git_msg = """\
-commit 4c75bf9687c490f7eebc5d524c7d66a21dafcced
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Mar 15 17:30:21 2022 -0700
+commit 30d626cc8a5ccdf74b13ca57e87291fd0ead9aed
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Wed Mar 16 19:00:34 2022 -0700
 
-    [dv] Add ROM-only chip-level test example
+    [chip dv] Testplan mapping fixes
     
-    A few chip-level tests (e.g., `chip_sw_flash_init`) must run and
-    complete entirely in the ROM stage. This means that the conventional
-    mechanism for running chip-level tests at the flash (ROM_EXT) stage is
-    not suitable for such tests.
+    Fix incorrect test mapping that result in unmapped tests in the report.
+    Remove _test suffix in tests specified in the hjson, since it is not
+    needed.
     
-    This commit overcomes this by adding a mechanism to build a chip-level
-    test to be run in ROM using the meson build system. (Conveniently, the
-    `opentitan_functest` rule already provides such a mechanism using the
-    `test_in_rom` rule option.) Additionally, this commit updates the DV
-    testbench to skip loading of a flash image (either via bootstrap or via
-    the backdoor mem util mechanism) if no such flash image is provided at
-    runtime. Lastly, an example ROM-stage chip-level test is added to verify
-    the correctness of the added infrastructure, and to provide a reference
-    point for future chip-level test development.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
