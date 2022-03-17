@@ -4,46 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10936"
-version_tuple = (0, 0, 10936)
+version_str = "0.0.post10937"
+version_tuple = (0, 0, 10937)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10936")
+    pversion = V("0.0.post10937")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10810"
-data_version_tuple = (0, 0, 10810)
+data_version_str = "0.0.post10811"
+data_version_tuple = (0, 0, 10811)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10810")
+    pdata_version = V("0.0.post10811")
 except ImportError:
     pass
-data_git_hash = "f25122dedbb3350b3765345955c81335db912fe3"
-data_git_describe = "v0.0-10810-gf25122ded"
+data_git_hash = "be2a187152275c826463744b4fa8691c79b865e2"
+data_git_describe = "v0.0-10811-gbe2a18715"
 data_git_msg = """\
-commit f25122dedbb3350b3765345955c81335db912fe3
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Mar 16 10:25:35 2022 +0000
+commit be2a187152275c826463744b4fa8691c79b865e2
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Mar 16 23:04:43 2022 +0000
 
-    Update lowrisc_ibex to lowRISC/ibex@f7724adc
+    [chip,dv] Remove chip_sw_rom_ctrl_reset_glitch from testplan
     
-    Update code from upstream repository
-    https://github.com/lowRISC/ibex.git to revision
-    f7724adcc76bea0bd909c2ac28cf11226d5cbefe
+    This test is to verify functionality that we never got around to
+    adding to KMAC and has been ICEBOXed.
     
-    * [rtl] Move memory ECC checks and generation into core (Greg
-      Chadwick)
-    * Fix port list in top_artya7 example (Rupert Swarbrick)
-    * [doc] Add examples info to README (Greg Chadwick)
-    * [icache, dv] Made changes required to make TB compatible with
-      Xcelium (Prajwala Puttappa)
-    * Update lowrisc_ip to lowRISC/opentitan@7c4f8b3fd (Prajwala Puttappa)
-    * [ibex, dv] Added a sequence to toggle fetch_enable_i pin (Prajwala
-      Puttappa)
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
