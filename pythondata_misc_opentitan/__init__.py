@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10941"
-version_tuple = (0, 0, 10941)
+version_str = "0.0.post10950"
+version_tuple = (0, 0, 10950)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10941")
+    pversion = V("0.0.post10950")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10815"
-data_version_tuple = (0, 0, 10815)
+data_version_str = "0.0.post10824"
+data_version_tuple = (0, 0, 10824)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10815")
+    pdata_version = V("0.0.post10824")
 except ImportError:
     pass
-data_git_hash = "fd0df25d021a94d23436f142b67f1ee2a4fcf0b7"
-data_git_describe = "v0.0-10815-gfd0df25d0"
+data_git_hash = "019c184896f5b7f7c8e30751f67745ba6267e566"
+data_git_describe = "v0.0-10824-g019c18489"
 data_git_msg = """\
-commit fd0df25d021a94d23436f142b67f1ee2a4fcf0b7
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Mar 16 22:54:01 2022 -0700
+commit 019c184896f5b7f7c8e30751f67745ba6267e566
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Mar 16 09:05:52 2022 -0700
 
-    [dv] Enable tlul_assert for CSR tests
+    [usbdev] Update checklist for reaching D2S
     
-    Some assert coverage can be only covered in CSR tests, such as b2b same
-    address request.
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
