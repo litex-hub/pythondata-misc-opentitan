@@ -4,38 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10963"
-version_tuple = (0, 0, 10963)
+version_str = "0.0.post10965"
+version_tuple = (0, 0, 10965)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10963")
+    pversion = V("0.0.post10965")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10837"
-data_version_tuple = (0, 0, 10837)
+data_version_str = "0.0.post10839"
+data_version_tuple = (0, 0, 10839)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10837")
+    pdata_version = V("0.0.post10839")
 except ImportError:
     pass
-data_git_hash = "e5928dfec8723c6be150342a18b80c72b1c4659f"
-data_git_describe = "v0.0-10837-ge5928dfec"
+data_git_hash = "3fe9fdd8b9b3e18c616e7e400155ba7d48040abb"
+data_git_describe = "v0.0-10839-g3fe9fdd8b"
 data_git_msg = """\
-commit e5928dfec8723c6be150342a18b80c72b1c4659f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Feb 10 15:01:51 2022 +0000
+commit 3fe9fdd8b9b3e18c616e7e400155ba7d48040abb
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Mar 17 14:37:31 2022 -0700
 
-    [otbn,dv] Clear the "imem is invalidated" flag when loading program
+    [chip dv] Fix AST cfg initialization - part 3
     
-    This hasn't usually mattered because we reset the dut (and also the
-    ISS) after injecting IMEM errors to clear the locked state. However,
-    there was a race window where we injected the errors just after OTBN
-    had finished. In this case, we don't need to reset the DUT, but we do
-    have to clear the flag when the IMEM contents are replaced.
+    - Add knob `do_creator_sw_cfg_ast_cfg` to control whether the AST init
+      is done.
+    - Change `creator_sw_cfg_ast_cfg_data` to reflect the full set of values
+      programmed, including the last REGAL register. This simplifies the
+      logic a bit.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
