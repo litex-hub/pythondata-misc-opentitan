@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10984"
-version_tuple = (0, 0, 10984)
+version_str = "0.0.post10985"
+version_tuple = (0, 0, 10985)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10984")
+    pversion = V("0.0.post10985")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10858"
-data_version_tuple = (0, 0, 10858)
+data_version_str = "0.0.post10859"
+data_version_tuple = (0, 0, 10859)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10858")
+    pdata_version = V("0.0.post10859")
 except ImportError:
     pass
-data_git_hash = "e586c76f5a728d4a45c7fb28aa0b858cb334a07b"
-data_git_describe = "v0.0-10858-ge586c76f5"
+data_git_hash = "67e117d85a9db1e5a0ae94f79762ceb1aaf26570"
+data_git_describe = "v0.0-10859-g67e117d85"
 data_git_msg = """\
-commit e586c76f5a728d4a45c7fb28aa0b858cb334a07b
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Mar 18 09:45:05 2022 -0700
+commit 67e117d85a9db1e5a0ae94f79762ceb1aaf26570
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Mar 18 09:17:17 2022 -0700
 
-    [dif/bazel] Fix up adc_ctrl target
+    [doc/clkmgr] Fix trivial typo
     
-    Remove duplicated hdrs field.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
