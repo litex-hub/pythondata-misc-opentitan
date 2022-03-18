@@ -4,49 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10970"
-version_tuple = (0, 0, 10970)
+version_str = "0.0.post10972"
+version_tuple = (0, 0, 10972)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10970")
+    pversion = V("0.0.post10972")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10844"
-data_version_tuple = (0, 0, 10844)
+data_version_str = "0.0.post10846"
+data_version_tuple = (0, 0, 10846)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10844")
+    pdata_version = V("0.0.post10846")
 except ImportError:
     pass
-data_git_hash = "dcd9d110d6706d8acf1c14c21004cb4d13da8da8"
-data_git_describe = "v0.0-10844-gdcd9d110d"
+data_git_hash = "9c6dff79adc5ff2ccd33bd16e85bfabbafe920c1"
+data_git_describe = "v0.0-10846-g9c6dff79a"
 data_git_msg = """\
-commit dcd9d110d6706d8acf1c14c21004cb4d13da8da8
-Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
-Date:   Thu Feb 17 17:05:09 2022 +0000
+commit 9c6dff79adc5ff2ccd33bd16e85bfabbafe920c1
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Thu Mar 17 03:57:41 2022 -0700
 
-    [hmac_enc, tests] Introduce the HMAC chip level test (non-irq)
+    [dv] enable tlul_assert for csr part2
     
-    This change uses HMAC example vector from:
-    https://csrc.nist.gov/CSRC/media/Projects/
-    Cryptographic-Standards-and-Guidelines/documents/
-    examples/HMAC_SHA256.pdf
-    
-    Key length = 100
-    Tag length = 32
-    
-    This example vector has key length larger, and not aligned to the
-    block size. This makes it well suited to check the basic conformance
-    to the HMAC specification, which states that when key is larger than
-    the block size, it must be hashed to produce a block sized key.
-    
-    Please see:
-    https://csrc.nist.gov/csrc/media/publications/fips/198/archive/
-    2002-03-06/documents/fips-198a.pdf
-    
-    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
