@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10966"
-version_tuple = (0, 0, 10966)
+version_str = "0.0.post10967"
+version_tuple = (0, 0, 10967)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10966")
+    pversion = V("0.0.post10967")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10840"
-data_version_tuple = (0, 0, 10840)
+data_version_str = "0.0.post10841"
+data_version_tuple = (0, 0, 10841)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10840")
+    pdata_version = V("0.0.post10841")
 except ImportError:
     pass
-data_git_hash = "9aa75b6c931ada30eae0f41efde102e41ec808d2"
-data_git_describe = "v0.0-10840-g9aa75b6c9"
+data_git_hash = "01e039027fa097ba6bf374e1f4338a729b39bab4"
+data_git_describe = "v0.0-10841-g01e039027"
 data_git_msg = """\
-commit 9aa75b6c931ada30eae0f41efde102e41ec808d2
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Mar 17 11:40:48 2022 -0700
+commit 01e039027fa097ba6bf374e1f4338a729b39bab4
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Mar 17 13:52:03 2022 -0700
 
-    [dv/full_chip] Fix pwrmgr_rstmgr SVA
+    [keymgr/dv] Update otp key sample point
     
-    This SVA has two problems:
-    - The main_rst_req_i (connected to !rst_main_n) should be ignored
-      while in deep sleep low power.
-    - The ndm_sys_req input is not seen by pwrmgr, so this assertion
-      needs to be bound to top_earlgrey at chip level.
+    Updated to sample it when starting advance operation at StInit
     
-    The latter problem needs manipulation of the binds for pwrmgr and
-    the creation of a new top_earlgrey bind for this specific SVA.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Aligned with design update at #11459
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
