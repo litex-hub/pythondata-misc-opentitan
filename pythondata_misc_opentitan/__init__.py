@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10967"
-version_tuple = (0, 0, 10967)
+version_str = "0.0.post10968"
+version_tuple = (0, 0, 10968)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10967")
+    pversion = V("0.0.post10968")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10841"
-data_version_tuple = (0, 0, 10841)
+data_version_str = "0.0.post10842"
+data_version_tuple = (0, 0, 10842)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10841")
+    pdata_version = V("0.0.post10842")
 except ImportError:
     pass
-data_git_hash = "01e039027fa097ba6bf374e1f4338a729b39bab4"
-data_git_describe = "v0.0-10841-g01e039027"
+data_git_hash = "e7149d214a607b92e1d31591246f4c6f7dff7962"
+data_git_describe = "v0.0-10842-ge7149d214"
 data_git_msg = """\
-commit 01e039027fa097ba6bf374e1f4338a729b39bab4
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Mar 17 13:52:03 2022 -0700
+commit e7149d214a607b92e1d31591246f4c6f7dff7962
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 17 16:24:41 2022 -0700
 
-    [keymgr/dv] Update otp key sample point
+    [dv/doc] Update dv resource note
     
-    Updated to sample it when starting advance operation at StInit
+    this PR removes four blocks' comments about pending DV resource.
     
-    Aligned with design update at #11459
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
