@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10980"
-version_tuple = (0, 0, 10980)
+version_str = "0.0.post10983"
+version_tuple = (0, 0, 10983)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10980")
+    pversion = V("0.0.post10983")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10854"
-data_version_tuple = (0, 0, 10854)
+data_version_str = "0.0.post10857"
+data_version_tuple = (0, 0, 10857)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10854")
+    pdata_version = V("0.0.post10857")
 except ImportError:
     pass
-data_git_hash = "74cf437574da7a5e62d6caba563e38de407cb07c"
-data_git_describe = "v0.0-10854-g74cf43757"
+data_git_hash = "5abad2426ef3579f59532be7a0734507d60edd96"
+data_git_describe = "v0.0-10857-g5abad2426"
 data_git_msg = """\
-commit 74cf437574da7a5e62d6caba563e38de407cb07c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 9 13:46:52 2022 -0800
+commit 5abad2426ef3579f59532be7a0734507d60edd96
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Thu Dec 30 15:52:27 2021 -0800
 
-    [hmac] Minor lint fix
+    [edn, dv] Test EDN interrupts, alerts and errors
     
-    - re-code the flop since otherwise it causes a RESET_USE error
+      - Add vseqs for EDN interrupt, alert and error tests
+      - Update related config files to include the interrupt, alert and error tests
+      - Add a virtual assert interface to turn off assertions that have long paths
+      - Add a virtual path interface to remove the full path reference in the test sequences
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
