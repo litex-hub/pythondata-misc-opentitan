@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10976"
-version_tuple = (0, 0, 10976)
+version_str = "0.0.post10979"
+version_tuple = (0, 0, 10979)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10976")
+    pversion = V("0.0.post10979")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10850"
-data_version_tuple = (0, 0, 10850)
+data_version_str = "0.0.post10853"
+data_version_tuple = (0, 0, 10853)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10850")
+    pdata_version = V("0.0.post10853")
 except ImportError:
     pass
-data_git_hash = "8692367c88ef7502025fb3b6d032fb6546dac3a2"
-data_git_describe = "v0.0-10850-g8692367c8"
+data_git_hash = "6d96cdf7819cfaf0a58638abe6eff21b651ed475"
+data_git_describe = "v0.0-10853-g6d96cdf78"
 data_git_msg = """\
-commit 8692367c88ef7502025fb3b6d032fb6546dac3a2
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Wed Dec 15 20:28:05 2021 -0800
+commit 6d96cdf7819cfaf0a58638abe6eff21b651ed475
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Mar 9 18:45:49 2022 -0500
 
-    [csrng, dv] Test CSRNG interrupts, alerts and errors
+    [ci] Upload generated bitstream to public GCP bucket
     
-      - Add vseqs for CSRNG interrupt, alert and error tests
-      - Update the related config files to include the interrupt, alert and error tests
-      - Add a virtual assert interface to turn off assertions with long paths
-      - Move the path references in the test vseqs to a separate path interface
-    
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
