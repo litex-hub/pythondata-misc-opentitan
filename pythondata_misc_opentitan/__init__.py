@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10972"
-version_tuple = (0, 0, 10972)
+version_str = "0.0.post10973"
+version_tuple = (0, 0, 10973)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10972")
+    pversion = V("0.0.post10973")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10846"
-data_version_tuple = (0, 0, 10846)
+data_version_str = "0.0.post10847"
+data_version_tuple = (0, 0, 10847)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10846")
+    pdata_version = V("0.0.post10847")
 except ImportError:
     pass
-data_git_hash = "9c6dff79adc5ff2ccd33bd16e85bfabbafe920c1"
-data_git_describe = "v0.0-10846-g9c6dff79a"
+data_git_hash = "d3b641f28ab59516d3855af6548a8f796a2686b0"
+data_git_describe = "v0.0-10847-gd3b641f28"
 data_git_msg = """\
-commit 9c6dff79adc5ff2ccd33bd16e85bfabbafe920c1
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Thu Mar 17 03:57:41 2022 -0700
+commit d3b641f28ab59516d3855af6548a8f796a2686b0
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 18 09:31:54 2022 +0000
 
-    [dv] enable tlul_assert for csr part2
+    [doc] Fix rendering of special characters in testplan table
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    The actual change here is quite small (pass 'unsafehtml' to tabulate
+    when generating HTML output), but the patch is a bit bigger because it
+    includes comments that nail down exactly what format the text is in at
+    each stage (it took me a while to figure out!)
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
