@@ -4,34 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10968"
-version_tuple = (0, 0, 10968)
+version_str = "0.0.post10970"
+version_tuple = (0, 0, 10970)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10968")
+    pversion = V("0.0.post10970")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10842"
-data_version_tuple = (0, 0, 10842)
+data_version_str = "0.0.post10844"
+data_version_tuple = (0, 0, 10844)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10842")
+    pdata_version = V("0.0.post10844")
 except ImportError:
     pass
-data_git_hash = "e7149d214a607b92e1d31591246f4c6f7dff7962"
-data_git_describe = "v0.0-10842-ge7149d214"
+data_git_hash = "dcd9d110d6706d8acf1c14c21004cb4d13da8da8"
+data_git_describe = "v0.0-10844-gdcd9d110d"
 data_git_msg = """\
-commit e7149d214a607b92e1d31591246f4c6f7dff7962
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Mar 17 16:24:41 2022 -0700
+commit dcd9d110d6706d8acf1c14c21004cb4d13da8da8
+Author: Silvestrs Timofejevs <silvestrst@lowrisc.org>
+Date:   Thu Feb 17 17:05:09 2022 +0000
 
-    [dv/doc] Update dv resource note
+    [hmac_enc, tests] Introduce the HMAC chip level test (non-irq)
     
-    this PR removes four blocks' comments about pending DV resource.
+    This change uses HMAC example vector from:
+    https://csrc.nist.gov/CSRC/media/Projects/
+    Cryptographic-Standards-and-Guidelines/documents/
+    examples/HMAC_SHA256.pdf
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Key length = 100
+    Tag length = 32
+    
+    This example vector has key length larger, and not aligned to the
+    block size. This makes it well suited to check the basic conformance
+    to the HMAC specification, which states that when key is larger than
+    the block size, it must be hashed to produce a block sized key.
+    
+    Please see:
+    https://csrc.nist.gov/csrc/media/publications/fips/198/archive/
+    2002-03-06/documents/fips-198a.pdf
+    
+    Signed-off-by: Silvestrs Timofejevs <silvestrst@lowrisc.org>
 
 """
 
