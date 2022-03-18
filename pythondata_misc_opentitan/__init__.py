@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10973"
-version_tuple = (0, 0, 10973)
+version_str = "0.0.post10976"
+version_tuple = (0, 0, 10976)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10973")
+    pversion = V("0.0.post10976")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10847"
-data_version_tuple = (0, 0, 10847)
+data_version_str = "0.0.post10850"
+data_version_tuple = (0, 0, 10850)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10847")
+    pdata_version = V("0.0.post10850")
 except ImportError:
     pass
-data_git_hash = "d3b641f28ab59516d3855af6548a8f796a2686b0"
-data_git_describe = "v0.0-10847-gd3b641f28"
+data_git_hash = "8692367c88ef7502025fb3b6d032fb6546dac3a2"
+data_git_describe = "v0.0-10850-g8692367c8"
 data_git_msg = """\
-commit d3b641f28ab59516d3855af6548a8f796a2686b0
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 18 09:31:54 2022 +0000
+commit 8692367c88ef7502025fb3b6d032fb6546dac3a2
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Wed Dec 15 20:28:05 2021 -0800
 
-    [doc] Fix rendering of special characters in testplan table
+    [csrng, dv] Test CSRNG interrupts, alerts and errors
     
-    The actual change here is quite small (pass 'unsafehtml' to tabulate
-    when generating HTML output), but the patch is a bit bigger because it
-    includes comments that nail down exactly what format the text is in at
-    each stage (it took me a while to figure out!)
+      - Add vseqs for CSRNG interrupt, alert and error tests
+      - Update the related config files to include the interrupt, alert and error tests
+      - Add a virtual assert interface to turn off assertions with long paths
+      - Move the path references in the test vseqs to a separate path interface
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
