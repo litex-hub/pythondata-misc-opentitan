@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10983"
-version_tuple = (0, 0, 10983)
+version_str = "0.0.post10984"
+version_tuple = (0, 0, 10984)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10983")
+    pversion = V("0.0.post10984")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10857"
-data_version_tuple = (0, 0, 10857)
+data_version_str = "0.0.post10858"
+data_version_tuple = (0, 0, 10858)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10857")
+    pdata_version = V("0.0.post10858")
 except ImportError:
     pass
-data_git_hash = "5abad2426ef3579f59532be7a0734507d60edd96"
-data_git_describe = "v0.0-10857-g5abad2426"
+data_git_hash = "e586c76f5a728d4a45c7fb28aa0b858cb334a07b"
+data_git_describe = "v0.0-10858-ge586c76f5"
 data_git_msg = """\
-commit 5abad2426ef3579f59532be7a0734507d60edd96
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Thu Dec 30 15:52:27 2021 -0800
+commit e586c76f5a728d4a45c7fb28aa0b858cb334a07b
+Author: Alexander Williams <awill@google.com>
+Date:   Fri Mar 18 09:45:05 2022 -0700
 
-    [edn, dv] Test EDN interrupts, alerts and errors
+    [dif/bazel] Fix up adc_ctrl target
     
-      - Add vseqs for EDN interrupt, alert and error tests
-      - Update related config files to include the interrupt, alert and error tests
-      - Add a virtual assert interface to turn off assertions that have long paths
-      - Add a virtual path interface to remove the full path reference in the test sequences
+    Remove duplicated hdrs field.
     
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
