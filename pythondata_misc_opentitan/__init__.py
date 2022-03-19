@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10991"
-version_tuple = (0, 0, 10991)
+version_str = "0.0.post10996"
+version_tuple = (0, 0, 10996)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10991")
+    pversion = V("0.0.post10996")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10865"
-data_version_tuple = (0, 0, 10865)
+data_version_str = "0.0.post10870"
+data_version_tuple = (0, 0, 10870)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10865")
+    pdata_version = V("0.0.post10870")
 except ImportError:
     pass
-data_git_hash = "89ea59eb3e6062030b2aba841911b3a1311d0efb"
-data_git_describe = "v0.0-10865-g89ea59eb3"
+data_git_hash = "4a8e83046253a916d9ed11ec132588d5bf2d9d95"
+data_git_describe = "v0.0-10870-g4a8e83046"
 data_git_msg = """\
-commit 89ea59eb3e6062030b2aba841911b3a1311d0efb
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Mar 18 00:54:15 2022 -0700
+commit 4a8e83046253a916d9ed11ec132588d5bf2d9d95
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Mar 17 00:33:36 2022 -0700
 
-    [rv_dm dv] Set cover_reg_top cov criteria
+    [dif/adc_ctrl] Update DIF checklist
     
-    Add more safe hierarchies for coverage collection in non-functional
-    common tests that use the cover_reg_top build.
+    This updates the DIF checklist for the ADC Controller to match the
+    current state of the SW (all DIFs implemented).
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
