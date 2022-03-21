@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11010"
-version_tuple = (0, 0, 11010)
+version_str = "0.0.post11011"
+version_tuple = (0, 0, 11011)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11010")
+    pversion = V("0.0.post11011")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10884"
-data_version_tuple = (0, 0, 10884)
+data_version_str = "0.0.post10885"
+data_version_tuple = (0, 0, 10885)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10884")
+    pdata_version = V("0.0.post10885")
 except ImportError:
     pass
-data_git_hash = "e7306345946a94e958735f1c307bb482b45cd135"
-data_git_describe = "v0.0-10884-ge73063459"
+data_git_hash = "4ac33d98b562fb25a55fb3d9793bce8e534134e5"
+data_git_describe = "v0.0-10885-g4ac33d98b"
 data_git_msg = """\
-commit e7306345946a94e958735f1c307bb482b45cd135
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 18 15:34:34 2022 -0700
+commit 4ac33d98b562fb25a55fb3d9793bce8e534134e5
+Author: Philipp Wagner <phw@lowrisc.org>
+Date:   Mon Mar 21 20:15:08 2022 +0100
 
-    [dv/otp] Add assertion for otp_alert_o
+    [doc] Fix markdown in firmware update documentation
     
-    This PR adds an assertion for open source OTP output otp_alert_o.
-    This should be tied to 2'b01 in open source.
-    This PR also fixes some small spacing syntax.
+    The sub-items are not rendered correctly if the numbering is wrong.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Philipp Wagner <phw@lowrisc.org>
 
 """
 
