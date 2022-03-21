@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11006"
-version_tuple = (0, 0, 11006)
+version_str = "0.0.post11010"
+version_tuple = (0, 0, 11010)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11006")
+    pversion = V("0.0.post11010")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10880"
-data_version_tuple = (0, 0, 10880)
+data_version_str = "0.0.post10884"
+data_version_tuple = (0, 0, 10884)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10880")
+    pdata_version = V("0.0.post10884")
 except ImportError:
     pass
-data_git_hash = "93a6f539e151d654820e6ccd2f1477dd0cebd2e0"
-data_git_describe = "v0.0-10880-g93a6f539e"
+data_git_hash = "e7306345946a94e958735f1c307bb482b45cd135"
+data_git_describe = "v0.0-10884-ge73063459"
 data_git_msg = """\
-commit 93a6f539e151d654820e6ccd2f1477dd0cebd2e0
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 17 13:51:10 2022 -0700
+commit e7306345946a94e958735f1c307bb482b45cd135
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Mar 18 15:34:34 2022 -0700
 
-    [flash_ctrl] Clarify usage of disable
+    [dv/otp] Add assertion for otp_alert_o
     
-    - state the difference in behavior between the protocl and physical
-      controllers
-    - make sure host transactions are error'd back as well
+    This PR adds an assertion for open source OTP output otp_alert_o.
+    This should be tied to 2'b01 in open source.
+    This PR also fixes some small spacing syntax.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
