@@ -4,32 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11013"
-version_tuple = (0, 0, 11013)
+version_str = "0.0.post11014"
+version_tuple = (0, 0, 11014)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11013")
+    pversion = V("0.0.post11014")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10887"
-data_version_tuple = (0, 0, 10887)
+data_version_str = "0.0.post10888"
+data_version_tuple = (0, 0, 10888)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10887")
+    pdata_version = V("0.0.post10888")
 except ImportError:
     pass
-data_git_hash = "87b087b65d5b852510a83267d9ae8e68bafc5061"
-data_git_describe = "v0.0-10887-g87b087b65"
+data_git_hash = "b5596ad48518a8b227979afffc7d87472c181e00"
+data_git_describe = "v0.0-10888-gb5596ad48"
 data_git_msg = """\
-commit 87b087b65d5b852510a83267d9ae8e68bafc5061
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Mar 21 11:57:49 2022 -0700
+commit b5596ad48518a8b227979afffc7d87472c181e00
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Sat Mar 19 01:04:15 2022 -0700
 
-    [sysrst_ctrl] Minor label cleanup in sysrst_ctrl_keyintr
+    [rvdm dv] SBA access with autoincrement test
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This commit refactors the rv_dm_sba_access_vseq to:
+    - Enable setting autoincrement
+    - Create a lib of sequences with the base vseq doing all the work, but
+      turning off 'advanced' access types, and extended vseqs turning them
+      on instead.
+    - Fixes in sba monitor to make autoincrement mode prediction work correctly
+    - Addition of rv_dm_autoincr_sba_access_vseq and test
+    - Remove constraints in sba_access_item - no longer needed
+    - Increase test timeout to 50ms
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    
+    [rv_dm dv] Fixes to enable Xcelium
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
