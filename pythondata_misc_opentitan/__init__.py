@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10996"
-version_tuple = (0, 0, 10996)
+version_str = "0.0.post10997"
+version_tuple = (0, 0, 10997)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10996")
+    pversion = V("0.0.post10997")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10870"
-data_version_tuple = (0, 0, 10870)
+data_version_str = "0.0.post10871"
+data_version_tuple = (0, 0, 10871)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10870")
+    pdata_version = V("0.0.post10871")
 except ImportError:
     pass
-data_git_hash = "4a8e83046253a916d9ed11ec132588d5bf2d9d95"
-data_git_describe = "v0.0-10870-g4a8e83046"
+data_git_hash = "70a63d44f0a14edd3a7cae3847fd7476895f2563"
+data_git_describe = "v0.0-10871-g70a63d44f"
 data_git_msg = """\
-commit 4a8e83046253a916d9ed11ec132588d5bf2d9d95
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Mar 17 00:33:36 2022 -0700
+commit 70a63d44f0a14edd3a7cae3847fd7476895f2563
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Mar 4 14:32:10 2022 +0100
 
-    [dif/adc_ctrl] Update DIF checklist
+    [aes] Clear START trigger when ignoring it
     
-    This updates the DIF checklist for the ADC Controller to match the
-    current state of the SW (all DIFs implemented).
+    The START trigger is ignored by the AES unit when the current
+    configuration is invalid (MODE = AES_NONE) or when performing automatic
+    operation (MANUAL_OPERATION = 0). When ignoring it, it's better to
+    clear this trigger bit back to 0 to avoid the unintentional operations
+    to start once a valid configuration is written or manual operation is
+    enabled.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This resolves lowRISC/OpenTitan#11166.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
