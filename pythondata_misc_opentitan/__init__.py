@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11001"
-version_tuple = (0, 0, 11001)
+version_str = "0.0.post11002"
+version_tuple = (0, 0, 11002)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11001")
+    pversion = V("0.0.post11002")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10875"
-data_version_tuple = (0, 0, 10875)
+data_version_str = "0.0.post10876"
+data_version_tuple = (0, 0, 10876)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10875")
+    pdata_version = V("0.0.post10876")
 except ImportError:
     pass
-data_git_hash = "b8cdb2e1e6dff9f714963dcfd8f01d73cbc2cf2e"
-data_git_describe = "v0.0-10875-gb8cdb2e1e"
+data_git_hash = "d0aad7742f2837ca3b3fe37b92f6470c866c4139"
+data_git_describe = "v0.0-10876-gd0aad7742"
 data_git_msg = """\
-commit b8cdb2e1e6dff9f714963dcfd8f01d73cbc2cf2e
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Fri Mar 18 12:14:04 2022 +0000
+commit d0aad7742f2837ca3b3fe37b92f6470c866c4139
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Feb 2 14:00:33 2022 -0800
 
-    [flash_ctrl] Small fix for flash_erase_suspend test
+    [dv/unr] Blackbox common security modules from UNR flow
     
-    Fix of erase suspend test for creator and owner partition
+    This PR blackbox common security prim modules: prim_count,
+    prim_double_lfsr, prim_sparse_fsm_flop from the UNR flow.
     
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
