@@ -53,31 +53,53 @@ module flash_phy_core
   output logic [BusWidth-1:0]        rd_data_o,
   output logic                       rd_err_o,
   output logic                       ecc_single_err_o,
-  output logic [BusBankAddrW-1:0]    ecc_addr_o
+  output logic [BusBankAddrW-1:0]    ecc_addr_o,
+  output logic                       fsm_err_o
 );
 
 
   localparam int CntWidth = $clog2(ArbCnt + 1);
 
-  typedef enum logic [2:0] {
-    StIdle,
-    StHostRead,
-    StCtrlRead,
-    StCtrlProg,
-    StCtrl,
-    StDisable
-  } arb_state_e;
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 5 -m 6 -n 10 \
+  //      -s 3884146959 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: --
+  //  4: --
+  //  5: |||||||||||||||||||| (46.67%)
+  //  6: ||||||||||||||||| (40.00%)
+  //  7: ||||| (13.33%)
+  //  8: --
+  //  9: --
+  // 10: --
+  //
+  // Minimum Hamming distance: 5
+  // Maximum Hamming distance: 7
+  // Minimum Hamming weight: 4
+  // Maximum Hamming weight: 8
+  //
+  localparam int StateWidth = 10;
+  typedef enum logic [StateWidth-1:0] {
+    StIdle = 10'b1011011110,
+    StCtrlRead = 10'b0010100110,
+    StCtrlProg = 10'b1111101101,
+    StCtrl = 10'b1101000010,
+    StDisable = 10'b0000111011,
+    StInvalid = 10'b0101110100
+  } state_e;
 
-  arb_state_e state_q, state_d;
+  state_e state_q, state_d;
 
   // request signals to flash macro
   logic [PhyOps-1:0] reqs;
 
   // host select for address
   logic host_sel;
-
-  // qualifier for host responses
-  logic host_rsp;
 
   // controller response valid
   logic ctrl_rsp_vld;
@@ -112,105 +134,107 @@ module flash_phy_core
   // arbitration counter
   // If controller side has lost arbitration ArbCnt times, favor it once
   logic [CntWidth-1:0] arb_cnt;
-  logic inc_arb_cnt, clr_arb_cnt;
-  logic host_req_masked;
+  logic inc_arb_cnt;
 
   // scramble / de-scramble connections
   logic calc_ack;
   logic op_ack;
   logic [DataWidth-1:0] scramble_mask;
 
-  assign host_req_masked = host_req_i & (arb_cnt < ArbCnt[CntWidth-1:0]);
+  logic host_gnt;
+  logic ctrl_gnt;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       arb_cnt <= '0;
-    end else if (clr_arb_cnt) begin
+    end else if (ctrl_rsp_vld) begin
       arb_cnt <= '0;
     end else if (inc_arb_cnt) begin
       arb_cnt <= arb_cnt + 1'b1;
     end
   end
 
-  assign host_req_done_o = host_rsp & rd_stage_data_valid;
-
   import prim_mubi_pkg::mubi4_test_false_strict;
   import prim_mubi_pkg::mubi4_test_true_loose;
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      state_q <= StIdle;
-    end else begin
-      state_q <= state_d;
-    end
-  end
+  // This primitive is used to place a size-only constraint on the
+  // flops in order to prevent FSM state encoding optimizations.
+  // SEC_CM: PHY.FSM.SPARSE
+  logic [StateWidth-1:0] state_raw_q;
+  assign state_q = state_e'(state_raw_q);
+  prim_sparse_fsm_flop #(
+    .StateEnumT(state_e),
+    .Width(StateWidth),
+    .ResetValue(StateWidth'(StIdle))
+  ) u_state_regs (
+    .clk_i,
+    .rst_ni,
+    .state_i ( state_d     ),
+    .state_o ( state_raw_q )
+  );
 
-  // The following FSM should be re-coded to use prim_arb
-  // There are a few special conditions that require fsm handling, but the state
-  // space should be reduced.
+  typedef enum logic [2:0] {
+    HostDisableIdx,
+    CtrlDisableIdx,
+    FsmDisableIdx,
+    ScrDisableIdx,
+    LastDisableIdx
+  } phy_core_disable_e;
+
+  prim_mubi_pkg::mubi4_t [LastDisableIdx-1:0] flash_disable;
+  prim_mubi4_sync #(
+    .NumCopies(int'(LastDisableIdx)),
+    .AsyncOn(0)
+  ) u_disable_buf (
+    .clk_i,
+    .rst_ni,
+    .mubi_i(flash_disable_i),
+    .mubi_o(flash_disable)
+  );
+
+  logic host_req;
+  assign host_req = host_req_i & (arb_cnt < ArbCnt[CntWidth-1:0]) & ~ctrl_gnt &
+                    mubi4_test_false_strict(flash_disable[HostDisableIdx]);
+  assign host_sel = host_req;
+  assign host_gnt = host_req & host_req_rdy_o;
+
+  assign host_req_rdy_o = rd_stage_rdy & (arb_cnt < ArbCnt[CntWidth-1:0]) & ~ctrl_gnt;
+  assign host_req_done_o = ~ctrl_gnt & rd_stage_data_valid;
+
+  // controller request can only win after the entire read pipeline
+  // clears
+  logic ctrl_req;
+  assign ctrl_req = req_i & rd_stage_idle & ~host_req &
+                    mubi4_test_false_strict(flash_disable[CtrlDisableIdx]);
+
+  // if request happens at the same time as a host grant, increment count
+  assign inc_arb_cnt = req_i & host_gnt;
+
+  logic fsm_err;
   always_comb begin
     state_d = state_q;
-
     reqs = '0;
-    host_sel = 1'b0;
-    host_rsp = 1'b0;
-    ctrl_rsp_vld = 1'b0;
-    host_req_rdy_o = 1'b0;
-    inc_arb_cnt = 1'b0;
-    clr_arb_cnt = 1'b0;
+    ctrl_rsp_vld = '0;
+    ctrl_gnt = '0;
+    fsm_err = '0;
 
     unique case (state_q)
       StIdle: begin
-        // escalation handling is always done gracefully after an
-        // existing transaction terminates, otherwise we may risk damaging flash
-        if (prim_mubi_pkg::mubi4_test_true_loose(flash_disable_i)) begin
+        if (mubi4_test_true_loose(flash_disable[FsmDisableIdx])) begin
           state_d = StDisable;
-        end else if (host_req_masked) begin
+        end else if (ctrl_req && rd_i) begin
           reqs[PhyRead] = 1'b1;
-          host_sel = 1'b1;
-          host_req_rdy_o = rd_stage_rdy;
-          inc_arb_cnt = req_i & host_req_rdy_o;
-          state_d = host_req_rdy_o ? StHostRead : state_q;
-        end else if (req_i && rd_i) begin
-          reqs[PhyRead] = 1'b1;
-          clr_arb_cnt = rd_stage_rdy;
           state_d = rd_stage_rdy ? StCtrlRead : state_q;
-        end else if (req_i && prog_i) begin
-          reqs[PhyProg] = 1'b1;
-
-          // it is possible for a program to immediate complete when the
-          // program packing is not at the end of the flash word
-          clr_arb_cnt = prog_ack;
-          state_d = prog_ack ? StIdle : StCtrlProg;
-          ctrl_rsp_vld = prog_ack;
-
-        end else if (req_i) begin
+        end else if (ctrl_req && prog_i) begin
+          state_d = StCtrlProg;
+        end else if (ctrl_req) begin
           state_d = StCtrl;
         end
       end
 
-      // The host has priority up to ArbCnt times when going head to head
-      // with controller
-      StHostRead: begin
-        host_rsp = 1'b1;
-        // if escalation occurs, do not accept more read transactions
-        if (host_req_masked && (mubi4_test_false_strict(flash_disable_i))) begin
-          reqs[PhyRead] = 1'b1;
-          host_sel = 1'b1;
-          host_req_rdy_o = rd_stage_rdy;
-          inc_arb_cnt = req_i & host_req_rdy_o;
-        end else if (rd_stage_idle) begin
-          // once in pipelined reads, need to wait for the entire pipeline
-          // to drain before returning to perform other operations
-          state_d = StIdle;
-        end
-      end
-
       // Controller reads are very slow.
-      // Need to update controller end to take advantage of read pipeline.
-      // Once that is done, the two read states can merge.
       StCtrlRead: begin
-        clr_arb_cnt = 1'b1;
+        ctrl_gnt = 1'b1;
         if (rd_stage_data_valid) begin
           ctrl_rsp_vld = 1'b1;
           state_d = StIdle;
@@ -220,7 +244,7 @@ module flash_phy_core
       // Controller program data may be packed based on
       // address alignment
       StCtrlProg: begin
-        clr_arb_cnt = 1'b1;
+        ctrl_gnt = 1'b1;
         reqs[PhyProg] = 1'b1;
         if (prog_ack) begin
           ctrl_rsp_vld = 1'b1;
@@ -230,7 +254,7 @@ module flash_phy_core
 
       // other controller operations directly interface with flash
       StCtrl: begin
-        clr_arb_cnt = 1'b1;
+        ctrl_gnt = 1'b1;
         reqs[PhyPgErase] = pg_erase_i;
         reqs[PhyBkErase] = bk_erase_i;
         if (erase_ack) begin
@@ -239,10 +263,19 @@ module flash_phy_core
         end
       end
 
-      // state is terminal, no flash transactions are ever accepted again
-      // until reboot
-      // This also handles Disabled state
-      default:;
+      StDisable: begin
+        state_d = StDisable;
+      end
+
+      StInvalid: begin
+        state_d = StInvalid;
+        fsm_err = 1'b1;
+      end
+
+      default: begin
+        state_d = StInvalid;
+      end
+
     endcase // unique case (state_q)
   end // always_comb
 
@@ -271,7 +304,7 @@ module flash_phy_core
     .clk_i,
     .rst_ni,
     .buf_en_i(rd_buf_en_i),
-    .req_i(reqs[PhyRead]),
+    .req_i(reqs[PhyRead] | host_req),
     .descramble_i(muxed_scramble_en),
     .ecc_i(muxed_ecc_en),
     .prog_i(reqs[PhyProg]),
@@ -314,10 +347,12 @@ module flash_phy_core
   logic flash_prog_req;
   logic prog_calc_req;
   logic prog_op_req;
+  logic prog_fsm_err;
 
   if (WidthMultiple == 1) begin : gen_single_prog_data
     assign flash_prog_req = reqs[PhyProg];
     assign prog_data = prog_data_i;
+    assign prog_fsm_err = '0;
   end else begin : gen_prog_data
 
     // SEC_CM: MEM.INTEGRITY
@@ -342,9 +377,9 @@ module flash_phy_core
       .last_o(prog_last),
       .ack_o(prog_ack),
       .block_data_o(prog_data),
-      .data_o(prog_full_data)
+      .data_o(prog_full_data),
+      .fsm_err_o(prog_fsm_err)
     );
-
   end
 
   ////////////////////////
@@ -383,7 +418,7 @@ module flash_phy_core
     .clk_i,
     .rst_ni,
     // both escalation and and integrity error cause the scramble keys to change
-    .intg_err_i(intg_err_i | mubi4_test_true_loose(flash_disable_i)),
+    .intg_err_i(intg_err_i | mubi4_test_true_loose(flash_disable[ScrDisableIdx])),
     .calc_req_i(prog_calc_req | rd_calc_req),
     .op_req_i(prog_op_req | rd_op_req),
     .op_type_i(prog_op_req ? ScrambleOp : DeScrambleOp),
@@ -401,6 +436,7 @@ module flash_phy_core
     .scrambled_data_o(prog_scrambled_data)
   );
 
+  assign fsm_err_o = fsm_err | prog_fsm_err;
 
   ////////////////////////
   // Actual connection to flash phy
@@ -441,6 +477,6 @@ module flash_phy_core
   `ASSERT(ArbCntMax_A, arb_cnt == ArbCnt |-> !inc_arb_cnt)
 
   // once arb count maxes, the host request needs to be masked until the arb count is cleared
-  `ASSERT(CtrlPrio_A, arb_cnt == ArbCnt |-> (!host_req_masked throughout (clr_arb_cnt[->1])))
+  `ASSERT(CtrlPrio_A, arb_cnt == ArbCnt |-> (!host_req throughout (ctrl_rsp_vld[->1])))
 
 endmodule // flash_phy_core
