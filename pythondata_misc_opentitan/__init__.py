@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11002"
-version_tuple = (0, 0, 11002)
+version_str = "0.0.post11005"
+version_tuple = (0, 0, 11005)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11002")
+    pversion = V("0.0.post11005")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10876"
-data_version_tuple = (0, 0, 10876)
+data_version_str = "0.0.post10879"
+data_version_tuple = (0, 0, 10879)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10876")
+    pdata_version = V("0.0.post10879")
 except ImportError:
     pass
-data_git_hash = "d0aad7742f2837ca3b3fe37b92f6470c866c4139"
-data_git_describe = "v0.0-10876-gd0aad7742"
+data_git_hash = "834bbe5fc65fe32742b86be6fe22e81242219289"
+data_git_describe = "v0.0-10879-g834bbe5fc"
 data_git_msg = """\
-commit d0aad7742f2837ca3b3fe37b92f6470c866c4139
+commit 834bbe5fc65fe32742b86be6fe22e81242219289
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Feb 2 14:00:33 2022 -0800
+Date:   Fri Mar 18 13:48:07 2022 -0700
 
-    [dv/unr] Blackbox common security modules from UNR flow
+    [dv/otp] remove v2s related exclusion
     
-    This PR blackbox common security prim modules: prim_count,
-    prim_double_lfsr, prim_sparse_fsm_flop from the UNR flow.
+    This PR removes V2S related exclusion.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
