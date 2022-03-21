@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post10997"
-version_tuple = (0, 0, 10997)
+version_str = "0.0.post11000"
+version_tuple = (0, 0, 11000)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post10997")
+    pversion = V("0.0.post11000")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10871"
-data_version_tuple = (0, 0, 10871)
+data_version_str = "0.0.post10874"
+data_version_tuple = (0, 0, 10874)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10871")
+    pdata_version = V("0.0.post10874")
 except ImportError:
     pass
-data_git_hash = "70a63d44f0a14edd3a7cae3847fd7476895f2563"
-data_git_describe = "v0.0-10871-g70a63d44f"
+data_git_hash = "eb8ab0f133f5989a2f52904d78630bf9e333f4cc"
+data_git_describe = "v0.0-10874-geb8ab0f13"
 data_git_msg = """\
-commit 70a63d44f0a14edd3a7cae3847fd7476895f2563
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Mar 4 14:32:10 2022 +0100
+commit eb8ab0f133f5989a2f52904d78630bf9e333f4cc
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Mar 15 14:44:06 2022 +0000
 
-    [aes] Clear START trigger when ignoring it
+    [sw, test, otbn] Add the chip level test otbn idle
     
-    The START trigger is ignored by the AES unit when the current
-    configuration is invalid (MODE = AES_NONE) or when performing automatic
-    operation (MANUAL_OPERATION = 0). When ignoring it, it's better to
-    clear this trigger bit back to 0 to avoid the unintentional operations
-    to start once a valid configuration is written or manual operation is
-    enabled.
-    
-    This resolves lowRISC/OpenTitan#11166.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
