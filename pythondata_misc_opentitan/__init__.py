@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11005"
-version_tuple = (0, 0, 11005)
+version_str = "0.0.post11006"
+version_tuple = (0, 0, 11006)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11005")
+    pversion = V("0.0.post11006")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10879"
-data_version_tuple = (0, 0, 10879)
+data_version_str = "0.0.post10880"
+data_version_tuple = (0, 0, 10880)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10879")
+    pdata_version = V("0.0.post10880")
 except ImportError:
     pass
-data_git_hash = "834bbe5fc65fe32742b86be6fe22e81242219289"
-data_git_describe = "v0.0-10879-g834bbe5fc"
+data_git_hash = "93a6f539e151d654820e6ccd2f1477dd0cebd2e0"
+data_git_describe = "v0.0-10880-g93a6f539e"
 data_git_msg = """\
-commit 834bbe5fc65fe32742b86be6fe22e81242219289
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 18 13:48:07 2022 -0700
+commit 93a6f539e151d654820e6ccd2f1477dd0cebd2e0
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 17 13:51:10 2022 -0700
 
-    [dv/otp] remove v2s related exclusion
+    [flash_ctrl] Clarify usage of disable
     
-    This PR removes V2S related exclusion.
+    - state the difference in behavior between the protocl and physical
+      controllers
+    - make sure host transactions are error'd back as well
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
