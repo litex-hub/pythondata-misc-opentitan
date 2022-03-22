@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11020"
-version_tuple = (0, 0, 11020)
+version_str = "0.0.post11021"
+version_tuple = (0, 0, 11021)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11020")
+    pversion = V("0.0.post11021")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10894"
-data_version_tuple = (0, 0, 10894)
+data_version_str = "0.0.post10895"
+data_version_tuple = (0, 0, 10895)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10894")
+    pdata_version = V("0.0.post10895")
 except ImportError:
     pass
-data_git_hash = "841959f5a7dd7796cea0fcfd664492a8d7251656"
-data_git_describe = "v0.0-10894-g841959f5a"
+data_git_hash = "311983c3c842c21230acbe09da10703e14cc5bb8"
+data_git_describe = "v0.0-10895-g311983c3c"
 data_git_msg = """\
-commit 841959f5a7dd7796cea0fcfd664492a8d7251656
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Mar 21 17:01:00 2022 -0700
+commit 311983c3c842c21230acbe09da10703e14cc5bb8
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Tue Mar 22 14:56:02 2022 +0000
 
-    [bazel] fix opentitanlib build
+    [sysrst_ctrl,dv] Randomize flash_wp_l_in for flash_wp_prot test
     
-    The Emulator trait was added in #11342. However, the BUILD file was
-    never updated, thus breaking the build of opentitanlib with Bazel. This
-    fixes the build.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
