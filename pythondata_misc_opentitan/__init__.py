@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11023"
-version_tuple = (0, 0, 11023)
+version_str = "0.0.post11025"
+version_tuple = (0, 0, 11025)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11023")
+    pversion = V("0.0.post11025")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10897"
-data_version_tuple = (0, 0, 10897)
+data_version_str = "0.0.post10899"
+data_version_tuple = (0, 0, 10899)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10897")
+    pdata_version = V("0.0.post10899")
 except ImportError:
     pass
-data_git_hash = "4048a11acbddd921532f3d205920ddead7d5fb1b"
-data_git_describe = "v0.0-10897-g4048a11ac"
+data_git_hash = "f95a6861273d99c46663532772a8a3b081e6efaf"
+data_git_describe = "v0.0-10899-gf95a68612"
 data_git_msg = """\
-commit 4048a11acbddd921532f3d205920ddead7d5fb1b
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Mar 16 16:31:14 2022 -0700
+commit f95a6861273d99c46663532772a8a3b081e6efaf
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Mar 14 15:10:05 2022 -0700
 
-    [dv/otp] Update sec_cm testplan
+    [spi_device] Revise spec to describe BUSY
     
-    This PR updates the auto-generated sec_cmd testplan to include matching
-    DV tests.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
