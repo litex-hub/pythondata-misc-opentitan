@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11019"
-version_tuple = (0, 0, 11019)
+version_str = "0.0.post11020"
+version_tuple = (0, 0, 11020)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11019")
+    pversion = V("0.0.post11020")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10893"
-data_version_tuple = (0, 0, 10893)
+data_version_str = "0.0.post10894"
+data_version_tuple = (0, 0, 10894)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10893")
+    pdata_version = V("0.0.post10894")
 except ImportError:
     pass
-data_git_hash = "bd98e9a8ca2deb0fb727f0be12a2600d8b595bcf"
-data_git_describe = "v0.0-10893-gbd98e9a8c"
+data_git_hash = "841959f5a7dd7796cea0fcfd664492a8d7251656"
+data_git_describe = "v0.0-10894-g841959f5a"
 data_git_msg = """\
-commit bd98e9a8ca2deb0fb727f0be12a2600d8b595bcf
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Mar 18 13:50:22 2022 +0000
+commit 841959f5a7dd7796cea0fcfd664492a8d7251656
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Mar 21 17:01:00 2022 -0700
 
-    [otbn,dv] Fix up idle signal modelling
+    [bazel] fix opentitanlib build
     
-    This now handles the extra cycle in idle_o timing correctly (from
-    48f14bc591) and also handles the fact that idle_o is false when we're
-    locked if we're in the middle of a key rotation.
+    The Emulator trait was added in #11342. However, the BUILD file was
+    never updated, thus breaking the build of opentitanlib with Bazel. This
+    fixes the build.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
