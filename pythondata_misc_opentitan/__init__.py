@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11016"
-version_tuple = (0, 0, 11016)
+version_str = "0.0.post11019"
+version_tuple = (0, 0, 11019)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11016")
+    pversion = V("0.0.post11019")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10890"
-data_version_tuple = (0, 0, 10890)
+data_version_str = "0.0.post10893"
+data_version_tuple = (0, 0, 10893)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10890")
+    pdata_version = V("0.0.post10893")
 except ImportError:
     pass
-data_git_hash = "af9be146c5bb650176b4b23972d37fea9f07149f"
-data_git_describe = "v0.0-10890-gaf9be146c"
+data_git_hash = "bd98e9a8ca2deb0fb727f0be12a2600d8b595bcf"
+data_git_describe = "v0.0-10893-gbd98e9a8c"
 data_git_msg = """\
-commit af9be146c5bb650176b4b23972d37fea9f07149f
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Mar 21 21:24:40 2022 -0400
+commit bd98e9a8ca2deb0fb727f0be12a2600d8b595bcf
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 18 13:50:22 2022 +0000
 
-    [bazel] fixup CI for batched testing of merge
+    [otbn,dv] Fix up idle signal modelling
     
-    I mispelled newresult.txt so the cat command is failing as seen here
-    https://dev.azure.com/lowrisc/opentitan/_build/results?buildId=73045
-    the switch afterwards is a nop and not worth the risk.
+    This now handles the extra cycle in idle_o timing correctly (from
+    48f14bc591) and also handles the fact that idle_o is false when we're
+    locked if we're in the middle of a key rotation.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
