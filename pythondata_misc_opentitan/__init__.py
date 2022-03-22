@@ -4,47 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11026"
-version_tuple = (0, 0, 11026)
+version_str = "0.0.post11027"
+version_tuple = (0, 0, 11027)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11026")
+    pversion = V("0.0.post11027")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10900"
-data_version_tuple = (0, 0, 10900)
+data_version_str = "0.0.post10901"
+data_version_tuple = (0, 0, 10901)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10900")
+    pdata_version = V("0.0.post10901")
 except ImportError:
     pass
-data_git_hash = "110bf9869abd71c82a894790a62ec8956dda7b14"
-data_git_describe = "v0.0-10900-g110bf9869"
+data_git_hash = "a3ace41618c68a6a481194b097f2a5ea913508bd"
+data_git_describe = "v0.0-10901-ga3ace4161"
 data_git_msg = """\
-commit 110bf9869abd71c82a894790a62ec8956dda7b14
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Tue Mar 22 18:11:17 2022 +0000
+commit a3ace41618c68a6a481194b097f2a5ea913508bd
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Tue Dec 21 13:38:57 2021 +0000
 
-    [adc_ctrl/dv] Added adc_ctrl_stress_all test
+    [sysrst_ctrl,dv] Add sysrst_ctrl edge detect test
     
-    - Added tests
-      - adc_ctrl_stress_all
-    - Added test sequences
-      - adc_ctrl_stress_all_vseq - runs a random choice of the others test sequences
-    - Fixed adc_ctrl_intr - Disabled scoreboard and enabled autopredict
-    - Fixed adc_ctrl_bit_bash - Added assertion control ADC_CTRL_FSM_A_CTRL
-    - Fixed adc_ctrl_clock_gating - Disabled interrupts for this test
-    - Corrected filter parameter coverage
-    - Enhanced variable filter config constraints to generate maximum and
-    minimum values for min_v and max_v
-    - Added reads of channel value registers to interrupt/both tests
-    - Aligned capture of interrupt channel values in model with RTL
-    - Modelling intr_test in scoreboard
-    - Added interrupt cover groups sampling to scoreboard
-    
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
