@@ -4,46 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11014"
-version_tuple = (0, 0, 11014)
+version_str = "0.0.post11015"
+version_tuple = (0, 0, 11015)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11014")
+    pversion = V("0.0.post11015")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10888"
-data_version_tuple = (0, 0, 10888)
+data_version_str = "0.0.post10889"
+data_version_tuple = (0, 0, 10889)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10888")
+    pdata_version = V("0.0.post10889")
 except ImportError:
     pass
-data_git_hash = "b5596ad48518a8b227979afffc7d87472c181e00"
-data_git_describe = "v0.0-10888-gb5596ad48"
+data_git_hash = "d4326b4d1a6941535d6859d6875c9408ac896934"
+data_git_describe = "v0.0-10889-gd4326b4d1"
 data_git_msg = """\
-commit b5596ad48518a8b227979afffc7d87472c181e00
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Sat Mar 19 01:04:15 2022 -0700
+commit d4326b4d1a6941535d6859d6875c9408ac896934
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Thu Mar 17 10:16:53 2022 -0400
 
-    [rvdm dv] SBA access with autoincrement test
+    [bazel/Mask ROM] Add a regression tests for CI
     
-    This commit refactors the rv_dm_sba_access_vseq to:
-    - Enable setting autoincrement
-    - Create a lib of sequences with the base vseq doing all the work, but
-      turning off 'advanced' access types, and extended vseqs turning them
-      on instead.
-    - Fixes in sba monitor to make autoincrement mode prediction work correctly
-    - Addition of rv_dm_autoincr_sba_access_vseq and test
-    - Remove constraints in sba_access_item - no longer needed
-    - Increase test timeout to 50ms
+    Invoke regression tests with bazel to protect artifacts in the Mask ROM
+    Only fail if targets begin to fail
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
-    
-    [rv_dm dv] Fixes to enable Xcelium
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
