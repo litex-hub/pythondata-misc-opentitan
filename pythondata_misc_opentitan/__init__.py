@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11022"
-version_tuple = (0, 0, 11022)
+version_str = "0.0.post11023"
+version_tuple = (0, 0, 11023)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11022")
+    pversion = V("0.0.post11023")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10896"
-data_version_tuple = (0, 0, 10896)
+data_version_str = "0.0.post10897"
+data_version_tuple = (0, 0, 10897)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10896")
+    pdata_version = V("0.0.post10897")
 except ImportError:
     pass
-data_git_hash = "ee05909e2a5a39be116484e537f62e35e5ae7573"
-data_git_describe = "v0.0-10896-gee05909e2"
+data_git_hash = "4048a11acbddd921532f3d205920ddead7d5fb1b"
+data_git_describe = "v0.0-10897-g4048a11ac"
 data_git_msg = """\
-commit ee05909e2a5a39be116484e537f62e35e5ae7573
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 18 13:22:10 2022 -0700
+commit 4048a11acbddd921532f3d205920ddead7d5fb1b
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Mar 16 16:31:14 2022 -0700
 
-    [flah_ctrl] Fix alert indexing
+    [dv/otp] Update sec_cm testplan
     
-    - standard fatal alerts are at position 1 instead of 0
+    This PR updates the auto-generated sec_cmd testplan to include matching
+    DV tests.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
