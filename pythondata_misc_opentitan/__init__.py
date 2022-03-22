@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11015"
-version_tuple = (0, 0, 11015)
+version_str = "0.0.post11016"
+version_tuple = (0, 0, 11016)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11015")
+    pversion = V("0.0.post11016")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10889"
-data_version_tuple = (0, 0, 10889)
+data_version_str = "0.0.post10890"
+data_version_tuple = (0, 0, 10890)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10889")
+    pdata_version = V("0.0.post10890")
 except ImportError:
     pass
-data_git_hash = "d4326b4d1a6941535d6859d6875c9408ac896934"
-data_git_describe = "v0.0-10889-gd4326b4d1"
+data_git_hash = "af9be146c5bb650176b4b23972d37fea9f07149f"
+data_git_describe = "v0.0-10890-gaf9be146c"
 data_git_msg = """\
-commit d4326b4d1a6941535d6859d6875c9408ac896934
+commit af9be146c5bb650176b4b23972d37fea9f07149f
 Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu Mar 17 10:16:53 2022 -0400
+Date:   Mon Mar 21 21:24:40 2022 -0400
 
-    [bazel/Mask ROM] Add a regression tests for CI
+    [bazel] fixup CI for batched testing of merge
     
-    Invoke regression tests with bazel to protect artifacts in the Mask ROM
-    Only fail if targets begin to fail
+    I mispelled newresult.txt so the cat command is failing as seen here
+    https://dev.azure.com/lowrisc/opentitan/_build/results?buildId=73045
+    the switch afterwards is a nop and not worth the risk.
     
     Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
