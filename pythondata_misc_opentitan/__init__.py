@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11041"
-version_tuple = (0, 0, 11041)
+version_str = "0.0.post11043"
+version_tuple = (0, 0, 11043)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11041")
+    pversion = V("0.0.post11043")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10915"
-data_version_tuple = (0, 0, 10915)
+data_version_str = "0.0.post10917"
+data_version_tuple = (0, 0, 10917)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10915")
+    pdata_version = V("0.0.post10917")
 except ImportError:
     pass
-data_git_hash = "48f97cdbf1486b287afea36358b1ac8b3bcef785"
-data_git_describe = "v0.0-10915-g48f97cdbf"
+data_git_hash = "a3de544e7ac53bad91db9fcd34323f9c037dd8e8"
+data_git_describe = "v0.0-10917-ga3de544e7"
 data_git_msg = """\
-commit 48f97cdbf1486b287afea36358b1ac8b3bcef785
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 23 11:52:20 2022 -0400
+commit a3de544e7ac53bad91db9fcd34323f9c037dd8e8
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Mar 18 12:25:33 2022 -0700
 
-    [sw, dif] Use EXPECT_DIF_* in some places that were missing it.
+    [flash_ctrl] Update bank erase assertion
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    - fixes #11309
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
