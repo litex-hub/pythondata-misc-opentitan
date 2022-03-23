@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11037"
-version_tuple = (0, 0, 11037)
+version_str = "0.0.post11039"
+version_tuple = (0, 0, 11039)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11037")
+    pversion = V("0.0.post11039")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10911"
-data_version_tuple = (0, 0, 10911)
+data_version_str = "0.0.post10913"
+data_version_tuple = (0, 0, 10913)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10911")
+    pdata_version = V("0.0.post10913")
 except ImportError:
     pass
-data_git_hash = "63c4132d4cab8cd34afc239c8111f25187816b9a"
-data_git_describe = "v0.0-10911-g63c4132d4"
+data_git_hash = "9634d8b81076f5746485bdf874d175ee824617dc"
+data_git_describe = "v0.0-10913-g9634d8b81"
 data_git_msg = """\
-commit 63c4132d4cab8cd34afc239c8111f25187816b9a
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Mar 22 20:55:13 2022 -0700
+commit 9634d8b81076f5746485bdf874d175ee824617dc
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Tue Mar 22 13:55:50 2022 -0700
 
-    [verix] Add more reports for debugging
+    [lc_ctrl/dv] Update DIF to account for hardware revision CSR
     
-    Add clock domains, matrix to the reports to debug.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
