@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11044"
-version_tuple = (0, 0, 11044)
+version_str = "0.0.post11045"
+version_tuple = (0, 0, 11045)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11044")
+    pversion = V("0.0.post11045")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10918"
-data_version_tuple = (0, 0, 10918)
+data_version_str = "0.0.post10919"
+data_version_tuple = (0, 0, 10919)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10918")
+    pdata_version = V("0.0.post10919")
 except ImportError:
     pass
-data_git_hash = "c3628a53481278bc63e60f40f35e580bc291900e"
-data_git_describe = "v0.0-10918-gc3628a534"
+data_git_hash = "d6a93fc8348f09ab316e59baeb1815e53c1463cc"
+data_git_describe = "v0.0-10919-gd6a93fc83"
 data_git_msg = """\
-commit c3628a53481278bc63e60f40f35e580bc291900e
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 23 14:40:46 2022 -0400
+commit d6a93fc8348f09ab316e59baeb1815e53c1463cc
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Mar 15 15:28:33 2022 -0700
 
-    [bazel] Unbreak building //sw/device/tests:all
+    [pwrmgr] Add documentation on a few countermeasures.
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    - addresses a few items in #11452
+    - add documentation about escalate timeout
+    - add documentation about fsm sparse error
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
