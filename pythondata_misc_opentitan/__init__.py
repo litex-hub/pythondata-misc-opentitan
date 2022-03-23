@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11030"
-version_tuple = (0, 0, 11030)
+version_str = "0.0.post11031"
+version_tuple = (0, 0, 11031)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11030")
+    pversion = V("0.0.post11031")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10904"
-data_version_tuple = (0, 0, 10904)
+data_version_str = "0.0.post10905"
+data_version_tuple = (0, 0, 10905)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10904")
+    pdata_version = V("0.0.post10905")
 except ImportError:
     pass
-data_git_hash = "0278e52bb04c2adc9b1e12ba1bc6f883970fd96b"
-data_git_describe = "v0.0-10904-g0278e52bb"
+data_git_hash = "cf7df522acbb58bdf604302a36c580bc02550f0a"
+data_git_describe = "v0.0-10905-gcf7df522a"
 data_git_msg = """\
-commit 0278e52bb04c2adc9b1e12ba1bc6f883970fd96b
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Mon Feb 28 06:40:37 2022 -0800
+commit cf7df522acbb58bdf604302a36c580bc02550f0a
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Mar 21 19:45:41 2022 +0000
 
-    [aes/dv] implementing mal inject
+    [doc] Update "getting started" diagram to show software first.
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Because everyone needs to build software, the workflow seems easier if
+    the software is built first, and then the different workflows branch off
+    afterwards.
+    
+    Also adjusts the FPGA flow to more accurately describe the steps
+    involved (bitstream must be loaded, and "loading" and "running" the
+    software are not really separate steps).
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
