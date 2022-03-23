@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11029"
-version_tuple = (0, 0, 11029)
+version_str = "0.0.post11030"
+version_tuple = (0, 0, 11030)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11029")
+    pversion = V("0.0.post11030")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10903"
-data_version_tuple = (0, 0, 10903)
+data_version_str = "0.0.post10904"
+data_version_tuple = (0, 0, 10904)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10903")
+    pdata_version = V("0.0.post10904")
 except ImportError:
     pass
-data_git_hash = "356c0543eec55b5b583592329ffa787612d06830"
-data_git_describe = "v0.0-10903-g356c0543e"
+data_git_hash = "0278e52bb04c2adc9b1e12ba1bc6f883970fd96b"
+data_git_describe = "v0.0-10904-g0278e52bb"
 data_git_msg = """\
-commit 356c0543eec55b5b583592329ffa787612d06830
-Author: Cindy Liu <hcindyl@google.com>
-Date:   Mon Mar 21 16:57:49 2022 -0700
+commit 0278e52bb04c2adc9b1e12ba1bc6f883970fd96b
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Mon Feb 28 06:40:37 2022 -0800
 
-    [topgen] Remove hard-code top name from topgen templates
+    [aes/dv] implementing mal inject
     
-    Retrieve the top name from the config dictionary.
-    
-    top level meson.build only has top_earlgrey defined. Leave top_earlgrey
-    in SW device unit test meson.build.tpl for now since the build system
-    goiing to be moved to bazel soon and this file will be deprecated
-    afterwards.
-    
-    Signed-off-by: Cindy Liu <hcindyl@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
