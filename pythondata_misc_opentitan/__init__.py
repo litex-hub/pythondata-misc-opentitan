@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11043"
-version_tuple = (0, 0, 11043)
+version_str = "0.0.post11044"
+version_tuple = (0, 0, 11044)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11043")
+    pversion = V("0.0.post11044")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10917"
-data_version_tuple = (0, 0, 10917)
+data_version_str = "0.0.post10918"
+data_version_tuple = (0, 0, 10918)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10917")
+    pdata_version = V("0.0.post10918")
 except ImportError:
     pass
-data_git_hash = "a3de544e7ac53bad91db9fcd34323f9c037dd8e8"
-data_git_describe = "v0.0-10917-ga3de544e7"
+data_git_hash = "c3628a53481278bc63e60f40f35e580bc291900e"
+data_git_describe = "v0.0-10918-gc3628a534"
 data_git_msg = """\
-commit a3de544e7ac53bad91db9fcd34323f9c037dd8e8
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Mar 18 12:25:33 2022 -0700
+commit c3628a53481278bc63e60f40f35e580bc291900e
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 23 14:40:46 2022 -0400
 
-    [flash_ctrl] Update bank erase assertion
+    [bazel] Unbreak building //sw/device/tests:all
     
-    - fixes #11309
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
