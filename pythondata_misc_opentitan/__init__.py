@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11035"
-version_tuple = (0, 0, 11035)
+version_str = "0.0.post11037"
+version_tuple = (0, 0, 11037)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11035")
+    pversion = V("0.0.post11037")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10909"
-data_version_tuple = (0, 0, 10909)
+data_version_str = "0.0.post10911"
+data_version_tuple = (0, 0, 10911)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10909")
+    pdata_version = V("0.0.post10911")
 except ImportError:
     pass
-data_git_hash = "18cde68b2f3689f79a320f3006f84f06d33513e1"
-data_git_describe = "v0.0-10909-g18cde68b2"
+data_git_hash = "63c4132d4cab8cd34afc239c8111f25187816b9a"
+data_git_describe = "v0.0-10911-g63c4132d4"
 data_git_msg = """\
-commit 18cde68b2f3689f79a320f3006f84f06d33513e1
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Mar 1 17:11:13 2022 +0000
+commit 63c4132d4cab8cd34afc239c8111f25187816b9a
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Mar 22 20:55:13 2022 -0700
 
-    [sw,crypto] Adjust cryptolib drivers to use abs_mmio.
+    [verix] Add more reports for debugging
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Add clock domains, matrix to the reports to debug.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
