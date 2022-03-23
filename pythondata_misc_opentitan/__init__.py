@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11040"
-version_tuple = (0, 0, 11040)
+version_str = "0.0.post11041"
+version_tuple = (0, 0, 11041)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11040")
+    pversion = V("0.0.post11041")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10914"
-data_version_tuple = (0, 0, 10914)
+data_version_str = "0.0.post10915"
+data_version_tuple = (0, 0, 10915)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10914")
+    pdata_version = V("0.0.post10915")
 except ImportError:
     pass
-data_git_hash = "d7f048e471b6da4ff0b7283be47572ce90b6558f"
-data_git_describe = "v0.0-10914-gd7f048e47"
+data_git_hash = "48f97cdbf1486b287afea36358b1ac8b3bcef785"
+data_git_describe = "v0.0-10915-g48f97cdbf"
 data_git_msg = """\
-commit d7f048e471b6da4ff0b7283be47572ce90b6558f
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Mar 23 10:36:03 2022 -0700
+commit 48f97cdbf1486b287afea36358b1ac8b3bcef785
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 23 11:52:20 2022 -0400
 
-    [otp_ctrl] Correct description to reflect current behavior
+    [sw, dif] Use EXPECT_DIF_* in some places that were missing it.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
