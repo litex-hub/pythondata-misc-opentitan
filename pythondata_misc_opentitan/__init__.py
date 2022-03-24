@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11082"
-version_tuple = (0, 0, 11082)
+version_str = "0.0.post11083"
+version_tuple = (0, 0, 11083)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11082")
+    pversion = V("0.0.post11083")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10956"
-data_version_tuple = (0, 0, 10956)
+data_version_str = "0.0.post10957"
+data_version_tuple = (0, 0, 10957)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10956")
+    pdata_version = V("0.0.post10957")
 except ImportError:
     pass
-data_git_hash = "e99ab35e97c29d8f7b27694fd95f804811161833"
-data_git_describe = "v0.0-10956-ge99ab35e9"
+data_git_hash = "a33ed81f41c3a31df0e8478e3c00303ad5616bbe"
+data_git_describe = "v0.0-10957-ga33ed81f4"
 data_git_msg = """\
-commit e99ab35e97c29d8f7b27694fd95f804811161833
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Mar 23 15:38:58 2022 -0400
+commit a33ed81f41c3a31df0e8478e3c00303ad5616bbe
+Author: Daniel Beitel <dbeitel@rivosinc.com>
+Date:   Thu Jan 27 14:12:15 2022 -0800
 
-    [sw,crypto] Remove remaining usages of mmio in the hmac driver
+    [sw,mask_rom] Configure Debug ROM in ePMP so debug can be enabled in RMA
     
-    It seems like these were skipped in #11168, noticed after removing the
-    mmio.h include from abs_mmio.h
+    Fixes #10131
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Daniel Beitel <dbeitel@rivosinc.com>
 
 """
 
