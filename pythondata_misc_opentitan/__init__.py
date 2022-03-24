@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11091"
-version_tuple = (0, 0, 11091)
+version_str = "0.0.post11097"
+version_tuple = (0, 0, 11097)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11091")
+    pversion = V("0.0.post11097")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10965"
-data_version_tuple = (0, 0, 10965)
+data_version_str = "0.0.post10971"
+data_version_tuple = (0, 0, 10971)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10965")
+    pdata_version = V("0.0.post10971")
 except ImportError:
     pass
-data_git_hash = "8fce79d5d833689d9c2aa996a2c9a3976c656200"
-data_git_describe = "v0.0-10965-g8fce79d5d"
+data_git_hash = "640f3f3ebd92a4310b60f0884d403f90c36eb01f"
+data_git_describe = "v0.0-10971-g640f3f3eb"
 data_git_msg = """\
-commit 8fce79d5d833689d9c2aa996a2c9a3976c656200
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 23 15:37:39 2022 -0400
+commit 640f3f3ebd92a4310b60f0884d403f90c36eb01f
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Feb 24 16:30:42 2022 +0000
 
-    [bazel] Format all BUILD files in the repo
+    [test, otbn] Add the otbn_mem_scramble chip level test
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
