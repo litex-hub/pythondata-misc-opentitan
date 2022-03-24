@@ -4,41 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11068"
-version_tuple = (0, 0, 11068)
+version_str = "0.0.post11073"
+version_tuple = (0, 0, 11073)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11068")
+    pversion = V("0.0.post11073")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10942"
-data_version_tuple = (0, 0, 10942)
+data_version_str = "0.0.post10947"
+data_version_tuple = (0, 0, 10947)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10942")
+    pdata_version = V("0.0.post10947")
 except ImportError:
     pass
-data_git_hash = "a66d66236aa3077e753a0c84533f64410c371d68"
-data_git_describe = "v0.0-10942-ga66d66236"
+data_git_hash = "67783a65527f1aaaf937b9ce30866f19816e0205"
+data_git_describe = "v0.0-10947-g67783a655"
 data_git_msg = """\
-commit a66d66236aa3077e753a0c84533f64410c371d68
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Mar 15 21:31:58 2022 -0700
+commit 67783a65527f1aaaf937b9ce30866f19816e0205
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 18 13:11:07 2022 +0000
 
-    [rv_dm dv] Testplan & DV doc updates
+    [otbn,rtl] Fix start_stop_control done_o signal when SecWipeEn=0
     
-    This commit adds the (almost) complete testplan for rv_dm.
-    It incorporates the testplan review comments captured in the meeting
-    notes:
-    https://docs.google.com/document/d/1zIU5XQKFuu72SqUzEpaFGZEgQlIKgy6_iejXfatb1PQ/edit#heading=h.5utrntqp5k6d
+    This single-cycle pulse is supposed to happen at the end of the secure
+    wipe. When SecWipeEn=0, we have a single-cycle "secure wipe" that just
+    jumps straight to OtbnStartStopSecureWipeComplete. But the done_o
+    signal didn't match: fix that.
     
-    The DV doc highlights the testbench block diagram and the flow of
-    information into the scoreboard where most of the checks will be
-    performed.
+    There's also a corresponding DV change needed to get the status signal
+    timing right.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Note that this commit only works with the previous two: we are now
+    delaying the "done_core" signal in otbn.sv by a cycle, even when
+    secure wipe is disabled.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
