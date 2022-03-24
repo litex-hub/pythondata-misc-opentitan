@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11052"
-version_tuple = (0, 0, 11052)
+version_str = "0.0.post11059"
+version_tuple = (0, 0, 11059)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11052")
+    pversion = V("0.0.post11059")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10926"
-data_version_tuple = (0, 0, 10926)
+data_version_str = "0.0.post10933"
+data_version_tuple = (0, 0, 10933)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10926")
+    pdata_version = V("0.0.post10933")
 except ImportError:
     pass
-data_git_hash = "f3da340e3abcee2b8dab253fa9698be488cdc45d"
-data_git_describe = "v0.0-10926-gf3da340e3"
+data_git_hash = "df6fbb98810ac0f542158221735b8ad29b1bf33a"
+data_git_describe = "v0.0-10933-gdf6fbb988"
 data_git_msg = """\
-commit f3da340e3abcee2b8dab253fa9698be488cdc45d
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 23 14:26:34 2022 -0700
+commit df6fbb98810ac0f542158221735b8ad29b1bf33a
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Mar 22 18:30:39 2022 -0700
 
-    [spi_device] Update BUSY section in the spec.
+    [rv_dm dv] JTAG DMI monitor & RVDM scb updates
     
-    As BUSY clearing and STATUS update behaviors are changed in this PR, I
-    update the spec to reflect the current design.
+    JTAG DMI monitor:
+    - Add non DMI DTM access pass through TLM port
+    - Write items to this port that are not accesses to DTM DMI regiters
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    RV_DM env
+    - Connect the new port from JTAG DMI monitor
+    - Expand accesses to JTAG DTM, DMI and debug mem to process individual
+      CSR accesses (still a skeleton)
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
