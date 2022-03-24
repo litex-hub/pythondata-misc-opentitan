@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11113"
-version_tuple = (0, 0, 11113)
+version_str = "0.0.post11117"
+version_tuple = (0, 0, 11117)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11113")
+    pversion = V("0.0.post11117")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10987"
-data_version_tuple = (0, 0, 10987)
+data_version_str = "0.0.post10991"
+data_version_tuple = (0, 0, 10991)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10987")
+    pdata_version = V("0.0.post10991")
 except ImportError:
     pass
-data_git_hash = "4b186e06d80305601974c3625f040993f460ec1e"
-data_git_describe = "v0.0-10987-g4b186e06d"
+data_git_hash = "ba061ed571068884e7f9d7bc10d30cbb8dd4ebf9"
+data_git_describe = "v0.0-10991-gba061ed57"
 data_git_msg = """\
-commit 4b186e06d80305601974c3625f040993f460ec1e
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 23 21:31:47 2022 -0700
+commit ba061ed571068884e7f9d7bc10d30cbb8dd4ebf9
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Mar 23 00:30:22 2022 -0700
 
-    [cdc] Report per uniquified module
+    [bazel] Add rules to generate SPI Flash frames for DV bootstrap
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    DV simulations can load the flash either via backdoor memory write, or
+    bootstrap. If via bootstrap, a special image must be prepared so that
+    the test bench can feed the correct SPI flash frames to the DUT. This
+    commit adds custom bazel rules to generate this flash image.
+    
+    This partially addresses #11559.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
