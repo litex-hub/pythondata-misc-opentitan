@@ -57,6 +57,10 @@
       value: 8
     }
     {
+      name: default_vcs_cov_cfg_file
+      value: "-cm_hier {proj_root}/hw/dv/tools/vcs/cover.cfg+{proj_root}/hw/ip/rv_dm/dv/cov/cover.cfg"
+    }
+    {
       name: cover_reg_top_vcs_cov_cfg_file
       value: "-cm_hier {proj_root}/hw/dv/tools/vcs/cover_reg_top.cfg+{proj_root}/hw/ip/rv_dm/dv/cov/cover_reg_top.cfg"
     }
@@ -74,6 +78,7 @@
     {
       name: rv_dm_smoke
       uvm_test_seq: rv_dm_smoke_vseq
+      reseed: 2
     }
     {
       name: rv_dm_jtag_dtm_csr_hw_reset
