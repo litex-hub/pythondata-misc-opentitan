@@ -74,7 +74,6 @@ typedef enum dif_spi_host_direction {
 
 /**
  * Segment types for segments in a transaction.
- *
  */
 typedef enum dif_spi_host_segment_type {
   /** The segment is a SPI opcode. */
@@ -141,20 +140,6 @@ typedef struct dif_spi_host_segment {
 } dif_spi_host_segment_t;
 
 /**
- * Creates a new handle for SPI Host.
- *
- * This function does not actuate the hardware.
- *
- * @param base_addr The MMIO base address of the IP.
- * @param params Hardware instantiation parameters. (optional, may remove)
- * @param[out] spi_host Out param for the initialized handle.
- * @return The result of the operation.
- */
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_spi_host_init(mmio_region_t base_addr,
-                               dif_spi_host_t *spi_host);
-
-/**
  * Configures SPI Host with runtime information.
  *
  * This function should only need to be called once for the lifetime of
@@ -169,12 +154,15 @@ dif_result_t dif_spi_host_configure(const dif_spi_host_t *spi_host,
                                     dif_spi_host_config_t config);
 
 /**
- * Enable or disable SPI host output buffers.
+ * Sets the enablement of the SPI host output buffers.
  *
  * @param spi_host A SPI Host handle.
- * @param enable Enable or disable the output buffers.
+ * @param enabled Enable or disable the output buffers.
+ * @return The result of the operation.
  */
-void dif_spi_host_output(const dif_spi_host_t *spi_host, bool enable);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_spi_host_output_set_enabled(const dif_spi_host_t *spi_host,
+                                             bool enabled);
 
 /**
  * Write to the SPI Host transmit FIFO.
@@ -182,9 +170,11 @@ void dif_spi_host_output(const dif_spi_host_t *spi_host, bool enable);
  * @param spi_host A SPI Host handle.
  * @param src A pointer to the buffer to transmit.
  * @param len The length of the transmit buffer.
+ * @return The result of the operation.
  */
-void dif_spi_host_fifo_write(const dif_spi_host_t *spi_host, const void *src,
-                             uint16_t len);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_spi_host_fifo_write(const dif_spi_host_t *spi_host,
+                                     const void *src, uint16_t len);
 
 /**
  * Read from the SPI Host receive FIFO.
@@ -192,9 +182,11 @@ void dif_spi_host_fifo_write(const dif_spi_host_t *spi_host, const void *src,
  * @param spi_host A SPI Host handle.
  * @param dst A pointer to the buffer to receive the data.
  * @param len The length of the receive buffer.
+ * @return The result of the operation.
  */
-void dif_spi_host_fifo_read(const dif_spi_host_t *spi_host, void *dst,
-                            uint16_t len);
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_spi_host_fifo_read(const dif_spi_host_t *spi_host, void *dst,
+                                    uint16_t len);
 
 /**
  * Begins a SPI Host transaction.

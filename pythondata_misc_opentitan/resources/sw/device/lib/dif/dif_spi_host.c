@@ -19,13 +19,13 @@
 // the FIFO functions and the overall transaction management functions.
 OT_WEAK
 OT_ALIAS("dif_spi_host_fifo_write")
-void spi_host_fifo_write_alias(const dif_spi_host_t *spi_host, const void *src,
-                               uint16_t len);
+dif_result_t spi_host_fifo_write_alias(const dif_spi_host_t *spi_host,
+                                       const void *src, uint16_t len);
 
 OT_WEAK
 OT_ALIAS("dif_spi_host_fifo_read")
-void spi_host_fifo_read_alias(const dif_spi_host_t *spi_host, void *dst,
-                              uint16_t len);
+dif_result_t spi_host_fifo_read_alias(const dif_spi_host_t *spi_host, void *dst,
+                                      uint16_t len);
 
 static void spi_host_reset(const dif_spi_host_t *spi_host) {
   // Set the software reset request bit.
@@ -95,12 +95,19 @@ dif_result_t dif_spi_host_configure(const dif_spi_host_t *spi_host,
   return kDifOk;
 }
 
-void dif_spi_host_output(const dif_spi_host_t *spi_host, bool enable) {
+dif_result_t dif_spi_host_output_set_enabled(const dif_spi_host_t *spi_host,
+                                             bool enabled) {
+  if (spi_host == NULL) {
+    return kDifBadArg;
+  }
+
   uint32_t reg =
       mmio_region_read32(spi_host->base_addr, SPI_HOST_CONTROL_REG_OFFSET);
   mmio_region_write32(
       spi_host->base_addr, SPI_HOST_CONTROL_REG_OFFSET,
-      bitfield_bit32_write(reg, SPI_HOST_CONTROL_OUTPUT_EN_BIT, enable));
+      bitfield_bit32_write(reg, SPI_HOST_CONTROL_OUTPUT_EN_BIT, enabled));
+
+  return kDifOk;
 }
 
 static void wait_ready(const dif_spi_host_t *spi_host) {
@@ -144,9 +151,12 @@ static inline void tx_fifo_write32(const dif_spi_host_t *spi_host,
   mmio_region_write32(spi_host->base_addr, SPI_HOST_TXDATA_REG_OFFSET, val);
 }
 
-void dif_spi_host_fifo_write(const dif_spi_host_t *spi_host, const void *src,
-                             uint16_t len) {
+dif_result_t dif_spi_host_fifo_write(const dif_spi_host_t *spi_host,
+                                     const void *src, uint16_t len) {
   uintptr_t ptr = (uintptr_t)src;
+  if (spi_host == NULL || (src == NULL && len > 0)) {
+    return kDifBadArg;
+  }
 
   // If the pointer starts mis-aligned, write until we are aligned.
   while (misalignment32_of(ptr) && len > 0) {
@@ -168,6 +178,8 @@ void dif_spi_host_fifo_write(const dif_spi_host_t *spi_host, const void *src,
     ptr += 1;
     len -= 1;
   }
+
+  return kDifOk;
 }
 
 typedef struct queue {
@@ -206,8 +218,12 @@ static uint32_t dequeue_word(queue_t *queue) {
   return val;
 }
 
-void dif_spi_host_fifo_read(const dif_spi_host_t *spi_host, void *dst,
-                            uint16_t len) {
+dif_result_t dif_spi_host_fifo_read(const dif_spi_host_t *spi_host, void *dst,
+                                    uint16_t len) {
+  if (spi_host == NULL || (dst == NULL && len > 0)) {
+    return kDifBadArg;
+  }
+
   uintptr_t ptr = (uintptr_t)dst;
   // We always have to read from the RXFIFO as a 32-bit word.  We use a
   // two-word queue to handle destination and length mis-alignments.
@@ -251,6 +267,8 @@ void dif_spi_host_fifo_read(const dif_spi_host_t *spi_host, void *dst,
     ptr += 1;
     len -= 1;
   }
+
+  return kDifOk;
 }
 
 static void write_command_reg(const dif_spi_host_t *spi_host, uint16_t length,

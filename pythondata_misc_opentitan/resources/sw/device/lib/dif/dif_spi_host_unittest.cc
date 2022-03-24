@@ -26,13 +26,15 @@ class MockFifo : public ::global_mock::GlobalMock<MockFifo> {
 }  // namespace internal
 using MockFifo = testing::StrictMock<internal::MockFifo>;
 extern "C" {
-void spi_host_fifo_write_alias(const dif_spi_host_t *spi_host, const void *src,
-                               uint16_t len) {
+dif_result_t spi_host_fifo_write_alias(const dif_spi_host_t *spi_host,
+                                       const void *src, uint16_t len) {
   MockFifo::Instance().write(spi_host, src, len);
+  return kDifOk;
 }
-void spi_host_fifo_read_alias(const dif_spi_host_t *spi_host, void *dst,
-                              uint16_t len) {
+dif_result_t spi_host_fifo_read_alias(const dif_spi_host_t *spi_host, void *dst,
+                                      uint16_t len) {
   MockFifo::Instance().read(spi_host, dst, len);
+  return kDifOk;
 }
 }
 
@@ -138,6 +140,11 @@ TEST_F(ConfigTest, Default) {
   EXPECT_DIF_OK(dif_spi_host_configure(&spi_host_, config_));
 }
 
+// Checks the arguments to the output-enablement DIF are validated.
+TEST_F(ConfigTest, OutputSetEnabledNullHandle) {
+  EXPECT_DIF_BADARG(dif_spi_host_output_set_enabled(nullptr, true));
+}
+
 // Checks manipulation of the output enable bit.
 TEST_F(ConfigTest, OutputEnable) {
   EXPECT_READ32(SPI_HOST_CONTROL_REG_OFFSET, 0);
@@ -145,7 +152,7 @@ TEST_F(ConfigTest, OutputEnable) {
                  {
                      {SPI_HOST_CONTROL_OUTPUT_EN_BIT, true},
                  });
-  dif_spi_host_output(&spi_host_, true);
+  EXPECT_DIF_OK(dif_spi_host_output_set_enabled(&spi_host_, true));
 }
 
 // Checks that the clock divider gets calculated correctly.
@@ -387,6 +394,19 @@ TEST_F(TransactionTest, MultiSegmentTxRx) {
 
 class FifoTest : public SpiHostTest {};
 
+// Checks that arguments are validated.
+TEST_F(FifoTest, NullArgs) {
+  uint32_t buffer[2] = {1, 2};
+
+  EXPECT_DIF_BADARG(dif_spi_host_fifo_write(nullptr, buffer, sizeof(buffer)));
+  EXPECT_DIF_BADARG(
+      dif_spi_host_fifo_write(&spi_host_, nullptr, sizeof(buffer)));
+
+  EXPECT_DIF_BADARG(dif_spi_host_fifo_read(nullptr, buffer, sizeof(buffer)));
+  EXPECT_DIF_BADARG(
+      dif_spi_host_fifo_read(&spi_host_, nullptr, sizeof(buffer)));
+}
+
 // Checks that an aligned source buffer is written as 32-bit words into the
 // transmit FIFO.
 TEST_F(FifoTest, AlignedWrite) {
@@ -397,7 +417,7 @@ TEST_F(FifoTest, AlignedWrite) {
   EXPECT_TXQD(0);
   EXPECT_WRITE32(SPI_HOST_TXDATA_REG_OFFSET, 2);
 
-  dif_spi_host_fifo_write(&spi_host_, buffer, sizeof(buffer));
+  EXPECT_DIF_OK(dif_spi_host_fifo_write(&spi_host_, buffer, sizeof(buffer)));
 }
 
 template <size_t count, size_t align>
@@ -429,7 +449,7 @@ TEST_F(FifoTest, MisalignedWrite) {
   EXPECT_TXQD(0);
   EXPECT_WRITE8(SPI_HOST_TXDATA_REG_OFFSET, 8);
 
-  dif_spi_host_fifo_write(&spi_host_, buffer.get() + 1, 8);
+  EXPECT_DIF_OK(dif_spi_host_fifo_write(&spi_host_, buffer.get() + 1, 8));
 }
 
 // Checks that an aligned destination buffer receives the contents of the
@@ -442,7 +462,7 @@ TEST_F(FifoTest, AlignedRead) {
   EXPECT_RXQD(1);
   EXPECT_READ32(SPI_HOST_RXDATA_REG_OFFSET, 2);
 
-  dif_spi_host_fifo_read(&spi_host_, buffer, sizeof(buffer));
+  EXPECT_DIF_OK(dif_spi_host_fifo_read(&spi_host_, buffer, sizeof(buffer)));
   EXPECT_THAT(buffer, ElementsAre(1, 2));
 }
 
@@ -458,7 +478,7 @@ TEST_F(FifoTest, MisalignedRead) {
   EXPECT_RXQD(1);
   EXPECT_READ32(SPI_HOST_RXDATA_REG_OFFSET, 0x08070605);
 
-  dif_spi_host_fifo_read(&spi_host_, buffer.get() + 1, 8);
+  EXPECT_DIF_OK(dif_spi_host_fifo_read(&spi_host_, buffer.get() + 1, 8));
   EXPECT_THAT(buffer.value, ElementsAre(0, 1, 2, 3, 4, 5, 6, 7, 8));
 }
 
