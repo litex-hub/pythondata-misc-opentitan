@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11097"
-version_tuple = (0, 0, 11097)
+version_str = "0.0.post11104"
+version_tuple = (0, 0, 11104)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11097")
+    pversion = V("0.0.post11104")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10971"
-data_version_tuple = (0, 0, 10971)
+data_version_str = "0.0.post10978"
+data_version_tuple = (0, 0, 10978)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10971")
+    pdata_version = V("0.0.post10978")
 except ImportError:
     pass
-data_git_hash = "640f3f3ebd92a4310b60f0884d403f90c36eb01f"
-data_git_describe = "v0.0-10971-g640f3f3eb"
+data_git_hash = "02df0706c967597c1a77a2109689b802f823cbdb"
+data_git_describe = "v0.0-10978-g02df0706c"
 data_git_msg = """\
-commit 640f3f3ebd92a4310b60f0884d403f90c36eb01f
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Feb 24 16:30:42 2022 +0000
+commit 02df0706c967597c1a77a2109689b802f823cbdb
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Mar 24 12:26:56 2022 +0000
 
-    [test, otbn] Add the otbn_mem_scramble chip level test
+    Update comments in OTBN smoke test
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Fixes #7336
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
