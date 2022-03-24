@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11083"
-version_tuple = (0, 0, 11083)
+version_str = "0.0.post11091"
+version_tuple = (0, 0, 11091)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11083")
+    pversion = V("0.0.post11091")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10957"
-data_version_tuple = (0, 0, 10957)
+data_version_str = "0.0.post10965"
+data_version_tuple = (0, 0, 10965)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10957")
+    pdata_version = V("0.0.post10965")
 except ImportError:
     pass
-data_git_hash = "a33ed81f41c3a31df0e8478e3c00303ad5616bbe"
-data_git_describe = "v0.0-10957-ga33ed81f4"
+data_git_hash = "8fce79d5d833689d9c2aa996a2c9a3976c656200"
+data_git_describe = "v0.0-10965-g8fce79d5d"
 data_git_msg = """\
-commit a33ed81f41c3a31df0e8478e3c00303ad5616bbe
-Author: Daniel Beitel <dbeitel@rivosinc.com>
-Date:   Thu Jan 27 14:12:15 2022 -0800
+commit 8fce79d5d833689d9c2aa996a2c9a3976c656200
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 23 15:37:39 2022 -0400
 
-    [sw,mask_rom] Configure Debug ROM in ePMP so debug can be enabled in RMA
+    [bazel] Format all BUILD files in the repo
     
-    Fixes #10131
-    
-    Signed-off-by: Daniel Beitel <dbeitel@rivosinc.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
