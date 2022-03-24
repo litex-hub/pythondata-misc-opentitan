@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11060"
-version_tuple = (0, 0, 11060)
+version_str = "0.0.post11065"
+version_tuple = (0, 0, 11065)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11060")
+    pversion = V("0.0.post11065")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10934"
-data_version_tuple = (0, 0, 10934)
+data_version_str = "0.0.post10939"
+data_version_tuple = (0, 0, 10939)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10934")
+    pdata_version = V("0.0.post10939")
 except ImportError:
     pass
-data_git_hash = "5fac8e3ce4f6cc4d4452c2bfb768b1d573a8dc32"
-data_git_describe = "v0.0-10934-g5fac8e3ce"
+data_git_hash = "236a8d2c59c4b4eef903ca83abaa1a84fe52c162"
+data_git_describe = "v0.0-10939-g236a8d2c5"
 data_git_msg = """\
-commit 5fac8e3ce4f6cc4d4452c2bfb768b1d573a8dc32
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 23 11:03:17 2022 -0700
+commit 236a8d2c59c4b4eef903ca83abaa1a84fe52c162
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Mar 23 14:57:57 2022 -0700
 
-    [spi_device] Waiving CDC violations through prim_flop_2sync
+    [dif/spi_host] update checklist and milestone
     
-    Adding W_CNTL waivers that are passing through prim_flop_2sync.
+    This updates the DIF checklist and milestone to bring the DIF to S2.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
