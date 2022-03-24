@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11108"
-version_tuple = (0, 0, 11108)
+version_str = "0.0.post11113"
+version_tuple = (0, 0, 11113)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11108")
+    pversion = V("0.0.post11113")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10982"
-data_version_tuple = (0, 0, 10982)
+data_version_str = "0.0.post10987"
+data_version_tuple = (0, 0, 10987)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10982")
+    pdata_version = V("0.0.post10987")
 except ImportError:
     pass
-data_git_hash = "24b84fd02934dd395bff13cb412280dca1c6c59a"
-data_git_describe = "v0.0-10982-g24b84fd02"
+data_git_hash = "4b186e06d80305601974c3625f040993f460ec1e"
+data_git_describe = "v0.0-10987-g4b186e06d"
 data_git_msg = """\
-commit 24b84fd02934dd395bff13cb412280dca1c6c59a
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Mar 23 16:07:50 2022 -0700
+commit 4b186e06d80305601974c3625f040993f460ec1e
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Mar 23 21:31:47 2022 -0700
 
-    [chip dv] Fix uart unexpected watermark interrupt
+    [cdc] Report per uniquified module
     
-    When RX watermark fires, read the data, but if remaining items are less
-    than 16, RX watermark won't fire. In that case, changed to keep reading
-    until all items are received.
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
