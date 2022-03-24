@@ -204,15 +204,18 @@ module tb;
   // to grab the decoded signal from TL transactions on the cycle it happens. We have an explicit
   // check in the scoreboard to ensure that this gets asserted at the time we expect (to spot any
   // decoding errors).
-  assign model_if.start = dut.start_d;
+  assign model_if.cmd_q = dut.reg2hw.cmd.q;
+  assign model_if.cmd_qe = dut.reg2hw.cmd.qe;
 
   // Valid signals below are set when DUT finishes processing incoming 32b packages and constructs
   // 256b EDN data. Model checks if the processing of the packages are done in maximum of 5 cycles
   logic edn_rnd_cdc_done, edn_rnd_req_model;
   logic edn_urnd_cdc_done, edn_urnd_req_model;
+  logic otp_key_cdc_done;
 
   assign edn_rnd_cdc_done = dut.edn_rnd_req & dut.edn_rnd_ack;
   assign edn_urnd_cdc_done = dut.edn_urnd_req & dut.edn_urnd_ack;
+  assign otp_key_cdc_done = dut.u_otbn_scramble_ctrl.otp_key_ack;
 
   bit [31:0] model_insn_cnt;
 
@@ -226,19 +229,22 @@ module tb;
     .rst_ni       (model_if.rst_ni),
     .rst_edn_ni   (edn_rst_n),
 
-    .start_i      (model_if.start),
+    .cmd_i        (model_if.cmd_q),
+    .cmd_en_i     (model_if.cmd_qe),
 
     .lc_escalate_en_i (escalate_if.enable == lc_ctrl_pkg::On),
 
     .err_bits_o   (model_if.err_bits),
 
-    .edn_rnd_i             ({edn_if[0].ack, edn_if[0].d_data}),
-    .edn_rnd_o             (edn_rnd_req_model),
-    .edn_rnd_cdc_done_i    (edn_rnd_cdc_done),
+    .edn_rnd_i           ({edn_if[0].ack, edn_if[0].d_data}),
+    .edn_rnd_o           (edn_rnd_req_model),
+    .edn_rnd_cdc_done_i  (edn_rnd_cdc_done),
 
-    .edn_urnd_i             ({edn_if[1].ack, edn_if[1].d_data}),
-    .edn_urnd_o             (edn_urnd_req_model),
-    .edn_urnd_cdc_done_i    (edn_urnd_cdc_done),
+    .edn_urnd_i          ({edn_if[1].ack, edn_if[1].d_data}),
+    .edn_urnd_o          (edn_urnd_req_model),
+    .edn_urnd_cdc_done_i (edn_urnd_cdc_done),
+
+    .otp_key_cdc_done_i  (otp_key_cdc_done),
 
     .status_o     (model_if.status),
     .insn_cnt_o   (model_insn_cnt),

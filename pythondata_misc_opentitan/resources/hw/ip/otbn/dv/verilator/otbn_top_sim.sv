@@ -317,7 +317,8 @@ module otbn_top_sim (
     .rst_ni                ( IO_RST_N ),
     .rst_edn_ni            ( IO_RST_N ),
 
-    .start_i               ( otbn_start ),
+    .cmd_i                 ( otbn_pkg::CmdExecute ),
+    .cmd_en_i              ( otbn_start ),
 
     .lc_escalate_en_i      ( 1'b0 ),
 
@@ -330,6 +331,8 @@ module otbn_top_sim (
     .edn_urnd_i            ( urnd_rsp ),
     .edn_urnd_o            ( ),
     .edn_urnd_cdc_done_i   ( edn_urnd_data_valid ),
+
+    .otp_key_cdc_done_i    ( 1'b0 ),
 
     .status_o              ( ),
     .insn_cnt_o            ( otbn_model_insn_cnt ),
@@ -421,7 +424,7 @@ module otbn_top_sim (
     end
   end
   always_ff @(negedge IO_CLK or negedge IO_RST_N) begin
-    if (IO_RST_N && u_otbn_core_model.check_due && u_otbn_core_model.running) begin
+    if (IO_RST_N && u_otbn_core_model.check_due) begin
       OtbnTopDumpState();
     end
   end

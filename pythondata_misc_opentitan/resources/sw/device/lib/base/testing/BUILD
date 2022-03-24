@@ -10,7 +10,7 @@ cc_library(
 )
 
 cc_library(
-    name = "testing",
+    name = "mock_mmio",
     srcs = ["mock_mmio.cc"],
     hdrs = [
         "mock_mmio.h",
@@ -35,6 +35,7 @@ cc_library(
     defines = ["MOCK_ABS_MMIO"],
     deps = [
         ":global_mock",
+        ":mock_mmio",
         "//sw/device/lib/base:abs_mmio",
         "@googletest//:gtest",
     ],
@@ -49,7 +50,7 @@ cc_test(
         "MOCK_MMIO=1",
     ],
     deps = [
-        ":testing",
+        ":mock_mmio",
         "@googletest//:gtest_main",
     ],
 )

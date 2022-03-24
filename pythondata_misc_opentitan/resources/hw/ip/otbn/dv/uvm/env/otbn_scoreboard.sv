@@ -180,13 +180,17 @@ class otbn_scoreboard extends cip_base_scoreboard #(
       case (csr.get_name())
         // Spot writes to the "cmd" register that tell us to start
         "cmd": begin
-          // We start the execution when we see a write of the EXECUTE command and we are currently
+          // We start any operation when we see a write of the related command and we are currently
           // in the IDLE operational state. See the comment above pending_start_tl_trans to see how
           // this tracking works.
-          if ((item.a_data == otbn_pkg::CmdExecute) && (model_status == otbn_pkg::StatusIdle)) begin
+          bit cmd_operation = item.a_data inside {otbn_pkg::CmdSecWipeImem,
+                                                  otbn_pkg::CmdSecWipeDmem,
+                                                  otbn_pkg::CmdExecute};
+          if (cmd_operation && (model_status == otbn_pkg::StatusIdle)) begin
             // Set a flag: we're expecting the model to start on the next posedge. Also, spawn off a
             // checking thread that will make sure the flag has been cleared again by the following
-            // posedge. Note that the reset() method is only called in the DV base class on the
+            // posedge (or the one after that in the case of memory secure wipe operations).
+            // Note that the reset() method is only called in the DV base class on the
             // following posedge of rst_n, so we have to check whether we're still in reset here.
             pending_start_tl_trans = 1'b1;
             fork begin
@@ -373,9 +377,7 @@ class otbn_scoreboard extends cip_base_scoreboard #(
 
       case (item.item_type)
         OtbnModelStatus: begin
-          bit was_running = model_status inside {otbn_pkg::StatusBusyExecute,
-                                                 otbn_pkg::StatusBusySecWipeDmem,
-                                                 otbn_pkg::StatusBusySecWipeImem};
+          bit was_executing = model_status inside {otbn_pkg::StatusBusyExecute};
           bit is_running = item.status inside {otbn_pkg::StatusBusyExecute,
                                                otbn_pkg::StatusBusySecWipeDmem,
                                                otbn_pkg::StatusBusySecWipeImem};
@@ -393,9 +395,10 @@ class otbn_scoreboard extends cip_base_scoreboard #(
           if (item.status == otbn_pkg::StatusLocked) begin
             expect_alert("fatal");
           end
-          // Has the status changed from busy to idle with a nonzero err_bits? If so, we should see
-          // a recoverable alert.
-          if (was_running && item.status == otbn_pkg::StatusIdle && item.err_bits != 0) begin
+          // Has the status changed from executing to idle with a nonzero err_bits?
+          // If so, we should see a recoverable alert. Note that we are not expecting to catch
+          // recoverable alert when we do SecWipe of any kind.
+          if (was_executing && item.status == otbn_pkg::StatusIdle && item.err_bits != 0) begin
             expect_alert("recov");
           end
 
