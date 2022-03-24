@@ -376,3 +376,10 @@ You then need to reload the udev rules:
 ```console
 $ sudo udevadm control --reload
 ```
+
+## Siemens Questa
+
+Once a standard installation has been completed, add `QUESTA_HOME` as an environment variable which points to the Questa installation directory.
+
+As of Questa version 21.4 there are some code incompatibilities with the OpenTitan code-base.
+See issue [#9514](https://github.com/lowRISC/opentitan/issues/9514) for the list of issues and temporary workarounds.
