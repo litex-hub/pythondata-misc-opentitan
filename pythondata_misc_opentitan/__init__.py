@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11045"
-version_tuple = (0, 0, 11045)
+version_str = "0.0.post11052"
+version_tuple = (0, 0, 11052)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11045")
+    pversion = V("0.0.post11052")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10919"
-data_version_tuple = (0, 0, 10919)
+data_version_str = "0.0.post10926"
+data_version_tuple = (0, 0, 10926)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10919")
+    pdata_version = V("0.0.post10926")
 except ImportError:
     pass
-data_git_hash = "d6a93fc8348f09ab316e59baeb1815e53c1463cc"
-data_git_describe = "v0.0-10919-gd6a93fc83"
+data_git_hash = "f3da340e3abcee2b8dab253fa9698be488cdc45d"
+data_git_describe = "v0.0-10926-gf3da340e3"
 data_git_msg = """\
-commit d6a93fc8348f09ab316e59baeb1815e53c1463cc
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Mar 15 15:28:33 2022 -0700
+commit f3da340e3abcee2b8dab253fa9698be488cdc45d
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Mar 23 14:26:34 2022 -0700
 
-    [pwrmgr] Add documentation on a few countermeasures.
+    [spi_device] Update BUSY section in the spec.
     
-    - addresses a few items in #11452
-    - add documentation about escalate timeout
-    - add documentation about fsm sparse error
+    As BUSY clearing and STATUS update behaviors are changed in this PR, I
+    update the spec to reflect the current design.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
