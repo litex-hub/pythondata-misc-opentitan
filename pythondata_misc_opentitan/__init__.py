@@ -4,41 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11059"
-version_tuple = (0, 0, 11059)
+version_str = "0.0.post11060"
+version_tuple = (0, 0, 11060)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11059")
+    pversion = V("0.0.post11060")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10933"
-data_version_tuple = (0, 0, 10933)
+data_version_str = "0.0.post10934"
+data_version_tuple = (0, 0, 10934)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10933")
+    pdata_version = V("0.0.post10934")
 except ImportError:
     pass
-data_git_hash = "df6fbb98810ac0f542158221735b8ad29b1bf33a"
-data_git_describe = "v0.0-10933-gdf6fbb988"
+data_git_hash = "5fac8e3ce4f6cc4d4452c2bfb768b1d573a8dc32"
+data_git_describe = "v0.0-10934-g5fac8e3ce"
 data_git_msg = """\
-commit df6fbb98810ac0f542158221735b8ad29b1bf33a
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Mar 22 18:30:39 2022 -0700
+commit 5fac8e3ce4f6cc4d4452c2bfb768b1d573a8dc32
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Mar 23 11:03:17 2022 -0700
 
-    [rv_dm dv] JTAG DMI monitor & RVDM scb updates
+    [spi_device] Waiving CDC violations through prim_flop_2sync
     
-    JTAG DMI monitor:
-    - Add non DMI DTM access pass through TLM port
-    - Write items to this port that are not accesses to DTM DMI regiters
+    Adding W_CNTL waivers that are passing through prim_flop_2sync.
     
-    RV_DM env
-    - Connect the new port from JTAG DMI monitor
-    - Expand accesses to JTAG DTM, DMI and debug mem to process individual
-      CSR accesses (still a skeleton)
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
