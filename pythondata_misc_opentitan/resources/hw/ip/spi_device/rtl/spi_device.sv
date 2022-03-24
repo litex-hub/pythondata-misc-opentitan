@@ -82,6 +82,7 @@ module spi_device
 
   logic clk_spi_in, clk_spi_in_muxed, clk_spi_in_buf;   // clock for latch SDI
   logic clk_spi_out, clk_spi_out_muxed, clk_spi_out_buf; // clock for driving SDO
+  logic clk_csb, clk_csb_muxed; // CSb as a clock source to latch BUSY
 
   spi_device_reg_pkg::spi_device_reg2hw_t reg2hw;
   spi_device_reg_pkg::spi_device_hw2reg_t hw2reg;
@@ -303,7 +304,7 @@ module spi_device
 
   // Read Status input and broadcast
   logic sck_status_busy_set;       // set by HW (upload)
-  logic sck_status_busy_broadcast; // from spid_status
+  logic csb_status_busy_broadcast; // from spid_status
 
   // Jedec ID
   jedec_cfg_t jedec_cfg;
@@ -360,12 +361,12 @@ module spi_device
   /////////////////
   // Split the CSB into multiple explicit buffers. One for reset, two for each
   // clock domains.
-  logic rst_csb_buf, sys_csb, sck_csb;
+  logic clk_csb_buf, rst_csb_buf, sys_csb, sck_csb;
   prim_buf #(
-    .Width (3)
+    .Width (4)
   ) u_csb_buf (
-    .in_i  ({3{cio_csb_i}}),
-    .out_o ({rst_csb_buf, sys_csb, sck_csb})
+    .in_i  ({4{cio_csb_i}}),
+    .out_o ({clk_csb_buf, rst_csb_buf, sys_csb, sck_csb})
   );
 
   //////////////////////////////////////////////////////////////////////
@@ -818,6 +819,23 @@ module spi_device
   prim_clock_buf u_clk_spi_out_buf(
     .clk_i (clk_spi_out_muxed),
     .clk_o (clk_spi_out_buf)
+  );
+
+  // CSb muxed to scan clock
+  prim_clock_mux2 #(
+    .NoFpgaBufG(1'b 1)
+  ) u_clk_csb_mux (
+    .clk0_i (clk_csb_buf),
+    .clk1_i (scan_clk_i ),
+    .sel_i  (prim_mubi_pkg::mubi4_test_true_strict(scanmode[ClkMuxSel])),
+    .clk_o  (clk_csb_muxed)
+  );
+
+  prim_clock_buf #(
+    .NoFpgaBuf (1'b 1)
+  ) u_clk_csb_buf (
+    .clk_i (clk_csb_muxed),
+    .clk_o (clk_csb      )
   );
 
   prim_clock_mux2 #(
@@ -1316,12 +1334,10 @@ module spi_device
 
     .clk_out_i (clk_spi_out_buf),
 
+    .clk_csb_i (clk_csb),
+
     .sys_clk_i  (clk_i),
     .sys_rst_ni (rst_ni),
-
-    .sys_csb_sync_i             (sys_csb_syncd),
-    .sys_csb_deasserted_pulse_i (sys_csb_deasserted_pulse),
-    .sck_csb_asserted_pulse_i   (sck_csb_asserted_pulse),
 
     .sys_status_we_i (readstatus_qe),
     .sys_status_i    (readstatus_q),
@@ -1339,12 +1355,8 @@ module spi_device
 
     .inclk_busy_set_i  (sck_status_busy_set), // SCK domain
 
-    .inclk_busy_broadcast_o (sck_status_busy_broadcast) // SCK domain
+    .csb_busy_broadcast_o (csb_status_busy_broadcast) // SCK domain
   );
-
-  // Temporary:
-  logic unused_busy;
-  assign unused_busy = sck_status_busy_broadcast;
 
   // Tie unused
   logic unused_sub_sram_status;
@@ -1527,8 +1539,8 @@ module spi_device
   //   assertion event. If that happens, passthrough block may set during SPI
   //   transaction. The behavior of the SPI_DEVICE in this scenario is
   //   undeterminstic.
-  logic  sys_passthrough_block;
-  assign sys_passthrough_block = readstatus_d[0];
+  logic  passthrough_block;
+  assign passthrough_block = csb_status_busy_broadcast;
 
   spi_passthrough u_passthrough (
     .clk_i     (clk_spi_in_buf),
@@ -1551,7 +1563,7 @@ module spi_device
     .spi_mode_i       (spi_mode),
 
     // Control: BUSY block
-    .passthrough_block_i (sys_passthrough_block),
+    .passthrough_block_i (passthrough_block),
 
     // Host SPI
     .host_sck_i  (cio_sck_i),
