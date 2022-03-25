@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11135"
-version_tuple = (0, 0, 11135)
+version_str = "0.0.post11136"
+version_tuple = (0, 0, 11136)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11135")
+    pversion = V("0.0.post11136")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11009"
-data_version_tuple = (0, 0, 11009)
+data_version_str = "0.0.post11010"
+data_version_tuple = (0, 0, 11010)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11009")
+    pdata_version = V("0.0.post11010")
 except ImportError:
     pass
-data_git_hash = "420cedc9ba81374804dbc7fb8db274bb7e476bd5"
-data_git_describe = "v0.0-11009-g420cedc9b"
+data_git_hash = "c1f1cb49adca3414562349d86f37264bfbd021c9"
+data_git_describe = "v0.0-11010-gc1f1cb49a"
 data_git_msg = """\
-commit 420cedc9ba81374804dbc7fb8db274bb7e476bd5
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Mar 25 10:50:47 2022 +0000
+commit c1f1cb49adca3414562349d86f37264bfbd021c9
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Mar 24 14:02:40 2022 -0700
 
-    [test, aes] Remove the aes_lc_escalate from test plan
+    [silicon_creator/mask_rom] fix bug in AST init asm
     
-     The aes_lc_escalate chip level test neither make sense nor can be
-     implemented by software, because the aes IP will only be  notified
-     by the Alert Handler from the escalation phase 1, as the phase
-     1 is drastic enough to block the IBEX to fetch instructions and
-     the only way to recover from this state is a system reset.
+    This fixes #11117 by updating the AST init code to actually load the
+    correct word at the correct offset in OTP, rather than just loading the
+    address itself.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
