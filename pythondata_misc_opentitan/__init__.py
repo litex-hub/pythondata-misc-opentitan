@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11134"
-version_tuple = (0, 0, 11134)
+version_str = "0.0.post11135"
+version_tuple = (0, 0, 11135)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11134")
+    pversion = V("0.0.post11135")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11008"
-data_version_tuple = (0, 0, 11008)
+data_version_str = "0.0.post11009"
+data_version_tuple = (0, 0, 11009)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11008")
+    pdata_version = V("0.0.post11009")
 except ImportError:
     pass
-data_git_hash = "b53c3b8433edcc52e2f1b45a6581e6bf447f5f0c"
-data_git_describe = "v0.0-11008-gb53c3b843"
+data_git_hash = "420cedc9ba81374804dbc7fb8db274bb7e476bd5"
+data_git_describe = "v0.0-11009-g420cedc9b"
 data_git_msg = """\
-commit b53c3b8433edcc52e2f1b45a6581e6bf447f5f0c
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Mar 24 15:13:25 2022 -0700
+commit 420cedc9ba81374804dbc7fb8db274bb7e476bd5
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Fri Mar 25 10:50:47 2022 +0000
 
-    [dv] Fix clkmgr_cov_bind for lc_tx_t type ports
+    [test, aes] Remove the aes_lc_escalate from test plan
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+     The aes_lc_escalate chip level test neither make sense nor can be
+     implemented by software, because the aes IP will only be  notified
+     by the Alert Handler from the escalation phase 1, as the phase
+     1 is drastic enough to block the IBEX to fetch instructions and
+     the only way to recover from this state is a system reset.
+    
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
