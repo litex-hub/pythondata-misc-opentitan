@@ -4,41 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11139"
-version_tuple = (0, 0, 11139)
+version_str = "0.0.post11140"
+version_tuple = (0, 0, 11140)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11139")
+    pversion = V("0.0.post11140")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11013"
-data_version_tuple = (0, 0, 11013)
+data_version_str = "0.0.post11014"
+data_version_tuple = (0, 0, 11014)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11013")
+    pdata_version = V("0.0.post11014")
 except ImportError:
     pass
-data_git_hash = "a609d5560844803b798391f76c5f87a11219f16c"
-data_git_describe = "v0.0-11013-ga609d5560"
+data_git_hash = "84c0e488ff31962b3226d4721fa7e7b17fd4eba3"
+data_git_describe = "v0.0-11014-g84c0e488f"
 data_git_msg = """\
-commit a609d5560844803b798391f76c5f87a11219f16c
-Author: Nigel Scales <nigel.scales@gmail.com>
-Date:   Fri Mar 25 17:18:46 2022 +0000
+commit 84c0e488ff31962b3226d4721fa7e7b17fd4eba3
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Mar 24 16:17:52 2022 -0700
 
-    [lc_ctrl/dv] Added common security countermeasures test.
+    [bazel,dvsim] Add build rules for dvsim.py
     
-    - Added sec_cm_tests.hjson to import list in lc_ctrl_sim_cfg.hjson
-    - Imported sec_cm_pkg into lc_ctrl_env_pkg
-    - Set sec_cm_alert_name to "fatal_state_error" in lc_ctrl_env_cfg
-    - Checking status and lc_state registers in lc_ctrl_common_vseq
-    - Checking DUT outputs in lc_ctrl_common_vseq
-    - Added lc_ctrl_sec_cm, lc_ctrl_state_failure and lc_ctrl_tl_intg_err
-      to lc_ctrl_sec_cm_testplan.hjson
-    - Added MUBI coverage to lc_ctrl_cov_bind.sv
+    This adds bazel rules for dvsim.py so that it can be used by
+    the opentitan_functest macro as a test runner (and dependency).
     
-    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
+    This partially addresses #11684.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
