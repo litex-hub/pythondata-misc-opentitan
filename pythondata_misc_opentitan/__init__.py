@@ -4,40 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11128"
-version_tuple = (0, 0, 11128)
+version_str = "0.0.post11129"
+version_tuple = (0, 0, 11129)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11128")
+    pversion = V("0.0.post11129")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11002"
-data_version_tuple = (0, 0, 11002)
+data_version_str = "0.0.post11003"
+data_version_tuple = (0, 0, 11003)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11002")
+    pdata_version = V("0.0.post11003")
 except ImportError:
     pass
-data_git_hash = "e9c6fcce94aa3fae40ecd5388710abd1720c7fc5"
-data_git_describe = "v0.0-11002-ge9c6fcce9"
+data_git_hash = "391f1892b1e7406816bb6da2c698565429a95212"
+data_git_describe = "v0.0-11003-g391f1892b"
 data_git_msg = """\
-commit e9c6fcce94aa3fae40ecd5388710abd1720c7fc5
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Mar 24 15:54:17 2022 -0700
+commit 391f1892b1e7406816bb6da2c698565429a95212
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 24 17:23:31 2022 -0700
 
-    [bazel] add python rules and register python toolchain
+    [dv/jtag] Fix chip_level jtag csr rw failure [part 2]
     
-    Currently, Python scripts are referenced across our repository as bazel
-    files/filegroups, rather than using actualy Python bazel rules.
-    Moreover, our current bazel configuration did not enforce hermiticity
-    w.r.t. a python toolchain or packages. By adding Python rules and
-    registering a toolchain, makes hermetic Python builds possible.
+    This PR fixes chip_level jtag test comparison failure.
+    This is because the sequence write to `sbcs` register but forget to
+    write `access32`, so in sba bus, rv_dm did not send out transaction with
+    the correct mask.
     
-    This fixes #11683.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
