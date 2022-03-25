@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11118"
-version_tuple = (0, 0, 11118)
+version_str = "0.0.post11119"
+version_tuple = (0, 0, 11119)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11118")
+    pversion = V("0.0.post11119")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10992"
-data_version_tuple = (0, 0, 10992)
+data_version_str = "0.0.post10993"
+data_version_tuple = (0, 0, 10993)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10992")
+    pdata_version = V("0.0.post10993")
 except ImportError:
     pass
-data_git_hash = "18c4dacef483592d1c40d5559e46e4ecdc4786f6"
-data_git_describe = "v0.0-10992-g18c4dacef"
+data_git_hash = "0f5611182ec6c4bd127b72fe032d24bcd809a15e"
+data_git_describe = "v0.0-10993-g0f5611182"
 data_git_msg = """\
-commit 18c4dacef483592d1c40d5559e46e4ecdc4786f6
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Mar 24 17:36:15 2022 -0700
+commit 0f5611182ec6c4bd127b72fe032d24bcd809a15e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Mar 22 16:24:12 2022 -0700
 
-    [doc] Fix broken links in the docs
+    [dv/otp] Probe internal mubi interface
     
-    Fix #3750
+    Force internal mubi types to values that are not true or false.
+    Make sure design locked the part accesses.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
