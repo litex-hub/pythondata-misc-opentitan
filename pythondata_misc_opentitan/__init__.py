@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11119"
-version_tuple = (0, 0, 11119)
+version_str = "0.0.post11126"
+version_tuple = (0, 0, 11126)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11119")
+    pversion = V("0.0.post11126")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post10993"
-data_version_tuple = (0, 0, 10993)
+data_version_str = "0.0.post11000"
+data_version_tuple = (0, 0, 11000)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post10993")
+    pdata_version = V("0.0.post11000")
 except ImportError:
     pass
-data_git_hash = "0f5611182ec6c4bd127b72fe032d24bcd809a15e"
-data_git_describe = "v0.0-10993-g0f5611182"
+data_git_hash = "313611f217e0e1cc52fd6faec306f866decb502b"
+data_git_describe = "v0.0-11000-g313611f21"
 data_git_msg = """\
-commit 0f5611182ec6c4bd127b72fe032d24bcd809a15e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Mar 22 16:24:12 2022 -0700
+commit 313611f217e0e1cc52fd6faec306f866decb502b
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Mar 23 13:59:17 2022 +0000
 
-    [dv/otp] Probe internal mubi interface
+    [doc] Clean up after feedback on Getting Started refactor.
     
-    Force internal mubi types to values that are not true or false.
-    Make sure design locked the part accesses.
+    Fix some awkward wording etc, add some clarification about the
+    `--meminit` arguments to Verilator, and clarify that we do not currently
+    provide pre-built Docker containers.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Also incorporate sometext about Siemens Questa that was added to the
+    old install guide while the PR was pending.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
