@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11129"
-version_tuple = (0, 0, 11129)
+version_str = "0.0.post11131"
+version_tuple = (0, 0, 11131)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11129")
+    pversion = V("0.0.post11131")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11003"
-data_version_tuple = (0, 0, 11003)
+data_version_str = "0.0.post11005"
+data_version_tuple = (0, 0, 11005)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11003")
+    pdata_version = V("0.0.post11005")
 except ImportError:
     pass
-data_git_hash = "391f1892b1e7406816bb6da2c698565429a95212"
-data_git_describe = "v0.0-11003-g391f1892b"
+data_git_hash = "6f175ff0647397152607c676ee50ed75fa5bba6c"
+data_git_describe = "v0.0-11005-g6f175ff06"
 data_git_msg = """\
-commit 391f1892b1e7406816bb6da2c698565429a95212
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Mar 24 17:23:31 2022 -0700
+commit 6f175ff0647397152607c676ee50ed75fa5bba6c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 24 19:24:35 2022 -0700
 
-    [dv/jtag] Fix chip_level jtag csr rw failure [part 2]
+    [sensor_ctrl] Move to D2
     
-    This PR fixes chip_level jtag test comparison failure.
-    This is because the sequence write to `sbcs` register but forget to
-    write `access32`, so in sba bus, rv_dm did not send out transaction with
-    the correct mask.
+    - also add missing checklist
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
