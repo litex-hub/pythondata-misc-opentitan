@@ -4,36 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11136"
-version_tuple = (0, 0, 11136)
+version_str = "0.0.post11139"
+version_tuple = (0, 0, 11139)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11136")
+    pversion = V("0.0.post11139")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11010"
-data_version_tuple = (0, 0, 11010)
+data_version_str = "0.0.post11013"
+data_version_tuple = (0, 0, 11013)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11010")
+    pdata_version = V("0.0.post11013")
 except ImportError:
     pass
-data_git_hash = "c1f1cb49adca3414562349d86f37264bfbd021c9"
-data_git_describe = "v0.0-11010-gc1f1cb49a"
+data_git_hash = "a609d5560844803b798391f76c5f87a11219f16c"
+data_git_describe = "v0.0-11013-ga609d5560"
 data_git_msg = """\
-commit c1f1cb49adca3414562349d86f37264bfbd021c9
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Mar 24 14:02:40 2022 -0700
+commit a609d5560844803b798391f76c5f87a11219f16c
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Fri Mar 25 17:18:46 2022 +0000
 
-    [silicon_creator/mask_rom] fix bug in AST init asm
+    [lc_ctrl/dv] Added common security countermeasures test.
     
-    This fixes #11117 by updating the AST init code to actually load the
-    correct word at the correct offset in OTP, rather than just loading the
-    address itself.
+    - Added sec_cm_tests.hjson to import list in lc_ctrl_sim_cfg.hjson
+    - Imported sec_cm_pkg into lc_ctrl_env_pkg
+    - Set sec_cm_alert_name to "fatal_state_error" in lc_ctrl_env_cfg
+    - Checking status and lc_state registers in lc_ctrl_common_vseq
+    - Checking DUT outputs in lc_ctrl_common_vseq
+    - Added lc_ctrl_sec_cm, lc_ctrl_state_failure and lc_ctrl_tl_intg_err
+      to lc_ctrl_sec_cm_testplan.hjson
+    - Added MUBI coverage to lc_ctrl_cov_bind.sv
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
