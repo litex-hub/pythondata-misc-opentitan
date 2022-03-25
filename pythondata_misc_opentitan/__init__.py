@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11131"
-version_tuple = (0, 0, 11131)
+version_str = "0.0.post11134"
+version_tuple = (0, 0, 11134)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11131")
+    pversion = V("0.0.post11134")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11005"
-data_version_tuple = (0, 0, 11005)
+data_version_str = "0.0.post11008"
+data_version_tuple = (0, 0, 11008)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11005")
+    pdata_version = V("0.0.post11008")
 except ImportError:
     pass
-data_git_hash = "6f175ff0647397152607c676ee50ed75fa5bba6c"
-data_git_describe = "v0.0-11005-g6f175ff06"
+data_git_hash = "b53c3b8433edcc52e2f1b45a6581e6bf447f5f0c"
+data_git_describe = "v0.0-11008-gb53c3b843"
 data_git_msg = """\
-commit 6f175ff0647397152607c676ee50ed75fa5bba6c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 24 19:24:35 2022 -0700
+commit b53c3b8433edcc52e2f1b45a6581e6bf447f5f0c
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Mar 24 15:13:25 2022 -0700
 
-    [sensor_ctrl] Move to D2
+    [dv] Fix clkmgr_cov_bind for lc_tx_t type ports
     
-    - also add missing checklist
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
