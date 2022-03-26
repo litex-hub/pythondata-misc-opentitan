@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11141"
-version_tuple = (0, 0, 11141)
+version_str = "0.0.post11142"
+version_tuple = (0, 0, 11142)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11141")
+    pversion = V("0.0.post11142")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11015"
-data_version_tuple = (0, 0, 11015)
+data_version_str = "0.0.post11016"
+data_version_tuple = (0, 0, 11016)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11015")
+    pdata_version = V("0.0.post11016")
 except ImportError:
     pass
-data_git_hash = "9040d3fdb6179220f0f04d7eb0027858baf1e0ef"
-data_git_describe = "v0.0-11015-g9040d3fdb"
+data_git_hash = "bf988e80dd06a7aec3f52d5cdeda41282bafbdae"
+data_git_describe = "v0.0-11016-gbf988e80d"
 data_git_msg = """\
-commit 9040d3fdb6179220f0f04d7eb0027858baf1e0ef
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Wed Mar 23 20:05:33 2022 +0000
+commit bf988e80dd06a7aec3f52d5cdeda41282bafbdae
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Fri Mar 25 13:18:35 2022 -0700
 
-    [dv,pwrmgr] sec cm dv component
+    [spi_host] Properly handle CPHA = 1
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This commit corrects the timing delays in the bit_shifting,
+    byte_starting and byte_ending signals when operating in CPHA=1 mode.
+    
+    Also, since CPHA mode delays the shift register write pulses we
+    have to delay the last_write pulse.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
