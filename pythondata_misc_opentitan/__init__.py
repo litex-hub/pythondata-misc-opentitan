@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11140"
-version_tuple = (0, 0, 11140)
+version_str = "0.0.post11141"
+version_tuple = (0, 0, 11141)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11140")
+    pversion = V("0.0.post11141")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11014"
-data_version_tuple = (0, 0, 11014)
+data_version_str = "0.0.post11015"
+data_version_tuple = (0, 0, 11015)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11014")
+    pdata_version = V("0.0.post11015")
 except ImportError:
     pass
-data_git_hash = "84c0e488ff31962b3226d4721fa7e7b17fd4eba3"
-data_git_describe = "v0.0-11014-g84c0e488f"
+data_git_hash = "9040d3fdb6179220f0f04d7eb0027858baf1e0ef"
+data_git_describe = "v0.0-11015-g9040d3fdb"
 data_git_msg = """\
-commit 84c0e488ff31962b3226d4721fa7e7b17fd4eba3
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Mar 24 16:17:52 2022 -0700
+commit 9040d3fdb6179220f0f04d7eb0027858baf1e0ef
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Wed Mar 23 20:05:33 2022 +0000
 
-    [bazel,dvsim] Add build rules for dvsim.py
+    [dv,pwrmgr] sec cm dv component
     
-    This adds bazel rules for dvsim.py so that it can be used by
-    the opentitan_functest macro as a test runner (and dependency).
-    
-    This partially addresses #11684.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
