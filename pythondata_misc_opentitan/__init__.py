@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11142"
-version_tuple = (0, 0, 11142)
+version_str = "0.0.post11150"
+version_tuple = (0, 0, 11150)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11142")
+    pversion = V("0.0.post11150")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11016"
-data_version_tuple = (0, 0, 11016)
+data_version_str = "0.0.post11024"
+data_version_tuple = (0, 0, 11024)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11016")
+    pdata_version = V("0.0.post11024")
 except ImportError:
     pass
-data_git_hash = "bf988e80dd06a7aec3f52d5cdeda41282bafbdae"
-data_git_describe = "v0.0-11016-gbf988e80d"
+data_git_hash = "983c46c1ecf86f4ef3e4ab0b93e185d1c373ebd3"
+data_git_describe = "v0.0-11024-g983c46c1e"
 data_git_msg = """\
-commit bf988e80dd06a7aec3f52d5cdeda41282bafbdae
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Mar 25 13:18:35 2022 -0700
+commit 983c46c1ecf86f4ef3e4ab0b93e185d1c373ebd3
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Thu Mar 24 21:45:19 2022 +0000
 
-    [spi_host] Properly handle CPHA = 1
+    [sysrst_ctrl,dv] Add misc fix
     
-    This commit corrects the timing delays in the bit_shifting,
-    byte_starting and byte_ending signals when operating in CPHA=1 mode.
+    This pull request has misc fix for the failing tests in regression
     
-    Also, since CPHA mode delays the shift register write pulses we
-    have to delay the last_write pulse.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
