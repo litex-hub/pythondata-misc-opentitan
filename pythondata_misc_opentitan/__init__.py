@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11165"
-version_tuple = (0, 0, 11165)
+version_str = "0.0.post11166"
+version_tuple = (0, 0, 11166)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11165")
+    pversion = V("0.0.post11166")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11039"
-data_version_tuple = (0, 0, 11039)
+data_version_str = "0.0.post11040"
+data_version_tuple = (0, 0, 11040)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11039")
+    pdata_version = V("0.0.post11040")
 except ImportError:
     pass
-data_git_hash = "a21a5b1116250e0960c2aaf53ad9f723fa402448"
-data_git_describe = "v0.0-11039-ga21a5b111"
+data_git_hash = "88dee60904a8872febccc967f914f6b59e190a4f"
+data_git_describe = "v0.0-11040-g88dee6090"
 data_git_msg = """\
-commit a21a5b1116250e0960c2aaf53ad9f723fa402448
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 24 19:17:37 2022 -0700
+commit 88dee60904a8872febccc967f914f6b59e190a4f
+Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
+Date:   Tue Mar 22 12:41:59 2022 +0000
 
-    [adc_ctrl] slightly tweak assertion
+    Scoreboard for passthrough mode
     
-    - previous assertion is no longer true due to the way
-      stay_match is now computed (0 -> new value is counted as a match)
-    
-    - add an assertion to check to make sure when adc is powered down
-      counters are actually cleared.  This caused an issue previously
-      when they were not.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
 
 """
 
