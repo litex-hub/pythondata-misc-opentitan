@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11150"
-version_tuple = (0, 0, 11150)
+version_str = "0.0.post11154"
+version_tuple = (0, 0, 11154)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11150")
+    pversion = V("0.0.post11154")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11024"
-data_version_tuple = (0, 0, 11024)
+data_version_str = "0.0.post11028"
+data_version_tuple = (0, 0, 11028)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11024")
+    pdata_version = V("0.0.post11028")
 except ImportError:
     pass
-data_git_hash = "983c46c1ecf86f4ef3e4ab0b93e185d1c373ebd3"
-data_git_describe = "v0.0-11024-g983c46c1e"
+data_git_hash = "f95053d98ae63cc11627b9526ef96775ff18979a"
+data_git_describe = "v0.0-11028-gf95053d98"
 data_git_msg = """\
-commit 983c46c1ecf86f4ef3e4ab0b93e185d1c373ebd3
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Thu Mar 24 21:45:19 2022 +0000
+commit f95053d98ae63cc11627b9526ef96775ff18979a
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Fri Mar 25 17:14:19 2022 -0700
 
-    [sysrst_ctrl,dv] Add misc fix
+    [edn, dv] Fix a bug for edn intr/err test
     
-    This pull request has misc fix for the failing tests in regression
+      - Fix a path reference issue in edn intr/err test
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
