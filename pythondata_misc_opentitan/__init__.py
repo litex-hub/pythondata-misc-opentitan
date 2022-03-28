@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11158"
-version_tuple = (0, 0, 11158)
+version_str = "0.0.post11159"
+version_tuple = (0, 0, 11159)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11158")
+    pversion = V("0.0.post11159")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11032"
-data_version_tuple = (0, 0, 11032)
+data_version_str = "0.0.post11033"
+data_version_tuple = (0, 0, 11033)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11032")
+    pdata_version = V("0.0.post11033")
 except ImportError:
     pass
-data_git_hash = "2053cc489c85547f2fb4c6d131dbc84291c5be58"
-data_git_describe = "v0.0-11032-g2053cc489"
+data_git_hash = "9b35ca29afe50da312b9c18c9bda80ef9c8a79f2"
+data_git_describe = "v0.0-11033-g9b35ca29a"
 data_git_msg = """\
-commit 2053cc489c85547f2fb4c6d131dbc84291c5be58
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Mar 23 15:31:34 2022 -0700
+commit 9b35ca29afe50da312b9c18c9bda80ef9c8a79f2
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Fri Mar 25 16:37:31 2022 -0700
 
-    [flash_ctrl] some language clarification
+    [csrng, dv] Fix a bug for csrng intr/err test
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+      - Fix a path reference issue in csrng intr/err test
+    
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
 
 """
 
