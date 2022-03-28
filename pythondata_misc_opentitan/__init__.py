@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11159"
-version_tuple = (0, 0, 11159)
+version_str = "0.0.post11161"
+version_tuple = (0, 0, 11161)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11159")
+    pversion = V("0.0.post11161")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11033"
-data_version_tuple = (0, 0, 11033)
+data_version_str = "0.0.post11035"
+data_version_tuple = (0, 0, 11035)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11033")
+    pdata_version = V("0.0.post11035")
 except ImportError:
     pass
-data_git_hash = "9b35ca29afe50da312b9c18c9bda80ef9c8a79f2"
-data_git_describe = "v0.0-11033-g9b35ca29a"
+data_git_hash = "68ce21e57a229c356b742752f007db49d44d884c"
+data_git_describe = "v0.0-11035-g68ce21e57"
 data_git_msg = """\
-commit 9b35ca29afe50da312b9c18c9bda80ef9c8a79f2
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Fri Mar 25 16:37:31 2022 -0700
+commit 68ce21e57a229c356b742752f007db49d44d884c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Mar 25 17:21:35 2022 -0700
 
-    [csrng, dv] Fix a bug for csrng intr/err test
+    [conn] connectivity test naming fix
     
-      - Fix a path reference issue in csrng intr/err test
+    This PR fixed a duplicated naming error.
     
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
