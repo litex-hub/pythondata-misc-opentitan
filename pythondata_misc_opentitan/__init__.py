@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11162"
-version_tuple = (0, 0, 11162)
+version_str = "0.0.post11164"
+version_tuple = (0, 0, 11164)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11162")
+    pversion = V("0.0.post11164")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11036"
-data_version_tuple = (0, 0, 11036)
+data_version_str = "0.0.post11038"
+data_version_tuple = (0, 0, 11038)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11036")
+    pdata_version = V("0.0.post11038")
 except ImportError:
     pass
-data_git_hash = "ce0b9241b4bf70ee407e5cd5385d246140b5ae10"
-data_git_describe = "v0.0-11036-gce0b9241b"
+data_git_hash = "4805c5a1205a822a114fa8db100b066af46c7319"
+data_git_describe = "v0.0-11038-g4805c5a12"
 data_git_msg = """\
-commit ce0b9241b4bf70ee407e5cd5385d246140b5ae10
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Mar 25 19:43:18 2022 +0000
+commit 4805c5a1205a822a114fa8db100b066af46c7319
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Mar 25 11:29:16 2022 -0700
 
-    [dv,clkmgr] sec cm testplan
+    [dv/chip] Fix csr_bit_bash failure
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This PR fixes csr_bit_bash failure due to random write illegal values
+    that causes an assertion error. There is no RTL error so instead of
+    excluding the registers, we will just disable the assertion.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
