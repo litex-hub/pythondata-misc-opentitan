@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11164"
-version_tuple = (0, 0, 11164)
+version_str = "0.0.post11165"
+version_tuple = (0, 0, 11165)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11164")
+    pversion = V("0.0.post11165")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11038"
-data_version_tuple = (0, 0, 11038)
+data_version_str = "0.0.post11039"
+data_version_tuple = (0, 0, 11039)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11038")
+    pdata_version = V("0.0.post11039")
 except ImportError:
     pass
-data_git_hash = "4805c5a1205a822a114fa8db100b066af46c7319"
-data_git_describe = "v0.0-11038-g4805c5a12"
+data_git_hash = "a21a5b1116250e0960c2aaf53ad9f723fa402448"
+data_git_describe = "v0.0-11039-ga21a5b111"
 data_git_msg = """\
-commit 4805c5a1205a822a114fa8db100b066af46c7319
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Mar 25 11:29:16 2022 -0700
+commit a21a5b1116250e0960c2aaf53ad9f723fa402448
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 24 19:17:37 2022 -0700
 
-    [dv/chip] Fix csr_bit_bash failure
+    [adc_ctrl] slightly tweak assertion
     
-    This PR fixes csr_bit_bash failure due to random write illegal values
-    that causes an assertion error. There is no RTL error so instead of
-    excluding the registers, we will just disable the assertion.
+    - previous assertion is no longer true due to the way
+      stay_match is now computed (0 -> new value is counted as a match)
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    - add an assertion to check to make sure when adc is powered down
+      counters are actually cleared.  This caused an issue previously
+      when they were not.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
