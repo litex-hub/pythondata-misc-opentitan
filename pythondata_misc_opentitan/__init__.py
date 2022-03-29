@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11169"
-version_tuple = (0, 0, 11169)
+version_str = "0.0.post11170"
+version_tuple = (0, 0, 11170)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11169")
+    pversion = V("0.0.post11170")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11043"
-data_version_tuple = (0, 0, 11043)
+data_version_str = "0.0.post11044"
+data_version_tuple = (0, 0, 11044)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11043")
+    pdata_version = V("0.0.post11044")
 except ImportError:
     pass
-data_git_hash = "cdcb6967f9ff49f3e6b932734303695a7c51dab7"
-data_git_describe = "v0.0-11043-gcdcb6967f"
+data_git_hash = "d492aee8887afdf87c7125e7cef3f743f116e894"
+data_git_describe = "v0.0-11044-gd492aee88"
 data_git_msg = """\
-commit cdcb6967f9ff49f3e6b932734303695a7c51dab7
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Mar 22 13:46:33 2022 +0000
+commit d492aee8887afdf87c7125e7cef3f743f116e894
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Thu Mar 24 17:23:04 2022 +0000
 
-    [sw,otbn] Remove outdated Makefile/rules.mk from code-snippets.
+    [sw/silicon_creator] Move exception handler into .shutdown section
     
-    Found these files when making Bazel rules and they seem to be from two
-    build systems ago; they say to remove once the Meson system is working.
-    Seems like it should definitely be safe to remove them now.
+    Move the assembly exception handler into the `.shutdown` section. The
+    `.shutdown` section is the last section in the executable part of the
+    ROM and is where the `shutdown_finalize` function is (which serves a
+    similar function).
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
