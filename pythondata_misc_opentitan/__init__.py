@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11180"
-version_tuple = (0, 0, 11180)
+version_str = "0.0.post11182"
+version_tuple = (0, 0, 11182)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11180")
+    pversion = V("0.0.post11182")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11054"
-data_version_tuple = (0, 0, 11054)
+data_version_str = "0.0.post11056"
+data_version_tuple = (0, 0, 11056)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11054")
+    pdata_version = V("0.0.post11056")
 except ImportError:
     pass
-data_git_hash = "91f2a7e5b815e33d9e048daf14c837ba5911eaef"
-data_git_describe = "v0.0-11054-g91f2a7e5b"
+data_git_hash = "d87e6127905ed7898234ccebe0e3b8d1ef20e138"
+data_git_describe = "v0.0-11056-gd87e61279"
 data_git_msg = """\
-commit 91f2a7e5b815e33d9e048daf14c837ba5911eaef
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Mar 24 15:07:19 2022 -0700
+commit d87e6127905ed7898234ccebe0e3b8d1ef20e138
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Mar 25 08:57:54 2022 -0700
 
-    [dv/jtag] Fix chip_level jtag csr rw failure
+    [bazel] Automate download of `bazelisk`
     
-    This PR fixes the chip_level jtag csr_rw test failure by assigning a
-    wrong default map to subblks.
+    1. Create downloader script.
+    2. Git ignore //.bin since we dont want to commit binaries to the codebase.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
