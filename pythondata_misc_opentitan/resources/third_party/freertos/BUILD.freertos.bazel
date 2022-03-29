@@ -4,49 +4,54 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("//rules:opentitan.bzl", "OPENTITAN_CPU")
-
 cc_library(
     name = "portmacro",
+    hdrs = ["portable/GCC/RISC-V/portmacro.h"],
     includes = ["portable/GCC/RISC-V"],
-    hdrs = [
-        "portable/GCC/RISC-V/portmacro.h",
-    ],
-    target_compatible_with = [OPENTITAN_CPU],
+    target_compatible_with = ["@bazel_embedded//constraints/cpu:riscv32"],
 )
 
 cc_library(
-    name = "kernel",
+    name = "hdrs",
     srcs = [
-        "tasks.c",
-        "queue.c",
-        "list.c",
-        "portable/MemMang/heap_1.c",
-        "include/deprecated_definitions.h",
-    ],
-    includes = ["include"],
-    hdrs = [
+        "include/FreeRTOS.h",
+        "include/StackMacros.h",
         "include/atomic.h",
         "include/croutine.h",
         "include/event_groups.h",
-        "include/FreeRTOS.h",
         "include/list.h",
         "include/message_buffer.h",
         "include/mpu_prototypes.h",
         "include/mpu_wrappers.h",
+        "include/ot_memory.h",
         "include/portable.h",
         "include/projdefs.h",
         "include/queue.h",
         "include/semphr.h",
         "include/stack_macros.h",
-        "include/StackMacros.h",
         "include/stream_buffer.h",
         "include/task.h",
         "include/timers.h",
     ],
+    includes = ["include"],
     deps = [
         ":portmacro",
-        "//sw/device/lib/base",
-        "//sw/device/lib/testing/test_framework:freertos_config",
+    ],
+)
+
+# This needs to be a filegroup, because the actual kernel library depends on
+# FreeRTOSConfig.h, which we can't make available in this repository without
+# including it in the patches, which is fairly brittle.
+#
+# Instead, the actual kernel library is defined in the //third_party/freertos
+# package.
+filegroup(
+    name = "srcs",
+    srcs = [
+        "include/deprecated_definitions.h",
+        "list.c",
+        "portable/MemMang/heap_1.c",
+        "queue.c",
+        "tasks.c",
     ],
 )
