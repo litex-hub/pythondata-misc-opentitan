@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11170"
-version_tuple = (0, 0, 11170)
+version_str = "0.0.post11175"
+version_tuple = (0, 0, 11175)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11170")
+    pversion = V("0.0.post11175")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11044"
-data_version_tuple = (0, 0, 11044)
+data_version_str = "0.0.post11049"
+data_version_tuple = (0, 0, 11049)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11044")
+    pdata_version = V("0.0.post11049")
 except ImportError:
     pass
-data_git_hash = "d492aee8887afdf87c7125e7cef3f743f116e894"
-data_git_describe = "v0.0-11044-gd492aee88"
+data_git_hash = "6981fd4149ba360119cd2437c828d7285af64302"
+data_git_describe = "v0.0-11049-g6981fd414"
 data_git_msg = """\
-commit d492aee8887afdf87c7125e7cef3f743f116e894
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Thu Mar 24 17:23:04 2022 +0000
+commit 6981fd4149ba360119cd2437c828d7285af64302
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 24 15:53:48 2022 +0000
 
-    [sw/silicon_creator] Move exception handler into .shutdown section
+    [otbn,doc] Fix description of memory accesses when OTBN is busy
     
-    Move the assembly exception handler into the `.shutdown` section. The
-    `.shutdown` section is the last section in the executable part of the
-    ROM and is where the `shutdown_finalize` function is (which serves a
-    similar function).
+    This behaviour is described in detail in the reggen-generated stuff
+    that shows the windows themselves, but the text here still reflected
+    the old design (where we'd completely ignore the bus access and stall
+    the bus).
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
