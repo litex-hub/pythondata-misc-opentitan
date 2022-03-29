@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11178"
-version_tuple = (0, 0, 11178)
+version_str = "0.0.post11180"
+version_tuple = (0, 0, 11180)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11178")
+    pversion = V("0.0.post11180")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11052"
-data_version_tuple = (0, 0, 11052)
+data_version_str = "0.0.post11054"
+data_version_tuple = (0, 0, 11054)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11052")
+    pdata_version = V("0.0.post11054")
 except ImportError:
     pass
-data_git_hash = "7d6a1355a0a38701e13740492f6ec45466ee5620"
-data_git_describe = "v0.0-11052-g7d6a1355a"
+data_git_hash = "91f2a7e5b815e33d9e048daf14c837ba5911eaef"
+data_git_describe = "v0.0-11054-g91f2a7e5b"
 data_git_msg = """\
-commit 7d6a1355a0a38701e13740492f6ec45466ee5620
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Mon Mar 28 12:57:10 2022 -0400
+commit 91f2a7e5b815e33d9e048daf14c837ba5911eaef
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Mar 24 15:07:19 2022 -0700
 
-    [vendor] Remove unused vendored BUILD file for FreeRTOS
+    [dv/jtag] Fix chip_level jtag csr rw failure
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    This PR fixes the chip_level jtag csr_rw test failure by assigning a
+    wrong default map to subblks.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
