@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11167"
-version_tuple = (0, 0, 11167)
+version_str = "0.0.post11168"
+version_tuple = (0, 0, 11168)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11167")
+    pversion = V("0.0.post11168")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11041"
-data_version_tuple = (0, 0, 11041)
+data_version_str = "0.0.post11042"
+data_version_tuple = (0, 0, 11042)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11041")
+    pdata_version = V("0.0.post11042")
 except ImportError:
     pass
-data_git_hash = "39fea81ce959d724a01e14593ec17cc6891acedf"
-data_git_describe = "v0.0-11041-g39fea81ce"
+data_git_hash = "c2995063d22faaaf02b2054bc689a272a2499390"
+data_git_describe = "v0.0-11042-gc2995063d"
 data_git_msg = """\
-commit 39fea81ce959d724a01e14593ec17cc6891acedf
-Author: Miles Dai <milesdai@google.com>
-Date:   Fri Mar 25 15:37:26 2022 -0400
+commit c2995063d22faaaf02b2054bc689a272a2499390
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Mar 28 18:29:11 2022 -0700
 
-    [doc] Add information about downloading pre-built bitstreams
+    Revert "[aes] Fix clearing of data input registers"
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    This reverts commit 8d507ad3f9dc47705b292a8e9568f73b772976ed.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
