@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11166"
-version_tuple = (0, 0, 11166)
+version_str = "0.0.post11167"
+version_tuple = (0, 0, 11167)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11166")
+    pversion = V("0.0.post11167")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11040"
-data_version_tuple = (0, 0, 11040)
+data_version_str = "0.0.post11041"
+data_version_tuple = (0, 0, 11041)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11040")
+    pdata_version = V("0.0.post11041")
 except ImportError:
     pass
-data_git_hash = "88dee60904a8872febccc967f914f6b59e190a4f"
-data_git_describe = "v0.0-11040-g88dee6090"
+data_git_hash = "39fea81ce959d724a01e14593ec17cc6891acedf"
+data_git_describe = "v0.0-11041-g39fea81ce"
 data_git_msg = """\
-commit 88dee60904a8872febccc967f914f6b59e190a4f
-Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
-Date:   Tue Mar 22 12:41:59 2022 +0000
+commit 39fea81ce959d724a01e14593ec17cc6891acedf
+Author: Miles Dai <milesdai@google.com>
+Date:   Fri Mar 25 15:37:26 2022 -0400
 
-    Scoreboard for passthrough mode
+    [doc] Add information about downloading pre-built bitstreams
     
-    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
