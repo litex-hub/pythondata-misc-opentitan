@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11175"
-version_tuple = (0, 0, 11175)
+version_str = "0.0.post11178"
+version_tuple = (0, 0, 11178)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11175")
+    pversion = V("0.0.post11178")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11049"
-data_version_tuple = (0, 0, 11049)
+data_version_str = "0.0.post11052"
+data_version_tuple = (0, 0, 11052)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11049")
+    pdata_version = V("0.0.post11052")
 except ImportError:
     pass
-data_git_hash = "6981fd4149ba360119cd2437c828d7285af64302"
-data_git_describe = "v0.0-11049-g6981fd414"
+data_git_hash = "7d6a1355a0a38701e13740492f6ec45466ee5620"
+data_git_describe = "v0.0-11052-g7d6a1355a"
 data_git_msg = """\
-commit 6981fd4149ba360119cd2437c828d7285af64302
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Mar 24 15:53:48 2022 +0000
+commit 7d6a1355a0a38701e13740492f6ec45466ee5620
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Mon Mar 28 12:57:10 2022 -0400
 
-    [otbn,doc] Fix description of memory accesses when OTBN is busy
+    [vendor] Remove unused vendored BUILD file for FreeRTOS
     
-    This behaviour is described in detail in the reggen-generated stuff
-    that shows the windows themselves, but the text here still reflected
-    the old design (where we'd completely ignore the bus access and stall
-    the bus).
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
