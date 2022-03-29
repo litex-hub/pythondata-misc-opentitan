@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11182"
-version_tuple = (0, 0, 11182)
+version_str = "0.0.post11183"
+version_tuple = (0, 0, 11183)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11182")
+    pversion = V("0.0.post11183")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11056"
-data_version_tuple = (0, 0, 11056)
+data_version_str = "0.0.post11057"
+data_version_tuple = (0, 0, 11057)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11056")
+    pdata_version = V("0.0.post11057")
 except ImportError:
     pass
-data_git_hash = "d87e6127905ed7898234ccebe0e3b8d1ef20e138"
-data_git_describe = "v0.0-11056-gd87e61279"
+data_git_hash = "bdcaf1ea1633085271bb1a87c5cb568eb88af311"
+data_git_describe = "v0.0-11057-gbdcaf1ea1"
 data_git_msg = """\
-commit d87e6127905ed7898234ccebe0e3b8d1ef20e138
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Fri Mar 25 08:57:54 2022 -0700
+commit bdcaf1ea1633085271bb1a87c5cb568eb88af311
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Mar 25 20:06:42 2022 +0000
 
-    [bazel] Automate download of `bazelisk`
+    [dv,pwrmgr] sec cm testplan
     
-    1. Create downloader script.
-    2. Git ignore //.bin since we dont want to commit binaries to the codebase.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
