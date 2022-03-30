@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11190"
-version_tuple = (0, 0, 11190)
+version_str = "0.0.post11193"
+version_tuple = (0, 0, 11193)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11190")
+    pversion = V("0.0.post11193")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11064"
-data_version_tuple = (0, 0, 11064)
+data_version_str = "0.0.post11067"
+data_version_tuple = (0, 0, 11067)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11064")
+    pdata_version = V("0.0.post11067")
 except ImportError:
     pass
-data_git_hash = "e1e3c63f0150137100b4b63ec4214088cd8d1239"
-data_git_describe = "v0.0-11064-ge1e3c63f0"
+data_git_hash = "1a55cd2440a21ca7bb117a0814054891a1f76a48"
+data_git_describe = "v0.0-11067-g1a55cd244"
 data_git_msg = """\
-commit e1e3c63f0150137100b4b63ec4214088cd8d1239
-Author: Miles Dai <milesdai@google.com>
-Date:   Tue Mar 22 16:40:52 2022 -0400
+commit 1a55cd2440a21ca7bb117a0814054891a1f76a48
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 21 21:00:29 2022 +0000
 
-    [mask_rom/e2e] Add boot success and no rom_ext signature tests
+    [otbn,dv] Fix confusingly named "top_addr" in RIG's known_mem.py
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    The "top address" in this code isn't actually the top address: it's
+    the number afterwards! Rename to "size_bytes" to make things a bit
+    less confusing.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
