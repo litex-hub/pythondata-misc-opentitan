@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11216"
-version_tuple = (0, 0, 11216)
+version_str = "0.0.post11221"
+version_tuple = (0, 0, 11221)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11216")
+    pversion = V("0.0.post11221")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11090"
-data_version_tuple = (0, 0, 11090)
+data_version_str = "0.0.post11095"
+data_version_tuple = (0, 0, 11095)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11090")
+    pdata_version = V("0.0.post11095")
 except ImportError:
     pass
-data_git_hash = "2023653b220d6fd4dde5fd9055a6ee5eb0802f2b"
-data_git_describe = "v0.0-11090-g2023653b2"
+data_git_hash = "339e498ed31a10b9acc2bc2063a2cfdeb131948f"
+data_git_describe = "v0.0-11095-g339e498ed"
 data_git_msg = """\
-commit 2023653b220d6fd4dde5fd9055a6ee5eb0802f2b
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Mar 28 15:08:06 2022 -0700
+commit 339e498ed31a10b9acc2bc2063a2cfdeb131948f
+Author: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
+Date:   Tue Mar 22 09:51:26 2022 +0000
 
-    [prim] Pulse Sync assertion to check input/output
+    [pwm/dv] Added pwm_rand_output_vseq and environment changes
     
-    Adding assertion to check the pulse is being generated
-    correctly.
+    Fixed any outstanding typos or mistakes
     
-    Co-Authored-by: Timothy Chen <timothytim@google.com>
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Jason Hoddinett <jason.hoddinett.ensilica@opentitan.org>
 
 """
 
