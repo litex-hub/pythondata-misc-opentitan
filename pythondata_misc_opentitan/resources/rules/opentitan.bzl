@@ -162,6 +162,8 @@ elf_to_disassembly = rule(
 def _elf_to_scrambled_rom_impl(ctx):
     outputs = []
     for src in ctx.files.srcs:
+        if src.extension != "elf":
+            fail("only ROM images in the ELF format may be converted to the VMEM format and scrambled.")
         scrambled = ctx.actions.declare_file(
             "{}.scr.39.vmem".format(
                 # Remove ".elf" from file basename.
@@ -183,7 +185,10 @@ def _elf_to_scrambled_rom_impl(ctx):
             ],
             executable = ctx.files._tool[0].path,
         )
-        return [DefaultInfo(files = depset(outputs), data_runfiles = ctx.runfiles(files = outputs))]
+    return [DefaultInfo(
+        files = depset(outputs),
+        data_runfiles = ctx.runfiles(files = outputs),
+    )]
 
 elf_to_scrambled_rom_vmem = rule(
     implementation = _elf_to_scrambled_rom_impl,
@@ -351,30 +356,88 @@ bin_to_spiflash_frames = rule(
     },
 )
 
+def _gen_sim_dv_logs_db_impl(ctx):
+    outputs = []
+    for src in ctx.files.srcs:
+        if src.extension != "elf":
+            fail("can only generate DV logs database files from ELF files.")
+        logs_db = ctx.actions.declare_file("{}.logs.txt".format(
+            src.basename.replace("." + src.extension, ""),
+        ))
+        rodata = ctx.actions.declare_file("{}.rodata.txt".format(
+            src.basename.replace("." + src.extension, ""),
+        ))
+        outputs.append(logs_db)
+        outputs.append(rodata)
+        ctx.actions.run(
+            outputs = outputs,
+            inputs = [
+                src,
+                ctx.attr._tool,
+            ],
+            arguments = [
+                "--elf-file",
+                src.path,
+                "--rodata-sections",
+                ".rodata",
+                "--logs-fields-section",
+                ".logs.fields",
+                "--name",
+                src.basename.replace("." + src.extension, ""),
+                "--outdir",
+                ".",
+            ],
+            executable = ctx.file._tool.path,
+        )
+    return [DefaultInfo(
+        files = depset(outputs),
+        data_runfiles = ctx.runfiles(files = outputs),
+    )]
+
+gen_sim_dv_logs_db = rule(
+    implementation = _gen_sim_dv_logs_db_impl,
+    cfg = opentitan_transition,
+    attrs = {
+        "srcs": attr.label_list(allow_files = True),
+        "platform": attr.string(default = OPENTITAN_PLATFORM),
+        "_tool": attr.label(
+            default = "//util/device_sw_utils:extract_sw_logs_db",
+            allow_single_file = True,
+        ),
+        "_allowlist_function_transition": attr.label(
+            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
+        ),
+    },
+)
+
 def opentitan_binary(
         name,
         platform = OPENTITAN_PLATFORM,
         output_bin = True,
         output_disassembly = True,
+        extract_sw_logs_db = False,
         **kwargs):
     """A helper macro for generating OpenTitan binary artifacts.
 
     This macro is mostly a wrapper around cc_binary, but creates artifacts
     compatible with OpenTitan binaries. The actual artifacts created are an ELF
-    file, a BIN file, and the disassembly. Each of these output targets performs
-    a bazel transition to the RV32I toolchain to build the target under the
+    file, a BIN file, the disassembly, and a log message database (text file)
+    for the DV simulation testbench. Each of these output targets performs a
+    bazel transition to the RV32I toolchain to build the target under the
     correct compiler.
     Args:
       @param name: The name of this rule.
       @param platform: The target platform for the artifacts.
-      @param output_bin: Whether or not to emit a BIN file.
-      @param output_disassembly: Whether or not to emit a disassembly file.
+      @param output_bin: Whether to emit a BIN file.
+      @param output_disassembly: Whether to emit a disassembly file.
+      @param extract_sw_logs_db: Whether to emit a log database for DV testbench.
       @param **kwargs: Arguments to forward to `cc_binary`.
     Emits rules:
       cc_binary             named: <name>
       optionally:
         obj_transform       named: <name>_bin
         elf_to_dissassembly named: <name>_dis
+        gen_sim_dv_logs_db  named: <name>_sim_dv_logs
       filegroup             named: <name>
           with all the generated rules
     """
@@ -429,6 +492,16 @@ def opentitan_binary(
             platform = platform,
         )
 
+    # Generate log message database for DV sim testbench
+    if extract_sw_logs_db:
+        logs_db_name = "{}_{}".format(name, "sim_dv_logs")
+        targets.append(":" + logs_db_name)
+        gen_sim_dv_logs_db(
+            name = logs_db_name,
+            srcs = [elf_name],
+            platform = platform,
+        )
+
     native.filegroup(
         name = name + "_base_bins",
         srcs = targets,
@@ -446,9 +519,9 @@ def opentitan_rom_binary(
     This macro is mostly a wrapper around a opentitan_binary macro, which itself
     is a wrapper around cc_binary, but also creates artifacts for each of the
     keys in `per_device_deps`. The actual artifacts created are an ELF file, a
-    BIN file, the disassembly, and the scrambled (ROM) VMEM file. Each of these
-    output targets performs a bazel transition to the RV32I toolchain to build
-    the target under the correct compiler.
+    BIN file, the disassembly, the sim_dv logs database, and the scrambled (ROM)
+    VMEM file. Each of these output targets performs a bazel transition to the
+    RV32I toolchain to build the target under the correct compiler.
     Args:
       @param name: The name of this rule.
       @param platform: The target platform for the artifacts.
@@ -461,6 +534,8 @@ def opentitan_rom_binary(
         obj_transform             named: <name>_<device>_bin
         elf_to_dissassembly       named: <name>_<device>_dis
         elf_to_scrambled_rom_vmem named: <name>_<device>_scr_vmem
+      For the sim_dv device:
+        gen_sim_dv_logs_db        named: <name>_sim_dv_logs
       filegroup named: <name>
           with all the generated rules
     """
@@ -470,10 +545,11 @@ def opentitan_rom_binary(
     for (device, dev_deps) in per_device_deps.items():
         devname = "{}_{}".format(name, device)
 
-        # Generate ELF, Binary, and Disassembly
+        # Generate ELF, Binary, Disassembly, and (maybe) sim_dv logs database
         targets.extend(opentitan_binary(
             name = devname,
             deps = deps + dev_deps,
+            extract_sw_logs_db = device == "sim_dv",
             **kwargs
         ))
         elf_name = "{}_{}".format(devname, "elf")
@@ -507,10 +583,10 @@ def opentitan_flash_binary(
     is a wrapper around cc_binary, but also creates artifacts for each of the
     keys in `per_device_deps`, and if signing is enabled, each of the keys in
     `signing_keys`. The actual artifacts created are an ELF file, a (signed and)
-    unsigned BIN file, a (signed and) unsigned flash VMEM file, and a (signed
-    and) unsigned scrambled flash VMEM file. Some of these output targets
-    perform a bazel transition to the RV32I toolchain to build the target under
-    the correct compiler.
+    unsigned BIN file, the disassembly, the sim_dv logs database, a (signed and)
+    unsigned flash VMEM file, and a (signed and) unsigned scrambled flash VMEM
+    file. Some of these output targets perform a bazel transition to the RV32I
+    toolchain to build the target under the correct compiler.
     Args:
       @param name: The name of this rule.
       @param platform: The target platform for the artifacts.
@@ -530,6 +606,8 @@ def opentitan_flash_binary(
           sign_bin             named: <name>_<device>_bin_signed_<key_name>
           bin_to_flash_vmem    named: <name>_<device>_flash_vmem_signed_<key_name>
           scrambled_flash_vmem named: <name>_<device>_scr_flash_vmem_signed_<key_name>
+      For the sim_dv device:
+        gen_sim_dv_logs_db     named: <name>_sim_dv_logs
       filegroup named: <name>
           with all the generated rules
     """
@@ -539,10 +617,11 @@ def opentitan_flash_binary(
     for (device, dev_deps) in per_device_deps.items():
         devname = "{}_{}".format(name, device)
 
-        # Generate ELF, Binary, and Disassembly
+        # Generate ELF, Binary, Disassembly, and (maybe) sim_dv logs database
         targets.extend(opentitan_binary(
             name = devname,
             deps = deps + dev_deps,
+            extract_sw_logs_db = device == "sim_dv",
             **kwargs
         ))
         elf_name = "{}_{}".format(devname, "elf")
