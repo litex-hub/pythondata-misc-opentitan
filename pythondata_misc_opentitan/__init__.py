@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11223"
-version_tuple = (0, 0, 11223)
+version_str = "0.0.post11224"
+version_tuple = (0, 0, 11224)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11223")
+    pversion = V("0.0.post11224")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11097"
-data_version_tuple = (0, 0, 11097)
+data_version_str = "0.0.post11098"
+data_version_tuple = (0, 0, 11098)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11097")
+    pdata_version = V("0.0.post11098")
 except ImportError:
     pass
-data_git_hash = "c427bf5eafea5326e8ee0b979e6e39722016051f"
-data_git_describe = "v0.0-11097-gc427bf5ea"
+data_git_hash = "7626f30897de5f85dd530e01da50f01b6e04a503"
+data_git_describe = "v0.0-11098-g7626f3089"
 data_git_msg = """\
-commit c427bf5eafea5326e8ee0b979e6e39722016051f
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Mar 30 10:35:07 2022 -0700
+commit 7626f30897de5f85dd530e01da50f01b6e04a503
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 24 13:58:07 2022 -0700
 
-    [edn/dv] Update testplan, add coverage
+    [flash_ctrl] d2s review fixes
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    - convert lc compare to lc_tx_test_true_strict
+    - expand disable usage to more fsms
+    - add additional prim counters to lcmgr
+    - Add countermeasure clarifications
+    - switch to mubi sync where appropriate
+    - Add tlul_lc_gate in front of adapter sram to error back
+      transactions when disabled
+    - documentation updates and clarifications
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
