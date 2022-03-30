@@ -23,19 +23,20 @@ module flash_ctrl_prog import flash_ctrl_pkg::*; (
 
   // FIFO Interface
   input                    data_rdy_i,
-  input  [BusWidth-1:0]    data_i,
+  input  [BusFullWidth-1:0] data_i,
   output logic             data_rd_o,
 
   // Flash Macro Interface
   output logic             flash_req_o,
   output logic [BusAddrW-1:0] flash_addr_o,
   output logic             flash_ovfl_o,
-  output logic [BusWidth-1:0] flash_data_o,
+  output logic [BusFullWidth-1:0] flash_data_o,
   output logic             flash_last_o, // last beat of prog data
   output flash_prog_e      flash_type_o,
   input                    flash_done_i,
-  input                    flash_phy_err_i,
-  input                    flash_mp_err_i
+  input                    flash_macro_err_i,
+  input                    flash_mp_err_i,
+  input                    flash_prog_intg_err_i
 );
 
   typedef enum logic {
@@ -150,7 +151,8 @@ module flash_ctrl_prog import flash_ctrl_pkg::*; (
 
           if (txn_done) begin
             op_err_d.mp_err = flash_mp_err_i;
-            op_err_d.phy_err = flash_phy_err_i;
+            op_err_d.macro_err = flash_macro_err_i;
+            op_err_d.prog_err = flash_prog_intg_err_i;
             data_rd_o = 1'b1;
 
             if (cnt_hit) begin
