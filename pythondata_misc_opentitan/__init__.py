@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11212"
-version_tuple = (0, 0, 11212)
+version_str = "0.0.post11216"
+version_tuple = (0, 0, 11216)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11212")
+    pversion = V("0.0.post11216")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11086"
-data_version_tuple = (0, 0, 11086)
+data_version_str = "0.0.post11090"
+data_version_tuple = (0, 0, 11090)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11086")
+    pdata_version = V("0.0.post11090")
 except ImportError:
     pass
-data_git_hash = "bcc253584a7c105cbf5231846fdf3fed4c000597"
-data_git_describe = "v0.0-11086-gbcc253584"
+data_git_hash = "2023653b220d6fd4dde5fd9055a6ee5eb0802f2b"
+data_git_describe = "v0.0-11090-g2023653b2"
 data_git_msg = """\
-commit bcc253584a7c105cbf5231846fdf3fed4c000597
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Mar 25 22:29:57 2022 -0700
+commit 2023653b220d6fd4dde5fd9055a6ee5eb0802f2b
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Mar 28 15:08:06 2022 -0700
 
-    [doc] Expand the sec_cm_dv_framework documentation
+    [prim] Pulse Sync assertion to check input/output
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Adding assertion to check the pulse is being generated
+    correctly.
+    
+    Co-Authored-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
