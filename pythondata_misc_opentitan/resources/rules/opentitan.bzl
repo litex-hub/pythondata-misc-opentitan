@@ -142,7 +142,10 @@ def _elf_to_disassembly_impl(ctx):
             ],
             command = "$1 --disassemble --headers --line-numbers --source $2 > $3",
         )
-        return [DefaultInfo(files = depset(outputs), data_runfiles = ctx.runfiles(files = outputs))]
+        return [DefaultInfo(
+            files = depset(outputs),
+            data_runfiles = ctx.runfiles(files = outputs),
+        )]
 
 elf_to_disassembly = rule(
     implementation = _elf_to_disassembly_impl,
@@ -150,7 +153,9 @@ elf_to_disassembly = rule(
     attrs = {
         "srcs": attr.label_list(allow_files = True),
         "platform": attr.string(default = OPENTITAN_PLATFORM),
-        "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
+        "_cc_toolchain": attr.label(
+            default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
+        ),
         "_allowlist_function_transition": attr.label(
             default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
         ),
@@ -369,12 +374,10 @@ def _gen_sim_dv_logs_db_impl(ctx):
         ))
         outputs.append(logs_db)
         outputs.append(rodata)
+
         ctx.actions.run(
             outputs = outputs,
-            inputs = [
-                src,
-                ctx.attr._tool,
-            ],
+            inputs = [src],
             arguments = [
                 "--elf-file",
                 src.path,
@@ -385,9 +388,9 @@ def _gen_sim_dv_logs_db_impl(ctx):
                 "--name",
                 src.basename.replace("." + src.extension, ""),
                 "--outdir",
-                ".",
+                logs_db.dirname,
             ],
-            executable = ctx.file._tool.path,
+            executable = ctx.executable._tool,
         )
     return [DefaultInfo(
         files = depset(outputs),
@@ -402,7 +405,8 @@ gen_sim_dv_logs_db = rule(
         "platform": attr.string(default = OPENTITAN_PLATFORM),
         "_tool": attr.label(
             default = "//util/device_sw_utils:extract_sw_logs_db",
-            allow_single_file = True,
+            cfg = "host",
+            executable = True,
         ),
         "_allowlist_function_transition": attr.label(
             default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
@@ -494,7 +498,7 @@ def opentitan_binary(
 
     # Generate log message database for DV sim testbench
     if extract_sw_logs_db:
-        logs_db_name = "{}_{}".format(name, "sim_dv_logs")
+        logs_db_name = "{}_{}".format(name, "logs_db")
         targets.append(":" + logs_db_name)
         gen_sim_dv_logs_db(
             name = logs_db_name,
@@ -707,6 +711,48 @@ def opentitan_flash_binary(
         srcs = targets,
     )
 
+def dv_params(
+        rom = "//sw/device/lib/testing/test_rom:test_rom_sim_dv_scr_vmem",
+        otp = "//hw/ip/otp_ctrl/data:rma_image_verilator",
+        chip_sim_config = "//hw/top_earlgrey/dv:chip_sim_cfg.hjson",
+        bootstrap_sw = False,  # Default to backdoor loading.
+        tags = [],
+        timeout = "long",  # 15 minutes
+        local = True,
+        args = [
+            "$(location {chip_sim_config})",
+        ],
+        data = [],
+        **kwargs):
+    """A macro to create DV parameters for OpenTitan functional tests.
+
+    This macro emits a dictionary of parameters which are pasted into the DV
+    specific test rule.
+
+    Args:
+        @param rom: The ROM to use when running a DV simulation.
+        @param otp: The OTP image to use when running a DV simulation.
+        @param chip_sim_config: The dvsim.py HJSON chip_sim_config file for the toplevel.
+        @param bootstrap_sw: Whether to load flash via bootstrap.
+        @param tags: The test tags to apply to the test rule.
+        @param timeout: The timeout to apply to the test rule.
+        @param local: Whether the test should be run locally and without sandboxing.
+        @param args: Extra arguments to pass to `dvsim.py`.
+        @param data: Data dependencies of the test.
+    """
+    kwargs.update(
+        rom = rom,
+        otp = otp,
+        chip_sim_config = chip_sim_config,
+        bootstrap_sw = bootstrap_sw,
+        tags = tags + ["dv"],
+        timeout = timeout,
+        local = local,
+        args = args,
+        data = data,
+    )
+    return kwargs
+
 def verilator_params(
         rom = "//sw/device/lib/testing/test_rom:test_rom_sim_verilator_scr_vmem",
         otp = "//hw/ip/otp_ctrl/data:rma_image_verilator",
@@ -821,13 +867,14 @@ def _unique_deps(*deplists):
 
 def opentitan_functest(
         name,
-        targets = ["verilator", "cw310"],
+        targets = ["dv", "verilator", "cw310"],
         args = [],
         data = [],
         ottf = _OTTF_DEPS,
         test_in_rom = False,
         signed = False,
         key = "test_key_0",
+        dv = None,
         verilator = None,
         cw310 = None,
         **kwargs):
@@ -840,20 +887,23 @@ def opentitan_functest(
     Args:
       @param name: The name of this rule.
       @param targets: A list of hardware targets on which to dispatch tests.
-      @param args: Extra arguments to pass to `opentitantool`.
+      @param args: Extra arguments to pass to the test runner (`opentitantool`
+                   or `dvsim.py`).
       @param data: Extra data dependencies needed while executing the test.
       @param ottf: Default dependencies for OTTF tests. Set to empty list if
                    your test doesn't use the OTTF.
-      @param test_in_rom: Whether to run the test from ROM, Runs from flash by
+      @param test_in_rom: Whether to run the test from ROM, runs from flash by
                           default.
       @param signed: Whether to sign the test image. Unsigned by default.
       @param key: Which signed test image (by key) to use.
+      @param dv: DV test parameters.
       @param verilator: Verilator test parameters.
       @param cw310: CW310 test parameters.
       @param **kwargs: Arguments to forward to `opentitan_flash_binary`.
 
     This macro emits the following rules:
         opentitan_flash_binary named: {name}_prog (and all emitted rules).
+        sh_test                named: dv_{name}
         sh_test                named: verilator_{name}
         sh_test                named: cw310_{name}
         test_suite             named: {name}
@@ -875,6 +925,59 @@ def opentitan_functest(
     )
 
     all_tests = []
+
+    if "dv" in targets:
+        # Set default DV sim parameters if none are provided.
+        if dv == None:
+            dv = dv_params()
+
+        test_name = "dv_{}".format(name)
+
+        # Regardless if the test is signed or not, DV sims backdoor load flash
+        # with the scrambled VMEM (unless the bootstrap path is used below).
+        test_bin = "{}_prog_sim_dv_scr_vmem64".format(name)
+
+        # If the (flash) test image is to be loaded via bootstrap, then we need
+        # to use the VMEM image that has been split into SPI flash frames.
+        if dv.pop("bootstrap_sw"):
+            if test_in_rom:
+                fail("A test runs in ROM cannot be bootstrapped.")
+            test_bin = "{}_prog_sim_dv_frames_vmem".format(name)
+
+        if "manual" not in dv.get("tags", []):
+            all_tests.append(test_name)
+
+        rom = dv.pop("rom")
+        if test_in_rom:
+            rom = name + "_rom_prog_sim_dv_scr_vmem"
+        otp = dv.pop("otp")
+        chip_sim_config = dv.pop("chip_sim_config")
+        dargs = _format_list("args", args, dv, chip_sim_config = chip_sim_config)
+        ddata = _format_list("data", data, dv)
+
+        # SW logs database files for backdoor message logging in sim.
+        rom_sw_logs_db = rom.replace("_scr_vmem", "_logs_db")
+        flash_sw_logs_db = "{}_prog_sim_dv_logs_db".format(name)
+
+        native.sh_test(
+            name = test_name,
+            srcs = ["//util:dvsim_test_runner.sh"],
+            args = [
+                "-i",
+                "chip_sw_{}".format(name),
+            ] + dargs,
+            data = [
+                test_bin,
+                rom,
+                otp,
+                chip_sim_config,
+                rom_sw_logs_db,
+                flash_sw_logs_db,
+                "//util/dvsim",
+                "//hw:all_files",
+            ] + ddata,
+            **dv
+        )
 
     if "verilator" in targets:
         # Set default Verilator sim parameters if none are provided.
