@@ -223,6 +223,44 @@ typedef enum dif_aes_masking {
 } dif_aes_masking_t;
 
 /**
+ * AES key sideloaded.
+ *
+ * Controls whether the AES uses the key provided by the key manager
+ * software.
+ */
+typedef enum dif_aes_key_provider {
+  /**
+   * The key is provided by software via `dif_aes_key_share_t`.
+   */
+  kDifAesKeySoftwareProvided = 0,
+  /**
+   * The key be provided by the key manager.
+   */
+  kDifAesKeySideload,
+} dif_aes_key_provider_t;
+
+/**
+ * AES reseeding rate
+ *
+ * Controls the reseeding rate of the internal pseudo-random number generator
+ * (PRNG) used for masking.
+ */
+typedef enum dif_aes_mask_reseeding {
+  /**
+   * The masking PRNG will be reseed every block.
+   */
+  kDifAesReseedPerBlock = 1 << 0,
+  /**
+   * The masking PRNG will be reseed every 64 blocks.
+   */
+  kDifAesReseedPer64Block = 1 << 1,
+  /**
+   * The masking PRNG will be reseed every 8192 blocks.
+   */
+  kDifAesReseedPer8kBlock = 1 << 2,
+} dif_aes_mask_reseeding_t;
+
+/**
  * Parameters for an AES transaction.
  */
 typedef struct dif_aes_transaction {
@@ -231,6 +269,18 @@ typedef struct dif_aes_transaction {
   dif_aes_key_length_t key_len;
   dif_aes_manual_operation_t manual_operation;
   dif_aes_masking_t masking;
+  dif_aes_key_provider_t key_provider;
+  dif_aes_mask_reseeding_t mask_reseeding;
+  /**
+   * If true the internal psudo-random number used for clearing and masking will
+   * be reseeded every time the key changes.
+   */
+  bool reseed_on_key_change;
+  /**
+   * If true the `reseed_on_key_change` will be locked until the device is
+   * reset.
+   */
+  bool reseed_on_key_change_lock;
 } dif_aes_transaction_t;
 
 /**
@@ -255,14 +305,17 @@ dif_result_t dif_aes_reset(const dif_aes_t *aes);
  *
  * @param aes AES state data.
  * @param transaction Configuration data.
- * @param iv AES Initialisation Vector. The iv may not be used for some modes,
- * see `dif_aes_mode_t` for more details.
+ * @param key Encryption/decryption key when `kDifAesKeySoftwareProvided`, can
+ * be `NULL` otherwise.
+ * @param iv Initialization vector when the mode isn't `kDifAesModeEcb`, can be
+ * `NULL` otherwise.
  * @return The result of the operation.
  */
 OT_WARN_UNUSED_RESULT
 dif_result_t dif_aes_start(const dif_aes_t *aes,
                            const dif_aes_transaction_t *transaction,
-                           dif_aes_key_share_t key, const dif_aes_iv_t *iv);
+                           const dif_aes_key_share_t *key,
+                           const dif_aes_iv_t *iv);
 /**
  * Ends an AES transaction.
  *
@@ -395,6 +448,16 @@ typedef enum dif_aes_status {
 OT_WARN_UNUSED_RESULT
 dif_result_t dif_aes_get_status(const dif_aes_t *aes, dif_aes_status_t flag,
                                 bool *set);
+
+/**
+ * Read the current initialization vector from its register.
+ *
+ * @param aes AES handle.
+ * @param iv The pointer to receive the initialization vector.
+ * @return The result of the operation.
+ */
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_aes_read_iv(const dif_aes_t *aes, dif_aes_iv_t *iv);
 
 #ifdef __cplusplus
 }  // extern "C"
