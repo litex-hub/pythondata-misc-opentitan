@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11249"
-version_tuple = (0, 0, 11249)
+version_str = "0.0.post11251"
+version_tuple = (0, 0, 11251)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11249")
+    pversion = V("0.0.post11251")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11123"
-data_version_tuple = (0, 0, 11123)
+data_version_str = "0.0.post11125"
+data_version_tuple = (0, 0, 11125)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11123")
+    pdata_version = V("0.0.post11125")
 except ImportError:
     pass
-data_git_hash = "0747afbddec0ad176980429fe3100b32edb71d4a"
-data_git_describe = "v0.0-11123-g0747afbdd"
+data_git_hash = "cc53cf3018ee817097a8c9b3a288c464ce6f21a7"
+data_git_describe = "v0.0-11125-gcc53cf301"
 data_git_msg = """\
-commit 0747afbddec0ad176980429fe3100b32edb71d4a
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Mar 30 17:09:19 2022 +0100
+commit cc53cf3018ee817097a8c9b3a288c464ce6f21a7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 24 17:26:37 2022 -0700
 
-    [dv] Enable C/C++ code sourcing with VCS in .core
+    [flash_ctrl] Tweak to multi-bit lc conversion
     
-    Apparently fusesoc is not properly sourcing C/C++ files.
-    Manually adding the generated directories solves the issue.
+    - Move several flash functions to the new mubi-lc multibit
+      direct conversion
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
