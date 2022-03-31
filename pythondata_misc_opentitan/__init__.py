@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11256"
-version_tuple = (0, 0, 11256)
+version_str = "0.0.post11262"
+version_tuple = (0, 0, 11262)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11256")
+    pversion = V("0.0.post11262")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11130"
-data_version_tuple = (0, 0, 11130)
+data_version_str = "0.0.post11136"
+data_version_tuple = (0, 0, 11136)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11130")
+    pdata_version = V("0.0.post11136")
 except ImportError:
     pass
-data_git_hash = "3219d9c63bcd0040b49e664d789efe8021d287df"
-data_git_describe = "v0.0-11130-g3219d9c63"
+data_git_hash = "7013fa5e261763891293a54bff5205d97f2343cf"
+data_git_describe = "v0.0-11136-g7013fa5e2"
 data_git_msg = """\
-commit 3219d9c63bcd0040b49e664d789efe8021d287df
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 31 07:49:30 2022 -0700
+commit 7013fa5e261763891293a54bff5205d97f2343cf
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Mar 25 17:22:46 2022 -0700
 
-    [lc_ctrl] change the assert construction for clarity
+    [tlul] Remove error qualification on data and address lines
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
