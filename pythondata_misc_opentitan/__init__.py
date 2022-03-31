@@ -4,32 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11232"
-version_tuple = (0, 0, 11232)
+version_str = "0.0.post11233"
+version_tuple = (0, 0, 11233)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11232")
+    pversion = V("0.0.post11233")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11106"
-data_version_tuple = (0, 0, 11106)
+data_version_str = "0.0.post11107"
+data_version_tuple = (0, 0, 11107)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11106")
+    pdata_version = V("0.0.post11107")
 except ImportError:
     pass
-data_git_hash = "ce1e77f88498dd4c0c128cb069cc1317e382245e"
-data_git_describe = "v0.0-11106-gce1e77f88"
+data_git_hash = "75885e656149d5a4a49f91d2977acb3a4ffe1b2f"
+data_git_describe = "v0.0-11107-g75885e656"
 data_git_msg = """\
-commit ce1e77f88498dd4c0c128cb069cc1317e382245e
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Mar 30 10:15:26 2022 -0700
+commit 75885e656149d5a4a49f91d2977acb3a4ffe1b2f
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Mar 7 14:54:45 2022 +0000
 
-    [rv_dm] Use instantiate dv_dm directly to deduplicate code
+    [otbn,rtl] Rewire how we pass around error bits
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Before this change, we passed lots of signals up to
+    top-level, where they were assembled into an "err_bits" struct and
+    then passed back down to the core. This had lots of scope for
+    accidental combinational loops because as soon as you qualify one
+    error with another, you've got a loop all the way around.
+    
+    This commit tries to simplify things a bit. Now, the controller and
+    core have their own cut-down versions of the err_bits_t struct that
+    they pass out. We also need signals going "the other way" to tell the
+    controller when there has been a fatal error. Since these are
+    all (morally) local escalation signals, I've standardised on that
+    naming. Now, for example, otbn.sv defines core_escalate_en which
+    contains all the "extra" error signals that are OR'd into err_bits and
+    didn't come from otbn_core. This signal gets passed down to tell the
+    core to stop.
+    
+    The net result should be that the flow of information is a bit
+    clearer (and more one-way!).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
