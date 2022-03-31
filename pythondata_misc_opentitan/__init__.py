@@ -4,41 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11224"
-version_tuple = (0, 0, 11224)
+version_str = "0.0.post11228"
+version_tuple = (0, 0, 11228)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11224")
+    pversion = V("0.0.post11228")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11098"
-data_version_tuple = (0, 0, 11098)
+data_version_str = "0.0.post11102"
+data_version_tuple = (0, 0, 11102)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11098")
+    pdata_version = V("0.0.post11102")
 except ImportError:
     pass
-data_git_hash = "7626f30897de5f85dd530e01da50f01b6e04a503"
-data_git_describe = "v0.0-11098-g7626f3089"
+data_git_hash = "d8eb7a2d29a2b105e81810da8781b1f588da8a49"
+data_git_describe = "v0.0-11102-gd8eb7a2d2"
 data_git_msg = """\
-commit 7626f30897de5f85dd530e01da50f01b6e04a503
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 24 13:58:07 2022 -0700
+commit d8eb7a2d29a2b105e81810da8781b1f588da8a49
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Mar 30 14:09:26 2022 -0700
 
-    [flash_ctrl] d2s review fixes
+    [conn/clk] Update otbn clk connection
     
-    - convert lc compare to lc_tx_test_true_strict
-    - expand disable usage to more fsms
-    - add additional prim counters to lcmgr
-    - Add countermeasure clarifications
-    - switch to mubi sync where appropriate
-    - Add tlul_lc_gate in front of adapter sram to error back
-      transactions when disabled
-    - documentation updates and clarifications
+    OTBN EDN clk is updated to connect to `clk_main_secure` from clkmgr.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
