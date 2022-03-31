@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11251"
-version_tuple = (0, 0, 11251)
+version_str = "0.0.post11255"
+version_tuple = (0, 0, 11255)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11251")
+    pversion = V("0.0.post11255")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11125"
-data_version_tuple = (0, 0, 11125)
+data_version_str = "0.0.post11129"
+data_version_tuple = (0, 0, 11129)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11125")
+    pdata_version = V("0.0.post11129")
 except ImportError:
     pass
-data_git_hash = "cc53cf3018ee817097a8c9b3a288c464ce6f21a7"
-data_git_describe = "v0.0-11125-gcc53cf301"
+data_git_hash = "47854c7edecab6f0f95c122a7cbab52368984e46"
+data_git_describe = "v0.0-11129-g47854c7ed"
 data_git_msg = """\
-commit cc53cf3018ee817097a8c9b3a288c464ce6f21a7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Mar 24 17:26:37 2022 -0700
+commit 47854c7edecab6f0f95c122a7cbab52368984e46
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Mar 31 09:52:40 2022 +0100
 
-    [flash_ctrl] Tweak to multi-bit lc conversion
+    [otbn] Declare V2
     
-    - Move several flash functions to the new mubi-lc multibit
-      direct conversion
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
