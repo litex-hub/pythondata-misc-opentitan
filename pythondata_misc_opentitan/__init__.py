@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11228"
-version_tuple = (0, 0, 11228)
+version_str = "0.0.post11232"
+version_tuple = (0, 0, 11232)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11228")
+    pversion = V("0.0.post11232")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11102"
-data_version_tuple = (0, 0, 11102)
+data_version_str = "0.0.post11106"
+data_version_tuple = (0, 0, 11106)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11102")
+    pdata_version = V("0.0.post11106")
 except ImportError:
     pass
-data_git_hash = "d8eb7a2d29a2b105e81810da8781b1f588da8a49"
-data_git_describe = "v0.0-11102-gd8eb7a2d2"
+data_git_hash = "ce1e77f88498dd4c0c128cb069cc1317e382245e"
+data_git_describe = "v0.0-11106-gce1e77f88"
 data_git_msg = """\
-commit d8eb7a2d29a2b105e81810da8781b1f588da8a49
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Mar 30 14:09:26 2022 -0700
+commit ce1e77f88498dd4c0c128cb069cc1317e382245e
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Mar 30 10:15:26 2022 -0700
 
-    [conn/clk] Update otbn clk connection
+    [rv_dm] Use instantiate dv_dm directly to deduplicate code
     
-    OTBN EDN clk is updated to connect to `clk_main_secure` from clkmgr.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
