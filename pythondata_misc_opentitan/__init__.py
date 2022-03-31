@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11262"
-version_tuple = (0, 0, 11262)
+version_str = "0.0.post11264"
+version_tuple = (0, 0, 11264)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11262")
+    pversion = V("0.0.post11264")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11136"
-data_version_tuple = (0, 0, 11136)
+data_version_str = "0.0.post11138"
+data_version_tuple = (0, 0, 11138)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11136")
+    pdata_version = V("0.0.post11138")
 except ImportError:
     pass
-data_git_hash = "7013fa5e261763891293a54bff5205d97f2343cf"
-data_git_describe = "v0.0-11136-g7013fa5e2"
+data_git_hash = "1ab19709303e86c3ecfe544bf2f922f5d245fc7d"
+data_git_describe = "v0.0-11138-g1ab197093"
 data_git_msg = """\
-commit 7013fa5e261763891293a54bff5205d97f2343cf
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Mar 25 17:22:46 2022 -0700
+commit 1ab19709303e86c3ecfe544bf2f922f5d245fc7d
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Mar 30 17:12:38 2022 -0700
 
-    [tlul] Remove error qualification on data and address lines
+    [spi_device] TB skeleton for Read SFDP
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This commit adds a simple SPI flash command to fetch 4 Bytes via Read
+    SFDP command.
+    
+    The return data as of now is not correct.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
