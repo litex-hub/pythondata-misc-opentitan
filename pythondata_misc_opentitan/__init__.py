@@ -4,46 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11247"
-version_tuple = (0, 0, 11247)
+version_str = "0.0.post11249"
+version_tuple = (0, 0, 11249)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11247")
+    pversion = V("0.0.post11249")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11121"
-data_version_tuple = (0, 0, 11121)
+data_version_str = "0.0.post11123"
+data_version_tuple = (0, 0, 11123)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11121")
+    pdata_version = V("0.0.post11123")
 except ImportError:
     pass
-data_git_hash = "33ef10435f5c2b5edbf93a54b39a14365c5059ff"
-data_git_describe = "v0.0-11121-g33ef10435"
+data_git_hash = "0747afbddec0ad176980429fe3100b32edb71d4a"
+data_git_describe = "v0.0-11123-g0747afbdd"
 data_git_msg = """\
-commit 33ef10435f5c2b5edbf93a54b39a14365c5059ff
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Mar 29 10:57:03 2022 +0200
+commit 0747afbddec0ad176980429fe3100b32edb71d4a
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Mar 30 17:09:19 2022 +0100
 
-    [aes] Fix clearing of data input registers without inferring combo loop
+    [dv] Enable C/C++ code sourcing with VCS in .core
     
-    Previously, the write enable for the data input registers was set for
-    two clock cycles when clearing the registers. This caused the
-    data_in_qe_i signals used for status tracking to be high during the
-    first clock cycle when back in IDLE. As a result, the AES unit would
-    immediately start when running in automatic operation.
+    Apparently fusesoc is not properly sourcing C/C++ files.
+    Manually adding the generated directories solves the issue.
     
-    This is a second version of the fix that doesn't infer a combo loop by
-    splitting the clearing operation into two distinct states: First CLEAR_I
-    clears input registers such as Initial Key, IV and input data registers.
-    Then CLEAR_CO waits for the cipher core, clears the trigger bits and
-    if selected also clear the output data registers.
-    
-    This is related to lowRISC/OpenTitan#11431 and lowRISC/OpenTitan#11758.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
