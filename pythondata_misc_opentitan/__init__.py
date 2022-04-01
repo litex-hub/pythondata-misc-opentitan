@@ -4,39 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11277"
-version_tuple = (0, 0, 11277)
+version_str = "0.0.post11281"
+version_tuple = (0, 0, 11281)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11277")
+    pversion = V("0.0.post11281")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11151"
-data_version_tuple = (0, 0, 11151)
+data_version_str = "0.0.post11155"
+data_version_tuple = (0, 0, 11155)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11151")
+    pdata_version = V("0.0.post11155")
 except ImportError:
     pass
-data_git_hash = "5263dc320c6408a9ce5aece71274d60d0c05a096"
-data_git_describe = "v0.0-11151-g5263dc320"
+data_git_hash = "56f1dbd6b7e30054d29b0da672e560e00be9d6e2"
+data_git_describe = "v0.0-11155-g56f1dbd6b"
 data_git_msg = """\
-commit 5263dc320c6408a9ce5aece71274d60d0c05a096
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Mar 31 16:35:40 2022 -0700
+commit 56f1dbd6b7e30054d29b0da672e560e00be9d6e2
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Mar 31 14:04:17 2022 -0700
 
-    [bazel] move opentitan_test macro to separate rules file
+    [spi_device] Change addr_latched as a pulse
     
-    The `rules/opentitan.bzl` was overwhelming large due to the macros and
-    helper functions needed define tests and produce OpenTitan device
-    images. This moves all test related macros and helper functions to a
-    separate rules file `rules/opentitan_test.bzl` to improve readability.
+    Problem:
     
-    This addresses a task in #11805.
+        `addr_latched_i` in `spid_readsram` module is expected to be a pulse
+        signal. The `spi_readcmd` module generates the signal as a level by
+        comparing `addr_cnt_d` with all zero value.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+        As a result, the `strb` register in `spid_readsram` follows the
+        current address, which is increased by when a byte is sent to the
+        host system. However, the `spid_readsram` logic pushes the data into
+        the FIFO already. As the FIFO depth is 2, one more entry has been
+        added to the FIFO, which results the host system sees the a byte has
+        been shifted.
+    
+    Resolution:
+    
+        Revised the `addr_latched` logic to be a pulse. Either `addr_cnt_d`
+        or `addr_latched` can be revised. I chose the latter. Latching the
+        latched signal and generated a pulse.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
