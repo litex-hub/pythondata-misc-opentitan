@@ -5,11 +5,22 @@
 # TODO(drewmacrae) this should be in rules_cc
 # pending resolution of https://github.com/bazelbuild/rules_cc/issues/75
 load("//rules:bugfix.bzl", "find_cc_toolchain")
+load("//rules:cc_side_outputs.bzl", "rv_asm", "rv_llvm_ir", "rv_relink_with_linkmap")
+load(
+    "//rules:rv.bzl",
+    "rv_rule",
+    _OPENTITAN_CPU = "OPENTITAN_CPU",
+    _OPENTITAN_PLATFORM = "OPENTITAN_PLATFORM",
+    _opentitan_transition = "opentitan_transition",
+)
 
 """Rules to build OpenTitan for the RiscV target"""
 
-OPENTITAN_CPU = "@bazel_embedded//constraints/cpu:riscv32"
-OPENTITAN_PLATFORM = "@bazel_embedded//platforms:opentitan_rv32imc"
+# Re-exports of names from transition.bzl; many files in the repo use opentitan.bzl
+# to get to them.
+OPENTITAN_CPU = _OPENTITAN_CPU
+OPENTITAN_PLATFORM = _OPENTITAN_PLATFORM
+opentitan_transition = _opentitan_transition
 
 _targets_compatible_with = {
     OPENTITAN_PLATFORM: [OPENTITAN_CPU],
@@ -25,15 +36,6 @@ PER_DEVICE_DEPS = {
     "fpga_nexysvideo": ["//sw/device/lib/arch:fpga_nexysvideo"],
     "fpga_cw310": ["//sw/device/lib/arch:fpga_cw310"],
 }
-
-def _opentitan_transition_impl(settings, attr):
-    return {"//command_line_option:platforms": attr.platform}
-
-opentitan_transition = transition(
-    implementation = _opentitan_transition_impl,
-    inputs = [],
-    outputs = ["//command_line_option:platforms"],
-)
 
 def _obj_transform_impl(ctx):
     cc_toolchain = find_cc_toolchain(ctx)
@@ -54,18 +56,13 @@ def _obj_transform_impl(ctx):
         )
     return [DefaultInfo(files = depset(outputs), data_runfiles = ctx.runfiles(files = outputs))]
 
-obj_transform = rule(
+obj_transform = rv_rule(
     implementation = _obj_transform_impl,
-    cfg = opentitan_transition,
     attrs = {
         "srcs": attr.label_list(allow_files = True),
         "suffix": attr.string(default = "bin"),
         "format": attr.string(default = "binary"),
-        "platform": attr.string(default = OPENTITAN_PLATFORM),
         "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
-        ),
     },
     toolchains = ["@rules_cc//cc:toolchain_type"],
 )
@@ -102,9 +99,8 @@ def _sign_bin_impl(ctx):
         data_runfiles = ctx.runfiles(files = outputs),
     )]
 
-sign_bin = rule(
+sign_bin = rv_rule(
     implementation = _sign_bin_impl,
-    cfg = opentitan_transition,
     attrs = {
         "bin": attr.label(allow_single_file = True),
         "elf": attr.label(allow_single_file = True),
@@ -120,9 +116,6 @@ sign_bin = rule(
             default = "//sw/host/rom_ext_image_tools/signer:rom_ext_signer",
             allow_single_file = True,
         ),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
-        ),
     },
 )
 
@@ -130,35 +123,32 @@ def _elf_to_disassembly_impl(ctx):
     cc_toolchain = find_cc_toolchain(ctx)
     outputs = []
     for src in ctx.files.srcs:
-        disassembly = ctx.actions.declare_file("{}.dis".format(src.basename))
+        disassembly = ctx.actions.declare_file("{}.elf.s".format(src.basename))
         outputs.append(disassembly)
         ctx.actions.run_shell(
+            tools = [ctx.file._cleanup_script],
             outputs = [disassembly],
             inputs = [src] + cc_toolchain.all_files.to_list(),
             arguments = [
                 cc_toolchain.objdump_executable,
                 src.path,
+                ctx.file._cleanup_script.path,
                 disassembly.path,
             ],
-            command = "$1 --disassemble --headers --line-numbers --source $2 > $3",
+            command = "$1 --disassemble --headers --line-numbers --source $2 | $3 > $4",
         )
-        return [DefaultInfo(
-            files = depset(outputs),
-            data_runfiles = ctx.runfiles(files = outputs),
-        )]
+        return [DefaultInfo(files = depset(outputs), data_runfiles = ctx.runfiles(files = outputs))]
 
-elf_to_disassembly = rule(
+elf_to_disassembly = rv_rule(
     implementation = _elf_to_disassembly_impl,
-    cfg = opentitan_transition,
     attrs = {
         "srcs": attr.label_list(allow_files = True),
         "platform": attr.string(default = OPENTITAN_PLATFORM),
-        "_cc_toolchain": attr.label(
-            default = Label("@bazel_tools//tools/cpp:current_cc_toolchain"),
+        "_cleanup_script": attr.label(
+            allow_single_file = True,
+            default = Label("//rules/scripts:expand_tabs.sh"),
         ),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
-        ),
+        "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
     },
     toolchains = ["@rules_cc//cc:toolchain_type"],
     incompatible_use_toolchain_transition = True,
@@ -195,12 +185,10 @@ def _elf_to_scrambled_rom_impl(ctx):
         data_runfiles = ctx.runfiles(files = outputs),
     )]
 
-elf_to_scrambled_rom_vmem = rule(
+elf_to_scrambled_rom_vmem = rv_rule(
     implementation = _elf_to_scrambled_rom_impl,
-    cfg = opentitan_transition,
     attrs = {
         "srcs": attr.label_list(allow_files = True),
-        "platform": attr.string(default = OPENTITAN_PLATFORM),
         "_tool": attr.label(
             default = "//hw/ip/rom_ctrl/util:scramble_image.py",
             allow_files = True,
@@ -208,9 +196,6 @@ elf_to_scrambled_rom_vmem = rule(
         "_config": attr.label(
             default = "//hw/top_earlgrey/data:autogen/top_earlgrey.gen.hjson",
             allow_files = True,
-        ),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
         ),
     },
 )
@@ -259,20 +244,15 @@ def _bin_to_flash_vmem_impl(ctx):
         data_runfiles = ctx.runfiles(files = outputs),
     )]
 
-bin_to_flash_vmem = rule(
+bin_to_flash_vmem = rv_rule(
     implementation = _bin_to_flash_vmem_impl,
-    cfg = opentitan_transition,
     attrs = {
         "bin": attr.label(allow_single_file = True),
-        "platform": attr.string(default = OPENTITAN_PLATFORM),
         "word_size": attr.int(
             default = 64,
             doc = "Word size of VMEM file.",
             mandatory = True,
             values = [32, 64],
-        ),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
         ),
     },
 )
@@ -301,18 +281,13 @@ def _scramble_flash_vmem_impl(ctx):
         data_runfiles = ctx.runfiles(files = outputs),
     )]
 
-scramble_flash_vmem = rule(
+scramble_flash_vmem = rv_rule(
     implementation = _scramble_flash_vmem_impl,
-    cfg = opentitan_transition,
     attrs = {
         "vmem": attr.label(allow_single_file = True),
-        "platform": attr.string(default = OPENTITAN_PLATFORM),
         "_tool": attr.label(
             default = "//util/design:gen-flash-img.py",
             allow_single_file = True,
-        ),
-        "_allowlist_function_transition": attr.label(
-            default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
         ),
     },
 )
@@ -466,6 +441,28 @@ def opentitan_binary(
         linkopts = linkopts,
         **kwargs
     )
+
+    asm_name = "{}_{}".format(name, "asm")
+    targets.append(asm_name)
+    rv_asm(
+        name = asm_name,
+        target = name,
+    )
+
+    ll_name = "{}_{}".format(name, "ll")
+    targets.append(ll_name)
+    rv_llvm_ir(
+        name = ll_name,
+        target = name,
+    )
+
+    map_name = "{}_{}".format(name, "map")
+    targets.append(map_name)
+    rv_relink_with_linkmap(
+        name = map_name,
+        target = name,
+    )
+
     elf_name = "{}_{}".format(name, "elf")
     targets.append(":" + elf_name)
     obj_transform(
