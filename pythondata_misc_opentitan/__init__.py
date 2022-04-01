@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11287"
-version_tuple = (0, 0, 11287)
+version_str = "0.0.post11303"
+version_tuple = (0, 0, 11303)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11287")
+    pversion = V("0.0.post11303")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11161"
-data_version_tuple = (0, 0, 11161)
+data_version_str = "0.0.post11177"
+data_version_tuple = (0, 0, 11177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11161")
+    pdata_version = V("0.0.post11177")
 except ImportError:
     pass
-data_git_hash = "1d750d8dc3af404939b58a565272e44a82d79ab7"
-data_git_describe = "v0.0-11161-g1d750d8dc"
+data_git_hash = "20e09e06a1b4d021d5210b691451b4b03dd8b173"
+data_git_describe = "v0.0-11177-g20e09e06a"
 data_git_msg = """\
-commit 1d750d8dc3af404939b58a565272e44a82d79ab7
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Apr 1 12:09:08 2022 -0700
+commit 20e09e06a1b4d021d5210b691451b4b03dd8b173
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Tue Mar 15 17:21:56 2022 +0200
 
-    [bazel] use depset instead of custom `_unique_deps()` function
+    [ast] Fix CDC and DFT issues
     
-    In order to merge OTTF deps with user-provided deps in
-    opentitan_functests, a custom helper method was created to remove
-    duplicate deps. However, it seems the `.to_list()` method of `depsets`
-    can be used in place of this. This further simplifies this code.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
