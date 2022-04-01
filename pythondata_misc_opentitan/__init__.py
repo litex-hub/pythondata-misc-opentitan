@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11273"
-version_tuple = (0, 0, 11273)
+version_str = "0.0.post11274"
+version_tuple = (0, 0, 11274)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11273")
+    pversion = V("0.0.post11274")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11147"
-data_version_tuple = (0, 0, 11147)
+data_version_str = "0.0.post11148"
+data_version_tuple = (0, 0, 11148)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11147")
+    pdata_version = V("0.0.post11148")
 except ImportError:
     pass
-data_git_hash = "dbf6803b799c214f6e75a8449216c8e556d58998"
-data_git_describe = "v0.0-11147-gdbf6803b7"
+data_git_hash = "c9f41377ba08715d659ae55266982965da61f67c"
+data_git_describe = "v0.0-11148-gc9f41377b"
 data_git_msg = """\
-commit dbf6803b799c214f6e75a8449216c8e556d58998
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Tue Mar 29 15:02:32 2022 -0400
+commit c9f41377ba08715d659ae55266982965da61f67c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Mar 31 11:26:50 2022 -0700
 
-    [lib] Use dual_cc_library for core mockable libraries
+    [flash_ctrl] make the rma termination process clearer
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    - make it clear that after rma completes the flash controller disables itself
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
