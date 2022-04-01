@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11264"
-version_tuple = (0, 0, 11264)
+version_str = "0.0.post11268"
+version_tuple = (0, 0, 11268)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11264")
+    pversion = V("0.0.post11268")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11138"
-data_version_tuple = (0, 0, 11138)
+data_version_str = "0.0.post11142"
+data_version_tuple = (0, 0, 11142)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11138")
+    pdata_version = V("0.0.post11142")
 except ImportError:
     pass
-data_git_hash = "1ab19709303e86c3ecfe544bf2f922f5d245fc7d"
-data_git_describe = "v0.0-11138-g1ab197093"
+data_git_hash = "51d9ddd8188fa4ce8d66543d28ca5dda1b7dde56"
+data_git_describe = "v0.0-11142-g51d9ddd81"
 data_git_msg = """\
-commit 1ab19709303e86c3ecfe544bf2f922f5d245fc7d
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Mar 30 17:12:38 2022 -0700
+commit 51d9ddd8188fa4ce8d66543d28ca5dda1b7dde56
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Mar 28 11:51:47 2022 +0200
 
-    [spi_device] TB skeleton for Read SFDP
+    [kmac/pre_syn] Enable Yosys synthesis of full SHA3 core or entire KMAC
     
-    This commit adds a simple SPI flash command to fetch 4 Bytes via Read
-    SFDP command.
+    Previously, we were only able to synthesize keccak_2share or
+    keccak_round, i.e., the core modules to formally analyze the masking
+    using Alma.
     
-    The return data as of now is not correct.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
