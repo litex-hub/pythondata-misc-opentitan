@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11270"
-version_tuple = (0, 0, 11270)
+version_str = "0.0.post11273"
+version_tuple = (0, 0, 11273)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11270")
+    pversion = V("0.0.post11273")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11144"
-data_version_tuple = (0, 0, 11144)
+data_version_str = "0.0.post11147"
+data_version_tuple = (0, 0, 11147)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11144")
+    pdata_version = V("0.0.post11147")
 except ImportError:
     pass
-data_git_hash = "f3ff88a9d3df10aa2aef2db208065bbfdb8acdb3"
-data_git_describe = "v0.0-11144-gf3ff88a9d"
+data_git_hash = "dbf6803b799c214f6e75a8449216c8e556d58998"
+data_git_describe = "v0.0-11147-gdbf6803b7"
 data_git_msg = """\
-commit f3ff88a9d3df10aa2aef2db208065bbfdb8acdb3
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Fri Apr 1 12:08:34 2022 +0100
+commit dbf6803b799c214f6e75a8449216c8e556d58998
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Tue Mar 29 15:02:32 2022 -0400
 
-    [dv,tcl] Merge Coverage Databases with union_all
+    [lib] Use dual_cc_library for core mockable libraries
     
-    This argument enables to merge different coverage databases with
-    different testbench structures to tie together as a single coverage
-    database. Necessary for Ibex DV because we want to see the numbers
-    for both riscv-dv and core_ibex coverage databases.
-    
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
