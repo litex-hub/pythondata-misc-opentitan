@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11268"
-version_tuple = (0, 0, 11268)
+version_str = "0.0.post11270"
+version_tuple = (0, 0, 11270)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11268")
+    pversion = V("0.0.post11270")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11142"
-data_version_tuple = (0, 0, 11142)
+data_version_str = "0.0.post11144"
+data_version_tuple = (0, 0, 11144)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11142")
+    pdata_version = V("0.0.post11144")
 except ImportError:
     pass
-data_git_hash = "51d9ddd8188fa4ce8d66543d28ca5dda1b7dde56"
-data_git_describe = "v0.0-11142-g51d9ddd81"
+data_git_hash = "f3ff88a9d3df10aa2aef2db208065bbfdb8acdb3"
+data_git_describe = "v0.0-11144-gf3ff88a9d"
 data_git_msg = """\
-commit 51d9ddd8188fa4ce8d66543d28ca5dda1b7dde56
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Mar 28 11:51:47 2022 +0200
+commit f3ff88a9d3df10aa2aef2db208065bbfdb8acdb3
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Fri Apr 1 12:08:34 2022 +0100
 
-    [kmac/pre_syn] Enable Yosys synthesis of full SHA3 core or entire KMAC
+    [dv,tcl] Merge Coverage Databases with union_all
     
-    Previously, we were only able to synthesize keccak_2share or
-    keccak_round, i.e., the core modules to formally analyze the masking
-    using Alma.
+    This argument enables to merge different coverage databases with
+    different testbench structures to tie together as a single coverage
+    database. Necessary for Ibex DV because we want to see the numbers
+    for both riscv-dv and core_ibex coverage databases.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
