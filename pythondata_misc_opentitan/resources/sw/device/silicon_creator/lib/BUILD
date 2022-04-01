@@ -4,46 +4,40 @@
 
 load("//rules:opentitan.bzl", "OPENTITAN_CPU")
 load("//rules:opentitan_test.bzl", "opentitan_functest", "verilator_params")
+load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library", "dual_inputs")
 
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
-    name = "boot_data_intf",
-    hdrs = ["boot_data.h"],
-    deps = [
-        ":error",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib/drivers:flash_ctrl",
-        "//sw/device/silicon_creator/lib/drivers:hmac",
-        "//sw/device/silicon_creator/lib/drivers:lifecycle",
-    ],
-)
-
-cc_library(
+dual_cc_library(
     name = "boot_data",
-    srcs = ["boot_data.c"],
-    deps = [
-        ":boot_data_intf",
-        ":error",
-        "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:memory",
-        "//sw/device/silicon_creator/lib/drivers:flash_ctrl",
-        "//sw/device/silicon_creator/lib/drivers:hmac",
-    ],
-)
-
-cc_library(
-    name = "mock_boot_data",
-    testonly = True,
-    hdrs = ["mock_boot_data.h"],
-    deps = [
-        ":boot_data_intf",
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["boot_data.c"],
+        host = ["mock_boot_data.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_boot_data.h"],
+        shared = ["boot_data.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+            "//sw/device/lib/base:hardened",
+            "//sw/device/lib/base:memory",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            ":error",
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib/drivers:flash_ctrl",
+            "//sw/device/silicon_creator/lib/drivers:hmac",
+            "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        ],
+    ),
 )
 
 opentitan_functest(
@@ -71,22 +65,13 @@ cc_library(
 )
 
 cc_library(
-    name = "epmp_intf",
+    name = "epmp",
+    srcs = ["epmp.c"],
     hdrs = [
         "epmp.h",
         "epmp_defs.h",
     ],
     deps = [
-        ":error",
-    ],
-)
-
-cc_library(
-    name = "epmp",
-    srcs = ["epmp.c"],
-    target_compatible_with = [OPENTITAN_CPU],
-    deps = [
-        ":epmp_intf",
         ":error",
         "//sw/device/lib/base:csr",
         "//sw/device/lib/base:hardened",
@@ -95,20 +80,9 @@ cc_library(
 
 cc_test(
     name = "epmp_unittest",
-    srcs = [
-        "epmp_unittest.cc",
-        # sources included here because we need MOCK_CSR.
-        "epmp.c",
-        "epmp.h",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["epmp_unittest.cc"],
     deps = [
-        ":epmp_intf",
-        ":error",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:csr",
+        ":epmp",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -120,7 +94,7 @@ cc_library(
     hdrs = ["epmp_test_unlock.h"],
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
-        ":epmp_intf",
+        ":epmp",
         "//sw/device/lib/arch:device",
         "//sw/device/lib/base:csr",
     ],
@@ -207,55 +181,44 @@ cc_library(
     hdrs = ["manifest_size.h"],
 )
 
-cc_library(
-    name = "manifest_intf",
-    hdrs = ["manifest.h"],
-    deps = [
-        ":epmp_intf",
-        ":error",
-        ":keymgr_binding",
-        ":manifest_size",
-        ":sigverify_internal",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib/drivers:lifecycle",
-    ],
-)
-
-cc_library(
+dual_cc_library(
     name = "manifest",
-    srcs = ["manifest.c"],
-    deps = [
-        ":manifest_intf",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-    ],
-)
-
-cc_library(
-    name = "mock_manifest",
-    testonly = True,
-    hdrs = ["mock_manifest.h"],
-    deps = [
-        ":manifest_intf",
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["manifest.c"],
+        host = ["mock_manifest.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_manifest.h"],
+        shared = ["manifest.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            ":epmp",
+            ":error",
+            ":keymgr_binding",
+            ":manifest_size",
+            ":sigverify_internal",
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        ],
+    ),
 )
 
 cc_test(
     name = "manifest_unittest",
-    srcs = [
-        "manifest_unittest.cc",
-    ],
+    srcs = ["manifest_unittest.cc"],
+    local_defines = ["MANIFEST_UNIT_TEST_"],
     deps = [
-        ":epmp_intf",
-        ":error",
-        ":keymgr_binding",
-        ":manifest_intf",
-        ":sigverify_internal",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        dual_cc_device_library_of(":manifest"),
         "//sw/device/lib/base:csr",
-        "//sw/device/silicon_creator/lib/drivers:lifecycle",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -271,93 +234,55 @@ cc_library(
     ],
 )
 
-cc_library(
-    name = "shutdown_intf",
-    hdrs = ["shutdown.h"],
-    deps = [
-        ":error",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib/drivers:lifecycle",
-    ],
-)
-
-cc_library(
-    name = "mock_shutdown",
-    testonly = True,
-    hdrs = ["mock_shutdown.h"],
-    deps = [
-        ":shutdown_intf",
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
-)
-
-cc_library(
+dual_cc_library(
     name = "shutdown",
-    srcs = ["shutdown.c"],
-    deps = [
-        ":error",
-        ":shutdown_intf",
-        "//hw/ip/keymgr/data:keymgr_regs",
-        "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
-        "//hw/ip/sram_ctrl/data:sram_ctrl_regs",
-        "//hw/ip/uart/data:uart_regs",
-        "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
-        "//hw/top_earlgrey/ip/rstmgr/data/autogen:rstmgr_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/arch:device",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:csr",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/base:memory",
-        "//sw/device/lib/base:multibits",
-        "//sw/device/lib/base:stdasm",
-        "//sw/device/silicon_creator/lib/drivers:alert",
-        "//sw/device/silicon_creator/lib/drivers:lifecycle",
-        "//sw/device/silicon_creator/lib/drivers:otp",
-    ],
+    srcs = dual_inputs(
+        device = ["shutdown.c"],
+        host = ["mock_shutdown.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_shutdown.h"],
+        shared = ["shutdown.h"],
+    ),
+    deps = dual_inputs(
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            ":error",
+            "//sw/device/lib/base:hardened",
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib/drivers:lifecycle",
+            "//hw/ip/keymgr/data:keymgr_regs",
+            "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
+            "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
+            "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
+            "//hw/ip/sram_ctrl/data:sram_ctrl_regs",
+            "//hw/ip/uart/data:uart_regs",
+            "//hw/top_earlgrey:alert_handler_regs",
+            "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
+            "//hw/top_earlgrey/ip/rstmgr/data/autogen:rstmgr_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+            "//sw/device/lib/arch:device",
+            "//sw/device/lib/base:abs_mmio",
+            "//sw/device/lib/base:bitfield",
+            "//sw/device/lib/base:csr",
+            "//sw/device/lib/base:memory",
+            "//sw/device/lib/base:multibits",
+            "//sw/device/lib/base:stdasm",
+            "//sw/device/silicon_creator/lib/drivers:alert",
+            "//sw/device/silicon_creator/lib/drivers:otp",
+        ],
+    ),
 )
 
 cc_test(
     name = "shutdown_unittest",
-    srcs = [
-        "shutdown.c",
-        "shutdown_unittest.cc",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["shutdown_unittest.cc"],
     deps = [
-        ":error",
-        ":shutdown_intf",
-        "//hw/ip/keymgr/data:keymgr_regs",
-        "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
-        "//hw/ip/sram_ctrl/data:sram_ctrl_regs",
-        "//hw/ip/uart/data:uart_regs",
-        "//hw/top_earlgrey:alert_handler_regs",
-        "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
-        "//hw/top_earlgrey/ip/rstmgr/data/autogen:rstmgr_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/arch:device",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:csr",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/base:memory",
-        "//sw/device/lib/base:multibits",
-        "//sw/device/lib/base:stdasm",
-        "//sw/device/silicon_creator/lib/drivers:mock_alert",
-        "//sw/device/silicon_creator/lib/drivers:mock_lifecycle",
-        "//sw/device/silicon_creator/lib/drivers:mock_otp",
+        dual_cc_device_library_of(":shutdown"),
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -379,7 +304,7 @@ cc_library(
     hdrs = ["sigverify.h"],
     deps = [
         ":error",
-        ":manifest_intf",
+        ":manifest",
         ":sigverify_internal",
         "//sw/device/silicon_creator/lib/drivers:hmac",
         "//sw/device/silicon_creator/lib/drivers:lifecycle",
@@ -427,8 +352,8 @@ cc_test(
         "//sw/device/lib/base:hardened",
         "//sw/device/lib/base:macros",
         "//sw/device/lib/base:memory",
-        "//sw/device/silicon_creator/lib/drivers:mock_lifecycle",
-        "//sw/device/silicon_creator/lib/drivers:mock_otp",
+        "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        "//sw/device/silicon_creator/lib/drivers:otp",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],

@@ -4,52 +4,48 @@
 
 load("//rules:opentitan.bzl", "OPENTITAN_CPU")
 load("//rules:opentitan_test.bzl", "opentitan_functest", "verilator_params")
+load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library", "dual_inputs")
 
 package(default_visibility = ["//visibility:public"])
 
-cc_library(
+dual_cc_library(
     name = "alert",
-    srcs = ["alert.c"],
-    hdrs = ["alert.h"],
-    target_compatible_with = [OPENTITAN_CPU],
-    deps = [
-        "//hw/top_earlgrey:alert_handler_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:sec_mmio",
-    ],
-)
-
-cc_library(
-    name = "mock_alert",
-    testonly = True,
-    hdrs = [
-        "alert.h",
-        "mock_alert.h",
-    ],
-    deps = [
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["alert.c"],
+        host = ["mock_alert.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_alert.h"],
+        shared = ["alert.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/top_earlgrey:alert_handler_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:abs_mmio",
+            "//sw/device/lib/base:macros",
+            "//sw/device/lib/base:memory",
+            "//sw/device/lib/base:mmio",
+            "//sw/device/silicon_creator/lib:error",
+            "//sw/device/silicon_creator/lib/base:sec_mmio",
+        ],
+    ),
 )
 
 cc_test(
     name = "alert_unittest",
-    srcs = [
-        "alert.c",
-        "alert.h",
-        "alert_unittest.cc",
-    ],
+    srcs = ["alert_unittest.cc"],
     deps = [
+        dual_cc_device_library_of(":alert"),
         "//hw/top_earlgrey:alert_handler_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:memory",
-        "//sw/device/lib/base:mmio",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
         "@googletest//:gtest_main",
     ],
 )
@@ -92,63 +88,49 @@ cc_library(
 
 cc_test(
     name = "flash_ctrl_unittest",
-    srcs = [
-        "flash_ctrl.c",
-        "flash_ctrl.h",
-        "flash_ctrl_unittest.cc",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["flash_ctrl_unittest.cc"],
     deps = [
-        "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:memory",
-        "//sw/device/lib/base:mmio",
-        "//sw/device/lib/base:multibits",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
-        "//sw/device/silicon_creator/lib/drivers:mock_otp",
+        ":flash_ctrl",
         "@googletest//:gtest_main",
     ],
 )
 
-cc_library(
+dual_cc_library(
     name = "hmac",
-    srcs = ["hmac.c"],
-    hdrs = ["hmac.h"],
-    deps = [
-        "//hw/ip/hmac/data:hmac_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:memory",
-        "//sw/device/silicon_creator/lib:error",
-    ],
-)
-
-cc_library(
-    name = "mock_hmac",
-    testonly = True,
-    hdrs = ["mock_hmac.h"],
-    deps = [
-        ":hmac",
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["hmac.c"],
+        host = ["mock_hmac.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_hmac.h"],
+        shared = ["hmac.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/ip/hmac/data:hmac_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:abs_mmio",
+            "//sw/device/lib/base:bitfield",
+            "//sw/device/lib/base:hardened",
+            "//sw/device/lib/base:memory",
+            "//sw/device/silicon_creator/lib:error",
+        ],
+    ),
 )
 
 cc_test(
     name = "hmac_unittest",
     srcs = ["hmac_unittest.cc"],
     deps = [
-        ":hmac",
+        dual_cc_device_library_of(":hmac"),
+        "//hw/ip/hmac/data:hmac_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:mmio",
@@ -173,7 +155,6 @@ cc_library(
     name = "keymgr",
     srcs = ["keymgr.c"],
     hdrs = ["keymgr.h"],
-    target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/ip/keymgr/data:keymgr_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -187,18 +168,9 @@ cc_library(
 
 cc_test(
     name = "keymgr_unittest",
-    srcs = [
-        "keymgr.c",
-        "keymgr.h",
-        "keymgr_unittest.cc",
-    ],
+    srcs = ["keymgr_unittest.cc"],
     deps = [
-        "//hw/ip/keymgr/data:keymgr_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib:keymgr_binding",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
+        ":keymgr",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -227,52 +199,42 @@ opentitan_functest(
     ],
 )
 
-cc_library(
+dual_cc_library(
     name = "lifecycle",
-    srcs = ["lifecycle.c"],
-    hdrs = ["lifecycle.h"],
-    deps = [
-        "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib/base:sec_mmio",
-    ],
-)
-
-cc_library(
-    name = "mock_lifecycle",
-    testonly = True,
-    hdrs = [
-        "lifecycle.h",
-        "mock_lifecycle.h",
-    ],
-    deps = [
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["lifecycle.c"],
+        host = ["mock_lifecycle.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_lifecycle.h"],
+        shared = ["lifecycle.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:bitfield",
+            "//sw/device/lib/base:hardened",
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib/base:sec_mmio",
+        ],
+    ),
 )
 
 cc_test(
     name = "lifecycle_unittest",
-    srcs = [
-        "lifecycle.c",
-        "lifecycle.h",
-        "lifecycle_unittest.cc",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["lifecycle_unittest.cc"],
     deps = [
+        dual_cc_device_library_of(":lifecycle"),
         "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -282,7 +244,6 @@ cc_library(
     name = "otbn",
     srcs = ["otbn.c"],
     hdrs = ["otbn.h"],
-    target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/ip/otbn/data:otbn_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -294,68 +255,47 @@ cc_library(
 
 cc_test(
     name = "otbn_unittest",
-    srcs = [
-        "otbn.c",
-        "otbn.h",
-        "otbn_unittest.cc",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["otbn_unittest.cc"],
     deps = [
-        "//hw/ip/otbn/data:otbn_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/silicon_creator/lib:error",
+        ":otbn",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
 )
 
-cc_library(
+dual_cc_library(
     name = "otp",
-    srcs = ["otp.c"],
-    hdrs = ["otp.h"],
-    deps = [
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/base:memory",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:sec_mmio",
-    ],
-)
-
-cc_library(
-    name = "mock_otp",
-    testonly = True,
-    hdrs = [
-        "mock_otp.h",
-        "otp.h",
-    ],
-    deps = [
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["otp.c"],
+        host = ["mock_otp.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_otp.h"],
+        shared = ["otp.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:hardened",
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib/base:sec_mmio",
+        ],
+    ),
 )
 
 cc_test(
     name = "otp_unittest",
-    srcs = [
-        "otp.c",
-        "otp.h",
-        "otp_unittest.cc",
-    ],
+    srcs = ["otp_unittest.cc"],
     deps = [
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/base:memory",
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
+        dual_cc_device_library_of(":otp"),
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -424,35 +364,36 @@ opentitan_functest(
     ],
 )
 
-cc_library(
+dual_cc_library(
     name = "rnd",
-    srcs = ["rnd.c"],
-    hdrs = ["rnd.h"],
-    target_compatible_with = [OPENTITAN_CPU],
-    deps = [
-        ":otp",
-        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
-        "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:csr",
-        "//sw/device/lib/base:hardened",
-        "//sw/device/lib/base:macros",
-    ],
-)
-
-cc_library(
-    name = "mock_rnd",
-    testonly = True,
-    hdrs = [
-        "mock_rnd.h",
-        "rnd.h",
-    ],
-    deps = [
-        "//sw/device/lib/base/testing:global_mock",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
-        "@googletest//:gtest",
-    ],
+    srcs = dual_inputs(
+        device = ["rnd.c"],
+        host = ["mock_rnd.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_rnd.h"],
+        shared = ["rnd.h"],
+    ),
+    deps = dual_inputs(
+        device = [
+            ":otp",
+            "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
+            "//hw/ip/rv_core_ibex/data:rv_core_ibex_regs",
+            "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+            "//sw/device/lib/base:abs_mmio",
+            "//sw/device/lib/base:csr",
+            "//sw/device/lib/base:hardened",
+        ],
+        host = [
+            "//sw/device/lib/base/testing:global_mock",
+            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:macros",
+            "//sw/device/silicon_creator/lib:error",
+        ],
+    ),
 )
 
 opentitan_functest(
@@ -484,22 +425,9 @@ cc_library(
 
 cc_test(
     name = "rstmgr_unittest",
-    srcs = [
-        "rstmgr.c",
-        "rstmgr.h",
-        "rstmgr_unittest.cc",
-    ],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
+    srcs = ["rstmgr_unittest.cc"],
     deps = [
-        "//hw/top_earlgrey/ip/rstmgr/data/autogen:rstmgr_regs",
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:abs_mmio",
-        "//sw/device/lib/base:bitfield",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/base:multibits",
-        "//sw/device/silicon_creator/lib:error",
+        ":rstmgr",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
@@ -562,17 +490,14 @@ cc_library(
 cc_test(
     name = "watchdog_unittest",
     srcs = ["watchdog_unittest.cc"],
-    defines = [
-        "OT_OFF_TARGET_TEST",
-    ],
     deps = [
         ":watchdog",
         "//hw/ip/aon_timer/data:aon_timer_regs",
         "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
-        "//sw/device/silicon_creator/lib/base:mock_sec_mmio",
-        "//sw/device/silicon_creator/lib/drivers:mock_otp",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/drivers:otp",
         "//sw/device/silicon_creator/testing:mask_rom_test",
         "@googletest//:gtest_main",
     ],
