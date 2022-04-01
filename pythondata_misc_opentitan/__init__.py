@@ -4,51 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11281"
-version_tuple = (0, 0, 11281)
+version_str = "0.0.post11284"
+version_tuple = (0, 0, 11284)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11281")
+    pversion = V("0.0.post11284")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11155"
-data_version_tuple = (0, 0, 11155)
+data_version_str = "0.0.post11158"
+data_version_tuple = (0, 0, 11158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11155")
+    pdata_version = V("0.0.post11158")
 except ImportError:
     pass
-data_git_hash = "56f1dbd6b7e30054d29b0da672e560e00be9d6e2"
-data_git_describe = "v0.0-11155-g56f1dbd6b"
+data_git_hash = "ad62950332301dbe0445f3ef7f023be595645d52"
+data_git_describe = "v0.0-11158-gad6295033"
 data_git_msg = """\
-commit 56f1dbd6b7e30054d29b0da672e560e00be9d6e2
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Mar 31 14:04:17 2022 -0700
+commit ad62950332301dbe0445f3ef7f023be595645d52
+Author: Nigel Scales <nigel.scales@gmail.com>
+Date:   Fri Apr 1 15:44:36 2022 +0100
 
-    [spi_device] Change addr_latched as a pulse
+    [adc_ctrl/dv] Updated ADC_CTRL DV documents
     
-    Problem:
+    - Updated ADC_CTRL DV documents
     
-        `addr_latched_i` in `spid_readsram` module is expected to be a pulse
-        signal. The `spi_readcmd` module generates the signal as a level by
-        comparing `addr_cnt_d` with all zero value.
-    
-        As a result, the `strb` register in `spid_readsram` follows the
-        current address, which is increased by when a byte is sent to the
-        host system. However, the `spid_readsram` logic pushes the data into
-        the FIFO already. As the FIFO depth is 2, one more entry has been
-        added to the FIFO, which results the host system sees the a byte has
-        been shifted.
-    
-    Resolution:
-    
-        Revised the `addr_latched` logic to be a pulse. Either `addr_cnt_d`
-        or `addr_latched` can be revised. I chose the latter. Latching the
-        latched signal and generated a pulse.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Nigel Scales <nigel.scales@gmail.com>
 
 """
 
