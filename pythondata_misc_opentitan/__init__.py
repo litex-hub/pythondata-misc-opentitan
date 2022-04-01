@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11276"
-version_tuple = (0, 0, 11276)
+version_str = "0.0.post11277"
+version_tuple = (0, 0, 11277)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11276")
+    pversion = V("0.0.post11277")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11150"
-data_version_tuple = (0, 0, 11150)
+data_version_str = "0.0.post11151"
+data_version_tuple = (0, 0, 11151)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11150")
+    pdata_version = V("0.0.post11151")
 except ImportError:
     pass
-data_git_hash = "a7dd5942185b02b928e3b03dc1c5ea38c4d7517a"
-data_git_describe = "v0.0-11150-ga7dd59421"
+data_git_hash = "5263dc320c6408a9ce5aece71274d60d0c05a096"
+data_git_describe = "v0.0-11151-g5263dc320"
 data_git_msg = """\
-commit a7dd5942185b02b928e3b03dc1c5ea38c4d7517a
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Thu Mar 31 19:47:57 2022 +0000
+commit 5263dc320c6408a9ce5aece71274d60d0c05a096
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Mar 31 16:35:40 2022 -0700
 
-    [clkmgr,dv] fix regression failure
+    [bazel] move opentitan_test macro to separate rules file
     
-      - add back *_meas_ctrl_shadowed_* to exclusion list to avoid
-        RECOV_ERR_CODE failure
-      - update default idle value to false in csr test
+    The `rules/opentitan.bzl` was overwhelming large due to the macros and
+    helper functions needed define tests and produce OpenTitan device
+    images. This moves all test related macros and helper functions to a
+    separate rules file `rules/opentitan_test.bzl` to improve readability.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This addresses a task in #11805.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
