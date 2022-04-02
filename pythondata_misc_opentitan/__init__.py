@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11313"
-version_tuple = (0, 0, 11313)
+version_str = "0.0.post11314"
+version_tuple = (0, 0, 11314)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11313")
+    pversion = V("0.0.post11314")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11187"
-data_version_tuple = (0, 0, 11187)
+data_version_str = "0.0.post11188"
+data_version_tuple = (0, 0, 11188)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11187")
+    pdata_version = V("0.0.post11188")
 except ImportError:
     pass
-data_git_hash = "cea8d0b2e37d26f880e26c7127c50b84cce66e32"
-data_git_describe = "v0.0-11187-gcea8d0b2e"
+data_git_hash = "9beba9baf591c2ca438eec49b1c9ffc460af5342"
+data_git_describe = "v0.0-11188-g9beba9baf"
 data_git_msg = """\
-commit cea8d0b2e37d26f880e26c7127c50b84cce66e32
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Mar 25 10:06:44 2022 -0700
+commit 9beba9baf591c2ca438eec49b1c9ffc460af5342
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Apr 1 22:40:51 2022 +0000
 
-    [sensor_ctrl] Bump version to 1.0
+    [sw/test_rom] Init SRAM for non-sim_dv devices
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    In DV sim, the testbench handles the SRAM init via backdoor loading to
+    optimize test run time. However, in Verilator and FPGA, this is not the
+    case. Therefore to prevent this from causing a bus integrity error, we
+    initialize SRAM for Verilator and FPGA devices.
+    
+    This fixes #11854.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
