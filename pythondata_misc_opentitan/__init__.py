@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11303"
-version_tuple = (0, 0, 11303)
+version_str = "0.0.post11313"
+version_tuple = (0, 0, 11313)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11303")
+    pversion = V("0.0.post11313")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11177"
-data_version_tuple = (0, 0, 11177)
+data_version_str = "0.0.post11187"
+data_version_tuple = (0, 0, 11187)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11177")
+    pdata_version = V("0.0.post11187")
 except ImportError:
     pass
-data_git_hash = "20e09e06a1b4d021d5210b691451b4b03dd8b173"
-data_git_describe = "v0.0-11177-g20e09e06a"
+data_git_hash = "cea8d0b2e37d26f880e26c7127c50b84cce66e32"
+data_git_describe = "v0.0-11187-gcea8d0b2e"
 data_git_msg = """\
-commit 20e09e06a1b4d021d5210b691451b4b03dd8b173
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Tue Mar 15 17:21:56 2022 +0200
+commit cea8d0b2e37d26f880e26c7127c50b84cce66e32
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Mar 25 10:06:44 2022 -0700
 
-    [ast] Fix CDC and DFT issues
+    [sensor_ctrl] Bump version to 1.0
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
