@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11323"
-version_tuple = (0, 0, 11323)
+version_str = "0.0.post11325"
+version_tuple = (0, 0, 11325)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11323")
+    pversion = V("0.0.post11325")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11197"
-data_version_tuple = (0, 0, 11197)
+data_version_str = "0.0.post11199"
+data_version_tuple = (0, 0, 11199)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11197")
+    pdata_version = V("0.0.post11199")
 except ImportError:
     pass
-data_git_hash = "55dc90392e74ed7e1666bf07de32a094660f062e"
-data_git_describe = "v0.0-11197-g55dc90392"
+data_git_hash = "f25c8cb2de214a7bc88879f6baf7f9c5053f5cd9"
+data_git_describe = "v0.0-11199-gf25c8cb2d"
 data_git_msg = """\
-commit 55dc90392e74ed7e1666bf07de32a094660f062e
+commit f25c8cb2de214a7bc88879f6baf7f9c5053f5cd9
 Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Wed Mar 30 04:09:06 2022 -0700
+Date:   Tue Mar 15 05:30:19 2022 -0700
 
-    [aes/dv] added read check for IV
+    [aes/dv] added exclusion files for common and UNR for nomasking DUT
     
     Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
