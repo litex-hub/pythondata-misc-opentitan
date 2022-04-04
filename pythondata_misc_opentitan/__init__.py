@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11318"
-version_tuple = (0, 0, 11318)
+version_str = "0.0.post11319"
+version_tuple = (0, 0, 11319)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11318")
+    pversion = V("0.0.post11319")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11192"
-data_version_tuple = (0, 0, 11192)
+data_version_str = "0.0.post11193"
+data_version_tuple = (0, 0, 11193)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11192")
+    pdata_version = V("0.0.post11193")
 except ImportError:
     pass
-data_git_hash = "98114295f3ee93a4b4ebf1b7326645a5962eb67c"
-data_git_describe = "v0.0-11192-g98114295f"
+data_git_hash = "0dc541c1eb0195818bbc1c1251778d74ffe01edf"
+data_git_describe = "v0.0-11193-g0dc541c1e"
 data_git_msg = """\
-commit 98114295f3ee93a4b4ebf1b7326645a5962eb67c
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Thu Mar 31 17:42:02 2022 +0100
+commit 0dc541c1eb0195818bbc1c1251778d74ffe01edf
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 1 11:37:27 2022 +0100
 
-    [sysrst_ctrl,dv] Added register reads to fill coverage holes
+    [dvsim,xcelium] Avoid an OPTP2ND error if a plusarg isn't set
     
-    Few register reads are added in the functional tests to fill
-    in the assert coverage holes from sysrst_ctrl_csr_assert module.
+    This is needed to get e.g. the prim_present_test testbench working
+    with Xcelium.
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
