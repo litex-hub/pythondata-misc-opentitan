@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11353"
-version_tuple = (0, 0, 11353)
+version_str = "0.0.post11355"
+version_tuple = (0, 0, 11355)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11353")
+    pversion = V("0.0.post11355")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11227"
-data_version_tuple = (0, 0, 11227)
+data_version_str = "0.0.post11229"
+data_version_tuple = (0, 0, 11229)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11227")
+    pdata_version = V("0.0.post11229")
 except ImportError:
     pass
-data_git_hash = "8d799de2f298a08519de2b5de7ff6b46ab5e9f07"
-data_git_describe = "v0.0-11227-g8d799de2f"
+data_git_hash = "acecea1bc16ef75080003a06742082c90f7e86cd"
+data_git_describe = "v0.0-11229-gacecea1bc"
 data_git_msg = """\
-commit 8d799de2f298a08519de2b5de7ff6b46ab5e9f07
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Mon Apr 4 11:19:15 2022 -0700
+commit acecea1bc16ef75080003a06742082c90f7e86cd
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Apr 4 12:46:49 2022 -0700
 
-    [cleanup] Fix license checker after #11851
+    [flash_ctrl] correct cm label
     
-    1. Exclude //third_party from license checks.
-    2. Add license headers to a few files.
+    - there was a cross PR change in label name that was lost during
+      rebase.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
