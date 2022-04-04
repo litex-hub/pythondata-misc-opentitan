@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11358"
-version_tuple = (0, 0, 11358)
+version_str = "0.0.post11361"
+version_tuple = (0, 0, 11361)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11358")
+    pversion = V("0.0.post11361")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11232"
-data_version_tuple = (0, 0, 11232)
+data_version_str = "0.0.post11235"
+data_version_tuple = (0, 0, 11235)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11232")
+    pdata_version = V("0.0.post11235")
 except ImportError:
     pass
-data_git_hash = "4fe6a21f63992ad13dcdbad4fffa99a8ae8e280a"
-data_git_describe = "v0.0-11232-g4fe6a21f6"
+data_git_hash = "07206099527e1a373ffdff48b7921293095b4db6"
+data_git_describe = "v0.0-11235-g072060995"
 data_git_msg = """\
-commit 4fe6a21f63992ad13dcdbad4fffa99a8ae8e280a
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Apr 1 10:58:43 2022 -0700
+commit 07206099527e1a373ffdff48b7921293095b4db6
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Apr 1 16:07:27 2022 -0700
 
-    [pinmux] Promote pad attribute comment to fields
+    [opentitantool] Add timestamps to console output
     
-    This enables software to have hjson-linked macros for accessing the
-    fields.
+    1. When requested via the `--timestamp` flag, each line of console output
+       will include the time that it was emitted.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
