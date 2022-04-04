@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11355"
-version_tuple = (0, 0, 11355)
+version_str = "0.0.post11358"
+version_tuple = (0, 0, 11358)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11355")
+    pversion = V("0.0.post11358")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11229"
-data_version_tuple = (0, 0, 11229)
+data_version_str = "0.0.post11232"
+data_version_tuple = (0, 0, 11232)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11229")
+    pdata_version = V("0.0.post11232")
 except ImportError:
     pass
-data_git_hash = "acecea1bc16ef75080003a06742082c90f7e86cd"
-data_git_describe = "v0.0-11229-gacecea1bc"
+data_git_hash = "4fe6a21f63992ad13dcdbad4fffa99a8ae8e280a"
+data_git_describe = "v0.0-11232-g4fe6a21f6"
 data_git_msg = """\
-commit acecea1bc16ef75080003a06742082c90f7e86cd
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Apr 4 12:46:49 2022 -0700
+commit 4fe6a21f63992ad13dcdbad4fffa99a8ae8e280a
+Author: Alexander Williams <awill@google.com>
+Date:   Fri Apr 1 10:58:43 2022 -0700
 
-    [flash_ctrl] correct cm label
+    [pinmux] Promote pad attribute comment to fields
     
-    - there was a cross PR change in label name that was lost during
-      rebase.
+    This enables software to have hjson-linked macros for accessing the
+    fields.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
