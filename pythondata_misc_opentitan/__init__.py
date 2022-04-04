@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11322"
-version_tuple = (0, 0, 11322)
+version_str = "0.0.post11323"
+version_tuple = (0, 0, 11323)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11322")
+    pversion = V("0.0.post11323")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11196"
-data_version_tuple = (0, 0, 11196)
+data_version_str = "0.0.post11197"
+data_version_tuple = (0, 0, 11197)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11196")
+    pdata_version = V("0.0.post11197")
 except ImportError:
     pass
-data_git_hash = "83393ce973773679c56777566f5818eb7e5f5e08"
-data_git_describe = "v0.0-11196-g83393ce97"
+data_git_hash = "55dc90392e74ed7e1666bf07de32a094660f062e"
+data_git_describe = "v0.0-11197-g55dc90392"
 data_git_msg = """\
-commit 83393ce973773679c56777566f5818eb7e5f5e08
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue Mar 22 15:10:11 2022 +0000
+commit 55dc90392e74ed7e1666bf07de32a094660f062e
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Wed Mar 30 04:09:06 2022 -0700
 
-    [test, aes] Add aes idle chip level test
+    [aes/dv] added read check for IV
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
