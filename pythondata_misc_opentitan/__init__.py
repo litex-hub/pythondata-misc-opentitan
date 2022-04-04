@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11319"
-version_tuple = (0, 0, 11319)
+version_str = "0.0.post11322"
+version_tuple = (0, 0, 11322)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11319")
+    pversion = V("0.0.post11322")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11193"
-data_version_tuple = (0, 0, 11193)
+data_version_str = "0.0.post11196"
+data_version_tuple = (0, 0, 11196)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11193")
+    pdata_version = V("0.0.post11196")
 except ImportError:
     pass
-data_git_hash = "0dc541c1eb0195818bbc1c1251778d74ffe01edf"
-data_git_describe = "v0.0-11193-g0dc541c1e"
+data_git_hash = "83393ce973773679c56777566f5818eb7e5f5e08"
+data_git_describe = "v0.0-11196-g83393ce97"
 data_git_msg = """\
-commit 0dc541c1eb0195818bbc1c1251778d74ffe01edf
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Apr 1 11:37:27 2022 +0100
+commit 83393ce973773679c56777566f5818eb7e5f5e08
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Mar 22 15:10:11 2022 +0000
 
-    [dvsim,xcelium] Avoid an OPTP2ND error if a plusarg isn't set
+    [test, aes] Add aes idle chip level test
     
-    This is needed to get e.g. the prim_present_test testbench working
-    with Xcelium.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
