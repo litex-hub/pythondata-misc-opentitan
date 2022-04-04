@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11325"
-version_tuple = (0, 0, 11325)
+version_str = "0.0.post11328"
+version_tuple = (0, 0, 11328)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11325")
+    pversion = V("0.0.post11328")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11199"
-data_version_tuple = (0, 0, 11199)
+data_version_str = "0.0.post11202"
+data_version_tuple = (0, 0, 11202)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11199")
+    pdata_version = V("0.0.post11202")
 except ImportError:
     pass
-data_git_hash = "f25c8cb2de214a7bc88879f6baf7f9c5053f5cd9"
-data_git_describe = "v0.0-11199-gf25c8cb2d"
+data_git_hash = "55db958b26235dd786d231a79c060a5d5d47358d"
+data_git_describe = "v0.0-11202-g55db958b2"
 data_git_msg = """\
-commit f25c8cb2de214a7bc88879f6baf7f9c5053f5cd9
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Mar 15 05:30:19 2022 -0700
+commit 55db958b26235dd786d231a79c060a5d5d47358d
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Apr 4 13:11:50 2022 +0100
 
-    [aes/dv] added exclusion files for common and UNR for nomasking DUT
+    [dvsim,xcelium] Fix sed commands to generate plusargs
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    I really messed up 0dc541c. I think that I'd checked the code with .*
+    and a non-empty string, then noticed that it also matched empty
+    strings. So I changed to .+, but forgot to check that .+ worked with
+    non-empty strings. It turns out that "+" for "one or more occurrences"
+    is only supported by sed with -E.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
