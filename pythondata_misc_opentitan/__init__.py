@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11386"
-version_tuple = (0, 0, 11386)
+version_str = "0.0.post11389"
+version_tuple = (0, 0, 11389)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11386")
+    pversion = V("0.0.post11389")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11260"
-data_version_tuple = (0, 0, 11260)
+data_version_str = "0.0.post11263"
+data_version_tuple = (0, 0, 11263)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11260")
+    pdata_version = V("0.0.post11263")
 except ImportError:
     pass
-data_git_hash = "883cd83d3699869fd8471885df5c073c928acc24"
-data_git_describe = "v0.0-11260-g883cd83d3"
+data_git_hash = "ec8fe82b8066af71aabdee1cd8baefac8a0a4251"
+data_git_describe = "v0.0-11263-gec8fe82b8"
 data_git_msg = """\
-commit 883cd83d3699869fd8471885df5c073c928acc24
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Mar 30 14:43:45 2022 -0400
+commit ec8fe82b8066af71aabdee1cd8baefac8a0a4251
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Tue Apr 5 10:10:41 2022 -0700
 
-    [meson] Specify that riscv_compliance_support should not be ported
+    [cleanup] Fix spelling error
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
