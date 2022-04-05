@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11381"
-version_tuple = (0, 0, 11381)
+version_str = "0.0.post11382"
+version_tuple = (0, 0, 11382)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11381")
+    pversion = V("0.0.post11382")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11255"
-data_version_tuple = (0, 0, 11255)
+data_version_str = "0.0.post11256"
+data_version_tuple = (0, 0, 11256)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11255")
+    pdata_version = V("0.0.post11256")
 except ImportError:
     pass
-data_git_hash = "f78b283951fd2d5c18d40348ce4b12b23b17f2ae"
-data_git_describe = "v0.0-11255-gf78b28395"
+data_git_hash = "81513e9ce92dfad11f374481f15a7db3659126ca"
+data_git_describe = "v0.0-11256-g81513e9ce"
 data_git_msg = """\
-commit f78b283951fd2d5c18d40348ce4b12b23b17f2ae
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Fri Apr 1 18:05:34 2022 -0400
+commit 81513e9ce92dfad11f374481f15a7db3659126ca
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Apr 4 14:36:16 2022 -0700
 
-    [bazel] Merge mock targets in mask_rom
+    [bazel] cleanup `verilator_params()` in `opentitan_functests()`
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    The `verilator_params()` macro was refactored in a prior commit, but its
+    invocations in `opentitan_functest()` rules were not. This cleans these
+    up to remove un-needed (required) tags.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
