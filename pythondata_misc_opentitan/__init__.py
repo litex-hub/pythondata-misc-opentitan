@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11382"
-version_tuple = (0, 0, 11382)
+version_str = "0.0.post11383"
+version_tuple = (0, 0, 11383)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11382")
+    pversion = V("0.0.post11383")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11256"
-data_version_tuple = (0, 0, 11256)
+data_version_str = "0.0.post11257"
+data_version_tuple = (0, 0, 11257)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11256")
+    pdata_version = V("0.0.post11257")
 except ImportError:
     pass
-data_git_hash = "81513e9ce92dfad11f374481f15a7db3659126ca"
-data_git_describe = "v0.0-11256-g81513e9ce"
+data_git_hash = "6d2f7e6e4a7e66787f23e04b954eb98e2f92c3d4"
+data_git_describe = "v0.0-11257-g6d2f7e6e4"
 data_git_msg = """\
-commit 81513e9ce92dfad11f374481f15a7db3659126ca
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Apr 4 14:36:16 2022 -0700
+commit 6d2f7e6e4a7e66787f23e04b954eb98e2f92c3d4
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Apr 4 17:25:03 2022 -0700
 
-    [bazel] cleanup `verilator_params()` in `opentitan_functests()`
+    [adc_ctrl] Fix adc interrupt synchronization
     
-    The `verilator_params()` macro was refactored in a prior commit, but its
-    invocations in `opentitan_functest()` rules were not. This cleans these
-    up to remove un-needed (required) tags.
+    - fixes #11759
+    - switch to prim_reqack instead of prim_pulse_sync
+    - since many events can occur during low power, split
+      the sync source into staging and request.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
