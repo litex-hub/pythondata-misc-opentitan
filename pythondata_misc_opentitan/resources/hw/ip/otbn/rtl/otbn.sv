@@ -66,6 +66,7 @@ module otbn
   input keymgr_pkg::otbn_key_req_t keymgr_key_i
 );
 
+  import prim_mubi_pkg::*;
   import prim_util_pkg::vbits;
 
   logic rst_n;
@@ -102,7 +103,7 @@ module otbn
   logic [127:0] dmem_sec_wipe_urnd_key, imem_sec_wipe_urnd_key;
 
   logic core_recoverable_err, recoverable_err_d, recoverable_err_q;
-  logic core_escalate_en;
+  mubi4_t core_escalate_en;
   core_err_bits_t core_err_bits;
   err_bits_t err_bits, err_bits_d, err_bits_q;
   logic err_bits_en;
@@ -150,23 +151,20 @@ module otbn
 
   // Note: This is not the same thing as STATUS == IDLE. For example, we want to allow clock gating
   // when locked.
-  assign idle_o = prim_mubi_pkg::mubi4_bool_to_mubi(is_not_running_r);
+  assign idle_o = mubi4_bool_to_mubi(is_not_running_r);
 
   // Lifecycle ==================================================================
 
-  lc_ctrl_pkg::lc_tx_t lc_escalate_en;
+  localparam int unsigned LcEscalateCopies = 2;
+  lc_ctrl_pkg::lc_tx_t [LcEscalateCopies-1:0] lc_escalate_en;
   prim_lc_sync #(
-    .NumCopies(1)
+    .NumCopies(LcEscalateCopies)
   ) u_lc_escalate_en_sync (
     .clk_i,
     .rst_ni,
     .lc_en_i(lc_escalate_en_i),
-    .lc_en_o({lc_escalate_en})
+    .lc_en_o(lc_escalate_en)
   );
-
-  // Reduce the life cycle escalation signal to a single bit to be used within this cycle.
-  logic lifecycle_escalation;
-  assign lifecycle_escalation = lc_escalate_en != lc_ctrl_pkg::Off;
 
   // Interrupts ================================================================
 
@@ -325,7 +323,6 @@ module otbn
   // Always grant to bus accesses, when OTBN is running a dummy response is returned
   assign imem_gnt_bus = imem_req_bus;
 
-  import prim_mubi_pkg::MuBi4False;
   tlul_adapter_sram #(
     .SramAw          (ImemIndexWidth),
     .SramDw          (32),
@@ -969,7 +966,7 @@ module otbn
   // Construct a full set of error bits from the core output
   assign err_bits = '{
     fatal_software:       core_err_bits.fatal_software,
-    lifecycle_escalation: lifecycle_escalation,
+    lifecycle_escalation: lc_escalate_en[0] != lc_ctrl_pkg::Off,
     illegal_bus_access:   illegal_bus_access_q,
     bad_internal_state:   |{core_err_bits.bad_internal_state,
                             otbn_scramble_state_error},
@@ -986,10 +983,10 @@ module otbn
   };
 
   // An error signal going down into the core to show that it should locally escalate
-  assign core_escalate_en = |{lifecycle_escalation,
-                              illegal_bus_access_q,
-                              otbn_scramble_state_error,
-                              bus_intg_violation};
+  assign core_escalate_en = mubi4_or_hi(
+      mubi4_bool_to_mubi(|{illegal_bus_access_q, otbn_scramble_state_error, bus_intg_violation}),
+      lc_ctrl_pkg::lc_to_mubi4(lc_escalate_en[1])
+  );
 
   // We're idle if we're neither busy executing something nor locked
   assign idle = ~(busy_execute_q | locked | otbn_dmem_scramble_key_req_busy |
@@ -1025,7 +1022,7 @@ module otbn
 
   // Error handling: if we pass an error signal down to the core then we should also be setting an
   // error flag.
-  `ASSERT(ErrBitIfEscalate_A, core_escalate_en |=> |err_bits_q)
+  `ASSERT(ErrBitIfEscalate_A, mubi4_test_true_loose(core_escalate_en) |=> |err_bits_q)
 
   // Constraint from package, check here as we cannot have `ASSERT_INIT in package
   `ASSERT_INIT(WsrESizeMatchesParameter_A, $bits(wsr_e) == WsrNumWidth)
