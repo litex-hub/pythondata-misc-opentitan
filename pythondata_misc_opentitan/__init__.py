@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11364"
-version_tuple = (0, 0, 11364)
+version_str = "0.0.post11366"
+version_tuple = (0, 0, 11366)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11364")
+    pversion = V("0.0.post11366")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11238"
-data_version_tuple = (0, 0, 11238)
+data_version_str = "0.0.post11240"
+data_version_tuple = (0, 0, 11240)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11238")
+    pdata_version = V("0.0.post11240")
 except ImportError:
     pass
-data_git_hash = "faab4c52b820fc5121890174e512c23b61b9a722"
-data_git_describe = "v0.0-11238-gfaab4c52b"
+data_git_hash = "f3433db6c2411d74dc55664fd68f2ec82c67c214"
+data_git_describe = "v0.0-11240-gf3433db6c"
 data_git_msg = """\
-commit faab4c52b820fc5121890174e512c23b61b9a722
+commit f3433db6c2411d74dc55664fd68f2ec82c67c214
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Apr 4 15:22:34 2022 -0700
+Date:   Mon Apr 4 17:30:03 2022 -0700
 
-    [dv/otp_ctrl] Improve FSM coverage
+    [dv/otp_ctrl] Fix assertion error
     
-    This PR improves the FSM cov with the following updates:
-    1). Add support in smoke test to issue reset during pwr_init.
-        This targets to hit FSM cov from init states to reset states.
-    2). Move `apply_resets_concurrently` override to common_vseq because it
-        only common tests need this override.
-    3). Remove the constraints about ECC correctable errors and timeout
-        error. I believe scb can handle both cases.
-    4). Remove the pre-conditions to write ral.check_timeout register.
+    Fix assertion error because it sampled design input instead of output.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
