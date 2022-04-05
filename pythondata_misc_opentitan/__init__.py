@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11366"
-version_tuple = (0, 0, 11366)
+version_str = "0.0.post11367"
+version_tuple = (0, 0, 11367)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11366")
+    pversion = V("0.0.post11367")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11240"
-data_version_tuple = (0, 0, 11240)
+data_version_str = "0.0.post11241"
+data_version_tuple = (0, 0, 11241)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11240")
+    pdata_version = V("0.0.post11241")
 except ImportError:
     pass
-data_git_hash = "f3433db6c2411d74dc55664fd68f2ec82c67c214"
-data_git_describe = "v0.0-11240-gf3433db6c"
+data_git_hash = "a01a0cc9621247b40b2a149154496f5cf7377e4d"
+data_git_describe = "v0.0-11241-ga01a0cc96"
 data_git_msg = """\
-commit f3433db6c2411d74dc55664fd68f2ec82c67c214
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Apr 4 17:30:03 2022 -0700
+commit a01a0cc9621247b40b2a149154496f5cf7377e4d
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Apr 5 01:51:07 2022 +0000
 
-    [dv/otp_ctrl] Fix assertion error
+    [dv,pwrmgr] fix regression failure
     
-    Fix assertion error because it sampled design input instead of output.
+     - pwrmgr_sec_cm_lc_ctrl_intersig_mubi : disalbe assertion
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
