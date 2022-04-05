@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11389"
-version_tuple = (0, 0, 11389)
+version_str = "0.0.post11390"
+version_tuple = (0, 0, 11390)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11389")
+    pversion = V("0.0.post11390")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11263"
-data_version_tuple = (0, 0, 11263)
+data_version_str = "0.0.post11264"
+data_version_tuple = (0, 0, 11264)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11263")
+    pdata_version = V("0.0.post11264")
 except ImportError:
     pass
-data_git_hash = "ec8fe82b8066af71aabdee1cd8baefac8a0a4251"
-data_git_describe = "v0.0-11263-gec8fe82b8"
+data_git_hash = "f8256d0b953b28646716cc17d091b9304b76dcc7"
+data_git_describe = "v0.0-11264-gf8256d0b9"
 data_git_msg = """\
-commit ec8fe82b8066af71aabdee1cd8baefac8a0a4251
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Tue Apr 5 10:10:41 2022 -0700
+commit f8256d0b953b28646716cc17d091b9304b76dcc7
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Thu Mar 31 07:09:11 2022 -0700
 
-    [cleanup] Fix spelling error
+    [entropy_src/rtl] Prevent interrupt status for data valid
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    For the mode where the entropy read register is not being used,
+    the related FIFO state and interrupt status bits should be unchanging.
+    
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
