@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11372"
-version_tuple = (0, 0, 11372)
+version_str = "0.0.post11375"
+version_tuple = (0, 0, 11375)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11372")
+    pversion = V("0.0.post11375")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11246"
-data_version_tuple = (0, 0, 11246)
+data_version_str = "0.0.post11249"
+data_version_tuple = (0, 0, 11249)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11246")
+    pdata_version = V("0.0.post11249")
 except ImportError:
     pass
-data_git_hash = "27e2b13464ecc5a322922da9b00cd91e9f77ebfe"
-data_git_describe = "v0.0-11246-g27e2b1346"
+data_git_hash = "e8be89f08c47cbd2934bad19decdd0f75a4823b2"
+data_git_describe = "v0.0-11249-ge8be89f08"
 data_git_msg = """\
-commit 27e2b13464ecc5a322922da9b00cd91e9f77ebfe
+commit e8be89f08c47cbd2934bad19decdd0f75a4823b2
 Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Mon Apr 4 15:03:27 2022 +0200
+Date:   Fri Apr 1 08:38:07 2022 +0200
 
-    [otbn] Propagate lc_escalate inside mubi escalate
+    [otbn] Add FSM-related CM labels
     
     Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
