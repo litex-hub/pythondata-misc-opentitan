@@ -4,45 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11368"
-version_tuple = (0, 0, 11368)
+version_str = "0.0.post11372"
+version_tuple = (0, 0, 11372)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11368")
+    pversion = V("0.0.post11372")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11242"
-data_version_tuple = (0, 0, 11242)
+data_version_str = "0.0.post11246"
+data_version_tuple = (0, 0, 11246)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11242")
+    pdata_version = V("0.0.post11246")
 except ImportError:
     pass
-data_git_hash = "4d80330c6d13e4c8490bf5f8e4f0a9727ac5759d"
-data_git_describe = "v0.0-11242-g4d80330c6"
+data_git_hash = "27e2b13464ecc5a322922da9b00cd91e9f77ebfe"
+data_git_describe = "v0.0-11246-g27e2b1346"
 data_git_msg = """\
-commit 4d80330c6d13e4c8490bf5f8e4f0a9727ac5759d
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Apr 4 13:04:41 2022 +0200
+commit 27e2b13464ecc5a322922da9b00cd91e9f77ebfe
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Mon Apr 4 15:03:27 2022 +0200
 
-    [kmac] Ignore entropy refresh requests when running in SW entropy mode
+    [otbn] Propagate lc_escalate inside mubi escalate
     
-    When running in EDN entropy mode, software can manually request the
-    entropy to be refreshed from EDN.
-    
-    If instead running in SW entropy mode, SW provides the entropy via CSRs.
-    SW is still able to request the entropy to be refreshed. Prior to this
-    commit, the design would then go into the StRandEdn state and request
-    fresh entropy from EDN, but the entropy received from EDN would be
-    ignored. Instead, the LFSR would be reseeded using the value provided by
-    SW via CSRs. If SW "forgot" to update the CSRs, the LFSR
-    would be reseeded using the same value. This is a bit counter-intuitive
-    and can be exploitet for SCA. It's safer to just ignore these requests
-    when running in SW entropy mode.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
