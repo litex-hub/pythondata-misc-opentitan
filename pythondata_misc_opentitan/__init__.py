@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11383"
-version_tuple = (0, 0, 11383)
+version_str = "0.0.post11386"
+version_tuple = (0, 0, 11386)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11383")
+    pversion = V("0.0.post11386")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11257"
-data_version_tuple = (0, 0, 11257)
+data_version_str = "0.0.post11260"
+data_version_tuple = (0, 0, 11260)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11257")
+    pdata_version = V("0.0.post11260")
 except ImportError:
     pass
-data_git_hash = "6d2f7e6e4a7e66787f23e04b954eb98e2f92c3d4"
-data_git_describe = "v0.0-11257-g6d2f7e6e4"
+data_git_hash = "883cd83d3699869fd8471885df5c073c928acc24"
+data_git_describe = "v0.0-11260-g883cd83d3"
 data_git_msg = """\
-commit 6d2f7e6e4a7e66787f23e04b954eb98e2f92c3d4
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Apr 4 17:25:03 2022 -0700
+commit 883cd83d3699869fd8471885df5c073c928acc24
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Mar 30 14:43:45 2022 -0400
 
-    [adc_ctrl] Fix adc interrupt synchronization
+    [meson] Specify that riscv_compliance_support should not be ported
     
-    - fixes #11759
-    - switch to prim_reqack instead of prim_pulse_sync
-    - since many events can occur during low power, split
-      the sync source into staging and request.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
