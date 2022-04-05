@@ -4,35 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11361"
-version_tuple = (0, 0, 11361)
+version_str = "0.0.post11364"
+version_tuple = (0, 0, 11364)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11361")
+    pversion = V("0.0.post11364")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11235"
-data_version_tuple = (0, 0, 11235)
+data_version_str = "0.0.post11238"
+data_version_tuple = (0, 0, 11238)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11235")
+    pdata_version = V("0.0.post11238")
 except ImportError:
     pass
-data_git_hash = "07206099527e1a373ffdff48b7921293095b4db6"
-data_git_describe = "v0.0-11235-g072060995"
+data_git_hash = "faab4c52b820fc5121890174e512c23b61b9a722"
+data_git_describe = "v0.0-11238-gfaab4c52b"
 data_git_msg = """\
-commit 07206099527e1a373ffdff48b7921293095b4db6
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Fri Apr 1 16:07:27 2022 -0700
+commit faab4c52b820fc5121890174e512c23b61b9a722
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Apr 4 15:22:34 2022 -0700
 
-    [opentitantool] Add timestamps to console output
+    [dv/otp_ctrl] Improve FSM coverage
     
-    1. When requested via the `--timestamp` flag, each line of console output
-       will include the time that it was emitted.
+    This PR improves the FSM cov with the following updates:
+    1). Add support in smoke test to issue reset during pwr_init.
+        This targets to hit FSM cov from init states to reset states.
+    2). Move `apply_resets_concurrently` override to common_vseq because it
+        only common tests need this override.
+    3). Remove the constraints about ECC correctable errors and timeout
+        error. I believe scb can handle both cases.
+    4). Remove the pre-conditions to write ral.check_timeout register.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
