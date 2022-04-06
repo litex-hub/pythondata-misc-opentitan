@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11390"
-version_tuple = (0, 0, 11390)
+version_str = "0.0.post11391"
+version_tuple = (0, 0, 11391)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11390")
+    pversion = V("0.0.post11391")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11264"
-data_version_tuple = (0, 0, 11264)
+data_version_str = "0.0.post11265"
+data_version_tuple = (0, 0, 11265)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11264")
+    pdata_version = V("0.0.post11265")
 except ImportError:
     pass
-data_git_hash = "f8256d0b953b28646716cc17d091b9304b76dcc7"
-data_git_describe = "v0.0-11264-gf8256d0b9"
+data_git_hash = "75082fb5a6a92ec58d7adfb9abf7bfacb26f87c7"
+data_git_describe = "v0.0-11265-g75082fb5a"
 data_git_msg = """\
-commit f8256d0b953b28646716cc17d091b9304b76dcc7
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Thu Mar 31 07:09:11 2022 -0700
+commit 75082fb5a6a92ec58d7adfb9abf7bfacb26f87c7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Apr 4 10:52:33 2022 -0700
 
-    [entropy_src/rtl] Prevent interrupt status for data valid
+    [flash_ctrl] Incorporate flash disable into flash_exec
     
-    For the mode where the entropy read register is not being used,
-    the related FIFO state and interrupt status bits should be unchanging.
+    - also add handling for what happens if instr_type is invalid
+      This was previously handled as part of transmission integrity, but
+      it does not hurt to make it more explicit.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    - fixes #11883
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
