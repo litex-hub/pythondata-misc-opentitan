@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11409"
-version_tuple = (0, 0, 11409)
+version_str = "0.0.post11411"
+version_tuple = (0, 0, 11411)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11409")
+    pversion = V("0.0.post11411")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11283"
-data_version_tuple = (0, 0, 11283)
+data_version_str = "0.0.post11285"
+data_version_tuple = (0, 0, 11285)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11283")
+    pdata_version = V("0.0.post11285")
 except ImportError:
     pass
-data_git_hash = "96e13fe342572922d0c64b382561792d6c9b5b05"
-data_git_describe = "v0.0-11283-g96e13fe34"
+data_git_hash = "1c943840c6d489c8250deae8144d369ceb2c60e4"
+data_git_describe = "v0.0-11285-g1c943840c"
 data_git_msg = """\
-commit 96e13fe342572922d0c64b382561792d6c9b5b05
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Wed Oct 27 17:26:32 2021 -0400
+commit 1c943840c6d489c8250deae8144d369ceb2c60e4
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Mar 30 17:32:49 2022 -0700
 
-    [lib] Add constant-power-hardened mem*() function equivalents
+    [top, dv] Update keymgr key derivation test
     
-    These functions are carefully crafted to traverse buffers in random
-    order to thwart traditional power-analysis attacks, making the aggregate
-    behavior of calls to this function appear as if their power usage has
-    minimal dependency on the input.
+    1. added generating identity and SW data as well as checking them at SV
+    2. added generating sideload key for all interfaces and check them via
+       backdoor
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
