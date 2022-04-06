@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11406"
-version_tuple = (0, 0, 11406)
+version_str = "0.0.post11409"
+version_tuple = (0, 0, 11409)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11406")
+    pversion = V("0.0.post11409")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11280"
-data_version_tuple = (0, 0, 11280)
+data_version_str = "0.0.post11283"
+data_version_tuple = (0, 0, 11283)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11280")
+    pdata_version = V("0.0.post11283")
 except ImportError:
     pass
-data_git_hash = "a491a03422dbc4f381207910f00ca6507e0bf4a2"
-data_git_describe = "v0.0-11280-ga491a0342"
+data_git_hash = "96e13fe342572922d0c64b382561792d6c9b5b05"
+data_git_describe = "v0.0-11283-g96e13fe34"
 data_git_msg = """\
-commit a491a03422dbc4f381207910f00ca6507e0bf4a2
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Tue Mar 29 10:08:36 2022 +0100
+commit 96e13fe342572922d0c64b382561792d6c9b5b05
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Wed Oct 27 17:26:32 2021 -0400
 
-    [Otbn, dv] Added otbn_zero_state_err_urnd testcase
+    [lib] Add constant-power-hardened mem*() function equivalents
     
-    This commit adds otbn_zero_state_err_urnd testcase and all the necessary
-    changes required to run it.
+    These functions are carefully crafted to traverse buffers in random
+    order to thwart traditional power-analysis attacks, making the aggregate
+    behavior of calls to this function appear as if their power usage has
+    minimal dependency on the input.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
