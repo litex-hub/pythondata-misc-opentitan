@@ -85,3 +85,23 @@ test('base_hardened_unittest', executable(
   ),
   suite: 'base',
 )
+
+sw_lib_random_order = declare_dependency(
+  link_with: static_library(
+    'random_order_ot',
+    sources: ['random_order.c'],
+    dependencies: [sw_lib_bitfield],
+  )
+)
+
+sw_lib_hardened_memory = declare_dependency(
+  link_with: static_library(
+    'hardened_memory_ot',
+    sources: ['hardened_memory.c'],
+    dependencies: [
+      sw_lib_hardened,
+      sw_lib_random_order,
+      sw_lib_mem,
+    ],
+  )
+)
