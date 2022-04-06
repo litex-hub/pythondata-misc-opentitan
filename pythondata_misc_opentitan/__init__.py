@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11398"
-version_tuple = (0, 0, 11398)
+version_str = "0.0.post11401"
+version_tuple = (0, 0, 11401)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11398")
+    pversion = V("0.0.post11401")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11272"
-data_version_tuple = (0, 0, 11272)
+data_version_str = "0.0.post11275"
+data_version_tuple = (0, 0, 11275)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11272")
+    pdata_version = V("0.0.post11275")
 except ImportError:
     pass
-data_git_hash = "e0261d0cbeb6a0ff99500532b6784571b04297d3"
-data_git_describe = "v0.0-11272-ge0261d0cb"
+data_git_hash = "ba67a8a11681036fe10bb9f1188dc6e59f738e10"
+data_git_describe = "v0.0-11275-gba67a8a11"
 data_git_msg = """\
-commit e0261d0cbeb6a0ff99500532b6784571b04297d3
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Apr 5 16:42:06 2022 -0700
+commit ba67a8a11681036fe10bb9f1188dc6e59f738e10
+Author: Cindy Liu <hcindyl@google.com>
+Date:   Tue Apr 5 11:54:36 2022 -0700
 
-    [uart] Add assertions for constant output enables
+    Update lowrisc_misc-linters to lowRISC/misc-linters@22b6464
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Update code from upstream repository https://github.com/lowRISC/misc-
+    linters.git to revision 22b64646f079e00866930ed10ee547f81566ac94
+    
+    * Reformat licence-checker.py to satisfy yapf (Rupert Swarbrick)
+    * [licence-checker] Fix vlt checker syntax (Cindy Liu)
+    
+    Signed-off-by: Cindy Liu <hcindyl@google.com>
 
 """
 
