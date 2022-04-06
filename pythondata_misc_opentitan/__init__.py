@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11401"
-version_tuple = (0, 0, 11401)
+version_str = "0.0.post11403"
+version_tuple = (0, 0, 11403)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11401")
+    pversion = V("0.0.post11403")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11275"
-data_version_tuple = (0, 0, 11275)
+data_version_str = "0.0.post11277"
+data_version_tuple = (0, 0, 11277)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11275")
+    pdata_version = V("0.0.post11277")
 except ImportError:
     pass
-data_git_hash = "ba67a8a11681036fe10bb9f1188dc6e59f738e10"
-data_git_describe = "v0.0-11275-gba67a8a11"
+data_git_hash = "e321840afe2d4b7fd62e8c0493392a64e942a6f2"
+data_git_describe = "v0.0-11277-ge321840af"
 data_git_msg = """\
-commit ba67a8a11681036fe10bb9f1188dc6e59f738e10
-Author: Cindy Liu <hcindyl@google.com>
-Date:   Tue Apr 5 11:54:36 2022 -0700
+commit e321840afe2d4b7fd62e8c0493392a64e942a6f2
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Wed Apr 6 11:30:26 2022 +0100
 
-    Update lowrisc_misc-linters to lowRISC/misc-linters@22b6464
+    [otbn, dv] Fixes regression failures in otbn_sec_cm
     
-    Update code from upstream repository https://github.com/lowRISC/misc-
-    linters.git to revision 22b64646f079e00866930ed10ee547f81566ac94
+    This commit turns off StartStopStateValid assertion when fsm errors are
+    injected.
     
-    * Reformat licence-checker.py to satisfy yapf (Rupert Swarbrick)
-    * [licence-checker] Fix vlt checker syntax (Cindy Liu)
-    
-    Signed-off-by: Cindy Liu <hcindyl@google.com>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
