@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11422"
-version_tuple = (0, 0, 11422)
+version_str = "0.0.post11423"
+version_tuple = (0, 0, 11423)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11422")
+    pversion = V("0.0.post11423")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11296"
-data_version_tuple = (0, 0, 11296)
+data_version_str = "0.0.post11297"
+data_version_tuple = (0, 0, 11297)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11296")
+    pdata_version = V("0.0.post11297")
 except ImportError:
     pass
-data_git_hash = "28fff3babc12cda189798d0b51706c0b73b123a0"
-data_git_describe = "v0.0-11296-g28fff3bab"
+data_git_hash = "d8b2ed5accf591796a58e0a428ae9670e74d5646"
+data_git_describe = "v0.0-11297-gd8b2ed5ac"
 data_git_msg = """\
-commit 28fff3babc12cda189798d0b51706c0b73b123a0
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Wed Apr 6 14:28:55 2022 +0100
+commit d8b2ed5accf591796a58e0a428ae9670e74d5646
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Apr 6 14:31:12 2022 -0700
 
-    [sysrst_ctrl,dv] Remove CSR excl for KEY_INTR_STATUS register
+    [flash, dv] Fix CI failures
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Due to merging of these 2 PR - #11823 and #11770
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
