@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11403"
-version_tuple = (0, 0, 11403)
+version_str = "0.0.post11406"
+version_tuple = (0, 0, 11406)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11403")
+    pversion = V("0.0.post11406")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11277"
-data_version_tuple = (0, 0, 11277)
+data_version_str = "0.0.post11280"
+data_version_tuple = (0, 0, 11280)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11277")
+    pdata_version = V("0.0.post11280")
 except ImportError:
     pass
-data_git_hash = "e321840afe2d4b7fd62e8c0493392a64e942a6f2"
-data_git_describe = "v0.0-11277-ge321840af"
+data_git_hash = "a491a03422dbc4f381207910f00ca6507e0bf4a2"
+data_git_describe = "v0.0-11280-ga491a0342"
 data_git_msg = """\
-commit e321840afe2d4b7fd62e8c0493392a64e942a6f2
+commit a491a03422dbc4f381207910f00ca6507e0bf4a2
 Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Wed Apr 6 11:30:26 2022 +0100
+Date:   Tue Mar 29 10:08:36 2022 +0100
 
-    [otbn, dv] Fixes regression failures in otbn_sec_cm
+    [Otbn, dv] Added otbn_zero_state_err_urnd testcase
     
-    This commit turns off StartStopStateValid assertion when fsm errors are
-    injected.
+    This commit adds otbn_zero_state_err_urnd testcase and all the necessary
+    changes required to run it.
     
     Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
