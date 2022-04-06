@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11411"
-version_tuple = (0, 0, 11411)
+version_str = "0.0.post11412"
+version_tuple = (0, 0, 11412)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11411")
+    pversion = V("0.0.post11412")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11285"
-data_version_tuple = (0, 0, 11285)
+data_version_str = "0.0.post11286"
+data_version_tuple = (0, 0, 11286)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11285")
+    pdata_version = V("0.0.post11286")
 except ImportError:
     pass
-data_git_hash = "1c943840c6d489c8250deae8144d369ceb2c60e4"
-data_git_describe = "v0.0-11285-g1c943840c"
+data_git_hash = "b6a4941afece4e4bbde47e4ff688e5b61fc863df"
+data_git_describe = "v0.0-11286-gb6a4941af"
 data_git_msg = """\
-commit 1c943840c6d489c8250deae8144d369ceb2c60e4
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Mar 30 17:32:49 2022 -0700
+commit b6a4941afece4e4bbde47e4ff688e5b61fc863df
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Mon Apr 4 14:21:46 2022 -0400
 
-    [top, dv] Update keymgr key derivation test
+    [bazel] Bazelize the example BL0
     
-    1. added generating identity and SW data as well as checking them at SV
-    2. added generating sideload key for all interfaces and check them via
-       backdoor
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
