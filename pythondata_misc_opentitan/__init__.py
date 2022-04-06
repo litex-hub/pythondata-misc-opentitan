@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11412"
-version_tuple = (0, 0, 11412)
+version_str = "0.0.post11413"
+version_tuple = (0, 0, 11413)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11412")
+    pversion = V("0.0.post11413")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11286"
-data_version_tuple = (0, 0, 11286)
+data_version_str = "0.0.post11287"
+data_version_tuple = (0, 0, 11287)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11286")
+    pdata_version = V("0.0.post11287")
 except ImportError:
     pass
-data_git_hash = "b6a4941afece4e4bbde47e4ff688e5b61fc863df"
-data_git_describe = "v0.0-11286-gb6a4941af"
+data_git_hash = "cf481314d04ddbce59da70a0fd02d77a50c1e5f9"
+data_git_describe = "v0.0-11287-gcf481314d"
 data_git_msg = """\
-commit b6a4941afece4e4bbde47e4ff688e5b61fc863df
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Mon Apr 4 14:21:46 2022 -0400
+commit cf481314d04ddbce59da70a0fd02d77a50c1e5f9
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Tue Mar 29 16:46:14 2022 +0100
 
-    [bazel] Bazelize the example BL0
+    [flash_ctrl] ADD SCOREBOARD ERASE PREDICTION
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Add Scoreboard erase prediction. Add support for update memory
+    in scoreboard when backdoor write is initiated. Moved mem model
+    from scb to cfg. Replaced redundancy with info2 partition.
+    
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
