@@ -4,37 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11428"
-version_tuple = (0, 0, 11428)
+version_str = "0.0.post11431"
+version_tuple = (0, 0, 11431)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11428")
+    pversion = V("0.0.post11431")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11302"
-data_version_tuple = (0, 0, 11302)
+data_version_str = "0.0.post11305"
+data_version_tuple = (0, 0, 11305)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11302")
+    pdata_version = V("0.0.post11305")
 except ImportError:
     pass
-data_git_hash = "7c3843df31022bcbc11c53f5dbed9002276899a0"
-data_git_describe = "v0.0-11302-g7c3843df3"
+data_git_hash = "b352f3d54d2133fcd02f5bb2b5e16d77c522dafd"
+data_git_describe = "v0.0-11305-gb352f3d54"
 data_git_msg = """\
-commit 7c3843df31022bcbc11c53f5dbed9002276899a0
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Apr 5 17:07:32 2022 +0100
+commit b352f3d54d2133fcd02f5bb2b5e16d77c522dafd
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed Apr 6 16:51:47 2022 +0100
 
-    [host,test] Fix broken test in host tools.
+    [otbn,rtl] Use err_bits, not err_bits_q for alerts[AlertFatal]
     
-    When trying to test out a new change I found that this test was actually
-    broken on master; it's a pretty straightforward fix. The test was
-    assuming the identifier field is at the start of the manifest; filling
-    in the identifier field's actual offset fixed the test.
+    This fixes a bug introduced by 75885e6 where we'd only generate fatal
+    alerts when an operation finished. One problem with this is that
+    secure wipe takes ~100 cycles, so delays the alert. Another (more
+    serious) problem is that it means alerts are squashed altogether when
+    OTBN isn't running.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Note that the timing of alerts[AlertFatal] now matches that of the
+    FATAL_ALERT_CAUSE register, which should make a bit more sense.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
