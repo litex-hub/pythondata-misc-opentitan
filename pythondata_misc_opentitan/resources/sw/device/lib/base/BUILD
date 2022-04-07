@@ -72,7 +72,9 @@ cc_library(
     # This library defines memcpy(), so we can't have LLVM rewriting memcpy
     # into a call to itself.
     copts = ["-fno-builtin"],
-    deps = [":macros"],
+    deps = [
+        ":macros",
+    ],
 )
 
 cc_library(
@@ -126,7 +128,6 @@ cc_test(
         "@googletest//:gtest_main",
     ],
 )
-
 
 # TODO: Until Meson is removed, these files need to stay in a different
 # directory, but eventually they will be hoisted to live alongside the
