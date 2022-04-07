@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11443"
-version_tuple = (0, 0, 11443)
+version_str = "0.0.post11445"
+version_tuple = (0, 0, 11445)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11443")
+    pversion = V("0.0.post11445")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11317"
-data_version_tuple = (0, 0, 11317)
+data_version_str = "0.0.post11319"
+data_version_tuple = (0, 0, 11319)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11317")
+    pdata_version = V("0.0.post11319")
 except ImportError:
     pass
-data_git_hash = "4fb312398fa32b5a92bb8f1e3b72d120aa21d01c"
-data_git_describe = "v0.0-11317-g4fb312398"
+data_git_hash = "b670be80eefb83408568167c82c3f2dd255adcdd"
+data_git_describe = "v0.0-11319-gb670be80e"
 data_git_msg = """\
-commit 4fb312398fa32b5a92bb8f1e3b72d120aa21d01c
-Author: Luís Marques <luismarques@lowrisc.org>
-Date:   Mon Mar 28 10:24:13 2022 +0200
+commit b670be80eefb83408568167c82c3f2dd255adcdd
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Wed Apr 6 21:34:26 2022 -0700
 
-    [sw] Cleanup Meson configuration files
+    [lc_ctrl] Add more details to countermeasure testplan
     
-    - Add comments to meson-config.txt
-    - Remove legacy toolchain.txt
+    This addresses #11731 and #11919.
     
-    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
