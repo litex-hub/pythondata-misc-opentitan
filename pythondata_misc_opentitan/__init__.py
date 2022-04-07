@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11435"
-version_tuple = (0, 0, 11435)
+version_str = "0.0.post11443"
+version_tuple = (0, 0, 11443)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11435")
+    pversion = V("0.0.post11443")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11309"
-data_version_tuple = (0, 0, 11309)
+data_version_str = "0.0.post11317"
+data_version_tuple = (0, 0, 11317)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11309")
+    pdata_version = V("0.0.post11317")
 except ImportError:
     pass
-data_git_hash = "8339519c379ad270bd2a091522ec564b08ebc41e"
-data_git_describe = "v0.0-11309-g8339519c3"
+data_git_hash = "4fb312398fa32b5a92bb8f1e3b72d120aa21d01c"
+data_git_describe = "v0.0-11317-g4fb312398"
 data_git_msg = """\
-commit 8339519c379ad270bd2a091522ec564b08ebc41e
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Apr 7 10:45:05 2022 +0100
+commit 4fb312398fa32b5a92bb8f1e3b72d120aa21d01c
+Author: Luís Marques <luismarques@lowrisc.org>
+Date:   Mon Mar 28 10:24:13 2022 +0200
 
-    [python] Bump fusesoc/edalize versions
+    [sw] Cleanup Meson configuration files
     
-    These don't really introduce new functionality. The ot-0.2 release of
-    fusesoc is essentially the same as ot-0.1, but rebased onto a more
-    recent upstream fusesoc release.
+    - Add comments to meson-config.txt
+    - Remove legacy toolchain.txt
     
-    The ot-0.2 edalize tag points at a recent upstream version plus a
-    minor bugfix that we need (which we'll try to upstream soon).
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
 
 """
 
