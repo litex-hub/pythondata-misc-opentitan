@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11454"
-version_tuple = (0, 0, 11454)
+version_str = "0.0.post11455"
+version_tuple = (0, 0, 11455)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11454")
+    pversion = V("0.0.post11455")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11328"
-data_version_tuple = (0, 0, 11328)
+data_version_str = "0.0.post11329"
+data_version_tuple = (0, 0, 11329)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11328")
+    pdata_version = V("0.0.post11329")
 except ImportError:
     pass
-data_git_hash = "8920b8c692b1aa305099e97914621f7cb9a76552"
-data_git_describe = "v0.0-11328-g8920b8c69"
+data_git_hash = "8c541f41068f90b64bee9edc00f850a14bf1e82e"
+data_git_describe = "v0.0-11329-g8c541f410"
 data_git_msg = """\
-commit 8920b8c692b1aa305099e97914621f7cb9a76552
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Apr 6 15:25:49 2022 -0700
+commit 8c541f41068f90b64bee9edc00f850a14bf1e82e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Apr 6 15:41:27 2022 -0700
 
-    [pinmux] Update DIF checklist showing completion
+    [kmac] Add regwen to prefix and key registers for kmac
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    - this ensures these values cannot change during an operation
+    - addresses #11751
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
