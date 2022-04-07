@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11452"
-version_tuple = (0, 0, 11452)
+version_str = "0.0.post11454"
+version_tuple = (0, 0, 11454)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11452")
+    pversion = V("0.0.post11454")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11326"
-data_version_tuple = (0, 0, 11326)
+data_version_str = "0.0.post11328"
+data_version_tuple = (0, 0, 11328)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11326")
+    pdata_version = V("0.0.post11328")
 except ImportError:
     pass
-data_git_hash = "faa725270416aeb5a0de5f28dc2bb37397d443f0"
-data_git_describe = "v0.0-11326-gfaa725270"
+data_git_hash = "8920b8c692b1aa305099e97914621f7cb9a76552"
+data_git_describe = "v0.0-11328-g8920b8c69"
 data_git_msg = """\
-commit faa725270416aeb5a0de5f28dc2bb37397d443f0
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Apr 5 10:41:14 2022 -0400
+commit 8920b8c692b1aa305099e97914621f7cb9a76552
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Apr 6 15:25:49 2022 -0700
 
-    [sw/silicon_creator] Configure the bootstrap pin only if enabled in OTP
+    [pinmux] Update DIF checklist showing completion
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
