@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11449"
-version_tuple = (0, 0, 11449)
+version_str = "0.0.post11452"
+version_tuple = (0, 0, 11452)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11449")
+    pversion = V("0.0.post11452")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11323"
-data_version_tuple = (0, 0, 11323)
+data_version_str = "0.0.post11326"
+data_version_tuple = (0, 0, 11326)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11323")
+    pdata_version = V("0.0.post11326")
 except ImportError:
     pass
-data_git_hash = "6fa56cff07af3bcaad0a411bb4e47c09232d85f5"
-data_git_describe = "v0.0-11323-g6fa56cff0"
+data_git_hash = "faa725270416aeb5a0de5f28dc2bb37397d443f0"
+data_git_describe = "v0.0-11326-gfaa725270"
 data_git_msg = """\
-commit 6fa56cff07af3bcaad0a411bb4e47c09232d85f5
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Apr 6 22:23:25 2022 -0700
+commit faa725270416aeb5a0de5f28dc2bb37397d443f0
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Apr 5 10:41:14 2022 -0400
 
-    [top, dv] Fix bootstrap test
+    [sw/silicon_creator] Configure the bootstrap pin only if enabled in OTP
     
-    It takes more time to process a frame of data, fixed TB sending SPI data
-    too fast.
-    Changed to wait for a message from SW to know the frame processed is
-    done.
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
