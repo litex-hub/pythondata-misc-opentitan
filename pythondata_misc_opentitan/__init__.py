@@ -4,32 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11426"
-version_tuple = (0, 0, 11426)
+version_str = "0.0.post11427"
+version_tuple = (0, 0, 11427)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11426")
+    pversion = V("0.0.post11427")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11300"
-data_version_tuple = (0, 0, 11300)
+data_version_str = "0.0.post11301"
+data_version_tuple = (0, 0, 11301)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11300")
+    pdata_version = V("0.0.post11301")
 except ImportError:
     pass
-data_git_hash = "8e486b17ac5821a80db6e0b7d624e0ffaa450b52"
-data_git_describe = "v0.0-11300-g8e486b17a"
+data_git_hash = "88109a0f8955bab1949fc4e000a7488802ace242"
+data_git_describe = "v0.0-11301-g88109a0f8"
 data_git_msg = """\
-commit 8e486b17ac5821a80db6e0b7d624e0ffaa450b52
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Tue Apr 5 22:35:10 2022 +0200
+commit 88109a0f8955bab1949fc4e000a7488802ace242
+Author: Cindy Liu <hcindyl@google.com>
+Date:   Wed Mar 30 19:19:24 2022 -0700
 
-    [aes] Add missing countermeasure labels to RTL
+    [ipgen, rv_plic] Enable specific module_instance_name for multiple plic groups
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Current ipgen for rv_plic only allow a single rv_plic group, and
+    generate the `ip_autogen` based on the template name. Adding a field in
+    the parameter `module_instance_name` to allow more plic groups to be
+    generated.
+    
+    To support this, all the non-template files in `hw/ip_templates/rv_plic`
+    (except docs) are converted to mako template files.
+    
+    It is a no-op for top_earlgrey, with the slight EOF newline change from
+    the generated files.
+    
+    Signed-off-by: Cindy Liu <hcindyl@google.com>
 
 """
 
