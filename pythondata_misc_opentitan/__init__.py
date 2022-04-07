@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11431"
-version_tuple = (0, 0, 11431)
+version_str = "0.0.post11433"
+version_tuple = (0, 0, 11433)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11431")
+    pversion = V("0.0.post11433")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11305"
-data_version_tuple = (0, 0, 11305)
+data_version_str = "0.0.post11307"
+data_version_tuple = (0, 0, 11307)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11305")
+    pdata_version = V("0.0.post11307")
 except ImportError:
     pass
-data_git_hash = "b352f3d54d2133fcd02f5bb2b5e16d77c522dafd"
-data_git_describe = "v0.0-11305-gb352f3d54"
+data_git_hash = "944fb14cbe71149448dbb58a6d3e2f0cf43d6b00"
+data_git_describe = "v0.0-11307-g944fb14cb"
 data_git_msg = """\
-commit b352f3d54d2133fcd02f5bb2b5e16d77c522dafd
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed Apr 6 16:51:47 2022 +0100
+commit 944fb14cbe71149448dbb58a6d3e2f0cf43d6b00
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Thu Apr 7 11:22:51 2022 +0100
 
-    [otbn,rtl] Use err_bits, not err_bits_q for alerts[AlertFatal]
+    [otbn, dv] Fixed regression issue in otbn_stress_all_with_rand_reset
     
-    This fixes a bug introduced by 75885e6 where we'd only generate fatal
-    alerts when an operation finished. One problem with this is that
-    secure wipe takes ~100 cycles, so delays the alert. Another (more
-    serious) problem is that it means alerts are squashed altogether when
-    OTBN isn't running.
+    If a reset is asserted when elf file is getting loaded, the sequence
+    waits for reset to get de-asserted before executing run_otbn task.
     
-    Note that the timing of alerts[AlertFatal] now matches that of the
-    FATAL_ALERT_CAUSE register, which should make a bit more sense.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
