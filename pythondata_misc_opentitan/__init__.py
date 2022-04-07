@@ -4,43 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11427"
-version_tuple = (0, 0, 11427)
+version_str = "0.0.post11428"
+version_tuple = (0, 0, 11428)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11427")
+    pversion = V("0.0.post11428")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11301"
-data_version_tuple = (0, 0, 11301)
+data_version_str = "0.0.post11302"
+data_version_tuple = (0, 0, 11302)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11301")
+    pdata_version = V("0.0.post11302")
 except ImportError:
     pass
-data_git_hash = "88109a0f8955bab1949fc4e000a7488802ace242"
-data_git_describe = "v0.0-11301-g88109a0f8"
+data_git_hash = "7c3843df31022bcbc11c53f5dbed9002276899a0"
+data_git_describe = "v0.0-11302-g7c3843df3"
 data_git_msg = """\
-commit 88109a0f8955bab1949fc4e000a7488802ace242
-Author: Cindy Liu <hcindyl@google.com>
-Date:   Wed Mar 30 19:19:24 2022 -0700
+commit 7c3843df31022bcbc11c53f5dbed9002276899a0
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Apr 5 17:07:32 2022 +0100
 
-    [ipgen, rv_plic] Enable specific module_instance_name for multiple plic groups
+    [host,test] Fix broken test in host tools.
     
-    Current ipgen for rv_plic only allow a single rv_plic group, and
-    generate the `ip_autogen` based on the template name. Adding a field in
-    the parameter `module_instance_name` to allow more plic groups to be
-    generated.
+    When trying to test out a new change I found that this test was actually
+    broken on master; it's a pretty straightforward fix. The test was
+    assuming the identifier field is at the start of the manifest; filling
+    in the identifier field's actual offset fixed the test.
     
-    To support this, all the non-template files in `hw/ip_templates/rv_plic`
-    (except docs) are converted to mako template files.
-    
-    It is a no-op for top_earlgrey, with the slight EOF newline change from
-    the generated files.
-    
-    Signed-off-by: Cindy Liu <hcindyl@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
