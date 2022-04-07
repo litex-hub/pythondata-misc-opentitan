@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11433"
-version_tuple = (0, 0, 11433)
+version_str = "0.0.post11435"
+version_tuple = (0, 0, 11435)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11433")
+    pversion = V("0.0.post11435")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11307"
-data_version_tuple = (0, 0, 11307)
+data_version_str = "0.0.post11309"
+data_version_tuple = (0, 0, 11309)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11307")
+    pdata_version = V("0.0.post11309")
 except ImportError:
     pass
-data_git_hash = "944fb14cbe71149448dbb58a6d3e2f0cf43d6b00"
-data_git_describe = "v0.0-11307-g944fb14cb"
+data_git_hash = "8339519c379ad270bd2a091522ec564b08ebc41e"
+data_git_describe = "v0.0-11309-g8339519c3"
 data_git_msg = """\
-commit 944fb14cbe71149448dbb58a6d3e2f0cf43d6b00
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Thu Apr 7 11:22:51 2022 +0100
+commit 8339519c379ad270bd2a091522ec564b08ebc41e
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu Apr 7 10:45:05 2022 +0100
 
-    [otbn, dv] Fixed regression issue in otbn_stress_all_with_rand_reset
+    [python] Bump fusesoc/edalize versions
     
-    If a reset is asserted when elf file is getting loaded, the sequence
-    waits for reset to get de-asserted before executing run_otbn task.
+    These don't really introduce new functionality. The ot-0.2 release of
+    fusesoc is essentially the same as ot-0.1, but rebased onto a more
+    recent upstream fusesoc release.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    The ot-0.2 edalize tag points at a recent upstream version plus a
+    minor bugfix that we need (which we'll try to upstream soon).
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
