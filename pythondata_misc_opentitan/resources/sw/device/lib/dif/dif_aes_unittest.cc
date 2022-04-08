@@ -24,23 +24,27 @@ using testing::Test;
 // Base class for the rest fixtures in this file.
 class AesTest : public testing::Test, public mock_mmio::MmioTest {
  public:
-  void SetExpectedKey(const dif_aes_key_share_t &key, uint32_t key_size) {
-    for (uint32_t i = 0; i < key_size; ++i) {
-      ptrdiff_t offset = AES_KEY_SHARE0_0_REG_OFFSET + (i * sizeof(uint32_t));
-      EXPECT_WRITE32(offset, key.share0[i]);
-    }
-
-    for (uint32_t i = 0; i < key_size; ++i) {
-      ptrdiff_t offset = AES_KEY_SHARE1_0_REG_OFFSET + (i * sizeof(uint32_t));
-      EXPECT_WRITE32(offset, key.share1[i]);
+  void ExpectReadMultreg(const uint32_t reg, const uint32_t *data,
+                         size_t size) {
+    for (uint32_t i = 0; i < size; ++i) {
+      ptrdiff_t offset = reg + (i * sizeof(uint32_t));
+      EXPECT_READ32(offset, data[i]);
     }
   }
-
-  void SetExpectedIv(const dif_aes_iv_t &iv, const uint32_t kIvSize = 4) {
-    for (uint32_t i = 0; i < kIvSize; ++i) {
-      ptrdiff_t offset = AES_IV_0_REG_OFFSET + (i * sizeof(uint32_t));
-      EXPECT_WRITE32(offset, iv.iv[i]);
+  void ExpectWriteMultreg(const uint32_t reg, const uint32_t *data,
+                          size_t size) {
+    for (uint32_t i = 0; i < size; ++i) {
+      ptrdiff_t offset = reg + (i * sizeof(uint32_t));
+      EXPECT_WRITE32(offset, data[i]);
     }
+  }
+  void ExpectKey(const dif_aes_key_share_t &key, uint32_t key_size) {
+    ExpectWriteMultreg(AES_KEY_SHARE0_0_REG_OFFSET, key.share0, key_size);
+    ExpectWriteMultreg(AES_KEY_SHARE1_0_REG_OFFSET, key.share1, key_size);
+  }
+
+  void ExpectIv(const dif_aes_iv_t &iv, const uint32_t kIvSize = 4) {
+    ExpectWriteMultreg(AES_IV_0_REG_OFFSET, iv.iv, kIvSize);
   }
 
   struct ConfigOptions {
@@ -53,7 +57,7 @@ class AesTest : public testing::Test, public mock_mmio::MmioTest {
     bool key_sideloaded = false;
   };
 
-  void SetExpectedConfig(const ConfigOptions &options) {
+  void ExpectConfig(const ConfigOptions &options) {
     EXPECT_WRITE32_SHADOWED(
         AES_CTRL_SHADOWED_REG_OFFSET,
         {{AES_CTRL_SHADOWED_KEY_LEN_OFFSET, options.key_len},
@@ -69,7 +73,7 @@ class AesTest : public testing::Test, public mock_mmio::MmioTest {
     bool reseed_on_key_change = false;
     bool lock = false;
   };
-  void SetExpectedAuxConfig(const AuxConfigOptions &options) {
+  void ExpectAuxConfig(const AuxConfigOptions &options) {
     EXPECT_READ32(AES_CTRL_AUX_REGWEN_REG_OFFSET,
                   {{AES_CTRL_AUX_REGWEN_CTRL_AUX_REGWEN_BIT, 1}});
 
@@ -129,16 +133,16 @@ class EcbTest : public AesTestInitialized {
 
 TEST_F(EcbTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 class CbcTest : public AesTestInitialized {
@@ -148,15 +152,15 @@ class CbcTest : public AesTestInitialized {
 
 TEST_F(CbcTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_CBC,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
-  SetExpectedIv(kIv);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
+  ExpectIv(kIv);
 
   EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, &kIv));
 }
@@ -169,15 +173,15 @@ class CFBTest : public AesTestInitialized {
 
 TEST_F(CFBTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_CFB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
-  SetExpectedIv(kIv);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
+  ExpectIv(kIv);
 
   EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, &kIv));
 }
@@ -190,15 +194,15 @@ class OFBTest : public AesTestInitialized {
 
 TEST_F(OFBTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_OFB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
-  SetExpectedIv(kIv);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
+  ExpectIv(kIv);
 
   EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, &kIv));
 }
@@ -211,15 +215,15 @@ class CTRTest : public AesTestInitialized {
 
 TEST_F(CTRTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_CTR,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
-  SetExpectedIv(kIv);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
+  ExpectIv(kIv);
 
   EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, &kIv));
 }
@@ -235,16 +239,16 @@ class DecryptTest : public AesTestInitialized {
 
 TEST_F(DecryptTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_DEC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Key size test.
@@ -255,16 +259,16 @@ class Key192Test : public AesTestInitialized {
 
 TEST_F(Key192Test, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_192,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Key size test.
@@ -275,16 +279,16 @@ class Key256Test : public AesTestInitialized {
 
 TEST_F(Key256Test, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_256,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Manual operation
@@ -297,17 +301,17 @@ class ManualOperationTest : public AesTestInitialized {
 
 TEST_F(ManualOperationTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
       .manual_op = true,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Zero masking
@@ -318,17 +322,17 @@ class ZeroMaskingTest : public AesTestInitialized {
 
 TEST_F(ZeroMaskingTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
       .force_zero_masks = true,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
 
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Alert test.
@@ -360,10 +364,8 @@ class DataTest : public AesTestInitialized {
 TEST_F(DataTest, DataIn) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_INPUT_READY_BIT, true}});
 
-  for (uint32_t i = 0; i < ARRAYSIZE(data_.data); i++) {
-    ptrdiff_t offset = AES_DATA_IN_0_REG_OFFSET + (i * sizeof(uint32_t));
-    EXPECT_WRITE32(offset, data_.data[i]);
-  }
+  ExpectWriteMultreg(AES_DATA_IN_0_REG_OFFSET, data_.data,
+                     ARRAYSIZE(data_.data));
 
   EXPECT_DIF_OK(dif_aes_load_data(&aes_, data_));
 }
@@ -374,10 +376,8 @@ TEST_F(DataTest, DataOut) {
                                            {AES_STATUS_OUTPUT_VALID_BIT, true},
                                        });
 
-  for (uint32_t i = 0; i < ARRAYSIZE(data_.data); ++i) {
-    ptrdiff_t offset = AES_DATA_OUT_0_REG_OFFSET + (i * sizeof(uint32_t));
-    EXPECT_READ32(offset, data_.data[i]);
-  }
+  ExpectReadMultreg(AES_DATA_OUT_0_REG_OFFSET, data_.data,
+                    ARRAYSIZE(data_.data));
 
   dif_aes_data_t out;
   EXPECT_DIF_OK(dif_aes_read_output(&aes_, &out));
@@ -385,17 +385,78 @@ TEST_F(DataTest, DataOut) {
   EXPECT_THAT(out.data, ElementsAreArray(data_.data));
 }
 
+class DataProcessTest : public AesTestInitialized {
+ protected:
+  static constexpr size_t kBlockCount = 3;
+  static constexpr size_t kBlockSize = 4;
+  static constexpr dif_aes_data_t kDataIn[kBlockCount] = {
+      {.data = {0xA55AA55A, 0xA55AA55A, 0xA55AA55A, 0xA55AA55A}},
+      {.data = {0x5AA5A55A, 0x5AA5A55A, 0x5AA5A55A, 0x5AA5A55A}},
+      {.data = {0xA55AA55A, 0xA55AA55A, 0xA55AA55A, 0xA55AA55A}},
+  };
+
+  static constexpr dif_aes_data_t kDataOut[kBlockCount] = {
+      {.data = {0xB44BB44B, 0xB44BB44B, 0xB44BB44B, 0xB44BB44B}},
+      {.data = {0x4BB4B44B, 0x4BB4B44B, 0x4BB4B44B, 0x4BB4B44B}},
+      {.data = {0xB44BB44B, 0xB44BB44B, 0xB44BB44B, 0xB44BB44B}},
+  };
+};
+constexpr size_t DataProcessTest::kBlockCount;
+constexpr size_t DataProcessTest::kBlockSize;
+constexpr dif_aes_data_t DataProcessTest::kDataIn[kBlockCount];
+constexpr dif_aes_data_t DataProcessTest::kDataOut[kBlockCount];
+
+TEST_F(DataProcessTest, ThreeBlocksSuccess) {
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_INPUT_READY_BIT, true},
+                                        {AES_STATUS_OUTPUT_VALID_BIT, true}});
+
+  ExpectWriteMultreg(AES_DATA_IN_0_REG_OFFSET, kDataIn[0].data, kBlockSize);
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_INPUT_READY_BIT, true}});
+
+  ExpectWriteMultreg(AES_DATA_IN_0_REG_OFFSET, kDataIn[1].data, kBlockSize);
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_OUTPUT_VALID_BIT, true}});
+  ExpectReadMultreg(AES_DATA_OUT_0_REG_OFFSET, kDataOut[0].data, kBlockSize);
+
+  ExpectWriteMultreg(AES_DATA_IN_0_REG_OFFSET, kDataIn[2].data, kBlockSize);
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_OUTPUT_VALID_BIT, true}});
+  ExpectReadMultreg(AES_DATA_OUT_0_REG_OFFSET, kDataOut[1].data, kBlockSize);
+
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_OUTPUT_VALID_BIT, true}});
+  ExpectReadMultreg(AES_DATA_OUT_0_REG_OFFSET, kDataOut[2].data, kBlockSize);
+
+  dif_aes_data_t out[kBlockCount];
+  EXPECT_DIF_OK(dif_aes_process_data(&aes_, kDataIn, out, kBlockCount));
+
+  for (int i = 0; i < kBlockCount; ++i) {
+    EXPECT_THAT(out[i].data, ElementsAreArray(kDataOut[i].data));
+  }
+}
+
+TEST_F(DataProcessTest, OneBlockSuccess) {
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_INPUT_READY_BIT, true}});
+  ExpectWriteMultreg(AES_DATA_IN_0_REG_OFFSET, kDataIn[0].data, kBlockSize);
+
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_OUTPUT_VALID_BIT, true}});
+  ExpectReadMultreg(AES_DATA_OUT_0_REG_OFFSET, kDataOut[0].data, kBlockSize);
+
+  dif_aes_data_t out[kBlockCount];
+  EXPECT_DIF_OK(dif_aes_process_data(&aes_, kDataIn, out, 1));
+  EXPECT_THAT(out[0].data, ElementsAreArray(kDataOut[0].data));
+}
+
+TEST_F(DataProcessTest, OneBlockUnavailable) {
+  EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_INPUT_READY_BIT, false}});
+
+  dif_aes_data_t out[kBlockCount];
+  EXPECT_EQ(dif_aes_process_data(&aes_, kDataIn, out, 1), kDifUnavailable);
+}
 // Read the IV tests.
 class IVTest : public AesTestInitialized {};
 
 TEST_F(IVTest, Read) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, {{AES_STATUS_IDLE_BIT, true}});
 
-  for (uint32_t i = 0; i < ARRAYSIZE(kIv.iv); ++i) {
-    ptrdiff_t offset = AES_IV_0_REG_OFFSET + (i * sizeof(uint32_t));
-    EXPECT_READ32(offset, kIv.iv[i]);
-  }
-
+  ExpectReadMultreg(AES_IV_0_REG_OFFSET, kIv.iv, ARRAYSIZE(kIv.iv));
   dif_aes_iv_t iv;
   EXPECT_DIF_OK(dif_aes_read_iv(&aes_, &iv));
 
@@ -519,45 +580,44 @@ class SideloadedKeyTest : public AesTestInitialized {
 
 TEST_F(SideloadedKeyTest, start) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig(
-      {.key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
-       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
-       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
-       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
-       .key_sideloaded = true});
+  ExpectConfig({.key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
+                .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
+                .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
+                .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_1,
+                .key_sideloaded = true});
 
-  SetExpectedAuxConfig({});
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, NULL, NULL));
+  ExpectAuxConfig({});
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, nullptr, nullptr));
 }
 // Mask reseeding.
 class MaskReseedingTest : public AesTestInitialized {};
 
 TEST_F(MaskReseedingTest, ReseedPer64Block) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_64,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
   transaction_.mask_reseeding = kDifAesReseedPer64Block;
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 TEST_F(MaskReseedingTest, ReseedPer8kBlock) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
       .mask_reseed = AES_CTRL_SHADOWED_PRNG_RESEED_RATE_VALUE_PER_8K,
   });
-  SetExpectedAuxConfig({});
-  SetExpectedKey(kKey, 8);
+  ExpectAuxConfig({});
+  ExpectKey(kKey, 8);
   transaction_.mask_reseeding = kDifAesReseedPer8kBlock;
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 // Reseed on key change.
@@ -565,7 +625,7 @@ class RessedOnKeyChangeTest : public AesTestInitialized {};
 
 TEST_F(RessedOnKeyChangeTest, Unlock) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
@@ -574,16 +634,16 @@ TEST_F(RessedOnKeyChangeTest, Unlock) {
 
   transaction_.reseed_on_key_change = true;
   transaction_.reseed_on_key_change_lock = false;
-  SetExpectedAuxConfig({
+  ExpectAuxConfig({
       .reseed_on_key_change = true,
   });
-  SetExpectedKey(kKey, 8);
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  ExpectKey(kKey, 8);
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 TEST_F(RessedOnKeyChangeTest, Lock) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
@@ -592,14 +652,14 @@ TEST_F(RessedOnKeyChangeTest, Lock) {
 
   transaction_.reseed_on_key_change = true;
   transaction_.reseed_on_key_change_lock = true;
-  SetExpectedAuxConfig({.reseed_on_key_change = true, .lock = true});
-  SetExpectedKey(kKey, 8);
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  ExpectAuxConfig({.reseed_on_key_change = true, .lock = true});
+  ExpectKey(kKey, 8);
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 TEST_F(RessedOnKeyChangeTest, LockedSuccess) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
@@ -613,13 +673,13 @@ TEST_F(RessedOnKeyChangeTest, LockedSuccess) {
                 {{AES_CTRL_AUX_REGWEN_CTRL_AUX_REGWEN_BIT, 0}});
   EXPECT_READ32(AES_CTRL_AUX_SHADOWED_REG_OFFSET,
                 {{AES_CTRL_AUX_SHADOWED_KEY_TOUCH_FORCES_RESEED_BIT, true}});
-  SetExpectedKey(kKey, 8);
-  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  ExpectKey(kKey, 8);
+  EXPECT_DIF_OK(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
 TEST_F(RessedOnKeyChangeTest, LockedError) {
   EXPECT_READ32(AES_STATUS_REG_OFFSET, 1);
-  SetExpectedConfig({
+  ExpectConfig({
       .key_len = AES_CTRL_SHADOWED_KEY_LEN_VALUE_AES_128,
       .mode = AES_CTRL_SHADOWED_MODE_VALUE_AES_ECB,
       .operation = AES_CTRL_SHADOWED_OPERATION_VALUE_AES_ENC,
@@ -634,7 +694,7 @@ TEST_F(RessedOnKeyChangeTest, LockedError) {
   EXPECT_READ32(AES_CTRL_AUX_SHADOWED_REG_OFFSET,
                 {{AES_CTRL_AUX_SHADOWED_KEY_TOUCH_FORCES_RESEED_BIT, false}});
 
-  EXPECT_EQ(dif_aes_start(&aes_, &transaction_, &kKey, NULL), kDifError);
+  EXPECT_EQ(dif_aes_start(&aes_, &transaction_, &kKey, nullptr), kDifError);
 }
 
 // Dif functions.
@@ -692,41 +752,50 @@ class DifBadArgError : public AesTestInitialized {
 };
 
 TEST_F(DifBadArgError, start) {
-  EXPECT_DIF_BADARG(dif_aes_start(NULL, &transaction_, &kKey, &kIv));
-  EXPECT_DIF_BADARG(dif_aes_start(&aes_, NULL, &kKey, &kIv));
-  EXPECT_DIF_BADARG(dif_aes_start(&aes_, &transaction_, NULL, &kIv));
-  EXPECT_DIF_BADARG(dif_aes_start(&aes_, &transaction_, &kKey, NULL));
+  EXPECT_DIF_BADARG(dif_aes_start(nullptr, &transaction_, &kKey, &kIv));
+  EXPECT_DIF_BADARG(dif_aes_start(&aes_, nullptr, &kKey, &kIv));
+  EXPECT_DIF_BADARG(dif_aes_start(&aes_, &transaction_, nullptr, &kIv));
+  EXPECT_DIF_BADARG(dif_aes_start(&aes_, &transaction_, &kKey, nullptr));
 }
 
-TEST_F(DifBadArgError, reset) { EXPECT_DIF_BADARG(dif_aes_reset(NULL)); }
+TEST_F(DifBadArgError, reset) { EXPECT_DIF_BADARG(dif_aes_reset(nullptr)); }
 
-TEST_F(DifBadArgError, end) { EXPECT_DIF_BADARG(dif_aes_end(NULL)); }
+TEST_F(DifBadArgError, end) { EXPECT_DIF_BADARG(dif_aes_end(nullptr)); }
 
 TEST_F(DifBadArgError, LoadData) {
   dif_aes_data_t data = {};
-  EXPECT_DIF_BADARG(dif_aes_load_data(NULL, data));
+  EXPECT_DIF_BADARG(dif_aes_load_data(nullptr, data));
 }
 
 TEST_F(DifBadArgError, ReadOutput) {
   dif_aes_data_t data = {};
-  EXPECT_DIF_BADARG(dif_aes_read_output(NULL, &data));
-  EXPECT_DIF_BADARG(dif_aes_read_output(&aes_, NULL));
+  EXPECT_DIF_BADARG(dif_aes_read_output(nullptr, &data));
+  EXPECT_DIF_BADARG(dif_aes_read_output(&aes_, nullptr));
 }
 
 TEST_F(DifBadArgError, Trigger) {
-  EXPECT_DIF_BADARG(dif_aes_trigger(NULL, kDifAesTriggerPrngReseed));
+  EXPECT_DIF_BADARG(dif_aes_trigger(nullptr, kDifAesTriggerPrngReseed));
 }
 
 TEST_F(DifBadArgError, GetStatus) {
   bool set;
-  EXPECT_DIF_BADARG(dif_aes_get_status(NULL, kDifAesStatusIdle, &set));
-  EXPECT_DIF_BADARG(dif_aes_get_status(&aes_, kDifAesStatusIdle, NULL));
+  EXPECT_DIF_BADARG(dif_aes_get_status(nullptr, kDifAesStatusIdle, &set));
+  EXPECT_DIF_BADARG(dif_aes_get_status(&aes_, kDifAesStatusIdle, nullptr));
 }
 
 TEST_F(DifBadArgError, ReadIV) {
   dif_aes_iv_t iv = {};
-  EXPECT_DIF_BADARG(dif_aes_read_iv(NULL, &iv));
-  EXPECT_DIF_BADARG(dif_aes_read_iv(&aes_, NULL));
+  EXPECT_DIF_BADARG(dif_aes_read_iv(nullptr, &iv));
+  EXPECT_DIF_BADARG(dif_aes_read_iv(&aes_, nullptr));
+}
+
+TEST_F(DifBadArgError, ProcessData) {
+  dif_aes_data_t data[1] = {};
+  dif_aes_data_t out[1] = {};
+  EXPECT_DIF_BADARG(dif_aes_process_data(nullptr, data, out, 1));
+  EXPECT_DIF_BADARG(dif_aes_process_data(&aes_, nullptr, out, 1));
+  EXPECT_DIF_BADARG(dif_aes_process_data(&aes_, data, nullptr, 1));
+  EXPECT_DIF_BADARG(dif_aes_process_data(&aes_, data, out, 0));
 }
 
 class DifUnavailableError : public AesTestInitialized {
@@ -737,7 +806,8 @@ class DifUnavailableError : public AesTestInitialized {
 };
 
 TEST_F(DifUnavailableError, start) {
-  EXPECT_EQ(dif_aes_start(&aes_, &transaction_, &kKey, NULL), kDifUnavailable);
+  EXPECT_EQ(dif_aes_start(&aes_, &transaction_, &kKey, nullptr),
+            kDifUnavailable);
 }
 
 TEST_F(DifUnavailableError, end) {
@@ -752,6 +822,13 @@ TEST_F(DifUnavailableError, LoadData) {
 TEST_F(DifUnavailableError, ReadIV) {
   dif_aes_iv_t iv = {{0}};
   EXPECT_EQ(dif_aes_read_iv(&aes_, &iv), kDifUnavailable);
+}
+
+TEST_F(DifUnavailableError, ProcessData) {
+  dif_aes_data_t data[2] = {};
+  dif_aes_data_t out[2] = {};
+  EXPECT_EQ(dif_aes_process_data(&aes_, data, out, ARRAYSIZE(data)),
+            kDifUnavailable);
 }
 
 class DifError : public AesTestInitialized {
