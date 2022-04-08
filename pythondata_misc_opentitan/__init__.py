@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11458"
-version_tuple = (0, 0, 11458)
+version_str = "0.0.post11459"
+version_tuple = (0, 0, 11459)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11458")
+    pversion = V("0.0.post11459")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11332"
-data_version_tuple = (0, 0, 11332)
+data_version_str = "0.0.post11333"
+data_version_tuple = (0, 0, 11333)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11332")
+    pdata_version = V("0.0.post11333")
 except ImportError:
     pass
-data_git_hash = "32dd3e967535ba785e36f4a9b96ae447527127df"
-data_git_describe = "v0.0-11332-g32dd3e967"
+data_git_hash = "86286403a900eacb6af89686a3ccde85a4404637"
+data_git_describe = "v0.0-11333-g86286403a"
 data_git_msg = """\
-commit 32dd3e967535ba785e36f4a9b96ae447527127df
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Apr 8 00:11:23 2022 +0100
+commit 86286403a900eacb6af89686a3ccde85a4404637
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Apr 5 10:20:19 2022 -0700
 
-    [tlul,lint] Tell verilator to split some signals in tlul_lc_gate.sv
+    [dv/otp] Increase FSM coverage
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This PR increases the FSM cov by:
+    1). Add an enum to control random timing to issue reset or lc_esc.
+    2). Add some flags to mark specific FSM states: such as digests cal,
+      init, etc.
+    3). Enhance some randomizations in existing tests.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
