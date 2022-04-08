@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11468"
-version_tuple = (0, 0, 11468)
+version_str = "0.0.post11473"
+version_tuple = (0, 0, 11473)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11468")
+    pversion = V("0.0.post11473")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11342"
-data_version_tuple = (0, 0, 11342)
+data_version_str = "0.0.post11347"
+data_version_tuple = (0, 0, 11347)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11342")
+    pdata_version = V("0.0.post11347")
 except ImportError:
     pass
-data_git_hash = "b77fb9ff902a70c7e7856ddaf31084ccdaf85e0f"
-data_git_describe = "v0.0-11342-gb77fb9ff9"
+data_git_hash = "bb069b45a1d859edd14aacd0ae2dc6a028fba224"
+data_git_describe = "v0.0-11347-gbb069b45a"
 data_git_msg = """\
-commit b77fb9ff902a70c7e7856ddaf31084ccdaf85e0f
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri Mar 25 10:37:34 2022 +0000
+commit bb069b45a1d859edd14aacd0ae2dc6a028fba224
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 8 08:20:19 2022 +0100
 
-    [otbn, dv] Added otbn_illegal_mem_acc testcase and related checkers
+    [keymgr,lint] Make some implicit widenings explicit
     
-    This commit adds a new testcase called otbn_illegal_mem_acc and changes
-    / additions required to run the test. It also adds a checker to check
-    that whenever a mem access is made while the OTBN is busy,
-    *mem_rdata_bus pins should be de-asserted.
+    This silences lint warnings from Verilator
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
