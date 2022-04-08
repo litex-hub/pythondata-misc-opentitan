@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11455"
-version_tuple = (0, 0, 11455)
+version_str = "0.0.post11457"
+version_tuple = (0, 0, 11457)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11455")
+    pversion = V("0.0.post11457")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11329"
-data_version_tuple = (0, 0, 11329)
+data_version_str = "0.0.post11331"
+data_version_tuple = (0, 0, 11331)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11329")
+    pdata_version = V("0.0.post11331")
 except ImportError:
     pass
-data_git_hash = "8c541f41068f90b64bee9edc00f850a14bf1e82e"
-data_git_describe = "v0.0-11329-g8c541f410"
+data_git_hash = "ff3e01ef465b04c303331ac81f925febc44d3003"
+data_git_describe = "v0.0-11331-gff3e01ef4"
 data_git_msg = """\
-commit 8c541f41068f90b64bee9edc00f850a14bf1e82e
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Apr 6 15:41:27 2022 -0700
+commit ff3e01ef465b04c303331ac81f925febc44d3003
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Apr 5 18:30:39 2022 -0700
 
-    [kmac] Add regwen to prefix and key registers for kmac
+    [lc_ctrl] Add static pkg assertion for lc_tx_t values
     
-    - this ensures these values cannot change during an operation
-    - addresses #11751
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
