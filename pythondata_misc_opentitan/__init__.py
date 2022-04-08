@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11457"
-version_tuple = (0, 0, 11457)
+version_str = "0.0.post11458"
+version_tuple = (0, 0, 11458)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11457")
+    pversion = V("0.0.post11458")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11331"
-data_version_tuple = (0, 0, 11331)
+data_version_str = "0.0.post11332"
+data_version_tuple = (0, 0, 11332)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11331")
+    pdata_version = V("0.0.post11332")
 except ImportError:
     pass
-data_git_hash = "ff3e01ef465b04c303331ac81f925febc44d3003"
-data_git_describe = "v0.0-11331-gff3e01ef4"
+data_git_hash = "32dd3e967535ba785e36f4a9b96ae447527127df"
+data_git_describe = "v0.0-11332-g32dd3e967"
 data_git_msg = """\
-commit ff3e01ef465b04c303331ac81f925febc44d3003
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Apr 5 18:30:39 2022 -0700
+commit 32dd3e967535ba785e36f4a9b96ae447527127df
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 8 00:11:23 2022 +0100
 
-    [lc_ctrl] Add static pkg assertion for lc_tx_t values
+    [tlul,lint] Tell verilator to split some signals in tlul_lc_gate.sv
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
