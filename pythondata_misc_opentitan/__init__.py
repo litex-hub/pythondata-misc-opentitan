@@ -4,47 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11476"
-version_tuple = (0, 0, 11476)
+version_str = "0.0.post11479"
+version_tuple = (0, 0, 11479)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11476")
+    pversion = V("0.0.post11479")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11350"
-data_version_tuple = (0, 0, 11350)
+data_version_str = "0.0.post11353"
+data_version_tuple = (0, 0, 11353)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11350")
+    pdata_version = V("0.0.post11353")
 except ImportError:
     pass
-data_git_hash = "876de558dc1e58d00c7742bb25e115ca23f96096"
-data_git_describe = "v0.0-11350-g876de558d"
+data_git_hash = "06ccc1ea1828d78b5a9651ab3c6d4e7480a6b541"
+data_git_describe = "v0.0-11353-g06ccc1ea1"
 data_git_msg = """\
-commit 876de558dc1e58d00c7742bb25e115ca23f96096
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Apr 8 00:29:43 2022 -0700
+commit 06ccc1ea1828d78b5a9651ab3c6d4e7480a6b541
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Apr 7 19:11:49 2022 -0700
 
-    [chip dv] Fix coverage collection for chip XBAR tests
+    [tlul_lc_gate] Use prim_blanker instead of muxes and buffers
     
-    The coverage on all functional hierarchies were inadvertantly
-    being collected on chip level XBAR tests, which are supposed to
-    stub all TL hosts and devices. This was causing a larger coverge
-    numbers to be reported than intended. This commit fixes that.
-    
-    We add ` xbar_build_mode` as a replacement for the `default` build
-    mode. This is done so, so that the chip level testbench which
-    reuses XBAR tests can append / override `xbar_build_mode` with
-    additional build-time settings. We use this method to specify
-    the right coverage collection hierarchy file for the XBAR tests.
-    This coverage collection hierarchy file is the same one as the one
-    use for the chip level `cover_reg_top` build mode - which restricts
-    the coverage collection only to TL interfaces on all hosts and
-    devices.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
