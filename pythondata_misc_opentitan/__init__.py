@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11460"
-version_tuple = (0, 0, 11460)
+version_str = "0.0.post11462"
+version_tuple = (0, 0, 11462)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11460")
+    pversion = V("0.0.post11462")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11334"
-data_version_tuple = (0, 0, 11334)
+data_version_str = "0.0.post11336"
+data_version_tuple = (0, 0, 11336)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11334")
+    pdata_version = V("0.0.post11336")
 except ImportError:
     pass
-data_git_hash = "0ef9e04697ab2f484bd588795c1e6a49ec892a56"
-data_git_describe = "v0.0-11334-g0ef9e0469"
+data_git_hash = "ef0063c1167897d722242ffc11a2890eb363b508"
+data_git_describe = "v0.0-11336-gef0063c11"
 data_git_msg = """\
-commit 0ef9e04697ab2f484bd588795c1e6a49ec892a56
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu Apr 7 17:52:37 2022 +0100
+commit ef0063c1167897d722242ffc11a2890eb363b508
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Mon Apr 4 16:56:16 2022 +0100
 
-    [rom_ctrl,rtl] Tweak extraction of in_state_done to avoid lint error
+    [dif, aes] Refactor aes unittest
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
