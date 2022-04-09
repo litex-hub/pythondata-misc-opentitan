@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11495"
-version_tuple = (0, 0, 11495)
+version_str = "0.0.post11498"
+version_tuple = (0, 0, 11498)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11495")
+    pversion = V("0.0.post11498")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11369"
-data_version_tuple = (0, 0, 11369)
+data_version_str = "0.0.post11372"
+data_version_tuple = (0, 0, 11372)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11369")
+    pdata_version = V("0.0.post11372")
 except ImportError:
     pass
-data_git_hash = "ef74184eb4a8dc7e48fa081cfb7671df30dcce77"
-data_git_describe = "v0.0-11369-gef74184eb"
+data_git_hash = "493fbbdf68d895b8a736236aa791e0e3bced6044"
+data_git_describe = "v0.0-11372-g493fbbdf6"
 data_git_msg = """\
-commit ef74184eb4a8dc7e48fa081cfb7671df30dcce77
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Apr 6 22:13:35 2022 -0700
+commit 493fbbdf68d895b8a736236aa791e0e3bced6044
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Apr 8 12:28:05 2022 -0700
 
-    [lc_ctrl] Ensure inconsistent token mux triggers TRANSITION_ERROR
+    [bazel, clang] Update to the latest bazel-embedded
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    1. Downloads resources as http archives (for airgapped builds).
+    2. Fixes the compiler configuration to not find the system compiler.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
