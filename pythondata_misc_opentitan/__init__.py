@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11508"
-version_tuple = (0, 0, 11508)
+version_str = "0.0.post11510"
+version_tuple = (0, 0, 11510)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11508")
+    pversion = V("0.0.post11510")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11382"
-data_version_tuple = (0, 0, 11382)
+data_version_str = "0.0.post11384"
+data_version_tuple = (0, 0, 11384)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11382")
+    pdata_version = V("0.0.post11384")
 except ImportError:
     pass
-data_git_hash = "5e74adddb817de817a5928626d9106eef3ea4cea"
-data_git_describe = "v0.0-11382-g5e74adddb"
+data_git_hash = "6dd70f761132e83bdc956bec993b1744228e6247"
+data_git_describe = "v0.0-11384-g6dd70f761"
 data_git_msg = """\
-commit 5e74adddb817de817a5928626d9106eef3ea4cea
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Apr 7 18:57:52 2022 -0700
+commit 6dd70f761132e83bdc956bec993b1744228e6247
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Apr 7 10:59:10 2022 -0700
 
-    [prim_onehot_check] Add prim_onehot_check
+    [flash_ctrl] Make FIFO level readable by software
     
-    Adds a checker module that can be used to check the onehot0 property of
-    a vector. This is useful for checks such as spurious write-enable
-    detection on CSR and register file blocks (for triggering alerts).
+    see #11882
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Also reduce program fifo depth for current flash instance
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
