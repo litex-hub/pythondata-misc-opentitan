@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11504"
-version_tuple = (0, 0, 11504)
+version_str = "0.0.post11508"
+version_tuple = (0, 0, 11508)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11504")
+    pversion = V("0.0.post11508")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11378"
-data_version_tuple = (0, 0, 11378)
+data_version_str = "0.0.post11382"
+data_version_tuple = (0, 0, 11382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11378")
+    pdata_version = V("0.0.post11382")
 except ImportError:
     pass
-data_git_hash = "079a2b8ad742d233b6890ff3b1f32836ab4b8966"
-data_git_describe = "v0.0-11378-g079a2b8ad"
+data_git_hash = "5e74adddb817de817a5928626d9106eef3ea4cea"
+data_git_describe = "v0.0-11382-g5e74adddb"
 data_git_msg = """\
-commit 079a2b8ad742d233b6890ff3b1f32836ab4b8966
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri Apr 8 14:21:29 2022 +0100
+commit 5e74adddb817de817a5928626d9106eef3ea4cea
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Apr 7 18:57:52 2022 -0700
 
-    [otbn, dv] Disables assertions in prim_lc_sync when sending invalid LC signals
+    [prim_onehot_check] Add prim_onehot_check
     
-    This commit turns off assertion failures in prim_lc_sync when invalid
-    values are driven on lc_en_i.
+    Adds a checker module that can be used to check the onehot0 property of
+    a vector. This is useful for checks such as spurious write-enable
+    detection on CSR and register file blocks (for triggering alerts).
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
