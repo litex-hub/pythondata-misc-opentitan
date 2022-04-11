@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11503"
-version_tuple = (0, 0, 11503)
+version_str = "0.0.post11504"
+version_tuple = (0, 0, 11504)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11503")
+    pversion = V("0.0.post11504")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11377"
-data_version_tuple = (0, 0, 11377)
+data_version_str = "0.0.post11378"
+data_version_tuple = (0, 0, 11378)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11377")
+    pdata_version = V("0.0.post11378")
 except ImportError:
     pass
-data_git_hash = "aea5f3e011eb82013c6bbe6deafc5104448fe3ca"
-data_git_describe = "v0.0-11377-gaea5f3e01"
+data_git_hash = "079a2b8ad742d233b6890ff3b1f32836ab4b8966"
+data_git_describe = "v0.0-11378-g079a2b8ad"
 data_git_msg = """\
-commit aea5f3e011eb82013c6bbe6deafc5104448fe3ca
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Fri Apr 8 17:49:30 2022 -0700
+commit 079a2b8ad742d233b6890ff3b1f32836ab4b8966
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Fri Apr 8 14:21:29 2022 +0100
 
-    [bazel, mask_rom] Fix build of mask_rom
+    [otbn, dv] Disables assertions in prim_lc_sync when sending invalid LC signals
     
-    The mask_rom rule was missing a dependency on
-    `//sw/device/silicon_creator/lib/base:static_critical_sec_mmio`.
+    This commit turns off assertion failures in prim_lc_sync when invalid
+    values are driven on lc_en_i.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
