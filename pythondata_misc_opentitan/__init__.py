@@ -4,33 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11500"
-version_tuple = (0, 0, 11500)
+version_str = "0.0.post11502"
+version_tuple = (0, 0, 11502)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11500")
+    pversion = V("0.0.post11502")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11374"
-data_version_tuple = (0, 0, 11374)
+data_version_str = "0.0.post11376"
+data_version_tuple = (0, 0, 11376)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11374")
+    pdata_version = V("0.0.post11376")
 except ImportError:
     pass
-data_git_hash = "5f49e9cabfad06e7fdad5cde65e99d67be3683ce"
-data_git_describe = "v0.0-11374-g5f49e9cab"
+data_git_hash = "c83256698562dd4d5ab0fa24e69759139f79b49b"
+data_git_describe = "v0.0-11376-gc83256698"
 data_git_msg = """\
-commit 5f49e9cabfad06e7fdad5cde65e99d67be3683ce
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Apr 8 11:05:13 2022 -0700
+commit c83256698562dd4d5ab0fa24e69759139f79b49b
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Apr 8 12:20:56 2022 +0100
 
-    [dv] Add TL error case - write with instr_type = True
+    [reggen] Move shadow register error aggregation into reg_top
     
-    Addressed #11902
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This was duplicated in all of the different IPs that used shadow
+    registers and it's not particularly difficult to just put the giant
+    ORs in reg_top instead. Do so.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
