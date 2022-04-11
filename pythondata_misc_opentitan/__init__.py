@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11502"
-version_tuple = (0, 0, 11502)
+version_str = "0.0.post11503"
+version_tuple = (0, 0, 11503)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11502")
+    pversion = V("0.0.post11503")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11376"
-data_version_tuple = (0, 0, 11376)
+data_version_str = "0.0.post11377"
+data_version_tuple = (0, 0, 11377)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11376")
+    pdata_version = V("0.0.post11377")
 except ImportError:
     pass
-data_git_hash = "c83256698562dd4d5ab0fa24e69759139f79b49b"
-data_git_describe = "v0.0-11376-gc83256698"
+data_git_hash = "aea5f3e011eb82013c6bbe6deafc5104448fe3ca"
+data_git_describe = "v0.0-11377-gaea5f3e01"
 data_git_msg = """\
-commit c83256698562dd4d5ab0fa24e69759139f79b49b
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri Apr 8 12:20:56 2022 +0100
+commit aea5f3e011eb82013c6bbe6deafc5104448fe3ca
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Apr 8 17:49:30 2022 -0700
 
-    [reggen] Move shadow register error aggregation into reg_top
+    [bazel, mask_rom] Fix build of mask_rom
     
-    This was duplicated in all of the different IPs that used shadow
-    registers and it's not particularly difficult to just put the giant
-    ORs in reg_top instead. Do so.
+    The mask_rom rule was missing a dependency on
+    `//sw/device/silicon_creator/lib/base:static_critical_sec_mmio`.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
