@@ -4,44 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11499"
-version_tuple = (0, 0, 11499)
+version_str = "0.0.post11500"
+version_tuple = (0, 0, 11500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11499")
+    pversion = V("0.0.post11500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11373"
-data_version_tuple = (0, 0, 11373)
+data_version_str = "0.0.post11374"
+data_version_tuple = (0, 0, 11374)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11373")
+    pdata_version = V("0.0.post11374")
 except ImportError:
     pass
-data_git_hash = "8d83613c4cd516e0e619384984d0d62072ebadf8"
-data_git_describe = "v0.0-11373-g8d83613c4"
+data_git_hash = "5f49e9cabfad06e7fdad5cde65e99d67be3683ce"
+data_git_describe = "v0.0-11374-g5f49e9cab"
 data_git_msg = """\
-commit 8d83613c4cd516e0e619384984d0d62072ebadf8
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Apr 8 12:59:04 2022 -0700
+commit 5f49e9cabfad06e7fdad5cde65e99d67be3683ce
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Apr 8 11:05:13 2022 -0700
 
-    [entropy_src/rtl] Suppress re-assertion of interrupts
+    [dv] Add TL error case - write with instr_type = True
     
-    The entropy_data and observe FIFOs are cleared with the entropy_src
-    is disabled, but any interrupts saying they have data must be
-    cleared by FW.
-    
-    As noted in issue #11951, there is also a delay between when the
-    IP is disabled and the FIFO is cleared.  This means that
-    even when FIFO interrupts are cleared after disabling, the interrupt
-    can reassert itself in this brief delay period.
-    
-    This PR therefore suppresses these interrupt events from
-    retriggering when the IP is disabled.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Addressed #11902
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
