@@ -4,40 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11526"
-version_tuple = (0, 0, 11526)
+version_str = "0.0.post11527"
+version_tuple = (0, 0, 11527)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11526")
+    pversion = V("0.0.post11527")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11400"
-data_version_tuple = (0, 0, 11400)
+data_version_str = "0.0.post11401"
+data_version_tuple = (0, 0, 11401)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11400")
+    pdata_version = V("0.0.post11401")
 except ImportError:
     pass
-data_git_hash = "5a50bfe4e2267ba1656cb18470b12f18b136c6ee"
-data_git_describe = "v0.0-11400-g5a50bfe4e"
+data_git_hash = "ec4ba7fbeee61e23cfa328921342a7fb4cfe10ee"
+data_git_describe = "v0.0-11401-gec4ba7fbe"
 data_git_msg = """\
-commit 5a50bfe4e2267ba1656cb18470b12f18b136c6ee
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri Apr 8 13:20:25 2022 +0100
+commit ec4ba7fbeee61e23cfa328921342a7fb4cfe10ee
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Apr 11 16:26:32 2022 -0700
 
-    [otbn, dv] Added a test to escalate software error to fatal errors
+    [spi_device] Add payloadptr (last written) and overflow event
     
-    This commit adds a new testcase called otbn_sw_errs_fatal_chk. This test
-    sets the software_errs_fatal bit in ctrl register to escalate software
-    errors to fatal errors.
+    Add last written payloadptr and overflow event and synchronization logic
+    to SYS clock domain.
     
-    This commit also adds required functions to set software_errs_fatal flag
-    in ISS model and if this bit is set in the model, the model goes to
-    locked state.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
