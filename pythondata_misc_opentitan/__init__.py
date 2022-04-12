@@ -4,39 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11519"
-version_tuple = (0, 0, 11519)
+version_str = "0.0.post11520"
+version_tuple = (0, 0, 11520)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11519")
+    pversion = V("0.0.post11520")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11393"
-data_version_tuple = (0, 0, 11393)
+data_version_str = "0.0.post11394"
+data_version_tuple = (0, 0, 11394)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11393")
+    pdata_version = V("0.0.post11394")
 except ImportError:
     pass
-data_git_hash = "3dc8bdded961c577da61135ff38c45900f268c62"
-data_git_describe = "v0.0-11393-g3dc8bdded"
+data_git_hash = "18f93dba829de0f6cc21516896b014713bdf37f3"
+data_git_describe = "v0.0-11394-g18f93dba8"
 data_git_msg = """\
-commit 3dc8bdded961c577da61135ff38c45900f268c62
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Apr 11 16:54:20 2022 +0100
+commit 18f93dba829de0f6cc21516896b014713bdf37f3
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Apr 8 10:24:16 2022 +0100
 
-    [kmac_app_agent] Support hosts that don't spot constant shares
+    [sw,rom_ext] Replace exponent with address translation in manifest.
     
-    This code was originally designed for keymgr, which has a check to
-    make sure that no share is all zeros or all ones. The ROM controller
-    doesn't have such a check, so we need to tweak the agent slightly.
+    We needed to make two changes to the manifest:
+    * remove the exponent field (since only one exponent, 65537, is now
+      supported), and
+    * add a field to indicate whether the `ROM_EXT` expects address
+      translation.
     
-    Without this change, setting err_rsp_pct to 100 in the config might
-    still result in a KMAC response whose rsp_error field is zero.
+    Since the two fields are the same size, it causes minimum disruption in
+    padding/offsets to simply replace one with the other.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
