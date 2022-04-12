@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11517"
-version_tuple = (0, 0, 11517)
+version_str = "0.0.post11519"
+version_tuple = (0, 0, 11519)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11517")
+    pversion = V("0.0.post11519")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11391"
-data_version_tuple = (0, 0, 11391)
+data_version_str = "0.0.post11393"
+data_version_tuple = (0, 0, 11393)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11391")
+    pdata_version = V("0.0.post11393")
 except ImportError:
     pass
-data_git_hash = "6f50d51c9bcce79134834f569c7983777ce5f3c1"
-data_git_describe = "v0.0-11391-g6f50d51c9"
+data_git_hash = "3dc8bdded961c577da61135ff38c45900f268c62"
+data_git_describe = "v0.0-11393-g3dc8bdded"
 data_git_msg = """\
-commit 6f50d51c9bcce79134834f569c7983777ce5f3c1
+commit 3dc8bdded961c577da61135ff38c45900f268c62
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Apr 11 17:01:48 2022 +0100
+Date:   Mon Apr 11 16:54:20 2022 +0100
 
-    [rom_ctrl,dv] Wait for the right time before predicting an alert
+    [kmac_app_agent] Support hosts that don't spot constant shares
     
-    Doing it this way means that the wait time doesn't include all the
-    time we spend sending data to KMAC. As such, we can use the default (7
-    cycle) delay.
+    This code was originally designed for keymgr, which has a check to
+    make sure that no share is all zeros or all ones. The ROM controller
+    doesn't have such a check, so we need to tweak the agent slightly.
     
-    No functional change, but failing tests will fail much quicker, rather
-    than having to simulate several milliseconds of run time before
-    deciding something went wrong.
+    Without this change, setting err_rsp_pct to 100 in the config might
+    still result in a KMAC response whose rsp_error field is zero.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
