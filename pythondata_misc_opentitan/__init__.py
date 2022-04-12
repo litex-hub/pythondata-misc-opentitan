@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11516"
-version_tuple = (0, 0, 11516)
+version_str = "0.0.post11517"
+version_tuple = (0, 0, 11517)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11516")
+    pversion = V("0.0.post11517")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11390"
-data_version_tuple = (0, 0, 11390)
+data_version_str = "0.0.post11391"
+data_version_tuple = (0, 0, 11391)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11390")
+    pdata_version = V("0.0.post11391")
 except ImportError:
     pass
-data_git_hash = "1be3cd614d53c816ff972c78f4429a080a16a929"
-data_git_describe = "v0.0-11390-g1be3cd614"
+data_git_hash = "6f50d51c9bcce79134834f569c7983777ce5f3c1"
+data_git_describe = "v0.0-11391-g6f50d51c9"
 data_git_msg = """\
-commit 1be3cd614d53c816ff972c78f4429a080a16a929
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Apr 11 16:47:00 2022 -0700
+commit 6f50d51c9bcce79134834f569c7983777ce5f3c1
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Apr 11 17:01:48 2022 +0100
 
-    [fpv/tcl] Add macro defines to fpv tcl file
+    [rom_ctrl,dv] Wait for the right time before predicting an alert
     
-    This PR adds an env variable in FPV tcl file to set macro defines from
-    fpv_cfg.hjson file.
+    Doing it this way means that the wait time doesn't include all the
+    time we spend sending data to KMAC. As such, we can use the default (7
+    cycle) delay.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    No functional change, but failing tests will fail much quicker, rather
+    than having to simulate several milliseconds of run time before
+    deciding something went wrong.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
