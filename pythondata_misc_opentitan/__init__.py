@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11527"
-version_tuple = (0, 0, 11527)
+version_str = "0.0.post11528"
+version_tuple = (0, 0, 11528)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11527")
+    pversion = V("0.0.post11528")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11401"
-data_version_tuple = (0, 0, 11401)
+data_version_str = "0.0.post11402"
+data_version_tuple = (0, 0, 11402)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11401")
+    pdata_version = V("0.0.post11402")
 except ImportError:
     pass
-data_git_hash = "ec4ba7fbeee61e23cfa328921342a7fb4cfe10ee"
-data_git_describe = "v0.0-11401-gec4ba7fbe"
+data_git_hash = "569feb9b692c4e25d1448588b664ab061b04eb83"
+data_git_describe = "v0.0-11402-g569feb9b6"
 data_git_msg = """\
-commit ec4ba7fbeee61e23cfa328921342a7fb4cfe10ee
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Apr 11 16:26:32 2022 -0700
+commit 569feb9b692c4e25d1448588b664ab061b04eb83
+Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
+Date:   Mon Apr 11 14:13:19 2022 +0100
 
-    [spi_device] Add payloadptr (last written) and overflow event
+    Functional coverage flash and pass
     
-    Add last written payloadptr and overflow event and synchronization logic
-    to SYS clock domain.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
 
 """
 
