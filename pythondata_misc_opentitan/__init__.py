@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11520"
-version_tuple = (0, 0, 11520)
+version_str = "0.0.post11523"
+version_tuple = (0, 0, 11523)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11520")
+    pversion = V("0.0.post11523")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11394"
-data_version_tuple = (0, 0, 11394)
+data_version_str = "0.0.post11397"
+data_version_tuple = (0, 0, 11397)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11394")
+    pdata_version = V("0.0.post11397")
 except ImportError:
     pass
-data_git_hash = "18f93dba829de0f6cc21516896b014713bdf37f3"
-data_git_describe = "v0.0-11394-g18f93dba8"
+data_git_hash = "f6a4df09019064588b31c8b8c2849a146ef575a3"
+data_git_describe = "v0.0-11397-gf6a4df090"
 data_git_msg = """\
-commit 18f93dba829de0f6cc21516896b014713bdf37f3
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Apr 8 10:24:16 2022 +0100
+commit f6a4df09019064588b31c8b8c2849a146ef575a3
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Mon Apr 11 15:30:21 2022 -0400
 
-    [sw,rom_ext] Replace exponent with address translation in manifest.
+    [bazel] Bazelify //sw/device/tests/sim_dv
     
-    We needed to make two changes to the manifest:
-    * remove the exponent field (since only one exponent, 65537, is now
-      supported), and
-    * add a field to indicate whether the `ROM_EXT` expects address
-      translation.
-    
-    Since the two fields are the same size, it causes minimum disruption in
-    padding/offsets to simply replace one with the other.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
