@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11523"
-version_tuple = (0, 0, 11523)
+version_str = "0.0.post11526"
+version_tuple = (0, 0, 11526)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11523")
+    pversion = V("0.0.post11526")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11397"
-data_version_tuple = (0, 0, 11397)
+data_version_str = "0.0.post11400"
+data_version_tuple = (0, 0, 11400)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11397")
+    pdata_version = V("0.0.post11400")
 except ImportError:
     pass
-data_git_hash = "f6a4df09019064588b31c8b8c2849a146ef575a3"
-data_git_describe = "v0.0-11397-gf6a4df090"
+data_git_hash = "5a50bfe4e2267ba1656cb18470b12f18b136c6ee"
+data_git_describe = "v0.0-11400-g5a50bfe4e"
 data_git_msg = """\
-commit f6a4df09019064588b31c8b8c2849a146ef575a3
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Mon Apr 11 15:30:21 2022 -0400
+commit 5a50bfe4e2267ba1656cb18470b12f18b136c6ee
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Fri Apr 8 13:20:25 2022 +0100
 
-    [bazel] Bazelify //sw/device/tests/sim_dv
+    [otbn, dv] Added a test to escalate software error to fatal errors
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    This commit adds a new testcase called otbn_sw_errs_fatal_chk. This test
+    sets the software_errs_fatal bit in ctrl register to escalate software
+    errors to fatal errors.
+    
+    This commit also adds required functions to set software_errs_fatal flag
+    in ISS model and if this bit is set in the model, the model goes to
+    locked state.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
