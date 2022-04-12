@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11528"
-version_tuple = (0, 0, 11528)
+version_str = "0.0.post11530"
+version_tuple = (0, 0, 11530)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11528")
+    pversion = V("0.0.post11530")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11402"
-data_version_tuple = (0, 0, 11402)
+data_version_str = "0.0.post11404"
+data_version_tuple = (0, 0, 11404)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11402")
+    pdata_version = V("0.0.post11404")
 except ImportError:
     pass
-data_git_hash = "569feb9b692c4e25d1448588b664ab061b04eb83"
-data_git_describe = "v0.0-11402-g569feb9b6"
+data_git_hash = "48a3d40d2122cf3f3783314028add56b8f39fd30"
+data_git_describe = "v0.0-11404-g48a3d40d2"
 data_git_msg = """\
-commit 569feb9b692c4e25d1448588b664ab061b04eb83
-Author: Kosta Kojdic <kosta.kojdic@ensilica.com>
-Date:   Mon Apr 11 14:13:19 2022 +0100
+commit 48a3d40d2122cf3f3783314028add56b8f39fd30
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Thu Mar 31 17:39:55 2022 +0100
 
-    Functional coverage flash and pass
+    [sw,tests] Enter RMA LC_STATE and check flash access and wipe
     
-    Signed-off-by: Kosta Kojdic <kosta.kojdic@ensilica.com>
+    For tests:
+    chip_sw_flash_rma_unlocked
+    chip_sw_flash_creator_seed_wipe_on_rma
+    
+    The system is initially started in Dev LC_STATE and data is written to all flash partitions.
+    The system is then set to enter RMA mode. After entry the flash is read again and checked
+    that the flash is accessible and that the contents have been wiped and differ from the
+    previously written values.
+    
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
