@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11513"
-version_tuple = (0, 0, 11513)
+version_str = "0.0.post11515"
+version_tuple = (0, 0, 11515)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11513")
+    pversion = V("0.0.post11515")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11387"
-data_version_tuple = (0, 0, 11387)
+data_version_str = "0.0.post11389"
+data_version_tuple = (0, 0, 11389)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11387")
+    pdata_version = V("0.0.post11389")
 except ImportError:
     pass
-data_git_hash = "5fd9acdb61b2eb0d6ecce5037e33d4d59850c3dd"
-data_git_describe = "v0.0-11387-g5fd9acdb6"
+data_git_hash = "12d36589fedb130f9e0db4e4b3ecbd585327ddf1"
+data_git_describe = "v0.0-11389-g12d36589f"
 data_git_msg = """\
-commit 5fd9acdb61b2eb0d6ecce5037e33d4d59850c3dd
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Apr 8 18:48:23 2022 +0000
+commit 12d36589fedb130f9e0db4e4b3ecbd585327ddf1
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Mon Apr 11 22:33:56 2022 +0100
 
-    pwrmgr,dv] v2s_review_ready
+    [prim] Stub out guts of prim_cdc_rand_delay for Verilator
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
