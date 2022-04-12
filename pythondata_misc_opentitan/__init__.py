@@ -4,41 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11530"
-version_tuple = (0, 0, 11530)
+version_str = "0.0.post11531"
+version_tuple = (0, 0, 11531)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11530")
+    pversion = V("0.0.post11531")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11404"
-data_version_tuple = (0, 0, 11404)
+data_version_str = "0.0.post11405"
+data_version_tuple = (0, 0, 11405)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11404")
+    pdata_version = V("0.0.post11405")
 except ImportError:
     pass
-data_git_hash = "48a3d40d2122cf3f3783314028add56b8f39fd30"
-data_git_describe = "v0.0-11404-g48a3d40d2"
+data_git_hash = "31d533e40f1864827f5c0d63d467ac639d8bca81"
+data_git_describe = "v0.0-11405-g31d533e40"
 data_git_msg = """\
-commit 48a3d40d2122cf3f3783314028add56b8f39fd30
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Thu Mar 31 17:39:55 2022 +0100
+commit 31d533e40f1864827f5c0d63d467ac639d8bca81
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Apr 12 10:32:36 2022 -0700
 
-    [sw,tests] Enter RMA LC_STATE and check flash access and wipe
+    [bazel] restrict specific to chip-level tests to DV sim
     
-    For tests:
-    chip_sw_flash_rma_unlocked
-    chip_sw_flash_creator_seed_wipe_on_rma
+    Some tests can only run in DV simulation and therefor have been placed
+    in `sw/device/test/sim_dv` to signify this. This updates the bazel rules
+    for these tests to restrict them to the DV sim HW platform.
     
-    The system is initially started in Dev LC_STATE and data is written to all flash partitions.
-    The system is then set to enter RMA mode. After entry the flash is read again and checked
-    that the flash is accessible and that the contents have been wiped and differ from the
-    previously written values.
-    
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
