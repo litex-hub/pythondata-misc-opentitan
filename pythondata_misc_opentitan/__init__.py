@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11515"
-version_tuple = (0, 0, 11515)
+version_str = "0.0.post11516"
+version_tuple = (0, 0, 11516)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11515")
+    pversion = V("0.0.post11516")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11389"
-data_version_tuple = (0, 0, 11389)
+data_version_str = "0.0.post11390"
+data_version_tuple = (0, 0, 11390)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11389")
+    pdata_version = V("0.0.post11390")
 except ImportError:
     pass
-data_git_hash = "12d36589fedb130f9e0db4e4b3ecbd585327ddf1"
-data_git_describe = "v0.0-11389-g12d36589f"
+data_git_hash = "1be3cd614d53c816ff972c78f4429a080a16a929"
+data_git_describe = "v0.0-11390-g1be3cd614"
 data_git_msg = """\
-commit 12d36589fedb130f9e0db4e4b3ecbd585327ddf1
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon Apr 11 22:33:56 2022 +0100
+commit 1be3cd614d53c816ff972c78f4429a080a16a929
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Apr 11 16:47:00 2022 -0700
 
-    [prim] Stub out guts of prim_cdc_rand_delay for Verilator
+    [fpv/tcl] Add macro defines to fpv tcl file
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    This PR adds an env variable in FPV tcl file to set macro defines from
+    fpv_cfg.hjson file.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
