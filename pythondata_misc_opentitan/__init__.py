@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11534"
-version_tuple = (0, 0, 11534)
+version_str = "0.0.post11539"
+version_tuple = (0, 0, 11539)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11534")
+    pversion = V("0.0.post11539")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11408"
-data_version_tuple = (0, 0, 11408)
+data_version_str = "0.0.post11413"
+data_version_tuple = (0, 0, 11413)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11408")
+    pdata_version = V("0.0.post11413")
 except ImportError:
     pass
-data_git_hash = "c630d29db673c99db5390b76912bcca66767a671"
-data_git_describe = "v0.0-11408-gc630d29db"
+data_git_hash = "6fbcf741bd43222abc75227dde7ef9e80483df80"
+data_git_describe = "v0.0-11413-g6fbcf741b"
 data_git_msg = """\
-commit c630d29db673c99db5390b76912bcca66767a671
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Tue Apr 12 15:10:32 2022 -0400
+commit 6fbcf741bd43222abc75227dde7ef9e80483df80
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Apr 7 11:16:11 2022 -0700
 
-    [bazel] Bazelify all of //sw/device/tests
+    [dv/chip] Add alert_ping_timeout test
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    This PR adds an aler_ping_timeout test in chip-level.
+    As the testplan describes, this test will configure the alert ping
+    timeout to a very small value - 2 cycles, and expect the alert ping to
+    always timeout. Then we will check if the interrupt is triggered
+    correctly, and if the local alert cause is correct.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
