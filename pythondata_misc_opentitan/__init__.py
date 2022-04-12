@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11531"
-version_tuple = (0, 0, 11531)
+version_str = "0.0.post11534"
+version_tuple = (0, 0, 11534)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11531")
+    pversion = V("0.0.post11534")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11405"
-data_version_tuple = (0, 0, 11405)
+data_version_str = "0.0.post11408"
+data_version_tuple = (0, 0, 11408)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11405")
+    pdata_version = V("0.0.post11408")
 except ImportError:
     pass
-data_git_hash = "31d533e40f1864827f5c0d63d467ac639d8bca81"
-data_git_describe = "v0.0-11405-g31d533e40"
+data_git_hash = "c630d29db673c99db5390b76912bcca66767a671"
+data_git_describe = "v0.0-11408-gc630d29db"
 data_git_msg = """\
-commit 31d533e40f1864827f5c0d63d467ac639d8bca81
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Apr 12 10:32:36 2022 -0700
+commit c630d29db673c99db5390b76912bcca66767a671
+Author: Miguel Young de la Sota <mcyoung@google.com>
+Date:   Tue Apr 12 15:10:32 2022 -0400
 
-    [bazel] restrict specific to chip-level tests to DV sim
+    [bazel] Bazelify all of //sw/device/tests
     
-    Some tests can only run in DV simulation and therefor have been placed
-    in `sw/device/test/sim_dv` to signify this. This updates the bazel rules
-    for these tests to restrict them to the DV sim HW platform.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
 
 """
 
