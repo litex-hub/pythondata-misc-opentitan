@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11556"
-version_tuple = (0, 0, 11556)
+version_str = "0.0.post11560"
+version_tuple = (0, 0, 11560)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11556")
+    pversion = V("0.0.post11560")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11430"
-data_version_tuple = (0, 0, 11430)
+data_version_str = "0.0.post11434"
+data_version_tuple = (0, 0, 11434)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11430")
+    pdata_version = V("0.0.post11434")
 except ImportError:
     pass
-data_git_hash = "e228d1257b7b83cadf3add722a695984c217f438"
-data_git_describe = "v0.0-11430-ge228d1257"
+data_git_hash = "9ab6a2dcb4005a3dcf15c65022377e1646238b13"
+data_git_describe = "v0.0-11434-g9ab6a2dcb"
 data_git_msg = """\
-commit e228d1257b7b83cadf3add722a695984c217f438
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue Apr 12 05:21:23 2022 -0700
+commit 9ab6a2dcb4005a3dcf15c65022377e1646238b13
+Author: Alexander Williams <awill@google.com>
+Date:   Fri Apr 8 07:51:09 2022 -0700
 
-    [aes/dv] updated aes refines for V2
+    [pinmux/dif] Update checklist for usage and unit tests
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
