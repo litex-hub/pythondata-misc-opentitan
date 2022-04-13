@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post11547"
-version_tuple = (0, 0, 11547)
+version_str = "0.0.post11555"
+version_tuple = (0, 0, 11555)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post11547")
+    pversion = V("0.0.post11555")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post11421"
-data_version_tuple = (0, 0, 11421)
+data_version_str = "0.0.post11429"
+data_version_tuple = (0, 0, 11429)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post11421")
+    pdata_version = V("0.0.post11429")
 except ImportError:
     pass
-data_git_hash = "833ca3b089d56b3fdc1f85337ad4709fa8b67a42"
-data_git_describe = "v0.0-11421-g833ca3b08"
+data_git_hash = "937c6a83e84a6eaaf6eaff00c43a5b8ad429e986"
+data_git_describe = "v0.0-11429-g937c6a83e"
 data_git_msg = """\
-commit 833ca3b089d56b3fdc1f85337ad4709fa8b67a42
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Tue Apr 12 16:42:17 2022 -0400
+commit 937c6a83e84a6eaaf6eaff00c43a5b8ad429e986
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Apr 12 15:05:43 2022 -0700
 
-    [cleanup] Purge unused dependencies from python-requirements.txt
+    [doc] Minor fix to sensor_ctrl sw markdown
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
