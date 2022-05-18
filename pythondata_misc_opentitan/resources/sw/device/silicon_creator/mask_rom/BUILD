@@ -297,6 +297,7 @@ opentitan_functest(
     srcs = ["mask_rom_test.c"],
     cw310 = cw310_params(
         bitstream = "//hw/bitstream:mask_rom",
+        tags = ["broken"],
     ),
     signed = True,
     targets = [
@@ -306,8 +307,8 @@ opentitan_functest(
     verilator = verilator_params(
         rom = ":mask_rom_sim_verilator_scr_vmem",
         tags = [
+            "broken",
             "cpu:4",
-            "failing_verilator",
         ],
     ),
     deps = [
@@ -329,6 +330,7 @@ opentitan_functest(
             "--exit-failure='PASS!'",
         ],
         bitstream = "//hw/bitstream:mask_rom",
+        tags = ["broken"],
     ),
     signed = False,
     targets = ["cw310"],

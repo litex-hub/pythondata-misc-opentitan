@@ -2,7 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-load("//rules:opentitan_test.bzl", "opentitan_functest", "verilator_params")
+load("//rules:opentitan_test.bzl", "cw310_params", "opentitan_functest", "verilator_params")
 load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library", "dual_inputs")
 
 package(default_visibility = ["//visibility:public"])
@@ -52,6 +52,9 @@ cc_test(
 opentitan_functest(
     name = "alert_functest",
     srcs = ["alert_functest.c"],
+    cw310 = cw310_params(
+        tags = ["broken"],
+    ),
     deps = [
         ":alert",
         ":rstmgr",
@@ -593,6 +596,12 @@ cc_test(
 opentitan_functest(
     name = "watchdog_functest",
     srcs = ["watchdog_functest.c"],
+    cw310 = cw310_params(
+        # (lowRISC/opentitan#6965) This test resets the chip and appears to
+        # cause a test failure on FPGA boards.  Restrict this test to
+        # verilator for now.
+        tags = ["broken"],
+    ),
     verilator = verilator_params(
         timeout = "long",
     ),
