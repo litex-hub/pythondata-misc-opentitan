@@ -4,42 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12227"
-version_tuple = (0, 0, 12227)
+version_str = "0.0.post12228"
+version_tuple = (0, 0, 12228)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12227")
+    pversion = V("0.0.post12228")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12099"
-data_version_tuple = (0, 0, 12099)
+data_version_str = "0.0.post12100"
+data_version_tuple = (0, 0, 12100)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12099")
+    pdata_version = V("0.0.post12100")
 except ImportError:
     pass
-data_git_hash = "f616ce61e7b9a432eeed648cf58973f58ca6e3d5"
-data_git_describe = "v0.0-12099-gf616ce61e"
+data_git_hash = "f770f3ff2349dbd917a2b032b02d2b8485145952"
+data_git_describe = "v0.0-12100-gf770f3ff2"
 data_git_msg = """\
-commit f616ce61e7b9a432eeed648cf58973f58ca6e3d5
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed May 18 16:05:09 2022 +0100
+commit f770f3ff2349dbd917a2b032b02d2b8485145952
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed May 18 10:45:34 2022 -0700
 
-    [otbn,dv] Correct the boundary of a "critical section"
+    [sw/base] fix documentation comments in bitfield.h
     
-    The running_ flag is used to handle process control in
-    start_running_otbn. The idea is that it gets set when we start
-    run_otbn() and then cleared just before we exit. That lets us get the
-    timing right before running a "disable fork" in start_running_otbn.
+    This addresses some outstanding issues with #12625.
     
-    A series of commits starting with 1b1b7aa had added some extra stuff
-    that run after we cleared the flag, causing occasional weird errors
-    where a UVM sequencer spots that a process has been killed while
-    waiting to send a sequence item.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
