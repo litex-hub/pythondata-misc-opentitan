@@ -111,6 +111,9 @@ void otbn_model_reset(OtbnModel *model);
 // Take loop warps from an OtbnMemUtil
 void otbn_take_loop_warps(OtbnModel *model, OtbnMemUtil *memutil);
 
+// Returns non-zero if an OtbnMemUtil contains loop warps
+int otbn_has_loop_warps(OtbnMemUtil *memutil);
+
 // React to an error escalation. Returns 0 on success or -1 on failure.
 int otbn_model_send_err_escalation(OtbnModel *model,
                                    svBitVecVal *err_val /* bit [31:0] */);
@@ -119,6 +122,10 @@ int otbn_model_send_err_escalation(OtbnModel *model,
 // is set, any software error will be ellevated to fatal error from recoverable
 // error.
 int otbn_model_set_software_errs_fatal(OtbnModel *model, unsigned char new_val);
+
+// Tell the model to not execute checks to see if secure wiping has written
+// random data to all registers before wiping them with zeroes.
+int otbn_set_no_sec_wipe_chk(OtbnModel *model);
 }
 
 #endif  // OPENTITAN_HW_IP_OTBN_DV_MODEL_OTBN_MODEL_DPI_H_

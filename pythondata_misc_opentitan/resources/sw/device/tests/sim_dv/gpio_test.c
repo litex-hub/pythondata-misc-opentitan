@@ -10,10 +10,9 @@
 #include "sw/device/lib/irq.h"
 #include "sw/device/lib/runtime/hart.h"
 #include "sw/device/lib/runtime/log.h"
-#include "sw/device/lib/testing/check.h"
 #include "sw/device/lib/testing/pinmux_testutils.h"
-#include "sw/device/lib/testing/test_framework/ottf.h"
-#include "sw/device/lib/testing/test_framework/test_status.h"
+#include "sw/device/lib/testing/test_framework/check.h"
+#include "sw/device/lib/testing/test_framework/ottf_main.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
@@ -26,10 +25,10 @@ static const uint32_t kNumGpios = 32;
 static const uint32_t kGpiosMask = 0xffffffff;
 
 // These constants reflect the GPIOs exposed by the OpenTitan SoC.
-static const uint32_t kNumChipGpios = 16;
-// TODO #2484: GPIO pins 16-19 are special inputs - do not touch them.
-static const uint32_t kGpiosAllowedMask = 0xfff0ffff;
-static const uint32_t kChipGpiosMask = 0xffff & kGpiosAllowedMask;
+static const uint32_t kNumChipGpios = 12;
+// TODO: update GPIO test once the chip-level testbench uses the correct pinout.
+static const uint32_t kGpiosAllowedMask = 0xffffffff;
+static const uint32_t kChipGpiosMask = 0xfff & kGpiosAllowedMask;
 
 // These indicate the GPIO pin irq expected to fire, declared volatile since
 // they are used by the ISR.

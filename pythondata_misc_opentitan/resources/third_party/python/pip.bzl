@@ -19,6 +19,20 @@ filegroup(
 """
 
 def _pip_wheel_impl(rctx):
+    # First, check if an existing pre-built Python wheels repo exists, and if
+    # so, use it instead of building one.
+    python_wheel_repo_path = rctx.os.environ.get(
+        "BAZEL_PYTHON_WHEELS_REPO",
+        None,
+    )
+    if python_wheel_repo_path:
+        rctx.report_progress("Mounting existing Python wheels repo")
+        rctx.symlink(python_wheel_repo_path, ".")
+        return
+
+    # If a pre-built Python wheels repo does not exist, we need to build it.
+    rctx.report_progress("No Python wheels repo detected, building it instead")
+
     # First, we install the Python wheel package so we can build other wheels.
     args = [
         rctx.path(rctx.attr.python_interpreter),
@@ -27,8 +41,7 @@ def _pip_wheel_impl(rctx):
         "install",
         "wheel",
     ]
-    progress_message = "Installing the Python wheel package"
-    rctx.report_progress(progress_message)
+    rctx.report_progress("Installing the Python wheel package")
     result = rctx.execute(
         args,
         timeout = rctx.attr.timeout,
@@ -48,8 +61,7 @@ def _pip_wheel_impl(rctx):
         "-w",
         "./",
     ]
-    progress_message = "Pre-building Python wheels"
-    rctx.report_progress(progress_message)
+    rctx.report_progress("Pre-building Python wheels")
     result = rctx.execute(
         args,
         timeout = rctx.attr.timeout,
@@ -64,8 +76,7 @@ def _pip_wheel_impl(rctx):
     # were built above. This enables us to make changes to the main
     # python_requirements.txt file without impacting this step.
     args = [rctx.path(rctx.attr._gen_requirements_script)]
-    progress_message = "Generating sanitzed requirements file"
-    rctx.report_progress(progress_message)
+    rctx.report_progress("Generating sanitzed requirements file")
     result = rctx.execute(
         args,
         timeout = rctx.attr.timeout,
@@ -107,9 +118,10 @@ pip_wheel = repository_rule(
             allow_single_file = True,
             doc = "Shell script that generates a requirements file without VCS links.",
             executable = True,
-            cfg = "host",
+            cfg = "exec",
         ),
     },
+    environ = ["BAZEL_PYTHON_WHEELS_REPO"],
 )
 
 def pip_deps():

@@ -317,6 +317,13 @@
       expose:  "true"
     },
 
+    { name:    "DbgHwBreakNum"
+      type:    "int"
+      default: "1"
+      local:   "false"
+      expose:  "true"
+    },
+
     { name:    "SecureIbex"
       type:    "bit"
       default: "0"
@@ -358,6 +365,13 @@
       default: "2",
       local: "true"
     },
+    { name:    "NumScratchWords",
+      type:    "int",
+      desc:    '''
+        Number of scratch words maintained.
+      '''
+      default: "8"
+    },
   ],
   countermeasures: [
     { name: "BUS.INTEGRITY",
@@ -380,6 +394,13 @@
         Register file integrity checking. Note that whilst the core itself is
         duplicated (see LOGIC.SHADOW) the register file is not. Protection is
         provided by an ECC.
+      '''
+    }
+    { name: "DATA_REG_SW.GLITCH_DETECT"
+      desc: '''
+        This countermeasure augments DATA_REG_SW.INTEGRITY and checks for spurious
+        write-enable signals on the register file by monitoring the one-hot0 property
+        of the individual write-enable strobes.
       '''
     }
     { name: "LOGIC.SHADOW"
@@ -531,7 +552,7 @@
                   Subtract 1 from this value and then right shift by one to obtain 0x7FFF.
                   This value is then logically OR'd with the upper address bits that would select which 64KB to translate.
 
-                  In this exampole, the user wishes to translate the 0x8000-th 64KB block.
+                  In this example, the user wishes to translate the 0x8000-th 64KB block.
                   The value programmed is then 0x8000_7FFF.
 
                   If the user were to translate the 0x8001-th 64KB block, the value programmed would be 0x8001_7FFF.
@@ -668,7 +689,7 @@
           desc: '''
                   See !!IBUS_REMAP_ADDR_0 for a detailed description.
                   ''',
-                  count: "NumRegions",
+          count: "NumRegions",
           compact: false,
           swaccess: "rw",
           hwaccess: "hro",
@@ -833,6 +854,21 @@
           },
         ]
       },
+
+      // dv simulation window
+      { window: {
+          name: "DV_SIM_WINDOW",
+          items: "NumScratchWords",
+          validbits: "32",
+          byte-write: "true",
+          swaccess: "rw",
+          unusual: "true"
+          desc: '''
+            Exposed tlul window for DV only purposes.
+          '''
+        },
+      },
+
     ],
   },
 }

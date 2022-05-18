@@ -91,6 +91,7 @@ module flash_phy
   // common interface
   logic [BusFullWidth-1:0] rd_data [NumBanks];
   logic [NumBanks-1:0] rd_err;
+  logic [NumBanks-1:0] spurious_acks;
 
   // fsm error per bank
   logic [NumBanks-1:0] fsm_err;
@@ -99,6 +100,14 @@ module flash_phy
   logic [NumBanks-1:0] prog_intg_err;
   logic [NumBanks-1:0] relbl_ecc_err;
   logic [NumBanks-1:0] intg_ecc_err;
+
+  // consistency error per bank
+  logic [NumBanks-1:0] arb_err;
+  logic [NumBanks-1:0] host_gnt_err;
+
+  // fifo error per bank
+  logic [NumBanks-1:0]     rsp_fifo_err;
+  logic [NumBanks-1:0]     core_fifo_err;
 
   // select which bank each is operating on
   assign host_bank_sel = host_req_i ? host_addr_i[BusAddrW-1 -: BankW] : '0;
@@ -124,6 +133,10 @@ module flash_phy
   assign flash_ctrl_o.storage_relbl_err = |relbl_ecc_err;
   assign flash_ctrl_o.storage_intg_err = |intg_ecc_err;
   assign flash_ctrl_o.fsm_err = |fsm_err;
+  assign flash_ctrl_o.spurious_ack = |spurious_acks;
+  assign flash_ctrl_o.arb_err = |arb_err;
+  assign flash_ctrl_o.host_gnt_err = |host_gnt_err;
+  assign flash_ctrl_o.fifo_err = |{rsp_fifo_err, core_fifo_err};
 
   // This fifo holds the expected return order
   prim_fifo_sync #(
@@ -141,7 +154,8 @@ module flash_phy
     .full_o (),
     .rvalid_o(seq_fifo_pending),
     .rready_i(host_req_done_o),
-    .rdata_o (rsp_bank_sel)
+    .rdata_o (rsp_bank_sel),
+    .err_o   ()
   );
 
   // Generate host scramble_en indication, broadcasted to all banks
@@ -170,8 +184,12 @@ module flash_phy
   assign unused_cfg = region_cfg;
 
   // only scramble/ecc attributes are looked at
-  assign host_scramble_en = prim_mubi_pkg::mubi4_test_true_loose(region_cfg.scramble_en);
-  assign host_ecc_en = prim_mubi_pkg::mubi4_test_true_loose(region_cfg.ecc_en);
+  import prim_mubi_pkg::mubi4_test_true_strict;
+  import prim_mubi_pkg::mubi4_and_hi;
+
+  assign host_scramble_en = mubi4_test_true_strict(
+                              mubi4_and_hi(region_cfg.scramble_en, region_cfg.en));
+  assign host_ecc_en = mubi4_test_true_strict(mubi4_and_hi(region_cfg.ecc_en, region_cfg.en));
 
   // Prim flash to flash_phy_core connections
   flash_phy_pkg::flash_phy_prim_flash_req_t [NumBanks-1:0] prim_flash_req;
@@ -202,7 +220,8 @@ module flash_phy
     prim_fifo_sync #(
       .Width   (BusFullWidth + 1),
       .Pass    (1'b1),
-      .Depth   (FlashMacroOustanding)
+      .Depth   (FlashMacroOustanding),
+      .Secure  (1'b1)
     ) u_host_rsp_fifo (
       .clk_i,
       .rst_ni,
@@ -214,7 +233,8 @@ module flash_phy
       .full_o (),
       .rvalid_o(host_rsp_vld[bank]),
       .rready_i(host_rsp_ack[bank]),
-      .rdata_o ({host_rsp_err[bank], host_rsp_data[bank]})
+      .rdata_o ({host_rsp_err[bank], host_rsp_data[bank]}),
+      .err_o   (rsp_fifo_err[bank])
     );
 
     logic host_req;
@@ -270,7 +290,11 @@ module flash_phy
       .fsm_err_o(fsm_err[bank]),
       .prog_intg_err_o(prog_intg_err[bank]),
       .relbl_ecc_err_o(relbl_ecc_err[bank]),
-      .intg_ecc_err_o(intg_ecc_err[bank])
+      .intg_ecc_err_o(intg_ecc_err[bank]),
+      .spurious_ack_o(spurious_acks[bank]),
+      .arb_err_o(arb_err[bank]),
+      .host_gnt_err_o(host_gnt_err[bank]),
+      .fifo_err_o(core_fifo_err[bank])
     );
   end // block: gen_flash_banks
 

@@ -2,7 +2,8 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-load("//rules:opentitan_test.bzl", "opentitan_functest")
+load("//rules:opentitan.bzl", "OPENTITAN_CPU")
+load("//rules:opentitan_test.bzl", "opentitan_functest", "verilator_params")
 
 opentitan_functest(
     name = "flash_ctrl_lc_rw_en_test",
@@ -19,6 +20,7 @@ opentitan_functest(
         "//sw/device/lib/dif:otp_ctrl",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing:flash_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -26,7 +28,6 @@ opentitan_functest(
     name = "flash_rma_unlocked_test",
     srcs = ["flash_rma_unlocked_test.c"],
     # This test doesn't use the OTTF.
-    ottf = [],
     targets = ["verilator"],  # Can only run in verilator right now.
     # This test is designed to run and complete entirely in the ROM boot stage.
     # Setting the `test_in_rom` flag makes the `opentitan_functest` rule aware
@@ -34,9 +35,12 @@ opentitan_functest(
     # loading the default test ROM, or any other ROM that may be specified via
     # Verilator or CW310 params).
     test_in_rom = True,
+    # This test currently fails in Verilator when run by Bazel (#12486)
+    verilator = verilator_params(
+        tags = ["failing_verilator"],
+    ),
     deps = [
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib:pinmux",
         "//sw/device/lib/arch:device",
         "//sw/device/lib/base:mmio",
         "//sw/device/lib/dif:flash_ctrl",
@@ -47,7 +51,9 @@ opentitan_functest(
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/runtime:print",
         "//sw/device/lib/testing:flash_ctrl_testutils",
-        "//sw/device/lib/testing/test_framework",
+        "//sw/device/lib/testing:pinmux_testutils",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:status",
         "//sw/device/lib/testing/test_rom:linker_script",
         "//sw/device/lib/testing/test_rom:test_rom_lib",
     ],
@@ -60,13 +66,14 @@ opentitan_functest(
     deps = [
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib:irq",
-        "//sw/device/lib:pinmux",
         "//sw/device/lib/arch:device",
         "//sw/device/lib/base:mmio",
         "//sw/device/lib/dif:gpio",
         "//sw/device/lib/dif:rv_plic",
         "//sw/device/lib/runtime:hart",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:pinmux_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -91,6 +98,24 @@ opentitan_functest(
         "//sw/device/lib/testing:flash_ctrl_testutils",
         "//sw/device/lib/testing:keymgr_testutils",
         "//sw/device/lib/testing:otp_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+cc_library(
+    name = "lc_ctrl_transition_impl",
+    srcs = ["lc_ctrl_transition_impl.c"],
+    hdrs = ["lc_ctrl_transition_impl.h"],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:lc_ctrl",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:lc_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:check",
     ],
 )
 
@@ -99,12 +124,36 @@ opentitan_functest(
     srcs = ["lc_ctrl_transition_test.c"],
     targets = ["dv"],
     deps = [
+        ":lc_ctrl_transition_impl",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
+    name = "lc_walkthrough_test",
+    srcs = ["lc_walkthrough_test.c"],
+    targets = ["dv"],
+    deps = [
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib/base:bitfield",
         "//sw/device/lib/base:memory",
         "//sw/device/lib/base:mmio",
         "//sw/device/lib/dif:lc_ctrl",
+        "//sw/device/lib/dif:otp_ctrl",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:lc_ctrl_testutils",
+        "//sw/device/lib/testing:otp_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
+    name = "clkmgr_external_clk_src_for_lc_test",
+    srcs = ["clkmgr_external_clk_src_for_lc_test.c"],
+    targets = ["dv"],
+    deps = [
+        ":lc_ctrl_transition_impl",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -117,6 +166,24 @@ opentitan_functest(
         "//sw/device/lib/dif:rstmgr",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing:rstmgr_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
+    name = "pwrmgr_sleep_power_glitch_test",
+    srcs = ["pwrmgr_sleep_power_glitch_test.c"],
+    targets = ["dv"],
+    deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:pwrmgr",
+        "//sw/device/lib/dif:rstmgr",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:pwrmgr_testutils",
+        "//sw/device/lib/testing:rstmgr_testutils",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -131,6 +198,7 @@ opentitan_functest(
         "//sw/device/lib/runtime:hart",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing:pwrmgr_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -145,6 +213,8 @@ opentitan_functest(
         "//sw/device/lib/dif:lc_ctrl",
         "//sw/device/lib/dif:rom_ctrl",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/lib/testing/test_framework:status",
     ],
 )
 
@@ -161,6 +231,8 @@ opentitan_functest(
         "//sw/device/lib/dif:spi_device",
         "//sw/device/lib/runtime:hart",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/lib/testing/test_framework:status",
     ],
 )
 
@@ -180,6 +252,8 @@ opentitan_functest(
         "//sw/device/lib/testing:lc_ctrl_testutils",
         "//sw/device/lib/testing:otp_ctrl_testutils",
         "//sw/device/lib/testing:sram_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/lib/testing/test_framework:status",
     ],
 )
 
@@ -199,6 +273,7 @@ opentitan_functest(
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing:rstmgr_testutils",
         "//sw/device/lib/testing:sram_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )
 
@@ -212,5 +287,46 @@ opentitan_functest(
         "//sw/device/lib/dif:rstmgr",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing:sram_ctrl_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/lib/testing/test_framework:status",
+    ],
+)
+
+opentitan_functest(
+    name = "pwrmgr_deep_sleep_all_wake_ups",
+    srcs = ["pwrmgr_deep_sleep_all_wake_ups.c"],
+    targets = ["dv"],
+    deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib:irq",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:adc_ctrl",
+        "//sw/device/lib/dif:pinmux",
+        "//sw/device/lib/dif:pwrmgr",
+        "//sw/device/lib/dif:rv_plic",
+        "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:isr_testutils",
+        "//sw/device/lib/testing:pwrmgr_testutils",
+        "//sw/device/lib/testing:rv_plic_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
+    name = "adc_ctrl_sleep_debug_cable_wakeup_test",
+    srcs = ["adc_ctrl_sleep_debug_cable_wakeup_test.c"],
+    targets = ["dv"],
+    deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:adc_ctrl",
+        "//sw/device/lib/dif:pwrmgr",
+        "//sw/device/lib/dif:rstmgr",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:pwrmgr_testutils",
+        "//sw/device/lib/testing:rstmgr_testutils",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )

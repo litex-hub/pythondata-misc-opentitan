@@ -203,7 +203,25 @@
 
   ],
   countermeasures: [
-    { name: "BUS.INTEGRITY",
+    { name: "REG.BUS.INTEGRITY",
+      desc: '''
+        End-to-end bus integrity scheme.
+        Since there are multiple access points for flash, please see
+        Transmission Integrity Faults in the documentation for more details.
+
+        The bus integrity scheme for flash is different from other comportable modules.
+      '''
+    }
+    { name: "HOST.BUS.INTEGRITY",
+      desc: '''
+        End-to-end bus integrity scheme.
+        Since there are multiple access points for flash, please see
+        Transmission Integrity Faults in the documentation for more details.
+
+        The bus integrity scheme for flash is different from other comportable modules.
+      '''
+    }
+    { name: "MEM.BUS.INTEGRITY",
       desc: '''
         End-to-end bus integrity scheme.
         Since there are multiple access points for flash, please see
@@ -299,6 +317,24 @@
         flash_ctrl_lcmgr handling counters are redundantly encoded.
         This includes seed count and address count used during seed reading phase,
         as well as word count, page count and wipe index in RMA entry phase.
+      '''
+    }
+    { name: "PHY_ARBITER.CTRL.REDUN",
+      desc: '''
+        The phy arbiter for controller and host is redundant.
+        The arbiter has two instance underneath that are constantly compared to each other.
+      '''
+    }
+    { name: "PHY_HOST_GRANT.CTRL.CONSISTENCY",
+      desc: '''
+        The host grant is consistency checked.
+        If the host is ever granted with info partition access, it is an error.
+        If the host is ever granted at the same time as a program/erase operation, it is an error.
+      '''
+    }
+    { name: "PHY_ACK.CTRL.CONSISTENCY",
+      desc: '''
+        If the host or controller ever receive an unexpeced transaction acknowledge, it is an error.
       '''
     }
   ]
@@ -462,6 +498,12 @@
       type:      "int"
       default:   "${max_fifo_depth}",
     },
+
+    { name:      "MaxFifoWidth",
+      desc:      "Maximum depth for read / program fifos",
+      type:      "int"
+      default:   "${max_fifo_width}",
+    },
   ],
 
   regwidth: "32",
@@ -483,10 +525,10 @@
                To disable, set this field to anything other than kMultiBitBool4False.
               '''
             resval: false,
-            tags: [// Dont touch disable, it has several side effects on the system
-                   "excl:CsrAllTests:CsrExclWrite"],
           },
         ]
+        tags: [// Dont touch disable, it has several side effects on the system
+               "excl:CsrAllTests:CsrExclWrite"],
       },
 
       { name: "EXEC",
@@ -802,7 +844,8 @@
                 name: "EN",
                 mubi: true,
                 desc: '''
-                  Region enabled, following fields apply
+                  Region enabled, following fields apply.
+                  If region is disabled, it is not matched against any incoming transaction.
                 ''',
                 resval: false
               },
@@ -1098,7 +1141,7 @@
           regwen: "BANK_CFG_REGWEN",
           shadowed: "true",
           update_err_alert: "recov_err",
-          storage_err_alert: "fatal_err",
+          storage_err_alert: "fatal_std_err",
           fields: [
               { bits: "0",
                 name: "ERASE_EN",
@@ -1152,6 +1195,13 @@
         swaccess: "rw1c",
         hwaccess: "hwo",
         fields: [
+          { bits: "0",
+            name: "op_err",
+            desc: '''
+              Software has supplied an undefined operation.
+              See !!CONTROL.OP for list of valid operations.
+            '''
+          },
           { bits: "1",
             name: "mp_err",
             desc: '''
@@ -1272,6 +1322,12 @@
               Flash ctrl read/prog has encountered a count error.
             '''
           },
+          { bits: "8",
+            name: "fifo_err",
+            desc: '''
+              Flash primitive fifo's have encountered a count error.
+            '''
+          },
         ]
       },
 
@@ -1285,6 +1341,13 @@
         swaccess: "ro",
         hwaccess: "hrw",
         fields: [
+          { bits: "0",
+            name: "op_err",
+            desc: '''
+              The flash life cycle management interface has supplied an undefined operation.
+              See !!CONTROL.OP for list of valid operations.
+            '''
+          },
           { bits: "1",
             name: "mp_err",
             desc: '''
@@ -1341,6 +1404,24 @@
             name: "phy_storage_err",
             desc: '''
               The flash macro encountered a storage integrity ECC error.
+            '''
+          },
+          { bits: "10",
+            name: "spurious_ack",
+            desc: '''
+              The flash emitted an unexpected acknowledgement.
+            '''
+          },
+          { bits: "11",
+            name: "arb_err",
+            desc: '''
+              The phy arbiter encountered inconsistent results.
+            '''
+          },
+          { bits: "12",
+            name: "host_gnt_err",
+            desc: '''
+              A host transaction was granted with illegal properties.
             '''
           },
         ]

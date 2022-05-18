@@ -40,6 +40,12 @@ package otbn_pkg;
 
   parameter int SideloadKeyWidth = 384;
 
+  parameter int unsigned LoopStackDepth = 8;
+
+  // Zero word in the implemented ECC scheme. If changing the ECC scheme, this has to be changed,
+  // and vice-versa.
+  localparam logic [BaseIntgWidth-1:0] EccZeroWord     = prim_secded_pkg::SecdedInv3932ZeroWord;
+  localparam logic [ExtWLEN-1:0]       EccWideZeroWord = {BaseWordsPerWLEN{EccZeroWord}};
 
   // Toplevel constants ============================================================================
 
@@ -84,6 +90,8 @@ package otbn_pkg;
     logic reg_intg_violation;
     logic dmem_intg_violation;
     logic imem_intg_violation;
+    logic rnd_fips_chk_fail;
+    logic rnd_rep_chk_fail;
     logic key_invalid;
     logic loop;
     logic illegal_insn;
@@ -99,6 +107,8 @@ package otbn_pkg;
     logic fatal_software;
     logic bad_internal_state;
     logic reg_intg_violation;
+    logic rnd_fips_chk_fail;
+    logic rnd_rep_chk_fail;
     logic key_invalid;
     logic loop;
     logic illegal_insn;
@@ -114,6 +124,8 @@ package otbn_pkg;
     logic reg_intg_violation;
     logic dmem_intg_violation;
     logic imem_intg_violation;
+    logic rnd_fips_chk_fail;
+    logic rnd_rep_chk_fail;
     logic key_invalid;
     logic loop;
     logic illegal_insn;
@@ -184,7 +196,9 @@ package otbn_pkg;
     AluOpBignumXor,
     AluOpBignumOr,
     AluOpBignumAnd,
-    AluOpBignumNot
+    AluOpBignumNot,
+
+    AluOpBignumNone
   } alu_op_bignum_e;
 
   typedef enum logic {
@@ -389,6 +403,32 @@ package otbn_pkg;
 
     logic                    sel_insn;
   } insn_dec_bignum_t;
+
+  typedef struct packed {
+    logic [NWdr-1:0] rf_ren_a;
+    logic [NWdr-1:0] rf_ren_b;
+    logic [NWdr-1:0] rf_we;
+  } rf_predec_bignum_t;
+
+  typedef struct packed {
+    logic             adder_x_en;
+    logic             adder_y_op_a_en;
+    logic             adder_y_op_shifter_en;
+    logic             shifter_a_en;
+    logic             shifter_b_en;
+    logic             logic_a_en;
+    logic             logic_shifter_en;
+  } alu_predec_bignum_t;
+
+  typedef struct packed {
+    logic [NIspr-1:0] ispr_rd_en;
+    logic [NIspr-1:0] ispr_wr_en;
+  } ispr_predec_bignum_t;
+
+  typedef struct packed {
+    logic op_en;
+    logic acc_rd_en;
+  } mac_predec_bignum_t;
 
   typedef struct packed {
     alu_op_base_e     op;

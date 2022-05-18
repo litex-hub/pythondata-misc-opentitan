@@ -227,8 +227,7 @@ module otbn_core_model
     end else begin
       if (new_escalation) begin
         // Setting LIFECYCLE_ESCALATION bit
-        bit[31:0] err_val = 32'd1 << 22;
-        failed_lc_escalate <= (otbn_model_send_err_escalation(model_handle, err_val) != 0);
+        failed_lc_escalate <= (otbn_model_send_err_escalation(model_handle, 32'd1 << 22) != 0);
       end
       if (!$stable(keymgr_key_i) || $rose(rst_ni)) begin
         failed_keymgr_value <= (otbn_model_set_keymgr_value(model_handle,
@@ -312,7 +311,7 @@ module otbn_core_model
   bind otbn_rf_base otbn_stack_snooper_if #(.StackIntgWidth(39), .StackWidth(32), .StackDepth(8))
     u_call_stack_snooper (
       .stack_storage(u_call_stack.stack_storage),
-      .stack_wr_ptr_q(u_call_stack.stack_wr_ptr_q)
+      .stack_wr_ptr_q(u_call_stack.stack_wr_ptr)
     );
 
   assign err_o = |{failed_step, failed_check, check_mismatch_q,

@@ -35,17 +35,20 @@ BAZEL_BINARIES = [
     '//sw/device/examples/hello_world',
 ]
 
+
 def find_dirs(root, names):
     """
     Finds all directories under `root` with the given name and
     yields them.
     """
     for p in root.iterdir():
-        if not p.is_dir(): continue
+        if not p.is_dir():
+            continue
         if p.name in names:
             yield p
         else:
             find_dirs(p, names)
+
 
 def delete_path(path):
     """
@@ -59,10 +62,12 @@ def delete_path(path):
     else:
         path.unlink()
 
+
 def shell_out(cmd):
     print(f"Running {cmd}")
     # Let the resulting exception from `check` propagate out.
     subprocess.run(cmd, check=True)
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -75,6 +80,12 @@ def main():
         default=False,
         action='store_true',
         help='Build ROM based on reduced design')
+    parser.add_argument(
+        '--delete-only',
+        '-d',
+        default=False,
+        action='store_true',
+        help='Delete previously generated auto-gen files without running topgen')
     parser.add_argument(
         '--top',
         '-t',
@@ -92,14 +103,18 @@ def main():
 
     # We start by removing any previously generated auto-gen files for the
     # selected non-earlgrey top. These might be stale and confuse topgen.
-    print('Purging earlgrey autogen files')
-    for d in find_dirs(REPO_TOP / 'hw', ['autogen', 'ip_autogen']):
+    print('Purging previously generated auto-gen files')
+    for d in find_dirs(REPO_TOP / 'hw' / topname, ['autogen', 'ip_autogen']):
         delete_path(d)
 
-    delete_path(REPO_TOP / 'hw/ip/ast/rtl')
-    delete_path(REPO_TOP / 'hw/ip/sensor_ctrl/rtl')
-    delete_path(REPO_TOP / 'hw/ip/xbar_main/xbar_main.core')
-    delete_path(REPO_TOP / 'hw/ip/xbar_peri/xbar_peri.core')
+    delete_path(REPO_TOP / 'build' / str(topname + '-autogen'))
+    delete_path(REPO_TOP / 'hw' / topname / 'ip/ast/rtl')
+    delete_path(REPO_TOP / 'hw' / topname / 'ip/sensor_ctrl/rtl')
+    delete_path(REPO_TOP / 'hw' / topname / 'ip/xbar_main/xbar_main.core')
+    delete_path(REPO_TOP / 'hw' / topname / 'ip/xbar_peri/xbar_peri.core')
+
+    if args.delete_only:
+        return
 
     # Next, we need to re-run topgen in order to create all auto-generated files.
     shell_out([
@@ -137,7 +152,7 @@ def main():
         (old.parent / new.name).write_text(text)
 
     if not args.build:
-        return;
+        return
 
     # Build the software including test_rom to enable the FPGA build.
     if args.bazel:
@@ -147,6 +162,7 @@ def main():
         ] + BAZEL_BINARIES)
     else:
         shell_out(['ninja', '-C', REPO_TOP / 'build-out'] + BINARIES)
+
 
 if __name__ == "__main__":
     main()

@@ -111,8 +111,6 @@ static void write_words_to_file(const std::string &path,
   }
 }
 
-static bool is_xz(svLogic l) { return l == sv_x || l == sv_z; }
-
 template <typename T>
 static std::array<T, 32> get_rtl_regs(const std::string &reg_scope) {
   std::array<T, 32> ret;
@@ -496,6 +494,11 @@ int OtbnModel::set_software_errs_fatal(unsigned char new_val) {
     return -1;
   }
 
+  return 0;
+}
+
+int OtbnModel::set_no_sec_wipe_chk() {
+  OtbnTraceChecker::get().set_no_sec_wipe_chk();
   return 0;
 }
 
@@ -894,6 +897,12 @@ void otbn_take_loop_warps(OtbnModel *model, OtbnMemUtil *memutil) {
   model->take_loop_warps(*memutil);
 }
 
+int otbn_has_loop_warps(OtbnMemUtil *memutil) {
+  assert(memutil);
+
+  return memutil->GetLoopWarps().size() != 0;
+}
+
 int otbn_model_set_keymgr_value(OtbnModel *model, svLogicVecVal *key0,
                                 svLogicVecVal *key1, unsigned char valid) {
   assert(model && key0 && key1);
@@ -910,4 +919,9 @@ int otbn_model_set_software_errs_fatal(OtbnModel *model,
                                        unsigned char new_val) {
   assert(model);
   return model->set_software_errs_fatal(new_val);
+}
+
+int otbn_set_no_sec_wipe_chk(OtbnModel *model) {
+  assert(model);
+  return model->set_no_sec_wipe_chk();
 }

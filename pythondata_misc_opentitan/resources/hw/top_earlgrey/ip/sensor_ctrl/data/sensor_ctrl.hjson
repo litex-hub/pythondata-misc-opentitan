@@ -20,6 +20,14 @@
       width: "9"
     }
   ],
+  interrupt_list: [
+    { name: "io_status_change",
+      desc: "io power status has changed",
+    }
+    { name: "init_status_change",
+      desc: "ast init status has changed",
+    }
+  ],
   regwidth: "32",
   param_list: [
     { name:    "NumAlertEvents",
@@ -238,7 +246,7 @@ registers: [
           desc: '''
             IO power is ready
           ''',
-          resval: "3",
+          resval: "0",
         },
       ],
       tags: [// The status readback depends on state of ast and do not always have a set value

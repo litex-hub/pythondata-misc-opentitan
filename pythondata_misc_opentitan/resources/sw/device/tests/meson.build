@@ -238,6 +238,39 @@ sw_tests += {
   }
 }
 
+rstmgr_alert_info_test_lib = declare_dependency(
+  link_with: static_library(
+    'rstmgr_alert_info_lib',
+    sources: [
+      hw_ip_alert_handler_reg_h,
+      'rstmgr_alert_info_test.c'],
+    dependencies: [
+      sw_lib_dif_aon_timer,
+      sw_lib_dif_rstmgr,
+      sw_lib_dif_pwrmgr,
+      sw_lib_dif_alert_handler,
+      sw_lib_dif_spi_host,
+      sw_lib_dif_uart,
+      sw_lib_dif_i2c,
+      sw_lib_dif_otp_ctrl,
+      sw_lib_dif_rv_plic,
+      sw_lib_runtime_log,
+      sw_lib_runtime_ibex,
+      sw_lib_mmio,
+      sw_lib_runtime_hart,
+      sw_lib_testing_aon_timer_testutils,
+      sw_lib_testing_rv_plic_testutils,
+      sw_lib_testing_alert_handler_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'rstmgr_alert_info_test': {
+    'library': rstmgr_alert_info_test_lib,
+  }
+}
+
 otbn_smoketest_lib = declare_dependency(
   link_with: static_library(
     'otbn_smoketest_lib',
@@ -343,6 +376,27 @@ sw_tests += {
   }
 }
 
+aes_entropy_test_lib = declare_dependency(
+  link_with: static_library(
+    'aes_entropy_test_lib',
+    sources: ['aes_entropy_test.c'],
+    dependencies: [
+      sw_lib_dif_aes,
+      sw_lib_mmio,
+      sw_lib_runtime_log,
+      sw_lib_testing_entropy_testutils,
+      sw_lib_testing_aes_testutils,
+      sw_lib_testing_clkmgr_testutils,
+      sw_lib_testing_test_status,
+    ],
+  ),
+)
+sw_tests += {
+  'aes_entropy_test': {
+    'library': aes_entropy_test_lib,
+  }
+}
+
 clkmgr_smoketest_lib = declare_dependency(
   link_with: static_library(
     'clkmgr_smoketest_lib',
@@ -385,10 +439,10 @@ sw_tests += {
   }
 }
 
-clkmgr_external_clk_src_for_sw_test_lib = declare_dependency(
+clkmgr_external_clk_src_for_sw_impl_lib = declare_dependency(
   link_with: static_library(
-    'clkmgr_external_clk_src_for_sw_test_lib',
-    sources: ['clkmgr_external_clk_src_for_sw_test.c'],
+    'clkmgr_external_clk_src_for_sw_impl_lib',
+    sources: ['clkmgr_external_clk_src_for_sw_impl.c'],
     dependencies: [
       sw_lib_dif_clkmgr,
       sw_lib_mmio,
@@ -400,9 +454,34 @@ clkmgr_external_clk_src_for_sw_test_lib = declare_dependency(
     ],
   ),
 )
+
+clkmgr_external_clk_src_for_sw_fast_test_lib = declare_dependency(
+  link_with: static_library(
+    'clkmgr_external_clk_src_for_sw_fast_test_lib',
+    sources: ['clkmgr_external_clk_src_for_sw_fast_test.c'],
+    dependencies: [
+      clkmgr_external_clk_src_for_sw_impl_lib,
+    ],
+  ),
+)
 sw_tests += {
-  'clkmgr_external_clk_src_for_sw_test': {
-    'library': clkmgr_external_clk_src_for_sw_test_lib,
+  'clkmgr_external_clk_src_for_sw_fast_test': {
+    'library': clkmgr_external_clk_src_for_sw_fast_test_lib,
+  }
+}
+
+clkmgr_external_clk_src_for_sw_slow_test_lib = declare_dependency(
+  link_with: static_library(
+    'clkmgr_external_clk_src_for_sw_slow_test_lib',
+    sources: ['clkmgr_external_clk_src_for_sw_slow_test.c'],
+    dependencies: [
+      clkmgr_external_clk_src_for_sw_impl_lib,
+    ],
+  ),
+)
+sw_tests += {
+  'clkmgr_external_clk_src_for_sw_slow_test': {
+    'library': clkmgr_external_clk_src_for_sw_slow_test_lib,
   }
 }
 
@@ -607,7 +686,7 @@ flash_ctrl_test_lib = declare_dependency(
       sw_lib_mem,
       sw_lib_mmio,
       sw_lib_dif_flash_ctrl,
-      sw_lib_flash_ctrl,
+      sw_lib_testing_flash_ctrl_testutils,
       sw_lib_runtime_log,
     ],
   ),
@@ -663,6 +742,26 @@ flash_ctrl_ops_test_lib = declare_dependency(
 sw_tests += {
   'flash_ctrl_ops_test': {
     'library': flash_ctrl_ops_test_lib,
+  }
+}
+
+flash_ctrl_clock_freqs_test_lib = declare_dependency(
+  link_with: static_library(
+    'flash_ctrl_clock_freqs_test_lib',
+    sources: ['flash_ctrl_clock_freqs_test.c'],
+    dependencies: [
+      sw_lib_mmio,
+      sw_lib_dif_clkmgr,
+      sw_lib_dif_flash_ctrl,
+      sw_lib_testing_flash_ctrl_testutils,
+      sw_lib_testing_rand_testutils,
+      sw_lib_runtime_log,
+    ],
+  ),
+)
+sw_tests += {
+  'flash_ctrl_clock_freqs_test': {
+    'library': flash_ctrl_clock_freqs_test_lib,
   }
 }
 
@@ -864,6 +963,86 @@ otbn_irq_test_lib = declare_dependency(
 sw_tests += {
   'otbn_irq_test': {
     'library': otbn_irq_test_lib,
+  }
+}
+
+sensor_ctrl_wakeup_test_lib = declare_dependency(
+  link_with: static_library(
+    'sensor_ctrl_wakeup_test_lib',
+    sources: [
+      hw_ip_sensor_ctrl_reg_h,
+      'sensor_ctrl_wakeup.c'],
+    dependencies: [
+      sw_lib_mmio,
+      sw_lib_dif_pwrmgr,
+      sw_lib_dif_rv_plic,
+      sw_lib_dif_sensor_ctrl,
+      sw_lib_irq,
+      sw_lib_runtime_ibex,
+      sw_lib_runtime_log,
+      sw_lib_testing_isr_testutils,
+      sw_lib_testing_pwrmgr_testutils,
+      sw_lib_testing_rv_plic_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'sensor_ctrl_wakeup_test': {
+    'library': sensor_ctrl_wakeup_test_lib,
+  }
+}
+
+sensor_ctrl_alert_test_lib = declare_dependency(
+  link_with: static_library(
+    'sensor_ctrl_alert_test_lib',
+    sources: [
+      hw_ip_sensor_ctrl_reg_h,
+      'sensor_ctrl_alerts.c'],
+    dependencies: [
+      sw_lib_mmio,
+      sw_lib_dif_alert_handler,
+      sw_lib_dif_flash_ctrl,
+      sw_lib_dif_rstmgr,
+      sw_lib_dif_rv_plic,
+      sw_lib_dif_sensor_ctrl,
+      sw_lib_irq,
+      sw_lib_testing_flash_ctrl_testutils,
+      sw_lib_testing_pwrmgr_testutils,
+      sw_lib_runtime_ibex,
+      sw_lib_runtime_log,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'sensor_ctrl_alert_test': {
+    'library': sensor_ctrl_alert_test_lib,
+  }
+}
+
+sensor_ctrl_status_test_lib = declare_dependency(
+  link_with: static_library(
+    'sensor_ctrl_status_test_lib',
+    sources: [
+      hw_ip_sensor_ctrl_reg_h,
+      'sensor_ctrl_status.c'],
+    dependencies: [
+      sw_lib_mmio,
+      sw_lib_dif_rv_plic,
+      sw_lib_dif_sensor_ctrl,
+      sw_lib_irq,
+      sw_lib_runtime_ibex,
+      sw_lib_runtime_log,
+      sw_lib_testing_isr_testutils,
+      sw_lib_testing_rv_plic_testutils,
+      top_earlgrey,
+    ],
+  ),
+)
+sw_tests += {
+  'sensor_ctrl_status_test': {
+    'library': sensor_ctrl_status_test_lib,
   }
 }
 
@@ -1130,6 +1309,49 @@ sw_tests += {
   }
 }
 
+# PWRMGR sleep_disabled test
+pwrmgr_sleep_disabled_test_lib = declare_dependency(
+  link_with: static_library(
+    'pwrmgr_sleep_disabled_test_lib',
+    sources: ['pwrmgr_sleep_disabled_test.c'],
+    dependencies: [
+      sw_lib_dif_aon_timer,
+      sw_lib_dif_pwrmgr,
+      sw_lib_dif_rv_plic,
+      sw_lib_mmio,
+      sw_lib_runtime_log,
+      sw_lib_testing_aon_timer_testutils,
+      sw_lib_testing_pwrmgr_testutils,
+    ],
+  ),
+)
+sw_tests += {
+  'pwrmgr_sleep_disabled_test': {
+    'library': pwrmgr_sleep_disabled_test_lib,
+  }
+}
+
+# AST test
+ast_clk_outs_test_lib = declare_dependency(
+  link_with: static_library(
+    'ast_clk_outs_test_lib',
+    sources: ['ast_clk_outs_test.c'],
+    dependencies: [
+      sw_lib_mmio,
+      sw_lib_dif_sensor_ctrl,
+      sw_lib_runtime_log,
+      top_earlgrey,
+      sw_lib_testing_clkmgr_testutils,
+      sw_lib_testing_pwrmgr_testutils,
+      sw_lib_testing_aon_timer_testutils,
+    ],
+  ),
+)
+sw_tests += {
+  'ast_clk_outs_test': {
+    'library': ast_clk_outs_test_lib,
+  }
+}
 ###############################################################################
 # Auto-generated tests
 ###############################################################################
@@ -1218,16 +1440,15 @@ foreach sw_test_name, sw_test_info : sw_tests
           sw_lib_crt,
           sw_lib_runtime_hart,
           sw_lib_runtime_print,
-          sw_lib_flash_ctrl,
           sw_lib_ibex,
-          sw_lib_dif_pinmux,
+          sw_lib_dif_flash_ctrl,
           sw_lib_dif_gpio,
-          sw_lib_dif_spi_device,
           sw_lib_dif_hmac,
+          sw_lib_dif_pinmux,
+          sw_lib_dif_spi_device,
+          sw_lib_dif_uart,
           sw_lib_mmio,
           sw_lib_runtime_log,
-          sw_lib_dif_flash_ctrl,
-          sw_lib_dif_uart,
           top_earlgrey,
           device_lib,
           sw_lib_testing_flash_ctrl_testutils,
@@ -1235,7 +1456,7 @@ foreach sw_test_name, sw_test_info : sw_tests
           sw_lib_testing_test_status,
           shared_test_deps,
           sw_lib_crt,
-          sw_test_info['library'],
+          sw_test_info['library'].as_link_whole(),
         ],
       )
     else
@@ -1308,6 +1529,7 @@ foreach sw_test_name, sw_test_info : sw_tests
       sw_test_scr_vmem32 = custom_target(
         target_name.format('scr_vmem32'),
         command: scramble_image_command,
+        env: {'PYTHONPATH': meson.project_source_root()},
         depend_files: scramble_image_depend_files,
         input: sw_test_elf,
         output: scramble_image_outputs,

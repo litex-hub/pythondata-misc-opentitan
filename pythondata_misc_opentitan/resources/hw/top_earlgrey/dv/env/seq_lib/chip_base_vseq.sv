@@ -55,12 +55,15 @@ class chip_base_vseq #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_ba
 
   virtual task dut_init(string reset_kind = "HARD");
     // Initialize gpio pin default states
-    cfg.gpio_vif.set_pulldown_en({chip_env_pkg::NUM_GPIOS{1'b1}});
+    if (!$test$plusargs("disable_gpio_pulldown")) begin
+      cfg.gpio_vif.set_pulldown_en({chip_env_pkg::NUM_GPIOS{1'b1}});
+    end
     // Initialize flash seeds
     cfg.mem_bkdr_util_h[FlashBank0Info].set_mem();
     cfg.mem_bkdr_util_h[FlashBank1Info].set_mem();
     // Backdoor load the OTP image.
     cfg.mem_bkdr_util_h[Otp].load_mem_from_file(cfg.otp_images[cfg.use_otp_image]);
+    initialize_otp_sig_verify();
     initialize_otp_creator_sw_cfg_ast_cfg();
     callback_vseq.pre_dut_init();
     // Randomize the ROM image. Subclasses that have an actual ROM image will load it later.
@@ -91,6 +94,9 @@ class chip_base_vseq #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_ba
       cfg.sw_straps_vif.drive({2'b00, cfg.use_spi_load_bootstrap});
     end
 
+    cfg.pinmux_wkup_vif.drive(1'b0);
+    cfg.pwrb_in_vif.drive(1'b0);
+
     // Now safe to do DUT init.
     if (do_dut_init) dut_init();
   endtask
@@ -104,6 +110,15 @@ class chip_base_vseq #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_ba
       uart_tx_data_q.push_back(item.data);
     end
   endtask
+
+  // Initialize the OTP creator SW cfg region to use otbn for signature verification.
+  virtual function void initialize_otp_sig_verify();
+    // Use otbn mod_exp implementation for signature
+    // verification. See the definition of `hardened_bool_t` in
+    // sw/device/lib/base/hardened.h.
+    cfg.mem_bkdr_util_h[Otp].write32(otp_ctrl_reg_pkg::CreatorSwCfgUseSwRsaVerifyOffset,
+                                     32'h1d4);
+  endfunction // initialize_otp_sig_verify
 
   // Initialize the OTP creator SW cfg region with AST configuration data.
   virtual function void initialize_otp_creator_sw_cfg_ast_cfg();
@@ -124,5 +139,49 @@ class chip_base_vseq #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_ba
           otp_ctrl_reg_pkg::CreatorSwCfgAstCfgOffset + i * 4, cfg.creator_sw_cfg_ast_cfg_data[i]);
     end
   endfunction
+
+  task test_mem_rw(uvm_mem mem, int max_access = 2048);
+    uvm_reg_data_t rdata;
+    int wdata, exp_data[$]; // cause all data is 32bit wide in this test
+    int offmax = mem.get_size() - 1;
+    int sizemax = offmax / 4;
+    int st, sz;
+    int byte_addr;
+    st = $urandom_range(0, offmax);
+    // set the maximum transaction
+    if (sizemax > max_access) sizemax = max_access;
+
+    sz = $urandom_range(1, sizemax);
+    `uvm_info(`gfn, $sformatf("Mem write to %s  offset:%0d size: %0d",
+                              mem.get_full_name(), st, sz), UVM_MEDIUM)
+
+    for (int i = 0; i < sz; ++i) begin
+      wdata = $urandom();
+      exp_data.push_back(wdata);
+
+      if (mem.get_access() == "RW") begin
+        mem_wr(.ptr(mem), .offset((st + i) % (offmax + 1)), .data(wdata));
+      end else begin // if (mem.get_access() == "RW")
+        // deposit random data to rom
+        byte_addr = ((st + i) % (offmax + 1)) * 4;
+        cfg.mem_bkdr_util_h[Rom].rom_encrypt_write32_integ(.addr(byte_addr), .data(wdata),
+                                                           .key(RndCnstRomCtrlScrKey),
+                                                           .nonce(RndCnstRomCtrlScrNonce),
+                                                           .scramble_data(1));
+      end
+    end
+
+    `uvm_info(`gfn, $sformatf("write to %s is complete, read back start...",
+                                mem.get_full_name()), UVM_MEDIUM)
+    for (int i = 0; i < sz; ++i) begin
+      mem_rd(.ptr(mem), .offset((st + i) % (offmax + 1)), .data(rdata));
+      `DV_CHECK_EQ((int'(rdata)), exp_data[i],
+                   $sformatf("read back check for offset:%0d failed",
+                             ((st + i) % (offmax + 1))))
+    end
+    `uvm_info(`gfn, $sformatf("read check from %s is complete",
+                              mem.get_full_name()), UVM_MEDIUM)
+
+  endtask : test_mem_rw
 
 endclass : chip_base_vseq

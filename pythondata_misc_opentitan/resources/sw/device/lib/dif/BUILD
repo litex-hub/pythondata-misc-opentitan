@@ -193,6 +193,26 @@ cc_test(
 )
 
 cc_library(
+    name = "csrng_shared",
+    srcs = [
+        "autogen/dif_csrng_autogen.h",
+        "dif_csrng_shared.c",
+    ],
+    hdrs = [
+        "dif_csrng.h",
+        "dif_csrng_shared.h",
+    ],
+    visibility = ["//visibility:private"],
+    deps = [
+        ":base",
+        "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/base:mmio",
+    ],
+)
+
+cc_library(
     name = "csrng",
     srcs = [
         "autogen/dif_csrng_autogen.c",
@@ -204,6 +224,7 @@ cc_library(
     ],
     deps = [
         ":base",
+        ":csrng_shared",
         "//hw/ip/csrng/data:csrng_regs",
         "//sw/device/lib/base:bitfield",
         "//sw/device/lib/base:macros",
@@ -238,6 +259,7 @@ cc_library(
     ],
     deps = [
         ":base",
+        ":csrng_shared",
         "//hw/ip/edn/data:edn_regs",
         "//sw/device/lib/base:bitfield",
         "//sw/device/lib/base:macros",
@@ -251,6 +273,7 @@ cc_test(
     name = "edn_unittest",
     srcs = [
         "autogen/dif_edn_autogen_unittest.cc",
+        "dif_edn_unittest.cc",
     ],
     deps = [
         ":edn",
@@ -975,6 +998,7 @@ cc_library(
     srcs = [
         "autogen/dif_sensor_ctrl_autogen.c",
         "autogen/dif_sensor_ctrl_autogen.h",
+        "dif_sensor_ctrl.c",
     ],
     hdrs = [
         "dif_sensor_ctrl.h",
@@ -992,6 +1016,7 @@ cc_test(
     name = "sensor_ctrl_unittest",
     srcs = [
         "autogen/dif_sensor_ctrl_autogen_unittest.cc",
+        "dif_sensor_ctrl_unittest.cc",
     ],
     deps = [
         ":sensor_ctrl",
@@ -1005,6 +1030,7 @@ cc_library(
     srcs = [
         "autogen/dif_sysrst_ctrl_autogen.c",
         "autogen/dif_sysrst_ctrl_autogen.h",
+        "dif_sysrst_ctrl.c",
     ],
     hdrs = [
         "dif_sysrst_ctrl.h",
@@ -1024,6 +1050,7 @@ cc_test(
     name = "sysrst_ctrl_unittest",
     srcs = [
         "autogen/dif_sysrst_ctrl_autogen_unittest.cc",
+        "dif_sysrst_ctrl_unittest.cc",
     ],
     deps = [
         ":sysrst_ctrl",

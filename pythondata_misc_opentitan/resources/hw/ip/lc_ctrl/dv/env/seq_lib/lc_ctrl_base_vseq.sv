@@ -28,6 +28,7 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
   endtask
 
   virtual task apply_resets_concurrently(int reset_duration_ps = 0);
+    cfg.otp_vendor_test_status = 0;
     cfg.m_jtag_riscv_agent_cfg.m_jtag_agent_cfg.vif.trst_n = 0;
     super.apply_resets_concurrently(reset_duration_ps);
     cfg.m_jtag_riscv_agent_cfg.m_jtag_agent_cfg.vif.trst_n = 1;
@@ -79,6 +80,8 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
     uvm_reg_data_t val;
     foreach (ral.device_id[i]) csr_rd(ral.device_id[i], val);
     foreach (ral.manuf_state[i]) csr_rd(ral.manuf_state[i], val);
+    // Hardware revision reg
+    csr_rd(ral.hw_rev, val);
   endtask
 
 
@@ -241,6 +244,16 @@ class lc_ctrl_base_vseq extends cip_base_vseq #(
               next_lc_state.name(),
               has_rma_token
               ), UVM_MEDIUM)
+  endfunction
+
+
+  // Find sec_cm_base_if_proxy for a given path
+  virtual function sec_cm_base_if_proxy find_sec_cm_base_if_proxy(string path);
+    sec_cm_base_if_proxy proxies[$];
+    // Search singleton queue of proxies in sec_cm_pkg
+    proxies = sec_cm_pkg::sec_cm_if_proxy_q.find_first() with (item.path == path);
+    if (proxies.size > 0) return proxies[0];
+    else `uvm_fatal(`gfn, $sformatf("find_sec_cm_base_if_proxy: no proxy with path %s", path))
   endfunction
 
 endclass : lc_ctrl_base_vseq

@@ -9,9 +9,9 @@
 #include "sw/device/lib/runtime/hart.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/runtime/print.h"
-#include "sw/device/lib/testing/check.h"
 #include "sw/device/lib/testing/pinmux_testutils.h"
-#include "sw/device/lib/testing/test_framework/test_status.h"
+#include "sw/device/lib/testing/test_framework/check.h"
+#include "sw/device/lib/testing/test_framework/status.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"  // Generated.
 
@@ -41,11 +41,12 @@ bool rom_test_main(void) {
     base_uart_stdout(&uart0);
   }
 
-  bool result = false;
-
   /**
    * Place test code here.
    */
 
-  return result;
+  /**
+   * Return true if the test succeeds. Return false if it should fail.
+   */
+  return true;
 }

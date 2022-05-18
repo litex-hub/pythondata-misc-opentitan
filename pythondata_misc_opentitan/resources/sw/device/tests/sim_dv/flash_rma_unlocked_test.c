@@ -11,10 +11,10 @@
 #include "sw/device/lib/runtime/hart.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/runtime/print.h"
-#include "sw/device/lib/testing/check.h"
 #include "sw/device/lib/testing/flash_ctrl_testutils.h"
 #include "sw/device/lib/testing/pinmux_testutils.h"
-#include "sw/device/lib/testing/test_framework/test_status.h"
+#include "sw/device/lib/testing/test_framework/check.h"
+#include "sw/device/lib/testing/test_framework/status.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"  // Generated.
 
@@ -78,9 +78,6 @@ static const uint32_t kRandomData[7][kDataSize] = {
      0x733bf534, 0xc4914b4b, 0x64487458, 0x9d0fa332}};
 
 // RMA unlock token value for LC state transition.
-// TODO(lowRISC/opentitan:#11795): when the sw_symbol_backdoor_overwrite
-// is fixed for ROM, this can be overriden by the testbench as a SW variable.
-// Currently hardcoded to match the token written in the testbench.
 static volatile const uint8_t kLcRmaUnlockToken[LC_TOKEN_SIZE] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -111,13 +108,13 @@ static void read_and_check_info_page_scrambled(bool is_equal,
   uint32_t address = flash_ctrl_testutils_info_region_scrambled_setup(
       &flash_state, page_index, kFlashInfoBank, kPartitionId);
 
-  CHECK(!flash_ctrl_testutils_read_page(
+  CHECK(!flash_ctrl_testutils_read(
       &flash_state, address, kPartitionId, readback_data,
       kDifFlashCtrlPartitionTypeInfo, kDataSize, 0));
   if (is_equal) {
-    CHECK_BUFFER(readback_data, data, kDataSize);
+    CHECK_ARRAYS_EQ(readback_data, data, kDataSize);
   } else {
-    CHECK_BUFFER_NOT_EQ(readback_data, data, kDataSize);
+    CHECK_ARRAYS_NE(readback_data, data, kDataSize);
   }
 }
 
@@ -129,13 +126,13 @@ static void read_and_check_data_page_scrambled(bool is_equal,
   uint32_t address = flash_ctrl_testutils_data_region_scrambled_setup(
       &flash_state, page_index, region, kRegionSize);
 
-  CHECK(!flash_ctrl_testutils_read_page(
+  CHECK(!flash_ctrl_testutils_read(
       &flash_state, address, kPartitionId, readback_data,
       kDifFlashCtrlPartitionTypeData, kDataSize, 0));
   if (is_equal) {
-    CHECK_BUFFER(readback_data, data, kDataSize);
+    CHECK_ARRAYS_EQ(readback_data, data, kDataSize);
   } else {
-    CHECK_BUFFER_NOT_EQ(readback_data, data, kDataSize);
+    CHECK_ARRAYS_NE(readback_data, data, kDataSize);
   }
 }
 
