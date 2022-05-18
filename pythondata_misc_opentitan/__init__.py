@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12216"
-version_tuple = (0, 0, 12216)
+version_str = "0.0.post12227"
+version_tuple = (0, 0, 12227)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12216")
+    pversion = V("0.0.post12227")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12088"
-data_version_tuple = (0, 0, 12088)
+data_version_str = "0.0.post12099"
+data_version_tuple = (0, 0, 12099)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12088")
+    pdata_version = V("0.0.post12099")
 except ImportError:
     pass
-data_git_hash = "88c679896c52e81e50c21acae287eba6cc5a9851"
-data_git_describe = "v0.0-12088-g88c679896"
+data_git_hash = "f616ce61e7b9a432eeed648cf58973f58ca6e3d5"
+data_git_describe = "v0.0-12099-gf616ce61e"
 data_git_msg = """\
-commit 88c679896c52e81e50c21acae287eba6cc5a9851
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed May 18 12:46:01 2022 -0400
+commit f616ce61e7b9a432eeed648cf58973f58ca6e3d5
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed May 18 16:05:09 2022 +0100
 
-    [sw/silicon_creator] Change RESET opcode to 0x99
+    [otbn,dv] Correct the boundary of a "critical section"
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    The running_ flag is used to handle process control in
+    start_running_otbn. The idea is that it gets set when we start
+    run_otbn() and then cleared just before we exit. That lets us get the
+    timing right before running a "disable fork" in start_running_otbn.
+    
+    A series of commits starting with 1b1b7aa had added some extra stuff
+    that run after we cleared the flag, causing occasional weird errors
+    where a UVM sequencer spots that a process has been killed while
+    waiting to send a sequence item.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
