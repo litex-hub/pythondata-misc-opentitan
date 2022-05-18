@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12213"
-version_tuple = (0, 0, 12213)
+version_str = "0.0.post12216"
+version_tuple = (0, 0, 12216)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12213")
+    pversion = V("0.0.post12216")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12085"
-data_version_tuple = (0, 0, 12085)
+data_version_str = "0.0.post12088"
+data_version_tuple = (0, 0, 12088)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12085")
+    pdata_version = V("0.0.post12088")
 except ImportError:
     pass
-data_git_hash = "b9370006f49956571000ec34c7f7ae84a08badc2"
-data_git_describe = "v0.0-12085-gb9370006f"
+data_git_hash = "88c679896c52e81e50c21acae287eba6cc5a9851"
+data_git_describe = "v0.0-12088-g88c679896"
 data_git_msg = """\
-commit b9370006f49956571000ec34c7f7ae84a08badc2
-Author: Miguel Young de la Sota <mcyoung@google.com>
-Date:   Thu May 12 13:34:36 2022 -0400
+commit 88c679896c52e81e50c21acae287eba6cc5a9851
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed May 18 12:46:01 2022 -0400
 
-    [dif/edn] Add unit tests
+    [sw/silicon_creator] Change RESET opcode to 0x99
     
-    Signed-off-by: Miguel Young de la Sota <mcyoung@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
