@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12228"
-version_tuple = (0, 0, 12228)
+version_str = "0.0.post12229"
+version_tuple = (0, 0, 12229)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12228")
+    pversion = V("0.0.post12229")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12100"
-data_version_tuple = (0, 0, 12100)
+data_version_str = "0.0.post12101"
+data_version_tuple = (0, 0, 12101)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12100")
+    pdata_version = V("0.0.post12101")
 except ImportError:
     pass
-data_git_hash = "f770f3ff2349dbd917a2b032b02d2b8485145952"
-data_git_describe = "v0.0-12100-gf770f3ff2"
+data_git_hash = "30f5670173119b5a449578e08a152d4f298ffac4"
+data_git_describe = "v0.0-12101-g30f567017"
 data_git_msg = """\
-commit f770f3ff2349dbd917a2b032b02d2b8485145952
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed May 18 10:45:34 2022 -0700
+commit 30f5670173119b5a449578e08a152d4f298ffac4
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed May 18 15:11:11 2022 -0700
 
-    [sw/base] fix documentation comments in bitfield.h
+    [dv/chip] Update chip-level testplan
     
-    This addresses some outstanding issues with #12625.
+    1). Update some tests that have been implemented by other chip level
+      tests.
+    2). Fix some sequence name mismatches/typos.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
