@@ -20,6 +20,7 @@
 #include "sw/device/silicon_creator/lib/drivers/ibex.h"
 #include "sw/device/silicon_creator/lib/drivers/keymgr.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
+#include "sw/device/silicon_creator/lib/drivers/otp.h"
 #include "sw/device/silicon_creator/lib/drivers/pinmux.h"
 #include "sw/device/silicon_creator/lib/drivers/retention_sram.h"
 #include "sw/device/silicon_creator/lib/drivers/rnd.h"
@@ -36,6 +37,7 @@
 #include "sw/device/silicon_creator/mask_rom/sigverify_keys.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
+#include "otp_ctrl_regs.h"
 
 /**
  * Table of forward branch Control Flow Integrity (CFI) counters.
@@ -111,20 +113,17 @@ static rom_error_t mask_rom_init(void) {
   // Initialize in-memory copy of the ePMP register configuration.
   mask_rom_epmp_state_init(&epmp, lc_state);
 
-  // Initialize the retention SRAM at power-on.
-  //
-  // The reset reason is treated as power-on if the POR bit is asserted
-  // regardless of whether or not any other reset reason bits are set. This is
-  // because we cannot guarantee that the retention SRAM was fully initialized
-  // if the device was reset before the POR bit was cleared.
-  //
-  // TODO(lowRISC/opentitan#7887): once the retention SRAM is initialized the
-  // reset reason should probably be saved into either main SRAM or the
-  // retention SRAM and the reset reason register cleared.
+  // Initialize the retention RAM based on the reset reason and the OTP value.
+  // Note: Retention RAM is always reset on PoR regardless of the OTP value.
   uint32_t reset_reasons = rstmgr_reason_get();
-  if (bitfield_bit32_read(reset_reasons, kRstmgrReasonPowerOn)) {
+  uint32_t reset_mask = (1 << kRstmgrReasonPowerOn)
+      | otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_RET_RAM_RESET_MASK_OFFSET);
+  if ((reset_reasons & reset_mask) != 0) {
     retention_sram_init();
   }
+  // Store the reset reason in retention RAM and clear the register.
+  retention_sram_get()->reset_reasons = reset_reasons;
+  rstmgr_reason_clear(reset_reasons);
 
   // If running on an FPGA, print the FPGA version-id.
   // This value is guaranteed to be zero on all non-FPGA implementations.
