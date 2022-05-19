@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12231"
-version_tuple = (0, 0, 12231)
+version_str = "0.0.post12234"
+version_tuple = (0, 0, 12234)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12231")
+    pversion = V("0.0.post12234")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12103"
-data_version_tuple = (0, 0, 12103)
+data_version_str = "0.0.post12106"
+data_version_tuple = (0, 0, 12106)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12103")
+    pdata_version = V("0.0.post12106")
 except ImportError:
     pass
-data_git_hash = "6372f683248c32b7c0a673e5184b539c52121661"
-data_git_describe = "v0.0-12103-g6372f6832"
+data_git_hash = "ec62501314cc087aa49037eb15c2dc34118d4132"
+data_git_describe = "v0.0-12106-gec6250131"
 data_git_msg = """\
-commit 6372f683248c32b7c0a673e5184b539c52121661
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed May 18 10:56:01 2022 +0100
+commit ec62501314cc087aa49037eb15c2dc34118d4132
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed May 18 16:17:46 2022 -0400
 
-    [dif, rv_core_ibex] Add address translation and unittest
+    [opentitantool] Fix comment typo
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
