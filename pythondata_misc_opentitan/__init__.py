@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12236"
-version_tuple = (0, 0, 12236)
+version_str = "0.0.post12239"
+version_tuple = (0, 0, 12239)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12236")
+    pversion = V("0.0.post12239")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12108"
-data_version_tuple = (0, 0, 12108)
+data_version_str = "0.0.post12111"
+data_version_tuple = (0, 0, 12111)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12108")
+    pdata_version = V("0.0.post12111")
 except ImportError:
     pass
-data_git_hash = "605d0bd56d559d248f2dd5314d8845715e7981f7"
-data_git_describe = "v0.0-12108-g605d0bd56"
+data_git_hash = "b13d59e4203de523a11e07865b08b018eb0e2e11"
+data_git_describe = "v0.0-12111-gb13d59e42"
 data_git_msg = """\
-commit 605d0bd56d559d248f2dd5314d8845715e7981f7
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed May 18 17:56:19 2022 -0700
+commit b13d59e4203de523a11e07865b08b018eb0e2e11
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed May 18 14:52:05 2022 -0400
 
-    [dv/pattgen] Modify coverage exclusions
+    [sw/silicon_creator] Store reset reason in ret ram and clear register
     
-    This is discussed in issue #12545.
+    Fixes #7887
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
