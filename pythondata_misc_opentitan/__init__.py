@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12229"
-version_tuple = (0, 0, 12229)
+version_str = "0.0.post12231"
+version_tuple = (0, 0, 12231)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12229")
+    pversion = V("0.0.post12231")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12101"
-data_version_tuple = (0, 0, 12101)
+data_version_str = "0.0.post12103"
+data_version_tuple = (0, 0, 12103)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12101")
+    pdata_version = V("0.0.post12103")
 except ImportError:
     pass
-data_git_hash = "30f5670173119b5a449578e08a152d4f298ffac4"
-data_git_describe = "v0.0-12101-g30f567017"
+data_git_hash = "6372f683248c32b7c0a673e5184b539c52121661"
+data_git_describe = "v0.0-12103-g6372f6832"
 data_git_msg = """\
-commit 30f5670173119b5a449578e08a152d4f298ffac4
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed May 18 15:11:11 2022 -0700
+commit 6372f683248c32b7c0a673e5184b539c52121661
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Wed May 18 10:56:01 2022 +0100
 
-    [dv/chip] Update chip-level testplan
+    [dif, rv_core_ibex] Add address translation and unittest
     
-    1). Update some tests that have been implemented by other chip level
-      tests.
-    2). Fix some sequence name mismatches/typos.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
