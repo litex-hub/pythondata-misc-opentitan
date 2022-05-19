@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12239"
-version_tuple = (0, 0, 12239)
+version_str = "0.0.post12240"
+version_tuple = (0, 0, 12240)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12239")
+    pversion = V("0.0.post12240")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12111"
-data_version_tuple = (0, 0, 12111)
+data_version_str = "0.0.post12112"
+data_version_tuple = (0, 0, 12112)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12111")
+    pdata_version = V("0.0.post12112")
 except ImportError:
     pass
-data_git_hash = "b13d59e4203de523a11e07865b08b018eb0e2e11"
-data_git_describe = "v0.0-12111-gb13d59e42"
+data_git_hash = "8472b339452fc9189faae736bfbfd5695eb3d8a8"
+data_git_describe = "v0.0-12112-g8472b3394"
 data_git_msg = """\
-commit b13d59e4203de523a11e07865b08b018eb0e2e11
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed May 18 14:52:05 2022 -0400
+commit 8472b339452fc9189faae736bfbfd5695eb3d8a8
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed May 18 10:53:10 2022 -0700
 
-    [sw/silicon_creator] Store reset reason in ret ram and clear register
+    [rv_core_ibex] align default config with config used in top
     
-    Fixes #7887
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
