@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12234"
-version_tuple = (0, 0, 12234)
+version_str = "0.0.post12236"
+version_tuple = (0, 0, 12236)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12234")
+    pversion = V("0.0.post12236")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12106"
-data_version_tuple = (0, 0, 12106)
+data_version_str = "0.0.post12108"
+data_version_tuple = (0, 0, 12108)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12106")
+    pdata_version = V("0.0.post12108")
 except ImportError:
     pass
-data_git_hash = "ec62501314cc087aa49037eb15c2dc34118d4132"
-data_git_describe = "v0.0-12106-gec6250131"
+data_git_hash = "605d0bd56d559d248f2dd5314d8845715e7981f7"
+data_git_describe = "v0.0-12108-g605d0bd56"
 data_git_msg = """\
-commit ec62501314cc087aa49037eb15c2dc34118d4132
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed May 18 16:17:46 2022 -0400
+commit 605d0bd56d559d248f2dd5314d8845715e7981f7
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed May 18 17:56:19 2022 -0700
 
-    [opentitantool] Fix comment typo
+    [dv/pattgen] Modify coverage exclusions
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    This is discussed in issue #12545.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
