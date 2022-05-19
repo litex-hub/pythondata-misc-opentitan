@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12240"
-version_tuple = (0, 0, 12240)
+version_str = "0.0.post12241"
+version_tuple = (0, 0, 12241)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12240")
+    pversion = V("0.0.post12241")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12112"
-data_version_tuple = (0, 0, 12112)
+data_version_str = "0.0.post12113"
+data_version_tuple = (0, 0, 12113)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12112")
+    pdata_version = V("0.0.post12113")
 except ImportError:
     pass
-data_git_hash = "8472b339452fc9189faae736bfbfd5695eb3d8a8"
-data_git_describe = "v0.0-12112-g8472b3394"
+data_git_hash = "69766dd58d497e6bba429bb4110b45a66f7ce7ab"
+data_git_describe = "v0.0-12113-g69766dd58"
 data_git_msg = """\
-commit 8472b339452fc9189faae736bfbfd5695eb3d8a8
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed May 18 10:53:10 2022 -0700
+commit 69766dd58d497e6bba429bb4110b45a66f7ce7ab
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Thu May 19 13:38:50 2022 +0100
 
-    [rv_core_ibex] align default config with config used in top
+    [sysrst_ctrl,dv] Fix the combo detect seq name in stress all test
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
