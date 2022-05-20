@@ -4,45 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12257"
-version_tuple = (0, 0, 12257)
+version_str = "0.0.post12258"
+version_tuple = (0, 0, 12258)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12257")
+    pversion = V("0.0.post12258")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12129"
-data_version_tuple = (0, 0, 12129)
+data_version_str = "0.0.post12130"
+data_version_tuple = (0, 0, 12130)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12129")
+    pdata_version = V("0.0.post12130")
 except ImportError:
     pass
-data_git_hash = "2f16efd630e32884772a4c3446c57109a995cf5a"
-data_git_describe = "v0.0-12129-g2f16efd63"
+data_git_hash = "60490355a29fb9bf1277bd780c5835729547afcb"
+data_git_describe = "v0.0-12130-g60490355a"
 data_git_msg = """\
-commit 2f16efd630e32884772a4c3446c57109a995cf5a
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu May 19 17:03:04 2022 -0700
+commit 60490355a29fb9bf1277bd780c5835729547afcb
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Wed May 18 15:45:21 2022 +0100
 
-    fix(ottf): Make SWI asynchronous ISR
+    [sysrst_ctrl,dv] Improve the combo detect group coverage
     
-    https://github.com/lowRISC/opentitan/issues/12787
-    
-    SWI in `ottf_isrs.S` was synchronous, where the logic changes MEPC by
-    adding the instruction size.
-    
-    However, SWI in Opentitan (and according to Spec) is asynchronous. In
-    OpenTitan, after setting MSIP (Memory Mapped CSR in RV_PLIC), the
-    software interrupt occurs two cycles later due to the fabric latency and
-    the register update in RV_PLIC.
-    
-    So, `handler_software_isr` is revised to store MEPC directly to the
-    stack not manipulating it.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
