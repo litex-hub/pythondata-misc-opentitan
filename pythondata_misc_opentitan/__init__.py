@@ -4,34 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12253"
-version_tuple = (0, 0, 12253)
+version_str = "0.0.post12257"
+version_tuple = (0, 0, 12257)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12253")
+    pversion = V("0.0.post12257")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12125"
-data_version_tuple = (0, 0, 12125)
+data_version_str = "0.0.post12129"
+data_version_tuple = (0, 0, 12129)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12125")
+    pdata_version = V("0.0.post12129")
 except ImportError:
     pass
-data_git_hash = "3024b9b2178c4994935cfdfa8179158f5e2ebabd"
-data_git_describe = "v0.0-12125-g3024b9b21"
+data_git_hash = "2f16efd630e32884772a4c3446c57109a995cf5a"
+data_git_describe = "v0.0-12129-g2f16efd63"
 data_git_msg = """\
-commit 3024b9b2178c4994935cfdfa8179158f5e2ebabd
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu May 19 12:11:52 2022 -0400
+commit 2f16efd630e32884772a4c3446c57109a995cf5a
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu May 19 17:03:04 2022 -0700
 
-    [bazel] bitstreams don't refresh when offline
+    fix(ottf): Make SWI asynchronous ISR
     
-    and added latest.txt
+    https://github.com/lowRISC/opentitan/issues/12787
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    SWI in `ottf_isrs.S` was synchronous, where the logic changes MEPC by
+    adding the instruction size.
+    
+    However, SWI in Opentitan (and according to Spec) is asynchronous. In
+    OpenTitan, after setting MSIP (Memory Mapped CSR in RV_PLIC), the
+    software interrupt occurs two cycles later due to the fabric latency and
+    the register update in RV_PLIC.
+    
+    So, `handler_software_isr` is revised to store MEPC directly to the
+    stack not manipulating it.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
