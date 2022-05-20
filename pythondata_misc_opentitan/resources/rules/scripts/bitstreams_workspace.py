@@ -291,9 +291,8 @@ def main(argv):
 
     # Do we need a refresh?
     need_refresh = (args.refresh or bitstream != 'latest' or
-                    (cache.NeedRefresh(args.refresh_time) and
-                     not args.offline))
-    cache.GetBitstreamsAvailable(need_refresh)
+                    cache.NeedRefresh(args.refresh_time))
+    cache.GetBitstreamsAvailable(need_refresh and not args.offline)
 
     # If commanded to print bitstream availability, do so.
     if args.list:
@@ -309,7 +308,7 @@ def main(argv):
                 'Cannot find a bitstream close to {}'.format(bitstream))
             return 1
         if closest != bitstream:
-            logging.info('Closest bitstream to {} is {}.'.format(
+            logging.error('Closest bitstream to {} is {}.'.format(
                 bitstream, closest))
             bitstream = closest
 
@@ -319,7 +318,7 @@ def main(argv):
     #   @bitstreams//:bitstream_mask_rom
     configured = cache.WriteBuildFile(args.build_file, bitstream)
     if args.bitstream != configured:
-        logging.info('Configured bitstream "{}" as {}.'.format(
+        logging.error('Configured bitstream "{}" as {}.'.format(
             args.bitstream, configured))
     else:
         logging.info('Configured bitstream {}.'.format(configured))
