@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12258"
-version_tuple = (0, 0, 12258)
+version_str = "0.0.post12259"
+version_tuple = (0, 0, 12259)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12258")
+    pversion = V("0.0.post12259")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12130"
-data_version_tuple = (0, 0, 12130)
+data_version_str = "0.0.post12131"
+data_version_tuple = (0, 0, 12131)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12130")
+    pdata_version = V("0.0.post12131")
 except ImportError:
     pass
-data_git_hash = "60490355a29fb9bf1277bd780c5835729547afcb"
-data_git_describe = "v0.0-12130-g60490355a"
+data_git_hash = "c5be2597f3b41dac1fd1a7354be46ff7c6704f05"
+data_git_describe = "v0.0-12131-gc5be2597f"
 data_git_msg = """\
-commit 60490355a29fb9bf1277bd780c5835729547afcb
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Wed May 18 15:45:21 2022 +0100
+commit c5be2597f3b41dac1fd1a7354be46ff7c6704f05
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri May 20 11:06:03 2022 +0100
 
-    [sysrst_ctrl,dv] Improve the combo detect group coverage
+    [otbn,dv] Remove unused rnd_req field
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    This was added in 051133d, but isn't needed: that commit eventually
+    switched to tracking the EDN request in a RND_REQ external register.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
