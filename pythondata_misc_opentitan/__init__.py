@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12266"
-version_tuple = (0, 0, 12266)
+version_str = "0.0.post12267"
+version_tuple = (0, 0, 12267)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12266")
+    pversion = V("0.0.post12267")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12138"
-data_version_tuple = (0, 0, 12138)
+data_version_str = "0.0.post12139"
+data_version_tuple = (0, 0, 12139)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12138")
+    pdata_version = V("0.0.post12139")
 except ImportError:
     pass
-data_git_hash = "a5093e820b4aeca7a6985430434356334d220f6d"
-data_git_describe = "v0.0-12138-ga5093e820"
+data_git_hash = "11959ccf865d0e320245b7ebca781c3a88952ef5"
+data_git_describe = "v0.0-12139-g11959ccf8"
 data_git_msg = """\
-commit a5093e820b4aeca7a6985430434356334d220f6d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri May 20 10:22:56 2022 -0700
+commit 11959ccf865d0e320245b7ebca781c3a88952ef5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri May 20 11:03:47 2022 -0700
 
-    [dv/lc_ctrl] temp remove lc_ctrl stress_all_with_rand_reset test
+    [dv/top] bypass alert watchdog at the end of test
     
-    This PR temp removes a test to unblock nightly regression hanging issue.
-    An issue is filed to re-enable this test: #12807
+    flash_lc_rw_en tests move to scrap state at the end of the
+    test, which causes many alerts to continuously fire.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This run option just tells the test to ignore those continuously
+    firing alerts.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
