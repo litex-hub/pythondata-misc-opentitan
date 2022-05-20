@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12259"
-version_tuple = (0, 0, 12259)
+version_str = "0.0.post12260"
+version_tuple = (0, 0, 12260)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12259")
+    pversion = V("0.0.post12260")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12131"
-data_version_tuple = (0, 0, 12131)
+data_version_str = "0.0.post12132"
+data_version_tuple = (0, 0, 12132)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12131")
+    pdata_version = V("0.0.post12132")
 except ImportError:
     pass
-data_git_hash = "c5be2597f3b41dac1fd1a7354be46ff7c6704f05"
-data_git_describe = "v0.0-12131-gc5be2597f"
+data_git_hash = "dad98a7b6e7ad69a815442402c4e15206c689fad"
+data_git_describe = "v0.0-12132-gdad98a7b6"
 data_git_msg = """\
-commit c5be2597f3b41dac1fd1a7354be46ff7c6704f05
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri May 20 11:06:03 2022 +0100
+commit dad98a7b6e7ad69a815442402c4e15206c689fad
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri May 20 10:43:52 2022 +0100
 
-    [otbn,dv] Remove unused rnd_req field
+    [silicon_creator] Update sigverify test vector header template.
     
-    This was added in 051133d, but isn't needed: that commit eventually
-    switched to tracking the EDN request in a RND_REQ external register.
+    This template is used for testing alternate test vector sets such as
+    Wycheproof. I recently ran the large test set for the first time in a
+    while to check some recent changes and noticed the template had gotten
+    slightly out of sync with the surrounding code.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
