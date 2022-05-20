@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12260"
-version_tuple = (0, 0, 12260)
+version_str = "0.0.post12265"
+version_tuple = (0, 0, 12265)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12260")
+    pversion = V("0.0.post12265")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12132"
-data_version_tuple = (0, 0, 12132)
+data_version_str = "0.0.post12137"
+data_version_tuple = (0, 0, 12137)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12132")
+    pdata_version = V("0.0.post12137")
 except ImportError:
     pass
-data_git_hash = "dad98a7b6e7ad69a815442402c4e15206c689fad"
-data_git_describe = "v0.0-12132-gdad98a7b6"
+data_git_hash = "421b9a95536da34e9efcc5b84ec6fbd555e02e39"
+data_git_describe = "v0.0-12137-g421b9a955"
 data_git_msg = """\
-commit dad98a7b6e7ad69a815442402c4e15206c689fad
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri May 20 10:43:52 2022 +0100
+commit 421b9a95536da34e9efcc5b84ec6fbd555e02e39
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri May 20 12:15:58 2022 +0100
 
-    [silicon_creator] Update sigverify test vector header template.
+    [otbn,dv] Re-order definitions in otbn_model
     
-    This template is used for testing alternate test vector sets such as
-    Wycheproof. I recently ran the large test set for the first time in a
-    while to check some recent changes and noticed the template had gotten
-    slightly out of sync with the surrounding code.
+    This is a little nitty, but the definitions in the header file, C++
+    file and both DPI headers were all in different orders. And, in some
+    cases, quite bizarre orders! Put them all the same way around.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
