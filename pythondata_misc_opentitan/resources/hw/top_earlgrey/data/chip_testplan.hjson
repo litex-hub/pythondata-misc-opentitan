@@ -1329,8 +1329,11 @@
     }
     {
       name: chip_sw_lc_ctrl_kmac_reset
-      desc: '''Verify the effect of putting the KMAC logic in reset.
+      desc: '''Verify the effect of putting the KMAC logic in reset during LC state transition.
 
+            - For a lc state transition, force a reset to KMAC when KMAC is processing lc
+              transition tokens.
+            - Verify that LC won't transfer to next state upon KMAC reset glitch.
             '''
       milestone: V2
       tests: []
@@ -2798,7 +2801,8 @@
              Verify that the features that should indeed be disabled are indeed disabled.
              '''
       milestone: V2
-      tests: ["chip_sw_lc_walkthrough_prodend", "chip_sw_lc_walkthrough_rma"]
+      tests: ["chip_sw_lc_walkthrough_prodend", "chip_sw_lc_walkthrough_rma",
+              "chip_sw_lc_walkthrough_testunlocks"]
     }
     {
       name: chip_sw_device_ownership
