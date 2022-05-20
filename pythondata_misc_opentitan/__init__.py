@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12246"
-version_tuple = (0, 0, 12246)
+version_str = "0.0.post12253"
+version_tuple = (0, 0, 12253)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12246")
+    pversion = V("0.0.post12253")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12118"
-data_version_tuple = (0, 0, 12118)
+data_version_str = "0.0.post12125"
+data_version_tuple = (0, 0, 12125)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12118")
+    pdata_version = V("0.0.post12125")
 except ImportError:
     pass
-data_git_hash = "eb25b5bb4f583a0dcba970539cbfc0799413e8de"
-data_git_describe = "v0.0-12118-geb25b5bb4"
+data_git_hash = "3024b9b2178c4994935cfdfa8179158f5e2ebabd"
+data_git_describe = "v0.0-12125-g3024b9b21"
 data_git_msg = """\
-commit eb25b5bb4f583a0dcba970539cbfc0799413e8de
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue May 17 14:59:48 2022 +0100
+commit 3024b9b2178c4994935cfdfa8179158f5e2ebabd
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Thu May 19 12:11:52 2022 -0400
 
-    [dif, hmac] Add unittest for `...mode_hmac_start` function
+    [bazel] bitstreams don't refresh when offline
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    and added latest.txt
+    
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
