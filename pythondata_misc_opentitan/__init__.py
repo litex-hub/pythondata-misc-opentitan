@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12267"
-version_tuple = (0, 0, 12267)
+version_str = "0.0.post12270"
+version_tuple = (0, 0, 12270)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12267")
+    pversion = V("0.0.post12270")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12139"
-data_version_tuple = (0, 0, 12139)
+data_version_str = "0.0.post12142"
+data_version_tuple = (0, 0, 12142)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12139")
+    pdata_version = V("0.0.post12142")
 except ImportError:
     pass
-data_git_hash = "11959ccf865d0e320245b7ebca781c3a88952ef5"
-data_git_describe = "v0.0-12139-g11959ccf8"
+data_git_hash = "2a6e9f0277edfdfd8c612c267d37fa0a74e253da"
+data_git_describe = "v0.0-12142-g2a6e9f027"
 data_git_msg = """\
-commit 11959ccf865d0e320245b7ebca781c3a88952ef5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri May 20 11:03:47 2022 -0700
+commit 2a6e9f0277edfdfd8c612c267d37fa0a74e253da
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri May 20 13:08:12 2022 -0400
 
-    [dv/top] bypass alert watchdog at the end of test
+    [sw/silicon_creator] Relax the default case in bootstrap_handle_program()
     
-    flash_lc_rw_en tests move to scrap state at the end of the
-    test, which causes many alerts to continuously fire.
+    We don't expect any other commands since the switch statement covers all
+    commands that are handled by SW. However, since we can potentially
+    get a 0x0 opcode due to glitches on SPI or strap lines. See #11871.
     
-    This run option just tells the test to ignore those continuously
-    firing alerts.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
