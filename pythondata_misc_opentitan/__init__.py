@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12274"
-version_tuple = (0, 0, 12274)
+version_str = "0.0.post12278"
+version_tuple = (0, 0, 12278)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12274")
+    pversion = V("0.0.post12278")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12146"
-data_version_tuple = (0, 0, 12146)
+data_version_str = "0.0.post12150"
+data_version_tuple = (0, 0, 12150)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12146")
+    pdata_version = V("0.0.post12150")
 except ImportError:
     pass
-data_git_hash = "95efd6759381928720a568858f6ce20c12921d9a"
-data_git_describe = "v0.0-12146-g95efd6759"
+data_git_hash = "bf25d8b4160c6a888933d3a224bac79851537a31"
+data_git_describe = "v0.0-12150-gbf25d8b41"
 data_git_msg = """\
-commit 95efd6759381928720a568858f6ce20c12921d9a
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Apr 12 17:30:05 2022 +0100
+commit bf25d8b4160c6a888933d3a224bac79851537a31
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Jan 31 15:46:22 2022 +0000
 
-    Tweak vendoring json; Update lowrisc_ibex to lowRISC/ibex@e1128aa2
+    [otbn] Clean up OTBN information-flow analysis scripts.
     
-    Now we explicitly pull in the stuff we need, rather than excluding the
-    things we don't want.
+    Linting/formatting/general cleanup after recent changes to support
+    reasoning about cycles.
     
-    Once that was done, I re-ran the vendor tool (fetching the same
-    version of the Ibex repository). The rest of this commit message is
-    the auto-generated commit message from the tool.
-    
-    Update code from upstream repository
-    https://github.com/lowRISC/ibex.git to revision
-    e1128aa2d442efb7cbdd93f98708dfa0b875e7e1
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
