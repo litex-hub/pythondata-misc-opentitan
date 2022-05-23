@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12280"
-version_tuple = (0, 0, 12280)
+version_str = "0.0.post12283"
+version_tuple = (0, 0, 12283)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12280")
+    pversion = V("0.0.post12283")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12152"
-data_version_tuple = (0, 0, 12152)
+data_version_str = "0.0.post12155"
+data_version_tuple = (0, 0, 12155)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12152")
+    pdata_version = V("0.0.post12155")
 except ImportError:
     pass
-data_git_hash = "bfbbbdd62355067ffc52d6c6fd60bd5948db3530"
-data_git_describe = "v0.0-12152-gbfbbbdd62"
+data_git_hash = "114e7fc41855b27bba91d966dfedf300afc8470a"
+data_git_describe = "v0.0-12155-g114e7fc41"
 data_git_msg = """\
-commit bfbbbdd62355067ffc52d6c6fd60bd5948db3530
-Author: Alexander Williams <awill@google.com>
-Date:   Fri May 20 08:45:02 2022 -0700
+commit 114e7fc41855b27bba91d966dfedf300afc8470a
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri May 20 16:32:35 2022 -0700
 
-    [spi_device/dif] Update DIF checklist
+    [fpv/rstmgr] Fix FPV compile error
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    This PR fixes rstmgr FPV sec_cm compile error.
+    The sva core file cannot include any UVM components, so we moved the
+    mubi coverage bind to rstmgr/dv/cov/ folder.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
