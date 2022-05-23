@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12283"
-version_tuple = (0, 0, 12283)
+version_str = "0.0.post12286"
+version_tuple = (0, 0, 12286)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12283")
+    pversion = V("0.0.post12286")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12155"
-data_version_tuple = (0, 0, 12155)
+data_version_str = "0.0.post12158"
+data_version_tuple = (0, 0, 12158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12155")
+    pdata_version = V("0.0.post12158")
 except ImportError:
     pass
-data_git_hash = "114e7fc41855b27bba91d966dfedf300afc8470a"
-data_git_describe = "v0.0-12155-g114e7fc41"
+data_git_hash = "b42dbc2d004358a7036ab4eee2c02b79e091bead"
+data_git_describe = "v0.0-12158-gb42dbc2d0"
 data_git_msg = """\
-commit 114e7fc41855b27bba91d966dfedf300afc8470a
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri May 20 16:32:35 2022 -0700
+commit b42dbc2d004358a7036ab4eee2c02b79e091bead
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue May 17 17:02:42 2022 -0700
 
-    [fpv/rstmgr] Fix FPV compile error
+    [bazel,dvsim] update dvsim.py to use Bazel to build SW
     
-    This PR fixes rstmgr FPV sec_cm compile error.
-    The sva core file cannot include any UVM components, so we moved the
-    mubi coverage bind to rstmgr/dv/cov/ folder.
+    This fixes #11563 by updating dvsim.py, and the chip-level testbench, to
+    build SW artifacts with Bazel (instead of meson).
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
