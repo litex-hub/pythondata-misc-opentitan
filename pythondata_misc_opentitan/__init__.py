@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12278"
-version_tuple = (0, 0, 12278)
+version_str = "0.0.post12280"
+version_tuple = (0, 0, 12280)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12278")
+    pversion = V("0.0.post12280")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12150"
-data_version_tuple = (0, 0, 12150)
+data_version_str = "0.0.post12152"
+data_version_tuple = (0, 0, 12152)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12150")
+    pdata_version = V("0.0.post12152")
 except ImportError:
     pass
-data_git_hash = "bf25d8b4160c6a888933d3a224bac79851537a31"
-data_git_describe = "v0.0-12150-gbf25d8b41"
+data_git_hash = "bfbbbdd62355067ffc52d6c6fd60bd5948db3530"
+data_git_describe = "v0.0-12152-gbfbbbdd62"
 data_git_msg = """\
-commit bf25d8b4160c6a888933d3a224bac79851537a31
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Jan 31 15:46:22 2022 +0000
+commit bfbbbdd62355067ffc52d6c6fd60bd5948db3530
+Author: Alexander Williams <awill@google.com>
+Date:   Fri May 20 08:45:02 2022 -0700
 
-    [otbn] Clean up OTBN information-flow analysis scripts.
+    [spi_device/dif] Update DIF checklist
     
-    Linting/formatting/general cleanup after recent changes to support
-    reasoning about cycles.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
