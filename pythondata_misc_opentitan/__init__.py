@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12271"
-version_tuple = (0, 0, 12271)
+version_str = "0.0.post12274"
+version_tuple = (0, 0, 12274)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12271")
+    pversion = V("0.0.post12274")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12143"
-data_version_tuple = (0, 0, 12143)
+data_version_str = "0.0.post12146"
+data_version_tuple = (0, 0, 12146)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12143")
+    pdata_version = V("0.0.post12146")
 except ImportError:
     pass
-data_git_hash = "46e134fa9faf6652c6ee4a05fd5cb138d32508ae"
-data_git_describe = "v0.0-12143-g46e134fa9"
+data_git_hash = "95efd6759381928720a568858f6ce20c12921d9a"
+data_git_describe = "v0.0-12146-g95efd6759"
 data_git_msg = """\
-commit 46e134fa9faf6652c6ee4a05fd5cb138d32508ae
+commit 95efd6759381928720a568858f6ce20c12921d9a
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri May 20 17:26:23 2022 +0100
+Date:   Tue Apr 12 17:30:05 2022 +0100
 
-    [otbn,doc] Reword documentation of the RND ISPR
+    Tweak vendoring json; Update lowrisc_ibex to lowRISC/ibex@e1128aa2
     
-    This is mostly just a rejig to make it easier to understand. But it
-    also documents the new cache-clearing behaviour implemented in
-    8e97525.
+    Now we explicitly pull in the stuff we need, rather than excluding the
+    things we don't want.
+    
+    Once that was done, I re-ran the vendor tool (fetching the same
+    version of the Ibex repository). The rest of this commit message is
+    the auto-generated commit message from the tool.
+    
+    Update code from upstream repository
+    https://github.com/lowRISC/ibex.git to revision
+    e1128aa2d442efb7cbdd93f98708dfa0b875e7e1
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
