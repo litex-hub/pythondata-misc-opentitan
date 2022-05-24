@@ -4,44 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12293"
-version_tuple = (0, 0, 12293)
+version_str = "0.0.post12299"
+version_tuple = (0, 0, 12299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12293")
+    pversion = V("0.0.post12299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12165"
-data_version_tuple = (0, 0, 12165)
+data_version_str = "0.0.post12171"
+data_version_tuple = (0, 0, 12171)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12165")
+    pdata_version = V("0.0.post12171")
 except ImportError:
     pass
-data_git_hash = "bc729bb52b153fe236714fa3506f1a7315eb5b4c"
-data_git_describe = "v0.0-12165-gbc729bb52"
+data_git_hash = "416467bc10f2da23b5da77b699ae25ba95930def"
+data_git_describe = "v0.0-12171-g416467bc1"
 data_git_msg = """\
-commit bc729bb52b153fe236714fa3506f1a7315eb5b4c
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Thu May 19 17:47:51 2022 +0100
+commit 416467bc10f2da23b5da77b699ae25ba95930def
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon May 23 11:00:56 2022 -0700
 
-    [sw,tests] Test sysrst_ctrl combo detect reset and wakeup
+    [lc_ctrl/doc] Minor doc corrections and clarifications
     
-    For tests:
-    chip_sw_sysrst_ctrl_gsc_reset
-    chip_sw_sysrst_ctrl_sleep_gsc_wakeup
-    chip_sw_sysrst_ctrl_sleep_gsc_reset
-    
-    Tests that a specified input pin combination can be detected by the sysrst_ctrl and reset the system.
-    Checks that the reset also asserts ec_rst_l when this is set as an action for a combo detect.
-    Checks that when a reset condition is entered that flash_wp is also asserted.
-    Tests that ULP wakeup in sysrst_ctrl can be triggered with a pin input to wake the system from sleep.
-    Tests that when the system is in deep sleep that an input pin combination can be detected and reset the
-    system.
-    
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
