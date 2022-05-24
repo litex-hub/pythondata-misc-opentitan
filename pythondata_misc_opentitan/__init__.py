@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12300"
-version_tuple = (0, 0, 12300)
+version_str = "0.0.post12301"
+version_tuple = (0, 0, 12301)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12300")
+    pversion = V("0.0.post12301")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12172"
-data_version_tuple = (0, 0, 12172)
+data_version_str = "0.0.post12173"
+data_version_tuple = (0, 0, 12173)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12172")
+    pdata_version = V("0.0.post12173")
 except ImportError:
     pass
-data_git_hash = "657c9114c4d73249ff42e0a6f2b003937bac99c1"
-data_git_describe = "v0.0-12172-g657c9114c"
+data_git_hash = "d9a7c02c1880cc5c8c58f0d51c65003ee3152551"
+data_git_describe = "v0.0-12173-gd9a7c02c1"
 data_git_msg = """\
-commit 657c9114c4d73249ff42e0a6f2b003937bac99c1
-Author: Madhuri Patel <madhuri.patel@ensilica.com>
-Date:   Wed May 4 15:46:22 2022 +0100
+commit d9a7c02c1880cc5c8c58f0d51c65003ee3152551
+Author: Jon Flatley <jflat@google.com>
+Date:   Tue May 24 10:44:29 2022 -0400
 
-    [pattgen,dv] Updated pattgen DV checklist
+    [opentitanlib] Fix manifest HJSON deserialization
     
-    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
+    Manifest deserialization is failing on HJSON files with missing fields.
+    Add the #[serde(default)] attribute to manifest fields to fix this.
+    
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
