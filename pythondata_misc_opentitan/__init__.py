@@ -4,41 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12292"
-version_tuple = (0, 0, 12292)
+version_str = "0.0.post12293"
+version_tuple = (0, 0, 12293)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12292")
+    pversion = V("0.0.post12293")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12164"
-data_version_tuple = (0, 0, 12164)
+data_version_str = "0.0.post12165"
+data_version_tuple = (0, 0, 12165)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12164")
+    pdata_version = V("0.0.post12165")
 except ImportError:
     pass
-data_git_hash = "d7325402e8b86c5df9c79d19c37587df2a356797"
-data_git_describe = "v0.0-12164-gd7325402e"
+data_git_hash = "bc729bb52b153fe236714fa3506f1a7315eb5b4c"
+data_git_describe = "v0.0-12165-gbc729bb52"
 data_git_msg = """\
-commit d7325402e8b86c5df9c79d19c37587df2a356797
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon May 23 13:47:12 2022 +0200
+commit bc729bb52b153fe236714fa3506f1a7315eb5b4c
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Thu May 19 17:47:51 2022 +0100
 
-    [fpga, doc, util] Remove refs and utils related to NexysVideo FPGA board
+    [sw,tests] Test sysrst_ctrl combo detect reset and wakeup
     
-    The ChipWhisperer CW310 board is the main FPGA development board for
-    OpenTitan. It has been decided to drop support for the NexysVideo board,
-    see lowRISC/OpenTitan#7814. Thus, this commit removes references to
-    the NexysVideo board from the documentation as well as tooling and
-    utilities specific to the NexysVideo board.
+    For tests:
+    chip_sw_sysrst_ctrl_gsc_reset
+    chip_sw_sysrst_ctrl_sleep_gsc_wakeup
+    chip_sw_sysrst_ctrl_sleep_gsc_reset
     
-    This is related to lowRISC/OpenTitan#12221.
-    This resolves lowRISC/OpenTitan#12185.
+    Tests that a specified input pin combination can be detected by the sysrst_ctrl and reset the system.
+    Checks that the reset also asserts ec_rst_l when this is set as an action for a combo detect.
+    Checks that when a reset condition is entered that flash_wp is also asserted.
+    Tests that ULP wakeup in sysrst_ctrl can be triggered with a pin input to wake the system from sleep.
+    Tests that when the system is in deep sleep that an input pin combination can be detected and reset the
+    system.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
