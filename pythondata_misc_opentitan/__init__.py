@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12287"
-version_tuple = (0, 0, 12287)
+version_str = "0.0.post12288"
+version_tuple = (0, 0, 12288)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12287")
+    pversion = V("0.0.post12288")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12159"
-data_version_tuple = (0, 0, 12159)
+data_version_str = "0.0.post12160"
+data_version_tuple = (0, 0, 12160)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12159")
+    pdata_version = V("0.0.post12160")
 except ImportError:
     pass
-data_git_hash = "256f09bd6cfc255df5636ec75230392536bdc2f7"
-data_git_describe = "v0.0-12159-g256f09bd6"
+data_git_hash = "0d83958e04a0f44114fef1c5d0764ca0841cd785"
+data_git_describe = "v0.0-12160-g0d83958e0"
 data_git_msg = """\
-commit 256f09bd6cfc255df5636ec75230392536bdc2f7
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon May 16 15:49:26 2022 -0700
+commit 0d83958e04a0f44114fef1c5d0764ca0841cd785
+Author: Weicai Yang <weicai@google.com>
+Date:   Sun May 22 23:36:53 2022 -0700
 
-    [dv/chip] LC_walkthrough test [PART3]
+    [top, dv] Add chip_tap_straps_prod
     
-    Adding a transition to RMA state using the RMA token.
-    This PR adds the following transitions:
-    1). RAW -> TESTUNLOCK0 -> PROD -> RMA
-    2). RAW -> TESTUNLOCK0 -> DEV -> RMA
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    1. Test tap straps at LC prod state
+    2. force tap inputs to test DFT tap is connected correctly. This is to
+       do connectivity test for DFT tap as it's just a dummy module in
+       open-source.
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
