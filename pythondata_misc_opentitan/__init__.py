@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12288"
-version_tuple = (0, 0, 12288)
+version_str = "0.0.post12291"
+version_tuple = (0, 0, 12291)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12288")
+    pversion = V("0.0.post12291")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12160"
-data_version_tuple = (0, 0, 12160)
+data_version_str = "0.0.post12163"
+data_version_tuple = (0, 0, 12163)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12160")
+    pdata_version = V("0.0.post12163")
 except ImportError:
     pass
-data_git_hash = "0d83958e04a0f44114fef1c5d0764ca0841cd785"
-data_git_describe = "v0.0-12160-g0d83958e0"
+data_git_hash = "b56dcf8f01f9cbd87c52e597c3f3b28da786211c"
+data_git_describe = "v0.0-12163-gb56dcf8f0"
 data_git_msg = """\
-commit 0d83958e04a0f44114fef1c5d0764ca0841cd785
-Author: Weicai Yang <weicai@google.com>
-Date:   Sun May 22 23:36:53 2022 -0700
+commit b56dcf8f01f9cbd87c52e597c3f3b28da786211c
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Fri May 20 18:15:27 2022 +0100
 
-    [top, dv] Add chip_tap_straps_prod
+    [test, aes] Fix aes_idle chip test in the nightly regression
     
-    1. Test tap straps at LC prod state
-    2. force tap inputs to test DFT tap is connected correctly. This is to
-       do connectivity test for DFT tap as it's just a dummy module in
-       open-source.
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
