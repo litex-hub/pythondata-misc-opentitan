@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12299"
-version_tuple = (0, 0, 12299)
+version_str = "0.0.post12300"
+version_tuple = (0, 0, 12300)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12299")
+    pversion = V("0.0.post12300")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12171"
-data_version_tuple = (0, 0, 12171)
+data_version_str = "0.0.post12172"
+data_version_tuple = (0, 0, 12172)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12171")
+    pdata_version = V("0.0.post12172")
 except ImportError:
     pass
-data_git_hash = "416467bc10f2da23b5da77b699ae25ba95930def"
-data_git_describe = "v0.0-12171-g416467bc1"
+data_git_hash = "657c9114c4d73249ff42e0a6f2b003937bac99c1"
+data_git_describe = "v0.0-12172-g657c9114c"
 data_git_msg = """\
-commit 416467bc10f2da23b5da77b699ae25ba95930def
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon May 23 11:00:56 2022 -0700
+commit 657c9114c4d73249ff42e0a6f2b003937bac99c1
+Author: Madhuri Patel <madhuri.patel@ensilica.com>
+Date:   Wed May 4 15:46:22 2022 +0100
 
-    [lc_ctrl/doc] Minor doc corrections and clarifications
+    [pattgen,dv] Updated pattgen DV checklist
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Madhuri Patel <madhuri.patel@ensilica.com>
 
 """
 
