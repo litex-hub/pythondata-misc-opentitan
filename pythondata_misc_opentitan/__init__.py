@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12291"
-version_tuple = (0, 0, 12291)
+version_str = "0.0.post12292"
+version_tuple = (0, 0, 12292)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12291")
+    pversion = V("0.0.post12292")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12163"
-data_version_tuple = (0, 0, 12163)
+data_version_str = "0.0.post12164"
+data_version_tuple = (0, 0, 12164)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12163")
+    pdata_version = V("0.0.post12164")
 except ImportError:
     pass
-data_git_hash = "b56dcf8f01f9cbd87c52e597c3f3b28da786211c"
-data_git_describe = "v0.0-12163-gb56dcf8f0"
+data_git_hash = "d7325402e8b86c5df9c79d19c37587df2a356797"
+data_git_describe = "v0.0-12164-gd7325402e"
 data_git_msg = """\
-commit b56dcf8f01f9cbd87c52e597c3f3b28da786211c
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri May 20 18:15:27 2022 +0100
+commit d7325402e8b86c5df9c79d19c37587df2a356797
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon May 23 13:47:12 2022 +0200
 
-    [test, aes] Fix aes_idle chip test in the nightly regression
+    [fpga, doc, util] Remove refs and utils related to NexysVideo FPGA board
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    The ChipWhisperer CW310 board is the main FPGA development board for
+    OpenTitan. It has been decided to drop support for the NexysVideo board,
+    see lowRISC/OpenTitan#7814. Thus, this commit removes references to
+    the NexysVideo board from the documentation as well as tooling and
+    utilities specific to the NexysVideo board.
+    
+    This is related to lowRISC/OpenTitan#12221.
+    This resolves lowRISC/OpenTitan#12185.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
