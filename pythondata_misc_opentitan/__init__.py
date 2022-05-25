@@ -4,37 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12302"
-version_tuple = (0, 0, 12302)
+version_str = "0.0.post12303"
+version_tuple = (0, 0, 12303)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12302")
+    pversion = V("0.0.post12303")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12174"
-data_version_tuple = (0, 0, 12174)
+data_version_str = "0.0.post12175"
+data_version_tuple = (0, 0, 12175)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12174")
+    pdata_version = V("0.0.post12175")
 except ImportError:
     pass
-data_git_hash = "3a25971363d2d3dc7479c2b12abd57723a0699d7"
-data_git_describe = "v0.0-12174-g3a2597136"
+data_git_hash = "10e1dc67b3d946d988a7f5bc3e960ca447dff2c0"
+data_git_describe = "v0.0-12175-g10e1dc67b"
 data_git_msg = """\
-commit 3a25971363d2d3dc7479c2b12abd57723a0699d7
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue May 24 14:02:13 2022 -0700
+commit 10e1dc67b3d946d988a7f5bc3e960ca447dff2c0
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Tue May 24 17:17:50 2022 -0700
 
-    [dvsim] Revert #12761 to build SW with meson
+    [sw/silicon_creator] Add manuf state OTP fields
     
-    Since switching dvsim.py to build SW with Bazel (instead of meson),
-    private CI job runtimes have increased. This is detailed in #12840. As a
-    temporary fix, this commit reverts #12761, and switch dvsim.py back to
-    using meson to build SW images.
+    Add manufacturing state OTP values for creator and owner manufacturing
+    stages. The Silicon Creator and Silicon Owner can constraint manifest
+    signatures to devices with a configured manuf state OTP value. Creator
+    and Owner stage values are available to accomodate for manufacturing
+    flows that perform Silicon Owner SKU configuration at a different time
+    from personalization.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This resolves issue #7948
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
