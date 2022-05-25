@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12301"
-version_tuple = (0, 0, 12301)
+version_str = "0.0.post12302"
+version_tuple = (0, 0, 12302)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12301")
+    pversion = V("0.0.post12302")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12173"
-data_version_tuple = (0, 0, 12173)
+data_version_str = "0.0.post12174"
+data_version_tuple = (0, 0, 12174)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12173")
+    pdata_version = V("0.0.post12174")
 except ImportError:
     pass
-data_git_hash = "d9a7c02c1880cc5c8c58f0d51c65003ee3152551"
-data_git_describe = "v0.0-12173-gd9a7c02c1"
+data_git_hash = "3a25971363d2d3dc7479c2b12abd57723a0699d7"
+data_git_describe = "v0.0-12174-g3a2597136"
 data_git_msg = """\
-commit d9a7c02c1880cc5c8c58f0d51c65003ee3152551
-Author: Jon Flatley <jflat@google.com>
-Date:   Tue May 24 10:44:29 2022 -0400
+commit 3a25971363d2d3dc7479c2b12abd57723a0699d7
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue May 24 14:02:13 2022 -0700
 
-    [opentitanlib] Fix manifest HJSON deserialization
+    [dvsim] Revert #12761 to build SW with meson
     
-    Manifest deserialization is failing on HJSON files with missing fields.
-    Add the #[serde(default)] attribute to manifest fields to fix this.
+    Since switching dvsim.py to build SW with Bazel (instead of meson),
+    private CI job runtimes have increased. This is detailed in #12840. As a
+    temporary fix, this commit reverts #12761, and switch dvsim.py back to
+    using meson to build SW images.
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
