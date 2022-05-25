@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12306"
-version_tuple = (0, 0, 12306)
+version_str = "0.0.post12307"
+version_tuple = (0, 0, 12307)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12306")
+    pversion = V("0.0.post12307")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12175"
-data_version_tuple = (0, 0, 12175)
+data_version_str = "0.0.post12176"
+data_version_tuple = (0, 0, 12176)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12175")
+    pdata_version = V("0.0.post12176")
 except ImportError:
     pass
-data_git_hash = "10e1dc67b3d946d988a7f5bc3e960ca447dff2c0"
-data_git_describe = "v0.0-12175-g10e1dc67b"
+data_git_hash = "345e044c2b8ac4a5cd59c093927c90caa5cb1891"
+data_git_describe = "v0.0-12176-g345e044c2"
 data_git_msg = """\
-commit 10e1dc67b3d946d988a7f5bc3e960ca447dff2c0
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Tue May 24 17:17:50 2022 -0700
+commit 345e044c2b8ac4a5cd59c093927c90caa5cb1891
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon May 23 17:31:06 2022 -0700
 
-    [sw/silicon_creator] Add manuf state OTP fields
+    [fvp/pwrmgr] Pwrmgr fsm error
     
-    Add manufacturing state OTP values for creator and owner manufacturing
-    stages. The Silicon Creator and Silicon Owner can constraint manifest
-    signatures to devices with a configured manuf state OTP value. Creator
-    and Owner stage values are available to accomodate for manufacturing
-    flows that perform Silicon Owner SKU configuration at a different time
-    from personalization.
+    Pwrmgr sparse FSM fault error does not trigger an alert, but triggers
+    reset instead.
     
-    This resolves issue #7948
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
