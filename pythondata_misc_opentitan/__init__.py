@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12307"
-version_tuple = (0, 0, 12307)
+version_str = "0.0.post12313"
+version_tuple = (0, 0, 12313)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12307")
+    pversion = V("0.0.post12313")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12176"
-data_version_tuple = (0, 0, 12176)
+data_version_str = "0.0.post12182"
+data_version_tuple = (0, 0, 12182)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12176")
+    pdata_version = V("0.0.post12182")
 except ImportError:
     pass
-data_git_hash = "345e044c2b8ac4a5cd59c093927c90caa5cb1891"
-data_git_describe = "v0.0-12176-g345e044c2"
+data_git_hash = "2d87fb6fbdab8ea4186cb4350e95f415ecf2d321"
+data_git_describe = "v0.0-12182-g2d87fb6fb"
 data_git_msg = """\
-commit 345e044c2b8ac4a5cd59c093927c90caa5cb1891
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon May 23 17:31:06 2022 -0700
+commit 2d87fb6fbdab8ea4186cb4350e95f415ecf2d321
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Mon May 9 18:16:35 2022 -0700
 
-    [fvp/pwrmgr] Pwrmgr fsm error
+    [regtool] Extend UVM backend to support alias definitions
     
-    Pwrmgr sparse FSM fault error does not trigger an alert, but triggers
-    reset instead.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
