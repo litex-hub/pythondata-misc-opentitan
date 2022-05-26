@@ -4,43 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12354"
-version_tuple = (0, 0, 12354)
+version_str = "0.0.post12357"
+version_tuple = (0, 0, 12357)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12354")
+    pversion = V("0.0.post12357")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12216"
-data_version_tuple = (0, 0, 12216)
+data_version_str = "0.0.post12217"
+data_version_tuple = (0, 0, 12217)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12216")
+    pdata_version = V("0.0.post12217")
 except ImportError:
     pass
-data_git_hash = "e1961043f6308107ec570b5791b2c3606cf17b33"
-data_git_describe = "v0.0-12216-ge1961043f"
+data_git_hash = "e87bcdb789e61d1edd4b01e418a62315d9963acd"
+data_git_describe = "v0.0-12217-ge87bcdb78"
 data_git_msg = """\
-commit e1961043f6308107ec570b5791b2c3606cf17b33
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Wed May 25 01:19:34 2022 +0000
+commit e87bcdb789e61d1edd4b01e418a62315d9963acd
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed May 25 13:18:37 2022 -0700
 
-    [adc_ctrl,dv] regression fix fsm_reset test
+    [dv/top] Update wdog_lc_escalate test
     
-    - trigger aon reset and main reset at the same time during the test
+    - the test was previous faililng because the busy_spin_macro
+      has a slightly different cycle count from the escalator phase.
+    - this caused the test to mistakenly think the alert was not triggered
+      even though it just needed to wait a little bit more time.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post138"
-tool_version_tuple = (0, 0, 138)
+tool_version_str = "0.0.post140"
+tool_version_tuple = (0, 0, 140)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post138")
+    ptool_version = V("0.0.post140")
 except ImportError:
     pass
 
