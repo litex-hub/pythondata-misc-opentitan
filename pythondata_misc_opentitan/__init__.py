@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12362"
-version_tuple = (0, 0, 12362)
+version_str = "0.0.post12365"
+version_tuple = (0, 0, 12365)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12362")
+    pversion = V("0.0.post12365")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12222"
-data_version_tuple = (0, 0, 12222)
+data_version_str = "0.0.post12225"
+data_version_tuple = (0, 0, 12225)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12222")
+    pdata_version = V("0.0.post12225")
 except ImportError:
     pass
-data_git_hash = "558942bb7869d9a5d8abd4bd0eb46dab820d3564"
-data_git_describe = "v0.0-12222-g558942bb7"
+data_git_hash = "4cabb2ae4c69416039e7b29a1c154a8cb2366d93"
+data_git_describe = "v0.0-12225-g4cabb2ae4"
 data_git_msg = """\
-commit 558942bb7869d9a5d8abd4bd0eb46dab820d3564
-Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
-Date:   Tue May 17 17:37:43 2022 +0100
+commit 4cabb2ae4c69416039e7b29a1c154a8cb2366d93
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed May 25 16:19:16 2022 -0700
 
-    [flash_ctrl] ADD FIRST CODE EXCLUSIONS
+    [otbn] Various lint fixes
     
-    Add code exclusions defined in issue #12325.
-    
-    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
