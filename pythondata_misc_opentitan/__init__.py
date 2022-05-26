@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12360"
-version_tuple = (0, 0, 12360)
+version_str = "0.0.post12362"
+version_tuple = (0, 0, 12362)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12360")
+    pversion = V("0.0.post12362")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12220"
-data_version_tuple = (0, 0, 12220)
+data_version_str = "0.0.post12222"
+data_version_tuple = (0, 0, 12222)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12220")
+    pdata_version = V("0.0.post12222")
 except ImportError:
     pass
-data_git_hash = "402b325ecfdc8e6976baaacd798fac8763e74445"
-data_git_describe = "v0.0-12220-g402b325ec"
+data_git_hash = "558942bb7869d9a5d8abd4bd0eb46dab820d3564"
+data_git_describe = "v0.0-12222-g558942bb7"
 data_git_msg = """\
-commit 402b325ecfdc8e6976baaacd798fac8763e74445
-Author: Alexander Williams <awill@google.com>
-Date:   Tue May 24 09:19:46 2022 -0700
+commit 558942bb7869d9a5d8abd4bd0eb46dab820d3564
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Tue May 17 17:37:43 2022 +0100
 
-    [fpga] Bring AON clk down to 250 kHz
+    [flash_ctrl] ADD FIRST CODE EXCLUSIONS
     
-    Use the MMCM's cascaded dividers to bring the clock frequency down and
-    align with the software's constants.
+    Add code exclusions defined in issue #12325.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
