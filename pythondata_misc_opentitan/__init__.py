@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12357"
-version_tuple = (0, 0, 12357)
+version_str = "0.0.post12358"
+version_tuple = (0, 0, 12358)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12357")
+    pversion = V("0.0.post12358")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12217"
-data_version_tuple = (0, 0, 12217)
+data_version_str = "0.0.post12218"
+data_version_tuple = (0, 0, 12218)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12217")
+    pdata_version = V("0.0.post12218")
 except ImportError:
     pass
-data_git_hash = "e87bcdb789e61d1edd4b01e418a62315d9963acd"
-data_git_describe = "v0.0-12217-ge87bcdb78"
+data_git_hash = "cd679fd9e7da1a85a343b6aaeae80e8a3f1f92a0"
+data_git_describe = "v0.0-12218-gcd679fd9e"
 data_git_msg = """\
-commit e87bcdb789e61d1edd4b01e418a62315d9963acd
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed May 25 13:18:37 2022 -0700
+commit cd679fd9e7da1a85a343b6aaeae80e8a3f1f92a0
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed May 25 16:14:18 2022 -0700
 
-    [dv/top] Update wdog_lc_escalate test
+    Revert "[python] Bump fusesoc/edalize versions"
     
-    - the test was previous faililng because the busy_spin_macro
-      has a slightly different cycle count from the escalator phase.
-    - this caused the test to mistakenly think the alert was not triggered
-      even though it just needed to wait a little bit more time.
+    This reverts commit 8339519c379ad270bd2a091522ec564b08ebc41e.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
