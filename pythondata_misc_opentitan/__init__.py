@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12343"
-version_tuple = (0, 0, 12343)
+version_str = "0.0.post12344"
+version_tuple = (0, 0, 12344)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12343")
+    pversion = V("0.0.post12344")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12209"
-data_version_tuple = (0, 0, 12209)
+data_version_str = "0.0.post12210"
+data_version_tuple = (0, 0, 12210)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12209")
+    pdata_version = V("0.0.post12210")
 except ImportError:
     pass
-data_git_hash = "61de2fda0e35a5b5f74675ba5d6a295988c253df"
-data_git_describe = "v0.0-12209-g61de2fda0"
+data_git_hash = "9b014610cfc4a99a77414314a154883f6f1e24c6"
+data_git_describe = "v0.0-12210-g9b014610c"
 data_git_msg = """\
-commit 61de2fda0e35a5b5f74675ba5d6a295988c253df
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu May 19 16:57:43 2022 +0100
+commit 9b014610cfc4a99a77414314a154883f6f1e24c6
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Tue May 24 14:31:32 2022 +0100
 
-    [otbn,rtl] Fix overflow in stack_top_idx
+    [flash_ctrl] Add flash invalid operation test
     
-    We use next_stack_top_idx to derive next_top_valid_o, which says
-    whether the stack has data in it. This check is based on seeing
-    whether the index just above the top of the stack is nonzero or not.
-    We were using StackDepthW bits and got an overflow when the stack
-    filled up.
+    Add flash invalid operation test. Check that invalid operation
+    does not affect content of memory. Check all partitions.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
