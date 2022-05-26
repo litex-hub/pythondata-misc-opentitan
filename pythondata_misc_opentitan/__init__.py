@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12358"
-version_tuple = (0, 0, 12358)
+version_str = "0.0.post12360"
+version_tuple = (0, 0, 12360)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12358")
+    pversion = V("0.0.post12360")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12218"
-data_version_tuple = (0, 0, 12218)
+data_version_str = "0.0.post12220"
+data_version_tuple = (0, 0, 12220)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12218")
+    pdata_version = V("0.0.post12220")
 except ImportError:
     pass
-data_git_hash = "cd679fd9e7da1a85a343b6aaeae80e8a3f1f92a0"
-data_git_describe = "v0.0-12218-gcd679fd9e"
+data_git_hash = "402b325ecfdc8e6976baaacd798fac8763e74445"
+data_git_describe = "v0.0-12220-g402b325ec"
 data_git_msg = """\
-commit cd679fd9e7da1a85a343b6aaeae80e8a3f1f92a0
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed May 25 16:14:18 2022 -0700
+commit 402b325ecfdc8e6976baaacd798fac8763e74445
+Author: Alexander Williams <awill@google.com>
+Date:   Tue May 24 09:19:46 2022 -0700
 
-    Revert "[python] Bump fusesoc/edalize versions"
+    [fpga] Bring AON clk down to 250 kHz
     
-    This reverts commit 8339519c379ad270bd2a091522ec564b08ebc41e.
+    Use the MMCM's cascaded dividers to bring the clock frequency down and
+    align with the software's constants.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
