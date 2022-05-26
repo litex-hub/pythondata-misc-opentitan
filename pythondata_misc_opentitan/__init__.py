@@ -4,41 +4,47 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12313"
-version_tuple = (0, 0, 12313)
+version_str = "0.0.post12343"
+version_tuple = (0, 0, 12343)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12313")
+    pversion = V("0.0.post12343")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12182"
-data_version_tuple = (0, 0, 12182)
+data_version_str = "0.0.post12209"
+data_version_tuple = (0, 0, 12209)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12182")
+    pdata_version = V("0.0.post12209")
 except ImportError:
     pass
-data_git_hash = "2d87fb6fbdab8ea4186cb4350e95f415ecf2d321"
-data_git_describe = "v0.0-12182-g2d87fb6fb"
+data_git_hash = "61de2fda0e35a5b5f74675ba5d6a295988c253df"
+data_git_describe = "v0.0-12209-g61de2fda0"
 data_git_msg = """\
-commit 2d87fb6fbdab8ea4186cb4350e95f415ecf2d321
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon May 9 18:16:35 2022 -0700
+commit 61de2fda0e35a5b5f74675ba5d6a295988c253df
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu May 19 16:57:43 2022 +0100
 
-    [regtool] Extend UVM backend to support alias definitions
+    [otbn,rtl] Fix overflow in stack_top_idx
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    We use next_stack_top_idx to derive next_top_valid_o, which says
+    whether the stack has data in it. This check is based on seeing
+    whether the index just above the top of the stack is nonzero or not.
+    We were using StackDepthW bits and got an overflow when the stack
+    filled up.
+    
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
 # Tool version info
-tool_version_str = "0.0.post131"
-tool_version_tuple = (0, 0, 131)
+tool_version_str = "0.0.post134"
+tool_version_tuple = (0, 0, 134)
 try:
     from packaging.version import Version as V
-    ptool_version = V("0.0.post131")
+    ptool_version = V("0.0.post134")
 except ImportError:
     pass
 
