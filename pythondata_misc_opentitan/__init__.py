@@ -4,40 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12378"
-version_tuple = (0, 0, 12378)
+version_str = "0.0.post12382"
+version_tuple = (0, 0, 12382)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12378")
+    pversion = V("0.0.post12382")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12238"
-data_version_tuple = (0, 0, 12238)
+data_version_str = "0.0.post12242"
+data_version_tuple = (0, 0, 12242)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12238")
+    pdata_version = V("0.0.post12242")
 except ImportError:
     pass
-data_git_hash = "5f50174370b6ffdca2f9c77a6e66ff40a370c9d6"
-data_git_describe = "v0.0-12238-g5f5017437"
+data_git_hash = "595576b22ee9a1c04046815b44702b1f5c5f2ba1"
+data_git_describe = "v0.0-12242-g595576b22"
 data_git_msg = """\
-commit 5f50174370b6ffdca2f9c77a6e66ff40a370c9d6
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu May 26 15:40:40 2022 +0100
+commit 595576b22ee9a1c04046815b44702b1f5c5f2ba1
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu May 26 10:58:05 2022 -0700
 
-    [otbn,dv] Adjust assertions in otbn_rnd_if to handle ignored values
+    chore(cdc): Waive pads attribute to multiple clocks
     
-    The changes made in the RTL in 8e97525 and the documentation in
-    46e134f allow a situation where data comes in from the EDN and is
-    ignored.
+    pads dio attribute config crosses multiple clocks (IO_DIV4 -> {USB,
+    AON}). However, the attributes are static signals. Also, the receivers
+    have synchronizers too. As each IP is unique, there's no reconvergence
+    issue.
     
-    This commit tweaks the FSM diagram and associated assertions
-    accordingly. I've also made signals for the transition labels to try
-    to decouple the assertions and RTL signal names a little.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
