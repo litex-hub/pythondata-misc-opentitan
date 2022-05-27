@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12365"
-version_tuple = (0, 0, 12365)
+version_str = "0.0.post12370"
+version_tuple = (0, 0, 12370)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12365")
+    pversion = V("0.0.post12370")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12225"
-data_version_tuple = (0, 0, 12225)
+data_version_str = "0.0.post12230"
+data_version_tuple = (0, 0, 12230)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12225")
+    pdata_version = V("0.0.post12230")
 except ImportError:
     pass
-data_git_hash = "4cabb2ae4c69416039e7b29a1c154a8cb2366d93"
-data_git_describe = "v0.0-12225-g4cabb2ae4"
+data_git_hash = "c938c1833f7477e204f07e665584c87396ac3265"
+data_git_describe = "v0.0-12230-gc938c1833"
 data_git_msg = """\
-commit 4cabb2ae4c69416039e7b29a1c154a8cb2366d93
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed May 25 16:19:16 2022 -0700
+commit c938c1833f7477e204f07e665584c87396ac3265
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu May 26 17:51:39 2022 -0400
 
-    [otbn] Various lint fixes
+    Remove sw/host/vendor directory
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
