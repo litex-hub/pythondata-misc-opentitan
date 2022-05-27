@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12382"
-version_tuple = (0, 0, 12382)
+version_str = "0.0.post12386"
+version_tuple = (0, 0, 12386)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12382")
+    pversion = V("0.0.post12386")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12242"
-data_version_tuple = (0, 0, 12242)
+data_version_str = "0.0.post12246"
+data_version_tuple = (0, 0, 12246)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12242")
+    pdata_version = V("0.0.post12246")
 except ImportError:
     pass
-data_git_hash = "595576b22ee9a1c04046815b44702b1f5c5f2ba1"
-data_git_describe = "v0.0-12242-g595576b22"
+data_git_hash = "19a31959ad5e60ad1deaf1cfa5087cc183d24948"
+data_git_describe = "v0.0-12246-g19a31959a"
 data_git_msg = """\
-commit 595576b22ee9a1c04046815b44702b1f5c5f2ba1
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu May 26 10:58:05 2022 -0700
+commit 19a31959ad5e60ad1deaf1cfa5087cc183d24948
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon May 23 23:49:24 2022 +0000
 
-    chore(cdc): Waive pads attribute to multiple clocks
+    [chip,rstmgr,dv] regression fix rstmgr_alert_info test
     
-    pads dio attribute config crosses multiple clocks (IO_DIV4 -> {USB,
-    AON}). However, the attributes are static signals. Also, the receivers
-    have synchronizers too. As each IP is unique, there's no reconvergence
-    issue.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
