@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12371"
-version_tuple = (0, 0, 12371)
+version_str = "0.0.post12377"
+version_tuple = (0, 0, 12377)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12371")
+    pversion = V("0.0.post12377")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12231"
-data_version_tuple = (0, 0, 12231)
+data_version_str = "0.0.post12237"
+data_version_tuple = (0, 0, 12237)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12231")
+    pdata_version = V("0.0.post12237")
 except ImportError:
     pass
-data_git_hash = "757a768cc8d9395c49ec8479f5aed45a574d2c54"
-data_git_describe = "v0.0-12231-g757a768cc"
+data_git_hash = "538c36b83659cd5b9898e3f1b4c94b66a25d4e18"
+data_git_describe = "v0.0-12237-g538c36b83"
 data_git_msg = """\
-commit 757a768cc8d9395c49ec8479f5aed45a574d2c54
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed May 18 14:33:17 2022 +0100
+commit 538c36b83659cd5b9898e3f1b4c94b66a25d4e18
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Fri May 20 17:24:24 2022 +0100
 
-    [otbn, rtl] Add fatal error when prefetch isn't correct
+    [otbn, dv] Disabling end addr check when zero state error is injected
     
-    By design the prefetch stage either prefetches the correct address or
-    doesn't prefetch. If a prefetched instruction has a different address to
-    the one required by the instruction fetch stage a fault has ocurred.
+    This commit disables end addr check when zero state error is injected
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
