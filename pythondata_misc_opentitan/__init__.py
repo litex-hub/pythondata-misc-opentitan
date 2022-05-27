@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12386"
-version_tuple = (0, 0, 12386)
+version_str = "0.0.post12387"
+version_tuple = (0, 0, 12387)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12386")
+    pversion = V("0.0.post12387")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12246"
-data_version_tuple = (0, 0, 12246)
+data_version_str = "0.0.post12247"
+data_version_tuple = (0, 0, 12247)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12246")
+    pdata_version = V("0.0.post12247")
 except ImportError:
     pass
-data_git_hash = "19a31959ad5e60ad1deaf1cfa5087cc183d24948"
-data_git_describe = "v0.0-12246-g19a31959a"
+data_git_hash = "d2ab5630b1a07fad31e07c9a7500aacf3cb701c6"
+data_git_describe = "v0.0-12247-gd2ab5630b"
 data_git_msg = """\
-commit 19a31959ad5e60ad1deaf1cfa5087cc183d24948
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon May 23 23:49:24 2022 +0000
+commit d2ab5630b1a07fad31e07c9a7500aacf3cb701c6
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu May 26 15:47:04 2022 -0700
 
-    [chip,rstmgr,dv] regression fix rstmgr_alert_info test
+    [rstmgr] Address comment from #12890
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    The consistency check default state does not currently signal an error,
+    it creates a situation where a continuous glitch or a
+    severed enable/clock to the fsm flops could suppress the error/alert.
+    
+    This does not seem feasible, but it's better to be safe since it
+    has a very low cost.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
