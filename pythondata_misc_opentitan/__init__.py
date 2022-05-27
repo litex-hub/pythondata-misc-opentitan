@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12389"
-version_tuple = (0, 0, 12389)
+version_str = "0.0.post12393"
+version_tuple = (0, 0, 12393)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12389")
+    pversion = V("0.0.post12393")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12249"
-data_version_tuple = (0, 0, 12249)
+data_version_str = "0.0.post12253"
+data_version_tuple = (0, 0, 12253)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12249")
+    pdata_version = V("0.0.post12253")
 except ImportError:
     pass
-data_git_hash = "a4c0586a87f2bd472c7346aedf9cff9e9dc39f28"
-data_git_describe = "v0.0-12249-ga4c0586a8"
+data_git_hash = "41bc0ceab8527aa283b44f4499f1be172b9165fc"
+data_git_describe = "v0.0-12253-g41bc0ceab"
 data_git_msg = """\
-commit a4c0586a87f2bd472c7346aedf9cff9e9dc39f28
-Author: Alexander Williams <awill@google.com>
-Date:   Mon May 23 21:33:05 2022 -0700
+commit 41bc0ceab8527aa283b44f4499f1be172b9165fc
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Thu May 26 14:17:50 2022 +0100
 
-    [usbdev] Quick fix to match example to FPGA pin-out
+    [otbn,dv] Clear RND cache at start of operation
     
-    The DIP switches seem to have swapped positions with LEDs.
+    This matches the changes made in the RTL in 8e97525 and the
+    documentation in 46e134f.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
