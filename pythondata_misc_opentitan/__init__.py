@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12387"
-version_tuple = (0, 0, 12387)
+version_str = "0.0.post12389"
+version_tuple = (0, 0, 12389)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12387")
+    pversion = V("0.0.post12389")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12247"
-data_version_tuple = (0, 0, 12247)
+data_version_str = "0.0.post12249"
+data_version_tuple = (0, 0, 12249)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12247")
+    pdata_version = V("0.0.post12249")
 except ImportError:
     pass
-data_git_hash = "d2ab5630b1a07fad31e07c9a7500aacf3cb701c6"
-data_git_describe = "v0.0-12247-gd2ab5630b"
+data_git_hash = "a4c0586a87f2bd472c7346aedf9cff9e9dc39f28"
+data_git_describe = "v0.0-12249-ga4c0586a8"
 data_git_msg = """\
-commit d2ab5630b1a07fad31e07c9a7500aacf3cb701c6
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu May 26 15:47:04 2022 -0700
+commit a4c0586a87f2bd472c7346aedf9cff9e9dc39f28
+Author: Alexander Williams <awill@google.com>
+Date:   Mon May 23 21:33:05 2022 -0700
 
-    [rstmgr] Address comment from #12890
+    [usbdev] Quick fix to match example to FPGA pin-out
     
-    The consistency check default state does not currently signal an error,
-    it creates a situation where a continuous glitch or a
-    severed enable/clock to the fsm flops could suppress the error/alert.
+    The DIP switches seem to have swapped positions with LEDs.
     
-    This does not seem feasible, but it's better to be safe since it
-    has a very low cost.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
