@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12393"
-version_tuple = (0, 0, 12393)
+version_str = "0.0.post12394"
+version_tuple = (0, 0, 12394)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12393")
+    pversion = V("0.0.post12394")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12253"
-data_version_tuple = (0, 0, 12253)
+data_version_str = "0.0.post12254"
+data_version_tuple = (0, 0, 12254)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12253")
+    pdata_version = V("0.0.post12254")
 except ImportError:
     pass
-data_git_hash = "41bc0ceab8527aa283b44f4499f1be172b9165fc"
-data_git_describe = "v0.0-12253-g41bc0ceab"
+data_git_hash = "26b2cabc4da62c4b675149910d8db160a4ecad82"
+data_git_describe = "v0.0-12254-g26b2cabc4"
 data_git_msg = """\
-commit 41bc0ceab8527aa283b44f4499f1be172b9165fc
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Thu May 26 14:17:50 2022 +0100
+commit 26b2cabc4da62c4b675149910d8db160a4ecad82
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri May 27 10:44:45 2022 -0700
 
-    [otbn,dv] Clear RND cache at start of operation
+    [docs] remove newline in closed-source test hooks docs
     
-    This matches the changes made in the RTL in 8e97525 and the
-    documentation in 46e134f.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
