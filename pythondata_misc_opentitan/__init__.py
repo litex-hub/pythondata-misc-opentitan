@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12397"
-version_tuple = (0, 0, 12397)
+version_str = "0.0.post12399"
+version_tuple = (0, 0, 12399)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12397")
+    pversion = V("0.0.post12399")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12257"
-data_version_tuple = (0, 0, 12257)
+data_version_str = "0.0.post12259"
+data_version_tuple = (0, 0, 12259)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12257")
+    pdata_version = V("0.0.post12259")
 except ImportError:
     pass
-data_git_hash = "439ddcf9450545673e7d9e4b1ec977491676f8aa"
-data_git_describe = "v0.0-12257-g439ddcf94"
+data_git_hash = "5bba2ebc2d8893fee484129cf148f906d88f7a4a"
+data_git_describe = "v0.0-12259-g5bba2ebc2"
 data_git_msg = """\
-commit 439ddcf9450545673e7d9e4b1ec977491676f8aa
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Apr 16 15:38:01 2022 -0700
+commit 5bba2ebc2d8893fee484129cf148f906d88f7a4a
+Author: Alexander Williams <awill@google.com>
+Date:   Fri May 27 16:24:15 2022 -0700
 
-    [entropy_src/dv] Implement CGs for seed output
+    [top] Autogenerate
     
-     -Implements seed_output_hw_cg and fw_ov_output_cg
+    Autogenerate with fixed whitespace.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
