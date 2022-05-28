@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12396"
-version_tuple = (0, 0, 12396)
+version_str = "0.0.post12397"
+version_tuple = (0, 0, 12397)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12396")
+    pversion = V("0.0.post12397")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12256"
-data_version_tuple = (0, 0, 12256)
+data_version_str = "0.0.post12257"
+data_version_tuple = (0, 0, 12257)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12256")
+    pdata_version = V("0.0.post12257")
 except ImportError:
     pass
-data_git_hash = "2e9cc9f72d6d1d39d6c68e68f2d3ab7d0f7fba39"
-data_git_describe = "v0.0-12256-g2e9cc9f72"
+data_git_hash = "439ddcf9450545673e7d9e4b1ec977491676f8aa"
+data_git_describe = "v0.0-12257-g439ddcf94"
 data_git_msg = """\
-commit 2e9cc9f72d6d1d39d6c68e68f2d3ab7d0f7fba39
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri May 27 12:41:15 2022 -0700
+commit 439ddcf9450545673e7d9e4b1ec977491676f8aa
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Apr 16 15:38:01 2022 -0700
 
-    [sw/tests] update non-volatile flash region example
+    [entropy_src/dv] Implement CGs for seed output
     
-    The non-volatile flash region example did not make it clear that any
-    non-volatile flash data should be initialized to all 1s to achieve the
-    desired behavior.
+     -Implements seed_output_hw_cg and fw_ov_output_cg
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
