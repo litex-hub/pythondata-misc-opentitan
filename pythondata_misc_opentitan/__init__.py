@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12399"
-version_tuple = (0, 0, 12399)
+version_str = "0.0.post12400"
+version_tuple = (0, 0, 12400)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12399")
+    pversion = V("0.0.post12400")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12259"
-data_version_tuple = (0, 0, 12259)
+data_version_str = "0.0.post12260"
+data_version_tuple = (0, 0, 12260)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12259")
+    pdata_version = V("0.0.post12260")
 except ImportError:
     pass
-data_git_hash = "5bba2ebc2d8893fee484129cf148f906d88f7a4a"
-data_git_describe = "v0.0-12259-g5bba2ebc2"
+data_git_hash = "0b8904a6d73abb99581a982be3c3f7f64bbd3b8c"
+data_git_describe = "v0.0-12260-g0b8904a6d"
 data_git_msg = """\
-commit 5bba2ebc2d8893fee484129cf148f906d88f7a4a
-Author: Alexander Williams <awill@google.com>
-Date:   Fri May 27 16:24:15 2022 -0700
+commit 0b8904a6d73abb99581a982be3c3f7f64bbd3b8c
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu May 26 07:08:09 2022 -0700
 
-    [top] Autogenerate
+    [prim_assert] Fix ASSERT_FPV_LINEAR_FSM
     
-    Autogenerate with fixed whitespace.
+    This assertion should handle an lc reset, even though the reset and idle
+    states will be revisited.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
