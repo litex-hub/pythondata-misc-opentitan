@@ -28,7 +28,9 @@ module otbn_rnd import otbn_pkg::*;
   input logic clk_i,
   input logic rst_ni,
 
-  input  logic            rnd_wipe_i,
+  input  logic opn_start_i,
+  input  logic opn_end_i,
+
   input  logic            rnd_req_i,
   input  logic            rnd_prefetch_req_i,
   output logic            rnd_valid_o,
@@ -71,7 +73,6 @@ module otbn_rnd import otbn_pkg::*;
 
   logic edn_rnd_req_q, edn_rnd_req_d;
 
-  logic rnd_prefetch_pending_d, rnd_prefetch_pending_q;
   logic rnd_req_queued_d, rnd_req_queued_q;
   logic edn_rnd_data_ignore_d, edn_rnd_data_ignore_q;
 
@@ -85,9 +86,9 @@ module otbn_rnd import otbn_pkg::*;
   assign rnd_data_en = edn_rnd_req_complete & ~edn_rnd_data_ignore_q;
 
   // RND becomes valid when EDN request completes and provides new bits. Valid is cleared when OTBN
-  // starts a new run (rnd_wipe_i) or when OTBN reads RND (rnd_req_complete).
+  // starts a new run (opn_start_i) or when OTBN reads RND (rnd_req_complete).
   assign rnd_valid_d =
-      rnd_wipe_i || rnd_req_complete                 ? 1'b0 :
+      opn_start_i || rnd_req_complete                ? 1'b0 :
       edn_rnd_req_complete && !edn_rnd_data_ignore_q ? 1'b1 : rnd_valid_q;
   assign rnd_data_d = edn_rnd_data_i;
   assign rnd_fips_d = edn_rnd_fips_i;
@@ -102,19 +103,24 @@ module otbn_rnd import otbn_pkg::*;
   // to keep requesting RND data from EDN if another request got queued in the meantime.
   assign edn_rnd_req_start = (rnd_prefetch_req_i | rnd_req_i | rnd_req_queued_q) & ~rnd_valid_q;
 
-  // Is there a prefetch pending?
-  assign rnd_prefetch_pending_d = rnd_prefetch_req_i       ? 1'b1 :
-                                  rnd_req_i || rnd_valid_q ? 1'b0 : rnd_prefetch_pending_q;
-
-  // When seeing a wipe with an outstanding prefetch, we are going to ignore the RND data obtained
-  // for the first prefetch. Any RND data returned clears the ignore status.
+  // When seeing a wipe with an outstanding request (which must have been a prefetch), we are going
+  // to ignore the RND data that comes back from that request. Any RND data returned clears the
+  // ignore status.
   assign edn_rnd_data_ignore_d =
-      rnd_wipe_i && rnd_prefetch_pending_q ? 1'b1 :
-      edn_rnd_req_complete                 ? 1'b0 : edn_rnd_data_ignore_q;
+      opn_start_i && edn_rnd_req_q ? 1'b1 :
+      edn_rnd_req_complete         ? 1'b0 : edn_rnd_data_ignore_q;
 
-  // Don't combine new RND requests with outstanding prefetches for which we are going to ingore
-  // the returned data. Cleared upon starting the request without having the ignore bit set.
+  // rnd_req_queued_q shows that there's an outstanding RND prefetch whose result we are going to
+  // ignore and also another request pending. Once the prefetch is done, we want to send out that
+  // second request.
+  //
+  // The signal is set if we get a request (edn_rnd_req_start) when we're ignoring the current
+  // prefetch (edn_rnd_data_ignore_q). It should be cleared when we actually start a request when
+  // we're not ignoring a prefetch. It should also be cleared when finishing an operation. If that
+  // happens, we were waiting to send a second prefetch and it turns out that no-one actually needed
+  // the result.
   assign rnd_req_queued_d =
+      opn_end_i             ? 1'b0              :
       edn_rnd_data_ignore_q ? edn_rnd_req_start :
       edn_rnd_req_start     ? 1'b0              : rnd_req_queued_q;
 
@@ -135,13 +141,11 @@ module otbn_rnd import otbn_pkg::*;
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       rnd_valid_q            <= 1'b0;
-      rnd_prefetch_pending_q <= 1'b0;
       rnd_req_queued_q       <= 1'b0;
       edn_rnd_req_q          <= 1'b0;
       edn_rnd_data_ignore_q  <= 1'b0;
     end else begin
       rnd_valid_q            <= rnd_valid_d;
-      rnd_prefetch_pending_q <= rnd_prefetch_pending_d;
       rnd_req_queued_q       <= rnd_req_queued_d;
       edn_rnd_req_q          <= edn_rnd_req_d;
       edn_rnd_data_ignore_q  <= edn_rnd_data_ignore_d;

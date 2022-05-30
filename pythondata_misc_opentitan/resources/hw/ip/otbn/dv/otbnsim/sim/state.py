@@ -210,6 +210,12 @@ class OTBNState:
     def wiping(self) -> bool:
         return self._fsm_state in [FsmState.WIPING_GOOD, FsmState.WIPING_BAD]
 
+    def stop_if_pending_halt(self) -> bool:
+        if self.pending_halt:
+            self.stop()
+            return True
+        return False
+
     def step(self, handle_injected_error: bool) -> None:
         if handle_injected_error:
             self.take_injected_err_bits()
@@ -355,6 +361,9 @@ class OTBNState:
             self._next_fsm_state = FsmState.LOCKED
             next_status = Status.LOCKED
             self.ext_regs.write('STATUS', next_status, True)
+
+        # Clear any pending request in the RND EDN client
+        self.ext_regs.rnd_forget()
 
         # Clear the "we should stop soon" flag
         self.pending_halt = False
