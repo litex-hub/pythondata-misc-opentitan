@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12410"
-version_tuple = (0, 0, 12410)
+version_str = "0.0.post12411"
+version_tuple = (0, 0, 12411)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12410")
+    pversion = V("0.0.post12411")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12268"
-data_version_tuple = (0, 0, 12268)
+data_version_str = "0.0.post12269"
+data_version_tuple = (0, 0, 12269)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12268")
+    pdata_version = V("0.0.post12269")
 except ImportError:
     pass
-data_git_hash = "6c79c3b8b387f39aad3aecb2d985a8c06b76cc34"
-data_git_describe = "v0.0-12268-g6c79c3b8b"
+data_git_hash = "bb1701c2872d1ee23e0b41a3e27d0a3c08174559"
+data_git_describe = "v0.0-12269-gbb1701c28"
 data_git_msg = """\
-commit 6c79c3b8b387f39aad3aecb2d985a8c06b76cc34
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Fri May 27 11:43:14 2022 -0700
+commit bb1701c2872d1ee23e0b41a3e27d0a3c08174559
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Apr 21 04:24:03 2022 -0700
 
-    [edn/dv] Change type from bit->mubi4_t, remove redundant constraints
+    [dv,full_chip,pwrmgr] Add pwrmgr_sleep_power_glitch_reset test
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
