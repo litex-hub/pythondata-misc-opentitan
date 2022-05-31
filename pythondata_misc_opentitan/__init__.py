@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12411"
-version_tuple = (0, 0, 12411)
+version_str = "0.0.post12414"
+version_tuple = (0, 0, 12414)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12411")
+    pversion = V("0.0.post12414")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12269"
-data_version_tuple = (0, 0, 12269)
+data_version_str = "0.0.post12272"
+data_version_tuple = (0, 0, 12272)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12269")
+    pdata_version = V("0.0.post12272")
 except ImportError:
     pass
-data_git_hash = "bb1701c2872d1ee23e0b41a3e27d0a3c08174559"
-data_git_describe = "v0.0-12269-gbb1701c28"
+data_git_hash = "00dd729d4f254732acb0fb47c545239551fd63b5"
+data_git_describe = "v0.0-12272-g00dd729d4"
 data_git_msg = """\
-commit bb1701c2872d1ee23e0b41a3e27d0a3c08174559
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Apr 21 04:24:03 2022 -0700
+commit 00dd729d4f254732acb0fb47c545239551fd63b5
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri May 27 19:43:50 2022 +0000
 
-    [dv,full_chip,pwrmgr] Add pwrmgr_sleep_power_glitch_reset test
+    [clkmgr,dv] regression fix - shadow register error test
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
