@@ -18,7 +18,10 @@ module flash_ctrl
   parameter lfsr_perm_t           RndCnstLfsrPerm = RndCnstLfsrPermDefault,
   parameter int                   ProgFifoDepth   = MaxFifoDepth,
   parameter int                   RdFifoDepth     = MaxFifoDepth,
-  parameter bit                   SecScrambleEn   = 1'b1
+  parameter bit                   SecScrambleEn   = 1'b1,
+  parameter int                   ModelOnlyReadLatency   = 1,  // generic model read latency
+  parameter int                   ModelOnlyProgLatency   = 50, // generic model program latency
+  parameter int                   ModelOnlyEraseLatency  = 200 // generic model program latency
 ) (
   input        clk_i,
   input        rst_ni,
@@ -1074,12 +1077,25 @@ module flash_ctrl
     assign hw2reg.ecc_single_err_addr[i].d = {flash_phy_rsp.ecc_addr[i], {BusByteWidth{1'b0}}};
   end
 
+  logic rd_fifo_wr_q;
+  logic prog_fifo_rd_q;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      rd_fifo_wr_q <= '0;
+      prog_fifo_rd_q <= '0;
+    end else begin
+      rd_fifo_wr_q <= rd_fifo_wen & rd_fifo_wready;
+      prog_fifo_rd_q <= prog_fifo_rvalid & prog_fifo_ren;
+    end
+  end
+
   // general interrupt events
   logic [LastIntrIdx-1:0] intr_event;
 
   prim_edge_detector #(
     .Width(1),
-    .ResetValue(1)
+    .ResetValue(1),
+    .EnSync(0)
   ) u_prog_empty_event (
     .clk_i,
     .rst_ni,
@@ -1104,11 +1120,12 @@ module flash_ctrl
 
   prim_edge_detector #(
     .Width(1),
-    .ResetValue(0)
+    .ResetValue(0),
+    .EnSync(0)
   ) u_prog_lvl_event (
     .clk_i,
     .rst_ni,
-    .d_i(reg2hw.fifo_lvl.prog.q == MaxFifoWidth'(prog_fifo_depth)),
+    .d_i(prog_fifo_rd_q & (reg2hw.fifo_lvl.prog.q == MaxFifoWidth'(prog_fifo_depth))),
     .q_sync_o(),
     .q_posedge_pulse_o(intr_event[ProgLvl]),
     .q_negedge_pulse_o()
@@ -1129,7 +1146,8 @@ module flash_ctrl
 
   prim_edge_detector #(
     .Width(1),
-    .ResetValue(0)
+    .ResetValue(0),
+    .EnSync(0)
   ) u_rd_full_event (
     .clk_i,
     .rst_ni,
@@ -1154,11 +1172,12 @@ module flash_ctrl
 
   prim_edge_detector #(
     .Width(1),
-    .ResetValue(0)
+    .ResetValue(0),
+    .EnSync(0)
   ) u_rd_lvl_event (
     .clk_i,
     .rst_ni,
-    .d_i(reg2hw.fifo_lvl.rd.q == rd_fifo_depth),
+    .d_i(rd_fifo_wr_q & (reg2hw.fifo_lvl.rd.q == rd_fifo_depth)),
     .q_sync_o(),
     .q_posedge_pulse_o(intr_event[RdLvl]),
     .q_negedge_pulse_o()
@@ -1274,7 +1293,10 @@ module flash_ctrl
   );
 
   flash_phy #(
-    .SecScrambleEn(SecScrambleEn)
+    .SecScrambleEn(SecScrambleEn),
+    .ModelOnlyReadLatency(ModelOnlyReadLatency),
+    .ModelOnlyProgLatency(ModelOnlyProgLatency),
+    .ModelOnlyEraseLatency(ModelOnlyEraseLatency)
   ) u_eflash (
     .clk_i,
     .rst_ni,
