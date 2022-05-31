@@ -4,51 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12427"
-version_tuple = (0, 0, 12427)
+version_str = "0.0.post12428"
+version_tuple = (0, 0, 12428)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12427")
+    pversion = V("0.0.post12428")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12285"
-data_version_tuple = (0, 0, 12285)
+data_version_str = "0.0.post12286"
+data_version_tuple = (0, 0, 12286)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12285")
+    pdata_version = V("0.0.post12286")
 except ImportError:
     pass
-data_git_hash = "b4d3dedb2f09a22614f365a0c156aa4afa88e375"
-data_git_describe = "v0.0-12285-gb4d3dedb2"
+data_git_hash = "1842d60e925f686f86186acc6dd07d8cf3001348"
+data_git_describe = "v0.0-12286-g1842d60e9"
 data_git_msg = """\
-commit b4d3dedb2f09a22614f365a0c156aa4afa88e375
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Mon May 30 14:55:00 2022 +0100
+commit 1842d60e925f686f86186acc6dd07d8cf3001348
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Fri Apr 22 16:35:53 2022 -0700
 
-    [bazelisk] Use a lock to avoid downloading Bazel lots of times
+    [opentitantool] Add version command
     
-    Before this change, running lots of instances of bazelisk.sh at once
-    meant downloading lots of copies of Bazel. Oops!
+    `opentitantool version` will print git version including SHA hash.
     
-    Now, if you run bazelisk.sh on its own on a clean checkout, the first
-    call to up_to_date will fail. We'll then take a lock, check again that
-    we need to download bazelisk (we do!) and then download it, finally
-    releasing the lock.
-    
-    If we run bazelisk.sh in a clean checkout with 100 threads at once,
-    they will will all race to get the first flock. One of them will win
-    the race and follow the steps above. All of the others will sit and
-    wait for that first thread. Once it is done, they will run in order,
-    each checking that bazelisk is up to date (it is!) and then do
-    whatever job they are supposed to be doing.
-    
-    Of course, the usual situation is that we've already got bazelisk
-    installed. In this case, the first call to up_to_date will pass and we
-    won't do any locking at all.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: I719d30411bf05d6764f7f414344e533d66b61f35
 
 """
 
