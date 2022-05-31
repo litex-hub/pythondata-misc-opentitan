@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12414"
-version_tuple = (0, 0, 12414)
+version_str = "0.0.post12420"
+version_tuple = (0, 0, 12420)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12414")
+    pversion = V("0.0.post12420")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12272"
-data_version_tuple = (0, 0, 12272)
+data_version_str = "0.0.post12278"
+data_version_tuple = (0, 0, 12278)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12272")
+    pdata_version = V("0.0.post12278")
 except ImportError:
     pass
-data_git_hash = "00dd729d4f254732acb0fb47c545239551fd63b5"
-data_git_describe = "v0.0-12272-g00dd729d4"
+data_git_hash = "25e8e9f8895a12daa361f5a7a1af20e05edf802a"
+data_git_describe = "v0.0-12278-g25e8e9f88"
 data_git_msg = """\
-commit 00dd729d4f254732acb0fb47c545239551fd63b5
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri May 27 19:43:50 2022 +0000
+commit 25e8e9f8895a12daa361f5a7a1af20e05edf802a
+Author: Michał Mazurek <maz@semihalf.com>
+Date:   Thu Mar 31 17:10:53 2022 +0200
 
-    [clkmgr,dv] regression fix - shadow register error test
+    [opentitanlib] Implementations of Emulator trait for Ti50Emulator
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This commit provides methods to control TockOS Host Emulation
+    kernel process. Implementation use 'runtime' directory with will hold
+    all state files used by Ti50Emulator sub-process during its lifetime.
+    Files in this directory should not be directly modified by the user.
+    Updating their content should be done by passing the appropriate
+    arguments to the 'start' function.
+    
+    Signed-off-by: Michał Mazurek <maz@semihalf.com>
 
 """
 
