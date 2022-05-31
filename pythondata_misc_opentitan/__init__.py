@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12420"
-version_tuple = (0, 0, 12420)
+version_str = "0.0.post12423"
+version_tuple = (0, 0, 12423)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12420")
+    pversion = V("0.0.post12423")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12278"
-data_version_tuple = (0, 0, 12278)
+data_version_str = "0.0.post12281"
+data_version_tuple = (0, 0, 12281)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12278")
+    pdata_version = V("0.0.post12281")
 except ImportError:
     pass
-data_git_hash = "25e8e9f8895a12daa361f5a7a1af20e05edf802a"
-data_git_describe = "v0.0-12278-g25e8e9f88"
+data_git_hash = "6b5814b85d9b6c86d1ab99a90bee539e5780be22"
+data_git_describe = "v0.0-12281-g6b5814b85"
 data_git_msg = """\
-commit 25e8e9f8895a12daa361f5a7a1af20e05edf802a
-Author: Michał Mazurek <maz@semihalf.com>
-Date:   Thu Mar 31 17:10:53 2022 +0200
+commit 6b5814b85d9b6c86d1ab99a90bee539e5780be22
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu May 26 11:18:48 2022 +0100
 
-    [opentitanlib] Implementations of Emulator trait for Ti50Emulator
+    [dif, ibex] Add nmi api with unittests
     
-    This commit provides methods to control TockOS Host Emulation
-    kernel process. Implementation use 'runtime' directory with will hold
-    all state files used by Ti50Emulator sub-process during its lifetime.
-    Files in this directory should not be directly modified by the user.
-    Updating their content should be done by passing the appropriate
-    arguments to the 'start' function.
-    
-    Signed-off-by: Michał Mazurek <maz@semihalf.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
