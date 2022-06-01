@@ -151,18 +151,20 @@ jobs:
   steps:
   - template: ci/install-package-dependencies.yml
   - bash: |
-      set -x
-      sudo util/get-toolchain.py \
-        --install-dir="$TOOLCHAIN_PATH" \
-        --release-version="$TOOLCHAIN_VERSION" \
-        --update
-    displayName: Install toolchain
-  - bash: |
       . util/build_consts.sh
-      ./meson_init.sh -A
-      ninja -C "$OBJ_DIR" \
-        sw/device/otp_img/otp_img_export_fpga_cw310 \
-        sw/device/lib/testing/test_rom/test_rom_export_fpga_cw310
+      ci/bazelisk.sh build \
+        //hw/ip/otp_ctrl/data:img_rma \
+        //sw/device/lib/testing/test_rom:test_rom_fpga_cw310_scr_vmem \
+        //sw/device/lib/testing/test_rom:test_rom_fpga_cw310_bin
+      mkdir -p $BIN_DIR/sw/device/otp_img
+      mkdir -p $BIN_DIR/sw/device/lib/testing/test_rom
+      cp $(ci/scripts/target-location.sh //hw/ip/otp_ctrl/data:img_rma) $BIN_DIR/sw/device/otp_img/otp_img_fpga_cw310.vmem
+      TEST_ROM=$(ci/scripts/target-location.sh //sw/device/lib/testing/test_rom:test_rom_fpga_cw310_scr_vmem)
+      TEST_ROM_DIR=$(dirname $TEST_ROM)
+      TEST_ROM_TARGET=$BIN_DIR/sw/device/lib/testing/test_rom
+      cp $TEST_ROM $TEST_ROM_TARGET/test_rom_fpga_cw310.scr.39.vmem
+      cp $TEST_ROM_DIR/*fpga_cw310.elf $TEST_ROM_TARGET/test_rom_fpga_cw310.elf
+      cp $TEST_ROM_DIR/*fpga_cw310.bin $TEST_ROM_TARGET/test_rom_fpga_cw310.bin
     displayName: Build embedded targets
   - template: ci/upload-artifacts-template.yml
     parameters:
@@ -472,7 +474,6 @@ jobs:
           --test_tag_filters=cw310,-broken \
           --test_output=all \
           --build_tests_only \
-          --flaky_test_attempts=4 \
           --define cw310=lowrisc \
           $(./bazelisk.sh query 'rdeps(//...,@bitstreams//:bitstream_test_rom)') \
           # All the tests that depend on the test rom
