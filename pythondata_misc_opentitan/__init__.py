@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12440"
-version_tuple = (0, 0, 12440)
+version_str = "0.0.post12441"
+version_tuple = (0, 0, 12441)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12440")
+    pversion = V("0.0.post12441")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12298"
-data_version_tuple = (0, 0, 12298)
+data_version_str = "0.0.post12299"
+data_version_tuple = (0, 0, 12299)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12298")
+    pdata_version = V("0.0.post12299")
 except ImportError:
     pass
-data_git_hash = "8fce9b07d969c484eac2af6e73587935c41ae3e9"
-data_git_describe = "v0.0-12298-g8fce9b07d"
+data_git_hash = "672f9167e3b7fc2593eb33a552038b1bceec5aac"
+data_git_describe = "v0.0-12299-g672f9167e"
 data_git_msg = """\
-commit 8fce9b07d969c484eac2af6e73587935c41ae3e9
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Tue May 31 22:07:17 2022 -0400
+commit 672f9167e3b7fc2593eb33a552038b1bceec5aac
+Author: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
+Date:   Mon May 30 12:15:47 2022 +0100
 
-    [bazel] rename hw/ip/otp_ctrl/data:rma_image_verilator to img_rma
+    [flash_ctrl] Add oob_err exclusions
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Add lines 45 and 49 of flash_ctrl_erase.sv file to exclusions due
+    to oob error.
+    
+    Signed-off-by: Nikola Miladinovic <nikola.miladinovic@ensilica.com>
 
 """
 
