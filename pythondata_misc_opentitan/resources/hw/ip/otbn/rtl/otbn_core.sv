@@ -242,8 +242,10 @@ module otbn_core
   logic [ImemAddrWidth:0]   prefetch_loop_end_addr;
   logic [ImemAddrWidth-1:0] prefetch_loop_jump_addr;
 
-  mubi4_t               controller_escalate_en, start_stop_escalate_en;
+  mubi4_t               controller_fatal_escalate_en, controller_recov_escalate_en;
+  mubi4_t               start_stop_escalate_en;
   controller_err_bits_t controller_err_bits;
+  logic                 prefetch_ignore_errs;
 
   core_err_bits_t err_bits_q, err_bits_d;
 
@@ -338,6 +340,7 @@ module otbn_core
     .prefetch_loop_iterations_i(prefetch_loop_iterations),
     .prefetch_loop_end_addr_i  (prefetch_loop_end_addr),
     .prefetch_loop_jump_addr_i (prefetch_loop_jump_addr),
+    .prefetch_ignore_errs_i    (prefetch_ignore_errs),
 
     .sec_wipe_wdr_en_i  (sec_wipe_wdr_d),
     .sec_wipe_wdr_addr_i(sec_wipe_addr)
@@ -388,8 +391,9 @@ module otbn_core
     .start_i      (controller_start),
     .locking_o,
 
-    .escalate_en_i(controller_escalate_en),
-    .err_bits_o   (controller_err_bits),
+    .fatal_escalate_en_i(controller_fatal_escalate_en),
+    .recov_escalate_en_i(controller_recov_escalate_en),
+    .err_bits_o         (controller_err_bits),
     .recoverable_err_o,
 
     // Next instruction selection (to instruction fetch)
@@ -491,8 +495,6 @@ module otbn_core
     .rnd_req_o         (rnd_req),
     .rnd_prefetch_req_o(rnd_prefetch_req),
     .rnd_valid_i       (rnd_valid),
-    .rnd_rep_err_i     (rnd_rep_err),
-    .rnd_fips_err_i    (rnd_fips_err),
 
     // Secure wipe
     .start_secure_wipe_o (start_secure_wipe),
@@ -513,6 +515,7 @@ module otbn_core
     .prefetch_loop_iterations_o(prefetch_loop_iterations),
     .prefetch_loop_end_addr_o  (prefetch_loop_end_addr),
     .prefetch_loop_jump_addr_o (prefetch_loop_jump_addr),
+    .prefetch_ignore_errs_o    (prefetch_ignore_errs),
 
     .predec_error_o(controller_predec_error)
   );
@@ -526,6 +529,11 @@ module otbn_core
                                   controller_err_bits.bad_internal_state,
                                   controller_err_bits.reg_intg_violation};
 
+  logic non_controller_reg_intg_violation;
+  assign non_controller_reg_intg_violation =
+      |{alu_bignum_reg_intg_violation_err, mac_bignum_reg_intg_violation_err, rf_base_rf_err};
+
+
   // Generate an err_bits output by combining errors from all the blocks in otbn_core
   assign err_bits_d = '{
     fatal_software:      controller_err_bits.fatal_software,
@@ -535,13 +543,11 @@ module otbn_core
                            predec_error,
                            insn_addr_err},
     reg_intg_violation:  |{controller_err_bits.reg_intg_violation,
-                           alu_bignum_reg_intg_violation_err,
-                           mac_bignum_reg_intg_violation_err,
-                           rf_base_rf_err},
+                           non_controller_reg_intg_violation},
     dmem_intg_violation: lsu_rdata_err,
     imem_intg_violation: insn_fetch_err,
-    rnd_fips_chk_fail:   controller_err_bits.rnd_fips_chk_fail,
-    rnd_rep_chk_fail:    controller_err_bits.rnd_rep_chk_fail,
+    rnd_fips_chk_fail:   rnd_fips_err,
+    rnd_rep_chk_fail:    rnd_rep_err,
     key_invalid:         controller_err_bits.key_invalid,
     loop:                controller_err_bits.loop,
     illegal_insn:        controller_err_bits.illegal_insn,
@@ -566,17 +572,21 @@ module otbn_core
   // Pass an "escalation" signal down to the controller by ORing in error signals from the other
   // modules in otbn_core. Note that each error signal except escalate_en_i that appears here also
   // appears somewhere in err_bits_o above (checked in ErrBitsIfControllerEscalate_A)
-  assign controller_escalate_en =
+  assign controller_fatal_escalate_en =
       mubi4_or_hi(escalate_en_i,
                   mubi4_bool_to_mubi(|{start_stop_internal_error, urnd_all_zero, predec_error,
                                        rf_base_rf_err, lsu_rdata_err, insn_fetch_err,
-                                       err_bits_d.reg_intg_violation}));
+                                       non_controller_reg_intg_violation}));
+
+  assign controller_recov_escalate_en =
+      mubi4_bool_to_mubi(|{rnd_rep_err, rnd_fips_err});
 
   // Similarly for the start/stop controller
   assign start_stop_escalate_en =
       mubi4_or_hi(escalate_en_i,
                   mubi4_bool_to_mubi(|{urnd_all_zero, rf_base_rf_err, predec_error,
-                                       lsu_rdata_err, insn_fetch_err, controller_fatal_err}));
+                                       lsu_rdata_err, insn_fetch_err, controller_fatal_err,
+                                       rnd_rep_err, rnd_fips_err}));
 
   assign insn_cnt_o = insn_cnt;
 
@@ -875,7 +885,9 @@ module otbn_core
   // Error handling: if we pass an error signal down to the controller then we should also be
   // setting an error flag, unless the signal came from above.
   `ASSERT(ErrBitsIfControllerEscalate_A,
-          mubi4_test_true_loose(controller_escalate_en) && mubi4_test_false_strict(escalate_en_i)
+          (mubi4_test_true_loose(controller_fatal_escalate_en) ||
+           mubi4_test_true_loose(controller_recov_escalate_en)) &&
+          mubi4_test_false_strict(escalate_en_i)
           |=> err_bits_q)
 
   // Similarly, if we pass an escalation signal down to the start/stop controller then we should

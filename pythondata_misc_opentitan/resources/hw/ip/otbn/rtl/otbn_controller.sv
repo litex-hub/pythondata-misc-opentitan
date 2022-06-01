@@ -24,7 +24,8 @@ module otbn_controller
   input  logic start_i,   // start the processing at address zero
   output logic locking_o, // Controller is in or is entering the locked state
 
-  input prim_mubi_pkg::mubi4_t escalate_en_i,
+  input prim_mubi_pkg::mubi4_t fatal_escalate_en_i,
+  input prim_mubi_pkg::mubi4_t recov_escalate_en_i,
   output controller_err_bits_t err_bits_o,
   output logic                 recoverable_err_o,
 
@@ -134,8 +135,6 @@ module otbn_controller
   output logic rnd_req_o,
   output logic rnd_prefetch_req_o,
   input  logic rnd_valid_i,
-  input  logic rnd_rep_err_i,
-  input  logic rnd_fips_err_i,
 
   // Secure Wipe
   output logic start_secure_wipe_o,
@@ -157,6 +156,7 @@ module otbn_controller
   output logic [31:0]              prefetch_loop_iterations_o,
   output logic [ImemAddrWidth:0]   prefetch_loop_end_addr_o,
   output logic [ImemAddrWidth-1:0] prefetch_loop_jump_addr_o,
+  output logic                     prefetch_ignore_errs_o,
 
   output logic                     predec_error_o
 );
@@ -172,10 +172,12 @@ module otbn_controller
   logic illegal_insn_err, bad_data_addr_err, call_stack_sw_err, bad_insn_addr_err;
 
   logic err;
+  logic internal_err;
   logic recoverable_err;
   logic software_err;
   logic non_insn_addr_software_err;
   logic fatal_err;
+  logic internal_fatal_err;
   logic done_complete;
   logic executing;
   logic state_error;
@@ -506,8 +508,6 @@ module otbn_controller
     fatal_software:     fatal_software_err,
     bad_internal_state: bad_internal_state_err,
     reg_intg_violation: reg_intg_violation_err,
-    rnd_fips_chk_fail:  rnd_fips_err_i,
-    rnd_rep_chk_fail:   rnd_rep_err_i,
     key_invalid:        key_invalid_err,
     loop:               loop_sw_err,
     illegal_insn:       illegal_insn_err,
@@ -531,23 +531,29 @@ module otbn_controller
 
   assign software_err = non_insn_addr_software_err | bad_insn_addr_err;
 
-  assign recoverable_err = rnd_rep_err_i | rnd_fips_err_i;
+  assign recoverable_err = mubi4_test_true_loose(recov_escalate_en_i);
 
-  assign fatal_err = |{fatal_software_err,
-                       bad_internal_state_err,
-                       reg_intg_violation_err,
-                       mubi4_test_true_loose(escalate_en_i)};
+  assign internal_fatal_err = |{fatal_software_err,
+                                bad_internal_state_err,
+                                reg_intg_violation_err};
+
+  assign fatal_err = internal_fatal_err | mubi4_test_true_loose(fatal_escalate_en_i);
 
   assign recoverable_err_o = recoverable_err | (software_err & ~software_errs_fatal_i);
   assign mems_sec_wipe_o   = (state_d == OtbnStateLocked) & (state_q != OtbnStateLocked);
 
-  assign err = software_err | recoverable_err | fatal_err;
+  assign internal_err = software_err | internal_fatal_err;
+  assign err          = software_err | recoverable_err | fatal_err;
+
+  assign prefetch_ignore_errs_o = internal_err;
 
   // Instructions must not execute if there is an error
   assign insn_executing = insn_valid_i & ~err;
 
   `ASSERT(ErrBitSetOnErr,
-      err & mubi4_test_false_strict(escalate_en_i) |=> err_bits_o)
+      err & (mubi4_test_false_strict(fatal_escalate_en_i) &
+             mubi4_test_false_strict(recov_escalate_en_i)) |=>
+          err_bits_o)
   `ASSERT(ErrSetOnFatalErr, fatal_err |-> err)
   `ASSERT(SoftwareErrIfNonInsnAddrSoftwareErr, non_insn_addr_software_err |-> software_err)
 
