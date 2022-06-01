@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12449"
-version_tuple = (0, 0, 12449)
+version_str = "0.0.post12453"
+version_tuple = (0, 0, 12453)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12449")
+    pversion = V("0.0.post12453")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12307"
-data_version_tuple = (0, 0, 12307)
+data_version_str = "0.0.post12311"
+data_version_tuple = (0, 0, 12311)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12307")
+    pdata_version = V("0.0.post12311")
 except ImportError:
     pass
-data_git_hash = "76232bcde543baae1fdf61847c5b508ca31340f5"
-data_git_describe = "v0.0-12307-g76232bcde"
+data_git_hash = "e659e11763cd19d3ff983e7203e451a38724921e"
+data_git_describe = "v0.0-12311-ge659e1176"
 data_git_msg = """\
-commit 76232bcde543baae1fdf61847c5b508ca31340f5
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Wed Jun 1 17:13:52 2022 +0200
+commit e659e11763cd19d3ff983e7203e451a38724921e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue May 31 17:04:25 2022 -0400
 
-    [otp_ctrl] Temporarily exclude prim CSRs from automatic CSR checks
+    [sw/silicon_creator] Use macro instead of constant for rv_dm rom size
     
-    Since chip-level sims currently do not yet support reading in the alias
-    files, we get currently get some mismatches in the chip CSR checks on the
-    foundry side due to differing reset values in the prim CSRs.
+    Fixes #11092
     
-    This patch therefore temporarily adds exclusions for these checks.
-    It will be removed once alias files are supported in chip-level sims.
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
