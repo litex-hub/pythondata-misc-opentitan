@@ -4,46 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12444"
-version_tuple = (0, 0, 12444)
+version_str = "0.0.post12448"
+version_tuple = (0, 0, 12448)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12444")
+    pversion = V("0.0.post12448")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12302"
-data_version_tuple = (0, 0, 12302)
+data_version_str = "0.0.post12306"
+data_version_tuple = (0, 0, 12306)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12302")
+    pdata_version = V("0.0.post12306")
 except ImportError:
     pass
-data_git_hash = "4f6eadba989c3712df79e23880d462192d48a24f"
-data_git_describe = "v0.0-12302-g4f6eadba9"
+data_git_hash = "ef893b7d3199c187084a5001bba1296ff921a37c"
+data_git_describe = "v0.0-12306-gef893b7d3"
 data_git_msg = """\
-commit 4f6eadba989c3712df79e23880d462192d48a24f
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri May 27 17:56:24 2022 +0100
+commit ef893b7d3199c187084a5001bba1296ff921a37c
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue May 31 13:47:06 2022 -0700
 
-    [otbn,rtl] Squash prefetch mismatch error when controller stops
+    doc(prim): Specify ICEBOX for prim_packer
     
-    Without this squashing behaviour, there's a problem if the controller
-    stops on an instruction that doesn't look like a jump/branch/etc. This
-    stalls the instruction stream (so insn_fetch_req_addr_i stops
-    changing). In this case, the invalid instruction didn't look like a
-    jump or similar, so the prefetcher has already been incremented by 4.
-    We then generate an error (insn_addr_err_o) when we look at the
-    results.
+    prim_packer needs empty signal for HMAC to set the idle state correctly.
     
-    Hopefully, any situation like this would be caught by the existing
-    testbench (by looking at ERR_BITS). But we definitely catch situations
-    where the initial error is only supposed to send out a recoverable
-    alert. In this case, the testbench notices that an unexpected fatal
-    alert came out.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
