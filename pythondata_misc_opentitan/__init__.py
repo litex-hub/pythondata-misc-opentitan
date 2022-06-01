@@ -4,35 +4,47 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12428"
-version_tuple = (0, 0, 12428)
+version_str = "0.0.post12429"
+version_tuple = (0, 0, 12429)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12428")
+    pversion = V("0.0.post12429")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12286"
-data_version_tuple = (0, 0, 12286)
+data_version_str = "0.0.post12287"
+data_version_tuple = (0, 0, 12287)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12286")
+    pdata_version = V("0.0.post12287")
 except ImportError:
     pass
-data_git_hash = "1842d60e925f686f86186acc6dd07d8cf3001348"
-data_git_describe = "v0.0-12286-g1842d60e9"
+data_git_hash = "33ea5821037a0ee96f4b034c9758819b6d8b1fd8"
+data_git_describe = "v0.0-12287-g33ea58210"
 data_git_msg = """\
-commit 1842d60e925f686f86186acc6dd07d8cf3001348
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Apr 22 16:35:53 2022 -0700
+commit 33ea5821037a0ee96f4b034c9758819b6d8b1fd8
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue May 31 12:50:52 2022 -0700
 
-    [opentitantool] Add version command
+    fix(spi_device)!: Default to Flash Mode
     
-    `opentitantool version` will print git version including SHA hash.
+    As discussed in #12808, SPI_DEVICE default mode is changed to Flash mode
+    in this commit. It removes three register writes in the Boot ROM.
     
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
-    Change-Id: I719d30411bf05d6764f7f414344e533d66b61f35
+    As Generic feature still lives in the SPI_DEVICE IP, SW can always
+    change back to Generic mode.
+    
+    Justification:
+    
+        BootROM has been switched to SPI Flash mode to download the ROM
+        Extension images. The usage of SPI_DEVICE is focused on Flash mode
+        and Passthrough mode. Changing between Generic mode and
+        (Flash/Passthrough) mode is not easy due to the clock change. SW
+        shall follow the steps in the doc. This change eliminates the
+        unnecessary steps in most cases.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
