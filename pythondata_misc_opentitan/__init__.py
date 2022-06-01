@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12430"
-version_tuple = (0, 0, 12430)
+version_str = "0.0.post12431"
+version_tuple = (0, 0, 12431)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12430")
+    pversion = V("0.0.post12431")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12288"
-data_version_tuple = (0, 0, 12288)
+data_version_str = "0.0.post12289"
+data_version_tuple = (0, 0, 12289)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12288")
+    pdata_version = V("0.0.post12289")
 except ImportError:
     pass
-data_git_hash = "15bc9e3527d89d793d2ca740403adad262f708ac"
-data_git_describe = "v0.0-12288-g15bc9e352"
+data_git_hash = "e9cfd0f0f3de2b58fe472d5bcb8ad4a0a6e4e88a"
+data_git_describe = "v0.0-12289-ge9cfd0f0f"
 data_git_msg = """\
-commit 15bc9e3527d89d793d2ca740403adad262f708ac
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Tue May 31 06:22:00 2022 -0700
+commit e9cfd0f0f3de2b58fe472d5bcb8ad4a0a6e4e88a
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu May 26 10:54:34 2022 +0100
 
-    [adc_ctrl] Fix a few documentation / comment nits
+    [otbn,rtl] Refactor ISPR read muxing
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    ISPR read data is muxed out in two stages in the bignum ALU. The first
+    stage muxes between all of the ISPRs that don't have integrity bits. The
+    result goes through an integrity encoder and is fed into the second
+    stage. The second stage chooses the final read data choosing between the
+    first stage with the calculated intergrity and the ISPRs that have
+    integrity bits.
+    
+    This refactoring makes this structure more explicit and should result in
+    area savings as the previous RTL fed the same signal into multiple
+    inputs of the second stage mux. As there is an optimization barrier in
+    the mux these would not have been optimized down to a single input.
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
