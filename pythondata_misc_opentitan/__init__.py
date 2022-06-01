@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12453"
-version_tuple = (0, 0, 12453)
+version_str = "0.0.post12454"
+version_tuple = (0, 0, 12454)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12453")
+    pversion = V("0.0.post12454")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12311"
-data_version_tuple = (0, 0, 12311)
+data_version_str = "0.0.post12312"
+data_version_tuple = (0, 0, 12312)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12311")
+    pdata_version = V("0.0.post12312")
 except ImportError:
     pass
-data_git_hash = "e659e11763cd19d3ff983e7203e451a38724921e"
-data_git_describe = "v0.0-12311-ge659e1176"
+data_git_hash = "780e05e7b64764ae36a5421eae5c418c5fe84565"
+data_git_describe = "v0.0-12312-g780e05e7b"
 data_git_msg = """\
-commit e659e11763cd19d3ff983e7203e451a38724921e
+commit 780e05e7b64764ae36a5421eae5c418c5fe84565
 Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue May 31 17:04:25 2022 -0400
+Date:   Wed Jun 1 15:06:02 2022 -0400
 
-    [sw/silicon_creator] Use macro instead of constant for rv_dm rom size
-    
-    Fixes #11092
+    [sw/silicon_creator] Remove fake_deps.c
     
     Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
