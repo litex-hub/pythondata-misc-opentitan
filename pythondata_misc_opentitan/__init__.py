@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12432"
-version_tuple = (0, 0, 12432)
+version_str = "0.0.post12434"
+version_tuple = (0, 0, 12434)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12432")
+    pversion = V("0.0.post12434")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12290"
-data_version_tuple = (0, 0, 12290)
+data_version_str = "0.0.post12292"
+data_version_tuple = (0, 0, 12292)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12290")
+    pdata_version = V("0.0.post12292")
 except ImportError:
     pass
-data_git_hash = "217a0168ba118503c166a9587819e3811eeb0c0c"
-data_git_describe = "v0.0-12290-g217a0168b"
+data_git_hash = "cf8ea0c9502802b974c65c9f7a87e4d694ca2c74"
+data_git_describe = "v0.0-12292-gcf8ea0c95"
 data_git_msg = """\
-commit 217a0168ba118503c166a9587819e3811eeb0c0c
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue May 31 15:18:17 2022 +0100
+commit cf8ea0c9502802b974c65c9f7a87e4d694ca2c74
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue May 31 17:27:41 2022 -0400
 
-    [dif, rv_core_ibex] Add rnd api
+    [sw/silicon_creator] Minor updates to shutdown_unittest.cc
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    The only remaining mock in shutdown_unittest.cc mocks the internal
+    functions of the shutdown module and thus it's appropriate to keep its
+    definition there.
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
