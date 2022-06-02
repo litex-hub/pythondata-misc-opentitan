@@ -118,25 +118,26 @@ jobs:
   displayName: Build Software for Earl Grey toplevel design
   dependsOn: lint
   condition: and(succeeded(), eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'))
-  pool: ci-public
+  pool:
+    vmImage: ubuntu-18.04
   steps:
   - template: ci/install-package-dependencies.yml
   - bash: |
-      set -x
-      sudo util/get-toolchain.py \
-        --install-dir="$TOOLCHAIN_PATH" \
-        --release-version="$TOOLCHAIN_VERSION" \
-        --update
-    displayName: Install toolchain
-  - bash: |
-      . util/build_consts.sh
-      ./meson_init.sh -A
-      ninja -C "$OBJ_DIR" all
+      set -x -e
+      ci/bazelisk.sh build //sw/... \
+      --define DISABLE_VERILATOR_BUILD=true # build verilator tests but not verilator
     displayName: Build embedded targets
   - bash: |
+      set -x -e
       . util/build_consts.sh
-      ninja -C "$OBJ_DIR" test
-    displayName: Run unit tests
+      # copy the mask rom to a specific location
+      MASK_ROM_TARGET=${BIN_DIR}/sw/device/silicon_creator/mask_rom
+      mkdir -p ${MASK_ROM_TARGET}
+      MASK_ROM=$(ci/scripts/target-location.sh //sw/device/silicon_creator/mask_rom:mask_rom_fpga_cw310_scr_vmem)
+      cp $MASK_ROM $MASK_ROM_TARGET/mask_rom_fpga_cw310.scr.39.vmem
+      MASK_ROM_DIR=$(dirname $MASK_ROM)
+      cp $MASK_ROM_DIR/mask_rom_fpga_cw310.elf $MASK_ROM_TARGET/mask_rom_fpga_cw310.elf
+      cp $MASK_ROM_DIR/mask_rom_fpga_cw310.bin $MASK_ROM_TARGET/mask_rom_fpga_cw310.bin
   - template: ci/upload-artifacts-template.yml
     parameters:
       includePatterns:
@@ -307,6 +308,16 @@ jobs:
       ci/scripts/run-english-breakfast-verilator-tests.sh
     displayName: Execute tests
     continueOnError: true #TODO: remove this line once this job is proven to be stable
+  - bash: |
+      . util/build_consts.sh
+      mkdir -p "$BIN_DIR/sw/device/lib/testing/test_rom"
+      cp $(ci/scripts/target-location.sh //sw/device/lib/testing/test_rom:test_rom_fpga_nexysvideo_vmem) \
+        "$BIN_DIR/sw/device/lib/testing/test_rom"
+    displayName: Copy test_rom_fpga_nexysvideo_vmem to $BIN_DIR
+  - template: ci/upload-artifacts-template.yml
+    parameters:
+      includePatterns:
+        - "/sw/device/lib/testing/test_rom/test_rom_fpga_nexysvideo.32.vmem"
 
 - job: otbn_standalone_tests
   displayName: Run OTBN Smoke Test
@@ -419,11 +430,10 @@ jobs:
     displayName: Upload all Vivado artifacts for CW310
     condition: failed()
 
+# TODO: change all instances of bazel_build_and_execute_verilated_tests_englishbreakfast to the new EB software build job after meson is removed.
 - job: chip_englishbreakfast_cw305
   displayName: Build CW305 variant of the English Breakfast toplevel design using Vivado
-  dependsOn:
-    - lint
-    - sw_build_englishbreakfast
+  dependsOn: bazel_build_and_execute_verilated_tests_englishbreakfast
   condition: and(succeeded(), eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'), eq(dependencies.lint.outputs['DetermineBuildType.onlyDvChanges'], '0'))
   pool: ci-public
   timeoutInMinutes: 120 # 2 hours
@@ -432,7 +442,7 @@ jobs:
   - template: ci/download-artifacts-template.yml
     parameters:
       downloadPartialBuildBinFrom:
-        - sw_build_englishbreakfast
+        - bazel_build_and_execute_verilated_tests_englishbreakfast
   - bash: |
       set -e
       module load "xilinx/vivado/$(VIVADO_VERSION)"
@@ -501,7 +511,7 @@ jobs:
   - bash: |
       . util/build_consts.sh
 
-      util/make_distribution.sh
+      ci/scripts/make_distribution.sh
 
       tar --list -f $BIN_DIR/opentitan-*.tar.xz
       # Put the resulting tar file into a directory the |publish| step below can reference.
