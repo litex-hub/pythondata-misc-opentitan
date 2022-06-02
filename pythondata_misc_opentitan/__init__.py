@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12466"
-version_tuple = (0, 0, 12466)
+version_str = "0.0.post12471"
+version_tuple = (0, 0, 12471)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12466")
+    pversion = V("0.0.post12471")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12324"
-data_version_tuple = (0, 0, 12324)
+data_version_str = "0.0.post12329"
+data_version_tuple = (0, 0, 12329)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12324")
+    pdata_version = V("0.0.post12329")
 except ImportError:
     pass
-data_git_hash = "5c1a7171c43ee59120e5b3896f2ca95282056bf3"
-data_git_describe = "v0.0-12324-g5c1a7171c"
+data_git_hash = "aa91ed9c8c1a464a91828b431d73e73b84cdd218"
+data_git_describe = "v0.0-12329-gaa91ed9c8"
 data_git_msg = """\
-commit 5c1a7171c43ee59120e5b3896f2ca95282056bf3
+commit aa91ed9c8c1a464a91828b431d73e73b84cdd218
 Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Jun 1 14:33:24 2022 -0700
+Date:   Thu Jun 2 09:26:49 2022 -0700
 
-    chore(cdc): Waive JTAG EN strap
-    
-    JTAG en strap can be waived in CDC review
+    fix(cdc): Typo in waiver file
     
     Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
