@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12458"
-version_tuple = (0, 0, 12458)
+version_str = "0.0.post12460"
+version_tuple = (0, 0, 12460)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12458")
+    pversion = V("0.0.post12460")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12316"
-data_version_tuple = (0, 0, 12316)
+data_version_str = "0.0.post12318"
+data_version_tuple = (0, 0, 12318)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12316")
+    pdata_version = V("0.0.post12318")
 except ImportError:
     pass
-data_git_hash = "39634e0e1ad9ab125464cc8a626328f13df23b15"
-data_git_describe = "v0.0-12316-g39634e0e1"
+data_git_hash = "e50daed06c513c52b725e4b650d3e0c1db9cf076"
+data_git_describe = "v0.0-12318-ge50daed06"
 data_git_msg = """\
-commit 39634e0e1ad9ab125464cc8a626328f13df23b15
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Mar 15 17:20:37 2022 -0700
+commit e50daed06c513c52b725e4b650d3e0c1db9cf076
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue May 31 02:53:14 2022 -0700
 
-    [dv/rstmgr] Disable unnecessary exclusions
+    expanding FI to include round counter
     
-    Disable CSR exclusions meant for full-chip only.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
