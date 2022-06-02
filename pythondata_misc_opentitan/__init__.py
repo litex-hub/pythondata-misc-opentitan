@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12460"
-version_tuple = (0, 0, 12460)
+version_str = "0.0.post12462"
+version_tuple = (0, 0, 12462)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12460")
+    pversion = V("0.0.post12462")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12318"
-data_version_tuple = (0, 0, 12318)
+data_version_str = "0.0.post12320"
+data_version_tuple = (0, 0, 12320)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12318")
+    pdata_version = V("0.0.post12320")
 except ImportError:
     pass
-data_git_hash = "e50daed06c513c52b725e4b650d3e0c1db9cf076"
-data_git_describe = "v0.0-12318-ge50daed06"
+data_git_hash = "f0e8fd418b5743a2906fde6a07f591bb16da01a7"
+data_git_describe = "v0.0-12320-gf0e8fd418"
 data_git_msg = """\
-commit e50daed06c513c52b725e4b650d3e0c1db9cf076
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Tue May 31 02:53:14 2022 -0700
+commit f0e8fd418b5743a2906fde6a07f591bb16da01a7
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Jun 1 15:19:41 2022 -0400
 
-    expanding FI to include round counter
+    [sw/silicon_creator] Use sram_ctrl DIFs in mask_rom_epmp_test.c
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
