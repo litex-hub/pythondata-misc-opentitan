@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12475"
-version_tuple = (0, 0, 12475)
+version_str = "0.0.post12477"
+version_tuple = (0, 0, 12477)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12475")
+    pversion = V("0.0.post12477")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12333"
-data_version_tuple = (0, 0, 12333)
+data_version_str = "0.0.post12335"
+data_version_tuple = (0, 0, 12335)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12333")
+    pdata_version = V("0.0.post12335")
 except ImportError:
     pass
-data_git_hash = "0eae0e92ad47b62739a82a7b184356d00a99eaeb"
-data_git_describe = "v0.0-12333-g0eae0e92a"
+data_git_hash = "c48bdec44d6abdf1214951fe68c815c0b3af8d43"
+data_git_describe = "v0.0-12335-gc48bdec44"
 data_git_msg = """\
-commit 0eae0e92ad47b62739a82a7b184356d00a99eaeb
+commit c48bdec44d6abdf1214951fe68c815c0b3af8d43
 Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jun 1 22:35:54 2022 -0700
+Date:   Wed Jun 1 16:58:06 2022 -0700
 
-    [dv] Update tl_intg sequence
+    [dv] Remove 2 cycle delay after injecting the fault
     
-    1. Changed to only trigger one intg_error at a time, rather than
-       triggering intg_error at all TL interfaces at a time. One intg_error
-       should lead to a fatal alert.
-    2. added `check_no_fatal_alerts` after testing passthru_mem_tl_intg_err
-       since no fata alert should occur
-    3. small cleanup - moved `num_times` to the main task
-    
+    Addess #12990
     Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
