@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12473"
-version_tuple = (0, 0, 12473)
+version_str = "0.0.post12475"
+version_tuple = (0, 0, 12475)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12473")
+    pversion = V("0.0.post12475")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12331"
-data_version_tuple = (0, 0, 12331)
+data_version_str = "0.0.post12333"
+data_version_tuple = (0, 0, 12333)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12331")
+    pdata_version = V("0.0.post12333")
 except ImportError:
     pass
-data_git_hash = "6f05ffc3ffa9ca2604e46d9538eb0f5211fe4799"
-data_git_describe = "v0.0-12331-g6f05ffc3f"
+data_git_hash = "0eae0e92ad47b62739a82a7b184356d00a99eaeb"
+data_git_describe = "v0.0-12333-g0eae0e92a"
 data_git_msg = """\
-commit 6f05ffc3ffa9ca2604e46d9538eb0f5211fe4799
-Author: Miles Dai <milesdai@google.com>
-Date:   Tue May 31 13:01:07 2022 -0400
+commit 0eae0e92ad47b62739a82a7b184356d00a99eaeb
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jun 1 22:35:54 2022 -0700
 
-    [ci] Clean up verilator chip-level testing configuration.
+    [dv] Update tl_intg sequence
     
-    This commit undoes the temporary actions in #12603 that were taken to
-    prevent blocking on the Verilator chip-level tests back when these tests
-    were flaky.
+    1. Changed to only trigger one intg_error at a time, rather than
+       triggering intg_error at all TL interfaces at a time. One intg_error
+       should lead to a fatal alert.
+    2. added `check_no_fatal_alerts` after testing passthru_mem_tl_intg_err
+       since no fata alert should occur
+    3. small cleanup - moved `num_times` to the main task
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
