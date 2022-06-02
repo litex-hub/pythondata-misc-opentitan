@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12457"
-version_tuple = (0, 0, 12457)
+version_str = "0.0.post12458"
+version_tuple = (0, 0, 12458)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12457")
+    pversion = V("0.0.post12458")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12315"
-data_version_tuple = (0, 0, 12315)
+data_version_str = "0.0.post12316"
+data_version_tuple = (0, 0, 12316)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12315")
+    pdata_version = V("0.0.post12316")
 except ImportError:
     pass
-data_git_hash = "1b4293480568f9bb6ac97836fff952f1e6c63fba"
-data_git_describe = "v0.0-12315-g1b4293480"
+data_git_hash = "39634e0e1ad9ab125464cc8a626328f13df23b15"
+data_git_describe = "v0.0-12316-g39634e0e1"
 data_git_msg = """\
-commit 1b4293480568f9bb6ac97836fff952f1e6c63fba
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jun 1 13:44:54 2022 -0700
+commit 39634e0e1ad9ab125464cc8a626328f13df23b15
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Mar 15 17:20:37 2022 -0700
 
-    [dv/pattgen] Remove memory testplan entry
+    [dv/rstmgr] Disable unnecessary exclusions
     
-    This PR removes testplan entries regarding memory. Pattgen does not
-    contain any memory so this test is not needed.
+    Disable CSR exclusions meant for full-chip only.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
