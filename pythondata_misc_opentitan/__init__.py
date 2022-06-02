@@ -4,33 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12477"
-version_tuple = (0, 0, 12477)
+version_str = "0.0.post12482"
+version_tuple = (0, 0, 12482)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12477")
+    pversion = V("0.0.post12482")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12335"
-data_version_tuple = (0, 0, 12335)
+data_version_str = "0.0.post12340"
+data_version_tuple = (0, 0, 12340)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12335")
+    pdata_version = V("0.0.post12340")
 except ImportError:
     pass
-data_git_hash = "c48bdec44d6abdf1214951fe68c815c0b3af8d43"
-data_git_describe = "v0.0-12335-gc48bdec44"
+data_git_hash = "9046e66b30af96a1f630a6c5d5706f4c6c1f0ac1"
+data_git_describe = "v0.0-12340-g9046e66b3"
 data_git_msg = """\
-commit c48bdec44d6abdf1214951fe68c815c0b3af8d43
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jun 1 16:58:06 2022 -0700
+commit 9046e66b30af96a1f630a6c5d5706f4c6c1f0ac1
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Wed Jun 1 15:41:58 2022 -0700
 
-    [dv] Remove 2 cycle delay after injecting the fault
+    chore(cdc): SPI_DEVICE static signals.
     
-    Addess #12990
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - read pointer sits in SYS_CLK: no CDC path violation
+    - control_abort to fwmode is in the same clock domain.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
