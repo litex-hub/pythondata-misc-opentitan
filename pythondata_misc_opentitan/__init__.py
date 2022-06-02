@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12471"
-version_tuple = (0, 0, 12471)
+version_str = "0.0.post12473"
+version_tuple = (0, 0, 12473)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12471")
+    pversion = V("0.0.post12473")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12329"
-data_version_tuple = (0, 0, 12329)
+data_version_str = "0.0.post12331"
+data_version_tuple = (0, 0, 12331)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12329")
+    pdata_version = V("0.0.post12331")
 except ImportError:
     pass
-data_git_hash = "aa91ed9c8c1a464a91828b431d73e73b84cdd218"
-data_git_describe = "v0.0-12329-gaa91ed9c8"
+data_git_hash = "6f05ffc3ffa9ca2604e46d9538eb0f5211fe4799"
+data_git_describe = "v0.0-12331-g6f05ffc3f"
 data_git_msg = """\
-commit aa91ed9c8c1a464a91828b431d73e73b84cdd218
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jun 2 09:26:49 2022 -0700
+commit 6f05ffc3ffa9ca2604e46d9538eb0f5211fe4799
+Author: Miles Dai <milesdai@google.com>
+Date:   Tue May 31 13:01:07 2022 -0400
 
-    fix(cdc): Typo in waiver file
+    [ci] Clean up verilator chip-level testing configuration.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    This commit undoes the temporary actions in #12603 that were taken to
+    prevent blocking on the Verilator chip-level tests back when these tests
+    were flaky.
+    
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
