@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12498"
-version_tuple = (0, 0, 12498)
+version_str = "0.0.post12500"
+version_tuple = (0, 0, 12500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12498")
+    pversion = V("0.0.post12500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12356"
-data_version_tuple = (0, 0, 12356)
+data_version_str = "0.0.post12358"
+data_version_tuple = (0, 0, 12358)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12356")
+    pdata_version = V("0.0.post12358")
 except ImportError:
     pass
-data_git_hash = "4f106efab24430ef45d4a7d98e0a1a6cf6991b66"
-data_git_describe = "v0.0-12356-g4f106efab"
+data_git_hash = "1241a73768fa7a2cf3296716dc0f4801ad3a61df"
+data_git_describe = "v0.0-12358-g1241a7376"
 data_git_msg = """\
-commit 4f106efab24430ef45d4a7d98e0a1a6cf6991b66
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Tue May 31 14:11:06 2022 -0700
+commit 1241a73768fa7a2cf3296716dc0f4801ad3a61df
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Jun 3 11:28:34 2022 -0700
 
-    [reggen] Update licencing info for generated files
+    fix(spi_device): Lint error
     
-    Opensource council has approved licensing the generated output under
-    both Apache and MIT licenses.
+    This commit fixes unused cmdfifo_depth errors in the lint tool. The
+    signal is being used in the assertion not in the actual logic.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
