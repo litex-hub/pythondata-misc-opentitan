@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12497"
-version_tuple = (0, 0, 12497)
+version_str = "0.0.post12498"
+version_tuple = (0, 0, 12498)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12497")
+    pversion = V("0.0.post12498")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12355"
-data_version_tuple = (0, 0, 12355)
+data_version_str = "0.0.post12356"
+data_version_tuple = (0, 0, 12356)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12355")
+    pdata_version = V("0.0.post12356")
 except ImportError:
     pass
-data_git_hash = "68d279f2ee522997f7e321b29b91576cd621459c"
-data_git_describe = "v0.0-12355-g68d279f2e"
+data_git_hash = "4f106efab24430ef45d4a7d98e0a1a6cf6991b66"
+data_git_describe = "v0.0-12356-g4f106efab"
 data_git_msg = """\
-commit 68d279f2ee522997f7e321b29b91576cd621459c
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jun 2 16:33:40 2022 -0700
+commit 4f106efab24430ef45d4a7d98e0a1a6cf6991b66
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Tue May 31 14:11:06 2022 -0700
 
-    chore(cdc): Waive W_GLITCH for pads input to sync
+    [reggen] Update licencing info for generated files
     
-    This commit waives the W_GLITCH errors on the path from PADs input to
-    any 2FF sync cells.
+    Opensource council has approved licensing the generated output under
+    both Apache and MIT licenses.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
