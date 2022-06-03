@@ -4,48 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12494"
-version_tuple = (0, 0, 12494)
+version_str = "0.0.post12497"
+version_tuple = (0, 0, 12497)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12494")
+    pversion = V("0.0.post12497")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12352"
-data_version_tuple = (0, 0, 12352)
+data_version_str = "0.0.post12355"
+data_version_tuple = (0, 0, 12355)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12352")
+    pdata_version = V("0.0.post12355")
 except ImportError:
     pass
-data_git_hash = "d2277d216b55f9d26373750f703f3050d617d8e7"
-data_git_describe = "v0.0-12352-gd2277d216"
+data_git_hash = "68d279f2ee522997f7e321b29b91576cd621459c"
+data_git_describe = "v0.0-12355-g68d279f2e"
 data_git_msg = """\
-commit d2277d216b55f9d26373750f703f3050d617d8e7
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jun 2 00:36:08 2022 -0700
+commit 68d279f2ee522997f7e321b29b91576cd621459c
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Jun 2 16:33:40 2022 -0700
 
-    [bazel] update closed source example repo with custom test
+    chore(cdc): Waive W_GLITCH for pads input to sync
     
-    In #12631 Bazel infrastructure was added to support closed-source
-    manufacture test hooks. This extends those capabilities by also enabling
-    manufacturers to develop entire tests that are also closed source,
-    inside the same external Bazel repository
-    (`@manufacturer_test_hooks//`).
+    This commit waives the W_GLITCH errors on the path from PADs input to
+    any 2FF sync cells.
     
-    Additionally, this commit adds an example closed source test. To build
-    this test within the default closed-source bazel repo use:
-    `bazel build @manufacturer_test_hooks//:example_test`
-    
-    To build a test in a closed-source test hooks repo that is located
-    elsewhere on your machine, use:
-    
-    `MANUFACTURER_HOOKS_DIR=/path/to/test_hooks_dir bazel build
-    @manufacturer_test_hooks//:example_test`
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
