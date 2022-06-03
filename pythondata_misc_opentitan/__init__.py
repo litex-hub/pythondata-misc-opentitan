@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12487"
-version_tuple = (0, 0, 12487)
+version_str = "0.0.post12488"
+version_tuple = (0, 0, 12488)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12487")
+    pversion = V("0.0.post12488")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12345"
-data_version_tuple = (0, 0, 12345)
+data_version_str = "0.0.post12346"
+data_version_tuple = (0, 0, 12346)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12345")
+    pdata_version = V("0.0.post12346")
 except ImportError:
     pass
-data_git_hash = "3114d148c0385c6c254b169a435cf03744f64549"
-data_git_describe = "v0.0-12345-g3114d148c"
+data_git_hash = "251674e04548cfac45bd3e20e45679dbf3c9f809"
+data_git_describe = "v0.0-12346-g251674e04"
 data_git_msg = """\
-commit 3114d148c0385c6c254b169a435cf03744f64549
-Author: Abdullah Varici <abdullah.varici@lowrisc.org>
-Date:   Thu May 26 16:46:10 2022 +0100
+commit 251674e04548cfac45bd3e20e45679dbf3c9f809
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon May 30 05:56:25 2022 +0000
 
-    [sca] Add support for AES TVLA fixed-vs-random key captures in batch mode.
+    [dv,pwrmgr,top] update pwrmgr_deep_sleep_all_wake_ups test
     
-    In order to simplify the analysis, the first encryption has to use
-    fixed key. In addition a PRNG is used for random key and plaintext
-    generation instead of AES algorithm as specified in the TVLA DTR.
+    - Previously this test only covers wakeup source 1,2, and 3.
+      and 4 and 5 are covered by other tests.
+    - As we move forward to create two different sleep mode and
+      randomize them, it would be beeter to have on test to cover
+      all wakeup sources.
+      So I added wakeup source 4 and 5 to this test
     
-    Signed-off-by: Abdullah Varici <abdullah.varici@lowrisc.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
