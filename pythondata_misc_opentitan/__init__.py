@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12482"
-version_tuple = (0, 0, 12482)
+version_str = "0.0.post12484"
+version_tuple = (0, 0, 12484)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12482")
+    pversion = V("0.0.post12484")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12340"
-data_version_tuple = (0, 0, 12340)
+data_version_str = "0.0.post12342"
+data_version_tuple = (0, 0, 12342)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12340")
+    pdata_version = V("0.0.post12342")
 except ImportError:
     pass
-data_git_hash = "9046e66b30af96a1f630a6c5d5706f4c6c1f0ac1"
-data_git_describe = "v0.0-12340-g9046e66b3"
+data_git_hash = "57b9b4b59175c1acd4ad706ddcf29a7ba4dc4fda"
+data_git_describe = "v0.0-12342-g57b9b4b59"
 data_git_msg = """\
-commit 9046e66b30af96a1f630a6c5d5706f4c6c1f0ac1
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Wed Jun 1 15:41:58 2022 -0700
+commit 57b9b4b59175c1acd4ad706ddcf29a7ba4dc4fda
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jun 1 08:46:54 2022 -0700
 
-    chore(cdc): SPI_DEVICE static signals.
+    [rstmgr] Minor lint fix
     
-    - read pointer sits in SYS_CLK: no CDC path violation
-    - control_abort to fwmode is in the same clock domain.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
