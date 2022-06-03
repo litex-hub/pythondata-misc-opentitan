@@ -4,39 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12488"
-version_tuple = (0, 0, 12488)
+version_str = "0.0.post12493"
+version_tuple = (0, 0, 12493)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12488")
+    pversion = V("0.0.post12493")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12346"
-data_version_tuple = (0, 0, 12346)
+data_version_str = "0.0.post12351"
+data_version_tuple = (0, 0, 12351)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12346")
+    pdata_version = V("0.0.post12351")
 except ImportError:
     pass
-data_git_hash = "251674e04548cfac45bd3e20e45679dbf3c9f809"
-data_git_describe = "v0.0-12346-g251674e04"
+data_git_hash = "7be036f3ce1c3b99b9eaafaf30207f9e62d916ef"
+data_git_describe = "v0.0-12351-g7be036f3c"
 data_git_msg = """\
-commit 251674e04548cfac45bd3e20e45679dbf3c9f809
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon May 30 05:56:25 2022 +0000
+commit 7be036f3ce1c3b99b9eaafaf30207f9e62d916ef
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Sun May 22 22:48:33 2022 +0100
 
-    [dv,pwrmgr,top] update pwrmgr_deep_sleep_all_wake_ups test
+    [SPI_HOST/DV] Regression FIX and Assertion Cov
     
-    - Previously this test only covers wakeup source 1,2, and 3.
-      and 4 and 5 are covered by other tests.
-    - As we move forward to create two different sleep mode and
-      randomize them, it would be beeter to have on test to cover
-      all wakeup sources.
-      So I added wakeup source 4 and 5 to this test
+    - Regression Fixes For Over & Under Flow Test
+    - Assertion Coverage Test for Reg Rd
+    - Coverage Sample Status Reg Changed
+    - Removed Assertion Coverage Test
+    - Refactored Error Cmd Test
+    - Added Assertions Passthrough
+    - Added Spi Host Status Stall Test
+    - Added Regression Failures Fix Performance Test
+    - Added Regression Failures Fix Error Cmd Test
+    - Removed Spi Host Status Stall Test Will be Added Seperate PR
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
