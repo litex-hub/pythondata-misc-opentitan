@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12486"
-version_tuple = (0, 0, 12486)
+version_str = "0.0.post12487"
+version_tuple = (0, 0, 12487)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12486")
+    pversion = V("0.0.post12487")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12344"
-data_version_tuple = (0, 0, 12344)
+data_version_str = "0.0.post12345"
+data_version_tuple = (0, 0, 12345)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12344")
+    pdata_version = V("0.0.post12345")
 except ImportError:
     pass
-data_git_hash = "b83afe85e411b68cd10da9f265994eede6597b78"
-data_git_describe = "v0.0-12344-gb83afe85e"
+data_git_hash = "3114d148c0385c6c254b169a435cf03744f64549"
+data_git_describe = "v0.0-12345-g3114d148c"
 data_git_msg = """\
-commit b83afe85e411b68cd10da9f265994eede6597b78
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Thu Jun 2 12:47:43 2022 +0200
+commit 3114d148c0385c6c254b169a435cf03744f64549
+Author: Abdullah Varici <abdullah.varici@lowrisc.org>
+Date:   Thu May 26 16:46:10 2022 +0100
 
-    [otbn] Minor lint fix
+    [sca] Add support for AES TVLA fixed-vs-random key captures in batch mode.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    In order to simplify the analysis, the first encryption has to use
+    fixed key. In addition a PRNG is used for random key and plaintext
+    generation instead of AES algorithm as specified in the TVLA DTR.
+    
+    Signed-off-by: Abdullah Varici <abdullah.varici@lowrisc.org>
 
 """
 
