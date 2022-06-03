@@ -4,30 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12484"
-version_tuple = (0, 0, 12484)
+version_str = "0.0.post12485"
+version_tuple = (0, 0, 12485)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12484")
+    pversion = V("0.0.post12485")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12342"
-data_version_tuple = (0, 0, 12342)
+data_version_str = "0.0.post12343"
+data_version_tuple = (0, 0, 12343)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12342")
+    pdata_version = V("0.0.post12343")
 except ImportError:
     pass
-data_git_hash = "57b9b4b59175c1acd4ad706ddcf29a7ba4dc4fda"
-data_git_describe = "v0.0-12342-g57b9b4b59"
+data_git_hash = "c941279301af2774f8d64120e31466a55669ed25"
+data_git_describe = "v0.0-12343-gc94127930"
 data_git_msg = """\
-commit 57b9b4b59175c1acd4ad706ddcf29a7ba4dc4fda
+commit c941279301af2774f8d64120e31466a55669ed25
 Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jun 1 08:46:54 2022 -0700
+Date:   Wed Jun 1 14:19:15 2022 -0700
 
-    [rstmgr] Minor lint fix
+    [pwrmgr] Fix escalate request CDC
+    
+    - addresses #12981
+    - If the escalate request is not permanent, it is possible
+      for the pwrmgr to miss this request since it goes through
+      an always-on clock synchronization.
+    - capture and hold escalate request until the system resets.
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
