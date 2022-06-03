@@ -4,43 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12493"
-version_tuple = (0, 0, 12493)
+version_str = "0.0.post12494"
+version_tuple = (0, 0, 12494)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12493")
+    pversion = V("0.0.post12494")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12351"
-data_version_tuple = (0, 0, 12351)
+data_version_str = "0.0.post12352"
+data_version_tuple = (0, 0, 12352)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12351")
+    pdata_version = V("0.0.post12352")
 except ImportError:
     pass
-data_git_hash = "7be036f3ce1c3b99b9eaafaf30207f9e62d916ef"
-data_git_describe = "v0.0-12351-g7be036f3c"
+data_git_hash = "d2277d216b55f9d26373750f703f3050d617d8e7"
+data_git_describe = "v0.0-12352-gd2277d216"
 data_git_msg = """\
-commit 7be036f3ce1c3b99b9eaafaf30207f9e62d916ef
-Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
-Date:   Sun May 22 22:48:33 2022 +0100
+commit d2277d216b55f9d26373750f703f3050d617d8e7
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Jun 2 00:36:08 2022 -0700
 
-    [SPI_HOST/DV] Regression FIX and Assertion Cov
+    [bazel] update closed source example repo with custom test
     
-    - Regression Fixes For Over & Under Flow Test
-    - Assertion Coverage Test for Reg Rd
-    - Coverage Sample Status Reg Changed
-    - Removed Assertion Coverage Test
-    - Refactored Error Cmd Test
-    - Added Assertions Passthrough
-    - Added Spi Host Status Stall Test
-    - Added Regression Failures Fix Performance Test
-    - Added Regression Failures Fix Error Cmd Test
-    - Removed Spi Host Status Stall Test Will be Added Seperate PR
+    In #12631 Bazel infrastructure was added to support closed-source
+    manufacture test hooks. This extends those capabilities by also enabling
+    manufacturers to develop entire tests that are also closed source,
+    inside the same external Bazel repository
+    (`@manufacturer_test_hooks//`).
     
-    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+    Additionally, this commit adds an example closed source test. To build
+    this test within the default closed-source bazel repo use:
+    `bazel build @manufacturer_test_hooks//:example_test`
+    
+    To build a test in a closed-source test hooks repo that is located
+    elsewhere on your machine, use:
+    
+    `MANUFACTURER_HOOKS_DIR=/path/to/test_hooks_dir bazel build
+    @manufacturer_test_hooks//:example_test`
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
