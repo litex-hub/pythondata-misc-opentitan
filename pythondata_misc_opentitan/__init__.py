@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12500"
-version_tuple = (0, 0, 12500)
+version_str = "0.0.post12501"
+version_tuple = (0, 0, 12501)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12500")
+    pversion = V("0.0.post12501")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12358"
-data_version_tuple = (0, 0, 12358)
+data_version_str = "0.0.post12359"
+data_version_tuple = (0, 0, 12359)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12358")
+    pdata_version = V("0.0.post12359")
 except ImportError:
     pass
-data_git_hash = "1241a73768fa7a2cf3296716dc0f4801ad3a61df"
-data_git_describe = "v0.0-12358-g1241a7376"
+data_git_hash = "e4effa3a6b67c9c5a7a536873b58e3e4fbdc93c3"
+data_git_describe = "v0.0-12359-ge4effa3a6"
 data_git_msg = """\
-commit 1241a73768fa7a2cf3296716dc0f4801ad3a61df
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Jun 3 11:28:34 2022 -0700
+commit e4effa3a6b67c9c5a7a536873b58e3e4fbdc93c3
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri May 27 10:35:50 2022 -0700
 
-    fix(spi_device): Lint error
+    [sw/silicon_creator] Update keymgr functest
     
-    This commit fixes unused cmdfifo_depth errors in the lint tool. The
-    signal is being used in the assertion not in the actual logic.
+    Update the keymgr functest to use software initiated reset instead of
+    low power entry/exit. Also update flash and OTP configuration to use
+    available device testutils.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
