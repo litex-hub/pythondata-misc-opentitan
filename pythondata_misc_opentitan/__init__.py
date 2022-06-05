@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12501"
-version_tuple = (0, 0, 12501)
+version_str = "0.0.post12502"
+version_tuple = (0, 0, 12502)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12501")
+    pversion = V("0.0.post12502")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12359"
-data_version_tuple = (0, 0, 12359)
+data_version_str = "0.0.post12360"
+data_version_tuple = (0, 0, 12360)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12359")
+    pdata_version = V("0.0.post12360")
 except ImportError:
     pass
-data_git_hash = "e4effa3a6b67c9c5a7a536873b58e3e4fbdc93c3"
-data_git_describe = "v0.0-12359-ge4effa3a6"
+data_git_hash = "0124ced9192e6aa2e7f5049164626fb56555ad18"
+data_git_describe = "v0.0-12360-g0124ced91"
 data_git_msg = """\
-commit e4effa3a6b67c9c5a7a536873b58e3e4fbdc93c3
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri May 27 10:35:50 2022 -0700
+commit 0124ced9192e6aa2e7f5049164626fb56555ad18
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jun 2 20:52:18 2022 -0700
 
-    [sw/silicon_creator] Update keymgr functest
+    [sw,rstmgr] Fix doc and checks for dump code
     
-    Update the keymgr functest to use software initiated reset instead of
-    low power entry/exit. Also update flash and OTP configuration to use
-    available device testutils.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
