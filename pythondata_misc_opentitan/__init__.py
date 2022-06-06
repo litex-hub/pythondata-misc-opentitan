@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12502"
-version_tuple = (0, 0, 12502)
+version_str = "0.0.post12504"
+version_tuple = (0, 0, 12504)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12502")
+    pversion = V("0.0.post12504")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12360"
-data_version_tuple = (0, 0, 12360)
+data_version_str = "0.0.post12362"
+data_version_tuple = (0, 0, 12362)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12360")
+    pdata_version = V("0.0.post12362")
 except ImportError:
     pass
-data_git_hash = "0124ced9192e6aa2e7f5049164626fb56555ad18"
-data_git_describe = "v0.0-12360-g0124ced91"
+data_git_hash = "b0b81e6f2ba2176a8492125b41be8bdca222d7e7"
+data_git_describe = "v0.0-12362-gb0b81e6f2"
 data_git_msg = """\
-commit 0124ced9192e6aa2e7f5049164626fb56555ad18
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 2 20:52:18 2022 -0700
+commit b0b81e6f2ba2176a8492125b41be8bdca222d7e7
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Jun 1 14:07:33 2022 -0700
 
-    [sw,rstmgr] Fix doc and checks for dump code
+    [rust] Add rust analyzer target
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Generate a local `rust-project.json` with:
+    ```
+    bazel run //:gen_rust_project
+    ```
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
