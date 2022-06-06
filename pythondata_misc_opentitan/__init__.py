@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12504"
-version_tuple = (0, 0, 12504)
+version_str = "0.0.post12517"
+version_tuple = (0, 0, 12517)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12504")
+    pversion = V("0.0.post12517")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12362"
-data_version_tuple = (0, 0, 12362)
+data_version_str = "0.0.post12375"
+data_version_tuple = (0, 0, 12375)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12362")
+    pdata_version = V("0.0.post12375")
 except ImportError:
     pass
-data_git_hash = "b0b81e6f2ba2176a8492125b41be8bdca222d7e7"
-data_git_describe = "v0.0-12362-gb0b81e6f2"
+data_git_hash = "ce4d65282bb2122c0ef25768e3b9fea55a9837e5"
+data_git_describe = "v0.0-12375-gce4d65282"
 data_git_msg = """\
-commit b0b81e6f2ba2176a8492125b41be8bdca222d7e7
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Jun 1 14:07:33 2022 -0700
+commit ce4d65282bb2122c0ef25768e3b9fea55a9837e5
+Author: Miles Dai <milesdai@google.com>
+Date:   Fri Jun 3 17:36:52 2022 -0400
 
-    [rust] Add rust analyzer target
+    [ci] Reduce the number of CW310 tests being run in CI
     
-    Generate a local `rust-project.json` with:
-    ```
-    bazel run //:gen_rust_project
-    ```
+    The communication with the CW310 board in CI fails intermittently. This
+    is happening more frequency after more tests were added during the Bazel
+    transition. This commit is a temporary measure to reduce the frequency
+    of these failures by running fewer tests (the same set that was
+    previously being run by systemtest).
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
