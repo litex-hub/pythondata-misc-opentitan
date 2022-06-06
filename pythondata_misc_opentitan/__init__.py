@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12519"
-version_tuple = (0, 0, 12519)
+version_str = "0.0.post12524"
+version_tuple = (0, 0, 12524)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12519")
+    pversion = V("0.0.post12524")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12377"
-data_version_tuple = (0, 0, 12377)
+data_version_str = "0.0.post12382"
+data_version_tuple = (0, 0, 12382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12377")
+    pdata_version = V("0.0.post12382")
 except ImportError:
     pass
-data_git_hash = "84089a286e5a599103642002d6e5bb9748e5c2b6"
-data_git_describe = "v0.0-12377-g84089a286"
+data_git_hash = "1bd62be4b9fb64e6e7f314ebe081da0202d0bd6e"
+data_git_describe = "v0.0-12382-g1bd62be4b"
 data_git_msg = """\
-commit 84089a286e5a599103642002d6e5bb9748e5c2b6
-Author: Miles Dai <milesdai@google.com>
-Date:   Mon Jun 6 11:52:45 2022 -0400
+commit 1bd62be4b9fb64e6e7f314ebe081da0202d0bd6e
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Jun 1 10:32:14 2022 +0100
 
-    [ci,sw/silicon_creator] Temporarily disable keymgr_functest on fpga
+    [otbn, rtl] Add prim_buf and prim_flop
     
-    Merging #12912 broke
-    //sw/device/silicon_creator/lib/drivers:keymgr_functest_fpga_cw310. This
-    commit temporarily disables that test until #13045 can fix it.
+    These add needed optimization barriers around security hardening
+    features.
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
