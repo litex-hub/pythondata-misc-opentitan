@@ -7,6 +7,7 @@
 interface clkmgr_if (
   input logic clk,
   input logic rst_n,
+  input logic clk_main,
   input logic rst_io_n,
   input logic rst_main_n,
   input logic rst_usb_n
@@ -76,6 +77,111 @@ interface clkmgr_if (
     aes: `CLKMGR_HIER.reg2hw.clk_hints.clk_main_aes_hint.q
   };
 
+  clk_hints_t clk_hints_status_csr;
+  always_comb
+    clk_hints_status_csr = '{
+                             otbn_main: `CLKMGR_HIER.u_reg.clk_hints_status_clk_main_otbn_val_qs,
+                             kmac: `CLKMGR_HIER.u_reg.clk_hints_status_clk_main_kmac_val_qs,
+                             hmac: `CLKMGR_HIER.u_reg.clk_hints_status_clk_main_hmac_val_qs,
+                             aes: `CLKMGR_HIER.u_reg.clk_hints_status_clk_main_aes_val_qs
+                             };
+
+  // Add free running counter to check hints / clock disable
+  // if scanmode_i == true, disable check
+  // else if hints_status go low, counter stall
+  // else running
+  logic [31:0]   free_run_aes_d, free_run_aes_dd;
+  logic [31:0]   free_run_hmac_d, free_run_hmac_dd;
+  logic [31:0]   free_run_kmac_d, free_run_kmac_dd;
+  logic [31:0]   free_run_otbn_d, free_run_otbn_dd;
+
+  logic [31:0]   free_run_aes = 0;
+  always @(posedge clocks_o.clk_main_aes) begin
+    free_run_aes <= free_run_aes + 1;
+  end
+
+  logic [31:0]   free_run_hmac = 0;
+  always @(posedge clocks_o.clk_main_hmac) begin
+    free_run_hmac <= free_run_hmac + 1;
+  end
+
+  logic [31:0]   free_run_kmac = 0;
+  always @(posedge clocks_o.clk_main_kmac) begin
+    free_run_kmac <= free_run_kmac + 1;
+  end
+
+  logic [31:0]   free_run_otbn = 0;
+  always @(posedge clocks_o.clk_main_otbn) begin
+    free_run_otbn <= free_run_otbn + 1;
+  end
+
+  always @(posedge clk_main) begin
+    free_run_aes_d  <= free_run_aes;
+    free_run_hmac_d <= free_run_hmac;
+    free_run_kmac_d <= free_run_kmac;
+    free_run_otbn_d <= free_run_otbn;
+
+    free_run_aes_dd  <= free_run_aes_d ;
+    free_run_hmac_dd <= free_run_hmac_d;
+    free_run_kmac_dd <= free_run_kmac_d;
+    free_run_otbn_dd <= free_run_otbn_d;
+
+  end
+
+  task automatic check_trans_clk();
+    if (scanmode_i == prim_mubi_pkg::MuBi4True) return;
+    fork begin
+      if (clk_hints_status_csr.aes == 0) begin
+        fork begin
+          automatic logic[31:0] sample;
+          sample = free_run_aes;
+          while(clk_hints_status_csr.aes == 0) begin
+            `DV_CHECK_EQ(sample, free_run_aes_dd,
+                         "clk_main_aes should stop while clk_hints_status_csr.aes is 0",
+                         error, "clkmgr_if")
+            @(posedge clk_main);
+          end
+        end join
+      end
+      if (clk_hints_status_csr.hmac == 0) begin
+        fork begin
+          automatic logic[31:0] sample;
+          sample = free_run_hmac;
+          while(clk_hints_status_csr.hmac == 0) begin
+            `DV_CHECK_EQ(sample, free_run_hmac_dd,
+                         "clk_main_hmac should stop while clk_hints_status_csr.hmac is 0",
+                         error, "clkmgr_if")
+            @(posedge clk_main);
+          end
+        end join
+      end
+      if (clk_hints_status_csr.kmac == 0) begin
+        fork begin
+          automatic logic[31:0] sample;
+          sample = free_run_kmac;
+          while(clk_hints_status_csr.kmac == 0) begin
+            `DV_CHECK_EQ(sample, free_run_kmac_dd,
+                         "clk_main_kmac should stop while clk_hints_status_csr.kmac is 0",
+                         error, "clkmgr_if")
+            @(posedge clk_main);
+          end
+        end join
+      end
+      if (clk_hints_status_csr.otbn_main == 0) begin
+        fork begin
+          automatic logic[31:0] sample;
+          sample = free_run_otbn;
+          while(clk_hints_status_csr.otbn_main == 0) begin
+            `DV_CHECK_EQ(sample, free_run_otbn_dd,
+                         "clk_main_otbn should stop while clk_hints_status_csr.otbn is 0",
+                         error, "clkmgr_if")
+            @(posedge clk_main);
+          end
+        end join
+      end
+    end join_none
+  endtask // check_trans_clk
+
   prim_mubi_pkg::mubi4_t extclk_ctrl_csr_sel;
   always_comb begin
     extclk_ctrl_csr_sel = prim_mubi_pkg::mubi4_t'(`CLKMGR_HIER.reg2hw.extclk_ctrl.sel.q);
@@ -100,7 +206,7 @@ interface clkmgr_if (
                               slow: `CLKMGR_HIER.u_io_meas.u_meas.slow_o,
                               fast: `CLKMGR_HIER.u_io_meas.u_meas.fast_o};
       `uvm_info("clkmgr_if", $sformatf("Sampled coverage for ClkMesrIo as %p", io_freq_measurement),
-                UVM_MEDIUM)
+                UVM_HIGH)
     end
   end
   always_comb io_timeout_err = `CLKMGR_HIER.u_io_meas.timeout_err_o;
@@ -113,7 +219,7 @@ interface clkmgr_if (
                                    slow: `CLKMGR_HIER.u_io_div2_meas.u_meas.slow_o,
                                    fast: `CLKMGR_HIER.u_io_div2_meas.u_meas.fast_o};
       `uvm_info("clkmgr_if", $sformatf(
-                "Sampled coverage for ClkMesrIoDiv2 as %p", io_div2_freq_measurement), UVM_MEDIUM)
+                "Sampled coverage for ClkMesrIoDiv2 as %p", io_div2_freq_measurement), UVM_HIGH)
     end
   end
   always_comb io_div2_timeout_err = `CLKMGR_HIER.u_io_div2_meas.timeout_err_o;
@@ -126,7 +232,7 @@ interface clkmgr_if (
                                    slow: `CLKMGR_HIER.u_io_div4_meas.u_meas.slow_o,
                                    fast: `CLKMGR_HIER.u_io_div4_meas.u_meas.fast_o};
       `uvm_info("clkmgr_if", $sformatf(
-                "Sampled coverage for ClkMesrIoDiv4 as %p", io_div4_freq_measurement), UVM_MEDIUM)
+                "Sampled coverage for ClkMesrIoDiv4 as %p", io_div4_freq_measurement), UVM_HIGH)
     end
   end
   always_comb io_div4_timeout_err = `CLKMGR_HIER.u_io_div4_meas.timeout_err_o;
@@ -139,7 +245,7 @@ interface clkmgr_if (
                                 slow: `CLKMGR_HIER.u_main_meas.u_meas.slow_o,
                                 fast: `CLKMGR_HIER.u_main_meas.u_meas.fast_o};
       `uvm_info("clkmgr_if", $sformatf(
-                "Sampled coverage for ClkMesrMain as %p", main_freq_measurement), UVM_MEDIUM)
+                "Sampled coverage for ClkMesrMain as %p", main_freq_measurement), UVM_HIGH)
     end
   end
   always_comb main_timeout_err = `CLKMGR_HIER.u_main_meas.timeout_err_o;
@@ -152,7 +258,7 @@ interface clkmgr_if (
                                slow: `CLKMGR_HIER.u_usb_meas.u_meas.slow_o,
                                fast: `CLKMGR_HIER.u_usb_meas.u_meas.fast_o};
       `uvm_info("clkmgr_if", $sformatf("Sampled coverage for ClkMesrUsb as %p", usb_freq_measurement
-                ), UVM_MEDIUM)
+                ), UVM_HIGH)
     end
   end
   always_comb usb_timeout_err = `CLKMGR_HIER.u_usb_meas.timeout_err_o;
