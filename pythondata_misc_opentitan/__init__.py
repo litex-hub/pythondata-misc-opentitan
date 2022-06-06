@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12518"
-version_tuple = (0, 0, 12518)
+version_str = "0.0.post12519"
+version_tuple = (0, 0, 12519)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12518")
+    pversion = V("0.0.post12519")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12376"
-data_version_tuple = (0, 0, 12376)
+data_version_str = "0.0.post12377"
+data_version_tuple = (0, 0, 12377)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12376")
+    pdata_version = V("0.0.post12377")
 except ImportError:
     pass
-data_git_hash = "6d211c008ce67c0ec0849d6c8724dc0146cf490b"
-data_git_describe = "v0.0-12376-g6d211c008"
+data_git_hash = "84089a286e5a599103642002d6e5bb9748e5c2b6"
+data_git_describe = "v0.0-12377-g84089a286"
 data_git_msg = """\
-commit 6d211c008ce67c0ec0849d6c8724dc0146cf490b
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Jun 3 17:02:02 2022 -0700
+commit 84089a286e5a599103642002d6e5bb9748e5c2b6
+Author: Miles Dai <milesdai@google.com>
+Date:   Mon Jun 6 11:52:45 2022 -0400
 
-    [dv] Add common test for reg write enable check
+    [ci,sw/silicon_creator] Temporarily disable keymgr_functest on fpga
     
-    Address #12113
-    - Inject a fault in the prim_onehot_check to trigger reg integrity error
-    - Check status reg and fatal alert
+    Merging #12912 broke
+    //sw/device/silicon_creator/lib/drivers:keymgr_functest_fpga_cw310. This
+    commit temporarily disables that test until #13045 can fix it.
     
-    Only add it for sram_ctrl. Will create a separate PR to enable this for
-    all other blocks
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
