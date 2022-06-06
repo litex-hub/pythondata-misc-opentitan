@@ -1214,12 +1214,12 @@ sw_tests += {
 }
 
 # PWRMGR all reset test.
-pwrmgr_all_reset_reqs_test = declare_dependency(
+pwrmgr_wdog_reset_reqs_test = declare_dependency(
   link_with: static_library(
-    'pwrmgr_all_reset_reqs_test',
+    'pwrmgr_wdog_reset_reqs_test',
     sources: [
       hw_ip_rstmgr_reg_h,
-      'pwrmgr_all_reset_reqs_test.c',
+      'pwrmgr_wdog_reset_reqs_test.c',
     ],
     dependencies: [
       sw_lib_dif_rstmgr,
@@ -1234,8 +1234,8 @@ pwrmgr_all_reset_reqs_test = declare_dependency(
   ),
 )
 sw_tests += {
-  'pwrmgr_all_reset_reqs_test': {
-    'library': pwrmgr_all_reset_reqs_test,
+  'pwrmgr_wdog_reset_reqs_test': {
+    'library': pwrmgr_wdog_reset_reqs_test,
   }
 }
 
@@ -1508,9 +1508,20 @@ foreach sw_test_name, sw_test_info : sw_tests
           hw_ip_otp_ctrl_reg_h,
           hw_ip_sram_ctrl_reg_h,
           hw_ip_sensor_ctrl_reg_h,
+          hw_ip_flash_ctrl_reg_h,
+          hw_ip_lc_ctrl_reg_h,
+          hw_ip_spi_device_reg_h,
+          hw_ip_rstmgr_reg_h,
+          hw_ip_gpio_reg_h,
           meson.project_source_root() / 'sw/device/lib/testing/test_rom/test_rom_start.S',
           meson.project_source_root() / 'sw/device/lib/testing/test_rom/test_rom.c',
-          meson.project_source_root() / 'sw/device/lib/testing/test_rom/bootstrap.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/mask_rom/bootstrap.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/spi_device.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/flash_ctrl.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/lifecycle.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/otp.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/rstmgr.c',
+          meson.project_source_root() / 'sw/device/silicon_creator/lib/base/sec_mmio.c',
         ],
         dependencies: [
           chip_info_h,

@@ -57,25 +57,10 @@ opentitan_functest(
     ],
 )
 
-# FIXME(lowRISC/opentitan#12065) This is a hack to work around currently
-# only supporting one top.
-#
-# See //hw/top_englishbreakfast/util/prepare_sw.py for where this is set.
-config_setting(
-    name = "is_english_breakfast",
-    values = {"copt": "-DOT_IS_ENGLISH_BREAKFAST_REDUCED_SUPPORT_FOR_INTERNAL_USE_ONLY_"},
-    visibility = ["//visibility:private"],
-)
-
-cc_library(
-    name = "nothing",
-    visibility = ["//visibility:private"],
-)
-
 alias(
     name = "aes_smoketest_entropy_testutils",
     actual = select({
-        ":is_english_breakfast": ":nothing",
+        "//sw/device:is_english_breakfast": "//sw/device:nothing",
         "//conditions:default": "//sw/device/lib/testing:entropy_testutils",
     }),
     visibility = ["//visibility:private"],
@@ -184,8 +169,8 @@ opentitan_functest(
 )
 
 opentitan_functest(
-    name = "pwrmgr_all_reset_reqs_test",
-    srcs = ["pwrmgr_all_reset_reqs_test.c"],
+    name = "pwrmgr_wdog_reset_reqs_test",
+    srcs = ["pwrmgr_wdog_reset_reqs_test.c"],
     verilator = verilator_params(
         tags = [
             "cpu:4",

@@ -31,6 +31,24 @@ test_rom_link_args = [
 ]
 test_rom_link_deps = [test_rom_linker_script]
 
+# TODO(#12905): Use a slightly hollowed out version of the silicon_creator bootstrap
+# implemention when building the test_rom for the english breakfast top level.
+silicon_creator_driver_srcs = [
+  meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/spi_device.c',
+  meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/flash_ctrl.c',
+]
+if TOPNAME == 'top_englishbreakfast'
+  silicon_creator_driver_srcs += [
+    'english_breakfast_fake_driver_funcs.c',
+  ]
+else
+  silicon_creator_driver_srcs += [
+    meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/lifecycle.c',
+    meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/otp.c',
+    meson.project_source_root() / 'sw/device/silicon_creator/lib/drivers/rstmgr.c',
+  ]
+endif
+
 foreach device_name, device_lib : sw_lib_arch_core_devices
   test_rom_elf = executable(
     'test_rom_' + device_name,
@@ -43,10 +61,16 @@ foreach device_name, device_lib : sw_lib_arch_core_devices
       hw_ip_otp_ctrl_reg_h,
       hw_ip_sram_ctrl_reg_h,
       hw_ip_sensor_ctrl_reg_h,
+      hw_ip_flash_ctrl_reg_h,
+      hw_ip_lc_ctrl_reg_h,
+      hw_ip_rstmgr_reg_h,
+      hw_ip_gpio_reg_h,
+      hw_ip_spi_device_reg_h,
       'test_rom.c',
-      'bootstrap.c',
       'test_rom_start.S',
-    ],
+      meson.project_source_root() / 'sw/device/silicon_creator/mask_rom/bootstrap.c',
+      meson.project_source_root() / 'sw/device/silicon_creator/lib/base/sec_mmio.c',
+    ] + silicon_creator_driver_srcs,
     name_suffix: 'elf',
     link_args: test_rom_link_args,
     link_depends: test_rom_link_deps,

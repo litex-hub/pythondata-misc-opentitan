@@ -7,6 +7,19 @@ load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library
 
 package(default_visibility = ["//visibility:public"])
 
+filegroup(
+    name = "english_breakfast_test_rom_driver_srcs",
+    srcs = [
+        "flash_ctrl.c",
+        "flash_ctrl.h",
+        "lifecycle.h",
+        "otp.h",
+        "rstmgr.h",
+        "spi_device.c",
+        "spi_device.h",
+    ],
+)
+
 dual_cc_library(
     name = "alert",
     srcs = dual_inputs(
@@ -79,7 +92,7 @@ dual_cc_library(
     ),
     deps = dual_inputs(
         device = [
-            "//hw/ip/flash_ctrl/data:flash_ctrl_regs",
+            "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
             "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
             "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         ],
@@ -217,10 +230,6 @@ cc_test(
 opentitan_functest(
     name = "keymgr_functest",
     srcs = ["keymgr_functest.c"],
-    cw310 = cw310_params(
-        #TODO: Remove this broken tag when #13045 is merged
-        tags = ["broken"],
-    ),
     deps = [
         ":keymgr",
         ":lifecycle",
