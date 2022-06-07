@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12559"
-version_tuple = (0, 0, 12559)
+version_str = "0.0.post12560"
+version_tuple = (0, 0, 12560)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12559")
+    pversion = V("0.0.post12560")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12417"
-data_version_tuple = (0, 0, 12417)
+data_version_str = "0.0.post12418"
+data_version_tuple = (0, 0, 12418)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12417")
+    pdata_version = V("0.0.post12418")
 except ImportError:
     pass
-data_git_hash = "1ba8b40b2cff38ae2fe105ecce9b5d17a2dab725"
-data_git_describe = "v0.0-12417-g1ba8b40b2"
+data_git_hash = "0b853a515a376d2966f51d30b65e7977d7154d20"
+data_git_describe = "v0.0-12418-g0b853a515"
 data_git_msg = """\
-commit 1ba8b40b2cff38ae2fe105ecce9b5d17a2dab725
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 2 23:46:40 2022 -0700
+commit 0b853a515a376d2966f51d30b65e7977d7154d20
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Jun 1 14:46:31 2022 -0700
 
-    [dw,chip_sw] Add clkmgr_off_trans tests
+    [dv/chip] walkthrough test fixes
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    1). Fix typo in walkthrough test: transtition -> transition.
+    2). Fix bazel sw_image path, adding a `sim_dv` folder in the path.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
