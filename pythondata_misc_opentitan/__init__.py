@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12557"
-version_tuple = (0, 0, 12557)
+version_str = "0.0.post12559"
+version_tuple = (0, 0, 12559)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12557")
+    pversion = V("0.0.post12559")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12415"
-data_version_tuple = (0, 0, 12415)
+data_version_str = "0.0.post12417"
+data_version_tuple = (0, 0, 12417)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12415")
+    pdata_version = V("0.0.post12417")
 except ImportError:
     pass
-data_git_hash = "9808dea6681a618148bfacac22e26fcb6cdc05d9"
-data_git_describe = "v0.0-12415-g9808dea66"
+data_git_hash = "1ba8b40b2cff38ae2fe105ecce9b5d17a2dab725"
+data_git_describe = "v0.0-12417-g1ba8b40b2"
 data_git_msg = """\
-commit 9808dea6681a618148bfacac22e26fcb6cdc05d9
-Author: Dave Williams <dave.williams@ensilica.com>
-Date:   Tue Jun 7 18:13:08 2022 +0100
+commit 1ba8b40b2cff38ae2fe105ecce9b5d17a2dab725
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jun 2 23:46:40 2022 -0700
 
-    [sw,tests] Update timeout for retention SRAM contents test
+    [dw,chip_sw] Add clkmgr_off_trans tests
     
-    For test:
-    chip_sw_sleep_sram_ret_contents
-    
-    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
