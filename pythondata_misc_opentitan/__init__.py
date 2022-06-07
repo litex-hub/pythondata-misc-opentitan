@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12560"
-version_tuple = (0, 0, 12560)
+version_str = "0.0.post12562"
+version_tuple = (0, 0, 12562)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12560")
+    pversion = V("0.0.post12562")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12418"
-data_version_tuple = (0, 0, 12418)
+data_version_str = "0.0.post12420"
+data_version_tuple = (0, 0, 12420)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12418")
+    pdata_version = V("0.0.post12420")
 except ImportError:
     pass
-data_git_hash = "0b853a515a376d2966f51d30b65e7977d7154d20"
-data_git_describe = "v0.0-12418-g0b853a515"
+data_git_hash = "2f48edc13fec8fd3787988100028f2ee107e766d"
+data_git_describe = "v0.0-12420-g2f48edc13"
 data_git_msg = """\
-commit 0b853a515a376d2966f51d30b65e7977d7154d20
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jun 1 14:46:31 2022 -0700
+commit 2f48edc13fec8fd3787988100028f2ee107e766d
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Jun 7 11:50:00 2022 -0700
 
-    [dv/chip] walkthrough test fixes
+    chore(ci): Skip FPGA , SW test for CDC changes
     
-    1). Fix typo in walkthrough test: transtition -> transition.
-    2). Fix bazel sw_image path, adding a `sim_dv` folder in the path.
+    This commit let CI skip FPGA tests, SW tests when only CDC related
+    changes are made.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
