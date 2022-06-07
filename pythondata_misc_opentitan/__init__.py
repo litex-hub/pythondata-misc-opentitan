@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12545"
-version_tuple = (0, 0, 12545)
+version_str = "0.0.post12553"
+version_tuple = (0, 0, 12553)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12545")
+    pversion = V("0.0.post12553")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12403"
-data_version_tuple = (0, 0, 12403)
+data_version_str = "0.0.post12411"
+data_version_tuple = (0, 0, 12411)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12403")
+    pdata_version = V("0.0.post12411")
 except ImportError:
     pass
-data_git_hash = "6f52bf25a24bf75db867c949df1092755bf7c364"
-data_git_describe = "v0.0-12403-g6f52bf25a"
+data_git_hash = "de0e5b0a507dc10cf712bdb0bbbf7cd0e0c1bfbf"
+data_git_describe = "v0.0-12411-gde0e5b0a5"
 data_git_msg = """\
-commit 6f52bf25a24bf75db867c949df1092755bf7c364
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 2 22:14:57 2022 -0700
+commit de0e5b0a507dc10cf712bdb0bbbf7cd0e0c1bfbf
+Author: Miles Dai <milesdai@google.com>
+Date:   Mon Jun 6 17:33:08 2022 -0400
 
-    [dv,chip_sw_pwrmgr] Fix all_reset_reqs test
+    [ci] Fixup to #13046 to include the full set of fpga systemtests.
     
-    The test must fail if reset_info is unexpected.
+    PR #13046 missed some tests that were originally included in systemtest.
+    This commit adds them back. Note that some tests were included in
+    systemtest but are failing when run on Bazel. These were not included.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
