@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12542"
-version_tuple = (0, 0, 12542)
+version_str = "0.0.post12545"
+version_tuple = (0, 0, 12545)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12542")
+    pversion = V("0.0.post12545")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12400"
-data_version_tuple = (0, 0, 12400)
+data_version_str = "0.0.post12403"
+data_version_tuple = (0, 0, 12403)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12400")
+    pdata_version = V("0.0.post12403")
 except ImportError:
     pass
-data_git_hash = "8a464dc6979d2dcb8f2cca9bb02e195e0489889e"
-data_git_describe = "v0.0-12400-g8a464dc69"
+data_git_hash = "6f52bf25a24bf75db867c949df1092755bf7c364"
+data_git_describe = "v0.0-12403-g6f52bf25a"
 data_git_msg = """\
-commit 8a464dc6979d2dcb8f2cca9bb02e195e0489889e
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jun 2 19:18:28 2022 -0700
+commit 6f52bf25a24bf75db867c949df1092755bf7c364
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jun 2 22:14:57 2022 -0700
 
-    [bazel] further enhance manufacturer test hooks repo setup
+    [dv,chip_sw_pwrmgr] Fix all_reset_reqs test
     
-    This further enhances the manufacturer test hooks bazel repository to:
+    The test must fail if reset_info is unexpected.
     
-    1. support writing multiple sets of test hooks in the same
-       MANUFACTURER_HOOKS_DIR,
-    2. support toggling between which test hooks are enabled via a bazel
-       command line switch, e.g., `--define test_hooks=<hooks library>`,
-    3. support writing multiple closed source `opentitan_functest` tests in
-       the same MANUFACTURER_HOOKS_DIR as the test hooks, and
-    4. updating the `README.md` and `BUILD.bazel` comments with detailed
-       instructions on how extend these features.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
