@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12553"
-version_tuple = (0, 0, 12553)
+version_str = "0.0.post12557"
+version_tuple = (0, 0, 12557)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12553")
+    pversion = V("0.0.post12557")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12411"
-data_version_tuple = (0, 0, 12411)
+data_version_str = "0.0.post12415"
+data_version_tuple = (0, 0, 12415)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12411")
+    pdata_version = V("0.0.post12415")
 except ImportError:
     pass
-data_git_hash = "de0e5b0a507dc10cf712bdb0bbbf7cd0e0c1bfbf"
-data_git_describe = "v0.0-12411-gde0e5b0a5"
+data_git_hash = "9808dea6681a618148bfacac22e26fcb6cdc05d9"
+data_git_describe = "v0.0-12415-g9808dea66"
 data_git_msg = """\
-commit de0e5b0a507dc10cf712bdb0bbbf7cd0e0c1bfbf
-Author: Miles Dai <milesdai@google.com>
-Date:   Mon Jun 6 17:33:08 2022 -0400
+commit 9808dea6681a618148bfacac22e26fcb6cdc05d9
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Tue Jun 7 18:13:08 2022 +0100
 
-    [ci] Fixup to #13046 to include the full set of fpga systemtests.
+    [sw,tests] Update timeout for retention SRAM contents test
     
-    PR #13046 missed some tests that were originally included in systemtest.
-    This commit adds them back. Note that some tests were included in
-    systemtest but are failing when run on Bazel. These were not included.
+    For test:
+    chip_sw_sleep_sram_ret_contents
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
