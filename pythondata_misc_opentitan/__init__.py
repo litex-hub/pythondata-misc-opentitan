@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12573"
-version_tuple = (0, 0, 12573)
+version_str = "0.0.post12575"
+version_tuple = (0, 0, 12575)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12573")
+    pversion = V("0.0.post12575")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12431"
-data_version_tuple = (0, 0, 12431)
+data_version_str = "0.0.post12433"
+data_version_tuple = (0, 0, 12433)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12431")
+    pdata_version = V("0.0.post12433")
 except ImportError:
     pass
-data_git_hash = "2f640af93a68580265ede307c6129e4e153a8116"
-data_git_describe = "v0.0-12431-g2f640af93"
+data_git_hash = "6dd0874d4cb7185622aa1dd4112112fd7f56684e"
+data_git_describe = "v0.0-12433-g6dd0874d4"
 data_git_msg = """\
-commit 2f640af93a68580265ede307c6129e4e153a8116
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Jun 8 08:20:41 2022 -0700
+commit 6dd0874d4cb7185622aa1dd4112112fd7f56684e
+Author: Joshua Park <jeoong@google.com>
+Date:   Mon Jun 6 23:43:52 2022 -0700
 
-    [cleanup] Make `bazelisk.sh` operate in the workspace
+    [dv/pwrmgr] renamed pwrmgr_deep_sleep_sysrst_reqs to pwrmgr_random_sleep_al_reset_reqs
     
-    The `bazelisk.sh` script should chdir to its containing subdirectory
-    so that it always operates in the project's workspace.  This will allow
-    other projects (e.g. tock) to invoke bazelisk to build binaries or
-    execute tools.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Joshua Park <jeoong@google.com>
 
 """
 
