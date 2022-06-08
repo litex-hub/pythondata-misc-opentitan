@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12564"
-version_tuple = (0, 0, 12564)
+version_str = "0.0.post12565"
+version_tuple = (0, 0, 12565)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12564")
+    pversion = V("0.0.post12565")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12422"
-data_version_tuple = (0, 0, 12422)
+data_version_str = "0.0.post12423"
+data_version_tuple = (0, 0, 12423)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12422")
+    pdata_version = V("0.0.post12423")
 except ImportError:
     pass
-data_git_hash = "1995394f8a8e9447e4f4a9b17753f3b1cd22ece8"
-data_git_describe = "v0.0-12422-g1995394f8"
+data_git_hash = "5f46a4281c9ed36c61f1505c663add9cd29e15c0"
+data_git_describe = "v0.0-12423-g5f46a4281"
 data_git_msg = """\
-commit 1995394f8a8e9447e4f4a9b17753f3b1cd22ece8
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Jun 3 18:09:39 2022 -0700
+commit 5f46a4281c9ed36c61f1505c663add9cd29e15c0
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jun 7 11:23:51 2022 -0700
 
-    [cryptolib/aes] Add NIST test vector.
+    [fpv/alert_handler] Add sec_cm FPV testbench for alert_handler
     
-    Switch test case to use a NIST test vector to make the test case easier to
-    audit. The test was previously not passing on Verilator/FPGA targets.
+    This PR adds a sec_cm FPV testbench for alert_handler.
+    Because alert_handler does not trigger alert, it triggers escalation or
+    local_alerts, so we need to declare a separate macro for it.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
