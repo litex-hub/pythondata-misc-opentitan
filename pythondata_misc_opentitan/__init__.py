@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12565"
-version_tuple = (0, 0, 12565)
+version_str = "0.0.post12566"
+version_tuple = (0, 0, 12566)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12565")
+    pversion = V("0.0.post12566")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12423"
-data_version_tuple = (0, 0, 12423)
+data_version_str = "0.0.post12424"
+data_version_tuple = (0, 0, 12424)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12423")
+    pdata_version = V("0.0.post12424")
 except ImportError:
     pass
-data_git_hash = "5f46a4281c9ed36c61f1505c663add9cd29e15c0"
-data_git_describe = "v0.0-12423-g5f46a4281"
+data_git_hash = "fc26c5a4767291b1c1ac797d5d808eee8c576b9c"
+data_git_describe = "v0.0-12424-gfc26c5a47"
 data_git_msg = """\
-commit 5f46a4281c9ed36c61f1505c663add9cd29e15c0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jun 7 11:23:51 2022 -0700
+commit fc26c5a4767291b1c1ac797d5d808eee8c576b9c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jun 7 19:33:37 2022 -0700
 
-    [fpv/alert_handler] Add sec_cm FPV testbench for alert_handler
+    Revert "chore(ci): Skip FPGA , SW test for CDC changes"
     
-    This PR adds a sec_cm FPV testbench for alert_handler.
-    Because alert_handler does not trigger alert, it triggers escalation or
-    local_alerts, so we need to declare a separate macro for it.
+    This reverts commit 2f48edc13fec8fd3787988100028f2ee107e766d.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
