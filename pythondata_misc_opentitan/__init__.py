@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12566"
-version_tuple = (0, 0, 12566)
+version_str = "0.0.post12567"
+version_tuple = (0, 0, 12567)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12566")
+    pversion = V("0.0.post12567")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12424"
-data_version_tuple = (0, 0, 12424)
+data_version_str = "0.0.post12425"
+data_version_tuple = (0, 0, 12425)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12424")
+    pdata_version = V("0.0.post12425")
 except ImportError:
     pass
-data_git_hash = "fc26c5a4767291b1c1ac797d5d808eee8c576b9c"
-data_git_describe = "v0.0-12424-gfc26c5a47"
+data_git_hash = "e7f754ffc8d592421981e7321aa254901df883f0"
+data_git_describe = "v0.0-12425-ge7f754ffc"
 data_git_msg = """\
-commit fc26c5a4767291b1c1ac797d5d808eee8c576b9c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jun 7 19:33:37 2022 -0700
+commit e7f754ffc8d592421981e7321aa254901df883f0
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Jun 7 04:22:38 2022 -0700
 
-    Revert "chore(ci): Skip FPGA , SW test for CDC changes"
+    Refixed 12236 to a more rubust solution
     
-    This reverts commit 2f48edc13fec8fd3787988100028f2ee107e766d.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
