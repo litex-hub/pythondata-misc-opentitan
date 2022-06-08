@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12571"
-version_tuple = (0, 0, 12571)
+version_str = "0.0.post12572"
+version_tuple = (0, 0, 12572)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12571")
+    pversion = V("0.0.post12572")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12429"
-data_version_tuple = (0, 0, 12429)
+data_version_str = "0.0.post12430"
+data_version_tuple = (0, 0, 12430)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12429")
+    pdata_version = V("0.0.post12430")
 except ImportError:
     pass
-data_git_hash = "d957c8654e10f029263a1bf10776eb0c7c98f536"
-data_git_describe = "v0.0-12429-gd957c8654"
+data_git_hash = "13babd7d1d9ebea34e97b15277ffb1be794ab376"
+data_git_describe = "v0.0-12430-g13babd7d1"
 data_git_msg = """\
-commit d957c8654e10f029263a1bf10776eb0c7c98f536
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Jun 7 15:00:30 2022 -0700
+commit 13babd7d1d9ebea34e97b15277ffb1be794ab376
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Jun 8 10:37:11 2022 -0700
 
-    [dv] Enable reg_wr_check test for all blocks
+    [cleanup] Write a newline into the `latest.txt` file
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    1. Write a newline into the `latest.txt` file.  This allows a user to
+       `cat` this file without it running into their shell prompt configuration.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
