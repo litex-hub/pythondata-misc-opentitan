@@ -4,32 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12575"
-version_tuple = (0, 0, 12575)
+version_str = "0.0.post12576"
+version_tuple = (0, 0, 12576)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12575")
+    pversion = V("0.0.post12576")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12433"
-data_version_tuple = (0, 0, 12433)
+data_version_str = "0.0.post12434"
+data_version_tuple = (0, 0, 12434)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12433")
+    pdata_version = V("0.0.post12434")
 except ImportError:
     pass
-data_git_hash = "6dd0874d4cb7185622aa1dd4112112fd7f56684e"
-data_git_describe = "v0.0-12433-g6dd0874d4"
+data_git_hash = "bee514ebf2daf59323de2cae5d01de31e5de97bc"
+data_git_describe = "v0.0-12434-gbee514ebf"
 data_git_msg = """\
-commit 6dd0874d4cb7185622aa1dd4112112fd7f56684e
-Author: Joshua Park <jeoong@google.com>
-Date:   Mon Jun 6 23:43:52 2022 -0700
+commit bee514ebf2daf59323de2cae5d01de31e5de97bc
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Jun 3 12:35:09 2022 -0700
 
-    [dv/pwrmgr] renamed pwrmgr_deep_sleep_sysrst_reqs to pwrmgr_random_sleep_al_reset_reqs
+    chore(cdc): SPI_DEV_CLK W_G_CLK_GLITCH waivers
     
-    Signed-off-by: Joshua Park <jeoong@google.com>
+    clock configurations affecting SPI_DEV_CLK:
+    
+    - Pinmux DIO PAD Attributes
+    - SPI_DEVICE CFG.CPHA, CFG.CPOL
+    - IO_DIV4 control signals in CLKMGR
+    
+    All those configs are programmed prior to SPI_DEV_CLK active. So, they
+    are waived.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
