@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12579"
-version_tuple = (0, 0, 12579)
+version_str = "0.0.post12580"
+version_tuple = (0, 0, 12580)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12579")
+    pversion = V("0.0.post12580")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12437"
-data_version_tuple = (0, 0, 12437)
+data_version_str = "0.0.post12438"
+data_version_tuple = (0, 0, 12438)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12437")
+    pdata_version = V("0.0.post12438")
 except ImportError:
     pass
-data_git_hash = "e3835e82cc5c2632aba44ae2d9da9254b75b3ebb"
-data_git_describe = "v0.0-12437-ge3835e82c"
+data_git_hash = "ebb94aba30facd52fa9bd34241ca77a2f41fe4a2"
+data_git_describe = "v0.0-12438-gebb94aba3"
 data_git_msg = """\
-commit e3835e82cc5c2632aba44ae2d9da9254b75b3ebb
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Jun 8 13:34:00 2022 -0400
+commit ebb94aba30facd52fa9bd34241ca77a2f41fe4a2
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Sat Jun 4 23:38:33 2022 +0000
 
-    [cryptolib/hmac] Fix IRQ clearing in hmac_sha256_init()
+    [top,dv] rv_dm agent update
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
