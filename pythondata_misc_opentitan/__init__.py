@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12580"
-version_tuple = (0, 0, 12580)
+version_str = "0.0.post12581"
+version_tuple = (0, 0, 12581)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12580")
+    pversion = V("0.0.post12581")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12438"
-data_version_tuple = (0, 0, 12438)
+data_version_str = "0.0.post12439"
+data_version_tuple = (0, 0, 12439)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12438")
+    pdata_version = V("0.0.post12439")
 except ImportError:
     pass
-data_git_hash = "ebb94aba30facd52fa9bd34241ca77a2f41fe4a2"
-data_git_describe = "v0.0-12438-gebb94aba3"
+data_git_hash = "ad74c389f1e2a3f6c24292a6f3e99e43f7e9f7e5"
+data_git_describe = "v0.0-12439-gad74c389f"
 data_git_msg = """\
-commit ebb94aba30facd52fa9bd34241ca77a2f41fe4a2
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Sat Jun 4 23:38:33 2022 +0000
+commit ad74c389f1e2a3f6c24292a6f3e99e43f7e9f7e5
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Jun 6 13:56:57 2022 -0700
 
-    [top,dv] rv_dm agent update
+    [aes/rtl] Enhance alert output in AES FSM
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Follow the change in PR #12898, we think it is better to immediately
+    output error signal when the state goes to `default` unknown state.
+    The reason is because if the attacker continues to drive the FSM to
+    unknown states, the alert actually won't fire.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
