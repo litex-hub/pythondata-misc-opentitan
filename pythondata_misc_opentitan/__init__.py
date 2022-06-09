@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12581"
-version_tuple = (0, 0, 12581)
+version_str = "0.0.post12582"
+version_tuple = (0, 0, 12582)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12581")
+    pversion = V("0.0.post12582")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12439"
-data_version_tuple = (0, 0, 12439)
+data_version_str = "0.0.post12440"
+data_version_tuple = (0, 0, 12440)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12439")
+    pdata_version = V("0.0.post12440")
 except ImportError:
     pass
-data_git_hash = "ad74c389f1e2a3f6c24292a6f3e99e43f7e9f7e5"
-data_git_describe = "v0.0-12439-gad74c389f"
+data_git_hash = "e1cd49d563e1b26e5b431c4b0c075301d1099891"
+data_git_describe = "v0.0-12440-ge1cd49d56"
 data_git_msg = """\
-commit ad74c389f1e2a3f6c24292a6f3e99e43f7e9f7e5
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jun 6 13:56:57 2022 -0700
+commit e1cd49d563e1b26e5b431c4b0c075301d1099891
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue May 17 11:57:52 2022 +0100
 
-    [aes/rtl] Enhance alert output in AES FSM
+    [otbn,rtl] Add predecode checking for control flow related signals
     
-    Follow the change in PR #12898, we think it is better to immediately
-    output error signal when the state goes to `default` unknown state.
-    The reason is because if the attacker continues to drive the FSM to
-    unknown states, the alert actually won't fire.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
