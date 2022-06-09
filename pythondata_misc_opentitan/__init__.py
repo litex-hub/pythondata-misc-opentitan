@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12583"
-version_tuple = (0, 0, 12583)
+version_str = "0.0.post12584"
+version_tuple = (0, 0, 12584)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12583")
+    pversion = V("0.0.post12584")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12441"
-data_version_tuple = (0, 0, 12441)
+data_version_str = "0.0.post12442"
+data_version_tuple = (0, 0, 12442)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12441")
+    pdata_version = V("0.0.post12442")
 except ImportError:
     pass
-data_git_hash = "9350b8bea2bbb542417cafe86bc6edfc69cc8b88"
-data_git_describe = "v0.0-12441-g9350b8bea"
+data_git_hash = "fcdc4e943331b5bdd14721a187ee3819942f2772"
+data_git_describe = "v0.0-12442-gfcdc4e943"
 data_git_msg = """\
-commit 9350b8bea2bbb542417cafe86bc6edfc69cc8b88
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Jun 1 15:47:19 2022 +0100
+commit fcdc4e943331b5bdd14721a187ee3819942f2772
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Tue Jun 7 18:15:11 2022 +0100
 
-    [rtl] Combine two case statements for each WDATA
+    [otbn, rtl] Add control flow target checking
     
-    Found this one while looking at open issues. Combines two case
-    statements for a single select signal (both for BN and Base).
+    For loop, branch and jump (other than JALR) the target can be calculated
+    within the predecode stage as it's just the PC + some immediate. This
+    adds that calulation to the predecode stage and cross checks it against
+    the calculated target in the execute stage.
     
-    Fixes #12417
-    
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
