@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12582"
-version_tuple = (0, 0, 12582)
+version_str = "0.0.post12583"
+version_tuple = (0, 0, 12583)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12582")
+    pversion = V("0.0.post12583")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12440"
-data_version_tuple = (0, 0, 12440)
+data_version_str = "0.0.post12441"
+data_version_tuple = (0, 0, 12441)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12440")
+    pdata_version = V("0.0.post12441")
 except ImportError:
     pass
-data_git_hash = "e1cd49d563e1b26e5b431c4b0c075301d1099891"
-data_git_describe = "v0.0-12440-ge1cd49d56"
+data_git_hash = "9350b8bea2bbb542417cafe86bc6edfc69cc8b88"
+data_git_describe = "v0.0-12441-g9350b8bea"
 data_git_msg = """\
-commit e1cd49d563e1b26e5b431c4b0c075301d1099891
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue May 17 11:57:52 2022 +0100
+commit 9350b8bea2bbb542417cafe86bc6edfc69cc8b88
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Jun 1 15:47:19 2022 +0100
 
-    [otbn,rtl] Add predecode checking for control flow related signals
+    [rtl] Combine two case statements for each WDATA
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Found this one while looking at open issues. Combines two case
+    statements for a single select signal (both for BN and Base).
+    
+    Fixes #12417
+    
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
