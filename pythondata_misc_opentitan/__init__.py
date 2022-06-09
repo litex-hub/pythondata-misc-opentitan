@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12584"
-version_tuple = (0, 0, 12584)
+version_str = "0.0.post12586"
+version_tuple = (0, 0, 12586)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12584")
+    pversion = V("0.0.post12586")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12442"
-data_version_tuple = (0, 0, 12442)
+data_version_str = "0.0.post12444"
+data_version_tuple = (0, 0, 12444)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12442")
+    pdata_version = V("0.0.post12444")
 except ImportError:
     pass
-data_git_hash = "fcdc4e943331b5bdd14721a187ee3819942f2772"
-data_git_describe = "v0.0-12442-gfcdc4e943"
+data_git_hash = "b2dc980f7cc37d4f5391c1158a7ac80285251944"
+data_git_describe = "v0.0-12444-gb2dc980f7"
 data_git_msg = """\
-commit fcdc4e943331b5bdd14721a187ee3819942f2772
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Tue Jun 7 18:15:11 2022 +0100
+commit b2dc980f7cc37d4f5391c1158a7ac80285251944
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Sun Jun 5 22:49:02 2022 +0100
 
-    [otbn, rtl] Add control flow target checking
+    [doc] Add Nir Tasher to the technical committee
     
-    For loop, branch and jump (other than JALR) the target can be calculated
-    within the predecode stage as it's just the PC + some immediate. This
-    adds that calulation to the predecode stage and cross checks it against
-    the calculated target in the execute stage.
+    Nir has been appointed to the technical committee by the steering
+    committee. Welcome Nir!
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
