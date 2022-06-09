@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12587"
-version_tuple = (0, 0, 12587)
+version_str = "0.0.post12597"
+version_tuple = (0, 0, 12597)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12587")
+    pversion = V("0.0.post12597")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12445"
-data_version_tuple = (0, 0, 12445)
+data_version_str = "0.0.post12455"
+data_version_tuple = (0, 0, 12455)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12445")
+    pdata_version = V("0.0.post12455")
 except ImportError:
     pass
-data_git_hash = "f3252d358b5e16ac5b4402aac466e2f40ca9bebe"
-data_git_describe = "v0.0-12445-gf3252d358"
+data_git_hash = "681b4c53dd885f052f2f7e17387e3459a0e54cd1"
+data_git_describe = "v0.0-12455-g681b4c53d"
 data_git_msg = """\
-commit f3252d358b5e16ac5b4402aac466e2f40ca9bebe
-Author: Yen-Kai Wang <ykwang@google.com>
-Date:   Wed Jun 8 12:33:58 2022 -0500
+commit 681b4c53dd885f052f2f7e17387e3459a0e54cd1
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Jun 7 06:51:25 2022 -0400
 
-    Rename project target from '@' into '@lowrisc_opentitan'.
+    [sw/silicon_creator] Remove OT_IS_ENGLISH_BREAKFAST from lifecycle.c
     
-    Signed-off-by: Yen-Kai Wang <ykwang@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
