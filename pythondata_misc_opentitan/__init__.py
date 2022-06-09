@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12586"
-version_tuple = (0, 0, 12586)
+version_str = "0.0.post12587"
+version_tuple = (0, 0, 12587)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12586")
+    pversion = V("0.0.post12587")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12444"
-data_version_tuple = (0, 0, 12444)
+data_version_str = "0.0.post12445"
+data_version_tuple = (0, 0, 12445)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12444")
+    pdata_version = V("0.0.post12445")
 except ImportError:
     pass
-data_git_hash = "b2dc980f7cc37d4f5391c1158a7ac80285251944"
-data_git_describe = "v0.0-12444-gb2dc980f7"
+data_git_hash = "f3252d358b5e16ac5b4402aac466e2f40ca9bebe"
+data_git_describe = "v0.0-12445-gf3252d358"
 data_git_msg = """\
-commit b2dc980f7cc37d4f5391c1158a7ac80285251944
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Sun Jun 5 22:49:02 2022 +0100
+commit f3252d358b5e16ac5b4402aac466e2f40ca9bebe
+Author: Yen-Kai Wang <ykwang@google.com>
+Date:   Wed Jun 8 12:33:58 2022 -0500
 
-    [doc] Add Nir Tasher to the technical committee
+    Rename project target from '@' into '@lowrisc_opentitan'.
     
-    Nir has been appointed to the technical committee by the steering
-    committee. Welcome Nir!
-    
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Yen-Kai Wang <ykwang@google.com>
 
 """
 
