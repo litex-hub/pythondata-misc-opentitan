@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12616"
-version_tuple = (0, 0, 12616)
+version_str = "0.0.post12621"
+version_tuple = (0, 0, 12621)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12616")
+    pversion = V("0.0.post12621")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12474"
-data_version_tuple = (0, 0, 12474)
+data_version_str = "0.0.post12479"
+data_version_tuple = (0, 0, 12479)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12474")
+    pdata_version = V("0.0.post12479")
 except ImportError:
     pass
-data_git_hash = "e169485e9dce49f15047bcfb4e02df606fea2019"
-data_git_describe = "v0.0-12474-ge169485e9"
+data_git_hash = "662e9dfcfe263d675ae1139831a56938b0240d83"
+data_git_describe = "v0.0-12479-g662e9dfcf"
 data_git_msg = """\
-commit e169485e9dce49f15047bcfb4e02df606fea2019
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 9 07:50:57 2022 -0700
+commit 662e9dfcfe263d675ae1139831a56938b0240d83
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jun 8 23:22:56 2022 -0700
 
-    [dv,chip_testplan] Add sleep frequency tests
+    [dv] Update xcelium coverage config file
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Excluded statement coverage for tlul_assert, only enabled assertion
+    coverage.
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
