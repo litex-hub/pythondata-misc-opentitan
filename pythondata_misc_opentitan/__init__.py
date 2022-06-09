@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12597"
-version_tuple = (0, 0, 12597)
+version_str = "0.0.post12603"
+version_tuple = (0, 0, 12603)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12597")
+    pversion = V("0.0.post12603")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12455"
-data_version_tuple = (0, 0, 12455)
+data_version_str = "0.0.post12461"
+data_version_tuple = (0, 0, 12461)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12455")
+    pdata_version = V("0.0.post12461")
 except ImportError:
     pass
-data_git_hash = "681b4c53dd885f052f2f7e17387e3459a0e54cd1"
-data_git_describe = "v0.0-12455-g681b4c53d"
+data_git_hash = "64239cc7af46338e99d51362f1e42718b001bf4a"
+data_git_describe = "v0.0-12461-g64239cc7a"
 data_git_msg = """\
-commit 681b4c53dd885f052f2f7e17387e3459a0e54cd1
+commit 64239cc7af46338e99d51362f1e42718b001bf4a
 Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Jun 7 06:51:25 2022 -0400
+Date:   Wed Jun 8 10:38:02 2022 -0400
 
-    [sw/silicon_creator] Remove OT_IS_ENGLISH_BREAKFAST from lifecycle.c
+    [sw/silicon_creator] Update CREATOR_SW_CFG_ROM_EXEC_EN for RMA and DEV OTP images
     
     Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
