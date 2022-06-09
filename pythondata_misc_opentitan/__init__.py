@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12578"
-version_tuple = (0, 0, 12578)
+version_str = "0.0.post12579"
+version_tuple = (0, 0, 12579)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12578")
+    pversion = V("0.0.post12579")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12436"
-data_version_tuple = (0, 0, 12436)
+data_version_str = "0.0.post12437"
+data_version_tuple = (0, 0, 12437)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12436")
+    pdata_version = V("0.0.post12437")
 except ImportError:
     pass
-data_git_hash = "f7337a3404400ba3af289813f28653e11ce9ccfb"
-data_git_describe = "v0.0-12436-gf7337a340"
+data_git_hash = "e3835e82cc5c2632aba44ae2d9da9254b75b3ebb"
+data_git_describe = "v0.0-12437-ge3835e82c"
 data_git_msg = """\
-commit f7337a3404400ba3af289813f28653e11ce9ccfb
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jun 8 14:31:44 2022 -0700
+commit e3835e82cc5c2632aba44ae2d9da9254b75b3ebb
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Jun 8 13:34:00 2022 -0400
 
-    [dv/kmac] Fix escalation regression failure
+    [cryptolib/hmac] Fix IRQ clearing in hmac_sha256_init()
     
-    This PR fixes KMAC lc_escalation test failure in nightly regression.
-    The main issue is that now that lc_escalation triggers a fatal alert and
-    also interrupt. So before reset, the interrupt will continously fire.
-    To avoid this issue, I moved the interrupt checking after fatal alert
-    stops firing. Also fixes an issue that the test does not revert back
-    lc_escalation_en signal.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
