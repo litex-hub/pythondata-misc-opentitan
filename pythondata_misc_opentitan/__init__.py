@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12615"
-version_tuple = (0, 0, 12615)
+version_str = "0.0.post12616"
+version_tuple = (0, 0, 12616)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12615")
+    pversion = V("0.0.post12616")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12473"
-data_version_tuple = (0, 0, 12473)
+data_version_str = "0.0.post12474"
+data_version_tuple = (0, 0, 12474)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12473")
+    pdata_version = V("0.0.post12474")
 except ImportError:
     pass
-data_git_hash = "60b4fedbff0284f02eabfdaec07f4852f852e400"
-data_git_describe = "v0.0-12473-g60b4fedbf"
+data_git_hash = "e169485e9dce49f15047bcfb4e02df606fea2019"
+data_git_describe = "v0.0-12474-ge169485e9"
 data_git_msg = """\
-commit 60b4fedbff0284f02eabfdaec07f4852f852e400
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Jun 6 13:51:49 2022 -0400
+commit e169485e9dce49f15047bcfb4e02df606fea2019
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jun 9 07:50:57 2022 -0700
 
-    [sw/silicon_creator] Set initial watchdog bite threshold to 1 s
+    [dv,chip_testplan] Add sleep frequency tests
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
