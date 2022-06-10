@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12630"
-version_tuple = (0, 0, 12630)
+version_str = "0.0.post12633"
+version_tuple = (0, 0, 12633)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12630")
+    pversion = V("0.0.post12633")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12488"
-data_version_tuple = (0, 0, 12488)
+data_version_str = "0.0.post12491"
+data_version_tuple = (0, 0, 12491)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12488")
+    pdata_version = V("0.0.post12491")
 except ImportError:
     pass
-data_git_hash = "bd4040591221e5b850e946cb048e4c2c88d284bb"
-data_git_describe = "v0.0-12488-gbd4040591"
+data_git_hash = "895bb8a265dda4fb6b38e202118bc5d5c100bccb"
+data_git_describe = "v0.0-12491-g895bb8a26"
 data_git_msg = """\
-commit bd4040591221e5b850e946cb048e4c2c88d284bb
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jun 9 17:58:00 2022 -0700
+commit 895bb8a265dda4fb6b38e202118bc5d5c100bccb
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Thu Jun 9 22:29:42 2022 +0200
 
-    [top] update testplan
+    [doc] Remove trailing whitespace in Secure HW Design Guidelines
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This is required to pass CI.
+    
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
