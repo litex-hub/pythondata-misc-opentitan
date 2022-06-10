@@ -65,7 +65,7 @@ designer should consider the consequences of any particular net/node being
 inverted or forced by an adversary. State of the art fault attacks can stimulate
 two nodes in close succession; robustness to this type of attack depends on the
 declared threat model. Designers need to be well aware of the power of an attack
-like SIFA, which can bypass "conventional" fault countermeasures (e.g.
+like SIFA [[15](#ref-15)], which can bypass "conventional" fault countermeasures (e.g.
 redundancy/detectors) and requires only modest numbers of traces.
 
 For increased resistance against side channel leakage (typically: power,
@@ -200,7 +200,7 @@ attacks, see [[12](#ref-12)] and [[13](#ref-13)])
     recovered on the next clock and the denial will be continued/preserved.
 13. CFI (control flow integrity) hardware can help protect a processor /
     programmable peripheral from some types of glitch attacks. This topic is
-    very involved and beyond the scope of these guidelines, consult [[2](#ref-2)] 
+    very involved and beyond the scope of these guidelines, consult [[2](#ref-2)]
     for an introduction to previous techniques.
 14. Analog sensors (under/over-voltage, laser light, mesh breach, among others)
     can be used to generate SoC-level alerts and/or inhibit sensitive
@@ -340,10 +340,10 @@ attacks, see [[12](#ref-12)] and [[13](#ref-13)])
 
 ## References and further reading
 
-[<span id="ref-1">1</span>]: Overview of checksums and hashes - 
-https://cybergibbons.com/reverse-engineering-2/checksums-hashes-and-security/ 
+[<span id="ref-1">1</span>]: Overview of checksums and hashes -
+https://cybergibbons.com/reverse-engineering-2/checksums-hashes-and-security/
 
-[<span id="ref-2">2</span>]: A Survey of hardware-based Control Flow Integrity - 
+[<span id="ref-2">2</span>]: A Survey of hardware-based Control Flow Integrity -
 https://arxiv.org/pdf/1706.07257.pdf
 
 [<span id="ref-3">3</span>]: Cache-timing attacks on AES -
@@ -369,7 +369,7 @@ https://link.springer.com/content/pdf/10.1007/s13389-011-0006-y.pdf
 
 [<span id="ref-10">10</span>]: Principles of Secure Processor Architecture Design -
 https://caslab.csl.yale.edu/tutorials/hpca2019/ and
-https://caslab.csl.yale.edu/tutorials/hpca2019/tutorial\_principles\_sec\_arch\_20190217.pdf
+https://caslab.csl.yale.edu/tutorials/hpca2019/tutorial_principles_sec_arch_20190217.pdf
 
 [<span id="ref-11">11</span>]: Time Protection - https://ts.data61.csiro.au/projects/TS/timeprotection/
 
@@ -380,7 +380,10 @@ https://arxiv.org/pdf/2003.10513.pdf
 https://eprint.iacr.org/2004/100.pdf
 
 [<span id="ref-14">14</span>]: Fault Mitigation Patterns -
-https://www.riscure.com/uploads/2020/05/Riscure\_Whitepaper\_Fault\_Mitigation\_Patterns\_final.pdf
+https://www.riscure.com/uploads/2020/05/Riscure_Whitepaper_Fault_Mitigation_Patterns_final.pdf
+
+[<span id="ref-15">15</span>]: SIFA: Exploiting Ineffective Fault Inductions on Symmetric Cryptography -
+https://eprint.iacr.org/2018/071.pdf
 
 <!-- Footnotes themselves at the bottom. -->
 
