@@ -4,40 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12626"
-version_tuple = (0, 0, 12626)
+version_str = "0.0.post12627"
+version_tuple = (0, 0, 12627)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12626")
+    pversion = V("0.0.post12627")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12484"
-data_version_tuple = (0, 0, 12484)
+data_version_str = "0.0.post12485"
+data_version_tuple = (0, 0, 12485)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12484")
+    pdata_version = V("0.0.post12485")
 except ImportError:
     pass
-data_git_hash = "a772b85ca276e9ba67ddd7fefae1656169ec8d33"
-data_git_describe = "v0.0-12484-ga772b85ca"
+data_git_hash = "058344a4fc2a27460060718315407f4675fd5f00"
+data_git_describe = "v0.0-12485-g058344a4f"
 data_git_msg = """\
-commit a772b85ca276e9ba67ddd7fefae1656169ec8d33
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Jun 3 10:16:36 2022 -0700
+commit 058344a4fc2a27460060718315407f4675fd5f00
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Jun 9 18:31:03 2022 +0200
 
-    [flash/tlul] Enhance tlul_lc_gate to handle outstanding
+    [otbn] Extend description of CTRL.REDUN countermeasure label
     
-    - enhance tlul_lc_gate to better handle outstanding transactions
-    - when lc_en drops when there are outstanding trasnactions, any
-      further commands are blocked but existing trasnactions are allowed
-      to complete. Then the tlul_lc_gate transitions to an error state
-      where all future commands are directly err'd.
+    In addition to the actual blanking signals, this countermeasure now
+    also covers control signals for the call stack, loop, branch/jump
+    instructions and the branch target.
     
-    - Also adjust existing instantiations in otp_ctrl and rv_dm
+    This is related to lowRISC/OpenTitan#12768.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
