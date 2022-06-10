@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12637"
-version_tuple = (0, 0, 12637)
+version_str = "0.0.post12638"
+version_tuple = (0, 0, 12638)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12637")
+    pversion = V("0.0.post12638")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12495"
-data_version_tuple = (0, 0, 12495)
+data_version_str = "0.0.post12496"
+data_version_tuple = (0, 0, 12496)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12495")
+    pdata_version = V("0.0.post12496")
 except ImportError:
     pass
-data_git_hash = "d098a24fa4345770d0b014a460117e252d1bc5cf"
-data_git_describe = "v0.0-12495-gd098a24fa"
+data_git_hash = "a83bf2d5807a8841599e7643e40c849b89d59fef"
+data_git_describe = "v0.0-12496-ga83bf2d58"
 data_git_msg = """\
-commit d098a24fa4345770d0b014a460117e252d1bc5cf
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jun 8 23:18:41 2022 -0700
+commit a83bf2d5807a8841599e7643e40c849b89d59fef
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Thu May 26 09:44:25 2022 +0100
 
-    [top, dv] Fix chip_csr_mem_rw_with_rand_reset
+    [I2C/DV] I2c Agent Driver Host Mode Tasks
     
-    3 fixes
-    1. initialize sram mem to fix unknown data assert error
-    2. update scb to return d_error when accessing dv_sim_window
-    3. disable check_rsp for mem test as accessing dv_sim_window always
-       fails
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - Added Interface Tasks Host Start Stop RStart Data And Nack
+    - Added Tasks To Drive Host Item I2C Driver
+    
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
