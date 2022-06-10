@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12636"
-version_tuple = (0, 0, 12636)
+version_str = "0.0.post12637"
+version_tuple = (0, 0, 12637)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12636")
+    pversion = V("0.0.post12637")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12494"
-data_version_tuple = (0, 0, 12494)
+data_version_str = "0.0.post12495"
+data_version_tuple = (0, 0, 12495)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12494")
+    pdata_version = V("0.0.post12495")
 except ImportError:
     pass
-data_git_hash = "41f33a8909e00c9137ad64ab3a459d1ccaff958c"
-data_git_describe = "v0.0-12494-g41f33a890"
+data_git_hash = "d098a24fa4345770d0b014a460117e252d1bc5cf"
+data_git_describe = "v0.0-12495-gd098a24fa"
 data_git_msg = """\
-commit 41f33a8909e00c9137ad64ab3a459d1ccaff958c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jun 7 14:32:04 2022 -0700
+commit d098a24fa4345770d0b014a460117e252d1bc5cf
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jun 8 23:18:41 2022 -0700
 
-    [rtl/alert_handler] Enhance alert_handler FSM for sec_cm
+    [top, dv] Fix chip_csr_mem_rw_with_rand_reset
     
-    This PR enhances alert_handler's FSM error output to avoid attackers
-    continuously drive state_d or attack FSM and prim_counter/lfsr together.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    3 fixes
+    1. initialize sram mem to fix unknown data assert error
+    2. update scb to return d_error when accessing dv_sim_window
+    3. disable check_rsp for mem test as accessing dv_sim_window always
+       fails
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
