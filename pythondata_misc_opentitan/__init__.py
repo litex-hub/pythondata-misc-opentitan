@@ -4,38 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12627"
-version_tuple = (0, 0, 12627)
+version_str = "0.0.post12628"
+version_tuple = (0, 0, 12628)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12627")
+    pversion = V("0.0.post12628")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12485"
-data_version_tuple = (0, 0, 12485)
+data_version_str = "0.0.post12486"
+data_version_tuple = (0, 0, 12486)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12485")
+    pdata_version = V("0.0.post12486")
 except ImportError:
     pass
-data_git_hash = "058344a4fc2a27460060718315407f4675fd5f00"
-data_git_describe = "v0.0-12485-g058344a4f"
+data_git_hash = "ec88d27257f8eae66ef51783310a39633d373687"
+data_git_describe = "v0.0-12486-gec88d2725"
 data_git_msg = """\
-commit 058344a4fc2a27460060718315407f4675fd5f00
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Jun 9 18:31:03 2022 +0200
+commit ec88d27257f8eae66ef51783310a39633d373687
+Author: Luís Marques <luismarques@lowrisc.org>
+Date:   Tue Apr 19 12:00:37 2022 +0200
 
-    [otbn] Extend description of CTRL.REDUN countermeasure label
+    [sw] Fix function prototypes
     
-    In addition to the actual blanking signals, this countermeasure now
-    also covers control signals for the call stack, loop, branch/jump
-    instructions and the branch target.
+    Several functions without parameters were declared as `foo()` instead of
+    `foo(void)`. The former is considered a function without a prototype, not
+    a function without parameters. Newer versions of Clang implement a
+    stricter check of this condition, and the new warnings were breaking the
+    build. Fix this by adding the missing `void` in several places.
     
-    This is related to lowRISC/OpenTitan#12768.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Luís Marques <luismarques@lowrisc.org>
 
 """
 
