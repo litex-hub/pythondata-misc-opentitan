@@ -4,39 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12625"
-version_tuple = (0, 0, 12625)
+version_str = "0.0.post12626"
+version_tuple = (0, 0, 12626)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12625")
+    pversion = V("0.0.post12626")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12483"
-data_version_tuple = (0, 0, 12483)
+data_version_str = "0.0.post12484"
+data_version_tuple = (0, 0, 12484)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12483")
+    pdata_version = V("0.0.post12484")
 except ImportError:
     pass
-data_git_hash = "f446683d7e76c511ff214a059141b9b6ebb64611"
-data_git_describe = "v0.0-12483-gf446683d7"
+data_git_hash = "a772b85ca276e9ba67ddd7fefae1656169ec8d33"
+data_git_describe = "v0.0-12484-ga772b85ca"
 data_git_msg = """\
-commit f446683d7e76c511ff214a059141b9b6ebb64611
+commit a772b85ca276e9ba67ddd7fefae1656169ec8d33
 Author: Timothy Chen <timothytim@google.com>
-Date:   Fri May 27 15:07:21 2022 -0700
+Date:   Fri Jun 3 10:16:36 2022 -0700
 
-    [clkmgr] Fix cdc issues from reg status
+    [flash/tlul] Enhance tlul_lc_gate to handle outstanding
     
-    - Addresses #12921
-    - The transactional clock group currently feeds the status
-      and error information into the wrong domain.  Add
-      appropriate synchronizers to handle the crossing.
+    - enhance tlul_lc_gate to better handle outstanding transactions
+    - when lc_en drops when there are outstanding trasnactions, any
+      further commands are blocked but existing trasnactions are allowed
+      to complete. Then the tlul_lc_gate transitions to an error state
+      where all future commands are directly err'd.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    more fixes
+    - Also adjust existing instantiations in otp_ctrl and rv_dm
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
