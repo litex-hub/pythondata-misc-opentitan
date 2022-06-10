@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12635"
-version_tuple = (0, 0, 12635)
+version_str = "0.0.post12636"
+version_tuple = (0, 0, 12636)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12635")
+    pversion = V("0.0.post12636")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12493"
-data_version_tuple = (0, 0, 12493)
+data_version_str = "0.0.post12494"
+data_version_tuple = (0, 0, 12494)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12493")
+    pdata_version = V("0.0.post12494")
 except ImportError:
     pass
-data_git_hash = "6084cfa936b25826bab0db21a60e925a33fd6b0e"
-data_git_describe = "v0.0-12493-g6084cfa93"
+data_git_hash = "41f33a8909e00c9137ad64ab3a459d1ccaff958c"
+data_git_describe = "v0.0-12494-g41f33a890"
 data_git_msg = """\
-commit 6084cfa936b25826bab0db21a60e925a33fd6b0e
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Thu Jun 9 17:52:23 2022 +0100
+commit 41f33a8909e00c9137ad64ab3a459d1ccaff958c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jun 7 14:32:04 2022 -0700
 
-    [otbn,dv] Illegal Bus Access fixup
+    [rtl/alert_handler] Enhance alert_handler FSM for sec_cm
     
-    This commit includes changes in the do_mem_acc task.
-    Main idea is to poll TL bus requests for DMEM and IMEM and send relevant
-    error code to the model right when it happens.
+    This PR enhances alert_handler's FSM error output to avoid attackers
+    continuously drive state_d or attack FSM and prim_counter/lfsr together.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
