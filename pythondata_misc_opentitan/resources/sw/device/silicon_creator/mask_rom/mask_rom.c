@@ -48,14 +48,24 @@
  * Each counter is indexed by Name. The Initial Value is used to initialize the
  * counters with unique values with a good hamming distance. The values are
  * restricted to 11-bit to be able use immediate load instructions.
+
+ * Encoding generated with
+ * $ ./util/design/sparse-fsm-encode.py -d 6 -m 6 -n 11 \
+ *     -s 1630646358 --language=c
+ *
+ * Minimum Hamming distance: 6
+ * Maximum Hamming distance: 8
+ * Minimum Hamming weight: 5
+ * Maximum Hamming weight: 8
  */
 // clang-format off
 #define ROM_CFI_FUNC_COUNTERS_TABLE(X) \
-  X(kCfiRomMain,    0xf05) \
-  X(kCfiRomInit,    0x042) \
-  X(kCfiRomVerify,  0x89d) \
-  X(kCfiRomTryBoot, 0x4c7) \
-  X(kCfiRomBoot,    0x0fb) \
+  X(kCfiRomMain,         0x14b) \
+  X(kCfiRomInit,         0x7dc) \
+  X(kCfiRomVerify,       0x5a7) \
+  X(kCfiRomTryBoot,      0x235) \
+  X(kCfiRomPreBootCheck, 0x43a) \
+  X(kCfiRomBoot,         0x2e2)
 // clang-format on
 
 // Define counters and constant values required by the CFI counter macros.
@@ -96,6 +106,11 @@ static rom_error_t mask_rom_init(void) {
   // Configure UART0 as stdout.
   uart_init(kUartNCOValue);
 
+  // Write the OTP value to bits 0 to 5 of the cpuctrl CSR.
+  uint32_t cpuctrl_otp =
+      otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_CPUCTRL_OFFSET) & 0x3f;
+  CSR_WRITE(CSR_REG_CPUCTRL, cpuctrl_otp);
+
   lc_state = lifecycle_state_get();
 
   // Update epmp config for debug rom according to lifecycle state.
@@ -120,8 +135,9 @@ static rom_error_t mask_rom_init(void) {
   // Initialize the retention RAM based on the reset reason and the OTP value.
   // Note: Retention RAM is always reset on PoR regardless of the OTP value.
   uint32_t reset_reasons = rstmgr_reason_get();
-  uint32_t reset_mask = (1 << kRstmgrReasonPowerOn)
-      | otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_RET_RAM_RESET_MASK_OFFSET);
+  uint32_t reset_mask =
+      (1 << kRstmgrReasonPowerOn) |
+      otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_RET_RAM_RESET_MASK_OFFSET);
   if ((reset_reasons & reset_mask) != 0) {
     retention_sram_init();
   }
@@ -197,9 +213,9 @@ static rom_error_t mask_rom_verify(const manifest_t *manifest,
 }
 
 /* These symbols are defined in
-* `opentitan/sw/device/silicon_creator/mask_rom/mask_rom.ld`, and describes the
-* location of the flash header.
-*/
+ * `opentitan/sw/device/silicon_creator/mask_rom/mask_rom.ld`, and describes the
+ * location of the flash header.
+ */
 extern char _rom_ext_virtual_start_address[];
 extern char _rom_ext_virtual_size[];
 /**
@@ -209,8 +225,52 @@ extern char _rom_ext_virtual_size[];
  * @param lma_addr Load address or physical address.
  * @return the computed virtual address.
  */
-static inline  uintptr_t rom_ext_vma_get(const manifest_t *manifest, uintptr_t lma_addr){
-  return (lma_addr - (uintptr_t)manifest + (uintptr_t)_rom_ext_virtual_start_address);
+static inline uintptr_t rom_ext_vma_get(const manifest_t *manifest,
+                                        uintptr_t lma_addr) {
+  return (lma_addr - (uintptr_t)manifest +
+          (uintptr_t)_rom_ext_virtual_start_address);
+}
+
+/**
+ * Performs consistency checks before booting a ROM_EXT.
+ *
+ * All of the checks in this function are expected to pass and any failures
+ * result in shutdown.
+ */
+static void mask_rom_pre_boot_check(void) {
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomPreBootCheck, 1);
+
+  // Check cached life cycle state against the value reported by hardware.
+  lifecycle_state_t lc_state_check = lifecycle_state_get();
+  if (launder32(lc_state_check) != lc_state) {
+    HARDENED_UNREACHABLE();
+  }
+  HARDENED_CHECK_EQ(lc_state_check, lc_state);
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomPreBootCheck, 2);
+
+  // Check cached boot data.
+  rom_error_t boot_data_ok = boot_data_check(&boot_data);
+  if (launder32(boot_data_ok) != kErrorOk) {
+    HARDENED_UNREACHABLE();
+  }
+  HARDENED_CHECK_EQ(boot_data_ok, kErrorOk);
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomPreBootCheck, 3);
+
+  // Check the cpuctrl CSR.
+  // Note: We don't mask the CSR value here to include exception flags
+  // (bits 6 and 7) in the check.
+  uint32_t cpuctrl_csr;
+  uint32_t cpuctrl_otp =
+      otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_CPUCTRL_OFFSET);
+  CSR_READ(CSR_REG_CPUCTRL, &cpuctrl_csr);
+  if (launder32(cpuctrl_csr) != cpuctrl_otp) {
+    HARDENED_UNREACHABLE();
+  }
+  HARDENED_CHECK_EQ(cpuctrl_csr, cpuctrl_otp);
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomPreBootCheck, 4);
+
+  sec_mmio_check_counters(/*expected_check_count=*/3);
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomPreBootCheck, 5);
 }
 
 /**
@@ -232,37 +292,31 @@ static rom_error_t mask_rom_boot(const manifest_t *manifest,
   SEC_MMIO_WRITE_INCREMENT(kKeymgrSecMmioSwBindingSet +
                            kKeymgrSecMmioCreatorMaxVerSet);
 
-  // Check cached life cycle state against the value reported by hardware.
-  lifecycle_state_t lc_state_check = lifecycle_state_get();
-  if (launder32(lc_state_check) != lc_state) {
-    return kErrorMaskRomBootFailed;
-  }
-  HARDENED_CHECK_EQ(lc_state_check, lc_state);
-
-  // Check cached boot data.
-  HARDENED_RETURN_IF_ERROR(boot_data_check(&boot_data));
-
   sec_mmio_check_counters(/*expected_check_count=*/2);
 
   // Configure address translation, compute the epmp regions and the entry
   // point for the virtual address in case the address translation is enabled.
-  // Otherwise, compute the epmp regions and the entry point for the load address.
+  // Otherwise, compute the epmp regions and the entry point for the load
+  // address.
   epmp_region_t text_region = manifest_code_region_get(manifest);
   uintptr_t entry_point = manifest_entry_point_get(manifest);
-  switch(launder32(manifest->address_translation)){
+  switch (launder32(manifest->address_translation)) {
     case kHardenedBoolTrue:
       HARDENED_CHECK_EQ(manifest->address_translation, kHardenedBoolTrue);
       ibex_addr_remap_0_set((uintptr_t)_rom_ext_virtual_start_address,
-                           (uintptr_t)manifest, (size_t)_rom_ext_virtual_size);
+                            (uintptr_t)manifest, (size_t)_rom_ext_virtual_size);
       SEC_MMIO_WRITE_INCREMENT(kAddressTranslationSecMmioConfigure);
 
       // Unlock read-only for the whole rom_ext virtual memory.
       HARDENED_RETURN_IF_ERROR(epmp_state_check(&epmp));
-      mask_rom_epmp_unlock_rom_ext_r(&epmp, (epmp_region_t) {
-        .start = (uintptr_t)_rom_ext_virtual_start_address,
-        .end = (uintptr_t)_rom_ext_virtual_start_address + (uintptr_t)_rom_ext_virtual_size});
+      mask_rom_epmp_unlock_rom_ext_r(
+          &epmp,
+          (epmp_region_t){.start = (uintptr_t)_rom_ext_virtual_start_address,
+                          .end = (uintptr_t)_rom_ext_virtual_start_address +
+                                 (uintptr_t)_rom_ext_virtual_size});
 
-      // Move the ROM_EXT execution section from the load address to the virtual address.
+      // Move the ROM_EXT execution section from the load address to the virtual
+      // address.
       text_region.start = rom_ext_vma_get(manifest, text_region.start);
       text_region.end = rom_ext_vma_get(manifest, text_region.end);
       entry_point = rom_ext_vma_get(manifest, entry_point);
@@ -279,15 +333,20 @@ static rom_error_t mask_rom_boot(const manifest_t *manifest,
   mask_rom_epmp_unlock_rom_ext_rx(&epmp, text_region);
   HARDENED_RETURN_IF_ERROR(epmp_state_check(&epmp));
 
+  CFI_FUNC_COUNTER_PREPCALL(rom_counters, kCfiRomBoot, 2, kCfiRomPreBootCheck);
+  mask_rom_pre_boot_check();
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomBoot, 4);
+  CFI_FUNC_COUNTER_CHECK(rom_counters, kCfiRomPreBootCheck, 6);
+
   // Enable execution of code from flash if signature is verified.
   flash_ctrl_exec_set(flash_exec);
   SEC_MMIO_WRITE_INCREMENT(kFlashCtrlSecMmioExecSet);
 
   sec_mmio_check_values(rnd_uint32());
-  sec_mmio_check_counters(/*expected_check_count=*/4);
+  sec_mmio_check_counters(/*expected_check_count=*/5);
 
   // Jump to ROM_EXT entry point.
-  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomBoot, 2);
+  CFI_FUNC_COUNTER_INCREMENT(rom_counters, kCfiRomBoot, 5);
   ((rom_ext_entry_point *)entry_point)();
 
   return kErrorMaskRomBootFailed;
