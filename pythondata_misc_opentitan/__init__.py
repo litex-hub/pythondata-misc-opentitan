@@ -4,33 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12642"
-version_tuple = (0, 0, 12642)
+version_str = "0.0.post12643"
+version_tuple = (0, 0, 12643)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12642")
+    pversion = V("0.0.post12643")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12500"
-data_version_tuple = (0, 0, 12500)
+data_version_str = "0.0.post12501"
+data_version_tuple = (0, 0, 12501)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12500")
+    pdata_version = V("0.0.post12501")
 except ImportError:
     pass
-data_git_hash = "748d19a672cd3181a2fa57caf5ebf56df207f508"
-data_git_describe = "v0.0-12500-g748d19a67"
+data_git_hash = "aa87069dcb5f8d9430f175f93341d9c50663dcc8"
+data_git_describe = "v0.0-12501-gaa87069dc"
 data_git_msg = """\
-commit 748d19a672cd3181a2fa57caf5ebf56df207f508
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Jun 6 13:51:47 2022 -0400
+commit aa87069dcb5f8d9430f175f93341d9c50663dcc8
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Jun 9 16:38:23 2022 -0700
 
-    [ci] re-add mask_rom_epmp_test_sim_verilato r
+    [doc] update SW build and Verilator docs to reference Bazel
     
-    Co-authored-by: Timothy Trippel <5633066+timothytrippel@users.noreply.github.com>
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Now that all meson build files have been removed in favor of Bazel, this
+    commit updates the SW build and Verilator build documentation on the
+    website. Note, the FPGA documentation will be updated in a follow on
+    commit.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
