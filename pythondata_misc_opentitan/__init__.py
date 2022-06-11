@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12643"
-version_tuple = (0, 0, 12643)
+version_str = "0.0.post12650"
+version_tuple = (0, 0, 12650)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12643")
+    pversion = V("0.0.post12650")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12501"
-data_version_tuple = (0, 0, 12501)
+data_version_str = "0.0.post12508"
+data_version_tuple = (0, 0, 12508)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12501")
+    pdata_version = V("0.0.post12508")
 except ImportError:
     pass
-data_git_hash = "aa87069dcb5f8d9430f175f93341d9c50663dcc8"
-data_git_describe = "v0.0-12501-gaa87069dc"
+data_git_hash = "1d9f1032c7e30cb28c4c5b7c0a4ad0342a5200d7"
+data_git_describe = "v0.0-12508-g1d9f1032c"
 data_git_msg = """\
-commit aa87069dcb5f8d9430f175f93341d9c50663dcc8
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jun 9 16:38:23 2022 -0700
+commit 1d9f1032c7e30cb28c4c5b7c0a4ad0342a5200d7
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Jun 10 14:06:19 2022 -0400
 
-    [doc] update SW build and Verilator docs to reference Bazel
+    [bazel] Sign ROM_EXT images
     
-    Now that all meson build files have been removed in favor of Bazel, this
-    commit updates the SW build and Verilator build documentation on the
-    website. Note, the FPGA documentation will be updated in a follow on
-    commit.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
