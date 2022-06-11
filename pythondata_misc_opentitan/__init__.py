@@ -4,35 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12638"
-version_tuple = (0, 0, 12638)
+version_str = "0.0.post12642"
+version_tuple = (0, 0, 12642)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12638")
+    pversion = V("0.0.post12642")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12496"
-data_version_tuple = (0, 0, 12496)
+data_version_str = "0.0.post12500"
+data_version_tuple = (0, 0, 12500)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12496")
+    pdata_version = V("0.0.post12500")
 except ImportError:
     pass
-data_git_hash = "a83bf2d5807a8841599e7643e40c849b89d59fef"
-data_git_describe = "v0.0-12496-ga83bf2d58"
+data_git_hash = "748d19a672cd3181a2fa57caf5ebf56df207f508"
+data_git_describe = "v0.0-12500-g748d19a67"
 data_git_msg = """\
-commit a83bf2d5807a8841599e7643e40c849b89d59fef
-Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
-Date:   Thu May 26 09:44:25 2022 +0100
+commit 748d19a672cd3181a2fa57caf5ebf56df207f508
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Mon Jun 6 13:51:47 2022 -0400
 
-    [I2C/DV] I2c Agent Driver Host Mode Tasks
+    [ci] re-add mask_rom_epmp_test_sim_verilato r
     
-    - Added Interface Tasks Host Start Stop RStart Data And Nack
-    - Added Tasks To Drive Host Item I2C Driver
-    
-    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+    Co-authored-by: Timothy Trippel <5633066+timothytrippel@users.noreply.github.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
