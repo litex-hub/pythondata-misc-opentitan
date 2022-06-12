@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12650"
-version_tuple = (0, 0, 12650)
+version_str = "0.0.post12652"
+version_tuple = (0, 0, 12652)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12650")
+    pversion = V("0.0.post12652")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12508"
-data_version_tuple = (0, 0, 12508)
+data_version_str = "0.0.post12510"
+data_version_tuple = (0, 0, 12510)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12508")
+    pdata_version = V("0.0.post12510")
 except ImportError:
     pass
-data_git_hash = "1d9f1032c7e30cb28c4c5b7c0a4ad0342a5200d7"
-data_git_describe = "v0.0-12508-g1d9f1032c"
+data_git_hash = "b3a109385bd118a428a4e30d4336377ea88db5f9"
+data_git_describe = "v0.0-12510-gb3a109385"
 data_git_msg = """\
-commit 1d9f1032c7e30cb28c4c5b7c0a4ad0342a5200d7
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Jun 10 14:06:19 2022 -0400
+commit b3a109385bd118a428a4e30d4336377ea88db5f9
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Jun 3 14:52:06 2022 -0700
 
-    [bazel] Sign ROM_EXT images
+    [rust] Add a cargo raze rule
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Rather than remembering the proper bazel invocation of cargo_raze,
+    add a rule that invokes it correctly with:
+    
+    ```
+    bazel run //:cargo_raze
+    ```
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
