@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12656"
-version_tuple = (0, 0, 12656)
+version_str = "0.0.post12657"
+version_tuple = (0, 0, 12657)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12656")
+    pversion = V("0.0.post12657")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12514"
-data_version_tuple = (0, 0, 12514)
+data_version_str = "0.0.post12515"
+data_version_tuple = (0, 0, 12515)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12514")
+    pdata_version = V("0.0.post12515")
 except ImportError:
     pass
-data_git_hash = "2cfcc5e86dda2ce34ffb9c16d4359d9364a85c47"
-data_git_describe = "v0.0-12514-g2cfcc5e86"
+data_git_hash = "5c33c1ab7ecd1ecf824549e3d49c9665d93cc970"
+data_git_describe = "v0.0-12515-g5c33c1ab7"
 data_git_msg = """\
-commit 2cfcc5e86dda2ce34ffb9c16d4359d9364a85c47
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Tue May 31 12:00:54 2022 +0100
+commit 5c33c1ab7ecd1ecf824549e3d49c9665d93cc970
+Author: Eitan Shapira <eitanshapira89@gmail.com>
+Date:   Thu Jun 9 14:20:48 2022 +0300
 
-    [otbn, dv] Adds checks for GLOBAL_ESC and LOCAL_ESC
+    [flash_ctrl/tl/dv] Add timeout argument to tl_access methods
     
-    This commit adds assertions for global and local escalation
-    countermeasure.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Eitan Shapira <eitanshapira89@gmail.com>
 
 """
 
