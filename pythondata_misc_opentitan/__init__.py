@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12662"
-version_tuple = (0, 0, 12662)
+version_str = "0.0.post12664"
+version_tuple = (0, 0, 12664)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12662")
+    pversion = V("0.0.post12664")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12520"
-data_version_tuple = (0, 0, 12520)
+data_version_str = "0.0.post12522"
+data_version_tuple = (0, 0, 12522)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12520")
+    pdata_version = V("0.0.post12522")
 except ImportError:
     pass
-data_git_hash = "022b181f4b5b4e0d771b5c6baef29df76d3f7063"
-data_git_describe = "v0.0-12520-g022b181f4"
+data_git_hash = "f14a76a191a759754ad3519699ff922ed2e185c3"
+data_git_describe = "v0.0-12522-gf14a76a19"
 data_git_msg = """\
-commit 022b181f4b5b4e0d771b5c6baef29df76d3f7063
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Jun 13 10:49:20 2022 -0400
+commit f14a76a191a759754ad3519699ff922ed2e185c3
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Jun 8 12:31:03 2022 -0400
 
-    [util] Edit chip_info format to look better with LOG_INFO()
+    [ci] Retry install-package-dependencies up to 3 times on failure
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
