@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12664"
-version_tuple = (0, 0, 12664)
+version_str = "0.0.post12667"
+version_tuple = (0, 0, 12667)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12664")
+    pversion = V("0.0.post12667")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12522"
-data_version_tuple = (0, 0, 12522)
+data_version_str = "0.0.post12525"
+data_version_tuple = (0, 0, 12525)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12522")
+    pdata_version = V("0.0.post12525")
 except ImportError:
     pass
-data_git_hash = "f14a76a191a759754ad3519699ff922ed2e185c3"
-data_git_describe = "v0.0-12522-gf14a76a19"
+data_git_hash = "f7833ca52cd57fde08023b273b7c29cde133e771"
+data_git_describe = "v0.0-12525-gf7833ca52"
 data_git_msg = """\
-commit f14a76a191a759754ad3519699ff922ed2e185c3
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Jun 8 12:31:03 2022 -0400
+commit f7833ca52cd57fde08023b273b7c29cde133e771
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Jun 2 14:53:57 2022 -0700
 
-    [ci] Retry install-package-dependencies up to 3 times on failure
+    [usbdev/dif] Add half the unit tests
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    This covers checking null arguments, direct interaction with the PHY,
+    OUT transaction handling, and some basic endpoint configuration.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
