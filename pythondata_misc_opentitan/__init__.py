@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12655"
-version_tuple = (0, 0, 12655)
+version_str = "0.0.post12656"
+version_tuple = (0, 0, 12656)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12655")
+    pversion = V("0.0.post12656")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12513"
-data_version_tuple = (0, 0, 12513)
+data_version_str = "0.0.post12514"
+data_version_tuple = (0, 0, 12514)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12513")
+    pdata_version = V("0.0.post12514")
 except ImportError:
     pass
-data_git_hash = "ff74d05dabd00325ef2eec7d99ba7afe141063a8"
-data_git_describe = "v0.0-12513-gff74d05da"
+data_git_hash = "2cfcc5e86dda2ce34ffb9c16d4359d9364a85c47"
+data_git_describe = "v0.0-12514-g2cfcc5e86"
 data_git_msg = """\
-commit ff74d05dabd00325ef2eec7d99ba7afe141063a8
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Jun 7 10:57:04 2022 -0700
+commit 2cfcc5e86dda2ce34ffb9c16d4359d9364a85c47
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Tue May 31 12:00:54 2022 +0100
 
-    chore(cdc): Alert Handler PING/ACK waivers
+    [otbn, dv] Adds checks for GLOBAL_ESC and LOCAL_ESC
     
-    Alert handler sender/receiver follows handshake mechanism with
-    differential signal method. The request(ping) and ack are converted into
-    level so that slow-to-fast clock 2FF sync error can be ignored.
+    This commit adds assertions for global and local escalation
+    countermeasure.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
