@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12667"
-version_tuple = (0, 0, 12667)
+version_str = "0.0.post12669"
+version_tuple = (0, 0, 12669)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12667")
+    pversion = V("0.0.post12669")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12525"
-data_version_tuple = (0, 0, 12525)
+data_version_str = "0.0.post12527"
+data_version_tuple = (0, 0, 12527)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12525")
+    pdata_version = V("0.0.post12527")
 except ImportError:
     pass
-data_git_hash = "f7833ca52cd57fde08023b273b7c29cde133e771"
-data_git_describe = "v0.0-12525-gf7833ca52"
+data_git_hash = "db98b23a89fbbff1fadeda8dfa50fdd15262c6e7"
+data_git_describe = "v0.0-12527-gdb98b23a8"
 data_git_msg = """\
-commit f7833ca52cd57fde08023b273b7c29cde133e771
+commit db98b23a89fbbff1fadeda8dfa50fdd15262c6e7
 Author: Alexander Williams <awill@google.com>
-Date:   Thu Jun 2 14:53:57 2022 -0700
+Date:   Fri Jun 10 17:13:28 2022 -0700
 
-    [usbdev/dif] Add half the unit tests
+    [usbdev/dif] Add the rest of the unit tests
     
-    This covers checking null arguments, direct interaction with the PHY,
-    OUT transaction handling, and some basic endpoint configuration.
+    Add unit tests for IN packets, observing status, controlling the device
+    address, interacting with the AON wake module, and setting up the TX
+    test mode.
     
     Signed-off-by: Alexander Williams <awill@google.com>
 
