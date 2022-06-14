@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12678"
-version_tuple = (0, 0, 12678)
+version_str = "0.0.post12680"
+version_tuple = (0, 0, 12680)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12678")
+    pversion = V("0.0.post12680")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12536"
-data_version_tuple = (0, 0, 12536)
+data_version_str = "0.0.post12538"
+data_version_tuple = (0, 0, 12538)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12536")
+    pdata_version = V("0.0.post12538")
 except ImportError:
     pass
-data_git_hash = "46dc8f7d6c5638b5705cc3f7a098796c5939ec81"
-data_git_describe = "v0.0-12536-g46dc8f7d6"
+data_git_hash = "6d1f15d88e1b194d5d7558e680c386774d1e8058"
+data_git_describe = "v0.0-12538-g6d1f15d88"
 data_git_msg = """\
-commit 46dc8f7d6c5638b5705cc3f7a098796c5939ec81
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Jun 14 11:28:48 2022 -0400
+commit 6d1f15d88e1b194d5d7558e680c386774d1e8058
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jun 10 16:08:15 2022 +0200
 
-    [sw/silicon_creator] Preserve upper bits of the cpuctrl CSR
+    [tlul_lc_gate] Align error/active with active/error transition
     
-    This commit updates the way cpuctrl CSR is written in mask_rom_init()
-    such that its upper bits, more specifically `double_fault_seen` (bit 6)
-    and `double_fault_seen` (bit 7), are preserved.
+    This is to make the module more generic.
+    The module also resets into the StError now so that the TL-UL access is
+    blocked by default to stay on the prudent side.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
