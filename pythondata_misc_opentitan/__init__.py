@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12669"
-version_tuple = (0, 0, 12669)
+version_str = "0.0.post12670"
+version_tuple = (0, 0, 12670)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12669")
+    pversion = V("0.0.post12670")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12527"
-data_version_tuple = (0, 0, 12527)
+data_version_str = "0.0.post12528"
+data_version_tuple = (0, 0, 12528)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12527")
+    pdata_version = V("0.0.post12528")
 except ImportError:
     pass
-data_git_hash = "db98b23a89fbbff1fadeda8dfa50fdd15262c6e7"
-data_git_describe = "v0.0-12527-gdb98b23a8"
+data_git_hash = "71d4a19ac81f137a304a00a7c550d2ddc6c60fa9"
+data_git_describe = "v0.0-12528-g71d4a19ac"
 data_git_msg = """\
-commit db98b23a89fbbff1fadeda8dfa50fdd15262c6e7
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Jun 10 17:13:28 2022 -0700
+commit 71d4a19ac81f137a304a00a7c550d2ddc6c60fa9
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jun 13 16:58:31 2022 +0200
 
-    [usbdev/dif] Add the rest of the unit tests
+    [fpga] Make `set_clock_sense` constraint more flexible using a wildcard
     
-    Add unit tests for IN packets, observing status, controlling the device
-    address, interacting with the AON wake module, and setting up the TX
-    test mode.
+    It seems that the name of the target LUT cell may change as the
+    design evolves. This results in Vivado not being able to apply the
+    constraint and triggering a critical warning instead.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
