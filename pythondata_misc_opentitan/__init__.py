@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12671"
-version_tuple = (0, 0, 12671)
+version_str = "0.0.post12674"
+version_tuple = (0, 0, 12674)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12671")
+    pversion = V("0.0.post12674")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12529"
-data_version_tuple = (0, 0, 12529)
+data_version_str = "0.0.post12532"
+data_version_tuple = (0, 0, 12532)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12529")
+    pdata_version = V("0.0.post12532")
 except ImportError:
     pass
-data_git_hash = "5003ad289b3cbb3fee7299db0a325d8749f163b0"
-data_git_describe = "v0.0-12529-g5003ad289"
+data_git_hash = "eba99e7b938c28e375a4b195e39103f3b9b4b45d"
+data_git_describe = "v0.0-12532-geba99e7b9"
 data_git_msg = """\
-commit 5003ad289b3cbb3fee7299db0a325d8749f163b0
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Jun 10 15:20:13 2022 +0100
+commit eba99e7b938c28e375a4b195e39103f3b9b4b45d
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jun 13 17:07:10 2022 +0200
 
-    [sigverify] Check OTBN instruction count.
+    [clkmgr] Allow transactional clock groups with just 1 clock
     
-    As an extra protection against fault injection attacks, check that the
-    instruction count from the OTBN modexp routine falls within a feasible
-    range given the control-flow paths available in the program.
+    This allows removing HMAC on English Breakfast to free some more FPGA
+    resources.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
