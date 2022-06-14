@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12680"
-version_tuple = (0, 0, 12680)
+version_str = "0.0.post12681"
+version_tuple = (0, 0, 12681)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12680")
+    pversion = V("0.0.post12681")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12538"
-data_version_tuple = (0, 0, 12538)
+data_version_str = "0.0.post12539"
+data_version_tuple = (0, 0, 12539)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12538")
+    pdata_version = V("0.0.post12539")
 except ImportError:
     pass
-data_git_hash = "6d1f15d88e1b194d5d7558e680c386774d1e8058"
-data_git_describe = "v0.0-12538-g6d1f15d88"
+data_git_hash = "9634d8677a6d28e80f6083568d98b310bb809248"
+data_git_describe = "v0.0-12539-g9634d8677"
 data_git_msg = """\
-commit 6d1f15d88e1b194d5d7558e680c386774d1e8058
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jun 10 16:08:15 2022 +0200
+commit 9634d8677a6d28e80f6083568d98b310bb809248
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon May 30 23:00:08 2022 +0000
 
-    [tlul_lc_gate] Align error/active with active/error transition
+    [dv,pwrmgr,top] pwrmgr normal sleep all wake up test
     
-    This is to make the module more generic.
-    The module also resets into the StError now so that the TL-UL access is
-    blocked by default to stay on the prudent side.
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
