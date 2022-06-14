@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12681"
-version_tuple = (0, 0, 12681)
+version_str = "0.0.post12682"
+version_tuple = (0, 0, 12682)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12681")
+    pversion = V("0.0.post12682")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12539"
-data_version_tuple = (0, 0, 12539)
+data_version_str = "0.0.post12540"
+data_version_tuple = (0, 0, 12540)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12539")
+    pdata_version = V("0.0.post12540")
 except ImportError:
     pass
-data_git_hash = "9634d8677a6d28e80f6083568d98b310bb809248"
-data_git_describe = "v0.0-12539-g9634d8677"
+data_git_hash = "738a43665fa1a253f086ab412095430030b57532"
+data_git_describe = "v0.0-12540-g738a43665"
 data_git_msg = """\
-commit 9634d8677a6d28e80f6083568d98b310bb809248
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon May 30 23:00:08 2022 +0000
+commit 738a43665fa1a253f086ab412095430030b57532
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jun 7 19:18:31 2022 -0700
 
-    [dv,pwrmgr,top] pwrmgr normal sleep all wake up test
+    [top/spi_device] constraint and clock updates
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    - refer to https://docs.google.com/presentation/d/14VfPqah-27uFUjkAS3WGbNxFH4EK-Y2PAvpjdHoUXn8/edit?usp=sharing for details.
+    
+    - move clock definition to pad instead of internal buffers
+    - add generated clocks for cleaner hold-time handling
+    - connect buffer output to sram clock mux
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
