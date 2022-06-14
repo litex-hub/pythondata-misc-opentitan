@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12676"
-version_tuple = (0, 0, 12676)
+version_str = "0.0.post12678"
+version_tuple = (0, 0, 12678)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12676")
+    pversion = V("0.0.post12678")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12534"
-data_version_tuple = (0, 0, 12534)
+data_version_str = "0.0.post12536"
+data_version_tuple = (0, 0, 12536)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12534")
+    pdata_version = V("0.0.post12536")
 except ImportError:
     pass
-data_git_hash = "edbd61c6633f87650846d3f07053d24dbf535f90"
-data_git_describe = "v0.0-12534-gedbd61c66"
+data_git_hash = "46dc8f7d6c5638b5705cc3f7a098796c5939ec81"
+data_git_describe = "v0.0-12536-g46dc8f7d6"
 data_git_msg = """\
-commit edbd61c6633f87650846d3f07053d24dbf535f90
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Mon Jun 13 14:33:17 2022 +0200
+commit 46dc8f7d6c5638b5705cc3f7a098796c5939ec81
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Jun 14 11:28:48 2022 -0400
 
-    [otp_ctrl] Remove TODO from RTL
+    [sw/silicon_creator] Preserve upper bits of the cpuctrl CSR
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    This commit updates the way cpuctrl CSR is written in mask_rom_init()
+    such that its upper bits, more specifically `double_fault_seen` (bit 6)
+    and `double_fault_seen` (bit 7), are preserved.
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
