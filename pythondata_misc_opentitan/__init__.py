@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12698"
-version_tuple = (0, 0, 12698)
+version_str = "0.0.post12700"
+version_tuple = (0, 0, 12700)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12698")
+    pversion = V("0.0.post12700")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12556"
-data_version_tuple = (0, 0, 12556)
+data_version_str = "0.0.post12558"
+data_version_tuple = (0, 0, 12558)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12556")
+    pdata_version = V("0.0.post12558")
 except ImportError:
     pass
-data_git_hash = "5948fabb7add084eacddc779fe275872cd7736f1"
-data_git_describe = "v0.0-12556-g5948fabb7"
+data_git_hash = "7b78a79290e3475424ccc4f668edf3da9a97f2dd"
+data_git_describe = "v0.0-12558-g7b78a7929"
 data_git_msg = """\
-commit 5948fabb7add084eacddc779fe275872cd7736f1
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jun 14 14:40:01 2022 -0700
+commit 7b78a79290e3475424ccc4f668edf3da9a97f2dd
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Jun 6 20:51:40 2022 -0700
 
-    [prim] Add description to parameters
+    [dv,chip_sw] Harden external_clk_src_for_lc test
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Detect when the external clock is selected to drive the ast io_clk output.
+    
+    Fixes: #12232
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
