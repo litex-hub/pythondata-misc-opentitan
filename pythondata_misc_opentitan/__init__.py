@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12700"
-version_tuple = (0, 0, 12700)
+version_str = "0.0.post12705"
+version_tuple = (0, 0, 12705)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12700")
+    pversion = V("0.0.post12705")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12558"
-data_version_tuple = (0, 0, 12558)
+data_version_str = "0.0.post12563"
+data_version_tuple = (0, 0, 12563)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12558")
+    pdata_version = V("0.0.post12563")
 except ImportError:
     pass
-data_git_hash = "7b78a79290e3475424ccc4f668edf3da9a97f2dd"
-data_git_describe = "v0.0-12558-g7b78a7929"
+data_git_hash = "f15b409b7cb1fbddb818ed4074437c2265e0c3ed"
+data_git_describe = "v0.0-12563-gf15b409b7"
 data_git_msg = """\
-commit 7b78a79290e3475424ccc4f668edf3da9a97f2dd
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Jun 6 20:51:40 2022 -0700
+commit f15b409b7cb1fbddb818ed4074437c2265e0c3ed
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jun 15 10:15:20 2022 -0400
 
-    [dv,chip_sw] Harden external_clk_src_for_lc test
+    [opentitantool] resolve a warning by avoiding unused dependence on "bail"
     
-    Detect when the external clock is selected to drive the ast io_clk output.
-    
-    Fixes: #12232
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
