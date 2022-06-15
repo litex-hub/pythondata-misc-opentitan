@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12706"
-version_tuple = (0, 0, 12706)
+version_str = "0.0.post12711"
+version_tuple = (0, 0, 12711)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12706")
+    pversion = V("0.0.post12711")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12564"
-data_version_tuple = (0, 0, 12564)
+data_version_str = "0.0.post12569"
+data_version_tuple = (0, 0, 12569)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12564")
+    pdata_version = V("0.0.post12569")
 except ImportError:
     pass
-data_git_hash = "92e78884cb23a37119e066ee99344a7235e8ca18"
-data_git_describe = "v0.0-12564-g92e78884c"
+data_git_hash = "12e9c1b5ef3ded27a76c7ae9567f2688f0902226"
+data_git_describe = "v0.0-12569-g12e9c1b5e"
 data_git_msg = """\
-commit 92e78884cb23a37119e066ee99344a7235e8ca18
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Jun 15 11:33:58 2022 -0700
+commit 12e9c1b5ef3ded27a76c7ae9567f2688f0902226
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Jun 13 15:28:18 2022 +0000
 
-    [entropy_src/dv] Fix vcs coverage errors
+    [dv,flash_ctrl] Add stress_all test
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
