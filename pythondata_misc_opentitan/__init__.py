@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12682"
-version_tuple = (0, 0, 12682)
+version_str = "0.0.post12690"
+version_tuple = (0, 0, 12690)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12682")
+    pversion = V("0.0.post12690")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12540"
-data_version_tuple = (0, 0, 12540)
+data_version_str = "0.0.post12548"
+data_version_tuple = (0, 0, 12548)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12540")
+    pdata_version = V("0.0.post12548")
 except ImportError:
     pass
-data_git_hash = "738a43665fa1a253f086ab412095430030b57532"
-data_git_describe = "v0.0-12540-g738a43665"
+data_git_hash = "43b77237219b2c3ccaae7a516d227c7624a02adb"
+data_git_describe = "v0.0-12548-g43b772372"
 data_git_msg = """\
-commit 738a43665fa1a253f086ab412095430030b57532
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jun 7 19:18:31 2022 -0700
+commit 43b77237219b2c3ccaae7a516d227c7624a02adb
+Author: Dave Williams <dave.williams@ensilica.com>
+Date:   Tue Jun 14 11:13:46 2022 +0100
 
-    [top/spi_device] constraint and clock updates
+    [sw,tests] Add -f option to copy in sim.mk
     
-    - refer to https://docs.google.com/presentation/d/14VfPqah-27uFUjkAS3WGbNxFH4EK-Y2PAvpjdHoUXn8/edit?usp=sharing for details.
+    Fixes write permission errors in top level test builds.
     
-    - move clock definition to pad instead of internal buffers
-    - add generated clocks for cleaner hold-time handling
-    - connect buffer output to sram clock mux
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Dave Williams <dave.williams@ensilica.com>
 
 """
 
