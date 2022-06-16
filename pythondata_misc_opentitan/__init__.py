@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12711"
-version_tuple = (0, 0, 12711)
+version_str = "0.0.post12713"
+version_tuple = (0, 0, 12713)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12711")
+    pversion = V("0.0.post12713")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12569"
-data_version_tuple = (0, 0, 12569)
+data_version_str = "0.0.post12571"
+data_version_tuple = (0, 0, 12571)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12569")
+    pdata_version = V("0.0.post12571")
 except ImportError:
     pass
-data_git_hash = "12e9c1b5ef3ded27a76c7ae9567f2688f0902226"
-data_git_describe = "v0.0-12569-g12e9c1b5e"
+data_git_hash = "e9410b71e53a4de1193395555ac4daf1df5372f4"
+data_git_describe = "v0.0-12571-ge9410b71e"
 data_git_msg = """\
-commit 12e9c1b5ef3ded27a76c7ae9567f2688f0902226
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Jun 13 15:28:18 2022 +0000
+commit e9410b71e53a4de1193395555ac4daf1df5372f4
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Jun 15 17:30:06 2022 -0400
 
-    [dv,flash_ctrl] Add stress_all test
+    [ci] Remove Verilator test's dependency on pre-fetched Bazel dependencies
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
