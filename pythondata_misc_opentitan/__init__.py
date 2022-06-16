@@ -4,38 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12725"
-version_tuple = (0, 0, 12725)
+version_str = "0.0.post12726"
+version_tuple = (0, 0, 12726)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12725")
+    pversion = V("0.0.post12726")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12583"
-data_version_tuple = (0, 0, 12583)
+data_version_str = "0.0.post12584"
+data_version_tuple = (0, 0, 12584)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12583")
+    pdata_version = V("0.0.post12584")
 except ImportError:
     pass
-data_git_hash = "db96513a575ed68f7022ae53750bf7e76f361be5"
-data_git_describe = "v0.0-12583-gdb96513a5"
+data_git_hash = "c16937ec940832a450fba47bea6ea851c5448087"
+data_git_describe = "v0.0-12584-gc16937ec9"
 data_git_msg = """\
-commit db96513a575ed68f7022ae53750bf7e76f361be5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jun 16 08:03:02 2022 -0700
+commit c16937ec940832a450fba47bea6ea851c5448087
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Jun 15 20:19:01 2022 -0700
 
-    [vendor/ibex] vendor in latest ibex
+    [lib,timing] Fix busy_spin_micros
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Improve the accuracy of the conversion from microseconds to cpu cycles.
+    Use a per platform to_cpu_cycles function that doesn't use long division,
+    or inaccurate approximations of it.
     
-    [rstmgr/dv] update dv sequence
+    Fixes #12889
     
-    - accommodate latest ibex vendoring
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
