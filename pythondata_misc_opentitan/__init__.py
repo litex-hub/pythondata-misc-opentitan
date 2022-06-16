@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12723"
-version_tuple = (0, 0, 12723)
+version_str = "0.0.post12725"
+version_tuple = (0, 0, 12725)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12723")
+    pversion = V("0.0.post12725")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12581"
-data_version_tuple = (0, 0, 12581)
+data_version_str = "0.0.post12583"
+data_version_tuple = (0, 0, 12583)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12581")
+    pdata_version = V("0.0.post12583")
 except ImportError:
     pass
-data_git_hash = "89d481f1d745d410de26f2fd3bddef9a80403943"
-data_git_describe = "v0.0-12581-g89d481f1d"
+data_git_hash = "db96513a575ed68f7022ae53750bf7e76f361be5"
+data_git_describe = "v0.0-12583-gdb96513a5"
 data_git_msg = """\
-commit 89d481f1d745d410de26f2fd3bddef9a80403943
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Jun 15 13:47:25 2022 -0700
+commit db96513a575ed68f7022ae53750bf7e76f361be5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Jun 16 08:03:02 2022 -0700
 
-    [dv,rstmgr] Fix some sec_cm test failures
+    [vendor/ibex] vendor in latest ibex
     
-    Update the list of rstmgr_leaf_rst instances for design changes.
-    Add some messages in check failures for ease of diagnostics.
-    Formatting changes for verible.
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    [rstmgr/dv] update dv sequence
+    
+    - accommodate latest ibex vendoring
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
