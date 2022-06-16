@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12714"
-version_tuple = (0, 0, 12714)
+version_str = "0.0.post12715"
+version_tuple = (0, 0, 12715)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12714")
+    pversion = V("0.0.post12715")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12572"
-data_version_tuple = (0, 0, 12572)
+data_version_str = "0.0.post12573"
+data_version_tuple = (0, 0, 12573)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12572")
+    pdata_version = V("0.0.post12573")
 except ImportError:
     pass
-data_git_hash = "5123a71ac14d869cfa60e442cdd5c103278330e8"
-data_git_describe = "v0.0-12572-g5123a71ac"
+data_git_hash = "7004a27f1a7deab2bfd7419ce39eef2cb9c420f4"
+data_git_describe = "v0.0-12573-g7004a27f1"
 data_git_msg = """\
-commit 5123a71ac14d869cfa60e442cdd5c103278330e8
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Jun 15 00:23:56 2022 -0700
+commit 7004a27f1a7deab2bfd7419ce39eef2cb9c420f4
+Author: TIM EWINS <tim.ewins@ensilica.com>
+Date:   Mon Jun 13 17:00:52 2022 +0100
 
-    [dv/clkmgr] Fix trans test
+    [flash_ctrl] Add Covergroup : error_cg
     
-    Check with SVA whether the transactional clocks are running.
-    Add some extra wait cycles prior to reading hint_status to account
-    for idle count and synchronization.
-    Some trivial formatting changes for verible.
+    Adds the covergroup error_cg which covers the fields of FLASH_CTRL.ERR_CODE
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: TIM EWINS <tim.ewins@ensilica.com>
 
 """
 
