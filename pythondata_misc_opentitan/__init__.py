@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12713"
-version_tuple = (0, 0, 12713)
+version_str = "0.0.post12714"
+version_tuple = (0, 0, 12714)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12713")
+    pversion = V("0.0.post12714")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12571"
-data_version_tuple = (0, 0, 12571)
+data_version_str = "0.0.post12572"
+data_version_tuple = (0, 0, 12572)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12571")
+    pdata_version = V("0.0.post12572")
 except ImportError:
     pass
-data_git_hash = "e9410b71e53a4de1193395555ac4daf1df5372f4"
-data_git_describe = "v0.0-12571-ge9410b71e"
+data_git_hash = "5123a71ac14d869cfa60e442cdd5c103278330e8"
+data_git_describe = "v0.0-12572-g5123a71ac"
 data_git_msg = """\
-commit e9410b71e53a4de1193395555ac4daf1df5372f4
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Jun 15 17:30:06 2022 -0400
+commit 5123a71ac14d869cfa60e442cdd5c103278330e8
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Jun 15 00:23:56 2022 -0700
 
-    [ci] Remove Verilator test's dependency on pre-fetched Bazel dependencies
+    [dv/clkmgr] Fix trans test
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Check with SVA whether the transactional clocks are running.
+    Add some extra wait cycles prior to reading hint_status to account
+    for idle count and synchronization.
+    Some trivial formatting changes for verible.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
