@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12721"
-version_tuple = (0, 0, 12721)
+version_str = "0.0.post12723"
+version_tuple = (0, 0, 12723)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12721")
+    pversion = V("0.0.post12723")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12579"
-data_version_tuple = (0, 0, 12579)
+data_version_str = "0.0.post12581"
+data_version_tuple = (0, 0, 12581)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12579")
+    pdata_version = V("0.0.post12581")
 except ImportError:
     pass
-data_git_hash = "1b0ef51286760c2ce5e18b02bb7a022130d933a4"
-data_git_describe = "v0.0-12579-g1b0ef5128"
+data_git_hash = "89d481f1d745d410de26f2fd3bddef9a80403943"
+data_git_describe = "v0.0-12581-g89d481f1d"
 data_git_msg = """\
-commit 1b0ef51286760c2ce5e18b02bb7a022130d933a4
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Jun 15 16:12:27 2022 -0400
+commit 89d481f1d745d410de26f2fd3bddef9a80403943
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Jun 15 13:47:25 2022 -0700
 
-    [bazel] sw/device/tests has a number of tests that are no longer broken
+    [dv,rstmgr] Fix some sec_cm test failures
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Update the list of rstmgr_leaf_rst instances for design changes.
+    Add some messages in check failures for ease of diagnostics.
+    Formatting changes for verible.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
