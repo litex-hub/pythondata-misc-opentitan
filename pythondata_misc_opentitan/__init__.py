@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12715"
-version_tuple = (0, 0, 12715)
+version_str = "0.0.post12720"
+version_tuple = (0, 0, 12720)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12715")
+    pversion = V("0.0.post12720")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12573"
-data_version_tuple = (0, 0, 12573)
+data_version_str = "0.0.post12578"
+data_version_tuple = (0, 0, 12578)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12573")
+    pdata_version = V("0.0.post12578")
 except ImportError:
     pass
-data_git_hash = "7004a27f1a7deab2bfd7419ce39eef2cb9c420f4"
-data_git_describe = "v0.0-12573-g7004a27f1"
+data_git_hash = "a1c71d4ebfa2d1881234551efc7f7cb1c6b3e23d"
+data_git_describe = "v0.0-12578-ga1c71d4eb"
 data_git_msg = """\
-commit 7004a27f1a7deab2bfd7419ce39eef2cb9c420f4
-Author: TIM EWINS <tim.ewins@ensilica.com>
-Date:   Mon Jun 13 17:00:52 2022 +0100
+commit a1c71d4ebfa2d1881234551efc7f7cb1c6b3e23d
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Jun 15 12:45:09 2022 +0100
 
-    [flash_ctrl] Add Covergroup : error_cg
+    [doc] Add documentation for OTBN build artifacts.
     
-    Adds the covergroup error_cg which covers the fields of FLASH_CTRL.ERR_CODE
+    Add a description of what kind of Bazel artifacts are produced by the
+    OTBN build flow, and a little guidance on how to use them.
     
-    Signed-off-by: TIM EWINS <tim.ewins@ensilica.com>
+    Resolves a TODO from the recent Bazel docs push.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
