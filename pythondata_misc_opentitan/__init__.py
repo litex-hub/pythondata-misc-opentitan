@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12720"
-version_tuple = (0, 0, 12720)
+version_str = "0.0.post12721"
+version_tuple = (0, 0, 12721)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12720")
+    pversion = V("0.0.post12721")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12578"
-data_version_tuple = (0, 0, 12578)
+data_version_str = "0.0.post12579"
+data_version_tuple = (0, 0, 12579)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12578")
+    pdata_version = V("0.0.post12579")
 except ImportError:
     pass
-data_git_hash = "a1c71d4ebfa2d1881234551efc7f7cb1c6b3e23d"
-data_git_describe = "v0.0-12578-ga1c71d4eb"
+data_git_hash = "1b0ef51286760c2ce5e18b02bb7a022130d933a4"
+data_git_describe = "v0.0-12579-g1b0ef5128"
 data_git_msg = """\
-commit a1c71d4ebfa2d1881234551efc7f7cb1c6b3e23d
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Jun 15 12:45:09 2022 +0100
+commit 1b0ef51286760c2ce5e18b02bb7a022130d933a4
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jun 15 16:12:27 2022 -0400
 
-    [doc] Add documentation for OTBN build artifacts.
+    [bazel] sw/device/tests has a number of tests that are no longer broken
     
-    Add a description of what kind of Bazel artifacts are produced by the
-    OTBN build flow, and a little guidance on how to use them.
-    
-    Resolves a TODO from the recent Bazel docs push.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
