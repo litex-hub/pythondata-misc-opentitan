@@ -4,38 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12726"
-version_tuple = (0, 0, 12726)
+version_str = "0.0.post12728"
+version_tuple = (0, 0, 12728)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12726")
+    pversion = V("0.0.post12728")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12584"
-data_version_tuple = (0, 0, 12584)
+data_version_str = "0.0.post12586"
+data_version_tuple = (0, 0, 12586)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12584")
+    pdata_version = V("0.0.post12586")
 except ImportError:
     pass
-data_git_hash = "c16937ec940832a450fba47bea6ea851c5448087"
-data_git_describe = "v0.0-12584-gc16937ec9"
+data_git_hash = "f6c983f8d211e7d6e52cc494f1cacfd7ae9e5804"
+data_git_describe = "v0.0-12586-gf6c983f8d"
 data_git_msg = """\
-commit c16937ec940832a450fba47bea6ea851c5448087
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Jun 15 20:19:01 2022 -0700
+commit f6c983f8d211e7d6e52cc494f1cacfd7ae9e5804
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Sun Jun 5 20:42:31 2022 +0100
 
-    [lib,timing] Fix busy_spin_micros
+    [SPI_HOST/DV] SPI Host Status Stall
     
-    Improve the accuracy of the conversion from microseconds to cpu cycles.
-    Use a per platform to_cpu_cycles function that doesn't use long division,
-    or inaccurate approximations of it.
+    - Added Spi Host Status Stall Tx RX Test
+    - Restructured For Failing Seeds
+    - Added SB Support
+    - SB Support Reverted Fix Not Generic
+    - SB Fixed
     
-    Fixes #12889
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
