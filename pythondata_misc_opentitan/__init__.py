@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12731"
-version_tuple = (0, 0, 12731)
+version_str = "0.0.post12733"
+version_tuple = (0, 0, 12733)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12731")
+    pversion = V("0.0.post12733")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12589"
-data_version_tuple = (0, 0, 12589)
+data_version_str = "0.0.post12591"
+data_version_tuple = (0, 0, 12591)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12589")
+    pdata_version = V("0.0.post12591")
 except ImportError:
     pass
-data_git_hash = "093a576c313bed2249efcd82322c447c8eb7252d"
-data_git_describe = "v0.0-12589-g093a576c3"
+data_git_hash = "3a4fa3a334a4f721de713086ffb271af67104781"
+data_git_describe = "v0.0-12591-g3a4fa3a33"
 data_git_msg = """\
-commit 093a576c313bed2249efcd82322c447c8eb7252d
-Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
-Date:   Fri Jun 10 13:16:13 2022 +0100
+commit 3a4fa3a334a4f721de713086ffb271af67104781
+Author: Joshua Park <jeoong@google.com>
+Date:   Thu Jun 9 15:08:14 2022 -0700
 
-    [PWM/DV] Updated Scoreboard And Added Stress Test
+    [dv|pwrmgr] added pwrmgr_deep_sleep_all_reset_reqs and pwrmgr_normal_sleep_all_reset_reqs
     
-    - Modified The Scoreboard To Check Transction-By-Transaction
-    - Modified The Base Test To Accomodate Counter Overflow
-    
-    Signed-off-by: dharanendrak <dharanendra.kumar@ensilica.com>
-    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+    Signed-off-by: Joshua Park <jeoong@google.com>
 
 """
 
