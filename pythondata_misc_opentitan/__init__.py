@@ -4,32 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12733"
-version_tuple = (0, 0, 12733)
+version_str = "0.0.post12735"
+version_tuple = (0, 0, 12735)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12733")
+    pversion = V("0.0.post12735")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12591"
-data_version_tuple = (0, 0, 12591)
+data_version_str = "0.0.post12593"
+data_version_tuple = (0, 0, 12593)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12591")
+    pdata_version = V("0.0.post12593")
 except ImportError:
     pass
-data_git_hash = "3a4fa3a334a4f721de713086ffb271af67104781"
-data_git_describe = "v0.0-12591-g3a4fa3a33"
+data_git_hash = "307059b0448b81cca10b290f7f0d03d1399f3182"
+data_git_describe = "v0.0-12593-g307059b04"
 data_git_msg = """\
-commit 3a4fa3a334a4f721de713086ffb271af67104781
-Author: Joshua Park <jeoong@google.com>
-Date:   Thu Jun 9 15:08:14 2022 -0700
+commit 307059b0448b81cca10b290f7f0d03d1399f3182
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Jun 10 12:47:23 2022 -0700
 
-    [dv|pwrmgr] added pwrmgr_deep_sleep_all_reset_reqs and pwrmgr_normal_sleep_all_reset_reqs
+    [dv] Remove workaround in the common mem test
     
-    Signed-off-by: Joshua Park <jeoong@google.com>
+    Removed workaround for #5262
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
