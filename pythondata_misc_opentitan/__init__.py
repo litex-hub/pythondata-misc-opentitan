@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12728"
-version_tuple = (0, 0, 12728)
+version_str = "0.0.post12729"
+version_tuple = (0, 0, 12729)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12728")
+    pversion = V("0.0.post12729")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12586"
-data_version_tuple = (0, 0, 12586)
+data_version_str = "0.0.post12587"
+data_version_tuple = (0, 0, 12587)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12586")
+    pdata_version = V("0.0.post12587")
 except ImportError:
     pass
-data_git_hash = "f6c983f8d211e7d6e52cc494f1cacfd7ae9e5804"
-data_git_describe = "v0.0-12586-gf6c983f8d"
+data_git_hash = "87fc75187ad2a01b2e972ff7eb125cafadeaedde"
+data_git_describe = "v0.0-12587-g87fc75187"
 data_git_msg = """\
-commit f6c983f8d211e7d6e52cc494f1cacfd7ae9e5804
-Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
-Date:   Sun Jun 5 20:42:31 2022 +0100
+commit 87fc75187ad2a01b2e972ff7eb125cafadeaedde
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Jun 16 17:32:55 2022 +0100
 
-    [SPI_HOST/DV] SPI Host Status Stall
+    [otbn, rtl] Clarify multiple base RF WEs in predecoder
     
-    - Added Spi Host Status Stall Tx RX Test
-    - Restructured For Failing Seeds
-    - Added SB Support
-    - SB Support Reverted Fix Not Generic
-    - SB Fixed
-    
-    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
