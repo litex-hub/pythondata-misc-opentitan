@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12730"
-version_tuple = (0, 0, 12730)
+version_str = "0.0.post12731"
+version_tuple = (0, 0, 12731)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12730")
+    pversion = V("0.0.post12731")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12588"
-data_version_tuple = (0, 0, 12588)
+data_version_str = "0.0.post12589"
+data_version_tuple = (0, 0, 12589)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12588")
+    pdata_version = V("0.0.post12589")
 except ImportError:
     pass
-data_git_hash = "7de3ae517a990d6e1714779c5cb38e1b0dc35388"
-data_git_describe = "v0.0-12588-g7de3ae517"
+data_git_hash = "093a576c313bed2249efcd82322c447c8eb7252d"
+data_git_describe = "v0.0-12589-g093a576c3"
 data_git_msg = """\
-commit 7de3ae517a990d6e1714779c5cb38e1b0dc35388
-Author: Hugo McNally <hugo.mcnally@gmail.com>
-Date:   Fri Jun 17 12:46:28 2022 +0100
+commit 093a576c313bed2249efcd82322c447c8eb7252d
+Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+Date:   Fri Jun 10 13:16:13 2022 +0100
 
-    [dif, hmac] add unit test dif_hmac_get_message_length
+    [PWM/DV] Updated Scoreboard And Added Stress Test
     
-    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
+    - Modified The Scoreboard To Check Transction-By-Transaction
+    - Modified The Base Test To Accomodate Counter Overflow
+    
+    Signed-off-by: dharanendrak <dharanendra.kumar@ensilica.com>
+    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
 
 """
 
