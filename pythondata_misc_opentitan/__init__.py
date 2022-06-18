@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12737"
-version_tuple = (0, 0, 12737)
+version_str = "0.0.post12738"
+version_tuple = (0, 0, 12738)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12737")
+    pversion = V("0.0.post12738")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12595"
-data_version_tuple = (0, 0, 12595)
+data_version_str = "0.0.post12596"
+data_version_tuple = (0, 0, 12596)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12595")
+    pdata_version = V("0.0.post12596")
 except ImportError:
     pass
-data_git_hash = "69f0bbe00785ccc409b51919205204ffc02b5113"
-data_git_describe = "v0.0-12595-g69f0bbe007"
+data_git_hash = "a3562f8e2fbdecda849bb8a2d29f150ec3b21472"
+data_git_describe = "v0.0-12596-ga3562f8e2f"
 data_git_msg = """\
-commit 69f0bbe00785ccc409b51919205204ffc02b5113
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jun 15 17:44:40 2022 -0700
+commit a3562f8e2fbdecda849bb8a2d29f150ec3b21472
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Fri Jun 17 16:08:09 2022 -0400
 
-    [rv_core_ibex] Update to latest crash dump
+    [bazel/ci] mark e2e mask rom test flaky for better ci runs
     
-    Addresses some of the usability issues discovered in #12908
-    dependent on lowRISC/ibex#1680
+    also rerun the test when it stochastically fails.
     
-    The crash dump is now more representative of where the first and second exceptions occurred.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
