@@ -4,33 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12735"
-version_tuple = (0, 0, 12735)
+version_str = "0.0.post12736"
+version_tuple = (0, 0, 12736)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12735")
+    pversion = V("0.0.post12736")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12593"
-data_version_tuple = (0, 0, 12593)
+data_version_str = "0.0.post12594"
+data_version_tuple = (0, 0, 12594)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12593")
+    pdata_version = V("0.0.post12594")
 except ImportError:
     pass
-data_git_hash = "307059b0448b81cca10b290f7f0d03d1399f3182"
-data_git_describe = "v0.0-12593-g307059b04"
+data_git_hash = "bfb3da321b49a2f3d9271053e7d2e0d05f662503"
+data_git_describe = "v0.0-12594-gbfb3da321"
 data_git_msg = """\
-commit 307059b0448b81cca10b290f7f0d03d1399f3182
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Jun 10 12:47:23 2022 -0700
+commit bfb3da321b49a2f3d9271053e7d2e0d05f662503
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Jun 9 10:07:18 2022 -0700
 
-    [dv] Remove workaround in the common mem test
+    feat(ci): Skip FPGA/ OTBN tests for CDC
     
-    Removed workaround for #5262
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This commit let CI skip FPGA, verilator, OTBN tests for CDC only
+    changes.
+    
+    The cdconlychange log has been checked after
+    https://github.com/lowRISC/opentitan/pull/13117 has been merged.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
