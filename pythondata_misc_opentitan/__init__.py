@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12736"
-version_tuple = (0, 0, 12736)
+version_str = "0.0.post12737"
+version_tuple = (0, 0, 12737)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12736")
+    pversion = V("0.0.post12737")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12594"
-data_version_tuple = (0, 0, 12594)
+data_version_str = "0.0.post12595"
+data_version_tuple = (0, 0, 12595)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12594")
+    pdata_version = V("0.0.post12595")
 except ImportError:
     pass
-data_git_hash = "bfb3da321b49a2f3d9271053e7d2e0d05f662503"
-data_git_describe = "v0.0-12594-gbfb3da321"
+data_git_hash = "69f0bbe00785ccc409b51919205204ffc02b5113"
+data_git_describe = "v0.0-12595-g69f0bbe007"
 data_git_msg = """\
-commit bfb3da321b49a2f3d9271053e7d2e0d05f662503
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jun 9 10:07:18 2022 -0700
+commit 69f0bbe00785ccc409b51919205204ffc02b5113
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jun 15 17:44:40 2022 -0700
 
-    feat(ci): Skip FPGA/ OTBN tests for CDC
+    [rv_core_ibex] Update to latest crash dump
     
-    This commit let CI skip FPGA, verilator, OTBN tests for CDC only
-    changes.
+    Addresses some of the usability issues discovered in #12908
+    dependent on lowRISC/ibex#1680
     
-    The cdconlychange log has been checked after
-    https://github.com/lowRISC/opentitan/pull/13117 has been merged.
+    The crash dump is now more representative of where the first and second exceptions occurred.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
