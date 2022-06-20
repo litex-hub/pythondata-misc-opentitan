@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12738"
-version_tuple = (0, 0, 12738)
+version_str = "0.0.post12739"
+version_tuple = (0, 0, 12739)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12738")
+    pversion = V("0.0.post12739")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12596"
-data_version_tuple = (0, 0, 12596)
+data_version_str = "0.0.post12597"
+data_version_tuple = (0, 0, 12597)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12596")
+    pdata_version = V("0.0.post12597")
 except ImportError:
     pass
-data_git_hash = "a3562f8e2fbdecda849bb8a2d29f150ec3b21472"
-data_git_describe = "v0.0-12596-ga3562f8e2f"
+data_git_hash = "0bbd8c6911c0bddc1d7679c7373c2f02a39c2542"
+data_git_describe = "v0.0-12597-g0bbd8c6911"
 data_git_msg = """\
-commit a3562f8e2fbdecda849bb8a2d29f150ec3b21472
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Fri Jun 17 16:08:09 2022 -0400
+commit 0bbd8c6911c0bddc1d7679c7373c2f02a39c2542
+Author: Vladimir Rozic <vrozic@lowrisc.org>
+Date:   Tue Jun 7 12:52:35 2022 +0100
 
-    [bazel/ci] mark e2e mask rom test flaky for better ci runs
+    [sca] Batch-capture support for KMAC fixed-vs-random key.
     
-    also rerun the test when it stochastically fails.
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
 
 """
 
