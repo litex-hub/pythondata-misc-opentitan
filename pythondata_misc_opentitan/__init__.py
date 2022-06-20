@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12740"
-version_tuple = (0, 0, 12740)
+version_str = "0.0.post12741"
+version_tuple = (0, 0, 12741)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12740")
+    pversion = V("0.0.post12741")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12598"
-data_version_tuple = (0, 0, 12598)
+data_version_str = "0.0.post12599"
+data_version_tuple = (0, 0, 12599)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12598")
+    pdata_version = V("0.0.post12599")
 except ImportError:
     pass
-data_git_hash = "fccf3f49a519b8c225a6dc73dd34850a9863d5f8"
-data_git_describe = "v0.0-12598-gfccf3f49a5"
+data_git_hash = "f4ca836484b51ab398b67bbe0294bc9493fb66f5"
+data_git_describe = "v0.0-12599-gf4ca836484"
 data_git_msg = """\
-commit fccf3f49a519b8c225a6dc73dd34850a9863d5f8
-Author: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
-Date:   Fri Jun 17 11:58:53 2022 +0800
+commit f4ca836484b51ab398b67bbe0294bc9493fb66f5
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jun 13 13:47:22 2022 +0200
 
-    [sw,crypto] Update header against latest crypto spec
+    [top, fpga] Align Ibex configuration for English Breakfast
     
-    The header file is updated to be in sync with the latest crypto lib specification (as of 20Jun22)
+    This commit re-enables the BT ALU and WB stage on the CW305 (both
+    options help improving performance when using software PRNGs for SCA
+    experiments) and moves the disabling of the instruction cache to the
+    top hjson file to align the Verilator simulation with the FPGA.
     
-    Signed-off-by: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
