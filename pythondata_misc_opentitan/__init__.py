@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12739"
-version_tuple = (0, 0, 12739)
+version_str = "0.0.post12740"
+version_tuple = (0, 0, 12740)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12739")
+    pversion = V("0.0.post12740")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12597"
-data_version_tuple = (0, 0, 12597)
+data_version_str = "0.0.post12598"
+data_version_tuple = (0, 0, 12598)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12597")
+    pdata_version = V("0.0.post12598")
 except ImportError:
     pass
-data_git_hash = "0bbd8c6911c0bddc1d7679c7373c2f02a39c2542"
-data_git_describe = "v0.0-12597-g0bbd8c6911"
+data_git_hash = "fccf3f49a519b8c225a6dc73dd34850a9863d5f8"
+data_git_describe = "v0.0-12598-gfccf3f49a5"
 data_git_msg = """\
-commit 0bbd8c6911c0bddc1d7679c7373c2f02a39c2542
-Author: Vladimir Rozic <vrozic@lowrisc.org>
-Date:   Tue Jun 7 12:52:35 2022 +0100
+commit fccf3f49a519b8c225a6dc73dd34850a9863d5f8
+Author: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
+Date:   Fri Jun 17 11:58:53 2022 +0800
 
-    [sca] Batch-capture support for KMAC fixed-vs-random key.
+    [sw,crypto] Update header against latest crypto spec
     
-    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
+    The header file is updated to be in sync with the latest crypto lib specification (as of 20Jun22)
+    
+    Signed-off-by: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
 
 """
 
