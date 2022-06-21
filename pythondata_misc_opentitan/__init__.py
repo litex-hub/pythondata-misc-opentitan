@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12760"
-version_tuple = (0, 0, 12760)
+version_str = "0.0.post12763"
+version_tuple = (0, 0, 12763)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12760")
+    pversion = V("0.0.post12763")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12618"
-data_version_tuple = (0, 0, 12618)
+data_version_str = "0.0.post12621"
+data_version_tuple = (0, 0, 12621)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12618")
+    pdata_version = V("0.0.post12621")
 except ImportError:
     pass
-data_git_hash = "7c8a371fadb1ec856842406c11d49892138b1518"
-data_git_describe = "v0.0-12618-g7c8a371fad"
+data_git_hash = "146a13315d82a86f9fe587cefa19d8c360dfe98b"
+data_git_describe = "v0.0-12621-g146a13315d"
 data_git_msg = """\
-commit 7c8a371fadb1ec856842406c11d49892138b1518
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jun 16 22:47:05 2022 -0700
+commit 146a13315d82a86f9fe587cefa19d8c360dfe98b
+Author: Alexander Williams <awill@google.com>
+Date:   Tue Jun 21 08:24:29 2022 -0700
 
-    [sram, dv] Update intg_test_err
+    [pinmux/dif] Fix check for output selection arg
     
-    Aligned with design that detecting fault injection gates all mem access.
-    The access after FI won't be blocked but it causes a fatal alert
+    There are three fixed values (0, 1, Z) for the output mux, not just two.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
