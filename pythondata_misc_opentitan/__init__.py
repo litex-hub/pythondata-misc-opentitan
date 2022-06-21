@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12758"
-version_tuple = (0, 0, 12758)
+version_str = "0.0.post12759"
+version_tuple = (0, 0, 12759)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12758")
+    pversion = V("0.0.post12759")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12616"
-data_version_tuple = (0, 0, 12616)
+data_version_str = "0.0.post12617"
+data_version_tuple = (0, 0, 12617)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12616")
+    pdata_version = V("0.0.post12617")
 except ImportError:
     pass
-data_git_hash = "6cb41fe6d2d4cdcc941ca54c2f5e478e6a111869"
-data_git_describe = "v0.0-12616-g6cb41fe6d2"
+data_git_hash = "7022ad86cdd049cf0b2f6d202ef48d2b40db43b5"
+data_git_describe = "v0.0-12617-g7022ad86cd"
 data_git_msg = """\
-commit 6cb41fe6d2d4cdcc941ca54c2f5e478e6a111869
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Sat Jun 18 05:40:30 2022 -0700
+commit 7022ad86cdd049cf0b2f6d202ef48d2b40db43b5
+Author: Joshua Park <jeoong@google.com>
+Date:   Thu Jun 9 15:08:14 2022 -0700
 
-    [dv,chip] Format time in microseconds
+    [PRIM] new clock mux to prevent a glitch
     
-    Format time in microseconds losing no precision. The added "." makes it
-    easier to  determine the order of magnitude without counting digits, as
-    is needed if it was formatted as ps or ns.
-    
-    For example, time would be represented as "  333.333333 us" instead of
-    "   333333333 ps".
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Joshua Park <jeoong@google.com>
 
 """
 
