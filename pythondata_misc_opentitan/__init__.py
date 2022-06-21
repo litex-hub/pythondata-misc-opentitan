@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12763"
-version_tuple = (0, 0, 12763)
+version_str = "0.0.post12777"
+version_tuple = (0, 0, 12777)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12763")
+    pversion = V("0.0.post12777")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12621"
-data_version_tuple = (0, 0, 12621)
+data_version_str = "0.0.post12635"
+data_version_tuple = (0, 0, 12635)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12621")
+    pdata_version = V("0.0.post12635")
 except ImportError:
     pass
-data_git_hash = "146a13315d82a86f9fe587cefa19d8c360dfe98b"
-data_git_describe = "v0.0-12621-g146a13315d"
+data_git_hash = "11984ce01ecdac82d21573454ff2d3610e10d95d"
+data_git_describe = "v0.0-12635-g11984ce01e"
 data_git_msg = """\
-commit 146a13315d82a86f9fe587cefa19d8c360dfe98b
-Author: Alexander Williams <awill@google.com>
-Date:   Tue Jun 21 08:24:29 2022 -0700
+commit 11984ce01ecdac82d21573454ff2d3610e10d95d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jun 10 11:59:47 2022 -0700
 
-    [pinmux/dif] Fix check for output selection arg
+    [dv/chip] Fix same_csr_outstanding error
     
-    There are three fixed values (0, 1, Z) for the output mux, not just two.
+    This PR fixes a csr outstanding error from pwrmgr, looks like it is
+    excluded from block level already. And looking at the description from
+    the hjson file, I think we mean to put a write exclude instead of a
+    read exclude.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
