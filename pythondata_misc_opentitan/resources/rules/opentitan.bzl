@@ -72,7 +72,6 @@ obj_transform = rv_rule(
 )
 
 def _sign_bin_impl(ctx):
-    outputs = []
     signed_image = ctx.actions.declare_file(
         "{0}.{1}.signed.bin".format(
             # Remove ".bin" from file basename.
@@ -80,22 +79,30 @@ def _sign_bin_impl(ctx):
             ctx.attr.key_name,
         ),
     )
-    outputs.append(signed_image)
+    outputs = [signed_image]
+
+    inputs = [
+        ctx.file.bin,
+        ctx.file.key,
+        ctx.file._tool,
+    ]
+    manifest = []
+    if ctx.file.manifest:
+        manifest = ["--manifest={}".format(ctx.file.manifest.path)]
+        inputs.append(ctx.file.manifest)
+
     ctx.actions.run(
-        outputs = [signed_image],
-        inputs = [
-            ctx.file.bin,
-            ctx.file.elf,
-            ctx.file.key,
-            ctx.file._tool,
-        ],
+        outputs = outputs,
+        inputs = inputs,
         arguments = [
-            "rom_ext",
+            "image",
+            "manifest",
+            "update",
+            "--key-file={}".format(ctx.file.key.path),
+            "--sign",
+            "--output={}".format(signed_image.path),
             ctx.file.bin.path,
-            ctx.file.key.path,
-            ctx.file.elf.path,
-            signed_image.path,
-        ],
+        ] + manifest,
         executable = ctx.file._tool.path,
     )
     return [DefaultInfo(
@@ -107,17 +114,17 @@ sign_bin = rv_rule(
     implementation = _sign_bin_impl,
     attrs = {
         "bin": attr.label(allow_single_file = True),
-        "elf": attr.label(allow_single_file = True),
         "key": attr.label(
             default = "@//sw/device/silicon_creator/mask_rom/keys:test_private_key_0",
             allow_single_file = True,
         ),
         "key_name": attr.string(),
+        "manifest": attr.label(allow_single_file = True),
         # TODO(lowRISC/opentitan:#11199): explore other options to side-step the
         # need for this transition, in order to build the ROM_EXT signer tool.
         "platform": attr.string(default = "@local_config_platform//:host"),
         "_tool": attr.label(
-            default = "@//sw/host/rom_ext_image_tools/signer:rom_ext_signer",
+            default = "//sw/host/opentitantool:opentitantool",
             allow_single_file = True,
         ),
     },
@@ -565,6 +572,7 @@ def opentitan_flash_binary(
         per_device_deps = PER_DEVICE_DEPS,
         extract_sw_logs_db = True,
         output_signed = False,
+        manifest = None,
         **kwargs):
     """A helper macro for generating OpenTitan binary artifacts for flash.
 
@@ -614,7 +622,6 @@ def opentitan_flash_binary(
             extract_sw_logs_db = extract_sw_logs_db and device.startswith("sim_"),
             **kwargs
         ))
-        elf_name = "{}_{}".format(devname, "elf")
         bin_name = "{}_{}".format(devname, "bin")
 
         # Sign BIN (if required) and generate scrambled VMEM images.
@@ -626,9 +633,9 @@ def opentitan_flash_binary(
                 sign_bin(
                     name = signed_bin_name,
                     bin = bin_name,
-                    elf = elf_name,
                     key = key,
                     key_name = key_name,
+                    manifest = manifest,
                 )
 
                 # Generate a VMEM64 from the signed binary.

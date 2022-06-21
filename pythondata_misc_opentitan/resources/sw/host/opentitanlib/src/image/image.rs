@@ -137,6 +137,14 @@ impl Image {
         Ok(manifest)
     }
 
+    /// Updates the length field in the `Manifest` to the length of the image.
+    pub fn update_length(&mut self) -> Result<usize> {
+        let length = self.size as u32;
+        let m = self.borrow_manifest_mut()?;
+        m.length = length;
+        Ok(self.size)
+    }
+
     /// Compute the SHA256 digest for the signed portion of the `Image`.
     pub fn compute_digest(&self) -> sha256::Sha256Digest {
         sha256::sha256(&self.data.bytes[offset_of!(Manifest, usage_constraints)..self.size])
