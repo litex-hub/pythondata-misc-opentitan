@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12742"
-version_tuple = (0, 0, 12742)
+version_str = "0.0.post12746"
+version_tuple = (0, 0, 12746)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12742")
+    pversion = V("0.0.post12746")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12600"
-data_version_tuple = (0, 0, 12600)
+data_version_str = "0.0.post12604"
+data_version_tuple = (0, 0, 12604)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12600")
+    pdata_version = V("0.0.post12604")
 except ImportError:
     pass
-data_git_hash = "9cc70b8f98fbac0ae61254463ab4d19cff982d70"
-data_git_describe = "v0.0-12600-g9cc70b8f98"
+data_git_hash = "87828fd8a08cda12924cfe7eb59d3b69bc2dd802"
+data_git_describe = "v0.0-12604-g87828fd8a0"
 data_git_msg = """\
-commit 9cc70b8f98fbac0ae61254463ab4d19cff982d70
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Fri May 27 15:37:24 2022 +0100
+commit 87828fd8a08cda12924cfe7eb59d3b69bc2dd802
+Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
+Date:   Wed Jun 15 14:22:37 2022 +0100
 
-    [otbn, dv] Fixed regression issue in otbn_illegal_mem_acc
+    [doc] Add doc index for third_party folder
     
-    This commit disables compare check that happens in the memory model
-    whenever an illegal access is done to the imem / dmem while the otbn is
-    busy executing instructions.
-    
-    it also disables end address check inside run_otbn task.
-    
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
 
 """
 
