@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12741"
-version_tuple = (0, 0, 12741)
+version_str = "0.0.post12742"
+version_tuple = (0, 0, 12742)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12741")
+    pversion = V("0.0.post12742")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12599"
-data_version_tuple = (0, 0, 12599)
+data_version_str = "0.0.post12600"
+data_version_tuple = (0, 0, 12600)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12599")
+    pdata_version = V("0.0.post12600")
 except ImportError:
     pass
-data_git_hash = "f4ca836484b51ab398b67bbe0294bc9493fb66f5"
-data_git_describe = "v0.0-12599-gf4ca836484"
+data_git_hash = "9cc70b8f98fbac0ae61254463ab4d19cff982d70"
+data_git_describe = "v0.0-12600-g9cc70b8f98"
 data_git_msg = """\
-commit f4ca836484b51ab398b67bbe0294bc9493fb66f5
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Jun 13 13:47:22 2022 +0200
+commit 9cc70b8f98fbac0ae61254463ab4d19cff982d70
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Fri May 27 15:37:24 2022 +0100
 
-    [top, fpga] Align Ibex configuration for English Breakfast
+    [otbn, dv] Fixed regression issue in otbn_illegal_mem_acc
     
-    This commit re-enables the BT ALU and WB stage on the CW305 (both
-    options help improving performance when using software PRNGs for SCA
-    experiments) and moves the disabling of the instruction cache to the
-    top hjson file to align the Verilator simulation with the FPGA.
+    This commit disables compare check that happens in the memory model
+    whenever an illegal access is done to the imem / dmem while the otbn is
+    busy executing instructions.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    it also disables end address check inside run_otbn task.
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
