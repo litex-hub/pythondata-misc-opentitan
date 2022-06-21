@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12746"
-version_tuple = (0, 0, 12746)
+version_str = "0.0.post12752"
+version_tuple = (0, 0, 12752)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12746")
+    pversion = V("0.0.post12752")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12604"
-data_version_tuple = (0, 0, 12604)
+data_version_str = "0.0.post12610"
+data_version_tuple = (0, 0, 12610)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12604")
+    pdata_version = V("0.0.post12610")
 except ImportError:
     pass
-data_git_hash = "87828fd8a08cda12924cfe7eb59d3b69bc2dd802"
-data_git_describe = "v0.0-12604-g87828fd8a0"
+data_git_hash = "47dc84b5279fe7cd6a00c2a132837e0b5e56bb25"
+data_git_describe = "v0.0-12610-g47dc84b527"
 data_git_msg = """\
-commit 87828fd8a08cda12924cfe7eb59d3b69bc2dd802
-Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
-Date:   Wed Jun 15 14:22:37 2022 +0100
+commit 47dc84b5279fe7cd6a00c2a132837e0b5e56bb25
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Jun 16 16:38:08 2022 -0700
 
-    [doc] Add doc index for third_party folder
+    [ottool] Fold the `sign` command into `manifest update`
     
-    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
+    1. Add signing functionality to `manifest update`, as the requirments
+       of `sign` include a manifest update.
+    2. Rename `--hjson_file` to `--manifest`.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
