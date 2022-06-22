@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12783"
-version_tuple = (0, 0, 12783)
+version_str = "0.0.post12785"
+version_tuple = (0, 0, 12785)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12783")
+    pversion = V("0.0.post12785")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12641"
-data_version_tuple = (0, 0, 12641)
+data_version_str = "0.0.post12643"
+data_version_tuple = (0, 0, 12643)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12641")
+    pdata_version = V("0.0.post12643")
 except ImportError:
     pass
-data_git_hash = "16da7b69aa3869bf8a391f123f4237937fa5ced6"
-data_git_describe = "v0.0-12641-g16da7b69aa"
+data_git_hash = "a9f679394bdcb5fbb388145b1c605da6cab022a5"
+data_git_describe = "v0.0-12643-ga9f679394b"
 data_git_msg = """\
-commit 16da7b69aa3869bf8a391f123f4237937fa5ced6
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Sat Jun 11 14:02:21 2022 +0200
+commit a9f679394bdcb5fbb388145b1c605da6cab022a5
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jun 15 14:27:02 2022 -0400
 
-    [alert_handler] Re-arm crashdump latching mechanism upon esc clear
+    [bazel] pwrmgr_deep_sleep_all_wake_ups isn't broken on other platforms
     
-    Fixes #13026
-    
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
