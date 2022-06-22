@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12778"
-version_tuple = (0, 0, 12778)
+version_str = "0.0.post12779"
+version_tuple = (0, 0, 12779)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12778")
+    pversion = V("0.0.post12779")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12636"
-data_version_tuple = (0, 0, 12636)
+data_version_str = "0.0.post12637"
+data_version_tuple = (0, 0, 12637)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12636")
+    pdata_version = V("0.0.post12637")
 except ImportError:
     pass
-data_git_hash = "67808954756a2e09ef128bdb67187d0cd9e3db14"
-data_git_describe = "v0.0-12636-g6780895475"
+data_git_hash = "5b4768ea0836cd694f70e93d92c53f69e1896487"
+data_git_describe = "v0.0-12637-g5b4768ea08"
 data_git_msg = """\
-commit 67808954756a2e09ef128bdb67187d0cd9e3db14
-Author: Jon Flatley <jflat@google.com>
-Date:   Tue Jun 21 11:44:37 2022 -0400
+commit 5b4768ea0836cd694f70e93d92c53f69e1896487
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Jun 16 08:09:27 2022 -0400
 
-    [sw] Remove mundane + boringssl
+    [sw/silicon_creator] Add device_fpga_version_print()
     
-    Since the move to the rsa crypto crate in opentitanlib and the removal
-    of rom_ext_image_signer we are no longer dependent on mundane. Remove
-    mundane and its boringssl dependency.
+    [sw/silicon_creator] Add device_fpga_version_print()
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    This commit moves the code that the prints the fpga version in
+    `test_rom` and `mask_rom` so that we can customize it for the target
+    platform, i.e. NOP unless building for an FPGA.
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
