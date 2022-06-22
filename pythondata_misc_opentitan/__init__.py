@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12777"
-version_tuple = (0, 0, 12777)
+version_str = "0.0.post12778"
+version_tuple = (0, 0, 12778)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12777")
+    pversion = V("0.0.post12778")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12635"
-data_version_tuple = (0, 0, 12635)
+data_version_str = "0.0.post12636"
+data_version_tuple = (0, 0, 12636)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12635")
+    pdata_version = V("0.0.post12636")
 except ImportError:
     pass
-data_git_hash = "11984ce01ecdac82d21573454ff2d3610e10d95d"
-data_git_describe = "v0.0-12635-g11984ce01e"
+data_git_hash = "67808954756a2e09ef128bdb67187d0cd9e3db14"
+data_git_describe = "v0.0-12636-g6780895475"
 data_git_msg = """\
-commit 11984ce01ecdac82d21573454ff2d3610e10d95d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jun 10 11:59:47 2022 -0700
+commit 67808954756a2e09ef128bdb67187d0cd9e3db14
+Author: Jon Flatley <jflat@google.com>
+Date:   Tue Jun 21 11:44:37 2022 -0400
 
-    [dv/chip] Fix same_csr_outstanding error
+    [sw] Remove mundane + boringssl
     
-    This PR fixes a csr outstanding error from pwrmgr, looks like it is
-    excluded from block level already. And looking at the description from
-    the hjson file, I think we mean to put a write exclude instead of a
-    read exclude.
+    Since the move to the rsa crypto crate in opentitanlib and the removal
+    of rom_ext_image_signer we are no longer dependent on mundane. Remove
+    mundane and its boringssl dependency.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
