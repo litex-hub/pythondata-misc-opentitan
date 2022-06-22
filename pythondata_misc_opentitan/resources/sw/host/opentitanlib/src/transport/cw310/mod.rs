@@ -201,6 +201,8 @@ impl Transport for CW310 {
                 // Reset is active low, sleep, then drive high.
                 reset_pin.write(false)?;
                 std::thread::sleep(fpga_program.rom_reset_pulse);
+                // Also clear the UART RX buffer for improved robustness.
+                uart.clear_rx_buffer()?;
                 reset_pin.write(true)?;
 
                 // Now read the uart until the ROM prints it's version.
@@ -220,7 +222,7 @@ impl Transport for CW310 {
                 fpga_program.progress.as_ref().map(Box::as_ref),
             )?;
             Ok(None)
-        } else if let Some(_set_pll) = action.downcast_ref::<SetPll>() {
+        } else if let Some(_) = action.downcast_ref::<SetPll>() {
             const TARGET_FREQ: u32 = 100_000_000;
             let usb = self.device.borrow();
             usb.pll_enable(true)?;
