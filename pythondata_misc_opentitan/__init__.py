@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12779"
-version_tuple = (0, 0, 12779)
+version_str = "0.0.post12780"
+version_tuple = (0, 0, 12780)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12779")
+    pversion = V("0.0.post12780")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12637"
-data_version_tuple = (0, 0, 12637)
+data_version_str = "0.0.post12638"
+data_version_tuple = (0, 0, 12638)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12637")
+    pdata_version = V("0.0.post12638")
 except ImportError:
     pass
-data_git_hash = "5b4768ea0836cd694f70e93d92c53f69e1896487"
-data_git_describe = "v0.0-12637-g5b4768ea08"
+data_git_hash = "87062e69f17ddc7a4f641796e2cc09d36e13176c"
+data_git_describe = "v0.0-12638-g87062e69f1"
 data_git_msg = """\
-commit 5b4768ea0836cd694f70e93d92c53f69e1896487
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Jun 16 08:09:27 2022 -0400
+commit 87062e69f17ddc7a4f641796e2cc09d36e13176c
+Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+Date:   Tue Jun 21 14:30:34 2022 +0100
 
-    [sw/silicon_creator] Add device_fpga_version_print()
+    [PWM/DV] Updated Checker For issue #13200
     
-    [sw/silicon_creator] Add device_fpga_version_print()
+      Updated pwm_scoreboard.sv to accomodate the changes in RTL
+      For the issue #13200
     
-    This commit moves the code that the prints the fpga version in
-    `test_rom` and `mask_rom` so that we can customize it for the target
-    platform, i.e. NOP unless building for an FPGA.
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
 
 """
 
