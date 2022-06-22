@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12786"
-version_tuple = (0, 0, 12786)
+version_str = "0.0.post12787"
+version_tuple = (0, 0, 12787)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12786")
+    pversion = V("0.0.post12787")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12644"
-data_version_tuple = (0, 0, 12644)
+data_version_str = "0.0.post12645"
+data_version_tuple = (0, 0, 12645)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12644")
+    pdata_version = V("0.0.post12645")
 except ImportError:
     pass
-data_git_hash = "7dfc681a138e2eb4773dec309744a823d20ef2fe"
-data_git_describe = "v0.0-12644-g7dfc681a13"
+data_git_hash = "357d9fbc93d827812e22ea9350476cf210a80eb1"
+data_git_describe = "v0.0-12645-g357d9fbc93"
 data_git_msg = """\
-commit 7dfc681a138e2eb4773dec309744a823d20ef2fe
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jun 21 16:21:25 2022 -0700
+commit 357d9fbc93d827812e22ea9350476cf210a80eb1
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jun 16 22:38:11 2022 -0700
 
-    [dv,chip,clk_measurements] Streamline testutils
+    [dv] Add assertion to check reg_we onehot error leads to a fatal alert
     
-    Put all the logic to determine the expected cycle counts in testutils.
-    Tighten up ast_clk_outs test by running with calibrated USB clock.
-    Fix the dif bit assignment of the clkmgr RECOV_ERR_CODE CSR.
-    Modify tests that measure cycle counts for the changes in testutils.
+    1. add assertions in prim_onehot_check to ensure the block that uses
+       onehot_check always has this alert check assertion.
+    2. add alert check assertion for all block
+    3. alert_handler and ast doesn't trigger an alert, check the error
+       triggers another error
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
