@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12782"
-version_tuple = (0, 0, 12782)
+version_str = "0.0.post12783"
+version_tuple = (0, 0, 12783)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12782")
+    pversion = V("0.0.post12783")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12640"
-data_version_tuple = (0, 0, 12640)
+data_version_str = "0.0.post12641"
+data_version_tuple = (0, 0, 12641)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12640")
+    pdata_version = V("0.0.post12641")
 except ImportError:
     pass
-data_git_hash = "c663c108c51ff3179395eb36a69b675bbd075af5"
-data_git_describe = "v0.0-12640-gc663c108c5"
+data_git_hash = "16da7b69aa3869bf8a391f123f4237937fa5ced6"
+data_git_describe = "v0.0-12641-g16da7b69aa"
 data_git_msg = """\
-commit c663c108c51ff3179395eb36a69b675bbd075af5
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Jun 21 23:43:22 2022 -0400
+commit 16da7b69aa3869bf8a391f123f4237937fa5ced6
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Sat Jun 11 14:02:21 2022 +0200
 
-    [lib] Fix hardened memory functions
+    [alert_handler] Re-arm crashdump latching mechanism upon esc clear
     
-    All three functions had the same bug: The second argument of
-    `ct_sltuw()` should have been in bytes not words.
+    Fixes #13026
     
-    Fixes #12350
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
