@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12787"
-version_tuple = (0, 0, 12787)
+version_str = "0.0.post12793"
+version_tuple = (0, 0, 12793)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12787")
+    pversion = V("0.0.post12793")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12645"
-data_version_tuple = (0, 0, 12645)
+data_version_str = "0.0.post12651"
+data_version_tuple = (0, 0, 12651)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12645")
+    pdata_version = V("0.0.post12651")
 except ImportError:
     pass
-data_git_hash = "357d9fbc93d827812e22ea9350476cf210a80eb1"
-data_git_describe = "v0.0-12645-g357d9fbc93"
+data_git_hash = "4f93cd7465c9ffa1491cd42041c6dbff62a7fd8c"
+data_git_describe = "v0.0-12651-g4f93cd7465"
 data_git_msg = """\
-commit 357d9fbc93d827812e22ea9350476cf210a80eb1
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jun 16 22:38:11 2022 -0700
+commit 4f93cd7465c9ffa1491cd42041c6dbff62a7fd8c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Jun 21 16:46:45 2022 -0700
 
-    [dv] Add assertion to check reg_we onehot error leads to a fatal alert
+    [top] Update jitter enable
     
-    1. add assertions in prim_onehot_check to ensure the block that uses
-       onehot_check always has this alert check assertion.
-    2. add alert check assertion for all block
-    3. alert_handler and ast doesn't trigger an alert, check the error
-       triggers another error
+    - backdoor load otp value based on jitter_en arg
+    - also add default values for jitter_en in the otp hjsons
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
