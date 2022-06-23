@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12805"
-version_tuple = (0, 0, 12805)
+version_str = "0.0.post12806"
+version_tuple = (0, 0, 12806)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12805")
+    pversion = V("0.0.post12806")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12663"
-data_version_tuple = (0, 0, 12663)
+data_version_str = "0.0.post12664"
+data_version_tuple = (0, 0, 12664)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12663")
+    pdata_version = V("0.0.post12664")
 except ImportError:
     pass
-data_git_hash = "cbb0b97ba6f4452b8c36161d25a7d744ea486c32"
-data_git_describe = "v0.0-12663-gcbb0b97ba6"
+data_git_hash = "1e4c69cf1e0bbe4aebd3e3a8c1f8673860964cbb"
+data_git_describe = "v0.0-12664-g1e4c69cf1e"
 data_git_msg = """\
-commit cbb0b97ba6f4452b8c36161d25a7d744ea486c32
-Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
-Date:   Thu Jun 23 14:55:30 2022 +0100
+commit 1e4c69cf1e0bbe4aebd3e3a8c1f8673860964cbb
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Wed Jun 22 23:04:46 2022 +0100
 
-    [otbn,dv] Fix reference to start secure wipe
+    [SPI/DV] Regression Failure Fixes And Testplan Update
     
-    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
+    - Fixed regression failures
+    - Testplan update for unmapped tests
+    
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
