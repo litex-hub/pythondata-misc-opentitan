@@ -223,8 +223,7 @@ module otbn_core
   logic        state_reset;
   logic [31:0] insn_cnt;
 
-  logic start_secure_wipe;
-  logic secure_wipe_done;
+  logic secure_wipe_req, secure_wipe_ack;
 
   logic sec_wipe_wdr_d, sec_wipe_wdr_q;
   logic sec_wipe_wdr_urnd_d, sec_wipe_wdr_urnd_q;
@@ -249,7 +248,7 @@ module otbn_core
 
   core_err_bits_t err_bits_q, err_bits_d;
 
-  logic start_stop_internal_error;
+  logic start_stop_fatal_error;
   logic rf_bignum_predec_error, alu_bignum_predec_error, ispr_predec_error, mac_bignum_predec_error;
   logic controller_predec_error;
   logic rd_predec_error, predec_error;
@@ -271,8 +270,8 @@ module otbn_core
     .urnd_reseed_ack_i (urnd_reseed_ack),
     .urnd_advance_o    (urnd_advance_start_stop_control),
 
-    .start_secure_wipe_i (start_secure_wipe),
-    .secure_wipe_done_o  (secure_wipe_done),
+    .secure_wipe_req_i (secure_wipe_req),
+    .secure_wipe_ack_o (secure_wipe_ack),
     .done_o,
 
     .sec_wipe_wdr_o      (sec_wipe_wdr_d),
@@ -285,9 +284,9 @@ module otbn_core
     .sec_wipe_mod_urnd_o(sec_wipe_mod_urnd),
     .sec_wipe_zero_o    (sec_wipe_zero),
 
-    .ispr_init_o     (ispr_init),
-    .state_reset_o   (state_reset),
-    .internal_error_o(start_stop_internal_error)
+    .ispr_init_o  (ispr_init),
+    .state_reset_o(state_reset),
+    .fatal_error_o(start_stop_fatal_error)
   );
 
   // Depending on its usage, the instruction address (program counter) is qualified by two valid
@@ -497,9 +496,9 @@ module otbn_core
     .rnd_valid_i       (rnd_valid),
 
     // Secure wipe
-    .start_secure_wipe_o (start_secure_wipe),
-    .secure_wipe_done_i  (secure_wipe_done),
-    .sec_wipe_zero_i     (sec_wipe_zero),
+    .secure_wipe_req_o (secure_wipe_req),
+    .secure_wipe_ack_i (secure_wipe_ack),
+    .sec_wipe_zero_i   (sec_wipe_zero),
 
     .state_reset_i(state_reset),
     .insn_cnt_o   (insn_cnt),
@@ -540,7 +539,7 @@ module otbn_core
   assign err_bits_d = '{
     fatal_software:      controller_err_bits.fatal_software,
     bad_internal_state:  |{controller_err_bits.bad_internal_state,
-                           start_stop_internal_error,
+                           start_stop_fatal_error,
                            urnd_all_zero,
                            predec_error,
                            insn_addr_err},
@@ -576,7 +575,7 @@ module otbn_core
   // appears somewhere in err_bits_o above (checked in ErrBitsIfControllerEscalate_A)
   assign controller_fatal_escalate_en =
       mubi4_or_hi(escalate_en_i,
-                  mubi4_bool_to_mubi(|{start_stop_internal_error, urnd_all_zero, predec_error,
+                  mubi4_bool_to_mubi(|{start_stop_fatal_error, urnd_all_zero, predec_error,
                                        rf_base_rf_err, lsu_rdata_err, insn_fetch_err,
                                        non_controller_reg_intg_violation}));
 
@@ -819,7 +818,7 @@ module otbn_core
     .rst_ni,
 
     .opn_start_i (controller_start),
-    .opn_end_i   (start_secure_wipe),
+    .opn_end_i   (secure_wipe_req),
 
     .rnd_req_i         (rnd_req),
     .rnd_prefetch_req_i(rnd_prefetch_req),
