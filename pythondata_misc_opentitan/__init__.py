@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12815"
-version_tuple = (0, 0, 12815)
+version_str = "0.0.post12816"
+version_tuple = (0, 0, 12816)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12815")
+    pversion = V("0.0.post12816")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12673"
-data_version_tuple = (0, 0, 12673)
+data_version_str = "0.0.post12674"
+data_version_tuple = (0, 0, 12674)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12673")
+    pdata_version = V("0.0.post12674")
 except ImportError:
     pass
-data_git_hash = "5d99252e897ffd5d1a4d7f18c43dd574653c4d6e"
-data_git_describe = "v0.0-12673-g5d99252e89"
+data_git_hash = "c6f17697b223ea7db872e0d62115a9e937e2fbd4"
+data_git_describe = "v0.0-12674-gc6f17697b2"
 data_git_msg = """\
-commit 5d99252e897ffd5d1a4d7f18c43dd574653c4d6e
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 23 08:14:05 2022 -0700
+commit c6f17697b223ea7db872e0d62115a9e937e2fbd4
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Wed Jun 22 14:53:42 2022 -0400
 
-    [dv,chip,sva] Fix SVA checking pwrmgr to rstmgs reset requests
+    [util] Add util/generate_compilation_db.py
     
-    The escalation request assertion needs to use the slow clock, since using
-    other clocks makes it prone to timing out.
-    Remove calls to disable these assertions, since they don't fail with this
-    change.
-    Make many formatting changes for verible.
+    This script generates compile_commands.json.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
