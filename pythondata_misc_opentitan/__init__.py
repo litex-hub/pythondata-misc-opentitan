@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12798"
-version_tuple = (0, 0, 12798)
+version_str = "0.0.post12799"
+version_tuple = (0, 0, 12799)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12798")
+    pversion = V("0.0.post12799")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12656"
-data_version_tuple = (0, 0, 12656)
+data_version_str = "0.0.post12657"
+data_version_tuple = (0, 0, 12657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12656")
+    pdata_version = V("0.0.post12657")
 except ImportError:
     pass
-data_git_hash = "0799e400076f71fdcdab19bbb0da27240c8e5b83"
-data_git_describe = "v0.0-12656-g0799e40007"
+data_git_hash = "6fa05ce5b92e8e1f7ab5bb9e99e635f2b9118a8d"
+data_git_describe = "v0.0-12657-g6fa05ce5b9"
 data_git_msg = """\
-commit 0799e400076f71fdcdab19bbb0da27240c8e5b83
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Jun 22 15:30:16 2022 -0400
+commit 6fa05ce5b92e8e1f7ab5bb9e99e635f2b9118a8d
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Thu Jun 23 09:30:31 2022 +0100
 
-    [sw/silicon_creator] Move gp init earlier to eliminate several jalr instructions
+    [otbn,dv] Tweak condition that dumps OTBN state in verilator sim
     
-    This improves our resistance to FI since `jal` instructions use an
-    immediate while `jalr` instructions use an additional register which can
-    also be attacked.
+    This version ensures the final state (before secure wipe) gets dumped
+    out on termination by an error as well as termination by ecall
     
-    This commit also removes the line that resets `gp` (`x3`) to 0 since
-    `gp` is initialized earlier now.
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
