@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12796"
-version_tuple = (0, 0, 12796)
+version_str = "0.0.post12797"
+version_tuple = (0, 0, 12797)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12796")
+    pversion = V("0.0.post12797")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12654"
-data_version_tuple = (0, 0, 12654)
+data_version_str = "0.0.post12655"
+data_version_tuple = (0, 0, 12655)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12654")
+    pdata_version = V("0.0.post12655")
 except ImportError:
     pass
-data_git_hash = "776116b731f21d922195187233be5c02db7b238c"
-data_git_describe = "v0.0-12654-g776116b731"
+data_git_hash = "85d5126183fae9084c9626d890d76b7859d9d89e"
+data_git_describe = "v0.0-12655-g85d5126183"
 data_git_msg = """\
-commit 776116b731f21d922195187233be5c02db7b238c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jun 22 20:55:46 2022 -0700
+commit 85d5126183fae9084c9626d890d76b7859d9d89e
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Fri Mar 11 12:19:58 2022 +0000
 
-    [top/autogen] Add missing autogen file
+    [otbn] Remove SecWipeEn configuration machinery
     
-    - an autogen update was missed, possibly due to PR's crossing.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
