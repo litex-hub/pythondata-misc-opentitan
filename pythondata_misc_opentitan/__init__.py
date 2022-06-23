@@ -4,30 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12802"
-version_tuple = (0, 0, 12802)
+version_str = "0.0.post12804"
+version_tuple = (0, 0, 12804)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12802")
+    pversion = V("0.0.post12804")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12660"
-data_version_tuple = (0, 0, 12660)
+data_version_str = "0.0.post12662"
+data_version_tuple = (0, 0, 12662)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12660")
+    pdata_version = V("0.0.post12662")
 except ImportError:
     pass
-data_git_hash = "013c4d7d5cdfead5c71ba8a387567ff1ab71d708"
-data_git_describe = "v0.0-12660-g013c4d7d5c"
+data_git_hash = "c1e8b95ccd95ecdcac82ba5e20c63dd4ed3c5963"
+data_git_describe = "v0.0-12662-gc1e8b95ccd"
 data_git_msg = """\
-commit 013c4d7d5cdfead5c71ba8a387567ff1ab71d708
+commit c1e8b95ccd95ecdcac82ba5e20c63dd4ed3c5963
 Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Wed May 11 17:12:22 2022 +0100
+Date:   Fri May 27 23:33:26 2022 +0100
 
-    [otbn,rtl] Add fault detection to controller req/ack interface
+    [otbn] Remove un-needed Verilator waiver
+    
+    This isn't needed now that we've refactored how error bits get passed
+    around.
     
     Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
