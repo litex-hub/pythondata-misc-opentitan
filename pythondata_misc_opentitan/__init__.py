@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12804"
-version_tuple = (0, 0, 12804)
+version_str = "0.0.post12805"
+version_tuple = (0, 0, 12805)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12804")
+    pversion = V("0.0.post12805")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12662"
-data_version_tuple = (0, 0, 12662)
+data_version_str = "0.0.post12663"
+data_version_tuple = (0, 0, 12663)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12662")
+    pdata_version = V("0.0.post12663")
 except ImportError:
     pass
-data_git_hash = "c1e8b95ccd95ecdcac82ba5e20c63dd4ed3c5963"
-data_git_describe = "v0.0-12662-gc1e8b95ccd"
+data_git_hash = "cbb0b97ba6f4452b8c36161d25a7d744ea486c32"
+data_git_describe = "v0.0-12663-gcbb0b97ba6"
 data_git_msg = """\
-commit c1e8b95ccd95ecdcac82ba5e20c63dd4ed3c5963
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Fri May 27 23:33:26 2022 +0100
+commit cbb0b97ba6f4452b8c36161d25a7d744ea486c32
+Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
+Date:   Thu Jun 23 14:55:30 2022 +0100
 
-    [otbn] Remove un-needed Verilator waiver
+    [otbn,dv] Fix reference to start secure wipe
     
-    This isn't needed now that we've refactored how error bits get passed
-    around.
-    
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
+    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
 
 """
 
