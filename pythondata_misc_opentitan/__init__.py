@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12816"
-version_tuple = (0, 0, 12816)
+version_str = "0.0.post12817"
+version_tuple = (0, 0, 12817)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12816")
+    pversion = V("0.0.post12817")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12674"
-data_version_tuple = (0, 0, 12674)
+data_version_str = "0.0.post12675"
+data_version_tuple = (0, 0, 12675)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12674")
+    pdata_version = V("0.0.post12675")
 except ImportError:
     pass
-data_git_hash = "c6f17697b223ea7db872e0d62115a9e937e2fbd4"
-data_git_describe = "v0.0-12674-gc6f17697b2"
+data_git_hash = "261fab5ec4e62d5ef7b83bb870631d233c2eebf5"
+data_git_describe = "v0.0-12675-g261fab5ec4"
 data_git_msg = """\
-commit c6f17697b223ea7db872e0d62115a9e937e2fbd4
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Jun 22 14:53:42 2022 -0400
+commit 261fab5ec4e62d5ef7b83bb870631d233c2eebf5
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Jun 21 13:49:19 2022 -0700
 
-    [util] Add util/generate_compilation_db.py
+    [chip, dv] Fix keymgr_key_derivation build error
     
-    This script generates compile_commands.json.
+    also rename `keymgr_key_derivation` to `keymgr_key_derivation_test` so
+    that it's aligned with other tests
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
