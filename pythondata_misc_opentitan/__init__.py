@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12799"
-version_tuple = (0, 0, 12799)
+version_str = "0.0.post12802"
+version_tuple = (0, 0, 12802)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12799")
+    pversion = V("0.0.post12802")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12657"
-data_version_tuple = (0, 0, 12657)
+data_version_str = "0.0.post12660"
+data_version_tuple = (0, 0, 12660)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12657")
+    pdata_version = V("0.0.post12660")
 except ImportError:
     pass
-data_git_hash = "6fa05ce5b92e8e1f7ab5bb9e99e635f2b9118a8d"
-data_git_describe = "v0.0-12657-g6fa05ce5b9"
+data_git_hash = "013c4d7d5cdfead5c71ba8a387567ff1ab71d708"
+data_git_describe = "v0.0-12660-g013c4d7d5c"
 data_git_msg = """\
-commit 6fa05ce5b92e8e1f7ab5bb9e99e635f2b9118a8d
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Thu Jun 23 09:30:31 2022 +0100
+commit 013c4d7d5cdfead5c71ba8a387567ff1ab71d708
+Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
+Date:   Wed May 11 17:12:22 2022 +0100
 
-    [otbn,dv] Tweak condition that dumps OTBN state in verilator sim
+    [otbn,rtl] Add fault detection to controller req/ack interface
     
-    This version ensures the final state (before secure wipe) gets dumped
-    out on termination by an error as well as termination by ecall
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
 
 """
 
