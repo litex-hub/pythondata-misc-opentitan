@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12817"
-version_tuple = (0, 0, 12817)
+version_str = "0.0.post12825"
+version_tuple = (0, 0, 12825)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12817")
+    pversion = V("0.0.post12825")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12675"
-data_version_tuple = (0, 0, 12675)
+data_version_str = "0.0.post12683"
+data_version_tuple = (0, 0, 12683)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12675")
+    pdata_version = V("0.0.post12683")
 except ImportError:
     pass
-data_git_hash = "261fab5ec4e62d5ef7b83bb870631d233c2eebf5"
-data_git_describe = "v0.0-12675-g261fab5ec4"
+data_git_hash = "4bbb3434d86d75a4464c2a5e5e710ae8162dc9f6"
+data_git_describe = "v0.0-12683-g4bbb3434d8"
 data_git_msg = """\
-commit 261fab5ec4e62d5ef7b83bb870631d233c2eebf5
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Jun 21 13:49:19 2022 -0700
+commit 4bbb3434d86d75a4464c2a5e5e710ae8162dc9f6
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Jun 23 15:58:13 2022 -0400
 
-    [chip, dv] Fix keymgr_key_derivation build error
+    [rv_compliance] Update riscv compliance tests to 1.0
     
-    also rename `keymgr_key_derivation` to `keymgr_key_derivation_test` so
-    that it's aligned with other tests
+    This change updates the riscv compliances tests to 1.0 to fix the
+    access violation bugs in I-SB-01 and I-SH-01.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    See https://github.com/riscv-non-isa/riscv-arch-test/pull/104 for more
+    details.
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
