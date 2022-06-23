@@ -4,33 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12793"
-version_tuple = (0, 0, 12793)
+version_str = "0.0.post12795"
+version_tuple = (0, 0, 12795)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12793")
+    pversion = V("0.0.post12795")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12651"
-data_version_tuple = (0, 0, 12651)
+data_version_str = "0.0.post12653"
+data_version_tuple = (0, 0, 12653)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12651")
+    pdata_version = V("0.0.post12653")
 except ImportError:
     pass
-data_git_hash = "4f93cd7465c9ffa1491cd42041c6dbff62a7fd8c"
-data_git_describe = "v0.0-12651-g4f93cd7465"
+data_git_hash = "29f760ca206ba7e6f163934acb294e6e40f75e72"
+data_git_describe = "v0.0-12653-g29f760ca20"
 data_git_msg = """\
-commit 4f93cd7465c9ffa1491cd42041c6dbff62a7fd8c
+commit 29f760ca206ba7e6f163934acb294e6e40f75e72
 Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Jun 21 16:46:45 2022 -0700
+Date:   Thu May 19 14:38:15 2022 -0700
 
-    [top] Update jitter enable
-    
-    - backdoor load otp value based on jitter_en arg
-    - also add default values for jitter_en in the otp hjsons
+    [top] Auto generate
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
