@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12832"
-version_tuple = (0, 0, 12832)
+version_str = "0.0.post12834"
+version_tuple = (0, 0, 12834)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12832")
+    pversion = V("0.0.post12834")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12690"
-data_version_tuple = (0, 0, 12690)
+data_version_str = "0.0.post12692"
+data_version_tuple = (0, 0, 12692)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12690")
+    pdata_version = V("0.0.post12692")
 except ImportError:
     pass
-data_git_hash = "2bd39248e4d9716740417886199c38a6138b01c5"
-data_git_describe = "v0.0-12690-g2bd39248e4"
+data_git_hash = "36a3fa830eccc4d4ec2daecad62cf8d0954538c2"
+data_git_describe = "v0.0-12692-g36a3fa830e"
 data_git_msg = """\
-commit 2bd39248e4d9716740417886199c38a6138b01c5
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Jun 24 14:32:38 2022 +0200
+commit 36a3fa830eccc4d4ec2daecad62cf8d0954538c2
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Sat Jun 4 23:38:33 2022 +0000
 
-    [otbn/doc] Clarify the expected behavior around RND_REP/FIPS_CHK_FAIL
+    [top,dv,rv_dm] ndm reset request test
     
-    These are both recoverable errors that are only triggered when OTBN
-    uses the random numbers during program execution by reading RND
-    register and not when the entropy is received from EDN.
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
     
-    This resolves lowRISC/OpenTitan#13325.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    ndm reset with dif patch
 
 """
 
