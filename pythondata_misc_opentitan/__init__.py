@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12834"
-version_tuple = (0, 0, 12834)
+version_str = "0.0.post12835"
+version_tuple = (0, 0, 12835)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12834")
+    pversion = V("0.0.post12835")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12692"
-data_version_tuple = (0, 0, 12692)
+data_version_str = "0.0.post12693"
+data_version_tuple = (0, 0, 12693)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12692")
+    pdata_version = V("0.0.post12693")
 except ImportError:
     pass
-data_git_hash = "36a3fa830eccc4d4ec2daecad62cf8d0954538c2"
-data_git_describe = "v0.0-12692-g36a3fa830e"
+data_git_hash = "aac02b4e727be002c40c4b7c07f04e3cd1ee43a8"
+data_git_describe = "v0.0-12693-gaac02b4e72"
 data_git_msg = """\
-commit 36a3fa830eccc4d4ec2daecad62cf8d0954538c2
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Sat Jun 4 23:38:33 2022 +0000
+commit aac02b4e727be002c40c4b7c07f04e3cd1ee43a8
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jun 22 23:27:31 2022 -0700
 
-    [top,dv,rv_dm] ndm reset request test
+    [top] Correct xbar reset connections
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    - fixes #13354
+    - isolate the xbar reset from the individual end-point resets
+    - scripting updates required to allow for different resets
     
-    ndm reset with dif patch
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
