@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12826"
-version_tuple = (0, 0, 12826)
+version_str = "0.0.post12829"
+version_tuple = (0, 0, 12829)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12826")
+    pversion = V("0.0.post12829")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12684"
-data_version_tuple = (0, 0, 12684)
+data_version_str = "0.0.post12687"
+data_version_tuple = (0, 0, 12687)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12684")
+    pdata_version = V("0.0.post12687")
 except ImportError:
     pass
-data_git_hash = "3a97dbfaad9847ca68614f46f1369298745c7a76"
-data_git_describe = "v0.0-12684-g3a97dbfaad"
+data_git_hash = "5587716b38d7852cb921bc323556cba7a115a90b"
+data_git_describe = "v0.0-12687-g5587716b38"
 data_git_msg = """\
-commit 3a97dbfaad9847ca68614f46f1369298745c7a76
+commit 5587716b38d7852cb921bc323556cba7a115a90b
 Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jun 23 15:07:43 2022 -0700
+Date:   Wed Jun 22 15:54:49 2022 -0700
 
-    [dv] Add build rule for sensor_ctrl_status
+    [aon_timer/doc] Update description for escalation
     
-    - also move to sim_dv directory since this test does not work
-      for fpga / verilator natively
+    - Fix #13283
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
