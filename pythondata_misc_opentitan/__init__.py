@@ -4,41 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12842"
-version_tuple = (0, 0, 12842)
+version_str = "0.0.post12844"
+version_tuple = (0, 0, 12844)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12842")
+    pversion = V("0.0.post12844")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12700"
-data_version_tuple = (0, 0, 12700)
+data_version_str = "0.0.post12702"
+data_version_tuple = (0, 0, 12702)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12700")
+    pdata_version = V("0.0.post12702")
 except ImportError:
     pass
-data_git_hash = "d96a35a211a718c031e679774c769c6056283b7a"
-data_git_describe = "v0.0-12700-gd96a35a211"
+data_git_hash = "bb30778890d8e030b77ab7dc1a54a471d3a2dc9d"
+data_git_describe = "v0.0-12702-gbb30778890"
 data_git_msg = """\
-commit d96a35a211a718c031e679774c769c6056283b7a
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Fri Jun 24 11:41:07 2022 -0400
+commit bb30778890d8e030b77ab7dc1a54a471d3a2dc9d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jun 24 15:08:33 2022 -0700
 
-    [util] Use correct working dir in generate_compilation_db.py
+    [dv/alert_handler] Align crashdump
     
-    Specifically, this PR updates the script to emit bazel-opentitan/ as the
-    working directory for each compile command.
+    This PR aligns design change with crashdump feature #13177.
     
-    I used `bazel build -s` to print out subcommands when generating a test
-    target, and noticed that it was changing directory before each of the
-    calls to gcc, whereas the generated compile_commands.json just points to
-    the repo's root directory. Helpfully, Bazel already makes a symlink to
-    the correct working directory: bazel-opentitan/.
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
