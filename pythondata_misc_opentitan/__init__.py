@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12829"
-version_tuple = (0, 0, 12829)
+version_str = "0.0.post12830"
+version_tuple = (0, 0, 12830)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12829")
+    pversion = V("0.0.post12830")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12687"
-data_version_tuple = (0, 0, 12687)
+data_version_str = "0.0.post12688"
+data_version_tuple = (0, 0, 12688)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12687")
+    pdata_version = V("0.0.post12688")
 except ImportError:
     pass
-data_git_hash = "5587716b38d7852cb921bc323556cba7a115a90b"
-data_git_describe = "v0.0-12687-g5587716b38"
+data_git_hash = "1b111f4e5060f3eb308f59761c85daebb373c01f"
+data_git_describe = "v0.0-12688-g1b111f4e50"
 data_git_msg = """\
-commit 5587716b38d7852cb921bc323556cba7a115a90b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jun 22 15:54:49 2022 -0700
+commit 1b111f4e5060f3eb308f59761c85daebb373c01f
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Thu Jun 23 18:44:08 2022 +0100
 
-    [aon_timer/doc] Update description for escalation
+    [otbn,rtl] Connect insn addr mismatch to escalate
     
-    - Fix #13283
+    Fixes #13323
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
