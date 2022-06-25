@@ -707,6 +707,9 @@ module chip_earlgrey_asic (
   otp_ctrl_pkg::otp_ast_req_t otp_ctrl_otp_ast_pwr_seq;
   otp_ctrl_pkg::otp_ast_rsp_t otp_ctrl_otp_ast_pwr_seq_h;
 
+  // otp alert
+  ast_pkg::ast_dif_t otp_alert;
+
   logic usb_ref_pulse;
   logic usb_ref_val;
 
@@ -732,6 +735,7 @@ module chip_earlgrey_asic (
   prim_mubi_pkg::mubi4_t flash_bist_enable;
   logic flash_power_down_h;
   logic flash_power_ready_h;
+  ast_pkg::ast_dif_t flash_alert;
 
   // clock bypass req/ack
   prim_mubi_pkg::mubi4_t io_clk_byp_req;
@@ -836,9 +840,6 @@ module chip_earlgrey_asic (
 
   logic unused_pwr_clamp;
   assign unused_pwr_clamp = base_ast_pwr.pwr_clamp;
-
-  ast_pkg::ast_dif_t flash_alert;
-  ast_pkg::ast_dif_t otp_alert;
   logic ast_init_done;
   logic usb_diff_rx_obs;
 
@@ -880,7 +881,7 @@ module chip_earlgrey_asic (
     .clk_ast_es_i (clkmgr_aon_clocks.clk_main_secure),
     .clk_ast_rng_i (clkmgr_aon_clocks.clk_main_secure),
     .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_secure),
-    .rst_ast_tlul_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
+    .rst_ast_tlul_ni (rstmgr_aon_resets.rst_sys_io_div4_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_adc_ni (rstmgr_aon_resets.rst_sys_aon_n[rstmgr_pkg::DomainAonSel]),
     .rst_ast_alert_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_es_ni (rstmgr_aon_resets.rst_sys_n[rstmgr_pkg::Domain0Sel]),
