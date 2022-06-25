@@ -4,44 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12850"
-version_tuple = (0, 0, 12850)
+version_str = "0.0.post12851"
+version_tuple = (0, 0, 12851)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12850")
+    pversion = V("0.0.post12851")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12708"
-data_version_tuple = (0, 0, 12708)
+data_version_str = "0.0.post12709"
+data_version_tuple = (0, 0, 12709)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12708")
+    pdata_version = V("0.0.post12709")
 except ImportError:
     pass
-data_git_hash = "a7319457e049f55bd628badcd48630d339363eff"
-data_git_describe = "v0.0-12708-ga7319457e0"
+data_git_hash = "e80d18267b548cb2e803fa57abde1e0a71872d56"
+data_git_describe = "v0.0-12709-ge80d18267b"
 data_git_msg = """\
-commit a7319457e049f55bd628badcd48630d339363eff
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Jun 24 10:24:56 2022 -0700
+commit e80d18267b548cb2e803fa57abde1e0a71872d56
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Jun 24 17:39:03 2022 -0700
 
-    [usbdev] Fix OUT ZLP handling under FIFO errors
+    [formal/conn] Fix bbox command
     
-    Previously, zero-length packets could elicit an ACK response even when
-    the AV FIFO is empty or the RX FIFO is full. In the OUT transaction
-    state machine, the state of the FIFOs was only checked when data would
-    be written to a buffer. However, in usbdev_usbif, the transaction would
-    be rejected, so the host would incorrectly think its packet reached the
-    device.
+    Fix script issue that causes the weekly connectivity test to fail.
     
-    Fix this up by having the state machine also check FIFO states upon
-    reaching the decision point for a handshake phase. This will be the
-    final gate that will reject ZLPs that can't get an entry for the RX
-    FIFO.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
