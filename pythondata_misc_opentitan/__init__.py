@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12844"
-version_tuple = (0, 0, 12844)
+version_str = "0.0.post12849"
+version_tuple = (0, 0, 12849)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12844")
+    pversion = V("0.0.post12849")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12702"
-data_version_tuple = (0, 0, 12702)
+data_version_str = "0.0.post12707"
+data_version_tuple = (0, 0, 12707)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12702")
+    pdata_version = V("0.0.post12707")
 except ImportError:
     pass
-data_git_hash = "bb30778890d8e030b77ab7dc1a54a471d3a2dc9d"
-data_git_describe = "v0.0-12702-gbb30778890"
+data_git_hash = "5ecc7e1cc83abd761b736bafcf7332f40e070f58"
+data_git_describe = "v0.0-12707-g5ecc7e1cc8"
 data_git_msg = """\
-commit bb30778890d8e030b77ab7dc1a54a471d3a2dc9d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jun 24 15:08:33 2022 -0700
+commit 5ecc7e1cc83abd761b736bafcf7332f40e070f58
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Jun 24 15:15:32 2022 -0700
 
-    [dv/alert_handler] Align crashdump
+    [dv,rstmgr] Fix rstmgr leaf_rst tests
     
-    This PR aligns design change with crashdump feature #13177.
+    Update the list of rstmgr_leaf_rst instances.
+    Extend the time to wait on shadow_attack tests.
+    Disable cascading reset SVAs in shadow_attack tests since they violate
+    the reset protocol.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
