@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12851"
-version_tuple = (0, 0, 12851)
+version_str = "0.0.post12853"
+version_tuple = (0, 0, 12853)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12851")
+    pversion = V("0.0.post12853")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12709"
-data_version_tuple = (0, 0, 12709)
+data_version_str = "0.0.post12711"
+data_version_tuple = (0, 0, 12711)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12709")
+    pdata_version = V("0.0.post12711")
 except ImportError:
     pass
-data_git_hash = "e80d18267b548cb2e803fa57abde1e0a71872d56"
-data_git_describe = "v0.0-12709-ge80d18267b"
+data_git_hash = "96bf7e38c1405e9ea3c213b66d2470dc432c6461"
+data_git_describe = "v0.0-12711-g96bf7e38c1"
 data_git_msg = """\
-commit e80d18267b548cb2e803fa57abde1e0a71872d56
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Jun 24 17:39:03 2022 -0700
+commit 96bf7e38c1405e9ea3c213b66d2470dc432c6461
+Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+Date:   Fri Jun 24 18:04:04 2022 +0100
 
-    [formal/conn] Fix bbox command
+    [PWM/DV] Updates For VCS Run
     
-    Fix script issue that causes the weekly connectivity test to fail.
+      Updated for VCS Run
+      Changed some of the code to support VCS
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
 
 """
 
