@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12853"
-version_tuple = (0, 0, 12853)
+version_str = "0.0.post12854"
+version_tuple = (0, 0, 12854)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12853")
+    pversion = V("0.0.post12854")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12711"
-data_version_tuple = (0, 0, 12711)
+data_version_str = "0.0.post12712"
+data_version_tuple = (0, 0, 12712)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12711")
+    pdata_version = V("0.0.post12712")
 except ImportError:
     pass
-data_git_hash = "96bf7e38c1405e9ea3c213b66d2470dc432c6461"
-data_git_describe = "v0.0-12711-g96bf7e38c1"
+data_git_hash = "cccffd8addcf31bba67d3b8252ec7df94776675f"
+data_git_describe = "v0.0-12712-gcccffd8add"
 data_git_msg = """\
-commit 96bf7e38c1405e9ea3c213b66d2470dc432c6461
-Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
-Date:   Fri Jun 24 18:04:04 2022 +0100
+commit cccffd8addcf31bba67d3b8252ec7df94776675f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jun 21 22:23:54 2022 -0700
 
-    [PWM/DV] Updates For VCS Run
+    [dv/otp] Update prim_tl agent
     
-      Updated for VCS Run
-      Changed some of the code to support VCS
+    As design supports alias register in open/close source for tl_prim_i/o,
+    in open source DV, we switch to use this tl_prim_i/o agent.
     
-    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
