@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12855"
-version_tuple = (0, 0, 12855)
+version_str = "0.0.post12857"
+version_tuple = (0, 0, 12857)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12855")
+    pversion = V("0.0.post12857")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12713"
-data_version_tuple = (0, 0, 12713)
+data_version_str = "0.0.post12715"
+data_version_tuple = (0, 0, 12715)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12713")
+    pdata_version = V("0.0.post12715")
 except ImportError:
     pass
-data_git_hash = "7b8869f7f67463fc0fba65a6413d509565595e98"
-data_git_describe = "v0.0-12713-g7b8869f7f6"
+data_git_hash = "45c1e420d635c0eb28557f02f3dd04f4ab028656"
+data_git_describe = "v0.0-12715-g45c1e420d6"
 data_git_msg = """\
-commit 7b8869f7f67463fc0fba65a6413d509565595e98
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Jun 20 17:20:14 2022 +0000
+commit 45c1e420d635c0eb28557f02f3dd04f4ab028656
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Jun 23 10:20:01 2022 -0700
 
-    [dv,flash_ctrl] sample write / read test
+    [usbdev] Remove internal CDC logic
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    With the CSR clock now required to be the 48 MHz USB clock, there is no
+    domain crossing between the TL-UL side and the internals (within the
+    module). Instead, the clock domain crossing is outside the module (in
+    xbar_main, in this case).
+    
+    Also change AV FIFO empty / RX FIFO full interrupts to reflect the
+    status, instead of waiting for an underflow / overflow event.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
