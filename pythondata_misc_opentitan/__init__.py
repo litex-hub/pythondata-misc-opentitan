@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12859"
-version_tuple = (0, 0, 12859)
+version_str = "0.0.post12860"
+version_tuple = (0, 0, 12860)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12859")
+    pversion = V("0.0.post12860")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12717"
-data_version_tuple = (0, 0, 12717)
+data_version_str = "0.0.post12718"
+data_version_tuple = (0, 0, 12718)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12717")
+    pdata_version = V("0.0.post12718")
 except ImportError:
     pass
-data_git_hash = "e248e9403c2643fa921d75639510020a2d0c2bde"
-data_git_describe = "v0.0-12717-ge248e9403c"
+data_git_hash = "c3f9c7423f0d25e075b81f0fab3c3faf2d827965"
+data_git_describe = "v0.0-12718-gc3f9c7423f"
 data_git_msg = """\
-commit e248e9403c2643fa921d75639510020a2d0c2bde
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Jun 27 20:46:07 2022 +0000
+commit c3f9c7423f0d25e075b81f0fab3c3faf2d827965
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Jun 23 20:27:16 2022 -0700
 
-    [flash_ctrl,dv] non-otf timeout fix
+    [chip-test] Add chip_sw_entropy_src_kat_test.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Adds known answer test for the entropy_src SHA3 conditioner block using
+    a SHA3 CAVP test vector. The test employs the entropy_src firmware
+    override mode.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
