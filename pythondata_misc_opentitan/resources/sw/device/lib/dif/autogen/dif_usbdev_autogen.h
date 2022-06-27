@@ -76,11 +76,16 @@ dif_result_t dif_usbdev_alert_force(const dif_usbdev_t *usbdev,
  */
 typedef enum dif_usbdev_irq {
   /**
-   * Raised if a packet was received using an OUT or SETUP transaction.
+   * Raised if a packet was received using an OUT or SETUP transaction. This
+   * interrupt is directly tied to whether the RX FIFO is empty, so it should be
+   * cleared only after handling the FIFO entry.
    */
   kDifUsbdevIrqPktReceived = 0,
   /**
-   * Raised if a packet was sent as part of an IN transaction.
+   * Raised if a packet was sent as part of an IN transaction. This interrupt is
+   * directly tied to whether a sent packet has not been acknowledged in the
+   * !!in_sent register. It should be cleared only after clearing all bits in
+   * the !!in_sent register.
    */
   kDifUsbdevIrqPktSent = 1,
   /**
@@ -107,13 +112,17 @@ typedef enum dif_usbdev_irq {
    */
   kDifUsbdevIrqLinkResume = 6,
   /**
-   * Raised when a transaction is NACKed because the Available Buffer FIFO for
-   * OUT or SETUP transactions is empty.
+   * Raised when the AV FIFO is empty and the device interface is enabled. This
+   * interrupt is directly tied to the FIFO status, so the AV FIFO must be
+   * provided a free buffer before the interrupt is cleared. If the condition is
+   * not cleared, the interrupt can re-assert.
    */
   kDifUsbdevIrqAvEmpty = 7,
   /**
-   * Raised when a transaction is NACKed because the Received Buffer FIFO for
-   * OUT or SETUP transactions is full.
+   * Raised when the RX FIFO is full and the device interface is enabled. This
+   * interrupt is directly tied to the FIFO status, so the RX FIFO must have an
+   * entry removed before the interrupt is cleared. If the condition is not
+   * cleared, the interrupt can re-assert.
    */
   kDifUsbdevIrqRxFull = 8,
   /**
