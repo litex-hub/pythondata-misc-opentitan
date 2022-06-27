@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12854"
-version_tuple = (0, 0, 12854)
+version_str = "0.0.post12855"
+version_tuple = (0, 0, 12855)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12854")
+    pversion = V("0.0.post12855")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12712"
-data_version_tuple = (0, 0, 12712)
+data_version_str = "0.0.post12713"
+data_version_tuple = (0, 0, 12713)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12712")
+    pdata_version = V("0.0.post12713")
 except ImportError:
     pass
-data_git_hash = "cccffd8addcf31bba67d3b8252ec7df94776675f"
-data_git_describe = "v0.0-12712-gcccffd8add"
+data_git_hash = "7b8869f7f67463fc0fba65a6413d509565595e98"
+data_git_describe = "v0.0-12713-g7b8869f7f6"
 data_git_msg = """\
-commit cccffd8addcf31bba67d3b8252ec7df94776675f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jun 21 22:23:54 2022 -0700
+commit 7b8869f7f67463fc0fba65a6413d509565595e98
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Jun 20 17:20:14 2022 +0000
 
-    [dv/otp] Update prim_tl agent
+    [dv,flash_ctrl] sample write / read test
     
-    As design supports alias register in open/close source for tl_prim_i/o,
-    in open source DV, we switch to use this tl_prim_i/o agent.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
