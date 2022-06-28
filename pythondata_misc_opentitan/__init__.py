@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12865"
-version_tuple = (0, 0, 12865)
+version_str = "0.0.post12866"
+version_tuple = (0, 0, 12866)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12865")
+    pversion = V("0.0.post12866")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12723"
-data_version_tuple = (0, 0, 12723)
+data_version_str = "0.0.post12724"
+data_version_tuple = (0, 0, 12724)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12723")
+    pdata_version = V("0.0.post12724")
 except ImportError:
     pass
-data_git_hash = "8e0201f02d54d4edddb9d803cf431e71823ea7ee"
-data_git_describe = "v0.0-12723-g8e0201f02d"
+data_git_hash = "9b6225e63885b551f432a6f89189f9f4383e09ce"
+data_git_describe = "v0.0-12724-g9b6225e638"
 data_git_msg = """\
-commit 8e0201f02d54d4edddb9d803cf431e71823ea7ee
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Jun 16 17:16:34 2022 +0100
+commit 9b6225e63885b551f432a6f89189f9f4383e09ce
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Wed Jun 22 16:03:30 2022 +0100
 
-    [dif, rv_core_ibex] Add the alerts errors functions
+    [otbn, dv] Maps testcases to V2S countermeasures
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    This commit maps existing testcases to V"S countermeasures
+    
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
