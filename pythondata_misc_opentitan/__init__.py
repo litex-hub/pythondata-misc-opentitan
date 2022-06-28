@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12862"
-version_tuple = (0, 0, 12862)
+version_str = "0.0.post12864"
+version_tuple = (0, 0, 12864)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12862")
+    pversion = V("0.0.post12864")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12720"
-data_version_tuple = (0, 0, 12720)
+data_version_str = "0.0.post12722"
+data_version_tuple = (0, 0, 12722)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12720")
+    pdata_version = V("0.0.post12722")
 except ImportError:
     pass
-data_git_hash = "00185f52cebfc7fad86d1449d79575315c4b7c2a"
-data_git_describe = "v0.0-12720-g00185f52ce"
+data_git_hash = "179558354cbdf7a844a9c3634b332b50c963d24c"
+data_git_describe = "v0.0-12722-g179558354c"
 data_git_msg = """\
-commit 00185f52cebfc7fad86d1449d79575315c4b7c2a
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Jun 27 14:46:56 2022 -0700
+commit 179558354cbdf7a844a9c3634b332b50c963d24c
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Jun 27 15:42:31 2022 -0700
 
-    [dv] Fix ping exclusion
+    [dv/otp_ctrl] Fix lc_dft_en failures
     
-    Since we enable prim_alert_sender toggle coverage, need to apply ping
-    exclusion to this module too.
+    This PR fixes the regression failures when lc_dft_en is set to On and DV
+    did not expect it to return d_error.
+    This case is hard to align on the scoreboard side because it is timing
+    sensetive regarding the d_channel and a_channel.
+    Because this case is not likely to happen in chip level (lc_dft_en
+    cannot be switched on and off on the fly), I added a TODO to support
+    checking that in otp_ctrl_test_access sequence.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
