@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12869"
-version_tuple = (0, 0, 12869)
+version_str = "0.0.post12870"
+version_tuple = (0, 0, 12870)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12869")
+    pversion = V("0.0.post12870")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12727"
-data_version_tuple = (0, 0, 12727)
+data_version_str = "0.0.post12728"
+data_version_tuple = (0, 0, 12728)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12727")
+    pdata_version = V("0.0.post12728")
 except ImportError:
     pass
-data_git_hash = "ef7847ffe2c4afb52dbe20e5b0d53e41a058a9ff"
-data_git_describe = "v0.0-12727-gef7847ffe2"
+data_git_hash = "f49dd4327667018ef3e52ce47adcadf5a312435f"
+data_git_describe = "v0.0-12728-gf49dd43276"
 data_git_msg = """\
-commit ef7847ffe2c4afb52dbe20e5b0d53e41a058a9ff
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Jun 27 19:49:03 2022 -0700
+commit f49dd4327667018ef3e52ce47adcadf5a312435f
+Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
+Date:   Fri Jun 24 14:49:18 2022 +0100
 
-    [rv_dm dv] Fix compile warnings.
+    [doc] Add section on dealing with emails from GitHub
     
-    Fix warnings related to ignored function returns.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
 
 """
 
