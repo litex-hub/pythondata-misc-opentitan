@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12866"
-version_tuple = (0, 0, 12866)
+version_str = "0.0.post12869"
+version_tuple = (0, 0, 12869)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12866")
+    pversion = V("0.0.post12869")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12724"
-data_version_tuple = (0, 0, 12724)
+data_version_str = "0.0.post12727"
+data_version_tuple = (0, 0, 12727)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12724")
+    pdata_version = V("0.0.post12727")
 except ImportError:
     pass
-data_git_hash = "9b6225e63885b551f432a6f89189f9f4383e09ce"
-data_git_describe = "v0.0-12724-g9b6225e638"
+data_git_hash = "ef7847ffe2c4afb52dbe20e5b0d53e41a058a9ff"
+data_git_describe = "v0.0-12727-gef7847ffe2"
 data_git_msg = """\
-commit 9b6225e63885b551f432a6f89189f9f4383e09ce
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Wed Jun 22 16:03:30 2022 +0100
+commit ef7847ffe2c4afb52dbe20e5b0d53e41a058a9ff
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Jun 27 19:49:03 2022 -0700
 
-    [otbn, dv] Maps testcases to V2S countermeasures
+    [rv_dm dv] Fix compile warnings.
     
-    This commit maps existing testcases to V"S countermeasures
+    Fix warnings related to ignored function returns.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
