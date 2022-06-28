@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12871"
-version_tuple = (0, 0, 12871)
+version_str = "0.0.post12872"
+version_tuple = (0, 0, 12872)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12871")
+    pversion = V("0.0.post12872")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12729"
-data_version_tuple = (0, 0, 12729)
+data_version_str = "0.0.post12730"
+data_version_tuple = (0, 0, 12730)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12729")
+    pdata_version = V("0.0.post12730")
 except ImportError:
     pass
-data_git_hash = "2994d340d76787f3ee9cc96aa30a2469b23b63fe"
-data_git_describe = "v0.0-12729-g2994d340d7"
+data_git_hash = "b342745890ee3faeeb4db1db6aae6b5857c165c2"
+data_git_describe = "v0.0-12730-gb342745890"
 data_git_msg = """\
-commit 2994d340d76787f3ee9cc96aa30a2469b23b63fe
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Jun 24 15:20:40 2022 +0000
+commit b342745890ee3faeeb4db1db6aae6b5857c165c2
+Author: Muqing Liu <muqing.liu@wdc.com>
+Date:   Mon Jun 27 10:27:27 2022 -0700
 
-    [dv,top,pwrmgr] deep_sleep_all_wake_ups regression fix
+    [pwm, rtl] PWM RTL fix for issue mentioned in PR#13295
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+      - Fix the duty cycle state transistion issue in heart beat mode
+    
+    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
