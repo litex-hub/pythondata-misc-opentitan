@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12860"
-version_tuple = (0, 0, 12860)
+version_str = "0.0.post12862"
+version_tuple = (0, 0, 12862)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12860")
+    pversion = V("0.0.post12862")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12718"
-data_version_tuple = (0, 0, 12718)
+data_version_str = "0.0.post12720"
+data_version_tuple = (0, 0, 12720)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12718")
+    pdata_version = V("0.0.post12720")
 except ImportError:
     pass
-data_git_hash = "c3f9c7423f0d25e075b81f0fab3c3faf2d827965"
-data_git_describe = "v0.0-12718-gc3f9c7423f"
+data_git_hash = "00185f52cebfc7fad86d1449d79575315c4b7c2a"
+data_git_describe = "v0.0-12720-g00185f52ce"
 data_git_msg = """\
-commit c3f9c7423f0d25e075b81f0fab3c3faf2d827965
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Jun 23 20:27:16 2022 -0700
+commit 00185f52cebfc7fad86d1449d79575315c4b7c2a
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Jun 27 14:46:56 2022 -0700
 
-    [chip-test] Add chip_sw_entropy_src_kat_test.
+    [dv] Fix ping exclusion
     
-    Adds known answer test for the entropy_src SHA3 conditioner block using
-    a SHA3 CAVP test vector. The test employs the entropy_src firmware
-    override mode.
+    Since we enable prim_alert_sender toggle coverage, need to apply ping
+    exclusion to this module too.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
