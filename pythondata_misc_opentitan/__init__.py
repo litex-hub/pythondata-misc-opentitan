@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12864"
-version_tuple = (0, 0, 12864)
+version_str = "0.0.post12865"
+version_tuple = (0, 0, 12865)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12864")
+    pversion = V("0.0.post12865")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12722"
-data_version_tuple = (0, 0, 12722)
+data_version_str = "0.0.post12723"
+data_version_tuple = (0, 0, 12723)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12722")
+    pdata_version = V("0.0.post12723")
 except ImportError:
     pass
-data_git_hash = "179558354cbdf7a844a9c3634b332b50c963d24c"
-data_git_describe = "v0.0-12722-g179558354c"
+data_git_hash = "8e0201f02d54d4edddb9d803cf431e71823ea7ee"
+data_git_describe = "v0.0-12723-g8e0201f02d"
 data_git_msg = """\
-commit 179558354cbdf7a844a9c3634b332b50c963d24c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jun 27 15:42:31 2022 -0700
+commit 8e0201f02d54d4edddb9d803cf431e71823ea7ee
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Jun 16 17:16:34 2022 +0100
 
-    [dv/otp_ctrl] Fix lc_dft_en failures
+    [dif, rv_core_ibex] Add the alerts errors functions
     
-    This PR fixes the regression failures when lc_dft_en is set to On and DV
-    did not expect it to return d_error.
-    This case is hard to align on the scoreboard side because it is timing
-    sensetive regarding the d_channel and a_channel.
-    Because this case is not likely to happen in chip level (lc_dft_en
-    cannot be switched on and off on the fly), I added a TODO to support
-    checking that in otp_ctrl_test_access sequence.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
