@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12870"
-version_tuple = (0, 0, 12870)
+version_str = "0.0.post12871"
+version_tuple = (0, 0, 12871)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12870")
+    pversion = V("0.0.post12871")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12728"
-data_version_tuple = (0, 0, 12728)
+data_version_str = "0.0.post12729"
+data_version_tuple = (0, 0, 12729)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12728")
+    pdata_version = V("0.0.post12729")
 except ImportError:
     pass
-data_git_hash = "f49dd4327667018ef3e52ce47adcadf5a312435f"
-data_git_describe = "v0.0-12728-gf49dd43276"
+data_git_hash = "2994d340d76787f3ee9cc96aa30a2469b23b63fe"
+data_git_describe = "v0.0-12729-g2994d340d7"
 data_git_msg = """\
-commit f49dd4327667018ef3e52ce47adcadf5a312435f
-Author: Marno van der Maas <mvdmaas+git@lowrisc.org>
-Date:   Fri Jun 24 14:49:18 2022 +0100
+commit 2994d340d76787f3ee9cc96aa30a2469b23b63fe
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Jun 24 15:20:40 2022 +0000
 
-    [doc] Add section on dealing with emails from GitHub
+    [dv,top,pwrmgr] deep_sleep_all_wake_ups regression fix
     
-    Signed-off-by: Marno van der Maas <mvdmaas+git@lowrisc.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
