@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12882"
-version_tuple = (0, 0, 12882)
+version_str = "0.0.post12884"
+version_tuple = (0, 0, 12884)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12882")
+    pversion = V("0.0.post12884")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12740"
-data_version_tuple = (0, 0, 12740)
+data_version_str = "0.0.post12742"
+data_version_tuple = (0, 0, 12742)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12740")
+    pdata_version = V("0.0.post12742")
 except ImportError:
     pass
-data_git_hash = "a96565ddbe684f14663c187db8a6c17908eebfbc"
-data_git_describe = "v0.0-12740-ga96565ddbe"
+data_git_hash = "b6544149552c484f1caa78ef578a867bff0b5f8d"
+data_git_describe = "v0.0-12742-gb654414955"
 data_git_msg = """\
-commit a96565ddbe684f14663c187db8a6c17908eebfbc
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jun 28 15:07:04 2022 -0700
+commit b6544149552c484f1caa78ef578a867bff0b5f8d
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jun 22 10:46:50 2022 -0400
 
-    [alert_handler/fpv] Fix local_alert index in regen error
+    [CI] Shorter names for all the tests that don't fit on a column for me
     
-    This PR fixes the alert_handler_sec_cm failure where we expect to see
-    loc_alert[2] to fire when regen failed. But from the spec, loc_alert[2]
-    is alert integfail but loc_alert[4] is for bus integrity failure.
-    So this PR fixes this typo.
+    We only see about 20 characters of the display names in most cases so
+    the most important information should be in those 20 characters.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
