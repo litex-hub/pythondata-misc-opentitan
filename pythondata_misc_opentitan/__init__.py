@@ -4,38 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12887"
-version_tuple = (0, 0, 12887)
+version_str = "0.0.post12888"
+version_tuple = (0, 0, 12888)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12887")
+    pversion = V("0.0.post12888")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12745"
-data_version_tuple = (0, 0, 12745)
+data_version_str = "0.0.post12746"
+data_version_tuple = (0, 0, 12746)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12745")
+    pdata_version = V("0.0.post12746")
 except ImportError:
     pass
-data_git_hash = "6e3829326c4f49ca43a47a554b96f0d0ba49d679"
-data_git_describe = "v0.0-12745-g6e3829326c"
+data_git_hash = "c18d47641210a2d060550bb2cbf447c98e3d8b61"
+data_git_describe = "v0.0-12746-gc18d476412"
 data_git_msg = """\
-commit 6e3829326c4f49ca43a47a554b96f0d0ba49d679
-Author: Cindy Chen <chencindy@google.com>
-Date:   Tue Jun 28 14:17:32 2022 -0700
+commit c18d47641210a2d060550bb2cbf447c98e3d8b61
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Jun 25 16:30:37 2022 -0700
 
-    [dv/chip] Fix regression error on lc_ctrl_transition test
+    [entropy_src/dv] bit_sel_en timing adjustment
     
-    This PR fixes the regression failure on lc_ctrl_transition_test where
-    the testbench expects an external clock switch (PR #13141). However, the
-    default setting for lc_ctrl_transition test is to use internal clock. So
-    I fix it by adding a CSR read to check if the ctrl register is
-    configured to use internal or external clock.
+    In bit_sel_en the DUT has a timing idiosyncracy in which
+    the selected RNGs bits remain in the bit select pfifo until
+    one more RNG sample is acquired.  This does not violate the
+    spec in any way, but can lead to test failures if the
+    scoreboard is expecting the last sample to be included in
+    the health checks.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    This commit adjusts the scoreboarding to mimic this feature
+    and properly predict which samples are included in the health
+    test statistics in bit select mode.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
