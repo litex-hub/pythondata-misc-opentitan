@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12886"
-version_tuple = (0, 0, 12886)
+version_str = "0.0.post12887"
+version_tuple = (0, 0, 12887)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12886")
+    pversion = V("0.0.post12887")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12744"
-data_version_tuple = (0, 0, 12744)
+data_version_str = "0.0.post12745"
+data_version_tuple = (0, 0, 12745)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12744")
+    pdata_version = V("0.0.post12745")
 except ImportError:
     pass
-data_git_hash = "1c8f1e426fb6a3df9c38cef5082896467b6340e3"
-data_git_describe = "v0.0-12744-g1c8f1e426f"
+data_git_hash = "6e3829326c4f49ca43a47a554b96f0d0ba49d679"
+data_git_describe = "v0.0-12745-g6e3829326c"
 data_git_msg = """\
-commit 1c8f1e426fb6a3df9c38cef5082896467b6340e3
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jun 9 16:36:00 2022 -0700
+commit 6e3829326c4f49ca43a47a554b96f0d0ba49d679
+Author: Cindy Chen <chencindy@google.com>
+Date:   Tue Jun 28 14:17:32 2022 -0700
 
-    [dv/chip] Update chip-level LPG testplan
+    [dv/chip] Fix regression error on lc_ctrl_transition test
     
-    This PR adds an enhancement to alert's LPG testplan.
-    It adds to scenarios where rst/clk mgrs can turn off IP's clock or
-    toggle reset.
+    This PR fixes the regression failure on lc_ctrl_transition_test where
+    the testbench expects an external clock switch (PR #13141). However, the
+    default setting for lc_ctrl_transition test is to use internal clock. So
+    I fix it by adding a CSR read to check if the ctrl register is
+    configured to use internal or external clock.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
