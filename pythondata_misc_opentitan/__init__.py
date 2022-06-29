@@ -4,53 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12876"
-version_tuple = (0, 0, 12876)
+version_str = "0.0.post12881"
+version_tuple = (0, 0, 12881)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12876")
+    pversion = V("0.0.post12881")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12734"
-data_version_tuple = (0, 0, 12734)
+data_version_str = "0.0.post12739"
+data_version_tuple = (0, 0, 12739)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12734")
+    pdata_version = V("0.0.post12739")
 except ImportError:
     pass
-data_git_hash = "67ba900f5e83c07dff0aa3c4acd95005b04d7bea"
-data_git_describe = "v0.0-12734-g67ba900f5e"
+data_git_hash = "2c25678cfeb84d119761766a9dcd053f72f32e80"
+data_git_describe = "v0.0-12739-g2c25678cfe"
 data_git_msg = """\
-commit 67ba900f5e83c07dff0aa3c4acd95005b04d7bea
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Jun 4 10:11:42 2022 -0700
+commit 2c25678cfeb84d119761766a9dcd053f72f32e80
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Jun 28 12:10:45 2022 -0700
 
-    [entropy_src/dv] Test support for SW_REGUPD and CSR autolock
+    [chip dv] Cleanup task invoked in func warning
     
-    - entropy_src_rng_vseq now randomly reconfigures the DUT while it is
-      enabled or while SW_REGUPD is zero.  Such events should have no
-      impact on the DUT in these states.
-      - Adds a new timing parameter, mean_rand_reconfig_time
-        to control the average frequency of these random events.
-        Like the hard_mtbf, and soft_mtbf parameters, these
-        events occur with an exponential distribution, meaning
-        that on average the probability of such an update occuring
-        in a period of duration dt is:
-        P(t)dt = dt/mean_rand_reconfig_time
-      - These update events are also scheduled to NOT happen
-        during other maintaince events (DUT resets, FIFO reads,
-        etc).
-    - Updates the Scoreboard to properly support this feature
-    - Adds support in the rng and base vseqs for generating new
-      configurations, subject to the same original constraints.
-    - In order to support the randomization of DUT configurations
-      a new entropy_src_dut_cfg class is added to separate the
-      config fields that describe DUT configs from more generic
-      environment or sequence configurations.
+    This cleans up tasks invoked in functions warning and promotes it to
+    an error. This is not allowed by other tools by default.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
