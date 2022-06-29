@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12881"
-version_tuple = (0, 0, 12881)
+version_str = "0.0.post12882"
+version_tuple = (0, 0, 12882)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12881")
+    pversion = V("0.0.post12882")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12739"
-data_version_tuple = (0, 0, 12739)
+data_version_str = "0.0.post12740"
+data_version_tuple = (0, 0, 12740)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12739")
+    pdata_version = V("0.0.post12740")
 except ImportError:
     pass
-data_git_hash = "2c25678cfeb84d119761766a9dcd053f72f32e80"
-data_git_describe = "v0.0-12739-g2c25678cfe"
+data_git_hash = "a96565ddbe684f14663c187db8a6c17908eebfbc"
+data_git_describe = "v0.0-12740-ga96565ddbe"
 data_git_msg = """\
-commit 2c25678cfeb84d119761766a9dcd053f72f32e80
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Jun 28 12:10:45 2022 -0700
+commit a96565ddbe684f14663c187db8a6c17908eebfbc
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jun 28 15:07:04 2022 -0700
 
-    [chip dv] Cleanup task invoked in func warning
+    [alert_handler/fpv] Fix local_alert index in regen error
     
-    This cleans up tasks invoked in functions warning and promotes it to
-    an error. This is not allowed by other tools by default.
+    This PR fixes the alert_handler_sec_cm failure where we expect to see
+    loc_alert[2] to fire when regen failed. But from the spec, loc_alert[2]
+    is alert integfail but loc_alert[4] is for bus integrity failure.
+    So this PR fixes this typo.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
