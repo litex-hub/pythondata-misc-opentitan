@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12899"
-version_tuple = (0, 0, 12899)
+version_str = "0.0.post12902"
+version_tuple = (0, 0, 12902)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12899")
+    pversion = V("0.0.post12902")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12757"
-data_version_tuple = (0, 0, 12757)
+data_version_str = "0.0.post12760"
+data_version_tuple = (0, 0, 12760)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12757")
+    pdata_version = V("0.0.post12760")
 except ImportError:
     pass
-data_git_hash = "54329ed9604fd4ec37cbeaba8c48a17c533d3c2e"
-data_git_describe = "v0.0-12757-g54329ed960"
+data_git_hash = "808fb6435657b295f856b790cb00193dfd3fab96"
+data_git_describe = "v0.0-12760-g808fb64356"
 data_git_msg = """\
-commit 54329ed9604fd4ec37cbeaba8c48a17c533d3c2e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jun 30 12:10:28 2022 -0700
+commit 808fb6435657b295f856b790cb00193dfd3fab96
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jun 28 22:00:36 2022 -0700
 
-    [dv/pwm] Two small fixes
+    [dv,chip,hmac_idle] Add chip_sw_hmac_enc_idle test
     
-    Fix two TODOs in issue #13476:
-    1). Fix max outstanding access coverage
-    2). Fix regression unmapped memory tests.
+    Develop this along the line of aes_idle. Check against both hmac
+    processing steps used in chip_sw_hmac_enc_test.
+    Share some of the reference data and expected digests between these
+    two tests via hmac_testutils.
+    Add this hmac and the otbn idle tests to chip_sw_clkmgr_idle_trans
+    testpoint.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
