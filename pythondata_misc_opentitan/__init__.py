@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12902"
-version_tuple = (0, 0, 12902)
+version_str = "0.0.post12904"
+version_tuple = (0, 0, 12904)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12902")
+    pversion = V("0.0.post12904")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12760"
-data_version_tuple = (0, 0, 12760)
+data_version_str = "0.0.post12762"
+data_version_tuple = (0, 0, 12762)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12760")
+    pdata_version = V("0.0.post12762")
 except ImportError:
     pass
-data_git_hash = "808fb6435657b295f856b790cb00193dfd3fab96"
-data_git_describe = "v0.0-12760-g808fb64356"
+data_git_hash = "236eaf3da5c596ee891410f7ac4a2e22d848c564"
+data_git_describe = "v0.0-12762-g236eaf3da5"
 data_git_msg = """\
-commit 808fb6435657b295f856b790cb00193dfd3fab96
+commit 236eaf3da5c596ee891410f7ac4a2e22d848c564
 Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jun 28 22:00:36 2022 -0700
+Date:   Mon Jun 27 16:07:10 2022 -0700
 
-    [dv,chip,hmac_idle] Add chip_sw_hmac_enc_idle test
+    [dv,chip,power_glitch] Fix deep_sleep power glitch test
     
-    Develop this along the line of aes_idle. Check against both hmac
-    processing steps used in chip_sw_hmac_enc_test.
-    Share some of the reference data and expected digests between these
-    two tests via hmac_testutils.
-    Add this hmac and the otbn idle tests to chip_sw_clkmgr_idle_trans
-    testpoint.
+    Trigger the glitch when pwrmgr has just set reset_cause to LowPwrEntry.
+    If the trigger event happens with more relaxed timing the results are
+    unpredictable: either reset happens before low power entry, or pwrmgr
+    could have stopped monitoring power glitches.
     
     Signed-off-by: Guillermo Maturana <maturana@google.com>
 
