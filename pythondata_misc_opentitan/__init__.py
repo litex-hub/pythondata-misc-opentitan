@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12897"
-version_tuple = (0, 0, 12897)
+version_str = "0.0.post12898"
+version_tuple = (0, 0, 12898)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12897")
+    pversion = V("0.0.post12898")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12755"
-data_version_tuple = (0, 0, 12755)
+data_version_str = "0.0.post12756"
+data_version_tuple = (0, 0, 12756)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12755")
+    pdata_version = V("0.0.post12756")
 except ImportError:
     pass
-data_git_hash = "749ef4f591c2587c251cda3a1eafab7a7cd730e2"
-data_git_describe = "v0.0-12755-g749ef4f591"
+data_git_hash = "9c280944cd69aa74e2b98c0d572e232582bcbf87"
+data_git_describe = "v0.0-12756-g9c280944cd"
 data_git_msg = """\
-commit 749ef4f591c2587c251cda3a1eafab7a7cd730e2
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Jun 30 07:22:48 2022 -0400
+commit 9c280944cd69aa74e2b98c0d572e232582bcbf87
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jun 30 08:36:56 2022 -0700
 
-    [util] Make util/generate_compilation_db.py compatiable with python 3.6
+    [dv/alert_handler] Enhance EDN timing check
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    The spec specifies that EDN request should be refreshed every 500k clock
+    cycles.
+    This PR:
+    1). Adds a checking in scb to make sure this timing requirement is
+      satisfied.
+    2). Add functional coverage group to make sure we run simulation long
+      enough to capture EDN requests at least 5 times.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
