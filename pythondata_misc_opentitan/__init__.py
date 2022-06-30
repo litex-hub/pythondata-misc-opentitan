@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12894"
-version_tuple = (0, 0, 12894)
+version_str = "0.0.post12895"
+version_tuple = (0, 0, 12895)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12894")
+    pversion = V("0.0.post12895")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12752"
-data_version_tuple = (0, 0, 12752)
+data_version_str = "0.0.post12753"
+data_version_tuple = (0, 0, 12753)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12752")
+    pdata_version = V("0.0.post12753")
 except ImportError:
     pass
-data_git_hash = "d8af32ff61026d72a7586c66870feaa162335654"
-data_git_describe = "v0.0-12752-gd8af32ff61"
+data_git_hash = "be5236c029f018715868d822a97407f6721f5582"
+data_git_describe = "v0.0-12753-gbe5236c029"
 data_git_msg = """\
-commit d8af32ff61026d72a7586c66870feaa162335654
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Wed Jun 29 17:14:31 2022 +0100
+commit be5236c029f018715868d822a97407f6721f5582
+Author: Alexander Williams <awill@google.com>
+Date:   Mon Jun 27 14:39:11 2022 -0700
 
-    [doc] Add Arnon and Sivakumar to list of Technical Committee members
+    [usbdev] Do not write to unallocated buffer
     
-    Arnon Sharlin and Sivakumar have been appointed to the TC by the
-    Steering Committee. Welcome to both of you!
+    The "put" derived from the OUT state machine is not gated by whether a
+    buffer is available. Prevent writing to an unallocated buffer by taking
+    into consideration whether the AV FIFO is empty.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
