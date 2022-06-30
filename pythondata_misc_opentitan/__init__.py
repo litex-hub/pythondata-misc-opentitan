@@ -4,41 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12889"
-version_tuple = (0, 0, 12889)
+version_str = "0.0.post12894"
+version_tuple = (0, 0, 12894)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12889")
+    pversion = V("0.0.post12894")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12747"
-data_version_tuple = (0, 0, 12747)
+data_version_str = "0.0.post12752"
+data_version_tuple = (0, 0, 12752)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12747")
+    pdata_version = V("0.0.post12752")
 except ImportError:
     pass
-data_git_hash = "dd97ef8a84a055a0f0b4d730cdf61bcb6535020e"
-data_git_describe = "v0.0-12747-gdd97ef8a84"
+data_git_hash = "d8af32ff61026d72a7586c66870feaa162335654"
+data_git_describe = "v0.0-12752-gd8af32ff61"
 data_git_msg = """\
-commit dd97ef8a84a055a0f0b4d730cdf61bcb6535020e
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Jun 9 16:46:32 2022 +0200
+commit d8af32ff61026d72a7586c66870feaa162335654
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Wed Jun 29 17:14:31 2022 +0100
 
-    [otbn] Feed blanked shifter output into Adder Y when not using Adder Y
+    [doc] Add Arnon and Sivakumar to list of Technical Committee members
     
-    Previously, the MOD WSR was fed into Adder Y during some ALU operations
-    not requiring Adder Y at all (RSHI, XOR, OR, AND, NOT). Since the
-    output of Adder Y is connected to the zero flag generation (ORing all
-    bits together), this could lead to undesired SCA leakage.
+    Arnon Sharlin and Sivakumar have been appointed to the TC by the
+    Steering Committee. Welcome to both of you!
     
-    As we already correctly blank the shifter output connected to Adder Y,
-    it's better select this as input for Adder Y when not using Adder Y to
-    avoid undesired leakage due to the zero flag generation.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
