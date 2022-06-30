@@ -4,43 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12888"
-version_tuple = (0, 0, 12888)
+version_str = "0.0.post12889"
+version_tuple = (0, 0, 12889)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12888")
+    pversion = V("0.0.post12889")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12746"
-data_version_tuple = (0, 0, 12746)
+data_version_str = "0.0.post12747"
+data_version_tuple = (0, 0, 12747)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12746")
+    pdata_version = V("0.0.post12747")
 except ImportError:
     pass
-data_git_hash = "c18d47641210a2d060550bb2cbf447c98e3d8b61"
-data_git_describe = "v0.0-12746-gc18d476412"
+data_git_hash = "dd97ef8a84a055a0f0b4d730cdf61bcb6535020e"
+data_git_describe = "v0.0-12747-gdd97ef8a84"
 data_git_msg = """\
-commit c18d47641210a2d060550bb2cbf447c98e3d8b61
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Jun 25 16:30:37 2022 -0700
+commit dd97ef8a84a055a0f0b4d730cdf61bcb6535020e
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Jun 9 16:46:32 2022 +0200
 
-    [entropy_src/dv] bit_sel_en timing adjustment
+    [otbn] Feed blanked shifter output into Adder Y when not using Adder Y
     
-    In bit_sel_en the DUT has a timing idiosyncracy in which
-    the selected RNGs bits remain in the bit select pfifo until
-    one more RNG sample is acquired.  This does not violate the
-    spec in any way, but can lead to test failures if the
-    scoreboard is expecting the last sample to be included in
-    the health checks.
+    Previously, the MOD WSR was fed into Adder Y during some ALU operations
+    not requiring Adder Y at all (RSHI, XOR, OR, AND, NOT). Since the
+    output of Adder Y is connected to the zero flag generation (ORing all
+    bits together), this could lead to undesired SCA leakage.
     
-    This commit adjusts the scoreboarding to mimic this feature
-    and properly predict which samples are included in the health
-    test statistics in bit select mode.
+    As we already correctly blank the shifter output connected to Adder Y,
+    it's better select this as input for Adder Y when not using Adder Y to
+    avoid undesired leakage due to the zero flag generation.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
