@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12898"
-version_tuple = (0, 0, 12898)
+version_str = "0.0.post12899"
+version_tuple = (0, 0, 12899)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12898")
+    pversion = V("0.0.post12899")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12756"
-data_version_tuple = (0, 0, 12756)
+data_version_str = "0.0.post12757"
+data_version_tuple = (0, 0, 12757)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12756")
+    pdata_version = V("0.0.post12757")
 except ImportError:
     pass
-data_git_hash = "9c280944cd69aa74e2b98c0d572e232582bcbf87"
-data_git_describe = "v0.0-12756-g9c280944cd"
+data_git_hash = "54329ed9604fd4ec37cbeaba8c48a17c533d3c2e"
+data_git_describe = "v0.0-12757-g54329ed960"
 data_git_msg = """\
-commit 9c280944cd69aa74e2b98c0d572e232582bcbf87
+commit 54329ed9604fd4ec37cbeaba8c48a17c533d3c2e
 Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jun 30 08:36:56 2022 -0700
+Date:   Thu Jun 30 12:10:28 2022 -0700
 
-    [dv/alert_handler] Enhance EDN timing check
+    [dv/pwm] Two small fixes
     
-    The spec specifies that EDN request should be refreshed every 500k clock
-    cycles.
-    This PR:
-    1). Adds a checking in scb to make sure this timing requirement is
-      satisfied.
-    2). Add functional coverage group to make sure we run simulation long
-      enough to capture EDN requests at least 5 times.
+    Fix two TODOs in issue #13476:
+    1). Fix max outstanding access coverage
+    2). Fix regression unmapped memory tests.
     
     Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
