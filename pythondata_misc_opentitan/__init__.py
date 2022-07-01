@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12926"
-version_tuple = (0, 0, 12926)
+version_str = "0.0.post12930"
+version_tuple = (0, 0, 12930)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12926")
+    pversion = V("0.0.post12930")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12784"
-data_version_tuple = (0, 0, 12784)
+data_version_str = "0.0.post12788"
+data_version_tuple = (0, 0, 12788)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12784")
+    pdata_version = V("0.0.post12788")
 except ImportError:
     pass
-data_git_hash = "435d6c889ddf86d116086ea964e125616bfa0c51"
-data_git_describe = "v0.0-12784-g435d6c889d"
+data_git_hash = "1f7ba3b020414e535637ca066149323d0141ff19"
+data_git_describe = "v0.0-12788-g1f7ba3b020"
 data_git_msg = """\
-commit 435d6c889ddf86d116086ea964e125616bfa0c51
-Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
-Date:   Tue Jun 28 19:24:12 2022 +0100
+commit 1f7ba3b020414e535637ca066149323d0141ff19
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Jul 1 13:38:19 2022 -0700
 
-    [PWM/DV] Corrections In PWM Scoreboard
+    [dvsim] Indicate what is currently running
     
-       Made corrections in subcycle_cnt initialization
-       Synchronized the PWM scoreboard and DUT pwm_o pulse
-       Some more tweak to scoreboard
-       Updated review comments related to localparam
+    This commit enhances the dvsim status bar to indicate what
+    job is currently running, truncated to 30 characters.
     
-    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
