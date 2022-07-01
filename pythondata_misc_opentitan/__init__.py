@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12912"
-version_tuple = (0, 0, 12912)
+version_str = "0.0.post12915"
+version_tuple = (0, 0, 12915)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12912")
+    pversion = V("0.0.post12915")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12770"
-data_version_tuple = (0, 0, 12770)
+data_version_str = "0.0.post12773"
+data_version_tuple = (0, 0, 12773)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12770")
+    pdata_version = V("0.0.post12773")
 except ImportError:
     pass
-data_git_hash = "dbc470d2bfcb528a996db9060294207a9ffbdffd"
-data_git_describe = "v0.0-12770-gdbc470d2bf"
+data_git_hash = "2c6196533f33b493e2d56b8a61ebfa620d8503da"
+data_git_describe = "v0.0-12773-g2c6196533f"
 data_git_msg = """\
-commit dbc470d2bfcb528a996db9060294207a9ffbdffd
-Author: Michał Mazurek <maz@semihalf.com>
-Date:   Wed Jun 29 16:46:43 2022 +0200
+commit 2c6196533f33b493e2d56b8a61ebfa620d8503da
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue May 31 10:35:23 2022 +0100
 
-    [opentitanlib] Fix Ti50Emulator Uart Sub-process state handling.
+    [test, entropy_src] Add `chip_sw_entropy_src_ast_rng_req` test
     
-    Fix state handling due to changes introduced by PR#13277
-    with function get_socket(..).
+    Fixes lowrisc/opentitan#13231
     
-    Signed-off-by: Michał Mazurek <maz@semihalf.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
