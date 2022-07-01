@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12908"
-version_tuple = (0, 0, 12908)
+version_str = "0.0.post12911"
+version_tuple = (0, 0, 12911)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12908")
+    pversion = V("0.0.post12911")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12766"
-data_version_tuple = (0, 0, 12766)
+data_version_str = "0.0.post12769"
+data_version_tuple = (0, 0, 12769)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12766")
+    pdata_version = V("0.0.post12769")
 except ImportError:
     pass
-data_git_hash = "6f314fc6c54188f704bc3b68be4cd1d1a7350ea8"
-data_git_describe = "v0.0-12766-g6f314fc6c5"
+data_git_hash = "cbb1d8754089353268897cedd3416fc590f6f1d9"
+data_git_describe = "v0.0-12769-gcbb1d87540"
 data_git_msg = """\
-commit 6f314fc6c54188f704bc3b68be4cd1d1a7350ea8
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Jun 16 15:37:41 2022 -0700
+commit cbb1d8754089353268897cedd3416fc590f6f1d9
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Tue Jun 28 08:07:31 2022 -0700
 
-    [doc] Update top earlgrey specification.
+    [tools/dv] Modify common.ccf file for proper expression coverage
     
-    Partial description updates, integration of Hugo memory map and pinout
-    shortcodes.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
