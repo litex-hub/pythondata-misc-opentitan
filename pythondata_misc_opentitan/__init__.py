@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12925"
-version_tuple = (0, 0, 12925)
+version_str = "0.0.post12926"
+version_tuple = (0, 0, 12926)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12925")
+    pversion = V("0.0.post12926")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12783"
-data_version_tuple = (0, 0, 12783)
+data_version_str = "0.0.post12784"
+data_version_tuple = (0, 0, 12784)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12783")
+    pdata_version = V("0.0.post12784")
 except ImportError:
     pass
-data_git_hash = "1697525a0b9029af2a8601be5bfecb9449f3492d"
-data_git_describe = "v0.0-12783-g1697525a0b"
+data_git_hash = "435d6c889ddf86d116086ea964e125616bfa0c51"
+data_git_describe = "v0.0-12784-g435d6c889d"
 data_git_msg = """\
-commit 1697525a0b9029af2a8601be5bfecb9449f3492d
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Jul 1 10:09:49 2022 -0700
+commit 435d6c889ddf86d116086ea964e125616bfa0c51
+Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+Date:   Tue Jun 28 19:24:12 2022 +0100
 
-    [doc] Remove sw/device/examples index page.
+    [PWM/DV] Corrections In PWM Scoreboard
     
-    This document currently doesn't have any content, and all examples
-    documentation are covered in README.md files.
+       Made corrections in subcycle_cnt initialization
+       Synchronized the PWM scoreboard and DUT pwm_o pulse
+       Some more tweak to scoreboard
+       Updated review comments related to localparam
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
 
 """
 
