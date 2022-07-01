@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12915"
-version_tuple = (0, 0, 12915)
+version_str = "0.0.post12918"
+version_tuple = (0, 0, 12918)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12915")
+    pversion = V("0.0.post12918")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12773"
-data_version_tuple = (0, 0, 12773)
+data_version_str = "0.0.post12776"
+data_version_tuple = (0, 0, 12776)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12773")
+    pdata_version = V("0.0.post12776")
 except ImportError:
     pass
-data_git_hash = "2c6196533f33b493e2d56b8a61ebfa620d8503da"
-data_git_describe = "v0.0-12773-g2c6196533f"
+data_git_hash = "dd256fe3b7d5aed44574baf3b10278ef741fdc54"
+data_git_describe = "v0.0-12776-gdd256fe3b7"
 data_git_msg = """\
-commit 2c6196533f33b493e2d56b8a61ebfa620d8503da
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue May 31 10:35:23 2022 +0100
+commit dd256fe3b7d5aed44574baf3b10278ef741fdc54
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Jul 1 08:18:59 2022 -0700
 
-    [test, entropy_src] Add `chip_sw_entropy_src_ast_rng_req` test
+    [doc] Update top earlgrey block diagram
     
-    Fixes lowrisc/opentitan#13231
-    
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
