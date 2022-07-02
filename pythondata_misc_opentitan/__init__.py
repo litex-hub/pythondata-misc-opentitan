@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12930"
-version_tuple = (0, 0, 12930)
+version_str = "0.0.post12931"
+version_tuple = (0, 0, 12931)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12930")
+    pversion = V("0.0.post12931")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12788"
-data_version_tuple = (0, 0, 12788)
+data_version_str = "0.0.post12789"
+data_version_tuple = (0, 0, 12789)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12788")
+    pdata_version = V("0.0.post12789")
 except ImportError:
     pass
-data_git_hash = "1f7ba3b020414e535637ca066149323d0141ff19"
-data_git_describe = "v0.0-12788-g1f7ba3b020"
+data_git_hash = "0cc1e439b562ab1dffc5ce85ab4ad2a48b4245ee"
+data_git_describe = "v0.0-12789-g0cc1e439b5"
 data_git_msg = """\
-commit 1f7ba3b020414e535637ca066149323d0141ff19
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Jul 1 13:38:19 2022 -0700
+commit 0cc1e439b562ab1dffc5ce85ab4ad2a48b4245ee
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Jul 1 11:19:52 2022 -0700
 
-    [dvsim] Indicate what is currently running
+    [formal,conn] Add ast to entropy_src connectivity check
     
-    This commit enhances the dvsim status bar to indicate what
-    job is currently running, truncated to 30 characters.
+    Also fix path to usbdev ram.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Fixes #13460
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
