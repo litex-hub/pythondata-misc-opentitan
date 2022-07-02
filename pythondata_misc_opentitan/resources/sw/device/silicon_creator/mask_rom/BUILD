@@ -300,18 +300,26 @@ cc_test(
 # MASK ROM E2E TESTS
 
 # Bootup tests
-BOOT_FAILURE_MSG = "BFV:[0-9a-z]{{8}}\r\nLCV:[0-9a-z]{{8}}\r\n"
+BOOT_FAILURE_MSG = "BFV:[0-9a-f]{8}"
+
+BOOT_SUCCESS_MSG = "PASS!"
 
 opentitan_functest(
     name = "e2e_bootup_success",
     srcs = ["mask_rom_test.c"],
     cw310 = cw310_params(
         bitstream = "//hw/bitstream:mask_rom",
-        tags = ["broken"],
+        exit_failure = BOOT_FAILURE_MSG,
+        exit_success = BOOT_SUCCESS_MSG,
     ),
+    manifest = "//sw/device/silicon_creator/rom_ext:manifest_standard",
     signed = True,
     verilator = verilator_params(
+        exit_failure = BOOT_FAILURE_MSG,
+        exit_success = BOOT_SUCCESS_MSG,
         rom = ":mask_rom_sim_verilator_scr_vmem",
+        # Note: Leaving as broken since this test takes a long time and
+        # we don't really need it as long as the CI runs the FPGA version.
         tags = [
             "broken",
         ],
@@ -325,20 +333,15 @@ opentitan_functest(
     name = "e2e_bootup_no_rom_ext_signature",
     srcs = ["mask_rom_test.c"],
     cw310 = cw310_params(
-        args = [
-            "--exec=\"load-bitstream --rom-kind={rom_kind} $(location {bitstream})\"",
-            "--exec=\"bootstrap $(location {flash})\"",
-            "console",
-            "--timeout=30s",
-            "--exit-success='{}'".format(BOOT_FAILURE_MSG),
-            "--exit-failure='PASS!'",
-        ],
         bitstream = "//hw/bitstream:mask_rom",
+        exit_failure = BOOT_SUCCESS_MSG,
+        exit_success = BOOT_FAILURE_MSG,
     ),
     signed = False,
     verilator = verilator_params(
+        exit_failure = BOOT_SUCCESS_MSG,
+        exit_success = BOOT_FAILURE_MSG,
         rom = ":mask_rom_sim_verilator_scr_vmem",
-        tags = ["broken"],
     ),
     deps = [
         "//sw/device/lib/testing/test_framework:ottf_main",
