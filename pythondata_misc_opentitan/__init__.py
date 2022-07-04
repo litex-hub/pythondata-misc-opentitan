@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12935"
-version_tuple = (0, 0, 12935)
+version_str = "0.0.post12936"
+version_tuple = (0, 0, 12936)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12935")
+    pversion = V("0.0.post12936")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12793"
-data_version_tuple = (0, 0, 12793)
+data_version_str = "0.0.post12794"
+data_version_tuple = (0, 0, 12794)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12793")
+    pdata_version = V("0.0.post12794")
 except ImportError:
     pass
-data_git_hash = "6d81f51f41d809e7bb030cc36291338ea567e870"
-data_git_describe = "v0.0-12793-g6d81f51f41"
+data_git_hash = "74186fbc474d590b9599e5b37806cbfb4641bbe8"
+data_git_describe = "v0.0-12794-g74186fbc47"
 data_git_msg = """\
-commit 6d81f51f41d809e7bb030cc36291338ea567e870
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Jul 1 08:51:37 2022 -0400
+commit 74186fbc474d590b9599e5b37806cbfb4641bbe8
+Author: Hugo McNally <hugo.mcnally@gmail.com>
+Date:   Thu Jun 30 15:53:57 2022 +0100
 
-    [bazel] Enable e2e_bootup_success test
+    [dif, rv_core_ibex] More flexible addr translation
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    General dif API changes for ibex's address translation with added
+    features, such as ability to disable address translation once enabled.
+    
+    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
 
 """
 
