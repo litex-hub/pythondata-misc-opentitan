@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12936"
-version_tuple = (0, 0, 12936)
+version_str = "0.0.post12937"
+version_tuple = (0, 0, 12937)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12936")
+    pversion = V("0.0.post12937")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12794"
-data_version_tuple = (0, 0, 12794)
+data_version_str = "0.0.post12795"
+data_version_tuple = (0, 0, 12795)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12794")
+    pdata_version = V("0.0.post12795")
 except ImportError:
     pass
-data_git_hash = "74186fbc474d590b9599e5b37806cbfb4641bbe8"
-data_git_describe = "v0.0-12794-g74186fbc47"
+data_git_hash = "6a643647dde9851c1b612d7219e783a03713946f"
+data_git_describe = "v0.0-12795-g6a643647dd"
 data_git_msg = """\
-commit 74186fbc474d590b9599e5b37806cbfb4641bbe8
-Author: Hugo McNally <hugo.mcnally@gmail.com>
-Date:   Thu Jun 30 15:53:57 2022 +0100
+commit 6a643647dde9851c1b612d7219e783a03713946f
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Fri Jul 1 14:25:30 2022 -0700
 
-    [dif, rv_core_ibex] More flexible addr translation
+    [pwm/doc] Explicitly document pwm_en_o outputs
     
-    General dif API changes for ibex's address translation with added
-    features, such as ability to disable address translation once enabled.
-    
-    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
