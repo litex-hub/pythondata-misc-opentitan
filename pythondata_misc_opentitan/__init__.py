@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12944"
-version_tuple = (0, 0, 12944)
+version_str = "0.0.post12950"
+version_tuple = (0, 0, 12950)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12944")
+    pversion = V("0.0.post12950")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12802"
-data_version_tuple = (0, 0, 12802)
+data_version_str = "0.0.post12808"
+data_version_tuple = (0, 0, 12808)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12802")
+    pdata_version = V("0.0.post12808")
 except ImportError:
     pass
-data_git_hash = "9591e1f25d02e10673e259d9c29b42bf0686bfcc"
-data_git_describe = "v0.0-12802-g9591e1f25d"
+data_git_hash = "aa110dcac555bcb3287a95ff9108451a80b2d6e7"
+data_git_describe = "v0.0-12808-gaa110dcac5"
 data_git_msg = """\
-commit 9591e1f25d02e10673e259d9c29b42bf0686bfcc
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Thu Jun 30 13:25:11 2022 -0700
+commit aa110dcac555bcb3287a95ff9108451a80b2d6e7
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Jul 6 11:51:21 2022 -0700
 
-    [pwm, rtl] PWM RTL fix for duty cycle overflow/underflow
+    [dv/alert_handler] Update alert_handler output timing
     
-      - Fix the PWM RTL duty cycle overflow/underflow issue to match the spec
-      - Fixes #13434
+    This PR updates alert_handler test timeout timing.
     
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
