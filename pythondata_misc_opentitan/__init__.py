@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12941"
-version_tuple = (0, 0, 12941)
+version_str = "0.0.post12942"
+version_tuple = (0, 0, 12942)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12941")
+    pversion = V("0.0.post12942")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12799"
-data_version_tuple = (0, 0, 12799)
+data_version_str = "0.0.post12800"
+data_version_tuple = (0, 0, 12800)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12799")
+    pdata_version = V("0.0.post12800")
 except ImportError:
     pass
-data_git_hash = "9ae5ae66bd43388105d1874bf26e6dc41eb5c4ad"
-data_git_describe = "v0.0-12799-g9ae5ae66bd"
+data_git_hash = "47e856187ae49dcf5e4976d52f4c9649b7eb8828"
+data_git_describe = "v0.0-12800-g47e856187a"
 data_git_msg = """\
-commit 9ae5ae66bd43388105d1874bf26e6dc41eb5c4ad
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Wed Jun 22 13:32:45 2022 +0000
+commit 47e856187ae49dcf5e4976d52f4c9649b7eb8828
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Jun 22 13:17:29 2022 -0400
 
-    [dv,flash_ctrl] Add more scramble test
+    [meson] remove meson.build file from sw/device/tests/sim_dv
     
-    - Change ditribution of the number of ctrl req
-    - Add small word test
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
