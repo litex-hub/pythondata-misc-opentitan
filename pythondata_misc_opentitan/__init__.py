@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12937"
-version_tuple = (0, 0, 12937)
+version_str = "0.0.post12941"
+version_tuple = (0, 0, 12941)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12937")
+    pversion = V("0.0.post12941")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12795"
-data_version_tuple = (0, 0, 12795)
+data_version_str = "0.0.post12799"
+data_version_tuple = (0, 0, 12799)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12795")
+    pdata_version = V("0.0.post12799")
 except ImportError:
     pass
-data_git_hash = "6a643647dde9851c1b612d7219e783a03713946f"
-data_git_describe = "v0.0-12795-g6a643647dd"
+data_git_hash = "9ae5ae66bd43388105d1874bf26e6dc41eb5c4ad"
+data_git_describe = "v0.0-12799-g9ae5ae66bd"
 data_git_msg = """\
-commit 6a643647dde9851c1b612d7219e783a03713946f
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Jul 1 14:25:30 2022 -0700
+commit 9ae5ae66bd43388105d1874bf26e6dc41eb5c4ad
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Wed Jun 22 13:32:45 2022 +0000
 
-    [pwm/doc] Explicitly document pwm_en_o outputs
+    [dv,flash_ctrl] Add more scramble test
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    - Change ditribution of the number of ctrl req
+    - Add small word test
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
