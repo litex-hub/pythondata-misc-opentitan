@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12967"
-version_tuple = (0, 0, 12967)
+version_str = "0.0.post12969"
+version_tuple = (0, 0, 12969)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12967")
+    pversion = V("0.0.post12969")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12825"
-data_version_tuple = (0, 0, 12825)
+data_version_str = "0.0.post12827"
+data_version_tuple = (0, 0, 12827)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12825")
+    pdata_version = V("0.0.post12827")
 except ImportError:
     pass
-data_git_hash = "06d2247c2e528c35e1803818a9a74e3bd9c48d38"
-data_git_describe = "v0.0-12825-g06d2247c2e"
+data_git_hash = "525ce94fde59b87509d7e92493078b30e315770a"
+data_git_describe = "v0.0-12827-g525ce94fde"
 data_git_msg = """\
-commit 06d2247c2e528c35e1803818a9a74e3bd9c48d38
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Jul 7 12:51:08 2022 -0700
+commit 525ce94fde59b87509d7e92493078b30e315770a
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Thu Jun 30 12:33:59 2022 -0400
 
-    [sw] Fix clang format errors
+    [.github] Add advice to ignore unknown user errors
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    See issue #13469
+    
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
