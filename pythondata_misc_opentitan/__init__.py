@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12952"
-version_tuple = (0, 0, 12952)
+version_str = "0.0.post12956"
+version_tuple = (0, 0, 12956)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12952")
+    pversion = V("0.0.post12956")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12810"
-data_version_tuple = (0, 0, 12810)
+data_version_str = "0.0.post12814"
+data_version_tuple = (0, 0, 12814)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12810")
+    pdata_version = V("0.0.post12814")
 except ImportError:
     pass
-data_git_hash = "e759d414f3f93af1bc9942d60cc40ed595ace56e"
-data_git_describe = "v0.0-12810-ge759d414f3"
+data_git_hash = "be73450cd45b20afa4153e064d83f18d66074999"
+data_git_describe = "v0.0-12814-gbe73450cd4"
 data_git_msg = """\
-commit e759d414f3f93af1bc9942d60cc40ed595ace56e
-Author: Miles Dai <milesdai@google.com>
-Date:   Thu Jun 30 13:48:12 2022 -0400
+commit be73450cd45b20afa4153e064d83f18d66074999
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Jul 5 11:35:22 2022 +0100
 
-    [ci] Move continueOnError flag for Bazel fetch step
+    [test, aes] Add chip level test aes_sideload_test
     
-    This is an attempt to try and trigger a warning on Github instead of a failure.
+    Fixes #13232
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
