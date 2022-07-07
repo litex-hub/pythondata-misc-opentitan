@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12960"
-version_tuple = (0, 0, 12960)
+version_str = "0.0.post12961"
+version_tuple = (0, 0, 12961)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12960")
+    pversion = V("0.0.post12961")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12818"
-data_version_tuple = (0, 0, 12818)
+data_version_str = "0.0.post12819"
+data_version_tuple = (0, 0, 12819)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12818")
+    pdata_version = V("0.0.post12819")
 except ImportError:
     pass
-data_git_hash = "39dca1d60c7a2f7f3a56eea1885511de06281472"
-data_git_describe = "v0.0-12818-g39dca1d60c"
+data_git_hash = "644a2f9edb1b70c959499938ab8ea6343945dc99"
+data_git_describe = "v0.0-12819-g644a2f9edb"
 data_git_msg = """\
-commit 39dca1d60c7a2f7f3a56eea1885511de06281472
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Jul 6 18:42:35 2022 -0700
+commit 644a2f9edb1b70c959499938ab8ea6343945dc99
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Thu Jun 30 14:33:24 2022 -0400
 
-    [bazel] add SHAs for all rust crates
+    [ci] isolate check-generated.sh from previous corruption of repo
     
-    This adds missing SHAs for all rust crates to enable/fix airgapped builds of
-    opentitantool.
+    If we reorder jobs we can find the first step of this test is sensitive
+    to the state of the git repo and can fail. by cleaning up before we run
+    it will become more reliable.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
