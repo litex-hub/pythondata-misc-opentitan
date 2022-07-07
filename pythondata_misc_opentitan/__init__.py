@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12950"
-version_tuple = (0, 0, 12950)
+version_str = "0.0.post12951"
+version_tuple = (0, 0, 12951)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12950")
+    pversion = V("0.0.post12951")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12808"
-data_version_tuple = (0, 0, 12808)
+data_version_str = "0.0.post12809"
+data_version_tuple = (0, 0, 12809)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12808")
+    pdata_version = V("0.0.post12809")
 except ImportError:
     pass
-data_git_hash = "aa110dcac555bcb3287a95ff9108451a80b2d6e7"
-data_git_describe = "v0.0-12808-gaa110dcac5"
+data_git_hash = "96b1d5a9e293a9cf87b431444ffc2d1092a2d403"
+data_git_describe = "v0.0-12809-g96b1d5a9e2"
 data_git_msg = """\
-commit aa110dcac555bcb3287a95ff9108451a80b2d6e7
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jul 6 11:51:21 2022 -0700
+commit 96b1d5a9e293a9cf87b431444ffc2d1092a2d403
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jul 6 12:14:11 2022 -0700
 
-    [dv/alert_handler] Update alert_handler output timing
+    [sram/dv] Fix d_error mismatch
     
-    This PR updates alert_handler test timeout timing.
+    Fixed a mistake in #13135
+    The `d_error` check should be added for chip_scoreboard, but wrongly added in
+    sram_ctrl_scoreboard. sram_ctrl_scoreboard already checks it in another
+    function.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
