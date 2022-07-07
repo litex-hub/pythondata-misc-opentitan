@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12958"
-version_tuple = (0, 0, 12958)
+version_str = "0.0.post12960"
+version_tuple = (0, 0, 12960)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12958")
+    pversion = V("0.0.post12960")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12816"
-data_version_tuple = (0, 0, 12816)
+data_version_str = "0.0.post12818"
+data_version_tuple = (0, 0, 12818)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12816")
+    pdata_version = V("0.0.post12818")
 except ImportError:
     pass
-data_git_hash = "498cdc60b4719bf232a1fdc586ff3addd58c5961"
-data_git_describe = "v0.0-12816-g498cdc60b4"
+data_git_hash = "39dca1d60c7a2f7f3a56eea1885511de06281472"
+data_git_describe = "v0.0-12818-g39dca1d60c"
 data_git_msg = """\
-commit 498cdc60b4719bf232a1fdc586ff3addd58c5961
-Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
-Date:   Tue Jun 28 12:18:05 2022 +0100
+commit 39dca1d60c7a2f7f3a56eea1885511de06281472
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Jul 6 18:42:35 2022 -0700
 
-    [SPI_HOST/DV] Regression Fixes
+    [bazel] add SHAs for all rust crates
     
-    - Fixed event test when txwm is set 1
-    - Txwm and Rxwm checked for edge trigger
-    - Fixed txwm and rxwm entries constraint cannot be 0
-    - Check event task modified to check intr and state values
+    This adds missing SHAs for all rust crates to enable/fix airgapped builds of
+    opentitantool.
     
-    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
