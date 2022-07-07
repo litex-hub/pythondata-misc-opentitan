@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12961"
-version_tuple = (0, 0, 12961)
+version_str = "0.0.post12966"
+version_tuple = (0, 0, 12966)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12961")
+    pversion = V("0.0.post12966")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12819"
-data_version_tuple = (0, 0, 12819)
+data_version_str = "0.0.post12824"
+data_version_tuple = (0, 0, 12824)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12819")
+    pdata_version = V("0.0.post12824")
 except ImportError:
     pass
-data_git_hash = "644a2f9edb1b70c959499938ab8ea6343945dc99"
-data_git_describe = "v0.0-12819-g644a2f9edb"
+data_git_hash = "6b85dcae41936ffb61d2ac8c6bf3f590a751c408"
+data_git_describe = "v0.0-12824-g6b85dcae41"
 data_git_msg = """\
-commit 644a2f9edb1b70c959499938ab8ea6343945dc99
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu Jun 30 14:33:24 2022 -0400
+commit 6b85dcae41936ffb61d2ac8c6bf3f590a751c408
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Jul 7 08:43:12 2022 -0700
 
-    [ci] isolate check-generated.sh from previous corruption of repo
+    [sw] Remove unused flash_ctrl build target
     
-    If we reorder jobs we can find the first step of this test is sensitive
-    to the state of the git repo and can fail. by cleaning up before we run
-    it will become more reliable.
+    The code was removed, but the build target remained and refers to
+    nonexistent files.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
