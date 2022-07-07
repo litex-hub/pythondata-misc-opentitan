@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12951"
-version_tuple = (0, 0, 12951)
+version_str = "0.0.post12952"
+version_tuple = (0, 0, 12952)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12951")
+    pversion = V("0.0.post12952")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12809"
-data_version_tuple = (0, 0, 12809)
+data_version_str = "0.0.post12810"
+data_version_tuple = (0, 0, 12810)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12809")
+    pdata_version = V("0.0.post12810")
 except ImportError:
     pass
-data_git_hash = "96b1d5a9e293a9cf87b431444ffc2d1092a2d403"
-data_git_describe = "v0.0-12809-g96b1d5a9e2"
+data_git_hash = "e759d414f3f93af1bc9942d60cc40ed595ace56e"
+data_git_describe = "v0.0-12810-ge759d414f3"
 data_git_msg = """\
-commit 96b1d5a9e293a9cf87b431444ffc2d1092a2d403
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jul 6 12:14:11 2022 -0700
+commit e759d414f3f93af1bc9942d60cc40ed595ace56e
+Author: Miles Dai <milesdai@google.com>
+Date:   Thu Jun 30 13:48:12 2022 -0400
 
-    [sram/dv] Fix d_error mismatch
+    [ci] Move continueOnError flag for Bazel fetch step
     
-    Fixed a mistake in #13135
-    The `d_error` check should be added for chip_scoreboard, but wrongly added in
-    sram_ctrl_scoreboard. sram_ctrl_scoreboard already checks it in another
-    function.
+    This is an attempt to try and trigger a warning on Github instead of a failure.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
