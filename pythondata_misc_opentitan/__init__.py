@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12956"
-version_tuple = (0, 0, 12956)
+version_str = "0.0.post12958"
+version_tuple = (0, 0, 12958)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12956")
+    pversion = V("0.0.post12958")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12814"
-data_version_tuple = (0, 0, 12814)
+data_version_str = "0.0.post12816"
+data_version_tuple = (0, 0, 12816)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12814")
+    pdata_version = V("0.0.post12816")
 except ImportError:
     pass
-data_git_hash = "be73450cd45b20afa4153e064d83f18d66074999"
-data_git_describe = "v0.0-12814-gbe73450cd4"
+data_git_hash = "498cdc60b4719bf232a1fdc586ff3addd58c5961"
+data_git_describe = "v0.0-12816-g498cdc60b4"
 data_git_msg = """\
-commit be73450cd45b20afa4153e064d83f18d66074999
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue Jul 5 11:35:22 2022 +0100
+commit 498cdc60b4719bf232a1fdc586ff3addd58c5961
+Author: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
+Date:   Tue Jun 28 12:18:05 2022 +0100
 
-    [test, aes] Add chip level test aes_sideload_test
+    [SPI_HOST/DV] Regression Fixes
     
-    Fixes #13232
+    - Fixed event test when txwm is set 1
+    - Txwm and Rxwm checked for edge trigger
+    - Fixed txwm and rxwm entries constraint cannot be 0
+    - Check event task modified to check intr and state values
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Viswanadha Bazawada <viswanadha.bazawada@ensilica.com>
 
 """
 
