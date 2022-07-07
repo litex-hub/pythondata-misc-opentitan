@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12966"
-version_tuple = (0, 0, 12966)
+version_str = "0.0.post12967"
+version_tuple = (0, 0, 12967)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12966")
+    pversion = V("0.0.post12967")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12824"
-data_version_tuple = (0, 0, 12824)
+data_version_str = "0.0.post12825"
+data_version_tuple = (0, 0, 12825)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12824")
+    pdata_version = V("0.0.post12825")
 except ImportError:
     pass
-data_git_hash = "6b85dcae41936ffb61d2ac8c6bf3f590a751c408"
-data_git_describe = "v0.0-12824-g6b85dcae41"
+data_git_hash = "06d2247c2e528c35e1803818a9a74e3bd9c48d38"
+data_git_describe = "v0.0-12825-g06d2247c2e"
 data_git_msg = """\
-commit 6b85dcae41936ffb61d2ac8c6bf3f590a751c408
-Author: Alexander Williams <awill@google.com>
-Date:   Thu Jul 7 08:43:12 2022 -0700
+commit 06d2247c2e528c35e1803818a9a74e3bd9c48d38
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Jul 7 12:51:08 2022 -0700
 
-    [sw] Remove unused flash_ctrl build target
+    [sw] Fix clang format errors
     
-    The code was removed, but the build target remained and refers to
-    nonexistent files.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
