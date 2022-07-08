@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12979"
-version_tuple = (0, 0, 12979)
+version_str = "0.0.post12980"
+version_tuple = (0, 0, 12980)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12979")
+    pversion = V("0.0.post12980")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12837"
-data_version_tuple = (0, 0, 12837)
+data_version_str = "0.0.post12838"
+data_version_tuple = (0, 0, 12838)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12837")
+    pdata_version = V("0.0.post12838")
 except ImportError:
     pass
-data_git_hash = "7db360958179f8d7e7358099ca7a7981eb41423c"
-data_git_describe = "v0.0-12837-g7db3609581"
+data_git_hash = "03a7e9bc90c991374be15a59ea561004e1e55212"
+data_git_describe = "v0.0-12838-g03a7e9bc90"
 data_git_msg = """\
-commit 7db360958179f8d7e7358099ca7a7981eb41423c
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Jul 7 10:26:19 2022 +0100
+commit 03a7e9bc90c991374be15a59ea561004e1e55212
+Author: Cindy Chen <chencindy@google.com>
+Date:   Fri Jul 8 10:23:09 2022 -0700
 
-    [test] Remove entropy_src initialization from unneeded tests
+    [dv/otp_ctrl] Move stress_all sequence to a separate function
     
-     Besides the OTB that uses de EDN1, any other IPs needs to reset the entropy src.
-     By removing entropy initialization from the unecessary tests we save a few minutes in the nightly regression.
+    This PR moves the stress_all sequence to a separate function to make it
+    easier to override in close source env.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@google.com>
 
 """
 
