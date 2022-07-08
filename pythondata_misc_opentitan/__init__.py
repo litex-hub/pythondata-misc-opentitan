@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12969"
-version_tuple = (0, 0, 12969)
+version_str = "0.0.post12972"
+version_tuple = (0, 0, 12972)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12969")
+    pversion = V("0.0.post12972")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12827"
-data_version_tuple = (0, 0, 12827)
+data_version_str = "0.0.post12830"
+data_version_tuple = (0, 0, 12830)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12827")
+    pdata_version = V("0.0.post12830")
 except ImportError:
     pass
-data_git_hash = "525ce94fde59b87509d7e92493078b30e315770a"
-data_git_describe = "v0.0-12827-g525ce94fde"
+data_git_hash = "f3d189cf5d9ef1d3b0e5c88231400631962932a0"
+data_git_describe = "v0.0-12830-gf3d189cf5d"
 data_git_msg = """\
-commit 525ce94fde59b87509d7e92493078b30e315770a
+commit f3d189cf5d9ef1d3b0e5c88231400631962932a0
 Author: Dan McArdle <dmcardle@google.com>
-Date:   Thu Jun 30 12:33:59 2022 -0400
+Date:   Wed Jun 29 12:52:04 2022 -0400
 
-    [.github] Add advice to ignore unknown user errors
+    [util/design] Encode bit width in filename of OTP vmem file
     
-    See issue #13469
+    The script now supports a templated output name parameter. This PR also
+    updates rules/autogen.bzl, where the script is called.
+    
+    This change will enable hw/ip/rom_ctrl/util/gen_vivado_mem_image.py to
+    parse the memory width from the filename. See discussion in #10867.
     
     Signed-off-by: Dan McArdle <dmcardle@google.com>
 
