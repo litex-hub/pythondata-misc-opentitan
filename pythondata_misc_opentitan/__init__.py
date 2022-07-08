@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12977"
-version_tuple = (0, 0, 12977)
+version_str = "0.0.post12978"
+version_tuple = (0, 0, 12978)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12977")
+    pversion = V("0.0.post12978")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12835"
-data_version_tuple = (0, 0, 12835)
+data_version_str = "0.0.post12836"
+data_version_tuple = (0, 0, 12836)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12835")
+    pdata_version = V("0.0.post12836")
 except ImportError:
     pass
-data_git_hash = "ee49544c240fd58a9568877c46e6dfbb5260334d"
-data_git_describe = "v0.0-12835-gee49544c24"
+data_git_hash = "a4684e1331fa7f64d091e37a1a4bda140cd3d4d1"
+data_git_describe = "v0.0-12836-ga4684e1331"
 data_git_msg = """\
-commit ee49544c240fd58a9568877c46e6dfbb5260334d
-Author: Michał Mazurek <maz@semihalf.com>
-Date:   Mon Jun 13 15:25:18 2022 +0200
+commit a4684e1331fa7f64d091e37a1a4bda140cd3d4d1
+Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+Date:   Mon Jun 27 13:54:08 2022 +0100
 
-    [opentitanlib] Add error cleaning to Ti50Emulator stop command
+    [PWM/DV] Updates For DV document
     
-    Allows Ti50Emulator command stop to clear the error
-    in case the sub-process is not running.
+       Updated PWM DV document for V2
+       PWM is ready for V2
+       Updated review comments from Jadeon and Matute
     
-    Signed-off-by: Michał Mazurek <maz@semihalf.com>
+    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
 
 """
 
