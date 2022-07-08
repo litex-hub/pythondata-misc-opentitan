@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12999"
-version_tuple = (0, 0, 12999)
+version_str = "0.0.post13000"
+version_tuple = (0, 0, 13000)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12999")
+    pversion = V("0.0.post13000")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12857"
-data_version_tuple = (0, 0, 12857)
+data_version_str = "0.0.post12858"
+data_version_tuple = (0, 0, 12858)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12857")
+    pdata_version = V("0.0.post12858")
 except ImportError:
     pass
-data_git_hash = "1529c7e02b9bfa10bc30115ca88b1caef4117b70"
-data_git_describe = "v0.0-12857-g1529c7e02b"
+data_git_hash = "45121fcd36aa3e29e086e2a05acf70a564a8e635"
+data_git_describe = "v0.0-12858-g45121fcd36"
 data_git_msg = """\
-commit 1529c7e02b9bfa10bc30115ca88b1caef4117b70
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Jun 24 22:33:05 2022 -0400
+commit 45121fcd36aa3e29e086e2a05acf70a564a8e635
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Jun 29 16:37:48 2022 -0700
 
-    [bazel] Update googletest to release-1.11.0
+    [top] Separate JTAG from SPIDEV on CW310
     
-    This commit updates googletest to release-1.11.0 instead of
-    the latest release available (1.12.0) because that release has an
-    undocumented dependency to @com_googlesource_code_re2 which breaks our
-    builds.
+    Align ASIC and CW310 JTAG pins on the pinmux. Move the VBUS sense pin
+    for usbdev to IOC7, since IOR0 is used by JTAG.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    This commit connects CW310's JTAG header to the JTAG pins on IOR0-IOR4.
+    Note that TRST_N is only available on the 20-pin header.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
