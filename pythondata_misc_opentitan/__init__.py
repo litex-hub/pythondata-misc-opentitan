@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12975"
-version_tuple = (0, 0, 12975)
+version_str = "0.0.post12977"
+version_tuple = (0, 0, 12977)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12975")
+    pversion = V("0.0.post12977")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12833"
-data_version_tuple = (0, 0, 12833)
+data_version_str = "0.0.post12835"
+data_version_tuple = (0, 0, 12835)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12833")
+    pdata_version = V("0.0.post12835")
 except ImportError:
     pass
-data_git_hash = "461b8f3c41f9d1f3341f9a5582a51018daeb6243"
-data_git_describe = "v0.0-12833-g461b8f3c41"
+data_git_hash = "ee49544c240fd58a9568877c46e6dfbb5260334d"
+data_git_describe = "v0.0-12835-gee49544c24"
 data_git_msg = """\
-commit 461b8f3c41f9d1f3341f9a5582a51018daeb6243
-Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
-Date:   Wed Jun 22 11:29:45 2022 +0100
+commit ee49544c240fd58a9568877c46e6dfbb5260334d
+Author: Michał Mazurek <maz@semihalf.com>
+Date:   Mon Jun 13 15:25:18 2022 +0200
 
-    [otbn, dv] Adds otbn_pc_ctrl_flow_redun testcase
+    [opentitanlib] Add error cleaning to Ti50Emulator stop command
     
-    This commit adds a new testcase to verify OTBN.PC.CTRL_FLOW.REDUN
-    countermeasure.
+    Allows Ti50Emulator command stop to clear the error
+    in case the sub-process is not running.
     
-    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+    Signed-off-by: Michał Mazurek <maz@semihalf.com>
 
 """
 
