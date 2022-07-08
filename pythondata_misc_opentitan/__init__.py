@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12978"
-version_tuple = (0, 0, 12978)
+version_str = "0.0.post12979"
+version_tuple = (0, 0, 12979)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12978")
+    pversion = V("0.0.post12979")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12836"
-data_version_tuple = (0, 0, 12836)
+data_version_str = "0.0.post12837"
+data_version_tuple = (0, 0, 12837)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12836")
+    pdata_version = V("0.0.post12837")
 except ImportError:
     pass
-data_git_hash = "a4684e1331fa7f64d091e37a1a4bda140cd3d4d1"
-data_git_describe = "v0.0-12836-ga4684e1331"
+data_git_hash = "7db360958179f8d7e7358099ca7a7981eb41423c"
+data_git_describe = "v0.0-12837-g7db3609581"
 data_git_msg = """\
-commit a4684e1331fa7f64d091e37a1a4bda140cd3d4d1
-Author: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
-Date:   Mon Jun 27 13:54:08 2022 +0100
+commit 7db360958179f8d7e7358099ca7a7981eb41423c
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Jul 7 10:26:19 2022 +0100
 
-    [PWM/DV] Updates For DV document
+    [test] Remove entropy_src initialization from unneeded tests
     
-       Updated PWM DV document for V2
-       PWM is ready for V2
-       Updated review comments from Jadeon and Matute
+     Besides the OTB that uses de EDN1, any other IPs needs to reset the entropy src.
+     By removing entropy initialization from the unecessary tests we save a few minutes in the nightly regression.
     
-    Signed-off-by: Dharanendra Kumar <dharanendra.kumar@ensilica.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
