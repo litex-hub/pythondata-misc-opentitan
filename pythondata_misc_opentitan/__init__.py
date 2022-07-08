@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13000"
-version_tuple = (0, 0, 13000)
+version_str = "0.0.post13001"
+version_tuple = (0, 0, 13001)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13000")
+    pversion = V("0.0.post13001")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12858"
-data_version_tuple = (0, 0, 12858)
+data_version_str = "0.0.post12859"
+data_version_tuple = (0, 0, 12859)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12858")
+    pdata_version = V("0.0.post12859")
 except ImportError:
     pass
-data_git_hash = "45121fcd36aa3e29e086e2a05acf70a564a8e635"
-data_git_describe = "v0.0-12858-g45121fcd36"
+data_git_hash = "1a180062f29790d404cf1d363fc27eca4af99c3e"
+data_git_describe = "v0.0-12859-g1a180062f2"
 data_git_msg = """\
-commit 45121fcd36aa3e29e086e2a05acf70a564a8e635
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Jun 29 16:37:48 2022 -0700
+commit 1a180062f29790d404cf1d363fc27eca4af99c3e
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jul 8 12:37:50 2022 -0700
 
-    [top] Separate JTAG from SPIDEV on CW310
+    [alert_handler] Align docs for crashdump latching
     
-    Align ASIC and CW310 JTAG pins on the pinmux. Move the VBUS sense pin
-    for usbdev to IOC7, since IOR0 is used by JTAG.
-    
-    This commit connects CW310's JTAG header to the JTAG pins on IOR0-IOR4.
-    Note that TRST_N is only available on the 20-pin header.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
