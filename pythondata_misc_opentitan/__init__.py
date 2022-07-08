@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12972"
-version_tuple = (0, 0, 12972)
+version_str = "0.0.post12974"
+version_tuple = (0, 0, 12974)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12972")
+    pversion = V("0.0.post12974")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12830"
-data_version_tuple = (0, 0, 12830)
+data_version_str = "0.0.post12832"
+data_version_tuple = (0, 0, 12832)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12830")
+    pdata_version = V("0.0.post12832")
 except ImportError:
     pass
-data_git_hash = "f3d189cf5d9ef1d3b0e5c88231400631962932a0"
-data_git_describe = "v0.0-12830-gf3d189cf5d"
+data_git_hash = "c0a96f9b46e96aa83a2db0469383067c36fcb5e8"
+data_git_describe = "v0.0-12832-gc0a96f9b46"
 data_git_msg = """\
-commit f3d189cf5d9ef1d3b0e5c88231400631962932a0
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Jun 29 12:52:04 2022 -0400
+commit c0a96f9b46e96aa83a2db0469383067c36fcb5e8
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jul 7 15:05:10 2022 -0700
 
-    [util/design] Encode bit width in filename of OTP vmem file
+    [dv/alert_handler] Change timeout from actual time to clock cycles
     
-    The script now supports a templated output name parameter. This PR also
-    updates rules/autogen.bzl, where the script is called.
+    This PR changes the implementation of EDN request timeout check from
+    measuring actual time to clock cycles. This is becuase in LPG cases, we
+    will stub the clk_i, and it will trigger this timeout check even though
+    the clock is stopped.
     
-    This change will enable hw/ip/rom_ctrl/util/gen_vivado_mem_image.py to
-    parse the memory width from the filename. See discussion in #10867.
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
