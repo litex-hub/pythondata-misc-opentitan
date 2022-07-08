@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post12980"
-version_tuple = (0, 0, 12980)
+version_str = "0.0.post12999"
+version_tuple = (0, 0, 12999)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post12980")
+    pversion = V("0.0.post12999")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12838"
-data_version_tuple = (0, 0, 12838)
+data_version_str = "0.0.post12857"
+data_version_tuple = (0, 0, 12857)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12838")
+    pdata_version = V("0.0.post12857")
 except ImportError:
     pass
-data_git_hash = "03a7e9bc90c991374be15a59ea561004e1e55212"
-data_git_describe = "v0.0-12838-g03a7e9bc90"
+data_git_hash = "1529c7e02b9bfa10bc30115ca88b1caef4117b70"
+data_git_describe = "v0.0-12857-g1529c7e02b"
 data_git_msg = """\
-commit 03a7e9bc90c991374be15a59ea561004e1e55212
-Author: Cindy Chen <chencindy@google.com>
-Date:   Fri Jul 8 10:23:09 2022 -0700
+commit 1529c7e02b9bfa10bc30115ca88b1caef4117b70
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Jun 24 22:33:05 2022 -0400
 
-    [dv/otp_ctrl] Move stress_all sequence to a separate function
+    [bazel] Update googletest to release-1.11.0
     
-    This PR moves the stress_all sequence to a separate function to make it
-    easier to override in close source env.
+    This commit updates googletest to release-1.11.0 instead of
+    the latest release available (1.12.0) because that release has an
+    undocumented dependency to @com_googlesource_code_re2 which breaks our
+    builds.
     
-    Signed-off-by: Cindy Chen <chencindy@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
