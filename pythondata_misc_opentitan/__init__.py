@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13005"
-version_tuple = (0, 0, 13005)
+version_str = "0.0.post13006"
+version_tuple = (0, 0, 13006)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13005")
+    pversion = V("0.0.post13006")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12863"
-data_version_tuple = (0, 0, 12863)
+data_version_str = "0.0.post12864"
+data_version_tuple = (0, 0, 12864)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12863")
+    pdata_version = V("0.0.post12864")
 except ImportError:
     pass
-data_git_hash = "3da5eab1ed884a516c35cca5db182e0ad0acb024"
-data_git_describe = "v0.0-12863-g3da5eab1ed"
+data_git_hash = "aabcd2c3063cf0d093df10d423b4a6568d90b8de"
+data_git_describe = "v0.0-12864-gaabcd2c306"
 data_git_msg = """\
-commit 3da5eab1ed884a516c35cca5db182e0ad0acb024
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Jun 29 15:45:14 2022 -0400
+commit aabcd2c3063cf0d093df10d423b4a6568d90b8de
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jul 8 15:52:46 2022 -0700
 
-    [util/design] Generate MEM instead of hexfile in gen-otp-img.py
+    [formal/fpv] support onehot register check [Part1]
     
-    See lowRISC/OpenTitan#10867
+    This PR supports onehot register check by blackboxing the
+    prim_onehot_check module, so that the err_o will be triggered randomly,
+    and we will check if alert is firing.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
