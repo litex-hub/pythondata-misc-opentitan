@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13002"
-version_tuple = (0, 0, 13002)
+version_str = "0.0.post13005"
+version_tuple = (0, 0, 13005)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13002")
+    pversion = V("0.0.post13005")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12860"
-data_version_tuple = (0, 0, 12860)
+data_version_str = "0.0.post12863"
+data_version_tuple = (0, 0, 12863)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12860")
+    pdata_version = V("0.0.post12863")
 except ImportError:
     pass
-data_git_hash = "4696b83b725c9a0cafd02d3f27e5687893fc1b1c"
-data_git_describe = "v0.0-12860-g4696b83b72"
+data_git_hash = "3da5eab1ed884a516c35cca5db182e0ad0acb024"
+data_git_describe = "v0.0-12863-g3da5eab1ed"
 data_git_msg = """\
-commit 4696b83b725c9a0cafd02d3f27e5687893fc1b1c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jul 7 16:06:09 2022 -0700
+commit 3da5eab1ed884a516c35cca5db182e0ad0acb024
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Wed Jun 29 15:45:14 2022 -0400
 
-    [dv/alert_handler] Add more LPG checkings
+    [util/design] Generate MEM instead of hexfile in gen-otp-img.py
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    See lowRISC/OpenTitan#10867
+    
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
