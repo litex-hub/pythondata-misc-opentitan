@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13021"
-version_tuple = (0, 0, 13021)
+version_str = "0.0.post13024"
+version_tuple = (0, 0, 13024)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13021")
+    pversion = V("0.0.post13024")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12879"
-data_version_tuple = (0, 0, 12879)
+data_version_str = "0.0.post12882"
+data_version_tuple = (0, 0, 12882)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12879")
+    pdata_version = V("0.0.post12882")
 except ImportError:
     pass
-data_git_hash = "7ee59a3b34a68b4fb59ca521c2b5c1b82842f570"
-data_git_describe = "v0.0-12879-g7ee59a3b34"
+data_git_hash = "210577402e9804e997003af40ef55eeffc360687"
+data_git_describe = "v0.0-12882-g210577402e"
 data_git_msg = """\
-commit 7ee59a3b34a68b4fb59ca521c2b5c1b82842f570
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jun 30 16:35:26 2022 -0700
+commit 210577402e9804e997003af40ef55eeffc360687
+Author: Hugo McNally <hugo.mcnally@gmail.com>
+Date:   Mon Jun 20 15:01:19 2022 +0100
 
-    [dv/top] Add alert_handler_escalation test
+    [doc] Inserted header anchors/links.
     
-    - this test goes through the full escalation path from a single
-      alert.
-    - the secret checking portion during escalation can be further
-      enhanced.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
 
 """
 
