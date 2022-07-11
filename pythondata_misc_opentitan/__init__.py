@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13006"
-version_tuple = (0, 0, 13006)
+version_str = "0.0.post13008"
+version_tuple = (0, 0, 13008)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13006")
+    pversion = V("0.0.post13008")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12864"
-data_version_tuple = (0, 0, 12864)
+data_version_str = "0.0.post12866"
+data_version_tuple = (0, 0, 12866)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12864")
+    pdata_version = V("0.0.post12866")
 except ImportError:
     pass
-data_git_hash = "aabcd2c3063cf0d093df10d423b4a6568d90b8de"
-data_git_describe = "v0.0-12864-gaabcd2c306"
+data_git_hash = "6617ebbb5027b8ea76c0090a8bf896ed228b72a2"
+data_git_describe = "v0.0-12866-g6617ebbb50"
 data_git_msg = """\
-commit aabcd2c3063cf0d093df10d423b4a6568d90b8de
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jul 8 15:52:46 2022 -0700
+commit 6617ebbb5027b8ea76c0090a8bf896ed228b72a2
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Jul 7 17:07:15 2022 +0200
 
-    [formal/fpv] support onehot register check [Part1]
+    [otbn] Add prim_onehot_mux to logical operation output in bignum ALU
     
-    This PR supports onehot register check by blackboxing the
-    prim_onehot_check module, so that the err_o will be triggered randomly,
-    and we will check if alert is firing.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
