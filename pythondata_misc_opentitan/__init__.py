@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13008"
-version_tuple = (0, 0, 13008)
+version_str = "0.0.post13010"
+version_tuple = (0, 0, 13010)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13008")
+    pversion = V("0.0.post13010")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12866"
-data_version_tuple = (0, 0, 12866)
+data_version_str = "0.0.post12868"
+data_version_tuple = (0, 0, 12868)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12866")
+    pdata_version = V("0.0.post12868")
 except ImportError:
     pass
-data_git_hash = "6617ebbb5027b8ea76c0090a8bf896ed228b72a2"
-data_git_describe = "v0.0-12866-g6617ebbb50"
+data_git_hash = "a4de3812bf7856afd6fc99c9fa80bfecf59df31f"
+data_git_describe = "v0.0-12868-ga4de3812bf"
 data_git_msg = """\
-commit 6617ebbb5027b8ea76c0090a8bf896ed228b72a2
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Thu Jul 7 17:07:15 2022 +0200
+commit a4de3812bf7856afd6fc99c9fa80bfecf59df31f
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Wed Jun 29 11:33:08 2022 +0100
 
-    [otbn] Add prim_onehot_mux to logical operation output in bignum ALU
+    [otbn,fcov] Add coverpoint for UNIMP insn
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    When we have this specific CSRRW insn (CSRRW x0, 0xC00, x0)
+    that would be UNIMP. In order to guarantee that we see it
+    an explicit coverpoint is needed.
+    
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
