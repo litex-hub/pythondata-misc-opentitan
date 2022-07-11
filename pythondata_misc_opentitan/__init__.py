@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13020"
-version_tuple = (0, 0, 13020)
+version_str = "0.0.post13021"
+version_tuple = (0, 0, 13021)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13020")
+    pversion = V("0.0.post13021")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12878"
-data_version_tuple = (0, 0, 12878)
+data_version_str = "0.0.post12879"
+data_version_tuple = (0, 0, 12879)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12878")
+    pdata_version = V("0.0.post12879")
 except ImportError:
     pass
-data_git_hash = "5186d619617bcac1adbb484f9249cd12152c62c5"
-data_git_describe = "v0.0-12878-g5186d61961"
+data_git_hash = "7ee59a3b34a68b4fb59ca521c2b5c1b82842f570"
+data_git_describe = "v0.0-12879-g7ee59a3b34"
 data_git_msg = """\
-commit 5186d619617bcac1adbb484f9249cd12152c62c5
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jul 8 17:16:25 2022 -0700
+commit 7ee59a3b34a68b4fb59ca521c2b5c1b82842f570
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Jun 30 16:35:26 2022 -0700
 
-    [otbn/lint] rename branch field since it is reserved
+    [dv/top] Add alert_handler_escalation test
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    - this test goes through the full escalation path from a single
+      alert.
+    - the secret checking portion during escalation can be further
+      enhanced.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
