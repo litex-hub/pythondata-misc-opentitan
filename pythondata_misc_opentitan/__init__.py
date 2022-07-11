@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13010"
-version_tuple = (0, 0, 13010)
+version_str = "0.0.post13012"
+version_tuple = (0, 0, 13012)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13010")
+    pversion = V("0.0.post13012")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12868"
-data_version_tuple = (0, 0, 12868)
+data_version_str = "0.0.post12870"
+data_version_tuple = (0, 0, 12870)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12868")
+    pdata_version = V("0.0.post12870")
 except ImportError:
     pass
-data_git_hash = "a4de3812bf7856afd6fc99c9fa80bfecf59df31f"
-data_git_describe = "v0.0-12868-ga4de3812bf"
+data_git_hash = "564f8fe63ef37bbed2ce91c0485d9bebdd9a8196"
+data_git_describe = "v0.0-12870-g564f8fe63e"
 data_git_msg = """\
-commit a4de3812bf7856afd6fc99c9fa80bfecf59df31f
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Wed Jun 29 11:33:08 2022 +0100
+commit 564f8fe63ef37bbed2ce91c0485d9bebdd9a8196
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu May 26 14:50:17 2022 -0700
 
-    [otbn,fcov] Add coverpoint for UNIMP insn
+    chore(gpio): GPIO to D3 for v1.1
     
-    When we have this specific CSRRW insn (CSRRW x0, 0xC00, x0)
-    that would be UNIMP. In order to guarantee that we see it
-    an explicit coverpoint is needed.
+    This commit moves GPIO HWIP to D3 for version 1.1
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
