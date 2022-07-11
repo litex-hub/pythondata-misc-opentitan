@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13024"
-version_tuple = (0, 0, 13024)
+version_str = "0.0.post13027"
+version_tuple = (0, 0, 13027)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13024")
+    pversion = V("0.0.post13027")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12882"
-data_version_tuple = (0, 0, 12882)
+data_version_str = "0.0.post12885"
+data_version_tuple = (0, 0, 12885)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12882")
+    pdata_version = V("0.0.post12885")
 except ImportError:
     pass
-data_git_hash = "210577402e9804e997003af40ef55eeffc360687"
-data_git_describe = "v0.0-12882-g210577402e"
+data_git_hash = "a8e96a0213571207bea750f0e691e8d1521fe4c4"
+data_git_describe = "v0.0-12885-ga8e96a0213"
 data_git_msg = """\
-commit 210577402e9804e997003af40ef55eeffc360687
-Author: Hugo McNally <hugo.mcnally@gmail.com>
-Date:   Mon Jun 20 15:01:19 2022 +0100
+commit a8e96a0213571207bea750f0e691e8d1521fe4c4
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jul 8 15:14:28 2022 -0700
 
-    [doc] Inserted header anchors/links.
+    [util/dv] Fix sec_cm auto-gen in IP template file
     
-    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
+    This PR fixes issue #13560 regarding auto-generated ip_template file
+    cannot override sec_cm_testplan issue.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
