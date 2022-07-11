@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13012"
-version_tuple = (0, 0, 13012)
+version_str = "0.0.post13020"
+version_tuple = (0, 0, 13020)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13012")
+    pversion = V("0.0.post13020")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12870"
-data_version_tuple = (0, 0, 12870)
+data_version_str = "0.0.post12878"
+data_version_tuple = (0, 0, 12878)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12870")
+    pdata_version = V("0.0.post12878")
 except ImportError:
     pass
-data_git_hash = "564f8fe63ef37bbed2ce91c0485d9bebdd9a8196"
-data_git_describe = "v0.0-12870-g564f8fe63e"
+data_git_hash = "5186d619617bcac1adbb484f9249cd12152c62c5"
+data_git_describe = "v0.0-12878-g5186d61961"
 data_git_msg = """\
-commit 564f8fe63ef37bbed2ce91c0485d9bebdd9a8196
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu May 26 14:50:17 2022 -0700
+commit 5186d619617bcac1adbb484f9249cd12152c62c5
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jul 8 17:16:25 2022 -0700
 
-    chore(gpio): GPIO to D3 for v1.1
+    [otbn/lint] rename branch field since it is reserved
     
-    This commit moves GPIO HWIP to D3 for version 1.1
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
