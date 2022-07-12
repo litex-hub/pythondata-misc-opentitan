@@ -13,6 +13,11 @@ cc_library(
 )
 
 cc_library(
+    name = "absl_status",
+    hdrs = ["absl_status.h"],
+)
+
+cc_library(
     name = "stdasm",
     hdrs = ["stdasm.h"],
 )
@@ -234,4 +239,24 @@ dual_cc_library(
             ":macros",
         ],
     ),
+)
+
+cc_library(
+    name = "status",
+    srcs = ["status.c"],
+    hdrs = ["status.h"],
+    deps = [
+        ":absl_status",
+        ":bitfield",
+        ":macros",
+    ],
+)
+
+cc_test(
+    name = "status_unittest",
+    srcs = ["status_unittest.cc"],
+    deps = [
+        ":status",
+        "@googletest//:gtest_main",
+    ],
 )
