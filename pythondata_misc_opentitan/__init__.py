@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13047"
-version_tuple = (0, 0, 13047)
+version_str = "0.0.post13049"
+version_tuple = (0, 0, 13049)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13047")
+    pversion = V("0.0.post13049")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12905"
-data_version_tuple = (0, 0, 12905)
+data_version_str = "0.0.post12907"
+data_version_tuple = (0, 0, 12907)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12905")
+    pdata_version = V("0.0.post12907")
 except ImportError:
     pass
-data_git_hash = "0365a3d0b4859c1898a6a2ec133f4fb3691a8874"
-data_git_describe = "v0.0-12905-g0365a3d0b4"
+data_git_hash = "1adf9f1d8ba2fe5f9f85115a1e1fd7964b3bf61b"
+data_git_describe = "v0.0-12907-g1adf9f1d8b"
 data_git_msg = """\
-commit 0365a3d0b4859c1898a6a2ec133f4fb3691a8874
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Jul 11 17:21:53 2022 -0700
+commit 1adf9f1d8ba2fe5f9f85115a1e1fd7964b3bf61b
+Author: Andres Meza <anmeza@ucsd.edu>
+Date:   Fri Jun 3 13:33:05 2022 -0700
 
-    [dif/entropy_src] add health test configuration DIFs
+    [otp_ctrl] Prevent broadcast of scrambler's input/intermediate values
     
-    This adds DIFs to configure the various health tests and adds a missing
-    health test (the repetition symbol count).
+    The scrambler broadcasts initial inputs, intermediate scrambling
+    results, and final scrambling results to its data output.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This commit adds an additional condition that only enables the final
+    scrambling results or a safe default value (as recommended in the OT’s
+    Secure Hardware Design Guidelines) to be broadcast to the data output.
+    
+    Signed-off-by: Andres Meza <anmeza@ucsd.edu>
 
 """
 
