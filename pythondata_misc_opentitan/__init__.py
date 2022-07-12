@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13028"
-version_tuple = (0, 0, 13028)
+version_str = "0.0.post13029"
+version_tuple = (0, 0, 13029)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13028")
+    pversion = V("0.0.post13029")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12886"
-data_version_tuple = (0, 0, 12886)
+data_version_str = "0.0.post12887"
+data_version_tuple = (0, 0, 12887)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12886")
+    pdata_version = V("0.0.post12887")
 except ImportError:
     pass
-data_git_hash = "85bb174a344bdc725fecb981c370c1af799a61a7"
-data_git_describe = "v0.0-12886-g85bb174a34"
+data_git_hash = "7e2e6096a30cc74561300db7fb19fb4b12742f2f"
+data_git_describe = "v0.0-12887-g7e2e6096a3"
 data_git_msg = """\
-commit 85bb174a344bdc725fecb981c370c1af799a61a7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Jun 24 17:27:18 2022 -0700
+commit 7e2e6096a30cc74561300db7fb19fb4b12742f2f
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Mon Jul 11 14:34:19 2022 -0700
 
-    [flash_ctrl] Minor tweak of arbitration behavior
+    [mask_rom] Allow tests to have a `.data` section.
     
-    - make the arbitration count 5
-    - only select new fill buffer when there is no match on request
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
