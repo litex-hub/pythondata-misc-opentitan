@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13045"
-version_tuple = (0, 0, 13045)
+version_str = "0.0.post13047"
+version_tuple = (0, 0, 13047)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13045")
+    pversion = V("0.0.post13047")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12903"
-data_version_tuple = (0, 0, 12903)
+data_version_str = "0.0.post12905"
+data_version_tuple = (0, 0, 12905)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12903")
+    pdata_version = V("0.0.post12905")
 except ImportError:
     pass
-data_git_hash = "52f7da058f43ce5d976841f48091366788496862"
-data_git_describe = "v0.0-12903-g52f7da058f"
+data_git_hash = "0365a3d0b4859c1898a6a2ec133f4fb3691a8874"
+data_git_describe = "v0.0-12905-g0365a3d0b4"
 data_git_msg = """\
-commit 52f7da058f43ce5d976841f48091366788496862
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Jun 30 17:38:14 2022 -0700
+commit 0365a3d0b4859c1898a6a2ec133f4fb3691a8874
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Jul 11 17:21:53 2022 -0700
 
-    [clkmgr/prim] Make frequency measurement disable more robust
+    [dif/entropy_src] add health test configuration DIFs
     
-    - handles part of #13489
+    This adds DIFs to configure the various health tests and adds a missing
+    health test (the repetition symbol count).
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
