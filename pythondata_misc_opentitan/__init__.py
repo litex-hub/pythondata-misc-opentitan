@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13058"
-version_tuple = (0, 0, 13058)
+version_str = "0.0.post13059"
+version_tuple = (0, 0, 13059)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13058")
+    pversion = V("0.0.post13059")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12916"
-data_version_tuple = (0, 0, 12916)
+data_version_str = "0.0.post12917"
+data_version_tuple = (0, 0, 12917)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12916")
+    pdata_version = V("0.0.post12917")
 except ImportError:
     pass
-data_git_hash = "0b3a704ea86aafab27133a5bd2cad6359cd302e9"
-data_git_describe = "v0.0-12916-g0b3a704ea8"
+data_git_hash = "0c235ef863af084d0edf1f3c065a3860a0784bfb"
+data_git_describe = "v0.0-12917-g0c235ef863"
 data_git_msg = """\
-commit 0b3a704ea86aafab27133a5bd2cad6359cd302e9
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Fri Jul 1 12:41:23 2022 -0400
+commit 0c235ef863af084d0edf1f3c065a3860a0784bfb
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Wed Jul 13 11:21:44 2022 +0100
 
-    [build] clean up old mentions of meson
+    [test, keymgr] Link sideload aes test in the testplan
     
-    * In BUILD.bazel we mention meson and want to preserve the structure for
-    other reasons
-    * Update OpenTitan's riscv_compliance patches to describe how we now run
-      them
-    
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
