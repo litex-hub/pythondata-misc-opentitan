@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13053"
-version_tuple = (0, 0, 13053)
+version_str = "0.0.post13058"
+version_tuple = (0, 0, 13058)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13053")
+    pversion = V("0.0.post13058")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12911"
-data_version_tuple = (0, 0, 12911)
+data_version_str = "0.0.post12916"
+data_version_tuple = (0, 0, 12916)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12911")
+    pdata_version = V("0.0.post12916")
 except ImportError:
     pass
-data_git_hash = "cede80721f4d9e1a24d47feae60f4f36772c0e75"
-data_git_describe = "v0.0-12911-gcede80721f"
+data_git_hash = "0b3a704ea86aafab27133a5bd2cad6359cd302e9"
+data_git_describe = "v0.0-12916-g0b3a704ea8"
 data_git_msg = """\
-commit cede80721f4d9e1a24d47feae60f4f36772c0e75
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jul 12 12:21:25 2022 -0700
+commit 0b3a704ea86aafab27133a5bd2cad6359cd302e9
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Fri Jul 1 12:41:23 2022 -0400
 
-    [dv/alert_handler] Add FSM transition exclusions
+    [build] clean up old mentions of meson
     
-    This PR finishes a TODO in issue #13589 that excludes from valid (not
-    Idle state) to FSMErrorSt. Current common sequence only probe the FSM
-    error from Idle state. The other checkings are done in FPV bench.
+    * In BUILD.bazel we mention meson and want to preserve the structure for
+    other reasons
+    * Update OpenTitan's riscv_compliance patches to describe how we now run
+      them
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
