@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13059"
-version_tuple = (0, 0, 13059)
+version_str = "0.0.post13060"
+version_tuple = (0, 0, 13060)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13059")
+    pversion = V("0.0.post13060")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12917"
-data_version_tuple = (0, 0, 12917)
+data_version_str = "0.0.post12918"
+data_version_tuple = (0, 0, 12918)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12917")
+    pdata_version = V("0.0.post12918")
 except ImportError:
     pass
-data_git_hash = "0c235ef863af084d0edf1f3c065a3860a0784bfb"
-data_git_describe = "v0.0-12917-g0c235ef863"
+data_git_hash = "7aad73af8d0e3c9f1df970428b12b5275adda2a0"
+data_git_describe = "v0.0-12918-g7aad73af8d"
 data_git_msg = """\
-commit 0c235ef863af084d0edf1f3c065a3860a0784bfb
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed Jul 13 11:21:44 2022 +0100
+commit 7aad73af8d0e3c9f1df970428b12b5275adda2a0
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Jul 12 03:48:48 2022 +0000
 
-    [test, keymgr] Link sideload aes test in the testplan
+    [dv,flash_ctrl] regression fix : mp_region test
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
