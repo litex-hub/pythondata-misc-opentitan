@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13050"
-version_tuple = (0, 0, 13050)
+version_str = "0.0.post13052"
+version_tuple = (0, 0, 13052)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13050")
+    pversion = V("0.0.post13052")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12908"
-data_version_tuple = (0, 0, 12908)
+data_version_str = "0.0.post12910"
+data_version_tuple = (0, 0, 12910)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12908")
+    pdata_version = V("0.0.post12910")
 except ImportError:
     pass
-data_git_hash = "3fd4423be52e699214d629c397ef12b54d891d3e"
-data_git_describe = "v0.0-12908-g3fd4423be5"
+data_git_hash = "34d4c8c424c3e666a667280d60e6c1a23f68ae05"
+data_git_describe = "v0.0-12910-g34d4c8c424"
 data_git_msg = """\
-commit 3fd4423be52e699214d629c397ef12b54d891d3e
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Jul 11 15:59:04 2022 -0700
+commit 34d4c8c424c3e666a667280d60e6c1a23f68ae05
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Fri Jul 8 13:25:04 2022 +0100
 
-    [dv,chip,clkmgr] Make expected cycle counts device-independent
+    [test, hmac] Merge the tests `hmac_enc` and `hmac_irq`
     
-    Compute the expected cycle counts from the device frequencies. This was
-    formerly done so it predicted sim_dv counts only, and other devices
-    (like fpga or verilator) would get wrong predictions.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
