@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13049"
-version_tuple = (0, 0, 13049)
+version_str = "0.0.post13050"
+version_tuple = (0, 0, 13050)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13049")
+    pversion = V("0.0.post13050")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12907"
-data_version_tuple = (0, 0, 12907)
+data_version_str = "0.0.post12908"
+data_version_tuple = (0, 0, 12908)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12907")
+    pdata_version = V("0.0.post12908")
 except ImportError:
     pass
-data_git_hash = "1adf9f1d8ba2fe5f9f85115a1e1fd7964b3bf61b"
-data_git_describe = "v0.0-12907-g1adf9f1d8b"
+data_git_hash = "3fd4423be52e699214d629c397ef12b54d891d3e"
+data_git_describe = "v0.0-12908-g3fd4423be5"
 data_git_msg = """\
-commit 1adf9f1d8ba2fe5f9f85115a1e1fd7964b3bf61b
-Author: Andres Meza <anmeza@ucsd.edu>
-Date:   Fri Jun 3 13:33:05 2022 -0700
+commit 3fd4423be52e699214d629c397ef12b54d891d3e
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Jul 11 15:59:04 2022 -0700
 
-    [otp_ctrl] Prevent broadcast of scrambler's input/intermediate values
+    [dv,chip,clkmgr] Make expected cycle counts device-independent
     
-    The scrambler broadcasts initial inputs, intermediate scrambling
-    results, and final scrambling results to its data output.
+    Compute the expected cycle counts from the device frequencies. This was
+    formerly done so it predicted sim_dv counts only, and other devices
+    (like fpga or verilator) would get wrong predictions.
     
-    This commit adds an additional condition that only enables the final
-    scrambling results or a safe default value (as recommended in the OT’s
-    Secure Hardware Design Guidelines) to be broadcast to the data output.
-    
-    Signed-off-by: Andres Meza <anmeza@ucsd.edu>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
