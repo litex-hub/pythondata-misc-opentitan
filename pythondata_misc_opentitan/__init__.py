@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13052"
-version_tuple = (0, 0, 13052)
+version_str = "0.0.post13053"
+version_tuple = (0, 0, 13053)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13052")
+    pversion = V("0.0.post13053")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12910"
-data_version_tuple = (0, 0, 12910)
+data_version_str = "0.0.post12911"
+data_version_tuple = (0, 0, 12911)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12910")
+    pdata_version = V("0.0.post12911")
 except ImportError:
     pass
-data_git_hash = "34d4c8c424c3e666a667280d60e6c1a23f68ae05"
-data_git_describe = "v0.0-12910-g34d4c8c424"
+data_git_hash = "cede80721f4d9e1a24d47feae60f4f36772c0e75"
+data_git_describe = "v0.0-12911-gcede80721f"
 data_git_msg = """\
-commit 34d4c8c424c3e666a667280d60e6c1a23f68ae05
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Jul 8 13:25:04 2022 +0100
+commit cede80721f4d9e1a24d47feae60f4f36772c0e75
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jul 12 12:21:25 2022 -0700
 
-    [test, hmac] Merge the tests `hmac_enc` and `hmac_irq`
+    [dv/alert_handler] Add FSM transition exclusions
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    This PR finishes a TODO in issue #13589 that excludes from valid (not
+    Idle state) to FSMErrorSt. Current common sequence only probe the FSM
+    error from Idle state. The other checkings are done in FPV bench.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
