@@ -4,46 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13088"
-version_tuple = (0, 0, 13088)
+version_str = "0.0.post13089"
+version_tuple = (0, 0, 13089)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13088")
+    pversion = V("0.0.post13089")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12946"
-data_version_tuple = (0, 0, 12946)
+data_version_str = "0.0.post12947"
+data_version_tuple = (0, 0, 12947)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12946")
+    pdata_version = V("0.0.post12947")
 except ImportError:
     pass
-data_git_hash = "5b0733bf6688c70548a5ef9bf3bfeb16dc08aa36"
-data_git_describe = "v0.0-12946-g5b0733bf66"
+data_git_hash = "87b269981fbbbc3041cdee21184ba97e6b094184"
+data_git_describe = "v0.0-12947-g87b269981f"
 data_git_msg = """\
-commit 5b0733bf6688c70548a5ef9bf3bfeb16dc08aa36
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Jul 12 16:41:22 2022 -0700
+commit 87b269981fbbbc3041cdee21184ba97e6b094184
+Author: Stefan Lippuner <lstefan@iis.ee.ethz.ch>
+Date:   Wed Jun 29 09:00:03 2022 -0700
 
-    fix(kmac): Relax KeyLen Assertion conditions
+    [usbdev] Fix control bug on clear_rdybit
     
-    @weicaiyang reported an issue
-    https://github.com/lowRISC/opentitan/issues/13594
+    The clear of the ready bit when a SETUP transaction completed would get
+    overridden by a later conditional block, which had the effect of
+    rewriting the logic function to never set clear_rdybit in response to
+    SETUP transactions.
     
-    When an Application Interface using KMAC initiates the hashing
-    operation, the `kmac_app` prepares the KMAC configs (strength, mode,
-    keylen, keydata) for the specific App. At the same time, the App FSM
-    asserts the `start` signal for KMAC core to run the SHA3 logic.
+    Make the conditional blocks exclusive instead of sequential.
     
-    This violates the KeyLengthStable_M assumption as the kmac_core already
-    moved to `StKey` state when `key_len_i` is changed.
-    
-    This commit relaxes the condition by checking the previous value of `st`
-    is `StKmacIdle`.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Stefan Lippuner <lstefan@iis.ee.ethz.ch>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
