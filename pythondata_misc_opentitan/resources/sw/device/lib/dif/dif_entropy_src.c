@@ -170,12 +170,146 @@ dif_result_t dif_entropy_src_health_test_configure(
       return kDifBadArg;
   }
 
+  // Conditioning bypass is hardcoded to disabled (see above). Therefore we only
+  // configure FIPS mode thresholds.
   mmio_region_write32(entropy_src->base_addr, high_thresholds_reg_offset,
                       config.high_threshold);
   if (low_thresholds_reg_offset != -1) {
     mmio_region_write32(entropy_src->base_addr, low_thresholds_reg_offset,
                         config.low_threshold);
   }
+
+  return kDifOk;
+}
+
+dif_result_t dif_entropy_src_get_health_test_stats(
+    const dif_entropy_src_t *entropy_src,
+    dif_entropy_src_health_test_stats_t *stats) {
+  if (entropy_src == NULL || stats == NULL) {
+    return kDifBadArg;
+  }
+
+  ptrdiff_t high_watermarks_reg_offset = -1;
+  ptrdiff_t low_watermarks_reg_offset = -1;
+  ptrdiff_t high_fails_reg_offset = -1;
+  ptrdiff_t low_fails_reg_offset = -1;
+  for (uint32_t i = 0; i < kDifEntropySrcTestNumVariants; ++i) {
+    switch ((dif_entropy_src_test_t)i) {
+      case kDifEntropySrcTestRepetitionCount:
+        high_watermarks_reg_offset =
+            ENTROPY_SRC_REPCNT_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = -1;
+        high_fails_reg_offset = ENTROPY_SRC_REPCNT_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = -1;
+        break;
+      case kDifEntropySrcTestRepetitionCountSymbol:
+        high_watermarks_reg_offset =
+            ENTROPY_SRC_REPCNTS_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = -1;
+        high_fails_reg_offset = ENTROPY_SRC_REPCNTS_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = -1;
+        break;
+      case kDifEntropySrcTestAdaptiveProportion:
+        high_watermarks_reg_offset =
+            ENTROPY_SRC_ADAPTP_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = ENTROPY_SRC_ADAPTP_LO_WATERMARKS_REG_OFFSET;
+        high_fails_reg_offset = ENTROPY_SRC_ADAPTP_HI_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = ENTROPY_SRC_ADAPTP_LO_TOTAL_FAILS_REG_OFFSET;
+        break;
+      case kDifEntropySrcTestBucket:
+        high_watermarks_reg_offset =
+            ENTROPY_SRC_BUCKET_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = -1;
+        high_fails_reg_offset = ENTROPY_SRC_BUCKET_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = -1;
+        break;
+      case kDifEntropySrcTestMarkov:
+        high_watermarks_reg_offset =
+            ENTROPY_SRC_MARKOV_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = ENTROPY_SRC_MARKOV_LO_WATERMARKS_REG_OFFSET;
+        high_fails_reg_offset = ENTROPY_SRC_MARKOV_HI_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = ENTROPY_SRC_MARKOV_LO_TOTAL_FAILS_REG_OFFSET;
+        break;
+      case kDifEntropySrcTestMailbox:
+        high_watermarks_reg_offset = ENTROPY_SRC_EXTHT_HI_WATERMARKS_REG_OFFSET;
+        low_watermarks_reg_offset = ENTROPY_SRC_EXTHT_LO_WATERMARKS_REG_OFFSET;
+        high_fails_reg_offset = ENTROPY_SRC_EXTHT_HI_TOTAL_FAILS_REG_OFFSET;
+        low_fails_reg_offset = ENTROPY_SRC_EXTHT_LO_TOTAL_FAILS_REG_OFFSET;
+        break;
+      default:
+        return kDifError;
+    }
+
+    // Conditioning bypass is hardcoded to disabled (see above). Therefore we
+    // only read FIPS mode stats.
+    stats->high_watermark[i] =
+        mmio_region_read32(entropy_src->base_addr, high_watermarks_reg_offset);
+    stats->low_watermark[i] =
+        low_watermarks_reg_offset == -1
+            ? 0
+            : mmio_region_read32(entropy_src->base_addr,
+                                 low_watermarks_reg_offset);
+
+    stats->high_fails[i] =
+        mmio_region_read32(entropy_src->base_addr, high_fails_reg_offset);
+    stats->low_fails[i] =
+        low_fails_reg_offset == -1
+            ? 0
+            : mmio_region_read32(entropy_src->base_addr, low_fails_reg_offset);
+  }
+
+  return kDifOk;
+}
+
+dif_result_t dif_entropy_src_get_alert_fail_counts(
+    const dif_entropy_src_t *entropy_src,
+    dif_entropy_src_alert_fail_counts_t *counts) {
+  if (entropy_src == NULL || counts == NULL) {
+    return kDifBadArg;
+  }
+
+  counts->total_fails = mmio_region_read32(
+      entropy_src->base_addr, ENTROPY_SRC_ALERT_SUMMARY_FAIL_COUNTS_REG_OFFSET);
+
+  uint32_t alert_fail_counts = mmio_region_read32(
+      entropy_src->base_addr, ENTROPY_SRC_ALERT_FAIL_COUNTS_REG_OFFSET);
+  uint32_t extht_alert_fail_counts = mmio_region_read32(
+      entropy_src->base_addr, ENTROPY_SRC_EXTHT_FAIL_COUNTS_REG_OFFSET);
+
+  // Unpack high threshold failure counts.
+  counts->high_fails[kDifEntropySrcTestRepetitionCount] = bitfield_field32_read(
+      alert_fail_counts, ENTROPY_SRC_ALERT_FAIL_COUNTS_REPCNT_FAIL_COUNT_FIELD);
+  counts->high_fails[kDifEntropySrcTestRepetitionCountSymbol] =
+      bitfield_field32_read(
+          alert_fail_counts,
+          ENTROPY_SRC_ALERT_FAIL_COUNTS_REPCNTS_FAIL_COUNT_FIELD);
+  counts->high_fails[kDifEntropySrcTestAdaptiveProportion] =
+      bitfield_field32_read(
+          alert_fail_counts,
+          ENTROPY_SRC_ALERT_FAIL_COUNTS_ADAPTP_HI_FAIL_COUNT_FIELD);
+  counts->high_fails[kDifEntropySrcTestBucket] = bitfield_field32_read(
+      alert_fail_counts, ENTROPY_SRC_ALERT_FAIL_COUNTS_BUCKET_FAIL_COUNT_FIELD);
+  counts->high_fails[kDifEntropySrcTestMarkov] = bitfield_field32_read(
+      alert_fail_counts,
+      ENTROPY_SRC_ALERT_FAIL_COUNTS_MARKOV_HI_FAIL_COUNT_FIELD);
+  counts->high_fails[kDifEntropySrcTestMailbox] = bitfield_field32_read(
+      extht_alert_fail_counts,
+      ENTROPY_SRC_EXTHT_FAIL_COUNTS_EXTHT_HI_FAIL_COUNT_FIELD);
+
+  // Unpack low threshold failure counts.
+  counts->low_fails[kDifEntropySrcTestRepetitionCount] = 0;
+  counts->low_fails[kDifEntropySrcTestRepetitionCountSymbol] = 0;
+  counts->low_fails[kDifEntropySrcTestAdaptiveProportion] =
+      bitfield_field32_read(
+          alert_fail_counts,
+          ENTROPY_SRC_ALERT_FAIL_COUNTS_ADAPTP_LO_FAIL_COUNT_FIELD);
+  counts->low_fails[kDifEntropySrcTestBucket] = 0;
+  counts->low_fails[kDifEntropySrcTestMarkov] = bitfield_field32_read(
+      alert_fail_counts,
+      ENTROPY_SRC_ALERT_FAIL_COUNTS_MARKOV_LO_FAIL_COUNT_FIELD);
+  counts->low_fails[kDifEntropySrcTestMailbox] = bitfield_field32_read(
+      extht_alert_fail_counts,
+      ENTROPY_SRC_EXTHT_FAIL_COUNTS_EXTHT_LO_FAIL_COUNT_FIELD);
 
   return kDifOk;
 }

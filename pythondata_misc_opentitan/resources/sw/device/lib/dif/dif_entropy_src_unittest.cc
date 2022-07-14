@@ -225,6 +225,102 @@ TEST_F(HealthTestConfigTest, SuccessTwoThresholds) {
   EXPECT_DIF_OK(dif_entropy_src_health_test_configure(&entropy_src_, config_));
 }
 
+class HealthTestStatsGetTest : public EntropySrcTest {};
+
+TEST_F(HealthTestStatsGetTest, NullArgs) {
+  dif_entropy_src_health_test_stats_t stats;
+  EXPECT_DIF_BADARG(dif_entropy_src_get_health_test_stats(nullptr, &stats));
+  EXPECT_DIF_BADARG(
+      dif_entropy_src_get_health_test_stats(&entropy_src_, nullptr));
+  EXPECT_DIF_BADARG(dif_entropy_src_get_health_test_stats(nullptr, nullptr));
+}
+
+TEST_F(HealthTestStatsGetTest, Success) {
+  dif_entropy_src_health_test_stats_t stats;
+
+  EXPECT_READ32(ENTROPY_SRC_REPCNT_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_REPCNT_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_READ32(ENTROPY_SRC_REPCNTS_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_REPCNTS_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_READ32(ENTROPY_SRC_ADAPTP_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_ADAPTP_LO_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_ADAPTP_HI_TOTAL_FAILS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_ADAPTP_LO_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_READ32(ENTROPY_SRC_BUCKET_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_BUCKET_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_READ32(ENTROPY_SRC_MARKOV_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_MARKOV_LO_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_MARKOV_HI_TOTAL_FAILS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_MARKOV_LO_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_READ32(ENTROPY_SRC_EXTHT_HI_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_EXTHT_LO_WATERMARKS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_EXTHT_HI_TOTAL_FAILS_REG_OFFSET, 10);
+  EXPECT_READ32(ENTROPY_SRC_EXTHT_LO_TOTAL_FAILS_REG_OFFSET, 10);
+
+  EXPECT_DIF_OK(dif_entropy_src_get_health_test_stats(&entropy_src_, &stats));
+  for (uint32_t i = 0; i < kDifEntropySrcTestNumVariants; ++i) {
+    EXPECT_EQ(stats.high_watermark[i], 10);
+    if (i == 2 || i == 4 || i == 5) {
+      EXPECT_EQ(stats.low_watermark[i], 10);
+    } else {
+      EXPECT_EQ(stats.low_watermark[i], 0);
+    }
+
+    EXPECT_EQ(stats.high_fails[i], 10);
+    if (i == 2 || i == 4 || i == 5) {
+      EXPECT_EQ(stats.low_fails[i], 10);
+    } else {
+      EXPECT_EQ(stats.low_fails[i], 0);
+    }
+  }
+}
+
+class GetAlertFailCountsTest : public EntropySrcTest {};
+
+TEST_F(GetAlertFailCountsTest, NullArgs) {
+  dif_entropy_src_alert_fail_counts_t counts;
+  EXPECT_DIF_BADARG(dif_entropy_src_get_alert_fail_counts(nullptr, &counts));
+  EXPECT_DIF_BADARG(
+      dif_entropy_src_get_alert_fail_counts(&entropy_src_, nullptr));
+  EXPECT_DIF_BADARG(dif_entropy_src_get_alert_fail_counts(nullptr, nullptr));
+}
+
+TEST_F(GetAlertFailCountsTest, Success) {
+  dif_entropy_src_alert_fail_counts_t counts;
+
+  EXPECT_READ32(ENTROPY_SRC_ALERT_SUMMARY_FAIL_COUNTS_REG_OFFSET, 128);
+  EXPECT_READ32(
+      ENTROPY_SRC_ALERT_FAIL_COUNTS_REG_OFFSET,
+      {{ENTROPY_SRC_ALERT_FAIL_COUNTS_REPCNT_FAIL_COUNT_OFFSET, 0xA},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_ADAPTP_HI_FAIL_COUNT_OFFSET, 0xC},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_ADAPTP_LO_FAIL_COUNT_OFFSET, 0xC},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_BUCKET_FAIL_COUNT_OFFSET, 0xD},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_MARKOV_HI_FAIL_COUNT_OFFSET, 0xE},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_MARKOV_LO_FAIL_COUNT_OFFSET, 0xE},
+       {ENTROPY_SRC_ALERT_FAIL_COUNTS_REPCNTS_FAIL_COUNT_OFFSET, 0xB}});
+  EXPECT_READ32(
+      ENTROPY_SRC_EXTHT_FAIL_COUNTS_REG_OFFSET,
+      {{ENTROPY_SRC_EXTHT_FAIL_COUNTS_EXTHT_HI_FAIL_COUNT_OFFSET, 0xF},
+       {ENTROPY_SRC_EXTHT_FAIL_COUNTS_EXTHT_LO_FAIL_COUNT_OFFSET, 0xF}});
+  EXPECT_DIF_OK(dif_entropy_src_get_alert_fail_counts(&entropy_src_, &counts));
+
+  uint8_t num_fails = 0xA;
+  for (uint32_t i = 0; i < kDifEntropySrcTestNumVariants; ++i) {
+    EXPECT_EQ(counts.high_fails[i], num_fails);
+    if (i == 2 || i == 4 || i == 5) {
+      EXPECT_EQ(counts.low_fails[i], num_fails);
+    } else {
+      EXPECT_EQ(counts.low_fails[i], 0);
+    }
+    num_fails++;
+  }
+}
+
 class ReadTest : public EntropySrcTest {};
 
 TEST_F(ReadTest, EntropyBadArg) {
