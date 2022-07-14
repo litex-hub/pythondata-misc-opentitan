@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13093"
-version_tuple = (0, 0, 13093)
+version_str = "0.0.post13096"
+version_tuple = (0, 0, 13096)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13093")
+    pversion = V("0.0.post13096")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12951"
-data_version_tuple = (0, 0, 12951)
+data_version_str = "0.0.post12954"
+data_version_tuple = (0, 0, 12954)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12951")
+    pdata_version = V("0.0.post12954")
 except ImportError:
     pass
-data_git_hash = "5de589cd275f9c67b4cf02d80e2471b8f22de231"
-data_git_describe = "v0.0-12951-g5de589cd27"
+data_git_hash = "ac5c373fcaf419c638dc9b6503084b630ec5470a"
+data_git_describe = "v0.0-12954-gac5c373fca"
 data_git_msg = """\
-commit 5de589cd275f9c67b4cf02d80e2471b8f22de231
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jul 14 10:40:23 2022 -0700
+commit ac5c373fcaf419c638dc9b6503084b630ec5470a
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jul 14 14:05:05 2022 -0700
 
-    [dv/clkmgr] Fix sporadic stress test failures
+    [spi_dev/dv] Update scb to check passthrough items
     
-    Make sure resets will consistently start clocks. The measurement timeout
-    counter measure tests were leaving some clocks inactive.
-    Fix some log and asserton typos that cause confusion.
+    1. compare upstream items with downstream items
+    2. some minor fixes
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
