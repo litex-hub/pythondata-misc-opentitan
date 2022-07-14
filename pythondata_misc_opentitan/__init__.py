@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13067"
-version_tuple = (0, 0, 13067)
+version_str = "0.0.post13068"
+version_tuple = (0, 0, 13068)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13067")
+    pversion = V("0.0.post13068")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12925"
-data_version_tuple = (0, 0, 12925)
+data_version_str = "0.0.post12926"
+data_version_tuple = (0, 0, 12926)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12925")
+    pdata_version = V("0.0.post12926")
 except ImportError:
     pass
-data_git_hash = "f353489e0d9a9645eeb4e07c3766640e20798af8"
-data_git_describe = "v0.0-12925-gf353489e0d"
+data_git_hash = "97f24da8bb488090e716ce829f0684f66d2196e5"
+data_git_describe = "v0.0-12926-g97f24da8bb"
 data_git_msg = """\
-commit f353489e0d9a9645eeb4e07c3766640e20798af8
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jul 13 12:19:52 2022 -0700
+commit 97f24da8bb488090e716ce829f0684f66d2196e5
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jul 13 14:24:38 2022 -0700
 
-    [chip/conn] Move a DV testplan entry to connectivity testplan
+    [spi/dv] some renames
     
-    This PR removes a DV testplan entry (EDN clock and reset check in OTP)
-    to a connectivity check. We discussed this topic in one of the DV
-    meeting and found that there aren't any check points in simulation due
-    to the clock and reset groups. So we move this to a connectivity check.
+    no functional update, just rename as follows, in order to avoid confusion
+    1. m_spi_agent -> spi_host_agent
+    2. in scb, add downstream/upstream prefix for spi variables/functions
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
