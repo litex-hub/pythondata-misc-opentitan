@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13072"
-version_tuple = (0, 0, 13072)
+version_str = "0.0.post13085"
+version_tuple = (0, 0, 13085)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13072")
+    pversion = V("0.0.post13085")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12930"
-data_version_tuple = (0, 0, 12930)
+data_version_str = "0.0.post12943"
+data_version_tuple = (0, 0, 12943)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12930")
+    pdata_version = V("0.0.post12943")
 except ImportError:
     pass
-data_git_hash = "f3266dc363ee3c5f0a8a2a65381dfb9797a4fc26"
-data_git_describe = "v0.0-12930-gf3266dc363"
+data_git_hash = "204e8157ec65ae698d92e49e5679771966125828"
+data_git_describe = "v0.0-12943-g204e8157ec"
 data_git_msg = """\
-commit f3266dc363ee3c5f0a8a2a65381dfb9797a4fc26
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Jul 13 12:21:49 2022 -0700
+commit 204e8157ec65ae698d92e49e5679771966125828
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Mon Jul 11 05:48:37 2022 -0700
 
-    [dv/rstrmgr] Update list of rstmgr_leaf_rst
+    added test + interface for FI on aes_control_FSM
     
-    Update list per design change, and suggest a way to generate the list to
-    ease updates. The incorrect list was causing all rstmgr_leaf_rst_cnsty
-    tests to fail.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
