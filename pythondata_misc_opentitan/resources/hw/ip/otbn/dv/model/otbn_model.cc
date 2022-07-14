@@ -32,6 +32,13 @@ int otbn_stack_element_peek(int index, svBitVecVal *val);
 #define CMD_SECWIPE_DMEM 0xC3
 #define CMD_SECWIPE_IMEM 0x1E
 
+// Values of the `STATUS` register, as defined in `otbn.hjson`.
+#define STATUS_IDLE 0x00
+#define STATUS_BUSY_EXECUTE 0x01
+#define STATUS_BUSY_SEC_WIPE_DMEM 0x02
+#define STATUS_BUSY_SEC_WIPE_IMEM 0x03
+#define STATUS_LOCKED 0xFF
+
 // Read (the start of) the contents of a file at path as a vector of bytes.
 // Expects num_bytes bytes of data. On failure, throws a std::runtime_error.
 static Ecc32MemArea::EccWords read_words_from_file(const std::string &path,
@@ -576,7 +583,11 @@ int OtbnModel::step_crc(const svBitVecVal *item /* bit [47:0] */,
   return 0;
 }
 
-int OtbnModel::reset() {
+int OtbnModel::reset(svBitVecVal *status /* bit [7:0] */,
+                     svBitVecVal *insn_cnt /* bit [31:0] */,
+                     svBitVecVal *rnd_req /* bit [0:0] */,
+                     svBitVecVal *err_bits /* bit [31:0] */,
+                     svBitVecVal *stop_pc /* bit [31:0] */) {
   ISSWrapper *iss = iss_.get();
   if (!iss)
     return 0;
@@ -587,6 +598,12 @@ int OtbnModel::reset() {
     std::cerr << "Error when resetting ISS: " << err.what() << "\n";
     return -1;
   }
+
+  set_sv_u8(status, iss->get_mirrored().status);
+  set_sv_u32(insn_cnt, iss->get_mirrored().insn_cnt);
+  svPutBitselBit(rnd_req, 0, (iss->get_mirrored().rnd_req & 1));
+  set_sv_u32(err_bits, iss->get_mirrored().err_bits);
+  set_sv_u32(stop_pc, iss->get_mirrored().stop_pc);
 
   return 0;
 }
@@ -866,26 +883,25 @@ unsigned otbn_model_step(OtbnModel *model, unsigned model_state,
   // negedge)
   model_state = model_state & ~CHECK_DUE_BIT;
 
-  int result;
-  unsigned new_state_bits;
+  int result = 0;
+  unsigned new_state_bits = 0;
 
-  switch (*cmd) {
-    case CMD_EXECUTE:
-      result = model->start_operation(OtbnModel::Execute);
-      new_state_bits = RUNNING_BIT;
-      break;
-    case CMD_SECWIPE_DMEM:
-      result = model->start_operation(OtbnModel::DmemWipe);
-      new_state_bits = RUNNING_BIT;
-      break;
-    case CMD_SECWIPE_IMEM:
-      result = model->start_operation(OtbnModel::ImemWipe);
-      new_state_bits = RUNNING_BIT;
-      break;
-    default:
-      result = 0;
-      new_state_bits = 0;
-      break;
+  if (*status == STATUS_IDLE) {
+    // OTBN only executes commands if STATUS is IDLE.
+    switch (*cmd) {
+      case CMD_EXECUTE:
+        result = model->start_operation(OtbnModel::Execute);
+        new_state_bits = RUNNING_BIT;
+        break;
+      case CMD_SECWIPE_DMEM:
+        result = model->start_operation(OtbnModel::DmemWipe);
+        new_state_bits = RUNNING_BIT;
+        break;
+      case CMD_SECWIPE_IMEM:
+        result = model->start_operation(OtbnModel::ImemWipe);
+        new_state_bits = RUNNING_BIT;
+        break;
+    }
   }
 
   switch (result) {
@@ -985,9 +1001,13 @@ int otbn_model_step_crc(OtbnModel *model, svBitVecVal *item /* bit [47:0] */,
   return model->step_crc(item, state);
 }
 
-int otbn_model_reset(OtbnModel *model) {
+int otbn_model_reset(OtbnModel *model, svBitVecVal *status /* bit [7:0] */,
+                     svBitVecVal *insn_cnt /* bit [31:0] */,
+                     svBitVecVal *rnd_req /* bit [0:0] */,
+                     svBitVecVal *err_bits /* bit [31:0] */,
+                     svBitVecVal *stop_pc /* bit [31:0] */) {
   assert(model);
-  return model->reset();
+  return model->reset(status, insn_cnt, rnd_req, err_bits, stop_pc);
 }
 
 int otbn_model_send_err_escalation(OtbnModel *model,

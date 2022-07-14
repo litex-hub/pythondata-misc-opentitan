@@ -44,8 +44,8 @@
               "sec_cm_prim_onehot_check_bind",
               "aes_err_injection_bind"]
 
-  // TODO remove v2s refine for v2s
-  xcelium_cov_refine_files: ["{proj_root}/hw/ip/aes/dv/cov/refines/aes_remove_for_v2s.vRefine"]
+
+  xcelium_cov_refine_files: []
 
   // Default iterations for all tests - each test entry can override this.
   reseed: 50
@@ -163,6 +163,11 @@
       name: aes_fi
       uvm_test: aes_alert_reset_test
       uvm_test_seq: aes_fi_vseq
+    }
+    {
+      name: aes_control_fi
+      uvm_test: aes_fi_test
+      uvm_test_seq: aes_control_fi_vseq
     }
   ]
 

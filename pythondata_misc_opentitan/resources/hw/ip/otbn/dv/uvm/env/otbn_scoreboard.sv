@@ -193,7 +193,7 @@ class otbn_scoreboard extends cip_base_scoreboard #(
             fork begin
               repeat (2) @(cfg.clk_rst_vif.cb);
               `DV_CHECK_FATAL(!cfg.clk_rst_vif.rst_n || !pending_start_tl_trans,
-                              "Model ignored a write of EXECUTE to the CMD register.")
+                              "Model ignored a write to the CMD register.")
             end
             join_none;
           end
@@ -375,14 +375,12 @@ class otbn_scoreboard extends cip_base_scoreboard #(
       case (item.item_type)
         OtbnModelStatus: begin
           bit was_executing = model_status inside {otbn_pkg::StatusBusyExecute};
-          bit is_running = item.status inside {otbn_pkg::StatusBusyExecute,
-                                               otbn_pkg::StatusBusySecWipeDmem,
-                                               otbn_pkg::StatusBusySecWipeImem};
+          bit is_busy = otbn_pkg::is_busy_status(item.status);
 
           // Has the status changed from idle to busy? If so, we should have seen a write to the
           // command register on the previous posedge. See comment above pending_start_tl_trans for
           // the details.
-          if (model_status == otbn_pkg::StatusIdle && is_running) begin
+          if (model_status == otbn_pkg::StatusIdle && is_busy) begin
             `DV_CHECK_FATAL(pending_start_tl_trans,
                             "Saw start transaction without corresponding write to CMD")
             pending_start_tl_trans = 1'b0;
