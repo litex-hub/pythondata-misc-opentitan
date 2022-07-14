@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13089"
-version_tuple = (0, 0, 13089)
+version_str = "0.0.post13090"
+version_tuple = (0, 0, 13090)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13089")
+    pversion = V("0.0.post13090")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12947"
-data_version_tuple = (0, 0, 12947)
+data_version_str = "0.0.post12948"
+data_version_tuple = (0, 0, 12948)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12947")
+    pdata_version = V("0.0.post12948")
 except ImportError:
     pass
-data_git_hash = "87b269981fbbbc3041cdee21184ba97e6b094184"
-data_git_describe = "v0.0-12947-g87b269981f"
+data_git_hash = "fefbcad3f0a7db95d009e9f50cb5a2c5431cd487"
+data_git_describe = "v0.0-12948-gfefbcad3f0"
 data_git_msg = """\
-commit 87b269981fbbbc3041cdee21184ba97e6b094184
-Author: Stefan Lippuner <lstefan@iis.ee.ethz.ch>
-Date:   Wed Jun 29 09:00:03 2022 -0700
+commit fefbcad3f0a7db95d009e9f50cb5a2c5431cd487
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Wed Jul 13 17:09:19 2022 -0400
 
-    [usbdev] Fix control bug on clear_rdybit
+    [ci] Upload MMI files to GCP after Vivado build
     
-    The clear of the ready bit when a SETUP transaction completed would get
-    overridden by a later conditional block, which had the effect of
-    rewriting the logic function to never set clear_rdybit in response to
-    SETUP transactions.
+    See issue #13603
     
-    Make the conditional blocks exclusive instead of sequential.
-    
-    Signed-off-by: Stefan Lippuner <lstefan@iis.ee.ethz.ch>
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
