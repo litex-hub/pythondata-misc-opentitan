@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13092"
-version_tuple = (0, 0, 13092)
+version_str = "0.0.post13093"
+version_tuple = (0, 0, 13093)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13092")
+    pversion = V("0.0.post13093")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12950"
-data_version_tuple = (0, 0, 12950)
+data_version_str = "0.0.post12951"
+data_version_tuple = (0, 0, 12951)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12950")
+    pdata_version = V("0.0.post12951")
 except ImportError:
     pass
-data_git_hash = "98dd7941bb7364c53ee93747745540440294f7ad"
-data_git_describe = "v0.0-12950-g98dd7941bb"
+data_git_hash = "5de589cd275f9c67b4cf02d80e2471b8f22de231"
+data_git_describe = "v0.0-12951-g5de589cd27"
 data_git_msg = """\
-commit 98dd7941bb7364c53ee93747745540440294f7ad
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Jul 13 16:39:55 2022 -0700
+commit 5de589cd275f9c67b4cf02d80e2471b8f22de231
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jul 14 10:40:23 2022 -0700
 
-    [dif/entropy_src] add DIF to retrieve alert test failure counts
+    [dv/clkmgr] Fix sporadic stress test failures
     
-    This adds a DIF and corresponding unit tests to retrieve alert test
-    failure counts.
+    Make sure resets will consistently start clocks. The measurement timeout
+    counter measure tests were leaving some clocks inactive.
+    Fix some log and asserton typos that cause confusion.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
