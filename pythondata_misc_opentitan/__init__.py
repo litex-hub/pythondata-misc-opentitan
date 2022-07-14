@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13068"
-version_tuple = (0, 0, 13068)
+version_str = "0.0.post13069"
+version_tuple = (0, 0, 13069)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13068")
+    pversion = V("0.0.post13069")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12926"
-data_version_tuple = (0, 0, 12926)
+data_version_str = "0.0.post12927"
+data_version_tuple = (0, 0, 12927)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12926")
+    pdata_version = V("0.0.post12927")
 except ImportError:
     pass
-data_git_hash = "97f24da8bb488090e716ce829f0684f66d2196e5"
-data_git_describe = "v0.0-12926-g97f24da8bb"
+data_git_hash = "0f7566f207657f39cb045ca18c97c3caef94c22c"
+data_git_describe = "v0.0-12927-g0f7566f207"
 data_git_msg = """\
-commit 97f24da8bb488090e716ce829f0684f66d2196e5
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jul 13 14:24:38 2022 -0700
+commit 0f7566f207657f39cb045ca18c97c3caef94c22c
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jul 12 14:55:03 2022 -0700
 
-    [spi/dv] some renames
+    [dv,chip,rstmgr] Send AON power glitch after CPU is up
     
-    no functional update, just rename as follows, in order to avoid confusion
-    1. m_spi_agent -> spi_host_agent
-    2. in scb, add downstream/upstream prefix for spi variables/functions
+    Enhance chip_sw_pwrmgr_full_aon_reset test to send an AON power glitch
+    once the CPU is running.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Fixes #13502
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
