@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13105"
-version_tuple = (0, 0, 13105)
+version_str = "0.0.post13117"
+version_tuple = (0, 0, 13117)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13105")
+    pversion = V("0.0.post13117")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12963"
-data_version_tuple = (0, 0, 12963)
+data_version_str = "0.0.post12975"
+data_version_tuple = (0, 0, 12975)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12963")
+    pdata_version = V("0.0.post12975")
 except ImportError:
     pass
-data_git_hash = "4c81f2388c931e88ee17f53353c2bf566637d9dd"
-data_git_describe = "v0.0-12963-g4c81f2388c"
+data_git_hash = "77d9624db87f02ba7b9d4e78d18d29b2b377c230"
+data_git_describe = "v0.0-12975-g77d9624db8"
 data_git_msg = """\
-commit 4c81f2388c931e88ee17f53353c2bf566637d9dd
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jul 14 15:18:24 2022 -0700
+commit 77d9624db87f02ba7b9d4e78d18d29b2b377c230
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Tue Jul 12 09:58:52 2022 -0400
 
-    [dv/cip_base] Add checking in stress_all_with_rand_reset seq
+    [english_breakfast] fake relevant drivers for test_rom reset reasons
     
-    This PR adds a checking after reset is issued to check if there are
-    still any outstanding csr items. If so, the following csr checks or
-    sequences are unlikely to pass due to the hanging outstanding item.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
