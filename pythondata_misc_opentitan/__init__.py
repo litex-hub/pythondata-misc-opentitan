@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13124"
-version_tuple = (0, 0, 13124)
+version_str = "0.0.post13128"
+version_tuple = (0, 0, 13128)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13124")
+    pversion = V("0.0.post13128")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12982"
-data_version_tuple = (0, 0, 12982)
+data_version_str = "0.0.post12986"
+data_version_tuple = (0, 0, 12986)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12982")
+    pdata_version = V("0.0.post12986")
 except ImportError:
     pass
-data_git_hash = "35ef7fe9f20dcedc4f9b3329fa9e56d7d28f5b8f"
-data_git_describe = "v0.0-12982-g35ef7fe9f2"
+data_git_hash = "2b989a42bad3aff373e024ce841b406eec1b3970"
+data_git_describe = "v0.0-12986-g2b989a42ba"
 data_git_msg = """\
-commit 35ef7fe9f20dcedc4f9b3329fa9e56d7d28f5b8f
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jul 15 10:03:22 2022 -0700
+commit 2b989a42bad3aff373e024ce841b406eec1b3970
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Jul 15 13:34:28 2022 -0700
 
-    [sram_ctrl] Update programmers guide
+    fix(cdc): Parse NEW violations only
     
-    This recommends using a spin wait when requesting a key or initializing
-    SRAM so that the PC has a more informative value in case the system
-    hangs and gets reset by the watchdog (this may happen if EDN / CSRNG
-    have not been initialized properly prior to requesting a new key).
+    This commit revises the CDC flow to parse NEW report not ALL report
+    file. The result report contains only NEW violations. Previously, the
+    report has WAIVED list too.
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
