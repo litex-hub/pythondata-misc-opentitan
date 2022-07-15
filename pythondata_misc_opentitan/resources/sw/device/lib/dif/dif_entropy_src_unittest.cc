@@ -46,6 +46,13 @@ TEST_F(ConfigTest, BadSingleBitMode) {
       dif_entropy_src_configure(&entropy_src_, config_, kDifToggleEnabled));
 }
 
+TEST_F(ConfigTest, Locked) {
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 0);
+  EXPECT_EQ(
+      dif_entropy_src_configure(&entropy_src_, config_, kDifToggleEnabled),
+      kDifLocked);
+}
+
 struct ConfigParams {
   bool fips_enable;
   bool route_to_firmware;
@@ -68,6 +75,8 @@ TEST_P(ConfigTestAllParams, ValidConfigurationMode) {
 
   multi_bit_bool_t route_to_firmware_mubi =
       test_param.route_to_firmware ? kMultiBitBool4True : kMultiBitBool4False;
+
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
 
   EXPECT_WRITE32(
       ENTROPY_SRC_ENTROPY_CONTROL_REG_OFFSET,
@@ -170,13 +179,22 @@ TEST_F(FwOverrideConfigTest, BadEnabled) {
       &entropy_src_, config_, static_cast<dif_toggle_t>(2)));
 }
 
+TEST_F(FwOverrideConfigTest, Locked) {
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 0);
+  EXPECT_EQ(dif_entropy_src_fw_override_configure(&entropy_src_, config_,
+                                                  kDifToggleEnabled),
+            kDifLocked);
+}
+
 TEST_F(FwOverrideConfigTest, Success) {
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_WRITE32(ENTROPY_SRC_OBSERVE_FIFO_THRESH_REG_OFFSET,
                  config_.buffer_threshold);
   EXPECT_WRITE32(ENTROPY_SRC_FW_OV_CONTROL_REG_OFFSET, 0x66);
   EXPECT_DIF_OK(dif_entropy_src_fw_override_configure(&entropy_src_, config_,
                                                       kDifToggleEnabled));
 
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_WRITE32(ENTROPY_SRC_OBSERVE_FIFO_THRESH_REG_OFFSET,
                  config_.buffer_threshold);
   EXPECT_WRITE32(ENTROPY_SRC_FW_OV_CONTROL_REG_OFFSET, 0x69);
@@ -197,19 +215,28 @@ TEST_F(HealthTestConfigTest, NullHandle) {
   EXPECT_DIF_BADARG(dif_entropy_src_health_test_configure(nullptr, config_));
 }
 
+TEST_F(HealthTestConfigTest, Locked) {
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 0);
+  EXPECT_EQ(dif_entropy_src_health_test_configure(&entropy_src_, config_),
+            kDifLocked);
+}
+
 TEST_F(HealthTestConfigTest, BadTestType) {
   config_.test_type = kDifEntropySrcTestNumVariants;
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_DIF_BADARG(
       dif_entropy_src_health_test_configure(&entropy_src_, config_));
 }
 
 TEST_F(HealthTestConfigTest, BadLowThreshold) {
   config_.low_threshold = 0x1;
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_DIF_BADARG(
       dif_entropy_src_health_test_configure(&entropy_src_, config_));
 }
 
 TEST_F(HealthTestConfigTest, SuccessOneThreshold) {
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_WRITE32(ENTROPY_SRC_REPCNT_THRESHOLDS_REG_OFFSET,
                  config_.high_threshold);
   EXPECT_DIF_OK(dif_entropy_src_health_test_configure(&entropy_src_, config_));
@@ -218,11 +245,86 @@ TEST_F(HealthTestConfigTest, SuccessOneThreshold) {
 TEST_F(HealthTestConfigTest, SuccessTwoThresholds) {
   config_.test_type = kDifEntropySrcTestMarkov;
   config_.low_threshold = 0xABAB;
+  EXPECT_READ32(ENTROPY_SRC_REGWEN_REG_OFFSET, 1);
   EXPECT_WRITE32(ENTROPY_SRC_MARKOV_HI_THRESHOLDS_REG_OFFSET,
                  config_.high_threshold);
   EXPECT_WRITE32(ENTROPY_SRC_MARKOV_LO_THRESHOLDS_REG_OFFSET,
                  config_.low_threshold);
   EXPECT_DIF_OK(dif_entropy_src_health_test_configure(&entropy_src_, config_));
+}
+
+class SetEnabledTest : public EntropySrcTest {};
+
+TEST_F(SetEnabledTest, NullHandle) {
+  EXPECT_DIF_BADARG(dif_entropy_src_set_enabled(nullptr, kDifToggleEnabled));
+}
+
+TEST_F(SetEnabledTest, BadToggle) {
+  EXPECT_DIF_BADARG(
+      dif_entropy_src_set_enabled(nullptr, static_cast<dif_toggle_t>(1)));
+}
+
+TEST_F(SetEnabledTest, Locked) {
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 0);
+  EXPECT_EQ(dif_entropy_src_set_enabled(&entropy_src_, kDifToggleEnabled),
+            kDifLocked);
+}
+
+TEST_F(SetEnabledTest, Success) {
+  // Enable.
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 1);
+  EXPECT_WRITE32(ENTROPY_SRC_MODULE_ENABLE_REG_OFFSET, kMultiBitBool4True);
+  EXPECT_DIF_OK(dif_entropy_src_set_enabled(&entropy_src_, kDifToggleEnabled));
+
+  // Disable.
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 1);
+  EXPECT_WRITE32(ENTROPY_SRC_MODULE_ENABLE_REG_OFFSET, kMultiBitBool4False);
+  EXPECT_DIF_OK(dif_entropy_src_set_enabled(&entropy_src_, kDifToggleDisabled));
+}
+
+class LockTest : public EntropySrcTest {};
+
+TEST_F(LockTest, NullHandle) {
+  EXPECT_DIF_BADARG(dif_entropy_src_lock(nullptr));
+}
+
+TEST_F(LockTest, Success) {
+  EXPECT_WRITE32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 0);
+  EXPECT_WRITE32(ENTROPY_SRC_SW_REGUPD_REG_OFFSET, 0);
+  EXPECT_DIF_OK(dif_entropy_src_lock(&entropy_src_));
+}
+
+class IsLockedTest : public EntropySrcTest {};
+
+TEST_F(IsLockedTest, NullArgs) {
+  bool is_locked;
+  EXPECT_DIF_BADARG(dif_entropy_src_is_locked(nullptr, &is_locked));
+  EXPECT_DIF_BADARG(dif_entropy_src_is_locked(&entropy_src_, nullptr));
+  EXPECT_DIF_BADARG(dif_entropy_src_is_locked(nullptr, nullptr));
+}
+
+TEST_F(IsLockedTest, BadState) {
+  bool is_locked;
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 1);
+  EXPECT_READ32(ENTROPY_SRC_SW_REGUPD_REG_OFFSET, 0);
+  EXPECT_EQ(dif_entropy_src_is_locked(&entropy_src_, &is_locked), kDifError);
+
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 0);
+  EXPECT_READ32(ENTROPY_SRC_SW_REGUPD_REG_OFFSET, 1);
+  EXPECT_EQ(dif_entropy_src_is_locked(&entropy_src_, &is_locked), kDifError);
+}
+
+TEST_F(IsLockedTest, Success) {
+  bool is_locked;
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 0);
+  EXPECT_READ32(ENTROPY_SRC_SW_REGUPD_REG_OFFSET, 0);
+  EXPECT_DIF_OK(dif_entropy_src_is_locked(&entropy_src_, &is_locked));
+  EXPECT_TRUE(is_locked);
+
+  EXPECT_READ32(ENTROPY_SRC_ME_REGWEN_REG_OFFSET, 1);
+  EXPECT_READ32(ENTROPY_SRC_SW_REGUPD_REG_OFFSET, 1);
+  EXPECT_DIF_OK(dif_entropy_src_is_locked(&entropy_src_, &is_locked));
+  EXPECT_FALSE(is_locked);
 }
 
 class HealthTestStatsGetTest : public EntropySrcTest {};

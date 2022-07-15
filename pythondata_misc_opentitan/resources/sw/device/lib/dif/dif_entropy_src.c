@@ -22,6 +22,11 @@ dif_result_t dif_entropy_src_configure(const dif_entropy_src_t *entropy_src,
     return kDifBadArg;
   }
 
+  if (!mmio_region_read32(entropy_src->base_addr,
+                          ENTROPY_SRC_REGWEN_REG_OFFSET)) {
+    return kDifLocked;
+  }
+
   // ENTROPY_CONTROL register configuration.
 
   // Conditioning bypass is hardcoded to disabled. Conditioning bypass is not
@@ -107,6 +112,11 @@ dif_result_t dif_entropy_src_fw_override_configure(
     return kDifBadArg;
   }
 
+  if (!mmio_region_read32(entropy_src->base_addr,
+                          ENTROPY_SRC_REGWEN_REG_OFFSET)) {
+    return kDifLocked;
+  }
+
   mmio_region_write32(entropy_src->base_addr,
                       ENTROPY_SRC_OBSERVE_FIFO_THRESH_REG_OFFSET,
                       config.buffer_threshold);
@@ -128,6 +138,11 @@ dif_result_t dif_entropy_src_health_test_configure(
     dif_entropy_src_health_test_config_t config) {
   if (entropy_src == NULL) {
     return kDifBadArg;
+  }
+
+  if (!mmio_region_read32(entropy_src->base_addr,
+                          ENTROPY_SRC_REGWEN_REG_OFFSET)) {
+    return kDifLocked;
   }
 
   ptrdiff_t high_thresholds_reg_offset = -1;
@@ -177,6 +192,59 @@ dif_result_t dif_entropy_src_health_test_configure(
   if (low_thresholds_reg_offset != -1) {
     mmio_region_write32(entropy_src->base_addr, low_thresholds_reg_offset,
                         config.low_threshold);
+  }
+
+  return kDifOk;
+}
+
+dif_result_t dif_entropy_src_set_enabled(const dif_entropy_src_t *entropy_src,
+                                         dif_toggle_t enabled) {
+  if (entropy_src == NULL || !dif_is_valid_toggle(enabled)) {
+    return kDifBadArg;
+  }
+
+  if (!mmio_region_read32(entropy_src->base_addr,
+                          ENTROPY_SRC_ME_REGWEN_REG_OFFSET)) {
+    return kDifLocked;
+  }
+
+  mmio_region_write32(entropy_src->base_addr,
+                      ENTROPY_SRC_MODULE_ENABLE_REG_OFFSET,
+                      dif_toggle_to_multi_bit_bool4(enabled));
+
+  return kDifOk;
+}
+
+dif_result_t dif_entropy_src_lock(const dif_entropy_src_t *entropy_src) {
+  if (entropy_src == NULL) {
+    return kDifBadArg;
+  }
+
+  mmio_region_write32(entropy_src->base_addr, ENTROPY_SRC_ME_REGWEN_REG_OFFSET,
+                      0);
+  mmio_region_write32(entropy_src->base_addr, ENTROPY_SRC_SW_REGUPD_REG_OFFSET,
+                      0);
+
+  return kDifOk;
+}
+
+dif_result_t dif_entropy_src_is_locked(const dif_entropy_src_t *entropy_src,
+                                       bool *is_locked) {
+  if (entropy_src == NULL || is_locked == NULL) {
+    return kDifBadArg;
+  }
+
+  uint32_t module_enable_regwen = mmio_region_read32(
+      entropy_src->base_addr, ENTROPY_SRC_ME_REGWEN_REG_OFFSET);
+  uint32_t sw_regupd = mmio_region_read32(entropy_src->base_addr,
+                                          ENTROPY_SRC_SW_REGUPD_REG_OFFSET);
+  if (module_enable_regwen == sw_regupd) {
+    *is_locked = sw_regupd == 0;
+  } else {
+    // Since we actuate these together, either both should be 0 (locked), or
+    // both should be 1 (unlocked). If only one is locked, then we have
+    // gotten into a bad state.
+    return kDifError;
   }
 
   return kDifOk;
@@ -443,19 +511,6 @@ dif_result_t dif_entropy_src_conditioner_end(
   mmio_region_write32(entropy_src->base_addr,
                       ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET,
                       kMultiBitBool4False);
-  return kDifOk;
-}
-
-dif_result_t dif_entropy_src_disable(const dif_entropy_src_t *entropy_src) {
-  if (entropy_src == NULL) {
-    return kDifBadArg;
-  }
-
-  // TODO: should first check if entropy is locked and return error if it is.
-  mmio_region_write32(entropy_src->base_addr,
-                      ENTROPY_SRC_MODULE_ENABLE_REG_OFFSET,
-                      kMultiBitBool4False);
-
   return kDifOk;
 }
 
