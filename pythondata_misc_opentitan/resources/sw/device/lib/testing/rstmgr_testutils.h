@@ -93,4 +93,16 @@ void rstmgr_testutils_post_reset(
     dif_rstmgr_cpu_info_dump_segment_t *expected_cpu_dump,
     size_t cpu_dump_size);
 
+/**
+ * Gets the reason for a reset in retention SRAM.
+ *
+ * @returns reset reason
+ */
+dif_rstmgr_reset_info_bitfield_t rstmgr_testutils_reason_get(void);
+
+/**
+ * Clears the reset information in Retention SRAM
+ */
+void rstmgr_testutils_reason_clear(void);
+
 #endif  // OPENTITAN_SW_DEVICE_LIB_TESTING_RSTMGR_TESTUTILS_H_
