@@ -4,48 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13102"
-version_tuple = (0, 0, 13102)
+version_str = "0.0.post13105"
+version_tuple = (0, 0, 13105)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13102")
+    pversion = V("0.0.post13105")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12960"
-data_version_tuple = (0, 0, 12960)
+data_version_str = "0.0.post12963"
+data_version_tuple = (0, 0, 12963)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12960")
+    pdata_version = V("0.0.post12963")
 except ImportError:
     pass
-data_git_hash = "897650c1d5775a492a7188023fd72048d86310df"
-data_git_describe = "v0.0-12960-g897650c1d5"
+data_git_hash = "4c81f2388c931e88ee17f53353c2bf566637d9dd"
+data_git_describe = "v0.0-12963-g4c81f2388c"
 data_git_msg = """\
-commit 897650c1d5775a492a7188023fd72048d86310df
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Wed Jul 13 18:19:10 2022 +0200
+commit 4c81f2388c931e88ee17f53353c2bf566637d9dd
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jul 14 15:18:24 2022 -0700
 
-    [otbn,dv] Reset model status in scoreboard when reset is released
+    [dv/cip_base] Add checking in stress_all_with_rand_reset seq
     
-    `otbn_scoreboard` receives status transitions of the OTBN model from
-    `otbn_model_monitor`.  On a reset, the monitor waits until the reset is
-    released before sampling the status (as the status is not guaranteed to
-    have settled directly on the falling reset edge, see 64d77825af).  The
-    scoreboard thus on a reset only receives a transaction to the initial
-    status (Idle), and it cannot know if the model entered the Idle state
-    due to a reset or because OTBN completed execution.
+    This PR adds a checking after reset is issued to check if there are
+    still any outstanding csr items. If so, the following csr checks or
+    sequences are unlikely to pass due to the hanging outstanding item.
     
-    This commit fills this knowledge gap of the scoreboard by adding the
-    value of the reset signal (before release) to the status transition.  If
-    the status transitions due to reset, the scoreboard resets its mirror of
-    the model status as well before using it for checks.
-    
-    As a bonus side effect, this removes the need to keep the initial value
-    of the model status in the scoreboard in sync with RTL and model code.
-    
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
