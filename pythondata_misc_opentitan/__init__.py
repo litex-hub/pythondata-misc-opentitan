@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13096"
-version_tuple = (0, 0, 13096)
+version_str = "0.0.post13099"
+version_tuple = (0, 0, 13099)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13096")
+    pversion = V("0.0.post13099")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12954"
-data_version_tuple = (0, 0, 12954)
+data_version_str = "0.0.post12957"
+data_version_tuple = (0, 0, 12957)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12954")
+    pdata_version = V("0.0.post12957")
 except ImportError:
     pass
-data_git_hash = "ac5c373fcaf419c638dc9b6503084b630ec5470a"
-data_git_describe = "v0.0-12954-gac5c373fca"
+data_git_hash = "db28d6d3b29bd99de8680dbd476ebdc88927186b"
+data_git_describe = "v0.0-12957-gdb28d6d3b2"
 data_git_msg = """\
-commit ac5c373fcaf419c638dc9b6503084b630ec5470a
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jul 14 14:05:05 2022 -0700
+commit db28d6d3b29bd99de8680dbd476ebdc88927186b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Jul 11 15:41:53 2022 -0700
 
-    [spi_dev/dv] Update scb to check passthrough items
+    [top/cw310] Add cw310 to lint
     
-    1. compare upstream items with downstream items
-    2. some minor fixes
+    - this lint is mainly for integration checking, as it is as
+      assumed that top_earlgrey lint is done separately and that
+      ast also behaves correctly.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - we've been bitten multiple times by integration mistakes
+      that manifest as FPGA test failures, so hopefully this will
+      help us address some of the low hanging fruits.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
