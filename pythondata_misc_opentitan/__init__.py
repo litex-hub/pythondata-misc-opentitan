@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13119"
-version_tuple = (0, 0, 13119)
+version_str = "0.0.post13124"
+version_tuple = (0, 0, 13124)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13119")
+    pversion = V("0.0.post13124")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12977"
-data_version_tuple = (0, 0, 12977)
+data_version_str = "0.0.post12982"
+data_version_tuple = (0, 0, 12982)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12977")
+    pdata_version = V("0.0.post12982")
 except ImportError:
     pass
-data_git_hash = "0962269c706650526c858a3522100c0364a75c6b"
-data_git_describe = "v0.0-12977-g0962269c70"
+data_git_hash = "35ef7fe9f20dcedc4f9b3329fa9e56d7d28f5b8f"
+data_git_describe = "v0.0-12982-g35ef7fe9f2"
 data_git_msg = """\
-commit 0962269c706650526c858a3522100c0364a75c6b
-Author: Joshua Park <jeoong@google.com>
-Date:   Wed Jun 29 17:28:33 2022 -0700
+commit 35ef7fe9f20dcedc4f9b3329fa9e56d7d28f5b8f
+Author: Michael Schaffner <msf@opentitan.org>
+Date:   Fri Jul 15 10:03:22 2022 -0700
 
-    [cdc] misc. waivers
+    [sram_ctrl] Update programmers guide
     
-    AST clocks : waived S_GENCLK errors
-    SPI_DEVICE :
-    - Black-boxing dual port SRAM
-    - Waived paths from TLUL error to u_reg
+    This recommends using a spin wait when requesting a key or initializing
+    SRAM so that the PC has a more informative value in case the system
+    hangs and gets reset by the watchdog (this may happen if EDN / CSRNG
+    have not been initialized properly prior to requesting a new key).
     
-    Signed-off-by: Joshua Park <jeoong@google.com>
+    Signed-off-by: Michael Schaffner <msf@opentitan.org>
 
 """
 
