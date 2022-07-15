@@ -24,11 +24,12 @@ set DUT                [get_env_var "DUT"]
 set CONSTRAINT         [get_env_var "CONSTRAINT"]
 set FOUNDRY_CONSTRAINT [get_env_var "FOUNDRY_CONSTRAINT"]
 set PARAMS             [get_env_var "PARAMS"]
-set CDC_WAIVER_FILE    [get_env_var "CDC_WAIVER_FILE"]
-set CDC_WAIVER_DIR     [file dirname $CDC_WAIVER_FILE]
+set RDC_WAIVER_FILE    [get_env_var "RDC_WAIVER_FILE"]
+set RDC_WAIVER_DIR     [file dirname $RDC_WAIVER_FILE]
 set ENV_FILE           [get_env_var "ENV_FILE"]
 
-# Used to disable some SDC constructs that are not needed by CDC.
+# Used to disable some SDC constructs that are not needed by RDC.
+# Reusing IS_CDC_RUN
 set IS_CDC_RUN 1
 
 ########################
@@ -36,6 +37,7 @@ set IS_CDC_RUN 1
 ########################
 
 # if the foundry root is specified, some more library setup is needed.
+# Reusing CDC setup
 if {$FOUNDRY_ROOT != ""} {
   # TODO: add lib setup tcl file here
   # this PRIM_DEFAULT_IMPL selects the appropriate technology by defining
@@ -69,59 +71,17 @@ if {$DEFINE != ""} {
   analyze -sverilog  +define+AST_BYPASS_CLK -f ${SV_FLIST}
 }
 
-# TODO(#13197): two flops are accessing the same memory cells
-# prim_generic_ram_2p is not recognized as a CDC module by the tool
-# So, it's black-boxed while waiting for a tool patch
 if {$PARAMS != ""} {
-  elaborate -params "$PARAMS" $DUT -black_box prim_generic_ram_2p
+  elaborate -params "$PARAMS" $DUT
 } else {
-  elaborate $DUT -black_box prim_generic_ram_2p
+  elaborate $DUT
 }
+
 #################################
 ## Define Common Synchronizers ##
 #################################
 
-# Glitch Free Mux
-# WARNING!!! prim_clock_mux2 is not a glitch free mux
-#set_user_glitch_free_muxes -name opentitan_clock_mux prim_generic_clock_mux2
-#set_user_glitch_free_muxes -name opentitan_glitchfree_mux prim_generic_clock_glitchfree_mux2
 
-# 2FF synchronizer.
-# TODO: Process dependent module name later
-set prim_2ff_modules {}
-
-# Find every derivated modules from 2FF synchronizer
-foreach mod [get_all_modules prim_flop_2sync] {
-  lappend prim_2ff_modules $mod
-  puts "Adding to list prim_2ff_modules: $mod"
-}
-
-set_user_cntl_synchronizer -name opentitan_2ff $prim_2ff_modules
-
-# Pulse synchronizer
-
-# Req/Ack synchronizer
-
-
-# TODO: These should not be hardcoded here, instead, we need to create another variable called CDC_CONSTRAINT
-# where a top could specifically suppli this
-#
-# The following paths ignore data integrity errors that are directly generated on the async fifo data
-# The path is as follows: asycn_fifo.rdata_o -> data integrity check -> a_valid
-# There are two such paths: One path is a the error pin directly into ibex, and the other is ibex's internal check
-set async_fifo_data [get_pins -of_objects [get_cells -hier * -filter {ref_name == prim_fifo_async}] -filter {name =~ rdata_o*}]
-set_ignore_cdc_paths -name async_fifo_to_ibex_data_err -through_signal $async_fifo_data -through_signal [get_pins top_earlgrey/u_rv_core_ibex/u_core/data_err_i]
-set_ignore_cdc_paths -name async_fifo_to_ibex_ecc_err -through_signal $async_fifo_data -through_signal [get_pins top_earlgrey/u_rv_core_ibex/u_core/u_ibex_core/load_store_unit_i/load_intg_err_o]
-
-# The following paths ignore valid qualification using the response data
-# In the socketm1 module, the returned ID is used to pick which of the original source made the request
-# CDC sees this as rdata directly affecting the control, but the control signal should already dictate whether the rdata is safe to use.
-set_ignore_cdc_paths -name async_fifo_to_ibex_ivalid -through_signal $async_fifo_data -through_signal [get_pins top_earlgrey/u_rv_core_ibex/u_core/instr_rvalid_i]
-set_ignore_cdc_paths -name async_fifo_to_ibex_dvalid -through_signal $async_fifo_data -through_signal [get_pins top_earlgrey/u_rv_core_ibex/u_core/data_rvalid_i]
-
-# CDC between tlul_fifo_async and regs : ignored
-set tlul_async_data [get_pins -of_objects [get_cells -hier * -filter {ref_name == tlul_fifo_async}] -filter {name =~ tl_d_o*}]
-set_ignore_cdc_paths -name tlul_async_fifo_err -through_signal $tlul_async_data -through_signal [get_pins {top_earlgrey/*/u_reg/u_io_*meas_ctrl_shadowed_cdc/src_we_i}]
 #########################
 ## Apply Constraints   ##
 #########################
@@ -140,12 +100,15 @@ if {$ENV_FILE != ""} {
 }
 
 #########################
-## Run CDC             ##
+## Run RDC             ##
 #########################
 
 analyze_intent
 
-verify_cdc
+create_set_reset_scenario_script -output reset_scenarios.tcl -primary
+source reset_scenarios.tcl
+
+verify_rdc
 
 #########################
 ## Top Modules         ##
@@ -179,13 +142,15 @@ set modules {
 ## Read in Waivers     ##
 #########################
 
-source $CDC_WAIVER_FILE
+if {[file exists $RDC_WAIVER_FILE]} {
+  source $RDC_WAIVER_FILE
+}
 
 #########################
 ## Write out report    ##
 #########################
 
-report_policy -verbose -skip_empty_summary_status -compat -output vcdc.rpt ALL
+report_policy -verbose -skip_empty_summary_status -compat -output mrdc.rpt ALL
 
 file mkdir ../REPORT/
 
@@ -199,14 +164,14 @@ foreach mod $modules {
   if {$umods_length == 1} {
     # Just report as original module
     report_policy -verbose -skip_empty_summary_status -compat   \
-      -output ../REPORT/vcdc.$mod.rpt -module [lindex $umods 0] \
+      -output ../REPORT/mrdc.$mod.rpt -module [lindex $umods 0] \
       {NEW TO_BE_FIXED DEFERRED}
   } else {
     # Report file name is increamental index not uniquified module name
     set idx 0
     foreach umod $umods {
       report_policy -verbose -skip_empty_summary_status -compat \
-        -output ../REPORT/vcdc.$mod_$idx.rpt -module $umod      \
+        -output ../REPORT/mrdc.$mod_$idx.rpt -module $umod      \
         {NEW TO_BE_FIXED DEFERRED}
       incr idx 1
     }
@@ -214,11 +179,7 @@ foreach mod $modules {
 }
 
 # Report waived in a separate file
-report_policy -verbose -skip_empty_summary_status -compat -output ../REPORT/vcdc.new.rpt {NEW}
-report_policy -verbose -skip_empty_summary_status -compat -output ../REPORT/vcdc.waived.rpt {WAIVED}
+report_policy -verbose -skip_empty_summary_status -compat -output ../REPORT/mrdc.new.rpt {NEW}
+report_policy -verbose -skip_empty_summary_status -compat -output ../REPORT/mrdc.waived.rpt {WAIVED}
 
-# report_messages -output verix_cdc.rpt
-
-# Clock report
-report_clock_domains -flops -output ../REPORT/clocks.flops.rpt
-report_clock_matrix -output ../REPORT/clocks.matrix.rpt
+# report_messages -output mrdc.rpt
