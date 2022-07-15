@@ -4,36 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13101"
-version_tuple = (0, 0, 13101)
+version_str = "0.0.post13102"
+version_tuple = (0, 0, 13102)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13101")
+    pversion = V("0.0.post13102")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12959"
-data_version_tuple = (0, 0, 12959)
+data_version_str = "0.0.post12960"
+data_version_tuple = (0, 0, 12960)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12959")
+    pdata_version = V("0.0.post12960")
 except ImportError:
     pass
-data_git_hash = "f4c69a028fe09d6cb0e7a66fc7f79f8442c9a6ea"
-data_git_describe = "v0.0-12959-gf4c69a028f"
+data_git_hash = "897650c1d5775a492a7188023fd72048d86310df"
+data_git_describe = "v0.0-12960-g897650c1d5"
 data_git_msg = """\
-commit f4c69a028fe09d6cb0e7a66fc7f79f8442c9a6ea
+commit 897650c1d5775a492a7188023fd72048d86310df
 Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Fri Jul 15 09:46:56 2022 +0200
+Date:   Wed Jul 13 18:19:10 2022 +0200
 
-    [otbn,rtl] Fix `adder_y_res_used`
+    [otbn,dv] Reset model status in scoreboard when reset is released
     
-    `adder_y_res_used` indicates whether `adder_y_res` is used in any way.
-    This is relevant for determining if upstream integrity errors could
-    possibly have any effect.  Prior to this commit, `adder_y_res_used` was
-    `0` in one case where `adder_y_res` is used in an `if` condition.  This
-    is wrong, and this commit fixes this flaw.
+    `otbn_scoreboard` receives status transitions of the OTBN model from
+    `otbn_model_monitor`.  On a reset, the monitor waits until the reset is
+    released before sampling the status (as the status is not guaranteed to
+    have settled directly on the falling reset edge, see 64d77825af).  The
+    scoreboard thus on a reset only receives a transaction to the initial
+    status (Idle), and it cannot know if the model entered the Idle state
+    due to a reset or because OTBN completed execution.
+    
+    This commit fills this knowledge gap of the scoreboard by adding the
+    value of the reset signal (before release) to the status transition.  If
+    the status transitions due to reset, the scoreboard resets its mirror of
+    the model status as well before using it for checks.
+    
+    As a bonus side effect, this removes the need to keep the initial value
+    of the model status in the scoreboard in sync with RTL and model code.
     
     Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
