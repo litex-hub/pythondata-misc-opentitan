@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13129"
-version_tuple = (0, 0, 13129)
+version_str = "0.0.post13137"
+version_tuple = (0, 0, 13137)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13129")
+    pversion = V("0.0.post13137")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12987"
-data_version_tuple = (0, 0, 12987)
+data_version_str = "0.0.post12995"
+data_version_tuple = (0, 0, 12995)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12987")
+    pdata_version = V("0.0.post12995")
 except ImportError:
     pass
-data_git_hash = "010a5a2c6a28d9ad06a4060417734af1af9e5d37"
-data_git_describe = "v0.0-12987-g010a5a2c6a"
+data_git_hash = "4a949ee43da5ce26e1c8d338a1f1cbb370a0b82e"
+data_git_describe = "v0.0-12995-g4a949ee43d"
 data_git_msg = """\
-commit 010a5a2c6a28d9ad06a4060417734af1af9e5d37
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Jul 14 17:01:15 2022 -0700
+commit 4a949ee43da5ce26e1c8d338a1f1cbb370a0b82e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Sat Jul 2 00:49:16 2022 -0400
 
-    [dif/entropy_src] add alert threshold configs
+    [test] Add e2e bare_metal test
     
-    This updates the main entropy source configuration DIF (and all tests
-    that use this DIF) to set the alert threshold CSR. Additionally,
-    corresponding unit tests are also updated.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
