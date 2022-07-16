@@ -4,26 +4,26 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13138"
-version_tuple = (0, 0, 13138)
+version_str = "0.0.post13139"
+version_tuple = (0, 0, 13139)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13138")
+    pversion = V("0.0.post13139")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12996"
-data_version_tuple = (0, 0, 12996)
+data_version_str = "0.0.post12997"
+data_version_tuple = (0, 0, 12997)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12996")
+    pdata_version = V("0.0.post12997")
 except ImportError:
     pass
-data_git_hash = "b802eaad8b300a1df13952ab77f328a13a025bc3"
-data_git_describe = "v0.0-12996-gb802eaad8b"
+data_git_hash = "a9d8e2bdb023811f40309f52901e469be6c4bda3"
+data_git_describe = "v0.0-12997-ga9d8e2bdb0"
 data_git_msg = """\
-commit b802eaad8b300a1df13952ab77f328a13a025bc3
+commit a9d8e2bdb023811f40309f52901e469be6c4bda3
 Author: Guillermo Maturana <maturana@google.com>
 Date:   Thu Jun 30 17:40:47 2022 -0700
 
