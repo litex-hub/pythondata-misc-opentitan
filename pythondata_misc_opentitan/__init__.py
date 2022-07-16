@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13128"
-version_tuple = (0, 0, 13128)
+version_str = "0.0.post13129"
+version_tuple = (0, 0, 13129)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13128")
+    pversion = V("0.0.post13129")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post12986"
-data_version_tuple = (0, 0, 12986)
+data_version_str = "0.0.post12987"
+data_version_tuple = (0, 0, 12987)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post12986")
+    pdata_version = V("0.0.post12987")
 except ImportError:
     pass
-data_git_hash = "2b989a42bad3aff373e024ce841b406eec1b3970"
-data_git_describe = "v0.0-12986-g2b989a42ba"
+data_git_hash = "010a5a2c6a28d9ad06a4060417734af1af9e5d37"
+data_git_describe = "v0.0-12987-g010a5a2c6a"
 data_git_msg = """\
-commit 2b989a42bad3aff373e024ce841b406eec1b3970
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Jul 15 13:34:28 2022 -0700
+commit 010a5a2c6a28d9ad06a4060417734af1af9e5d37
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Jul 14 17:01:15 2022 -0700
 
-    fix(cdc): Parse NEW violations only
+    [dif/entropy_src] add alert threshold configs
     
-    This commit revises the CDC flow to parse NEW report not ALL report
-    file. The result report contains only NEW violations. Previously, the
-    report has WAIVED list too.
+    This updates the main entropy source configuration DIF (and all tests
+    that use this DIF) to set the alert threshold CSR. Additionally,
+    corresponding unit tests are also updated.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
