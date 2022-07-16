@@ -12,6 +12,7 @@
 #include "sw/device/silicon_creator/lib/base/sec_mmio.h"
 #include "sw/device/silicon_creator/lib/drivers/flash_ctrl.h"
 #include "sw/device/silicon_creator/lib/drivers/hmac.h"
+#include "sw/device/silicon_creator/lib/drivers/ibex.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
 #include "sw/device/silicon_creator/lib/drivers/otp.h"
 #include "sw/device/silicon_creator/lib/drivers/pinmux.h"
@@ -85,6 +86,25 @@ static rom_error_t rom_ext_verify(const manifest_t *manifest) {
                               &flash_exec);
 }
 
+/* These symbols are defined in
+ * `opentitan/sw/device/silicon_creator/rom_ext/rom_ext.ld`, and describe the
+ * location of the flash header.
+ */
+extern char _owner_virtual_start_address[];
+extern char _owner_virtual_size[];
+/**
+ * Compute the virtual address corresponding to the physical address `lma_addr`.
+ *
+ * @param manifest Pointer to the current manifest.
+ * @param lma_addr Load address or physical address.
+ * @return the computed virtual address.
+ */
+static uintptr_t owner_vma_get(const manifest_t *manifest, uintptr_t lma_addr) {
+  return (lma_addr - (uintptr_t)manifest +
+          (uintptr_t)_owner_virtual_start_address +
+          MANIFEST_LENGTH_FIELD_ROM_EXT_MAX);
+}
+
 static rom_error_t rom_ext_boot(const manifest_t *manifest) {
   // Disable access to silicon creator info pages and OTP partitions until next
   // reset.
@@ -93,11 +113,46 @@ static rom_error_t rom_ext_boot(const manifest_t *manifest) {
   SEC_MMIO_WRITE_INCREMENT(kFlashCtrlSecMmioCreatorInfoPagesLockdown +
                            kOtpSecMmioCreatorSwCfgLockDown);
 
-  // Unlock execution of owner stage executable code (text) sections.
-  rom_ext_epmp_unlock_owner_stage_rx(&epmp, manifest_code_region_get(manifest));
-
-  // Jump to BL0 entry point.
+  // Configure address translation, compute the epmp regions and the entry
+  // point for the virtual address in case the address translation is enabled.
+  // Otherwise, compute the epmp regions and the entry point for the load
+  // address.
+  epmp_region_t text_region = manifest_code_region_get(manifest);
   uintptr_t entry_point = manifest_entry_point_get(manifest);
+  switch (launder32(manifest->address_translation)) {
+    case kHardenedBoolTrue:
+      HARDENED_CHECK_EQ(manifest->address_translation, kHardenedBoolTrue);
+      ibex_addr_remap_1_set((uintptr_t)_owner_virtual_start_address,
+                            (uintptr_t)TOP_EARLGREY_EFLASH_BASE_ADDR,
+                            (size_t)_owner_virtual_size);
+      SEC_MMIO_WRITE_INCREMENT(kAddressTranslationSecMmioConfigure);
+
+      // Unlock read-only for the whole rom_ext virtual memory.
+      // TODO(#13507): Add ePMP state checks.
+      rom_ext_epmp_unlock_owner_stage_r(
+          &epmp,
+          (epmp_region_t){.start = (uintptr_t)_owner_virtual_start_address,
+                          .end = (uintptr_t)_owner_virtual_start_address +
+                                 (uintptr_t)_owner_virtual_size});
+
+      // Move the ROM_EXT execution section from the load address to the virtual
+      // address.
+      // TODO(#13513): Harden these calculations.
+      text_region.start = owner_vma_get(manifest, text_region.start);
+      text_region.end = owner_vma_get(manifest, text_region.end);
+      entry_point = owner_vma_get(manifest, entry_point);
+      break;
+    case kHardenedBoolFalse:
+      HARDENED_CHECK_EQ(manifest->address_translation, kHardenedBoolFalse);
+      break;
+    default:
+      HARDENED_UNREACHABLE();
+  }
+
+  // Unlock execution of owner stage executable code (text) sections.
+  rom_ext_epmp_unlock_owner_stage_rx(&epmp, text_region);
+
+  // Jump to OWNER entry point.
   rom_printf("entry: 0x%x\r\n", (unsigned int)entry_point);
   ((owner_stage_entry_point *)entry_point)();
 
@@ -124,7 +179,7 @@ static rom_error_t rom_ext_try_boot(void) {
 
 void rom_ext_main(void) {
   rom_ext_init();
-  rom_printf("starting rom_ext\r\n");
+  rom_printf("Starting ROM_EXT\r\n");
   shutdown_finalize(rom_ext_try_boot());
 }
 
