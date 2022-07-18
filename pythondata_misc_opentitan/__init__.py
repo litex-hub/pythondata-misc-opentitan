@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13144"
-version_tuple = (0, 0, 13144)
+version_str = "0.0.post13145"
+version_tuple = (0, 0, 13145)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13144")
+    pversion = V("0.0.post13145")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13002"
-data_version_tuple = (0, 0, 13002)
+data_version_str = "0.0.post13003"
+data_version_tuple = (0, 0, 13003)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13002")
+    pdata_version = V("0.0.post13003")
 except ImportError:
     pass
-data_git_hash = "0e1501b858e28f5aff9f4ec570e6a30d6f166bce"
-data_git_describe = "v0.0-13002-g0e1501b858"
+data_git_hash = "62c05c026f8a54b136066c634788fa3e6746c8c5"
+data_git_describe = "v0.0-13003-g62c05c026f"
 data_git_msg = """\
-commit 0e1501b858e28f5aff9f4ec570e6a30d6f166bce
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Jul 15 16:28:02 2022 -0700
+commit 62c05c026f8a54b136066c634788fa3e6746c8c5
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Jul 12 18:22:15 2022 +0000
 
-    [dvsim] Add support for SW (bazel) build opts
+    [dv,flash_ctrl] remove scb_set_exp_alert
     
-    This commit adds native support to set additional bazel command args via
-    `sw_build_opts`, which can be set in test specifications, `run_modes`,
-    `build_modes` and regressions in the Hjson spec.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
