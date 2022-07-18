@@ -4,36 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13150"
-version_tuple = (0, 0, 13150)
+version_str = "0.0.post13152"
+version_tuple = (0, 0, 13152)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13150")
+    pversion = V("0.0.post13152")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13008"
-data_version_tuple = (0, 0, 13008)
+data_version_str = "0.0.post13010"
+data_version_tuple = (0, 0, 13010)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13008")
+    pdata_version = V("0.0.post13010")
 except ImportError:
     pass
-data_git_hash = "f0f9dbf27c79145850fbe4352b4682e4c6481b47"
-data_git_describe = "v0.0-13008-gf0f9dbf27c"
+data_git_hash = "b661fb6b73d30758e1c893bdc49e55ec44ac7401"
+data_git_describe = "v0.0-13010-gb661fb6b73"
 data_git_msg = """\
-commit f0f9dbf27c79145850fbe4352b4682e4c6481b47
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Thu Jul 14 06:12:33 2022 -0400
+commit b661fb6b73d30758e1c893bdc49e55ec44ac7401
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Jul 15 19:04:00 2022 -0700
 
-    [bazel/test_rom] use the dif for the rstmgr in test_rom
+    [sw/dif] Add a dif function to grab current state
     
-    Some of the target specific sources are to do with bootstraps but some
-    aren't specific anylonger so they were renamed target_test_rom_lib or
-    with a specific platform substituted for "target"
+    - add a testutil function to wait until a certain entropy state
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    fix
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
