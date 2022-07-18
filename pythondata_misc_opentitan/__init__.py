@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13154"
-version_tuple = (0, 0, 13154)
+version_str = "0.0.post13160"
+version_tuple = (0, 0, 13160)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13154")
+    pversion = V("0.0.post13160")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13012"
-data_version_tuple = (0, 0, 13012)
+data_version_str = "0.0.post13018"
+data_version_tuple = (0, 0, 13018)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13012")
+    pdata_version = V("0.0.post13018")
 except ImportError:
     pass
-data_git_hash = "717a66e5a51dc81764dc2388741bd1b4fba5d4e4"
-data_git_describe = "v0.0-13012-g717a66e5a5"
+data_git_hash = "e9e192a73efc0562cb31daa19e3e58e9a92cc7d8"
+data_git_describe = "v0.0-13018-ge9e192a73e"
 data_git_msg = """\
-commit 717a66e5a51dc81764dc2388741bd1b4fba5d4e4
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Jul 15 16:19:40 2022 -0700
+commit e9e192a73efc0562cb31daa19e3e58e9a92cc7d8
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jul 14 16:16:39 2022 -0700
 
-    [spi_device/dv] Update for passthrough
+    [dv/kmac] Collecting coverage for app interface and sideload
     
-    1. support testing invalid opcodes
-    2. support dummy cycles
-    3. a few fixes
-    4. rename op_code -> opcode
+    Update fcov to collect coverage where sideload is set to 0, but kmac
+    keymgr app interface request is sent.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
