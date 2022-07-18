@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13143"
-version_tuple = (0, 0, 13143)
+version_str = "0.0.post13144"
+version_tuple = (0, 0, 13144)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13143")
+    pversion = V("0.0.post13144")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13001"
-data_version_tuple = (0, 0, 13001)
+data_version_str = "0.0.post13002"
+data_version_tuple = (0, 0, 13002)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13001")
+    pdata_version = V("0.0.post13002")
 except ImportError:
     pass
-data_git_hash = "1445e264f27eb6b8eef3925a4411ae0f157cdd6d"
-data_git_describe = "v0.0-13001-g1445e264f2"
+data_git_hash = "0e1501b858e28f5aff9f4ec570e6a30d6f166bce"
+data_git_describe = "v0.0-13002-g0e1501b858"
 data_git_msg = """\
-commit 1445e264f27eb6b8eef3925a4411ae0f157cdd6d
-Author: Sven Bauer <sven.bauer@gi-de.com>
-Date:   Fri Jul 15 11:40:38 2022 +0200
+commit 0e1501b858e28f5aff9f4ec570e6a30d6f166bce
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Jul 15 16:28:02 2022 -0700
 
-    [otbn] otbn_build.py: Improve readability.
+    [dvsim] Add support for SW (bazel) build opts
     
-    Signed-off-by: Sven Bauer <sven.bauer@gi-de.com>
+    This commit adds native support to set additional bazel command args via
+    `sw_build_opts`, which can be set in test specifications, `run_modes`,
+    `build_modes` and regressions in the Hjson spec.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
