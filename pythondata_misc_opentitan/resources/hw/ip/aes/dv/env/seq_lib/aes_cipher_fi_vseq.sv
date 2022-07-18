@@ -4,8 +4,8 @@
 
 // Test that injects random resets &
 // bit errors into FSMs
-class aes_control_fi_vseq extends aes_base_vseq;
-  `uvm_object_utils(aes_control_fi_vseq)
+class aes_cipher_fi_vseq extends aes_base_vseq;
+  `uvm_object_utils(aes_cipher_fi_vseq)
 
   `uvm_object_new
   aes_message_item my_message;
@@ -48,12 +48,12 @@ class aes_control_fi_vseq extends aes_base_vseq;
             // workaround for vcs issue
             if_size = cfg.aes_cipher_control_fi_vif[if_num].get_if_size();
             if (!randomize(target) with {
-              target inside { [0:if_size-1]};}) begin
+              target inside { [0:if_size -1]};}) begin
               `uvm_fatal(`gfn, $sformatf("Randomization failed"))
             end
             cfg.clk_rst_vif.wait_clks(cfg.inj_delay);
             `uvm_info(`gfn, $sformatf("FORCING %h on if[%d]", force_value, if_num), UVM_MEDIUM)
-            cfg.aes_control_fi_vif[if_num].force_signal(target, FORCE, force_value);
+            cfg.aes_cipher_control_fi_vif[if_num].force_signal(target, FORCE, force_value);
             wait_for_alert_clear = 1;
           end
           basic: begin
@@ -66,10 +66,11 @@ class aes_control_fi_vseq extends aes_base_vseq;
         `uvm_info(`gfn, $sformatf("Waiting alert ack complete"), UVM_MEDIUM)
         cfg.m_alert_agent_cfg["fatal_fault"].vif.wait_ack_complete();
         wait(!cfg.clk_rst_vif.rst_n);
-        cfg.aes_control_fi_vif[if_num].force_signal(target, RELEASE, force_value);
-       `uvm_info(`gfn, $sformatf("Finish"), UVM_MEDIUM)
+        cfg.aes_cipher_control_fi_vif[if_num].force_signal(target, RELEASE, force_value);
+        `uvm_info(`gfn, $sformatf("Finish"), UVM_MEDIUM)
         disable fork;
-      end // fork
+        end // fork
     join
   endtask : body
+
 endclass
