@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13160"
-version_tuple = (0, 0, 13160)
+version_str = "0.0.post13162"
+version_tuple = (0, 0, 13162)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13160")
+    pversion = V("0.0.post13162")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13018"
-data_version_tuple = (0, 0, 13018)
+data_version_str = "0.0.post13020"
+data_version_tuple = (0, 0, 13020)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13018")
+    pdata_version = V("0.0.post13020")
 except ImportError:
     pass
-data_git_hash = "e9e192a73efc0562cb31daa19e3e58e9a92cc7d8"
-data_git_describe = "v0.0-13018-ge9e192a73e"
+data_git_hash = "936431c28847c7f740daca6882fa8975f2f9e8ad"
+data_git_describe = "v0.0-13020-g936431c288"
 data_git_msg = """\
-commit e9e192a73efc0562cb31daa19e3e58e9a92cc7d8
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jul 14 16:16:39 2022 -0700
+commit 936431c28847c7f740daca6882fa8975f2f9e8ad
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Jul 15 15:14:49 2022 -0700
 
-    [dv/kmac] Collecting coverage for app interface and sideload
+    fix(rdc): typo
     
-    Update fcov to collect coverage where sideload is set to 0, but kmac
-    keymgr app interface request is sent.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
