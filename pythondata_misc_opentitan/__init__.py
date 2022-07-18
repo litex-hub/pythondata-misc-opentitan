@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13152"
-version_tuple = (0, 0, 13152)
+version_str = "0.0.post13154"
+version_tuple = (0, 0, 13154)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13152")
+    pversion = V("0.0.post13154")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13010"
-data_version_tuple = (0, 0, 13010)
+data_version_str = "0.0.post13012"
+data_version_tuple = (0, 0, 13012)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13010")
+    pdata_version = V("0.0.post13012")
 except ImportError:
     pass
-data_git_hash = "b661fb6b73d30758e1c893bdc49e55ec44ac7401"
-data_git_describe = "v0.0-13010-gb661fb6b73"
+data_git_hash = "717a66e5a51dc81764dc2388741bd1b4fba5d4e4"
+data_git_describe = "v0.0-13012-g717a66e5a5"
 data_git_msg = """\
-commit b661fb6b73d30758e1c893bdc49e55ec44ac7401
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Jul 15 19:04:00 2022 -0700
+commit 717a66e5a51dc81764dc2388741bd1b4fba5d4e4
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Jul 15 16:19:40 2022 -0700
 
-    [sw/dif] Add a dif function to grab current state
+    [spi_device/dv] Update for passthrough
     
-    - add a testutil function to wait until a certain entropy state
+    1. support testing invalid opcodes
+    2. support dummy cycles
+    3. a few fixes
+    4. rename op_code -> opcode
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    fix
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
