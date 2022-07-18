@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13145"
-version_tuple = (0, 0, 13145)
+version_str = "0.0.post13149"
+version_tuple = (0, 0, 13149)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13145")
+    pversion = V("0.0.post13149")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13003"
-data_version_tuple = (0, 0, 13003)
+data_version_str = "0.0.post13007"
+data_version_tuple = (0, 0, 13007)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13003")
+    pdata_version = V("0.0.post13007")
 except ImportError:
     pass
-data_git_hash = "62c05c026f8a54b136066c634788fa3e6746c8c5"
-data_git_describe = "v0.0-13003-g62c05c026f"
+data_git_hash = "13baddf15c1520df1b569acec49c540fac12d8e8"
+data_git_describe = "v0.0-13007-g13baddf15c"
 data_git_msg = """\
-commit 62c05c026f8a54b136066c634788fa3e6746c8c5
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Tue Jul 12 18:22:15 2022 +0000
+commit 13baddf15c1520df1b569acec49c540fac12d8e8
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Fri Jul 15 16:14:18 2022 -0400
 
-    [dv,flash_ctrl] remove scb_set_exp_alert
+    [bazel] Refactor Bazel gen in bitstreams_workspace.py
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    * Factor long triple-quote string literals into line lists that get
+      joined by '\n'.
+    
+    * Add helper function to generate `filegroup` blocks.
+    
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
