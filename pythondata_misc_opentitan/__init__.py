@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13165"
-version_tuple = (0, 0, 13165)
+version_str = "0.0.post13166"
+version_tuple = (0, 0, 13166)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13165")
+    pversion = V("0.0.post13166")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13023"
-data_version_tuple = (0, 0, 13023)
+data_version_str = "0.0.post13024"
+data_version_tuple = (0, 0, 13024)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13023")
+    pdata_version = V("0.0.post13024")
 except ImportError:
     pass
-data_git_hash = "50f9473215091f932d6936c3ebc35a5df14b4488"
-data_git_describe = "v0.0-13023-g50f9473215"
+data_git_hash = "017232d57497c317129acf017ab91eab02a35d30"
+data_git_describe = "v0.0-13024-g017232d574"
 data_git_msg = """\
-commit 50f9473215091f932d6936c3ebc35a5df14b4488
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jul 18 17:02:02 2022 -0700
+commit 017232d57497c317129acf017ab91eab02a35d30
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Tue Jul 19 10:03:07 2022 +0200
 
-    [dv/kmac] Fix unmasked_error code failure
+    [otbn,dv] Fix reset during EDN request (again)
     
-    This PR fixes the regression failure at error sequence.
-    The issue is due to newly support field `en_unsupported_modestrength`.
-    Current randomization only allow this field to be 1. There is still a
-    testbench(scb) error when value is set to 0.
-    I will work on fixing this issue asap.
+    This commit reapplies 40dea7f638 (#13294), which had been partially
+    undone in 3c7192597e (part of #13391).
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
