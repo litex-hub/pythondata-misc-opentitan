@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13176"
-version_tuple = (0, 0, 13176)
+version_str = "0.0.post13179"
+version_tuple = (0, 0, 13179)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13176")
+    pversion = V("0.0.post13179")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13034"
-data_version_tuple = (0, 0, 13034)
+data_version_str = "0.0.post13037"
+data_version_tuple = (0, 0, 13037)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13034")
+    pdata_version = V("0.0.post13037")
 except ImportError:
     pass
-data_git_hash = "7365f25f56928f457e2d6a61fa96eaf8398730b9"
-data_git_describe = "v0.0-13034-g7365f25f56"
+data_git_hash = "e2fed9dfa9eca83d7544bc13741c1cd6904eb4e3"
+data_git_describe = "v0.0-13037-ge2fed9dfa9"
 data_git_msg = """\
-commit 7365f25f56928f457e2d6a61fa96eaf8398730b9
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Thu Jul 14 16:35:38 2022 +0000
+commit e2fed9dfa9eca83d7544bc13741c1cd6904eb4e3
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Jul 18 19:35:56 2022 -0700
 
-    [flash_ctrl,dv] single bit error test
+    [dif/entropy_src] add DIFs to get/clear/force alerts and errors
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This adds DIFs (and corresponding unit tests) to get/clear/force
+    recoverable alerts and (nonrecoverable) errors.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
