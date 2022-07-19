@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13168"
-version_tuple = (0, 0, 13168)
+version_str = "0.0.post13170"
+version_tuple = (0, 0, 13170)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13168")
+    pversion = V("0.0.post13170")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13026"
-data_version_tuple = (0, 0, 13026)
+data_version_str = "0.0.post13028"
+data_version_tuple = (0, 0, 13028)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13026")
+    pdata_version = V("0.0.post13028")
 except ImportError:
     pass
-data_git_hash = "409c80ece81e6e77e6fdc0bb7b81c48e2d403294"
-data_git_describe = "v0.0-13026-g409c80ece8"
+data_git_hash = "3a5e6ca8eb97fb99f824e3f37bd9a9b3c94b5bcc"
+data_git_describe = "v0.0-13028-g3a5e6ca8eb"
 data_git_msg = """\
-commit 409c80ece81e6e77e6fdc0bb7b81c48e2d403294
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Fri Jul 15 18:27:37 2022 +0100
+commit 3a5e6ca8eb97fb99f824e3f37bd9a9b3c94b5bcc
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Mon Jul 18 15:48:04 2022 -0700
 
-    [otbn, rtl/doc] Update security countermeasures
+    feat(rdc): Define RDC gitattribute
     
-    This documents more, already implemented, security countermeasures that
-    had previously been left off the countermeasure list.
+    This commit defines RDC related files as CDC in `.gitattributes`.
+    By defining as cdc, any changes to RDC skip the FPGA tests in CI.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
