@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13164"
-version_tuple = (0, 0, 13164)
+version_str = "0.0.post13165"
+version_tuple = (0, 0, 13165)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13164")
+    pversion = V("0.0.post13165")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13022"
-data_version_tuple = (0, 0, 13022)
+data_version_str = "0.0.post13023"
+data_version_tuple = (0, 0, 13023)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13022")
+    pdata_version = V("0.0.post13023")
 except ImportError:
     pass
-data_git_hash = "a62799f93409c31ed91e8af9475bae555bb7aa16"
-data_git_describe = "v0.0-13022-ga62799f934"
+data_git_hash = "50f9473215091f932d6936c3ebc35a5df14b4488"
+data_git_describe = "v0.0-13023-g50f9473215"
 data_git_msg = """\
-commit a62799f93409c31ed91e8af9475bae555bb7aa16
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Jul 18 15:28:51 2022 -0700
+commit 50f9473215091f932d6936c3ebc35a5df14b4488
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Jul 18 17:02:02 2022 -0700
 
-    [spi] Fix an assertion
+    [dv/kmac] Fix unmasked_error code failure
     
-    payload swap constraint should be applied to read command, which is
-    `PayloadIn` instead of `PayloadOut`
+    This PR fixes the regression failure at error sequence.
+    The issue is due to newly support field `en_unsupported_modestrength`.
+    Current randomization only allow this field to be 1. There is still a
+    testbench(scb) error when value is set to 0.
+    I will work on fixing this issue asap.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
