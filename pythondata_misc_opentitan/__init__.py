@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13166"
-version_tuple = (0, 0, 13166)
+version_str = "0.0.post13168"
+version_tuple = (0, 0, 13168)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13166")
+    pversion = V("0.0.post13168")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13024"
-data_version_tuple = (0, 0, 13024)
+data_version_str = "0.0.post13026"
+data_version_tuple = (0, 0, 13026)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13024")
+    pdata_version = V("0.0.post13026")
 except ImportError:
     pass
-data_git_hash = "017232d57497c317129acf017ab91eab02a35d30"
-data_git_describe = "v0.0-13024-g017232d574"
+data_git_hash = "409c80ece81e6e77e6fdc0bb7b81c48e2d403294"
+data_git_describe = "v0.0-13026-g409c80ece8"
 data_git_msg = """\
-commit 017232d57497c317129acf017ab91eab02a35d30
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Tue Jul 19 10:03:07 2022 +0200
+commit 409c80ece81e6e77e6fdc0bb7b81c48e2d403294
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Fri Jul 15 18:27:37 2022 +0100
 
-    [otbn,dv] Fix reset during EDN request (again)
+    [otbn, rtl/doc] Update security countermeasures
     
-    This commit reapplies 40dea7f638 (#13294), which had been partially
-    undone in 3c7192597e (part of #13391).
+    This documents more, already implemented, security countermeasures that
+    had previously been left off the countermeasure list.
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
