@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13173"
-version_tuple = (0, 0, 13173)
+version_str = "0.0.post13175"
+version_tuple = (0, 0, 13175)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13173")
+    pversion = V("0.0.post13175")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13031"
-data_version_tuple = (0, 0, 13031)
+data_version_str = "0.0.post13033"
+data_version_tuple = (0, 0, 13033)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13031")
+    pdata_version = V("0.0.post13033")
 except ImportError:
     pass
-data_git_hash = "a5f10de566481af010cacd099f9a963c36ed1300"
-data_git_describe = "v0.0-13031-ga5f10de566"
+data_git_hash = "1e86ba2a238dc26c2111d325ee7645b0e65058e5"
+data_git_describe = "v0.0-13033-g1e86ba2a23"
 data_git_msg = """\
-commit a5f10de566481af010cacd099f9a963c36ed1300
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Jul 18 14:15:01 2022 -0700
+commit 1e86ba2a238dc26c2111d325ee7645b0e65058e5
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jul 19 09:41:20 2022 -0700
 
-    [dif/entropy_src] add missing unit tests
+    [doc/kmac] Fix a small typo
     
-    This adds missing unit tests for all remaining DIFs that have been
-    implemented.
+    Fix a small typo in kmac doc regarding kmac_pkg.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
