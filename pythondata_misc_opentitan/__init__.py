@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13162"
-version_tuple = (0, 0, 13162)
+version_str = "0.0.post13164"
+version_tuple = (0, 0, 13164)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13162")
+    pversion = V("0.0.post13164")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13020"
-data_version_tuple = (0, 0, 13020)
+data_version_str = "0.0.post13022"
+data_version_tuple = (0, 0, 13022)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13020")
+    pdata_version = V("0.0.post13022")
 except ImportError:
     pass
-data_git_hash = "936431c28847c7f740daca6882fa8975f2f9e8ad"
-data_git_describe = "v0.0-13020-g936431c288"
+data_git_hash = "a62799f93409c31ed91e8af9475bae555bb7aa16"
+data_git_describe = "v0.0-13022-ga62799f934"
 data_git_msg = """\
-commit 936431c28847c7f740daca6882fa8975f2f9e8ad
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Jul 15 15:14:49 2022 -0700
+commit a62799f93409c31ed91e8af9475bae555bb7aa16
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Jul 18 15:28:51 2022 -0700
 
-    fix(rdc): typo
+    [spi] Fix an assertion
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    payload swap constraint should be applied to read command, which is
+    `PayloadIn` instead of `PayloadOut`
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
