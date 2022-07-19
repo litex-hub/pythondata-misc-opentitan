@@ -4,35 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13179"
-version_tuple = (0, 0, 13179)
+version_str = "0.0.post13180"
+version_tuple = (0, 0, 13180)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13179")
+    pversion = V("0.0.post13180")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13037"
-data_version_tuple = (0, 0, 13037)
+data_version_str = "0.0.post13038"
+data_version_tuple = (0, 0, 13038)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13037")
+    pdata_version = V("0.0.post13038")
 except ImportError:
     pass
-data_git_hash = "e2fed9dfa9eca83d7544bc13741c1cd6904eb4e3"
-data_git_describe = "v0.0-13037-ge2fed9dfa9"
+data_git_hash = "4f8abe14ebd952f4159b77646ab233013860aecc"
+data_git_describe = "v0.0-13038-g4f8abe14eb"
 data_git_msg = """\
-commit e2fed9dfa9eca83d7544bc13741c1cd6904eb4e3
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Jul 18 19:35:56 2022 -0700
+commit 4f8abe14ebd952f4159b77646ab233013860aecc
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Mon Jul 18 12:57:06 2022 -0700
 
-    [dif/entropy_src] add DIFs to get/clear/force alerts and errors
+    [bazel] Improve output artifact query
     
-    This adds DIFs (and corresponding unit tests) to get/clear/force
-    recoverable alerts and (nonrecoverable) errors.
+    1. Integrate output files queries into bazelisk as the custom `outquery`
+       command.
+    2. Update CI scripts.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    The `outquery` command provides a number of different query functions
+    that may be useful to scripts:
+    
+    ```
+    bazelisk.sh outquery //some:target       # Emit an output filename associated with the target.
+    bazelisk.sh outquery-all //some:target   # Emit all output filenames associated with the target.
+    bazelisk.sh outquery-foo //some:target   # Emit output filenames with the substring "foo".
+    bazelisk.sh outquery.foo //some:target   # Emit output filenames ending with ".foo".
+    ```
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
