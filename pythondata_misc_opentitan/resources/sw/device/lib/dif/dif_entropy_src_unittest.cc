@@ -436,24 +436,42 @@ TEST_F(GetAlertFailCountsTest, Success) {
   }
 }
 
-class ReadTest : public EntropySrcTest {};
+class IsEntropyAvailableTest : public EntropySrcTest {};
 
-TEST_F(ReadTest, EntropyBadArg) {
+TEST_F(IsEntropyAvailableTest, NullHandle) {
+  EXPECT_DIF_BADARG(dif_entropy_src_is_entropy_available(nullptr));
+}
+
+TEST_F(IsEntropyAvailableTest, Unavailable) {
+  EXPECT_READ32(ENTROPY_SRC_INTR_STATE_REG_OFFSET,
+                {{ENTROPY_SRC_INTR_STATE_ES_ENTROPY_VALID_BIT, false}});
+  EXPECT_EQ(dif_entropy_src_is_entropy_available(&entropy_src_),
+            kDifUnavailable);
+}
+
+TEST_F(IsEntropyAvailableTest, Available) {
+  EXPECT_READ32(ENTROPY_SRC_INTR_STATE_REG_OFFSET,
+                {{ENTROPY_SRC_INTR_STATE_ES_ENTROPY_VALID_BIT, true}});
+  EXPECT_DIF_OK(dif_entropy_src_is_entropy_available(&entropy_src_));
+}
+
+class NonBlockingReadTest : public EntropySrcTest {};
+
+TEST_F(NonBlockingReadTest, NullArgs) {
   uint32_t word;
-  EXPECT_DIF_BADARG(dif_entropy_src_read(nullptr, &word));
+  EXPECT_DIF_BADARG(dif_entropy_src_non_blocking_read(nullptr, &word));
+  EXPECT_DIF_BADARG(dif_entropy_src_non_blocking_read(&entropy_src_, nullptr));
+  EXPECT_DIF_BADARG(dif_entropy_src_non_blocking_read(nullptr, nullptr));
 }
 
-TEST_F(ReadTest, WordBadArg) {
-  EXPECT_DIF_BADARG(dif_entropy_src_read(&entropy_src_, nullptr));
-}
-
-TEST_F(ReadTest, ReadDataUnAvailable) {
+TEST_F(NonBlockingReadTest, DataUnavailable) {
   EXPECT_READ32(ENTROPY_SRC_INTR_STATE_REG_OFFSET, 0);
-  uint32_t got_word;
-  EXPECT_EQ(dif_entropy_src_read(&entropy_src_, &got_word), kDifUnavailable);
+  uint32_t word;
+  EXPECT_EQ(dif_entropy_src_non_blocking_read(&entropy_src_, &word),
+            kDifUnavailable);
 }
 
-TEST_F(ReadTest, ReadOk) {
+TEST_F(NonBlockingReadTest, Success) {
   const uint32_t expected_word = 0x65585497;
   EXPECT_READ32(ENTROPY_SRC_INTR_STATE_REG_OFFSET,
                 1 << ENTROPY_SRC_INTR_STATE_ES_ENTROPY_VALID_BIT);
@@ -463,9 +481,9 @@ TEST_F(ReadTest, ReadOk) {
   EXPECT_WRITE32(ENTROPY_SRC_INTR_STATE_REG_OFFSET,
                  {{ENTROPY_SRC_INTR_STATE_ES_ENTROPY_VALID_BIT, true}});
 
-  uint32_t got_word;
-  EXPECT_DIF_OK(dif_entropy_src_read(&entropy_src_, &got_word));
-  EXPECT_EQ(got_word, expected_word);
+  uint32_t word;
+  EXPECT_DIF_OK(dif_entropy_src_non_blocking_read(&entropy_src_, &word));
+  EXPECT_EQ(word, expected_word);
 }
 
 class ObserveFifoBlockingReadTest : public EntropySrcTest {};
@@ -584,6 +602,34 @@ TEST_F(ObserveFifoWriteTest, Success) {
   EXPECT_DIF_OK(dif_entropy_src_observe_fifo_write(&entropy_src_, buf, 4));
 }
 
+class ConditionerStartTest : public EntropySrcTest {};
+
+TEST_F(ConditionerStartTest, NullHandle) {
+  EXPECT_DIF_BADARG(dif_entropy_src_conditioner_start(nullptr));
+}
+
+TEST_F(ConditionerStartTest, ConditionerAlreadyStarted) {
+  EXPECT_READ32(ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET, kMultiBitBool4True);
+  EXPECT_EQ(dif_entropy_src_conditioner_start(&entropy_src_), kDifUnavailable);
+}
+
+TEST_F(ConditionerStartTest, Success) {
+  EXPECT_READ32(ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET, kMultiBitBool4False);
+  EXPECT_WRITE32(ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET, kMultiBitBool4True);
+  EXPECT_DIF_OK(dif_entropy_src_conditioner_start(&entropy_src_));
+}
+
+class ConditionerStopTest : public EntropySrcTest {};
+
+TEST_F(ConditionerStopTest, NullHandle) {
+  EXPECT_DIF_BADARG(dif_entropy_src_conditioner_stop(nullptr));
+}
+
+TEST_F(ConditionerStopTest, Success) {
+  EXPECT_WRITE32(ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET, kMultiBitBool4False);
+  EXPECT_DIF_OK(dif_entropy_src_conditioner_stop(&entropy_src_));
+}
+
 class ReadFifoDepthTest : public EntropySrcTest {};
 
 TEST_F(ReadFifoDepthTest, EntropyBadArg) {
@@ -600,6 +646,29 @@ TEST_F(ReadFifoDepthTest, ReadSuccess) {
   uint32_t depth;
   EXPECT_DIF_OK(dif_entropy_src_get_fifo_depth(&entropy_src_, &depth));
   EXPECT_EQ(depth, 6);
+}
+
+class GetMainFsmStateTest : public EntropySrcTest {};
+
+TEST_F(GetMainFsmStateTest, NullArgs) {
+  dif_entropy_src_main_fsm_t state;
+  EXPECT_DIF_BADARG(dif_entropy_src_get_main_fsm_state(nullptr, &state));
+  EXPECT_DIF_BADARG(dif_entropy_src_get_main_fsm_state(&entropy_src_, nullptr));
+  EXPECT_DIF_BADARG(dif_entropy_src_get_main_fsm_state(nullptr, nullptr));
+}
+
+TEST_F(GetMainFsmStateTest, Success) {
+  dif_entropy_src_main_fsm_t state;
+
+  EXPECT_READ32(ENTROPY_SRC_MAIN_SM_STATE_REG_OFFSET,
+                kDifEntropySrcMainFsmStateIdle);
+  EXPECT_DIF_OK(dif_entropy_src_get_main_fsm_state(&entropy_src_, &state));
+  EXPECT_EQ(state, kDifEntropySrcMainFsmStateIdle);
+
+  EXPECT_READ32(ENTROPY_SRC_MAIN_SM_STATE_REG_OFFSET,
+                kDifEntropySrcMainFsmStateError);
+  EXPECT_DIF_OK(dif_entropy_src_get_main_fsm_state(&entropy_src_, &state));
+  EXPECT_EQ(state, kDifEntropySrcMainFsmStateError);
 }
 
 }  // namespace
