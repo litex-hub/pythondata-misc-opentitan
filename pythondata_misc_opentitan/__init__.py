@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13170"
-version_tuple = (0, 0, 13170)
+version_str = "0.0.post13173"
+version_tuple = (0, 0, 13173)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13170")
+    pversion = V("0.0.post13173")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13028"
-data_version_tuple = (0, 0, 13028)
+data_version_str = "0.0.post13031"
+data_version_tuple = (0, 0, 13031)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13028")
+    pdata_version = V("0.0.post13031")
 except ImportError:
     pass
-data_git_hash = "3a5e6ca8eb97fb99f824e3f37bd9a9b3c94b5bcc"
-data_git_describe = "v0.0-13028-g3a5e6ca8eb"
+data_git_hash = "a5f10de566481af010cacd099f9a963c36ed1300"
+data_git_describe = "v0.0-13031-ga5f10de566"
 data_git_msg = """\
-commit 3a5e6ca8eb97fb99f824e3f37bd9a9b3c94b5bcc
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Jul 18 15:48:04 2022 -0700
+commit a5f10de566481af010cacd099f9a963c36ed1300
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Jul 18 14:15:01 2022 -0700
 
-    feat(rdc): Define RDC gitattribute
+    [dif/entropy_src] add missing unit tests
     
-    This commit defines RDC related files as CDC in `.gitattributes`.
-    By defining as cdc, any changes to RDC skip the FPGA tests in CI.
+    This adds missing unit tests for all remaining DIFs that have been
+    implemented.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
