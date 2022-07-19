@@ -4,46 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13180"
-version_tuple = (0, 0, 13180)
+version_str = "0.0.post13181"
+version_tuple = (0, 0, 13181)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13180")
+    pversion = V("0.0.post13181")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13038"
-data_version_tuple = (0, 0, 13038)
+data_version_str = "0.0.post13039"
+data_version_tuple = (0, 0, 13039)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13038")
+    pdata_version = V("0.0.post13039")
 except ImportError:
     pass
-data_git_hash = "4f8abe14ebd952f4159b77646ab233013860aecc"
-data_git_describe = "v0.0-13038-g4f8abe14eb"
+data_git_hash = "9fac57c085f9d5910d758a983b7b78087274c96d"
+data_git_describe = "v0.0-13039-g9fac57c085"
 data_git_msg = """\
-commit 4f8abe14ebd952f4159b77646ab233013860aecc
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Mon Jul 18 12:57:06 2022 -0700
+commit 9fac57c085f9d5910d758a983b7b78087274c96d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jul 19 11:02:15 2022 -0700
 
-    [bazel] Improve output artifact query
+    [dv/kmac] improve app interface sequence
     
-    1. Integrate output files queries into bazelisk as the custom `outquery`
-       command.
-    2. Update CI scripts.
+    Remove the constraint to configure kmac cfg_shadow register hash_mode
+    field. Kmac should be able to select the correct mode when using the app
+    interface.
     
-    The `outquery` command provides a number of different query functions
-    that may be useful to scripts:
-    
-    ```
-    bazelisk.sh outquery //some:target       # Emit an output filename associated with the target.
-    bazelisk.sh outquery-all //some:target   # Emit all output filenames associated with the target.
-    bazelisk.sh outquery-foo //some:target   # Emit output filenames with the substring "foo".
-    bazelisk.sh outquery.foo //some:target   # Emit output filenames ending with ".foo".
-    ```
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
