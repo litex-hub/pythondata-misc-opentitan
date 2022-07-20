@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13185"
-version_tuple = (0, 0, 13185)
+version_str = "0.0.post13188"
+version_tuple = (0, 0, 13188)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13185")
+    pversion = V("0.0.post13188")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13043"
-data_version_tuple = (0, 0, 13043)
+data_version_str = "0.0.post13046"
+data_version_tuple = (0, 0, 13046)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13043")
+    pdata_version = V("0.0.post13046")
 except ImportError:
     pass
-data_git_hash = "1df07f798273d74a465ca5f9fbfbae322b6303ba"
-data_git_describe = "v0.0-13043-g1df07f7982"
+data_git_hash = "9d0130e0fb42c2dceaf65257d91aa88a300a09b8"
+data_git_describe = "v0.0-13046-g9d0130e0fb"
 data_git_msg = """\
-commit 1df07f798273d74a465ca5f9fbfbae322b6303ba
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Mon Jul 18 18:23:54 2022 +0200
+commit 9d0130e0fb42c2dceaf65257d91aa88a300a09b8
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Wed Jul 20 01:28:57 2022 -0700
 
-    [otbn,data] Fix synopsis of `bn.mulqacc.wo` instruction
+    [entropy_src/dv] Temporarily disable some stressors
     
-    This instruction writes the full 256-bit accumulator value to the
-    destination WDR, not just the lower 128 bit (which `bn.mulqacc.so`
-    does).  Prior to this commit, the synopsis of the `bn.mulqacc.wo`
-    instruction was incorrect in this regard.
+    THe entropy_src_rng sequence is currenly hanging dues to frequent
+    fatal errors and an unreliable reset sequence.   This commit
+    disables the events causing these fatal errors until the reset
+    mechanism can be made more robust.
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
