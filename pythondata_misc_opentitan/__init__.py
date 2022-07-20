@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13190"
-version_tuple = (0, 0, 13190)
+version_str = "0.0.post13192"
+version_tuple = (0, 0, 13192)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13190")
+    pversion = V("0.0.post13192")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13048"
-data_version_tuple = (0, 0, 13048)
+data_version_str = "0.0.post13050"
+data_version_tuple = (0, 0, 13050)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13048")
+    pdata_version = V("0.0.post13050")
 except ImportError:
     pass
-data_git_hash = "aae1aa4841c0fe6df16195e22062446f1967a3c3"
-data_git_describe = "v0.0-13048-gaae1aa4841"
+data_git_hash = "1215e42fa2c629c4bac1a6e0fd53946acd09850a"
+data_git_describe = "v0.0-13050-g1215e42fa2"
 data_git_msg = """\
-commit aae1aa4841c0fe6df16195e22062446f1967a3c3
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed Jul 20 12:04:05 2022 +0100
+commit 1215e42fa2c629c4bac1a6e0fd53946acd09850a
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Jul 20 10:23:33 2022 -0400
 
-    [otbn, doc] Remove out-dated warning from documentation
+    [ci/cdc] Fix cdc-only changes detection bug in CI
     
-    Fixes #13743
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
