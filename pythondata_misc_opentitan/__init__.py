@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13193"
-version_tuple = (0, 0, 13193)
+version_str = "0.0.post13196"
+version_tuple = (0, 0, 13196)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13193")
+    pversion = V("0.0.post13196")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13051"
-data_version_tuple = (0, 0, 13051)
+data_version_str = "0.0.post13054"
+data_version_tuple = (0, 0, 13054)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13051")
+    pdata_version = V("0.0.post13054")
 except ImportError:
     pass
-data_git_hash = "43c1c3fdd1f94de6520d9d0e560e0a3d7fe41efe"
-data_git_describe = "v0.0-13051-g43c1c3fdd1"
+data_git_hash = "9a9f97f35d0f0595e576869b6db0ad503ad359dd"
+data_git_describe = "v0.0-13054-g9a9f97f35d"
 data_git_msg = """\
-commit 43c1c3fdd1f94de6520d9d0e560e0a3d7fe41efe
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Jul 13 14:13:13 2022 -0700
+commit 9a9f97f35d0f0595e576869b6db0ad503ad359dd
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Tue Jul 19 03:59:01 2022 -0700
 
-    [csrng/dv] Add deposit to force states when disabled
+    [aes/dv] added FI for ctr fsm
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
