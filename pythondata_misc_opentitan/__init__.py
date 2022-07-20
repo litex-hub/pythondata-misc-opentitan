@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13188"
-version_tuple = (0, 0, 13188)
+version_str = "0.0.post13190"
+version_tuple = (0, 0, 13190)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13188")
+    pversion = V("0.0.post13190")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13046"
-data_version_tuple = (0, 0, 13046)
+data_version_str = "0.0.post13048"
+data_version_tuple = (0, 0, 13048)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13046")
+    pdata_version = V("0.0.post13048")
 except ImportError:
     pass
-data_git_hash = "9d0130e0fb42c2dceaf65257d91aa88a300a09b8"
-data_git_describe = "v0.0-13046-g9d0130e0fb"
+data_git_hash = "aae1aa4841c0fe6df16195e22062446f1967a3c3"
+data_git_describe = "v0.0-13048-gaae1aa4841"
 data_git_msg = """\
-commit 9d0130e0fb42c2dceaf65257d91aa88a300a09b8
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Wed Jul 20 01:28:57 2022 -0700
+commit aae1aa4841c0fe6df16195e22062446f1967a3c3
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed Jul 20 12:04:05 2022 +0100
 
-    [entropy_src/dv] Temporarily disable some stressors
+    [otbn, doc] Remove out-dated warning from documentation
     
-    THe entropy_src_rng sequence is currenly hanging dues to frequent
-    fatal errors and an unreliable reset sequence.   This commit
-    disables the events causing these fatal errors until the reset
-    mechanism can be made more robust.
+    Fixes #13743
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
