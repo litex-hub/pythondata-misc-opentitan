@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13184"
-version_tuple = (0, 0, 13184)
+version_str = "0.0.post13185"
+version_tuple = (0, 0, 13185)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13184")
+    pversion = V("0.0.post13185")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13042"
-data_version_tuple = (0, 0, 13042)
+data_version_str = "0.0.post13043"
+data_version_tuple = (0, 0, 13043)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13042")
+    pdata_version = V("0.0.post13043")
 except ImportError:
     pass
-data_git_hash = "12c9d0b5924f0403b3b349e963f36c1796676a0d"
-data_git_describe = "v0.0-13042-g12c9d0b592"
+data_git_hash = "1df07f798273d74a465ca5f9fbfbae322b6303ba"
+data_git_describe = "v0.0-13043-g1df07f7982"
 data_git_msg = """\
-commit 12c9d0b5924f0403b3b349e963f36c1796676a0d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Jul 19 16:44:11 2022 -0700
+commit 1df07f798273d74a465ca5f9fbfbae322b6303ba
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Mon Jul 18 18:23:54 2022 +0200
 
-    [dv/entropy_src] temp disable entropy_rng_test
+    [otbn,data] Fix synopsis of `bn.mulqacc.wo` instruction
     
-    This PR temp disables entropy_rng_test with issue #13741 filed for
-    tracking.
+    This instruction writes the full 256-bit accumulator value to the
+    destination WDR, not just the lower 128 bit (which `bn.mulqacc.so`
+    does).  Prior to this commit, the synopsis of the `bn.mulqacc.wo`
+    instruction was incorrect in this regard.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
