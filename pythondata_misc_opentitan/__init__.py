@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13192"
-version_tuple = (0, 0, 13192)
+version_str = "0.0.post13193"
+version_tuple = (0, 0, 13193)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13192")
+    pversion = V("0.0.post13193")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13050"
-data_version_tuple = (0, 0, 13050)
+data_version_str = "0.0.post13051"
+data_version_tuple = (0, 0, 13051)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13050")
+    pdata_version = V("0.0.post13051")
 except ImportError:
     pass
-data_git_hash = "1215e42fa2c629c4bac1a6e0fd53946acd09850a"
-data_git_describe = "v0.0-13050-g1215e42fa2"
+data_git_hash = "43c1c3fdd1f94de6520d9d0e560e0a3d7fe41efe"
+data_git_describe = "v0.0-13051-g43c1c3fdd1"
 data_git_msg = """\
-commit 1215e42fa2c629c4bac1a6e0fd53946acd09850a
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Jul 20 10:23:33 2022 -0400
+commit 43c1c3fdd1f94de6520d9d0e560e0a3d7fe41efe
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Jul 13 14:13:13 2022 -0700
 
-    [ci/cdc] Fix cdc-only changes detection bug in CI
+    [csrng/dv] Add deposit to force states when disabled
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
