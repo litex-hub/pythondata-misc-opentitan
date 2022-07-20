@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13183"
-version_tuple = (0, 0, 13183)
+version_str = "0.0.post13184"
+version_tuple = (0, 0, 13184)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13183")
+    pversion = V("0.0.post13184")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13041"
-data_version_tuple = (0, 0, 13041)
+data_version_str = "0.0.post13042"
+data_version_tuple = (0, 0, 13042)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13041")
+    pdata_version = V("0.0.post13042")
 except ImportError:
     pass
-data_git_hash = "23f837b7d09068a1d293a9dedbe86e29932b6e84"
-data_git_describe = "v0.0-13041-g23f837b7d0"
+data_git_hash = "12c9d0b5924f0403b3b349e963f36c1796676a0d"
+data_git_describe = "v0.0-13042-g12c9d0b592"
 data_git_msg = """\
-commit 23f837b7d09068a1d293a9dedbe86e29932b6e84
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Jul 19 13:13:46 2022 -0700
+commit 12c9d0b5924f0403b3b349e963f36c1796676a0d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Jul 19 16:44:11 2022 -0700
 
-    [dif/entropy_src] move to S2
+    [dv/entropy_src] temp disable entropy_rng_test
     
-    This updates the DIF checklists to move the SW to S2.
+    This PR temp disables entropy_rng_test with issue #13741 filed for
+    tracking.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
