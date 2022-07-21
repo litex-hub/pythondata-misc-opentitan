@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13198"
-version_tuple = (0, 0, 13198)
+version_str = "0.0.post13199"
+version_tuple = (0, 0, 13199)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13198")
+    pversion = V("0.0.post13199")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13056"
-data_version_tuple = (0, 0, 13056)
+data_version_str = "0.0.post13057"
+data_version_tuple = (0, 0, 13057)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13056")
+    pdata_version = V("0.0.post13057")
 except ImportError:
     pass
-data_git_hash = "780788efc8dc7669dbc7314a6026f8bacbc46f7e"
-data_git_describe = "v0.0-13056-g780788efc8"
+data_git_hash = "7003d824ec9598c2b2ef537c8afaf4ae43526aed"
+data_git_describe = "v0.0-13057-g7003d824ec"
 data_git_msg = """\
-commit 780788efc8dc7669dbc7314a6026f8bacbc46f7e
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Wed Jul 20 14:27:30 2022 -0700
+commit 7003d824ec9598c2b2ef537c8afaf4ae43526aed
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Jul 15 15:14:31 2022 -0700
 
-    [entropy_src/dv] Redefine bins for cntr coverpoints
+    [sw,sensor_ctrl] Create testutils function for ast_init_done
     
-    Creates:
-    - A coverpoint with two bins for the counter types with only one
-      instance.
-    - Three cps with four bins each for the HT's that have one cntr
-      instance per line.
-    - A coverpoint with 16 bins for the bucket test counters.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
