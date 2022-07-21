@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13202"
-version_tuple = (0, 0, 13202)
+version_str = "0.0.post13208"
+version_tuple = (0, 0, 13208)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13202")
+    pversion = V("0.0.post13208")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13060"
-data_version_tuple = (0, 0, 13060)
+data_version_str = "0.0.post13066"
+data_version_tuple = (0, 0, 13066)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13060")
+    pdata_version = V("0.0.post13066")
 except ImportError:
     pass
-data_git_hash = "45f56546c54cae125a8c7bd077cdf596adb27940"
-data_git_describe = "v0.0-13060-g45f56546c5"
+data_git_hash = "733ebb6022ebceca3fdb3e97fb174d0102d5eeb7"
+data_git_describe = "v0.0-13066-g733ebb6022"
 data_git_msg = """\
-commit 45f56546c54cae125a8c7bd077cdf596adb27940
+commit 733ebb6022ebceca3fdb3e97fb174d0102d5eeb7
 Author: Michael Schaffner <msf@google.com>
-Date:   Wed Jul 20 16:54:53 2022 -0700
+Date:   Wed Jul 20 17:03:39 2022 -0700
 
-    [tlul_adapter_sram] Update comment describing the ByteAccess parameter
+    [rom_ctrl] Enable secure FIFO counters
     
     Signed-off-by: Michael Schaffner <msf@google.com>
 
