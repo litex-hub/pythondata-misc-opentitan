@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13211"
-version_tuple = (0, 0, 13211)
+version_str = "0.0.post13213"
+version_tuple = (0, 0, 13213)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13211")
+    pversion = V("0.0.post13213")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13069"
-data_version_tuple = (0, 0, 13069)
+data_version_str = "0.0.post13071"
+data_version_tuple = (0, 0, 13071)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13069")
+    pdata_version = V("0.0.post13071")
 except ImportError:
     pass
-data_git_hash = "737e1a4407f5a1f2de4da2311bcab48c7b686a9e"
-data_git_describe = "v0.0-13069-g737e1a4407"
+data_git_hash = "bc7af960ed4665ae6cd9e2577fa68f83f9ab16be"
+data_git_describe = "v0.0-13071-gbc7af960ed"
 data_git_msg = """\
-commit 737e1a4407f5a1f2de4da2311bcab48c7b686a9e
-Author: Muqing Liu <muqing.liu@wdc.com>
-Date:   Wed Jul 20 16:56:30 2022 -0700
+commit bc7af960ed4665ae6cd9e2577fa68f83f9ab16be
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Jul 20 13:01:26 2022 -0700
 
-    [entropy_src, dv] Add covergroup sample functions for entropy_src forced errors
+    [spi_device/dv] Add read status intercept sequence
     
-      - Add covergroup sample functions in the err_vseq for the forced errors that can't be accessed in the scoreboard
-      - Update alert_vseq to accommodate the updates in recov_alert_sts register
-      - Fix some path reference bugs in the err_vseq
+    1. Test 3 read status intercept and compare returned data in scb
+    2. Add spi_device_pass_all_vseq which enables all passthrough features
+    in one seq
+    3. deleted quad/dual_vseq as they don't need to be tested in a dedicated test
     
-    Signed-off-by: Muqing Liu <muqing.liu@wdc.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
