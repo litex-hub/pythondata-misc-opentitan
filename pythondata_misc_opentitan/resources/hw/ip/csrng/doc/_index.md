@@ -41,14 +41,14 @@ This IP block is attached to the chip interconnect bus as a peripheral module co
 - Also supports the optional use of personalization strings or other application inputs (e.g. OTP memory values) during instantiation.
 - Assuming a continuously-live entropy source, each instance can also optionally be used as a non-determinstic TRNG (true random number generator, also called a non-deterministic random bit generator or NRBG in SP 800-90C).
     - In this mode, an instance also meets the requirements laid out for a PTG.3 class RNG, the strongest class laid out in AIS31.
-    - Implementation follows the NRBG "Oversampling Construction" approved by SP 800-90C, to meet both CC and FIPS TRNG constructions.
+    - Implementation follows the NRBG "Oversampling Construction" approved by SP 800-90C, to meet both [Common Criteria (CC, ISO/IEC 15408)](https://www.iso.org/standard/50341.html) and FIPS TRNG constructions.
 - In addition to the approved DRNG mode, any instance can also operate in "Fully Deterministic mode", meaning the seed depends entirely on application inputs or personalization strings.
     - This provides an approved means of seed construction in FIPS 140-2 as described in the [FIPS 140-2 Implementation Guidance](https://csrc.nist.gov/csrc/media/projects/cryptographic-module-validation-program/documents/fips140-2/fips1402ig.pdf), section 7.14, resolution point 2(a).
 
 ## Description
 
 Though the recommendations in AIS31 are based around broad functional requirements, the recommendations in SP 800-90 are very prescriptive in nature, outlining the exact constructs needed for approval.
-Thus the interface and implementation are largely driven by these explicit constructs, particularly the CTR_DBRG construct.
+Thus the interface and implementation are largely driven by these explicit constructs, particularly the CTR_DRBG construct.
 
 The CSRNG IP consists of four main components:
 1. An AES primitive
@@ -72,7 +72,7 @@ These include:
 ## Note on the term "Entropy"
 
 Every DRNG requires some initial seed material, and the requirements for the generation of that seed material varies greatly between standards, and potentially between CC security targets.
-In all standards considered, DRNG's require some "entropy" from an external source to create the initial seed.
+In all standards considered, DRNGs require some "entropy" from an external source to create the initial seed.
 However, the rules for obtaining said entropy differ.
 Furthermore the required delivery mechanisms differ.
 For this reason we must make a clear distinction between "Physical" (or "Live" or "True") entropy and "Factory Entropy".
@@ -175,10 +175,11 @@ Because each request is pipelined, requests from other `cmd_stage` blocks can be
 This provides some interleaving of commands since a generate command can be programmed to take a very long time.
 
 #### Working State Values
-The state_db has the follow attributes shown in the following table:
+The CSRNG working state data base (`state_db`) contains the current working state for a given DRBG instance.
+It holds the following values:
 
 <table>
-<caption>State Instance Description</caption>
+<caption>Values stored by <tt>state_db</tt></caption>
 <thead>
   <tr>
     <th>Bits</th>
@@ -202,7 +203,7 @@ The state_db has the follow attributes shown in the following table:
   <tr>
     <td>415:160</td>
     <td>Key</td>
-    <td> Value required by NIST to be held in the state instance, and is of size <tt>SeedLen</tt>.
+    <td> Value required by NIST to be held in the state instance, and is of size <tt>KeyLen</tt>.
     </td>
   </tr>
   <tr>
@@ -234,7 +235,7 @@ This section describes the application interface, which is required for performi
 Each CSRNG instance corresponds to a unique application interface port, which implements the application interface described here.
 Any hardware peripherals which require complete control of an instance may connect directly to a dedicated interface port.
 Meanwhile peripherals without any special requirements (i.e. personalization strings or non-FIPS-approved, fully-deterministic number sequences) may share access to an instance via the entropy distribution network (EDN) IP.
-The EDN's manage the instantiation and reseeding of CSRNG instances for general use-cases, providing either on-demand or timed-delivery entropy streams to hardware peripherals.
+The EDNs manage the instantiation and reseeding of CSRNG instances for general use-cases, providing either on-demand or timed-delivery entropy streams to hardware peripherals.
 Firmware applications can obtain access to random bit sequences directly through application interface port 0, which is directly mapped to a set of TL-UL registers.
 
 The total number of application interface ports (for TL-UL, directly attached peripherals or EDN instances) is determined by the `NHwApp` parameter.
@@ -243,12 +244,12 @@ The command bus operates like a FIFO, in which a command is pushed into the inte
 An optional stream of additional data may follow, such as seed material for an `instantiate` application command.
 For the `generate` application command, the obfuscated entropy will be returned on the `genbits` bus.
 This bus also operates like a FIFO, and the receiving module can provide back pressure to the `genbits` bus.
-There is one instance of a firmware application interface, and uses the TL-UL registers.
+There is one instance of a firmware application interface, and it uses the TL-UL registers.
 For more details on how the application interface works, see the Theory of Operations section above.
 
 In general, users of the application interface are either firmware or some hardware module entity.
-For hardware, a module can either directly control the application interface, or it can connect to an `entropy distribution network`module (EDN).
-Attaching to an EDN block allows for a simpler interface connection to a more layout-friendly distributed-chip network.
+For hardware, a module can either directly control the application interface, or it can connect to an EDN module.
+Attaching to an EDN module allows for a simpler interface connection to a more layout-friendly distributed-chip network.
 
 #### General Command Format
 
@@ -285,7 +286,7 @@ Below is a description of the fields of this header:
     <td>clen</td>
     <td> Command Length: Number of 32-bit words that can optionally be appended to the command.
          A value of zero will only transfer the command header.
-         A value of 4'hc will transfer the header plus an additional twelve 32-bit words of data.
+         A value of <tt>4'hc</tt> will transfer the header plus an additional twelve 32-bit words of data.
     </td>
   </tr>
   <tr>
@@ -332,7 +333,7 @@ The actions performed by each command, as well as which flags are supported, are
     <td>Instantiate</td>
     <td>0x1</td>
     <td> Initializes an instance in CSRNG.
-         When seeding, the following table describes how the seed is determined based on flag0 and the clen field.
+         When seeding, the following table describes how the seed is determined based on <tt>flag0</tt> and the <tt>clen</tt> field.
          Note that the last table entry (<tt>flag0</tt> is set and <tt>clen</tt> is set to non-zero) is intended for known answer testing (KAT).
         WARNING: Though <tt>flag0</tt> may be useful for generating fully-determininistic bit sequences, the use of this flag will render the instance non-FIPS compliant until it is re-instantiated.
          When the <tt>Instantiate</tt> command is completed, the active bit in the CSRNG working state will be set.
@@ -353,10 +354,10 @@ The actions performed by each command, as well as which flags are supported, are
     <td>Reseed</td>
     <td>0x2</td>
     <td> Reseeds an existing instance in CSRNG.
-         The flag0 and clen table in the <tt>Instance</tt> command description above also applies to the <tt>Reseed</tt> command.
+         The <tt>flag0</tt> and <tt>clen</tt> table in the <tt>Instance</tt> command description above also applies to the <tt>Reseed</tt> command.
          Note that the last table entry (<tt>flag0</tt> is set and <tt>clen</tt> is set to non-zero) is intended for known answer testing (KAT).
-         The reseed command only takes in one group (a maximum of twelve 32 bit words) of generic additional data.
-         In that case that both a seed and additional data must be provided to the reseed call, the seed and additional data must be xor'ed first.
+         The <tt>Reseed</tt> command only takes in one group (a maximum of twelve 32 bit words) of generic additional data.
+         If both a seed and additional data must be provided to the <tt>Reseed</tt> command, the seed and additional data must be xor'ed first.
          This scenario will then pass the NIST vector test requiring both a provided seed and additional data.
     </td>
   </tr>
@@ -364,23 +365,23 @@ The actions performed by each command, as well as which flags are supported, are
     <td>Generate</td>
     <td>0x3</td>
     <td> Starts a request to CSRNG to generate crytographic entropy bits.
-         The <tt>glen</tt> field represents how many 128-bit words are to be returned to the application interface.
+         The <tt>glen</tt> field defines how many 128-bit words are to be returned to the application interface.
          The <tt>glen</tt> field needs to be a minimum value of one.
          The NIST reference to the <tt>prediction_resistance_flag</tt> is not directly supported as a flag.
-         It is the resposibility of the calling application to reseed as needed before the generate command to properly support prediction resistance.
-         Note that additional data is also supported when the  <tt>clen</tt> field is set to non-zero.
+         It is the resposibility of the calling application to reseed as needed before the <tt>Generate</tt> command to properly support prediction resistance.
+         Note that additional data is also supported when the <tt>clen</tt> field is set to non-zero.
     </td>
   </tr>
   <tr>
     <td>Update</td>
     <td>0x4</td>
     <td> Updates an existing instance in CSRNG.
-         This command does the same function as the <tt>reseed</tt> command, except that:
+         This command does the same function as the <tt>Reseed</tt> command, except that:
          <ol>
          <li>only the additional data provided will be used in the update function (i.e. no physical entropy is gathered), and
-         <li>the <tt>update</tt> command does not reset the reseed counter.
+         <li>the <tt>Update</tt> command does not reset the reseed counter.
          </ol>
-         When the <tt>update</tt> command is completed, the results will be reflected in the CSRNG working state.
+         When the <tt>Update</tt> command is completed, the results will be reflected in the CSRNG working state.
     </td>
   </tr>
   <tr>
@@ -388,9 +389,9 @@ The actions performed by each command, as well as which flags are supported, are
     <td>0x5</td>
     <td> Resets an instance in CSRNG.
          Values in the instance are zeroed out.
-         When the <tt>uninstantiate</tt> comand is completed, the <tt>active</tt> bit in the CSRNG working state will be cleared.
+         When the <tt>Uninstantiate</tt> comand is completed, the <tt>Status</tt> bit in the CSRNG working state will be cleared.
          Uninstantiating an instance effectively resets it, clearing any errors that it may have encountered due to bad command syntax or entropy source failures.
-         Only a value of zero should be used for clen, since any additional data will be ignored.
+         Only a value of zero should be used for <tt>clen</tt>, since any additional data will be ignored.
     </td>
   </tr>
   <tr>
@@ -404,17 +405,17 @@ The actions performed by each command, as well as which flags are supported, are
 #### Command Response
 
 Once a command has been completed, successfully or unsuccessfully, the CSRNG responds with a single cycle pulse on the `csrng_rsp_ack` signal associated with the same application interface port.
-If the command is successful the `csrng_rsp_sts` signal will indicate the value 0 (`CSRNG_OK`) in the same cycle.
+If the command is successful, the `csrng_rsp_sts` signal will indicate the value 0 (`CSRNG_OK`) in the same cycle.
 Otherwise the application will receive the value 1 (`CSRNG_ERROR`) on the `csrng_rsp_sts` signal.
 A number of exception cases to be considered are enumerated in NIST SP 800-90A, and may include events such as:
 * Failure of the entropy source
 * Attempts to use an instance which has not been properly instantiated, or
-* Attempts to generate data when an instance has exceeded its maximum seed.life.
+* Attempts to generate data when an instance has exceeded its maximum seed life.
 In such cases, a 32-bit exception message will be propagated to firmware via the `hw_exc_sts` register, and a `cs_hw_inst_exc` interrupt will be raised.
 
 #### Generated Bits (`genbits`) Interface
 
-In addition to the command response signals there is all the bus for returning the generated bits.
+In addition to the command response signals there is a bus for returning the generated bits.
 This 129-bit bus consists of 128-bits, `genbits_bus`, for the random bit sequence itself, along with a single bit flag, `genbits_fips`, indicating whether the bits were considered fully in accordance with FIPS standards.
 
 There are two cases when the sequence will not be FIPS compliant:
@@ -426,7 +427,7 @@ Such a seed will be created only using factory-entropy and will lack the physica
 #### Handshaking signals
 
 The application command signal `csrng_req_bus` is accompanied by a `csrng_valid_signal`, which is asserted by the requester when the command is valid.
-CSRNG may stall incoming commands by desserting the `csrng_req_ready` signal.
+CSRNG may stall incoming commands by de-asserting the `csrng_req_ready` signal.
 A command is considered received whenever both `csrng_req_valid` and `csrng_req_ready` are asserted in the same clock cycle.
 
 Likewise a requester must only consider data on the `genbits` bus to be valid when the `genbits_valid` signal is asserted, and should assert `genbits_ready` whenever it is ready to accept the `genbits` data.
@@ -524,13 +525,13 @@ The following waveform shows an example of how the entropy source hardware inter
 
 ### Interrupts
 
-The `cs_cmd_req_done` interrupt will assert when a csrng command has been completed.
+The `cs_cmd_req_done` interrupt will assert when a CSRNG command has been completed.
 
-The `cs_entropy_req` interrupt will assert when csrng requests for entropy from ENTROPY_SRC.
+The `cs_entropy_req` interrupt will assert when CSRNG requests entropy from ENTROPY_SRC.
 
 The `cs_hw_inst_exc` interrupt will assert when any of the hardware-controlled CSRNG instances encounters an exception while executing a command, either due to errors on the command sequencing, or an exception within the `ENTROPY_SRC` IP.
 
-The `cs_fifo_err` interrupt will assert when any of the csrng FIFOs has a malfunction.
+The `cs_fifo_err` interrupt will assert when any of the CSRNG FIFOs has a malfunction.
 The conditions that cause this to happen are either when there is a push to a full FIFO or a pull from an empty FIFO.
 
 # Programmers Guide
