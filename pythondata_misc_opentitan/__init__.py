@@ -4,37 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13197"
-version_tuple = (0, 0, 13197)
+version_str = "0.0.post13198"
+version_tuple = (0, 0, 13198)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13197")
+    pversion = V("0.0.post13198")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13055"
-data_version_tuple = (0, 0, 13055)
+data_version_str = "0.0.post13056"
+data_version_tuple = (0, 0, 13056)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13055")
+    pdata_version = V("0.0.post13056")
 except ImportError:
     pass
-data_git_hash = "ca7ed9cf6b733a425ab5333763e9a5fd518d89e8"
-data_git_describe = "v0.0-13055-gca7ed9cf6b"
+data_git_hash = "780788efc8dc7669dbc7314a6026f8bacbc46f7e"
+data_git_describe = "v0.0-13056-g780788efc8"
 data_git_msg = """\
-commit ca7ed9cf6b733a425ab5333763e9a5fd518d89e8
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Tue Jul 19 10:13:54 2022 -0700
+commit 780788efc8dc7669dbc7314a6026f8bacbc46f7e
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Wed Jul 20 14:27:30 2022 -0700
 
-    [dvsim] Make email.html filename more descriptive
+    [entropy_src/dv] Redefine bins for cntr coverpoints
     
-    This commit makes 2 changes to the generated reports:
-    - Remove `latest` symlink in the reports area
-    - Make email.html filename more descriptive, i.e. reflective of
-      what hjson cfg was run, the tool flow and the tool.
+    Creates:
+    - A coverpoint with two bins for the counter types with only one
+      instance.
+    - Three cps with four bins each for the HT's that have one cntr
+      instance per line.
+    - A coverpoint with 16 bins for the bucket test counters.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
