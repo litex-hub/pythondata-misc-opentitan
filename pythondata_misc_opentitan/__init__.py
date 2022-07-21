@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13213"
-version_tuple = (0, 0, 13213)
+version_str = "0.0.post13228"
+version_tuple = (0, 0, 13228)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13213")
+    pversion = V("0.0.post13228")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13071"
-data_version_tuple = (0, 0, 13071)
+data_version_str = "0.0.post13086"
+data_version_tuple = (0, 0, 13086)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13071")
+    pdata_version = V("0.0.post13086")
 except ImportError:
     pass
-data_git_hash = "bc7af960ed4665ae6cd9e2577fa68f83f9ab16be"
-data_git_describe = "v0.0-13071-gbc7af960ed"
+data_git_hash = "2d22c5ee27b127d15e254e3123f129c6ee55d202"
+data_git_describe = "v0.0-13086-g2d22c5ee27"
 data_git_msg = """\
-commit bc7af960ed4665ae6cd9e2577fa68f83f9ab16be
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Jul 20 13:01:26 2022 -0700
+commit 2d22c5ee27b127d15e254e3123f129c6ee55d202
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Jul 21 11:45:48 2022 -0700
 
-    [spi_device/dv] Add read status intercept sequence
+    [doc] Split Earlgrey spec into Datasheet and Specification
     
-    1. Test 3 read status intercept and compare returned data in scb
-    2. Add spi_device_pass_all_vseq which enables all passthrough features
-    in one seq
-    3. deleted quad/dual_vseq as they don't need to be tested in a dedicated test
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
