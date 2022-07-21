@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13208"
-version_tuple = (0, 0, 13208)
+version_str = "0.0.post13210"
+version_tuple = (0, 0, 13210)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13208")
+    pversion = V("0.0.post13210")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13066"
-data_version_tuple = (0, 0, 13066)
+data_version_str = "0.0.post13068"
+data_version_tuple = (0, 0, 13068)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13066")
+    pdata_version = V("0.0.post13068")
 except ImportError:
     pass
-data_git_hash = "733ebb6022ebceca3fdb3e97fb174d0102d5eeb7"
-data_git_describe = "v0.0-13066-g733ebb6022"
+data_git_hash = "7c4d32f80bfa74bcace17905b174cdba78efd314"
+data_git_describe = "v0.0-13068-g7c4d32f80b"
 data_git_msg = """\
-commit 733ebb6022ebceca3fdb3e97fb174d0102d5eeb7
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Jul 20 17:03:39 2022 -0700
+commit 7c4d32f80bfa74bcace17905b174cdba78efd314
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Jul 18 12:32:24 2022 +0000
 
-    [rom_ctrl] Enable secure FIFO counters
+    [flash_ctrl,dv] do_direct_read update
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+     - pass abort signal to caller
+     - subsequent update all tests uses do_direct_read with a new signature
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
