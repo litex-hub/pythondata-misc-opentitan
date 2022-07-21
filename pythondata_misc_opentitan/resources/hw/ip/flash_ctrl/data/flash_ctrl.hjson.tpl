@@ -337,6 +337,9 @@
         If the host or controller ever receive an unexpeced transaction acknowledge, it is an error.
       '''
     }
+    { name: "FIFO.CTR.REDUN",
+      desc: "The FIFO pointers of several FIFOs are implemented with duplicate counters."
+    }
   ]
 
   scan: "true",       // Enable `scanmode_i` port
@@ -1605,6 +1608,7 @@
           name: "prog_fifo",
           items: "1",
           validbits: "32",
+          data-intg-passthru: "true",
           byte-write: "false",
           unusual: "false"
           swaccess: "wo",
@@ -1622,6 +1626,7 @@
           name: "rd_fifo",
           items: "1",
           validbits: "32",
+          data-intg-passthru: "true",
           byte-write: "false",
           unusual: "false"
           swaccess: "ro",
