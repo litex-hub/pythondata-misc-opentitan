@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13228"
-version_tuple = (0, 0, 13228)
+version_str = "0.0.post13231"
+version_tuple = (0, 0, 13231)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13228")
+    pversion = V("0.0.post13231")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13086"
-data_version_tuple = (0, 0, 13086)
+data_version_str = "0.0.post13089"
+data_version_tuple = (0, 0, 13089)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13086")
+    pdata_version = V("0.0.post13089")
 except ImportError:
     pass
-data_git_hash = "2d22c5ee27b127d15e254e3123f129c6ee55d202"
-data_git_describe = "v0.0-13086-g2d22c5ee27"
+data_git_hash = "aaa96c532401e30201f80d0f032f60962578f5b2"
+data_git_describe = "v0.0-13089-gaaa96c5324"
 data_git_msg = """\
-commit 2d22c5ee27b127d15e254e3123f129c6ee55d202
-Author: Michael Schaffner <msf@google.com>
-Date:   Thu Jul 21 11:45:48 2022 -0700
+commit aaa96c532401e30201f80d0f032f60962578f5b2
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jul 21 11:32:29 2022 -0700
 
-    [doc] Split Earlgrey spec into Datasheet and Specification
+    [spi_device/dv] Support testing JEDEC command
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Enable testing it in intercept_vseq and pass_all_vseq
+    Update scb to check the returne data
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
