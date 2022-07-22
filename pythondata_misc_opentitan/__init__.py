@@ -4,38 +4,56 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13238"
-version_tuple = (0, 0, 13238)
+version_str = "0.0.post13243"
+version_tuple = (0, 0, 13243)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13238")
+    pversion = V("0.0.post13243")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13096"
-data_version_tuple = (0, 0, 13096)
+data_version_str = "0.0.post13101"
+data_version_tuple = (0, 0, 13101)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13096")
+    pdata_version = V("0.0.post13101")
 except ImportError:
     pass
-data_git_hash = "0ec2d3cbf25b413e0a6ad2fc4b4bbb1715336a43"
-data_git_describe = "v0.0-13096-g0ec2d3cbf2"
+data_git_hash = "995302c267e0ec18729e9e35b2607d6075ea470f"
+data_git_describe = "v0.0-13101-g995302c267"
 data_git_msg = """\
-commit 0ec2d3cbf25b413e0a6ad2fc4b4bbb1715336a43
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Tue Jul 19 12:00:25 2022 +0200
+commit 995302c267e0ec18729e9e35b2607d6075ea470f
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Jul 21 20:16:36 2022 -0700
 
-    [dv/verilator] Fix numeric base of simulation statistics
+    [doc] Unlist dangling pages from menus.
     
-    Prior to this commit, integer simulation statistics, such as the number
-    of executed cycles or the size of the trace file, were printed as
-    hexadecimal numbers.  Since these numbers are intended for humans, this
-    makes little sense.  This commit changes the base of those numbers to
-    decimal.
+    This commit introduces an 'unlist' parameter which can be used to remove
+    dangling pages from menus to make the navigation experience more
+    intuitive.
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Dangling pages make menus harder to follow as there is no intuitive
+    ordering. For example, the hardware section had the following menu:
+    
+    hw
+     - Design Verification
+     - OpenTitan Assertions
+     - IP Cores
+     - Linting
+     - Top Earlgrey
+    
+     After this change the menu is as follows:
+    
+     hw
+      - Design Verification
+      - IP Cores
+      - Top Earlgrey
+    
+    This change does not affect the siteContent fragment, so it can still be
+    used to get a full list of pages.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
