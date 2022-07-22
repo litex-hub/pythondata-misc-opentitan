@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13253"
-version_tuple = (0, 0, 13253)
+version_str = "0.0.post13254"
+version_tuple = (0, 0, 13254)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13253")
+    pversion = V("0.0.post13254")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13111"
-data_version_tuple = (0, 0, 13111)
+data_version_str = "0.0.post13112"
+data_version_tuple = (0, 0, 13112)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13111")
+    pdata_version = V("0.0.post13112")
 except ImportError:
     pass
-data_git_hash = "761a1390cb95473b68c0fb3a08c7a42877b90435"
-data_git_describe = "v0.0-13111-g761a1390cb"
+data_git_hash = "95e1d0c901b1232ae39cea663b34c59be6f2422b"
+data_git_describe = "v0.0-13112-g95e1d0c901"
 data_git_msg = """\
-commit 761a1390cb95473b68c0fb3a08c7a42877b90435
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Jun 9 08:11:27 2022 -0700
+commit 95e1d0c901b1232ae39cea663b34c59be6f2422b
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Jul 22 13:28:15 2022 -0700
 
-    [dv,chip_sw_clkmgr] Enhance peri_off test
+    [doc] Move style guides into a separate section
     
-    Make this test all four peripheral clock.
-    Checks cpu_info dump last address matches expectations.
+    Move style guides into a separate section so that they are easier to
+    find from the navigation panels.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
