@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13233"
-version_tuple = (0, 0, 13233)
+version_str = "0.0.post13234"
+version_tuple = (0, 0, 13234)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13233")
+    pversion = V("0.0.post13234")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13091"
-data_version_tuple = (0, 0, 13091)
+data_version_str = "0.0.post13092"
+data_version_tuple = (0, 0, 13092)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13091")
+    pdata_version = V("0.0.post13092")
 except ImportError:
     pass
-data_git_hash = "afecb3eea7dfa78d83c6c7873df5d8678ea7f4dd"
-data_git_describe = "v0.0-13091-gafecb3eea7"
+data_git_hash = "76a7f60d94dfeae29b28063650ba224d4c4f9d9e"
+data_git_describe = "v0.0-13092-g76a7f60d94"
 data_git_msg = """\
-commit afecb3eea7dfa78d83c6c7873df5d8678ea7f4dd
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Jul 20 16:37:32 2022 -0700
+commit 76a7f60d94dfeae29b28063650ba224d4c4f9d9e
+Author: Vladimir Rozic <vrozic@lowrisc.org>
+Date:   Tue Jul 19 09:38:24 2022 +0100
 
-    [dv/sw] Minor correction to flash_ctrl_testutil
+    [sca/kmac] Switch off entropy fast process
     
-    - see #13773
+    Entropy fast process should not be used in scenarios which require
+    side-channel security.
+    This commit switches off entropy fast process in sha3_serial.c and
+    updates documentation.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
 
 """
 
