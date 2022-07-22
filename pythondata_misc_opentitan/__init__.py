@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13244"
-version_tuple = (0, 0, 13244)
+version_str = "0.0.post13246"
+version_tuple = (0, 0, 13246)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13244")
+    pversion = V("0.0.post13246")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13102"
-data_version_tuple = (0, 0, 13102)
+data_version_str = "0.0.post13104"
+data_version_tuple = (0, 0, 13104)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13102")
+    pdata_version = V("0.0.post13104")
 except ImportError:
     pass
-data_git_hash = "ac970dca4a99c488abd769d9ad4925293c49486d"
-data_git_describe = "v0.0-13102-gac970dca4a"
+data_git_hash = "7bcfa8c4fa546dfb7fefd72902bb0c06143ba4fb"
+data_git_describe = "v0.0-13104-g7bcfa8c4fa"
 data_git_msg = """\
-commit ac970dca4a99c488abd769d9ad4925293c49486d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Jul 21 16:06:35 2022 -0700
+commit 7bcfa8c4fa546dfb7fefd72902bb0c06143ba4fb
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Fri Jul 15 15:34:38 2022 -0400
 
-    [dv/chip] Update sw_nmi_irq testplan
+    [bazel] specify longer timeouts so verilated tests can run in batches
     
-    This PR modifies the testplan for chip_sw_nmi_irq
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
