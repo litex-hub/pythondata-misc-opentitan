@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13234"
-version_tuple = (0, 0, 13234)
+version_str = "0.0.post13238"
+version_tuple = (0, 0, 13238)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13234")
+    pversion = V("0.0.post13238")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13092"
-data_version_tuple = (0, 0, 13092)
+data_version_str = "0.0.post13096"
+data_version_tuple = (0, 0, 13096)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13092")
+    pdata_version = V("0.0.post13096")
 except ImportError:
     pass
-data_git_hash = "76a7f60d94dfeae29b28063650ba224d4c4f9d9e"
-data_git_describe = "v0.0-13092-g76a7f60d94"
+data_git_hash = "0ec2d3cbf25b413e0a6ad2fc4b4bbb1715336a43"
+data_git_describe = "v0.0-13096-g0ec2d3cbf2"
 data_git_msg = """\
-commit 76a7f60d94dfeae29b28063650ba224d4c4f9d9e
-Author: Vladimir Rozic <vrozic@lowrisc.org>
-Date:   Tue Jul 19 09:38:24 2022 +0100
+commit 0ec2d3cbf25b413e0a6ad2fc4b4bbb1715336a43
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Tue Jul 19 12:00:25 2022 +0200
 
-    [sca/kmac] Switch off entropy fast process
+    [dv/verilator] Fix numeric base of simulation statistics
     
-    Entropy fast process should not be used in scenarios which require
-    side-channel security.
-    This commit switches off entropy fast process in sha3_serial.c and
-    updates documentation.
+    Prior to this commit, integer simulation statistics, such as the number
+    of executed cycles or the size of the trace file, were printed as
+    hexadecimal numbers.  Since these numbers are intended for humans, this
+    makes little sense.  This commit changes the base of those numbers to
+    decimal.
     
-    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
