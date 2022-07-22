@@ -4,67 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13251"
-version_tuple = (0, 0, 13251)
+version_str = "0.0.post13252"
+version_tuple = (0, 0, 13252)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13251")
+    pversion = V("0.0.post13252")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13109"
-data_version_tuple = (0, 0, 13109)
+data_version_str = "0.0.post13110"
+data_version_tuple = (0, 0, 13110)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13109")
+    pdata_version = V("0.0.post13110")
 except ImportError:
     pass
-data_git_hash = "0d212ce0e837443a695626ef94916f75b857a8ef"
-data_git_describe = "v0.0-13109-g0d212ce0e8"
+data_git_hash = "a91d59fa7fc7d87a0a2b2eb0cb033ccda80e5290"
+data_git_describe = "v0.0-13110-ga91d59fa7f"
 data_git_msg = """\
-commit 0d212ce0e837443a695626ef94916f75b857a8ef
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Jul 20 13:12:16 2022 -0400
+commit a91d59fa7fc7d87a0a2b2eb0cb033ccda80e5290
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Jul 15 15:03:46 2022 -0700
 
-    [bazel] Add --config=asan and --config=ubsan
+    [flash_ctrl] fixes for hanging transactions
     
-    These new config flags are intended to be applied to cc_test() targets
-    that run on the host machine. For example, the following runs a test
-    binary with ASan enabled:
+    - propagate data error through the read pipeline and store
+      it into the buffer if a buffer had been allocated.
     
-      $ ./bazelisk.sh test --config=asan \
-        //sw/device/lib/base:status_unittest
+    - any future reads that match this location will also error
+      until evicted.
     
-    Caveat 1: ASan is not implemented for riscv32.
-    
-      $ ./bazelisk.sh build \
-        --platforms=@bazel_embedded//platforms:opentitan_rv32imc \
-        --config=asan //sw/device/lib/base:status
-      ...
-      clang-13: error: unsupported option '-fsanitize=address' for target 'riscv32-unknown-unknown-elf'
-      ...
-    
-    Caveat 2: UBSan is platform-independent, but the linker portion of
-    --config=ubsan (-fsanitize=undefined) will not be picked up by custom
-    linker scripts.
-    
-      * This works because :status does not have a custom linker script:
-        $ ./bazelisk.sh build \
-          --platforms=@bazel_embedded//platforms:opentitan_rv32imc \
-          --config=ubsan //sw/device/lib/base:status
-    
-      * This fails with a linker error:
-        $ ./bazelisk.sh test \
-          --platforms=@bazel_embedded//platforms:opentitan_rv32imc \
-          --config=ubsan //sw/device/lib/testing/test_rom:test_rom
-        ...
-        /proc/self/cwd/sw/device/silicon_creator/mask_rom/bootstrap.c:320: undefined reference to `__ubsan_handle_builtin_unreachable'
-        ...
-    
-    Issue #13754
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
