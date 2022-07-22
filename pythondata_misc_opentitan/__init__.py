@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13252"
-version_tuple = (0, 0, 13252)
+version_str = "0.0.post13253"
+version_tuple = (0, 0, 13253)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13252")
+    pversion = V("0.0.post13253")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13110"
-data_version_tuple = (0, 0, 13110)
+data_version_str = "0.0.post13111"
+data_version_tuple = (0, 0, 13111)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13110")
+    pdata_version = V("0.0.post13111")
 except ImportError:
     pass
-data_git_hash = "a91d59fa7fc7d87a0a2b2eb0cb033ccda80e5290"
-data_git_describe = "v0.0-13110-ga91d59fa7f"
+data_git_hash = "761a1390cb95473b68c0fb3a08c7a42877b90435"
+data_git_describe = "v0.0-13111-g761a1390cb"
 data_git_msg = """\
-commit a91d59fa7fc7d87a0a2b2eb0cb033ccda80e5290
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Jul 15 15:03:46 2022 -0700
+commit 761a1390cb95473b68c0fb3a08c7a42877b90435
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Jun 9 08:11:27 2022 -0700
 
-    [flash_ctrl] fixes for hanging transactions
+    [dv,chip_sw_clkmgr] Enhance peri_off test
     
-    - propagate data error through the read pipeline and store
-      it into the buffer if a buffer had been allocated.
+    Make this test all four peripheral clock.
+    Checks cpu_info dump last address matches expectations.
     
-    - any future reads that match this location will also error
-      until evicted.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
