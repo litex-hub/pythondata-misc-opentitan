@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13249"
-version_tuple = (0, 0, 13249)
+version_str = "0.0.post13250"
+version_tuple = (0, 0, 13250)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13249")
+    pversion = V("0.0.post13250")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13107"
-data_version_tuple = (0, 0, 13107)
+data_version_str = "0.0.post13108"
+data_version_tuple = (0, 0, 13108)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13107")
+    pdata_version = V("0.0.post13108")
 except ImportError:
     pass
-data_git_hash = "248c03a7dedb172d6a47bf4f1618dc2e37f6c95d"
-data_git_describe = "v0.0-13107-g248c03a7de"
+data_git_hash = "95ae6de7a59d44fe55f49857cf7bc2878b400cfc"
+data_git_describe = "v0.0-13108-g95ae6de7a5"
 data_git_msg = """\
-commit 248c03a7dedb172d6a47bf4f1618dc2e37f6c95d
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jul 21 16:19:12 2022 -0700
+commit 95ae6de7a59d44fe55f49857cf7bc2878b400cfc
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Jul 19 14:25:57 2022 -0700
 
-    [spi_device/dv] Enable testing SFDP command
+    [dv/rstmgr] Fix sec_cm_scan_intersig_mubi failure
     
-    Similar to the JEDEC command, enable testing it in intercept_vseq and
-    pass_all_vseq.
+    Block wiggling scanmode_i while scan_rst_ni is active, or the smoke
+    sequence will fail to generate a scan reset, and fail.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
