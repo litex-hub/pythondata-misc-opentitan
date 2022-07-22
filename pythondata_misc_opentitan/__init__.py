@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13246"
-version_tuple = (0, 0, 13246)
+version_str = "0.0.post13249"
+version_tuple = (0, 0, 13249)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13246")
+    pversion = V("0.0.post13249")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13104"
-data_version_tuple = (0, 0, 13104)
+data_version_str = "0.0.post13107"
+data_version_tuple = (0, 0, 13107)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13104")
+    pdata_version = V("0.0.post13107")
 except ImportError:
     pass
-data_git_hash = "7bcfa8c4fa546dfb7fefd72902bb0c06143ba4fb"
-data_git_describe = "v0.0-13104-g7bcfa8c4fa"
+data_git_hash = "248c03a7dedb172d6a47bf4f1618dc2e37f6c95d"
+data_git_describe = "v0.0-13107-g248c03a7de"
 data_git_msg = """\
-commit 7bcfa8c4fa546dfb7fefd72902bb0c06143ba4fb
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Fri Jul 15 15:34:38 2022 -0400
+commit 248c03a7dedb172d6a47bf4f1618dc2e37f6c95d
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jul 21 16:19:12 2022 -0700
 
-    [bazel] specify longer timeouts so verilated tests can run in batches
+    [spi_device/dv] Enable testing SFDP command
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Similar to the JEDEC command, enable testing it in intercept_vseq and
+    pass_all_vseq.
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
