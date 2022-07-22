@@ -4,56 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13243"
-version_tuple = (0, 0, 13243)
+version_str = "0.0.post13244"
+version_tuple = (0, 0, 13244)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13243")
+    pversion = V("0.0.post13244")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13101"
-data_version_tuple = (0, 0, 13101)
+data_version_str = "0.0.post13102"
+data_version_tuple = (0, 0, 13102)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13101")
+    pdata_version = V("0.0.post13102")
 except ImportError:
     pass
-data_git_hash = "995302c267e0ec18729e9e35b2607d6075ea470f"
-data_git_describe = "v0.0-13101-g995302c267"
+data_git_hash = "ac970dca4a99c488abd769d9ad4925293c49486d"
+data_git_describe = "v0.0-13102-gac970dca4a"
 data_git_msg = """\
-commit 995302c267e0ec18729e9e35b2607d6075ea470f
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Jul 21 20:16:36 2022 -0700
+commit ac970dca4a99c488abd769d9ad4925293c49486d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Jul 21 16:06:35 2022 -0700
 
-    [doc] Unlist dangling pages from menus.
+    [dv/chip] Update sw_nmi_irq testplan
     
-    This commit introduces an 'unlist' parameter which can be used to remove
-    dangling pages from menus to make the navigation experience more
-    intuitive.
+    This PR modifies the testplan for chip_sw_nmi_irq
     
-    Dangling pages make menus harder to follow as there is no intuitive
-    ordering. For example, the hardware section had the following menu:
-    
-    hw
-     - Design Verification
-     - OpenTitan Assertions
-     - IP Cores
-     - Linting
-     - Top Earlgrey
-    
-     After this change the menu is as follows:
-    
-     hw
-      - Design Verification
-      - IP Cores
-      - Top Earlgrey
-    
-    This change does not affect the siteContent fragment, so it can still be
-    used to get a full list of pages.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
