@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13254"
-version_tuple = (0, 0, 13254)
+version_str = "0.0.post13255"
+version_tuple = (0, 0, 13255)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13254")
+    pversion = V("0.0.post13255")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13112"
-data_version_tuple = (0, 0, 13112)
+data_version_str = "0.0.post13113"
+data_version_tuple = (0, 0, 13113)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13112")
+    pdata_version = V("0.0.post13113")
 except ImportError:
     pass
-data_git_hash = "95e1d0c901b1232ae39cea663b34c59be6f2422b"
-data_git_describe = "v0.0-13112-g95e1d0c901"
+data_git_hash = "106487eba9126c1d7cd0227502c625df29b55813"
+data_git_describe = "v0.0-13113-g106487eba9"
 data_git_msg = """\
-commit 95e1d0c901b1232ae39cea663b34c59be6f2422b
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Jul 22 13:28:15 2022 -0700
+commit 106487eba9126c1d7cd0227502c625df29b55813
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Jul 22 16:09:06 2022 -0700
 
-    [doc] Move style guides into a separate section
+    [dv/chip] remove forced lc_dft_en value
     
-    Move style guides into a separate section so that they are easier to
-    find from the navigation panels.
+    This PR removes the tb.sv file that force lc_dft_en to On.
+    This is not needed because the loaded image is "rma" which enables the
+    lc_dft_en signal. And the test waits until otp_init is done, so we won't
+    drive any tlul transactions when `lc_dft_en` is Off.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
