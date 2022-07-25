@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13257"
-version_tuple = (0, 0, 13257)
+version_str = "0.0.post13258"
+version_tuple = (0, 0, 13258)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13257")
+    pversion = V("0.0.post13258")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13115"
-data_version_tuple = (0, 0, 13115)
+data_version_str = "0.0.post13116"
+data_version_tuple = (0, 0, 13116)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13115")
+    pdata_version = V("0.0.post13116")
 except ImportError:
     pass
-data_git_hash = "ebb8ace4620efb27ddcce11b8a912d4779ac8f56"
-data_git_describe = "v0.0-13115-gebb8ace462"
+data_git_hash = "1236bb1b0e800d5c06a41fc01884a9d5ac65f739"
+data_git_describe = "v0.0-13116-g1236bb1b0e"
 data_git_msg = """\
-commit ebb8ace4620efb27ddcce11b8a912d4779ac8f56
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Fri Jul 22 11:45:10 2022 -0700
+commit 1236bb1b0e800d5c06a41fc01884a9d5ac65f739
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Jul 22 12:42:31 2022 -0700
 
-    feat(rdc): ENV file and Reset Scenario
+    [spi_device/dv] TPM mode fixes
     
-    This commit tweaks the script to read ENV file for additional
-    constraints based on the recommended method from Real Intent.
+    1. Fix bit order, it supports order 0 rather than 1
+    2. Fix CMD code
+    3. Add DV_SPINWAIT for while-loop
     
-    In addition to above, this commit adds a reset scenario template.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
