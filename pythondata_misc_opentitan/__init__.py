@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13255"
-version_tuple = (0, 0, 13255)
+version_str = "0.0.post13256"
+version_tuple = (0, 0, 13256)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13255")
+    pversion = V("0.0.post13256")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13113"
-data_version_tuple = (0, 0, 13113)
+data_version_str = "0.0.post13114"
+data_version_tuple = (0, 0, 13114)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13113")
+    pdata_version = V("0.0.post13114")
 except ImportError:
     pass
-data_git_hash = "106487eba9126c1d7cd0227502c625df29b55813"
-data_git_describe = "v0.0-13113-g106487eba9"
+data_git_hash = "6da1e2589ddcc636c3aaef3743daa5e2f2ed44cd"
+data_git_describe = "v0.0-13114-g6da1e2589d"
 data_git_msg = """\
-commit 106487eba9126c1d7cd0227502c625df29b55813
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Jul 22 16:09:06 2022 -0700
+commit 6da1e2589ddcc636c3aaef3743daa5e2f2ed44cd
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Fri Jul 22 16:28:23 2022 -0400
 
-    [dv/chip] remove forced lc_dft_en value
+    [doc] Add caching/splicing info to FPGA ref manual
     
-    This PR removes the tb.sv file that force lc_dft_en to On.
-    This is not needed because the loaded image is "rma" which enables the
-    lc_dft_en signal. And the test waits until otp_init is done, so we won't
-    drive any tlul transactions when `lc_dft_en` is Off.
+    Add some documentation on bitstream caching and splicing. The FPGA
+    reference manual now touches on (a) how CI uploads to the GCS bucket and
+    (b) how Bazel generates @bitstreams// targets.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
