@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13259"
-version_tuple = (0, 0, 13259)
+version_str = "0.0.post13260"
+version_tuple = (0, 0, 13260)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13259")
+    pversion = V("0.0.post13260")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13117"
-data_version_tuple = (0, 0, 13117)
+data_version_str = "0.0.post13118"
+data_version_tuple = (0, 0, 13118)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13117")
+    pdata_version = V("0.0.post13118")
 except ImportError:
     pass
-data_git_hash = "9a396db0aebc2315759fdec5b3a402f320d3d877"
-data_git_describe = "v0.0-13117-g9a396db0ae"
+data_git_hash = "612efc49a499ff83af2632616b041f7ba23da6ab"
+data_git_describe = "v0.0-13118-g612efc49a4"
 data_git_msg = """\
-commit 9a396db0aebc2315759fdec5b3a402f320d3d877
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Mon Jul 25 09:12:09 2022 -0700
+commit 612efc49a499ff83af2632616b041f7ba23da6ab
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Jul 25 10:05:32 2022 -0700
 
-    fix(rv_plic): Typo
+    [dv/kmac] Fix unmapped testplan
     
-    Typo `alerts[0]`. It should be `alerts[i]`.
+    This PR fixes unmapped stress_all tests because they have not been
+    declared in the testplan.
     
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
