@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13256"
-version_tuple = (0, 0, 13256)
+version_str = "0.0.post13257"
+version_tuple = (0, 0, 13257)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13256")
+    pversion = V("0.0.post13257")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13114"
-data_version_tuple = (0, 0, 13114)
+data_version_str = "0.0.post13115"
+data_version_tuple = (0, 0, 13115)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13114")
+    pdata_version = V("0.0.post13115")
 except ImportError:
     pass
-data_git_hash = "6da1e2589ddcc636c3aaef3743daa5e2f2ed44cd"
-data_git_describe = "v0.0-13114-g6da1e2589d"
+data_git_hash = "ebb8ace4620efb27ddcce11b8a912d4779ac8f56"
+data_git_describe = "v0.0-13115-gebb8ace462"
 data_git_msg = """\
-commit 6da1e2589ddcc636c3aaef3743daa5e2f2ed44cd
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Fri Jul 22 16:28:23 2022 -0400
+commit ebb8ace4620efb27ddcce11b8a912d4779ac8f56
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Fri Jul 22 11:45:10 2022 -0700
 
-    [doc] Add caching/splicing info to FPGA ref manual
+    feat(rdc): ENV file and Reset Scenario
     
-    Add some documentation on bitstream caching and splicing. The FPGA
-    reference manual now touches on (a) how CI uploads to the GCS bucket and
-    (b) how Bazel generates @bitstreams// targets.
+    This commit tweaks the script to read ENV file for additional
+    constraints based on the recommended method from Real Intent.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    In addition to above, this commit adds a reset scenario template.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
