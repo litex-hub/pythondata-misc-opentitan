@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13262"
-version_tuple = (0, 0, 13262)
+version_str = "0.0.post13263"
+version_tuple = (0, 0, 13263)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13262")
+    pversion = V("0.0.post13263")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13120"
-data_version_tuple = (0, 0, 13120)
+data_version_str = "0.0.post13121"
+data_version_tuple = (0, 0, 13121)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13120")
+    pdata_version = V("0.0.post13121")
 except ImportError:
     pass
-data_git_hash = "2f044ef0e564a055f1a0d639eb646fc7af7be606"
-data_git_describe = "v0.0-13120-g2f044ef0e5"
+data_git_hash = "b104a4f68768df102cc85cae3eff7bfc4921ddc5"
+data_git_describe = "v0.0-13121-gb104a4f687"
 data_git_msg = """\
-commit 2f044ef0e564a055f1a0d639eb646fc7af7be606
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Jul 25 14:29:35 2022 -0700
+commit b104a4f68768df102cc85cae3eff7bfc4921ddc5
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Jul 18 14:58:32 2022 +0100
 
-    [dv/kmac] Fix EDN timeout assertion failures
+    [sigverify] Update OTBN instruction count range.
     
-    This PR fixes edn_timeout test's assertion failures:
-    1). Req should be asserted until ack -> Fix this assertion error by
-      extending the disable check statement to sequence level.
-    2). Fix a path within the disable assertion statement in DV.
+    The original range was wrong because it missed a branch in the
+    computation of R^2. This range has been confirmed locally both by a
+    manual check and also a new automatic script. CI test to follow once the
+    script is merged, which should prevent future errors.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
