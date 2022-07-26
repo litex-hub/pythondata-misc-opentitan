@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13263"
-version_tuple = (0, 0, 13263)
+version_str = "0.0.post13264"
+version_tuple = (0, 0, 13264)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13263")
+    pversion = V("0.0.post13264")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13121"
-data_version_tuple = (0, 0, 13121)
+data_version_str = "0.0.post13122"
+data_version_tuple = (0, 0, 13122)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13121")
+    pdata_version = V("0.0.post13122")
 except ImportError:
     pass
-data_git_hash = "b104a4f68768df102cc85cae3eff7bfc4921ddc5"
-data_git_describe = "v0.0-13121-gb104a4f687"
+data_git_hash = "507e9b3a2310cfe5829ab82b9cafeb564e7bf0c8"
+data_git_describe = "v0.0-13122-g507e9b3a23"
 data_git_msg = """\
-commit b104a4f68768df102cc85cae3eff7bfc4921ddc5
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Jul 18 14:58:32 2022 +0100
+commit 507e9b3a2310cfe5829ab82b9cafeb564e7bf0c8
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Mon Jul 25 11:43:02 2022 -0700
 
-    [sigverify] Update OTBN instruction count range.
+    [entropy_src/rtl] add sha3 error status bit
     
-    The original range was wrong because it missed a branch in the
-    computation of R^2. This range has been confirmed locally both by a
-    manual check and also a new automatic script. CI test to follow once the
-    script is merged, which should prevent future errors.
+    A fatal status bit is added for the case where a sha3 module error occurs.
+    Additionally, an error test code is added to force this status bit on.
+    Fixes #13823.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
