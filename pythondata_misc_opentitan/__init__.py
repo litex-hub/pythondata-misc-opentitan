@@ -4,34 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13264"
-version_tuple = (0, 0, 13264)
+version_str = "0.0.post13265"
+version_tuple = (0, 0, 13265)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13264")
+    pversion = V("0.0.post13265")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13122"
-data_version_tuple = (0, 0, 13122)
+data_version_str = "0.0.post13123"
+data_version_tuple = (0, 0, 13123)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13122")
+    pdata_version = V("0.0.post13123")
 except ImportError:
     pass
-data_git_hash = "507e9b3a2310cfe5829ab82b9cafeb564e7bf0c8"
-data_git_describe = "v0.0-13122-g507e9b3a23"
+data_git_hash = "9595dea00edadf0c90c1b93d8ecfb1e42ffd930e"
+data_git_describe = "v0.0-13123-g9595dea00e"
 data_git_msg = """\
-commit 507e9b3a2310cfe5829ab82b9cafeb564e7bf0c8
+commit 9595dea00edadf0c90c1b93d8ecfb1e42ffd930e
 Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Mon Jul 25 11:43:02 2022 -0700
+Date:   Mon Jul 25 12:11:04 2022 -0700
 
-    [entropy_src/rtl] add sha3 error status bit
+    [entropy_src/rtl] add recov alert for FW_OV_WR error
     
-    A fatal status bit is added for the case where a sha3 module error occurs.
-    Additionally, an error test code is added to force this status bit on.
-    Fixes #13823.
+    A recoverable alert has been added in the case where the packer FIFO
+    has been written but was full at the time.
     
     Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
