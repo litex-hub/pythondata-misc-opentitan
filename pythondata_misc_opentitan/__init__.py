@@ -4,44 +4,49 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13270"
-version_tuple = (0, 0, 13270)
+version_str = "0.0.post13274"
+version_tuple = (0, 0, 13274)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13270")
+    pversion = V("0.0.post13274")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13128"
-data_version_tuple = (0, 0, 13128)
+data_version_str = "0.0.post13132"
+data_version_tuple = (0, 0, 13132)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13128")
+    pdata_version = V("0.0.post13132")
 except ImportError:
     pass
-data_git_hash = "6f14afac37d1b9d1fb0d66ff4cbffae8e1bda895"
-data_git_describe = "v0.0-13128-g6f14afac37"
+data_git_hash = "bee125246928489c7a9dac012c456aa04dd2e483"
+data_git_describe = "v0.0-13132-gbee1252469"
 data_git_msg = """\
-commit 6f14afac37d1b9d1fb0d66ff4cbffae8e1bda895
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Jul 25 17:45:56 2022 -0700
+commit bee125246928489c7a9dac012c456aa04dd2e483
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Jul 23 21:17:33 2022 -0700
 
-    [dv, waves] Improve wave dumping
+    [entropy_src/dv] Account for SHA3 non-reset on disable
     
-    A minor non-functional change to waves.tcl improves the way
-    wavedumpScope method is used to dump specific hierarchies
-    rather than dump the tb top by default.
+    Unlike most of the other blocks within the entropy_src, the SHA3 block
+    is not cleared on a disable event. (The SHA3 requires particular
+    sequencing to be shut down gracefully, and the disable operation
+    is otherwise atomic).
     
-    The code is rearranged a little, and several comments are added
-    to make the usage clearer. the `fid` argument of `wavedumpScope
-    proc is removed in favor of using the value internally by
-    referencing a global variable instead of passing it as an arg.
+    This is not a security problem as there is no harm if some excess
+    entropy remains in the SHA3 state before starting the next seed.
+    However this does need to be modelled properly in the scoreboard.
     
-    Wavedumping has been tested with vcs:fsdb,vpd,vcd and
-    xcelium:shm,fsdb and everything seeems to be working ok.
+    This commit changes the process_fifo_q into a 64-bit fifo to
+    reflect the fact that the SHA block receives data in 64 bit
+    chunks.  This scoreboard FIFO is then not cleared during
+    continuous-mode disable events.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    This SHA behavior is now properly modelled both in the default mode
+    as well as in the FW_OV_INSERT mode.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
