@@ -4,49 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13274"
-version_tuple = (0, 0, 13274)
+version_str = "0.0.post13276"
+version_tuple = (0, 0, 13276)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13274")
+    pversion = V("0.0.post13276")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13132"
-data_version_tuple = (0, 0, 13132)
+data_version_str = "0.0.post13134"
+data_version_tuple = (0, 0, 13134)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13132")
+    pdata_version = V("0.0.post13134")
 except ImportError:
     pass
-data_git_hash = "bee125246928489c7a9dac012c456aa04dd2e483"
-data_git_describe = "v0.0-13132-gbee1252469"
+data_git_hash = "19a8e33764bac07e0653d1d8720be7ffd0a02dd8"
+data_git_describe = "v0.0-13134-g19a8e33764"
 data_git_msg = """\
-commit bee125246928489c7a9dac012c456aa04dd2e483
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Jul 23 21:17:33 2022 -0700
+commit 19a8e33764bac07e0653d1d8720be7ffd0a02dd8
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Jul 26 10:12:44 2022 -0700
 
-    [entropy_src/dv] Account for SHA3 non-reset on disable
+    [dvsim] remove unecessary `sw_build_dir` parameter
     
-    Unlike most of the other blocks within the entropy_src, the SHA3 block
-    is not cleared on a disable event. (The SHA3 requires particular
-    sequencing to be shut down gracefully, and the disable operation
-    is otherwise atomic).
+    In the previous commit, SW image string formats were update to be
+    referred to by the Bazel label. Part of this update also involved
+    copying Bazel-built SW images into the simulation `run_dir`, which
+    removed the need to track the `sw_build_dir`. Therefore, this commit
+    cleans up dvsim.py to remove this parameter.
     
-    This is not a security problem as there is no harm if some excess
-    entropy remains in the SHA3 state before starting the next seed.
-    However this does need to be modelled properly in the scoreboard.
-    
-    This commit changes the process_fifo_q into a 64-bit fifo to
-    reflect the fact that the SHA block receives data in 64 bit
-    chunks.  This scoreboard FIFO is then not cleared during
-    continuous-mode disable events.
-    
-    This SHA behavior is now properly modelled both in the default mode
-    as well as in the FW_OV_INSERT mode.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
