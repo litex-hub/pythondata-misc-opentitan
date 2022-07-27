@@ -241,6 +241,7 @@ bn.wsrw 0x3 /* ACC */, w26
 
 bn.mulqacc           w27.0, w28.0, 0
 bn.mulqacc           w27.1, w28.0, 64
+bn.xor        w29,   w29,   w29
 bn.mulqacc.so w29.L, w27.0, w28.1, 64
 bn.mulqacc           w27.2, w28.0, 0
 bn.mulqacc           w27.1, w28.1, 0
@@ -253,6 +254,7 @@ bn.mulqacc           w27.3, w28.1, 0
 bn.mulqacc           w27.2, w28.2, 0
 bn.mulqacc           w27.1, w28.3, 0
 bn.mulqacc           w27.3, w28.2, 64
+bn.xor        w30,   w30,   w30
 bn.mulqacc.so w30.L, w27.2, w28.3, 64
 bn.mulqacc.so w30.U, w27.3, w28.3, 0
 
@@ -337,6 +339,10 @@ bn.add w2, w2, w1
 # w2 = w2 + w1 = w2 + KEY_S1H = 0x440659a8_32f54897_440659a8_32f54898_dd6208a5_cc50f794_dd6208a5_cc50f791
 bn.wsrr w1, 0x7
 bn.add w2, w2, w1
+
+# Set unused registers to zero. Without this, they would keep the random value assigned during
+# secure wipe, which cannot be compared against an expected value.
+xor x30, x30, x30
 
 ecall
 
