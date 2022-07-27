@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13281"
-version_tuple = (0, 0, 13281)
+version_str = "0.0.post13282"
+version_tuple = (0, 0, 13282)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13281")
+    pversion = V("0.0.post13282")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13139"
-data_version_tuple = (0, 0, 13139)
+data_version_str = "0.0.post13140"
+data_version_tuple = (0, 0, 13140)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13139")
+    pdata_version = V("0.0.post13140")
 except ImportError:
     pass
-data_git_hash = "542ef5653be7bcc1e1af4e01e75641c089475cf5"
-data_git_describe = "v0.0-13139-g542ef5653b"
+data_git_hash = "f283b981ea26e9900f5242e64d1a4a0a43d00cfa"
+data_git_describe = "v0.0-13140-gf283b981ea"
 data_git_msg = """\
-commit 542ef5653be7bcc1e1af4e01e75641c089475cf5
-Author: Michael Schaffner <msf@opentitan.org>
-Date:   Fri Jul 15 10:15:32 2022 -0700
+commit f283b981ea26e9900f5242e64d1a4a0a43d00cfa
+Author: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
+Date:   Tue Jul 26 20:55:55 2022 +0800
 
-    [alert_handler] Update checklist and move to D3
+    [sw,crypto] Update crypto API header against the latest crypto spec
     
-    Fix #13576
+    The crypto API header is now updated against the latest crypto specification [v3], as of 26Jul2022
     
-    Signed-off-by: Michael Schaffner <msf@opentitan.org>
+    Signed-off-by: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
 
 """
 
