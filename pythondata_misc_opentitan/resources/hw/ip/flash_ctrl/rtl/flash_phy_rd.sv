@@ -112,6 +112,12 @@ module flash_phy_rd
   logic [NumBuf-1:0] buf_match;
   logic no_match;
 
+  // This net tracks which buffers have a dependency to items currently in the rsp_order_fifo
+  logic [NumBuf-1:0] buf_dependency;
+
+  // all buffers have a current dependency to an entry in rsp_order_fifo
+  logic all_buf_dependency;
+
   // There is a stateful operation aimed at valid buffer, that buffer must be flushed
   logic [NumBuf-1:0] data_hazard;
 
@@ -131,7 +137,14 @@ module flash_phy_rd
   for (genvar i = 0; i < NumBuf; i++) begin: gen_buf_states
     assign buf_valid[i]   = read_buf[i].attr == Valid;
     assign buf_wip[i]     = read_buf[i].attr == Wip;
-    assign buf_invalid[i] = read_buf[i].attr == Invalid;
+
+    // if a buffer is valid and contains an error, it should be considered
+    // invalid as long as there are no pending responses already waiting
+    // on that buffer.
+    assign buf_invalid[i] = (read_buf[i].attr == Invalid) |
+                            (read_buf[i].attr == Valid &
+                            read_buf[i].err &
+                            ~buf_dependency[i]);
   end
 
   assign buf_invalid_alloc[0] = buf_invalid[0];
@@ -153,7 +166,12 @@ module flash_phy_rd
     .clk_i,
     .rst_ni,
     .req_chk_i(1'b0), // Valid is allowed to drop without ready.
-    .req_i(|buf_invalid_alloc ? '0 : {NumBuf{1'b1}}),
+    // If there is an invalid buffer, always allocate from that one first
+    // If all buffers have a dependency to an in-flight transaction, do not
+    // allocate and wait for the dependencies to end.
+    // If none of the above are true, THEN pick a buffer from the current valid
+    // buffers that DO NOT have an ongoing dependency.
+    .req_i(|buf_invalid_alloc | all_buf_dependency ? '0 : buf_valid & ~buf_dependency),
     .data_i(dummy_data),
     .gnt_o(buf_valid_alloc),
     .idx_o(),
@@ -276,6 +294,24 @@ module flash_phy_rd
   // if buffer matched, that is the return source
   assign rsp_fifo_wdata.buf_sel = |alloc ? buf_alloc : buf_match;
 
+  logic rsp_order_fifo_wr;
+  assign rsp_order_fifo_wr = req_i && rdy_o;
+
+  logic rsp_order_fifo_rd;
+  assign rsp_order_fifo_rd = rsp_fifo_vld & data_valid_o;
+
+  flash_phy_rd_buf_dep u_rd_buf_dep (
+    .clk_i,
+    .rst_ni,
+    .en_i(buf_en_q),
+    .fifo_wr_i(rsp_order_fifo_wr),
+    .fifo_rd_i(rsp_order_fifo_rd),
+    .wr_buf_i(rsp_fifo_wdata.buf_sel),
+    .rd_buf_i(rsp_fifo_rdata.buf_sel),
+    .dependency_o(buf_dependency),
+    .all_dependency_o(all_buf_dependency)
+  );
+
   // If width is the same, word_sel is unused
   if (WidthMultiple == 1) begin : gen_single_word_sel
     assign rsp_fifo_wdata.word_sel = '0;
@@ -298,7 +334,7 @@ module flash_phy_rd
     .clk_i,
     .rst_ni,
     .clr_i   (1'b0),
-    .wvalid_i(req_i && rdy_o),
+    .wvalid_i(rsp_order_fifo_wr),
     .wready_o(rsp_fifo_rdy),
     .wdata_i (rsp_fifo_wdata),
     .depth_o (),
@@ -308,7 +344,6 @@ module flash_phy_rd
     .rdata_o (rsp_fifo_rdata),
     .err_o   (rsp_order_fifo_err)
   );
-
 
   // Consider converting this to a FIFO for better matching
   // The rd_busy flag is effectively a "full" flag anyways of a single
@@ -339,9 +374,12 @@ module flash_phy_rd
   logic rd_stages_rdy;
   assign rd_stages_rdy = rsp_fifo_rdy & scramble_stage_rdy;
 
-  // if no buffers matched, accept only if flash is ready and there is space
-  // if buffer is matched, accept as long as there is space in the rsp fifo
-  assign rdy_o = no_match ? ack_i & flash_rdy & rd_stages_rdy : rd_stages_rdy;
+  // If no buffers matched, accept only if flash is ready and there is space
+  // If buffer is matched, accept as long as there is space in the rsp fifo
+  // If all buffers are currently allocated or have a dependency, wait until
+  // at least 1 dependency has cleared.
+  assign rdy_o = (no_match ? ack_i & flash_rdy & rd_stages_rdy : rd_stages_rdy) &
+                 ~all_buf_dependency;
 
   // issue a transaction to flash only if there is space in read stages,
   // there is no buffer match and flash is not currently busy.
@@ -582,7 +620,7 @@ module flash_phy_rd
     for (int i = 0; i < NumBuf; i++) begin
       if (buf_rsp_match[i]) begin
         buf_rsp_data = read_buf[i].data;
-        buf_rsp_err = read_buf[i].err;
+        buf_rsp_err = buf_rsp_err | read_buf[i].err;
       end
     end
   end
@@ -663,6 +701,9 @@ module flash_phy_rd
 
   // update should happen only to 1 buffer at time
   `ASSERT(OneHotUpdate_A, $onehot0(update))
+
+  // buffer response match should happen only to 1 buffer at time
+  `ASSERT(OneHotRspMatch_A, $onehot0(buf_rsp_match))
 
   // alloc and update should be mutually exclusive for a buffer
   `ASSERT(ExclusiveOps_A, (alloc & update) == 0 )
