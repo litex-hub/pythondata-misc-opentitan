@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13282"
-version_tuple = (0, 0, 13282)
+version_str = "0.0.post13284"
+version_tuple = (0, 0, 13284)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13282")
+    pversion = V("0.0.post13284")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13140"
-data_version_tuple = (0, 0, 13140)
+data_version_str = "0.0.post13142"
+data_version_tuple = (0, 0, 13142)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13140")
+    pdata_version = V("0.0.post13142")
 except ImportError:
     pass
-data_git_hash = "f283b981ea26e9900f5242e64d1a4a0a43d00cfa"
-data_git_describe = "v0.0-13140-gf283b981ea"
+data_git_hash = "66998f466fd69fe5e7d97de8d714f6c87fd7bde5"
+data_git_describe = "v0.0-13142-g66998f466f"
 data_git_msg = """\
-commit f283b981ea26e9900f5242e64d1a4a0a43d00cfa
-Author: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
-Date:   Tue Jul 26 20:55:55 2022 +0800
+commit 66998f466fd69fe5e7d97de8d714f6c87fd7bde5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Jul 22 11:12:03 2022 -0700
 
-    [sw,crypto] Update crypto API header against the latest crypto spec
+    [flash_ctrl] Refactor buffer dependency handling into its own module
     
-    The crypto API header is now updated against the latest crypto specification [v3], as of 26Jul2022
+    - mostly a clean-up exercise to make it slightly more readable
     
-    Signed-off-by: Srinivasan Y <srinivasan.yadhunathan@seagate.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
