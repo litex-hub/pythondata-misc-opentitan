@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13295"
-version_tuple = (0, 0, 13295)
+version_str = "0.0.post13299"
+version_tuple = (0, 0, 13299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13295")
+    pversion = V("0.0.post13299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13153"
-data_version_tuple = (0, 0, 13153)
+data_version_str = "0.0.post13157"
+data_version_tuple = (0, 0, 13157)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13153")
+    pdata_version = V("0.0.post13157")
 except ImportError:
     pass
-data_git_hash = "c523fbf05f5607e9f9ae3fed6ac8486b0eb9f5a9"
-data_git_describe = "v0.0-13153-gc523fbf05f"
+data_git_hash = "5ede35cd4d2b5af311cc747f156000da930232e2"
+data_git_describe = "v0.0-13157-g5ede35cd4d"
 data_git_msg = """\
-commit c523fbf05f5607e9f9ae3fed6ac8486b0eb9f5a9
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Jul 18 12:32:24 2022 +0000
+commit 5ede35cd4d2b5af311cc747f156000da930232e2
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Jul 26 16:24:31 2022 -0700
 
-    [flash_ctrl,dv] double bit error tests and tb support
+    fix(entropy_src): Change port type to mubi4_t
     
-     - Add double bit error detect test
-     - Add integrity ecc test
+    SHA3 absorbed signal is converted to mubi4_t. entropy_src uses SHA3
+    internally.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
-    
-    [dv,flash_ctrl] double bit error test and tb update
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
