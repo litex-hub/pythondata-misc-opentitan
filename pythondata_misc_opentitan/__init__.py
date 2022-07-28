@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13299"
-version_tuple = (0, 0, 13299)
+version_str = "0.0.post13300"
+version_tuple = (0, 0, 13300)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13299")
+    pversion = V("0.0.post13300")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13157"
-data_version_tuple = (0, 0, 13157)
+data_version_str = "0.0.post13158"
+data_version_tuple = (0, 0, 13158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13157")
+    pdata_version = V("0.0.post13158")
 except ImportError:
     pass
-data_git_hash = "5ede35cd4d2b5af311cc747f156000da930232e2"
-data_git_describe = "v0.0-13157-g5ede35cd4d"
+data_git_hash = "b1f6dddfdf29165e8c5f62c1a630e8b88025db6d"
+data_git_describe = "v0.0-13158-gb1f6dddfdf"
 data_git_msg = """\
-commit 5ede35cd4d2b5af311cc747f156000da930232e2
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Jul 26 16:24:31 2022 -0700
+commit b1f6dddfdf29165e8c5f62c1a630e8b88025db6d
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jul 27 16:47:38 2022 -0700
 
-    fix(entropy_src): Change port type to mubi4_t
+    [dv/top] Correct test name in sim config
     
-    SHA3 absorbed signal is converted to mubi4_t. entropy_src uses SHA3
-    internally.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
