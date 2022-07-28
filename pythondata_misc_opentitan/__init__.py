@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13312"
-version_tuple = (0, 0, 13312)
+version_str = "0.0.post13313"
+version_tuple = (0, 0, 13313)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13312")
+    pversion = V("0.0.post13313")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13170"
-data_version_tuple = (0, 0, 13170)
+data_version_str = "0.0.post13171"
+data_version_tuple = (0, 0, 13171)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13170")
+    pdata_version = V("0.0.post13171")
 except ImportError:
     pass
-data_git_hash = "314afa2068a991bdb60e9a42f8c3e2dec39e472c"
-data_git_describe = "v0.0-13170-g314afa2068"
+data_git_hash = "9a202b52d8a7c026ae9ac8f25f0c1a4d714bb9a1"
+data_git_describe = "v0.0-13171-g9a202b52d8"
 data_git_msg = """\
-commit 314afa2068a991bdb60e9a42f8c3e2dec39e472c
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Jul 27 18:47:57 2022 -0700
+commit 9a202b52d8a7c026ae9ac8f25f0c1a4d714bb9a1
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Jul 27 16:05:13 2022 -0700
 
-    [kmac] Remove outdated comment
+    [dv/kmac] Add cfg_regwen register check
     
-    As discussed in https://github.com/lowRISC/opentitan/issues/12429#issuecomment-1125258307
-    this comment is not actually true, hence it is removed in this commit.
+    This PR adds checkings that cfg_regwen will be reset to 0 when kmac is
+    not idle.
+    Also write locked registers with random values if the cfg_regwen is
+    locked.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
