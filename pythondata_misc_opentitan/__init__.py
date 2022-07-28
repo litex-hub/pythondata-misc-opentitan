@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13319"
-version_tuple = (0, 0, 13319)
+version_str = "0.0.post13321"
+version_tuple = (0, 0, 13321)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13319")
+    pversion = V("0.0.post13321")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13177"
-data_version_tuple = (0, 0, 13177)
+data_version_str = "0.0.post13179"
+data_version_tuple = (0, 0, 13179)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13177")
+    pdata_version = V("0.0.post13179")
 except ImportError:
     pass
-data_git_hash = "12e8112f85267dd2ee34f0d7d596a0ade839aa7e"
-data_git_describe = "v0.0-13177-g12e8112f85"
+data_git_hash = "0ca714ff4e77b12c0c74e94b7f13ed78b6127121"
+data_git_describe = "v0.0-13179-g0ca714ff4e"
 data_git_msg = """\
-commit 12e8112f85267dd2ee34f0d7d596a0ade839aa7e
-Author: Alexander Williams <awill@google.com>
-Date:   Tue Jul 19 17:17:25 2022 -0700
+commit 0ca714ff4e77b12c0c74e94b7f13ed78b6127121
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Jul 27 16:02:50 2022 -0700
 
-    [doc] Show how to use JTAG with the CW310
+    [sw/flash_ctrl] remove software mention of flash macro error
     
-    Add some instructions for connecting the debugger and setting the TAP
-    straps.
+    - flash macro error is no longer part of the recoverable error
+      codes. Make corresponding changes in the dif and testutils
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
