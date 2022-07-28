@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13313"
-version_tuple = (0, 0, 13313)
+version_str = "0.0.post13319"
+version_tuple = (0, 0, 13319)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13313")
+    pversion = V("0.0.post13319")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13171"
-data_version_tuple = (0, 0, 13171)
+data_version_str = "0.0.post13177"
+data_version_tuple = (0, 0, 13177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13171")
+    pdata_version = V("0.0.post13177")
 except ImportError:
     pass
-data_git_hash = "9a202b52d8a7c026ae9ac8f25f0c1a4d714bb9a1"
-data_git_describe = "v0.0-13171-g9a202b52d8"
+data_git_hash = "12e8112f85267dd2ee34f0d7d596a0ade839aa7e"
+data_git_describe = "v0.0-13177-g12e8112f85"
 data_git_msg = """\
-commit 9a202b52d8a7c026ae9ac8f25f0c1a4d714bb9a1
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Jul 27 16:05:13 2022 -0700
+commit 12e8112f85267dd2ee34f0d7d596a0ade839aa7e
+Author: Alexander Williams <awill@google.com>
+Date:   Tue Jul 19 17:17:25 2022 -0700
 
-    [dv/kmac] Add cfg_regwen register check
+    [doc] Show how to use JTAG with the CW310
     
-    This PR adds checkings that cfg_regwen will be reset to 0 when kmac is
-    not idle.
-    Also write locked registers with random values if the cfg_regwen is
-    locked.
+    Add some instructions for connecting the debugger and setting the TAP
+    straps.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
