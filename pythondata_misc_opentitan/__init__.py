@@ -4,40 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13307"
-version_tuple = (0, 0, 13307)
+version_str = "0.0.post13308"
+version_tuple = (0, 0, 13308)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13307")
+    pversion = V("0.0.post13308")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13165"
-data_version_tuple = (0, 0, 13165)
+data_version_str = "0.0.post13166"
+data_version_tuple = (0, 0, 13166)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13165")
+    pdata_version = V("0.0.post13166")
 except ImportError:
     pass
-data_git_hash = "09115123e5481699ef91c490e9206161290540cc"
-data_git_describe = "v0.0-13165-g09115123e5"
+data_git_hash = "ae9a6baef1c1e73cc4c73ce33b8cf5ad8e40a26d"
+data_git_describe = "v0.0-13166-gae9a6baef1"
 data_git_msg = """\
-commit 09115123e5481699ef91c490e9206161290540cc
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Jul 18 12:09:56 2022 +0200
+commit ae9a6baef1c1e73cc4c73ce33b8cf5ad8e40a26d
+Author: Alexander Williams <awill@google.com>
+Date:   Thu Jul 21 17:49:43 2022 -0700
 
-    [top] Daisy chaining of LC RMA req/ack interface for Flash and OTBN
+    [cw310] Connect all pads
     
-    It has been decided that in addition to Flash also some non-reset
-    registers inside OTBN should be securely wiped before LC can enter RMA.
-    Since LC is already in D3, meaning we want to avoid changes to LC if
-    possible, it has been decided to daisy chain the LC RMA req/ack
-    interface. More precisely, LC will send the REQ to Flash as before,
-    but Flash will send the ACK to the REQ input of OTBN, and OTBNs ACK is
-    then connected to the LC ACK.
+    This adds all the pads that were previously removed, including PMOD
+    connections for a UART, I2C, and PWM.
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    The LEDs and DIP switches have been moved, and the common pinmux
+    function no longer automatically configures GPIOs. Adjust tests that use
+    the GPIOs to set up their own pinmux config and map them to IOA2-IOA8
+    only.
+    
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
