@@ -4,36 +4,56 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13332"
-version_tuple = (0, 0, 13332)
+version_str = "0.0.post13333"
+version_tuple = (0, 0, 13333)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13332")
+    pversion = V("0.0.post13333")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13190"
-data_version_tuple = (0, 0, 13190)
+data_version_str = "0.0.post13191"
+data_version_tuple = (0, 0, 13191)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13190")
+    pdata_version = V("0.0.post13191")
 except ImportError:
     pass
-data_git_hash = "909424e7e8504c5c7872e3e488bfd5b4628a5005"
-data_git_describe = "v0.0-13190-g909424e7e8"
+data_git_hash = "d95d53edde0b78ac811ebbaea8d5993a61f6ae93"
+data_git_describe = "v0.0-13191-gd95d53edde"
 data_git_msg = """\
-commit 909424e7e8504c5c7872e3e488bfd5b4628a5005
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Jul 28 17:44:54 2022 -0700
+commit d95d53edde0b78ac811ebbaea8d5993a61f6ae93
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Thu Jul 28 15:08:18 2022 -0700
 
-    [sram/dv] Fix lc_esc test
+    fix(kmac): Use `mode_q` to request EDN
     
-    lc escalation no longer gates the sram access, update scb for update
-    simplify the sequence to avoid driving lc_esc and issue sram access at the same time
-    as it's hard to predict due to async timing
+    Issue https://github.com/lowRISC/opentitan/issues/13872
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Problem
+    -------
+    
+    KMAC Entropy module reports Unknown Assertion error if SW changes the
+    entropy mode from SW to Edn while operating.
+    
+    Analysis
+    --------
+    
+    The entropy module latches the entropy mode when SW configures the
+    `entropy_ready` bit. The mode is to select the LFSRs' seed input data
+    between EDN data and SW seed CSR.
+    
+    Somehow, the module reseeds LFSRs from EDN if SW changes the mode while
+    active. The state machine moves to `StRandEdn` state. The FSM sees
+    `mode_i` in `StRandReady` rather than the latched version `mode_q`.
+    
+    Resolution
+    ----------
+    
+    Changed the logic to look at `mode_q`.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
