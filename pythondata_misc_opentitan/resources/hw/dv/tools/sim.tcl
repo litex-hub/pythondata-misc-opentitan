@@ -33,9 +33,20 @@ global tb_top
 # wavedumpScope $waves $simulator tb.dut.foo.bar 12
 # wavedumpScope $waves $simulator tb.dut.baz 0
 
+if {$simulator eq "xcelium"} {
+  puts "INFO: The following assertions are permamently disabled:"
+  assertion -list -depth all -multiline -permoff $tb_top
+}
+
 # In GUI mode, let the user take control of running the simulation.
 global gui
 if {$gui == 0} {
   run
-  quit
+  if {$simulator eq "xcelium"} {
+    # Xcelium provides a `finish` tcl command instead of `quit`. The argument '2' enables the
+    # logging of additional resource usage information.
+    finish 2
+  } else {
+    quit
+  }
 }
