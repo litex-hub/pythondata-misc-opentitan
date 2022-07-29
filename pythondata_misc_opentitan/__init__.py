@@ -4,44 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13329"
-version_tuple = (0, 0, 13329)
+version_str = "0.0.post13331"
+version_tuple = (0, 0, 13331)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13329")
+    pversion = V("0.0.post13331")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13187"
-data_version_tuple = (0, 0, 13187)
+data_version_str = "0.0.post13189"
+data_version_tuple = (0, 0, 13189)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13187")
+    pdata_version = V("0.0.post13189")
 except ImportError:
     pass
-data_git_hash = "18563abecc18c4802476d48df61d8c477eb42ad1"
-data_git_describe = "v0.0-13187-g18563abecc"
+data_git_hash = "d425d553f22422679d93f87551c3e49b6b920c1a"
+data_git_describe = "v0.0-13189-gd425d553f2"
 data_git_msg = """\
-commit 18563abecc18c4802476d48df61d8c477eb42ad1
-Author: Rupert Swarbrick <rswarbrick@lowrisc.org>
-Date:   Tue Feb 22 23:08:35 2022 +0000
+commit d425d553f22422679d93f87551c3e49b6b920c1a
+Author: Nicholas Mosier <nmosier@google.com>
+Date:   Tue Jul 26 20:33:31 2022 +0000
 
-    [otbn] Update bus accessible size to 3kiB
+    [silicon_creator/spi_device] Fix fault injection bug in spi_device_cmd_get()
     
-    After some discussion, this looks like the safest approach: the
-    1kiB scratchpad should still be big enough to hold any key data but
-    we've got a bit more headroom on the bus accessible part.
+    We discovered a fault injection bug in spi_device_cmd_get() in
+    sw/device/silicon_creator/lib/drivers/spi_device.c, in which the code
+    copies the number of bytes given in a 9-bit byte count from the
+    PAYLOAD_DEPTH field of the SPI device's STATUS2 register into an
+    output buffer of size 256.  While the hardware ensures always that
+    PAYLOAD_DEPTH <= 256, a fault injection causing a flip of one of the
+    PAYLOAD_DEPTH bits causes a stack buffer overflow.
     
-    To make the RSA routines work with the reduced scratchpad, we need to
-    reduce the software buffers accordingly:
-    - m0d occupies always 32 bytes.
-    - RR occupies N*32 bytes where N is the number of 256 limbs per bignum
-      which is 16 for RSA-4096. This means RR needs at most 512 bytes.
-    - work_buf occupies the remaining 480 bytes of the scratchpad.
+    We fixed this bug by (1) deriving the size of the
+    spi_device_cmd_t::payload buffer from the size of the SPI device's
+    payload buffer, and (2) performing a hardened bounds check on the
+    PAYLOAD_DEPTH field read by the SPI device driver.
     
-    Signed-off-by: Rupert Swarbrick <rswarbrick@lowrisc.org>
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Nicholas Mosier <nmosier@google.com>
 
 """
 
