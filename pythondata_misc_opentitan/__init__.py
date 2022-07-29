@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13322"
-version_tuple = (0, 0, 13322)
+version_str = "0.0.post13326"
+version_tuple = (0, 0, 13326)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13322")
+    pversion = V("0.0.post13326")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13180"
-data_version_tuple = (0, 0, 13180)
+data_version_str = "0.0.post13184"
+data_version_tuple = (0, 0, 13184)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13180")
+    pdata_version = V("0.0.post13184")
 except ImportError:
     pass
-data_git_hash = "c1a79547494105265e2d04457a36659ab6142d62"
-data_git_describe = "v0.0-13180-gc1a7954749"
+data_git_hash = "3db58a50e3b8739cfde242bbf29079a4707c888d"
+data_git_describe = "v0.0-13184-g3db58a50e3"
 data_git_msg = """\
-commit c1a79547494105265e2d04457a36659ab6142d62
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Jul 26 17:43:23 2022 -0700
+commit 3db58a50e3b8739cfde242bbf29079a4707c888d
+Author: Alexander Williams <awill@google.com>
+Date:   Mon Jul 25 09:28:10 2022 -0700
 
-    [utils,dvsim] Add wall-clock timeout feature
+    [fpga/cw310] Add hyperdebug variant of the CW310
     
-    Add a timeout for builds and runs. Set it in Modes, and enable overriding it
-    via dvsim arguments.
+    Add a new fusesoc core that switches in a hyperdebug-specific XDC for a
+    CW310 bitstream build.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
