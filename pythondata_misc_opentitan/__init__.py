@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13335"
-version_tuple = (0, 0, 13335)
+version_str = "0.0.post13343"
+version_tuple = (0, 0, 13343)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13335")
+    pversion = V("0.0.post13343")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13193"
-data_version_tuple = (0, 0, 13193)
+data_version_str = "0.0.post13201"
+data_version_tuple = (0, 0, 13201)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13193")
+    pdata_version = V("0.0.post13201")
 except ImportError:
     pass
-data_git_hash = "ddf5ef1cf5d3ab92cbb4d35b90fb92750a99bda3"
-data_git_describe = "v0.0-13193-gddf5ef1cf5"
+data_git_hash = "cf59384407ef7733f96a1717cb7bb0c79e77205a"
+data_git_describe = "v0.0-13201-gcf59384407"
 data_git_msg = """\
-commit ddf5ef1cf5d3ab92cbb4d35b90fb92750a99bda3
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Wed May 18 18:06:55 2022 +0100
+commit cf59384407ef7733f96a1717cb7bb0c79e77205a
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Jul 26 16:07:07 2022 -0700
 
-    [otbn] Move to D2S
+    [otp_ctrl/doc] Document what can be re-parameterized after D3/V3
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
