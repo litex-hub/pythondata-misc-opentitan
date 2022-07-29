@@ -4,45 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13331"
-version_tuple = (0, 0, 13331)
+version_str = "0.0.post13332"
+version_tuple = (0, 0, 13332)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13331")
+    pversion = V("0.0.post13332")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13189"
-data_version_tuple = (0, 0, 13189)
+data_version_str = "0.0.post13190"
+data_version_tuple = (0, 0, 13190)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13189")
+    pdata_version = V("0.0.post13190")
 except ImportError:
     pass
-data_git_hash = "d425d553f22422679d93f87551c3e49b6b920c1a"
-data_git_describe = "v0.0-13189-gd425d553f2"
+data_git_hash = "909424e7e8504c5c7872e3e488bfd5b4628a5005"
+data_git_describe = "v0.0-13190-g909424e7e8"
 data_git_msg = """\
-commit d425d553f22422679d93f87551c3e49b6b920c1a
-Author: Nicholas Mosier <nmosier@google.com>
-Date:   Tue Jul 26 20:33:31 2022 +0000
+commit 909424e7e8504c5c7872e3e488bfd5b4628a5005
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Jul 28 17:44:54 2022 -0700
 
-    [silicon_creator/spi_device] Fix fault injection bug in spi_device_cmd_get()
+    [sram/dv] Fix lc_esc test
     
-    We discovered a fault injection bug in spi_device_cmd_get() in
-    sw/device/silicon_creator/lib/drivers/spi_device.c, in which the code
-    copies the number of bytes given in a 9-bit byte count from the
-    PAYLOAD_DEPTH field of the SPI device's STATUS2 register into an
-    output buffer of size 256.  While the hardware ensures always that
-    PAYLOAD_DEPTH <= 256, a fault injection causing a flip of one of the
-    PAYLOAD_DEPTH bits causes a stack buffer overflow.
+    lc escalation no longer gates the sram access, update scb for update
+    simplify the sequence to avoid driving lc_esc and issue sram access at the same time
+    as it's hard to predict due to async timing
     
-    We fixed this bug by (1) deriving the size of the
-    spi_device_cmd_t::payload buffer from the size of the SPI device's
-    payload buffer, and (2) performing a hardened bounds check on the
-    PAYLOAD_DEPTH field read by the SPI device driver.
-    
-    Signed-off-by: Nicholas Mosier <nmosier@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
