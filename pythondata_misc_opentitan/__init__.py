@@ -4,56 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13333"
-version_tuple = (0, 0, 13333)
+version_str = "0.0.post13335"
+version_tuple = (0, 0, 13335)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13333")
+    pversion = V("0.0.post13335")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13191"
-data_version_tuple = (0, 0, 13191)
+data_version_str = "0.0.post13193"
+data_version_tuple = (0, 0, 13193)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13191")
+    pdata_version = V("0.0.post13193")
 except ImportError:
     pass
-data_git_hash = "d95d53edde0b78ac811ebbaea8d5993a61f6ae93"
-data_git_describe = "v0.0-13191-gd95d53edde"
+data_git_hash = "ddf5ef1cf5d3ab92cbb4d35b90fb92750a99bda3"
+data_git_describe = "v0.0-13193-gddf5ef1cf5"
 data_git_msg = """\
-commit d95d53edde0b78ac811ebbaea8d5993a61f6ae93
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Thu Jul 28 15:08:18 2022 -0700
+commit ddf5ef1cf5d3ab92cbb4d35b90fb92750a99bda3
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Wed May 18 18:06:55 2022 +0100
 
-    fix(kmac): Use `mode_q` to request EDN
+    [otbn] Move to D2S
     
-    Issue https://github.com/lowRISC/opentitan/issues/13872
-    
-    Problem
-    -------
-    
-    KMAC Entropy module reports Unknown Assertion error if SW changes the
-    entropy mode from SW to Edn while operating.
-    
-    Analysis
-    --------
-    
-    The entropy module latches the entropy mode when SW configures the
-    `entropy_ready` bit. The mode is to select the LFSRs' seed input data
-    between EDN data and SW seed CSR.
-    
-    Somehow, the module reseeds LFSRs from EDN if SW changes the mode while
-    active. The state machine moves to `StRandEdn` state. The FSM sees
-    `mode_i` in `StRandReady` rather than the latched version `mode_q`.
-    
-    Resolution
-    ----------
-    
-    Changed the logic to look at `mode_q`.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
