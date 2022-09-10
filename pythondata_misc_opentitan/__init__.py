@@ -4,40 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14107"
-version_tuple = (0, 0, 14107)
+version_str = "0.0.post14114"
+version_tuple = (0, 0, 14114)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14107")
+    pversion = V("0.0.post14114")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13965"
-data_version_tuple = (0, 0, 13965)
+data_version_str = "0.0.post13972"
+data_version_tuple = (0, 0, 13972)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13965")
+    pdata_version = V("0.0.post13972")
 except ImportError:
     pass
-data_git_hash = "7e3bb0a70951a7542f13f7d7143c3f55acb0e8a1"
-data_git_describe = "v0.0-13965-g7e3bb0a709"
+data_git_hash = "b05a44082aadb68759622caa3d819296a9327042"
+data_git_describe = "v0.0-13972-gb05a44082a"
 data_git_msg = """\
-commit 7e3bb0a70951a7542f13f7d7143c3f55acb0e8a1
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Mon Sep 5 14:38:50 2022 -0700
+commit b05a44082aadb68759622caa3d819296a9327042
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Tue Sep 6 09:17:44 2022 -0700
 
-    [sw] Allow for the optional inclusion of a .bazelrc-site file
+    [chip dv] Replace chip_if with individual interfaces
     
-    The .bazelrc-site file allows for site-specific compile options
-    (output roots, library paths etc).   This file is an optional
-    addition to each working repository, however this file should
-    not be added to the upstrem repository. Therefore this file
-    is also added to .gitignore, and a CI check is added to
-    entsure that this file is not forcibly added to git where
-    it could contaminate the site-specific setup of other users.
+    This commit starts replacing the individual interfaces
+    connected to the DUT in tb with the ones in chip_if.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    
+    [dv, xbar_autogen] Minor update the topgen XBAR template
+    
+    Create and connect the rst_n wire.
+    Use chip_if::clk_rst_if for driving reset in XBAR seqs.
+    
+    Squashed with chip level pinout commit.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
