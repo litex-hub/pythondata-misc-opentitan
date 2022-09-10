@@ -11,6 +11,7 @@ package chip_env_pkg;
   import ast_pkg::AstRegsNum, ast_pkg::AstLastRegOffset;
   import bus_params_pkg::*;
   import chip_ral_pkg::*;
+  import chip_common_pkg::*;
   import cip_base_pkg::*;
   import csr_utils_pkg::*;
   import digestpp_dpi_pkg::*;
@@ -49,38 +50,16 @@ package chip_env_pkg;
   `include "dv_macros.svh"
   `include "chip_hier_macros.svh"
 
-  // include auto-generated alert related parameters
-  `include "autogen/chip_env_pkg__params.sv"
-
-  // local parameters and types
-  parameter uint NUM_GPIOS = 16;
-  parameter uint NUM_UARTS = 4;
-  parameter uint NUM_PWM_CHANNELS = pwm_reg_pkg::NOutputs;
-
-  // Buffer is half of SPI_DEVICE Dual Port SRAM
-  parameter uint SPI_FRAME_BYTE_SIZE = spi_device_reg_pkg::SPI_DEVICE_BUFFER_SIZE/2;
-
-  // SW constants - use unmapped address space with at least 32 bytes.
-
-  parameter bit [TL_AW-1:0] SW_DV_START_ADDR        = ADDR_SPACE_RV_CORE_IBEX__CFG +
-                                                      RV_CORE_IBEX_DV_SIM_WINDOW_OFFSET;
-  parameter bit [TL_AW-1:0] SW_DV_TEST_STATUS_ADDR  = SW_DV_START_ADDR + 0;
-  parameter bit [TL_AW-1:0] SW_DV_LOG_ADDR          = SW_DV_START_ADDR + 4;
-
   // LC token paramters
   // LC sends two 64-bit msg as input token.
   localparam uint TokenWidthBit  = kmac_pkg::MsgWidth * 2;
   localparam uint TokenWidthByte = TokenWidthBit / 8;
 
-  typedef virtual pins_if #(NUM_GPIOS) gpio_vif;
   typedef virtual sw_logger_if         sw_logger_vif;
   typedef virtual sw_test_status_if    sw_test_status_vif;
-  typedef virtual alerts_if            alerts_vif;
   typedef virtual ast_supply_if        ast_supply_vif;
   typedef virtual ast_ext_clk_if       ast_ext_clk_vif;
 
-  // Types of memories in the chip.
-  //
   typedef enum {
     // external clock is still on, but the source of all IP clocks is the internal clock
     UseInternalClk,
@@ -90,6 +69,8 @@ package chip_env_pkg;
     ExtClkHighSpeed
   } ext_clk_type_e;
 
+  // Types of memories in the chip.
+  //
   // RAM instances have support for up to 16 tiles. Actual number of tiles in use in the design is a
   // runtime setting in chip_env_cfg.
   typedef enum {
