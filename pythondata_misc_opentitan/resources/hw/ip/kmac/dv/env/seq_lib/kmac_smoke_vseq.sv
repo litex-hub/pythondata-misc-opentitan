@@ -48,7 +48,6 @@ class kmac_smoke_vseq extends kmac_base_vseq;
   }
 
   constraint disable_err_c {
-    en_kmac_err == 0;
     kmac_err_type == kmac_pkg::ErrNone;
   }
 
@@ -61,7 +60,7 @@ class kmac_smoke_vseq extends kmac_base_vseq;
   }
 
   constraint en_sideload_c {
-    en_sideload == 0;
+    reg_en_sideload == 0;
   }
 
   constraint entropy_ready_c {
@@ -112,7 +111,7 @@ class kmac_smoke_vseq extends kmac_base_vseq;
 
       `DV_CHECK_RANDOMIZE_FATAL(this)
 
-      kmac_init(.keymgr_app_intf(en_app && (app_mode == AppKeymgr)));
+      kmac_init(.keymgr_app_intf(is_keymgr_app()));
       `uvm_info(`gfn, "kmac_init done", UVM_HIGH)
 
       read_regwen_and_rand_write_locked_regs();
@@ -132,15 +131,16 @@ class kmac_smoke_vseq extends kmac_base_vseq;
 
       set_prefix();
 
+      // provide a random sideloaded key
+      if (require_sideload_key()) begin
+        `uvm_create_on(sideload_seq, p_sequencer.key_sideload_sequencer_h);
+        `DV_CHECK_RANDOMIZE_WITH_FATAL(sideload_seq,
+                                       sideload_key.valid ==
+                                       (kmac_err_type != kmac_pkg::ErrKeyNotValid);)
+        `uvm_send(sideload_seq)
+      end
+
       if (kmac_en) begin
-        // provide a random sideloaded key
-        if (en_sideload || provide_sideload_key) begin
-          `uvm_create_on(sideload_seq, p_sequencer.key_sideload_sequencer_h);
-          `DV_CHECK_RANDOMIZE_WITH_FATAL(sideload_seq,
-                                         sideload_key.valid ==
-                                         (kmac_err_type != kmac_pkg::ErrKeyNotValid);)
-          `uvm_send(sideload_seq)
-        end
         // write the SW key to the CSRs
         if (!en_app) begin
           write_key_shares();
@@ -169,6 +169,7 @@ class kmac_smoke_vseq extends kmac_base_vseq;
           `uvm_info(`gfn, "starting kmac_app requests", UVM_HIGH)
           begin : send_kmac_req
             send_kmac_app_req(app_mode);
+            wait_no_outstanding_access();
             disable invalid_msgfifo_wr;
             disable sw_cmd_in_app;
             disable check_invalid_key_err;
@@ -232,6 +233,9 @@ class kmac_smoke_vseq extends kmac_base_vseq;
             check_err();
             csr_utils_pkg::wait_no_outstanding_access();
           end
+
+          // If no error, wait a few cycles until Idle status is reflected to the status register.
+          cfg.clk_rst_vif.wait_clks($urandom_range(5, 10));
         end
       end else begin
         // normal hashing operation
@@ -277,7 +281,11 @@ class kmac_smoke_vseq extends kmac_base_vseq;
 
         // issue Process cmd
         issue_cmd(CmdProcess);
-        read_regwen_and_rand_write_locked_regs();
+
+        if (kmac_err_type == kmac_pkg::ErrUnexpectedModeStrength &&
+            en_unsupported_modestrength == 0) begin
+          continue;
+        end
 
         wait_for_kmac_done();
         kmac_done = 1;
@@ -319,7 +327,7 @@ class kmac_smoke_vseq extends kmac_base_vseq;
       end
 
       // Drop the sideloaded key if it was provided to the DUT.
-      if (kmac_en && (en_sideload || provide_sideload_key)) begin
+      if (require_sideload_key()) begin
         `uvm_info(`gfn, "dropping sideload key", UVM_HIGH)
         `DV_CHECK_RANDOMIZE_WITH_FATAL(sideload_seq,
                                        sideload_key.valid == 0;)
@@ -330,4 +338,13 @@ class kmac_smoke_vseq extends kmac_base_vseq;
 
   endtask : body
 
+  virtual function bit require_sideload_key();
+    return kmac_en && (reg_en_sideload || provide_sideload_key || is_keymgr_app());
+  endfunction
+
+  // If application interface is enabled and selected to AppKeymgr, then it is a keymgr app
+  // interface request.
+  virtual function bit is_keymgr_app();
+    return en_app && (app_mode == AppKeymgr);
+  endfunction
 endclass : kmac_smoke_vseq

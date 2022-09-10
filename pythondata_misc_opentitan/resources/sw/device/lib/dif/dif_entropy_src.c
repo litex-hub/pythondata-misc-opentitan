@@ -14,12 +14,46 @@
 
 #include "entropy_src_regs.h"  // Generated.
 
+dif_result_t dif_entropy_src_stop(const dif_entropy_src_t *entropy_src) {
+  if (entropy_src == NULL) {
+    return kDifBadArg;
+  }
+
+  mmio_region_write32(entropy_src->base_addr,
+                      ENTROPY_SRC_MODULE_ENABLE_REG_OFFSET,
+                      ENTROPY_SRC_MODULE_ENABLE_REG_RESVAL);
+
+  // once disabled, the entropy_src regwen is released
+  if (!mmio_region_read32(entropy_src->base_addr,
+                          ENTROPY_SRC_REGWEN_REG_OFFSET)) {
+    return kDifLocked;
+  }
+
+  // set back to default value
+  mmio_region_write32(entropy_src->base_addr,
+                      ENTROPY_SRC_ENTROPY_CONTROL_REG_OFFSET,
+                      ENTROPY_SRC_ENTROPY_CONTROL_REG_RESVAL);
+
+  mmio_region_write32(entropy_src->base_addr, ENTROPY_SRC_CONF_REG_OFFSET,
+                      ENTROPY_SRC_CONF_REG_RESVAL);
+
+  mmio_region_write32(entropy_src->base_addr,
+                      ENTROPY_SRC_HEALTH_TEST_WINDOWS_REG_OFFSET,
+                      ENTROPY_SRC_HEALTH_TEST_WINDOWS_REG_RESVAL);
+
+  mmio_region_write32(entropy_src->base_addr,
+                      ENTROPY_SRC_ALERT_THRESHOLD_REG_OFFSET,
+                      ENTROPY_SRC_ALERT_THRESHOLD_REG_RESVAL);
+
+  return kDifOk;
+}
+
 dif_result_t dif_entropy_src_configure(const dif_entropy_src_t *entropy_src,
                                        dif_entropy_src_config_t config,
                                        dif_toggle_t enabled) {
   if (entropy_src == NULL ||
       config.single_bit_mode > kDifEntropySrcSingleBitModeDisabled ||
-      !dif_is_valid_toggle(enabled)) {
+      !dif_is_valid_toggle(enabled) || config.health_test_window_size == 0) {
     return kDifBadArg;
   }
 
@@ -482,7 +516,8 @@ dif_result_t dif_entropy_src_observe_fifo_blocking_read(
 }
 
 dif_result_t dif_entropy_src_observe_fifo_write(
-    const dif_entropy_src_t *entropy_src, const uint32_t *buf, size_t len) {
+    const dif_entropy_src_t *entropy_src, const uint32_t *buf, size_t len,
+    size_t *written) {
   if (entropy_src == NULL || buf == NULL) {
     return kDifBadArg;
   }
@@ -499,17 +534,23 @@ dif_result_t dif_entropy_src_observe_fifo_write(
     return kDifError;
   }
 
-  // Check if the FIFO is full.
-  if (mmio_region_read32(entropy_src->base_addr,
-                         ENTROPY_SRC_FW_OV_WR_FIFO_FULL_REG_OFFSET)) {
-    return kDifIpFifoFull;
-  }
-
+  // Check if the FIFO is full before writing each word.
   for (size_t i = 0; i < len; ++i) {
+    if (mmio_region_read32(entropy_src->base_addr,
+                           ENTROPY_SRC_FW_OV_WR_FIFO_FULL_REG_OFFSET)) {
+      if (written) {
+        *written = i;
+      }
+      return kDifIpFifoFull;
+    }
+
     mmio_region_write32(entropy_src->base_addr,
                         ENTROPY_SRC_FW_OV_WR_DATA_REG_OFFSET, buf[i]);
   }
 
+  if (written) {
+    *written = len;
+  }
   return kDifOk;
 }
 
@@ -538,6 +579,14 @@ dif_result_t dif_entropy_src_conditioner_stop(
   if (entropy_src == NULL) {
     return kDifBadArg;
   }
+
+  // Check the FW_OV_WR_FIFO_FULL register to determine in any data is
+  // stalling at the input of the SHA3 conditioner.
+  if (mmio_region_read32(entropy_src->base_addr,
+                         ENTROPY_SRC_FW_OV_WR_FIFO_FULL_REG_OFFSET)) {
+    return kDifIpFifoFull;
+  }
+
   mmio_region_write32(entropy_src->base_addr,
                       ENTROPY_SRC_FW_OV_SHA3_START_REG_OFFSET,
                       kMultiBitBool4False);

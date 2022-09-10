@@ -55,19 +55,35 @@ if (foo) {
   do_something();
 }
 ```
+### Infinite loops
+
+Prefer `while(true){}` infinite loops rather than `for(;;)`
 
 ### Comments
 
-***Comments should be `// C99-style` for consistency with C++.***
+Comments should use the `// C99-style` for consistency with C++.
 
 <!-- To render a backtick in inline code in markdown, you need to double the surrounding backticks.
 https://daringfireball.net/projects/markdown/syntax#code -->
-***Variables mentioned in comments should be delimited with backtick (`` ` ``) characters.***
-
+Variables mentioned in comments should be delimited with backtick (`` ` ``) characters.
 Example:
 
 ```c
 // `ptr` can never be NULL for reasons.
+```
+Documentation comments should start with `/*` and non-doc comments should start with `//`.
+Example:
+
+```c
+/**
+ * This function sorts an int array very quickly.
+ */
+void sort(int array[], size_t size){
+  // Loop through the array moving higher numbers to the end.
+  for (size_t i = 0; i < size; ++i>){
+    ...
+  }
+}
 ```
 
 Note also [Public function (API) documentation](#public-function-api-documentation) below.
@@ -138,10 +154,10 @@ You must not dereference a symbol that has non-address value.
 
 ### Public function (API) documentation
 
-***It is recommended to document public functions, classes, methods, and data structures in the header file with a Doxygen-style comment.***
+***It is recommended to document public functions, classes, Methods, and data structures in the header file with a Doxygen-style comment.***
 
 The first line of the comment is the summary, followed by a new line, and an optional longer description.
-Input arguments and return arguments can be documented with `@param` and `@return` if they are not self-explanatory from the name.
+Input arguments and return arguments should be documented with `@param` and `@return` if they are not self-explanatory from the name. Output arguments should be documented with `@param[out]`.
 
 The documentation tool will also render markdown within descriptions, so backticks should be used to get monospaced text.
 It can also generate references to other named declarations using `#other_function` (for C-style declarations), or `ns::foo` (for C++ declarations).
@@ -159,9 +175,10 @@ Example:
  *
  * @param pots_of_gold Number of gold pots to place next to the rainbow
  * @param unicorns Number of unicorns to position on the rainbow
+ * @param[out] expiration_time Pointer to receive the time the rainbow will last in seconds.
  * @return 0 if the function was successful, -1 otherwise
  */
-int create_rainbow(int pots_of_gold, int unicorns);
+int create_rainbow(int pots_of_gold, int unicorns, int *expiration_time);
 ```
 
 ### Polyglot headers
@@ -176,7 +193,7 @@ For example:
 - Some libc macros, like `static_assert`, may not be present in C++.
 - Character literals type as `char` in C++ but `int` in C.
 
-Such files must be explictly marked with `extern` guards like the following, starting after the file's `#include`s.
+Such files must be explicitly marked with `extern` guards like the following, starting after the file's `#include`s.
 ```
 #ifdef __cplusplus
 extern "C" {
@@ -245,7 +262,7 @@ This feature is fairly mature in both compilers, though it varies from the C11 v
   - It can only be used with structs and unions, not arrays.
   - Members must be initialized in declaration order.
 
-Because it is especially useful with types declared for C, we allow designatued initializers whenever the type is a plain-old-data type, and:
+As it is especially useful with types declared for C, we allow designated initializers whenever the type is a plain-old-data type, and:
   - All members are public.
   - It has no non-trivial constructors.
   - It has no `virtual` members.
@@ -254,10 +271,42 @@ Furthermore, designated initializers do not play well with type deduction and ov
 As such, they are forbidden in the following contexts:
 - Do not call overloaded functions with a designated initializer: `overloaded({ .foo = 0 })`.
   Instead, disambiguate with syntax like `T var = { .foo = 0 }; overloaded(var);`.
-- Do not use designated initializers in any place where they would be used for type defuction.
+- Do not use designated initializers in any place where they would be used for type deduction.
   This includes `auto`, such as `auto var = { .foo = 0 };`, and a templated argument in a template function.
 
 It is recommended to only use designated initializers with types which use C-style declarations.
+
+### Naming
+**Structs, Classes and Methods**
+As stated by the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html#Type_Names), the names of Structs, Classes and Methods must be in `CamelCase` format.
+
+**Variable and Class Members Naming**
+As stated by the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html#Variable_Names), the names of variables (including function parameters) and data members must be in `lower_snake_case` format. Data members of Classes (but not Structs) additionally have trailing underscores, unless the variable represents a constant that should follow the [rule](#function-enum-struct-and-typedef-naming).
+
+For example:
+```cpp
+// in animal.cpp
+public Class AnimalInfo{
+  ...
+private:
+  uint32_t number_of_paws_;
+  std::string name_;
+public:
+  static constexpr uint32_t kMaxNumOfPaws=100;
+
+  void SetAnimalName(std::string new_name);
+};
+```
+
+### Features
+
+Avoid using `C-style` features in C++ code, here are some examples:
+- Use `C++-style` casting (`static_cast`, `reinterpret_cast`, etc) rather than `C-style` casting.
+- Use the `constexpr` keyword to define constants rather than `const`.
+- Use the `nullptr` keyword rather than `NULL`.
+- Use `std::endl` rather than `'\n'`.
+- Use `new` and `delete` rather than `malloc()` and `free()`.
+- Use smart pointers rather than pointers. Refer to [Ownership and Smart Pointers](https://google.github.io/styleguide/cppguide.html#Ownership_and_Smart_Pointers) for more details.
 
 ## C Style Guide
 
@@ -314,14 +363,39 @@ typedef enum my_wonderful_option {
 
 ### C-specific Keywords
 
-C11 introduces a number of undescore-prefixed keywords, such as `_Static_assert`, `_Bool`, and `_Noreturn`, which do not have a C++ counterpart.
+C11 introduces a number of underscore-prefixed keywords, such as `_Static_assert`, `_Bool`, and `_Noreturn`, which do not have a C++ counterpart.
 These should be avoided in preference for macros that wrap them, such as `static_assert`, `bool`, and `noreturn`.
 
-### Preprocessor Macros
+### Constants and Preprocessor Macros
+**Constants**
+  Prefer using a `enum` to define named constants rather than Preprocessor Macros or even `const int` in `C` because:
+  - It appears in the symbol table which improves debugging in contrast to Macros.
+  - It can be used as `case` labels in a `switch` statement in contrast to `const int`.
+  - It can be used as the dimension of global arrays in contrast to `const int`.
+  - It doesn't use any memory as well as Macros.
 
+  Note that, if the constant will be used in assembly code, then Preprocessor macros would be the best choice.
+
+**Macros**
 Macros are often necessary and reasonable coding practice C (as opposed to C++) projects.
 In contrast to the recommendation in the Google C++ style guide, exporting macros as part of the public API is allowed in C code.
 A typical use case is a header with register definitions.
+
+**Function-like Macros**
+Function-like macros should be avoided whenever possible since they are error-prone. Where they are necessary, they should be hygienic. Here are some useful tips:
+- Expand the macro arguments between brackets `()` as the caller could use an expression as an argument.
+- Variables local to the macro must be named with a trailing underscore `_`.
+- Wrap up multiline macros inside a block `do { ... } while (false)` to make them expand to a single statement.
+    For example:
+    ```c
+    #define CHECK(condition, ...)                      \
+    do {                                               \
+      if (!(condition)) {                              \
+        ...                                            \
+      }                                                \
+    } while (false)
+    ```
+- Don't finish macros with a semicolon `;` to force the caller to include it.
 
 ### Aggregate Initialization
 
@@ -333,13 +407,13 @@ int arr[5] = { [3] = 0xff, [4] = 0x1b };
 ```
 With judicious use, designated initializers can make code more readable and robust; struct field reordering will not affect downstream users, and weak typing will not lead to surprising union initialization.
 
-When initializing a struct or union, initializers within *must* be designated; array-style initialization (or mixing designated and undesignated initializers) is forbidden.
+When initializing a struct or union, initializers within *must* be designated; array-style initialization (or mixing designated and non-designated initializers) is forbidden.
 
 Furthermore, the nested forms of designated initialization are forbidden (e.g., `.x.y = foo` and `.x[0] = bar`), to discourage initialization of deeply nested structures with flat syntax.
 This may change if we find cases where this initialization improves readability.
 
 When initializing an array, initializers *may* be designated when that makes the array more readable (e.g., lookup tables that are mostly zeroed).
-Mixing designated and undesignated initializers, or using nested initializers, is still forbidden.
+Mixing designated and non-designated initializers, or using nested initializers, is still forbidden.
 
 ### Function Declarations
 
@@ -413,8 +487,8 @@ __attribute__((section(".crt"))) void _crt(void);
 
 ### Nonstandard Compiler Builtins
 
-In order to avoid a total reliance on one single compiler, any nonstandard compiler builtins (also known as intrinsics) should be used via a single canonical definition.
-This ensures changes to add compatibilty for other compilers are less invasive, as we already have a function to include a full implementation within.
+In order to avoid a total reliance on a single compiler, any nonstandard compiler builtins (also known as intrinsics) should be used via a single canonical definition.
+This ensures changes that add compatibility for other compilers are less invasive, as we already have a function that includes a full implementation.
 
 All nonstandard builtins should be supported by both GCC and Clang.
 Compiler builtin usage is complex, and it is recommended that a compiler engineer reviews any code that adds new builtins.

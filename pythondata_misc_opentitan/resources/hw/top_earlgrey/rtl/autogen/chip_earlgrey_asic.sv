@@ -9,7 +9,9 @@
 //                -o hw/top_earlgrey/ \
 //                --rnd_cnst_seed 4881560218908238235
 
-module chip_earlgrey_asic (
+module chip_earlgrey_asic #(
+  parameter bit SecRomCtrlDisableScrambling = 1'b0
+) (
   // Dedicated Pads
   inout POR_N, // Manual Pad
   inout USB_P, // Manual Pad
@@ -707,9 +709,6 @@ module chip_earlgrey_asic (
   otp_ctrl_pkg::otp_ast_req_t otp_ctrl_otp_ast_pwr_seq;
   otp_ctrl_pkg::otp_ast_rsp_t otp_ctrl_otp_ast_pwr_seq_h;
 
-  // otp alert
-  ast_pkg::ast_dif_t otp_alert;
-
   logic usb_ref_pulse;
   logic usb_ref_val;
 
@@ -735,7 +734,6 @@ module chip_earlgrey_asic (
   prim_mubi_pkg::mubi4_t flash_bist_enable;
   logic flash_power_down_h;
   logic flash_power_ready_h;
-  ast_pkg::ast_dif_t flash_alert;
 
   // clock bypass req/ack
   prim_mubi_pkg::mubi4_t io_clk_byp_req;
@@ -815,8 +813,11 @@ module chip_earlgrey_asic (
   //////////////////////////////////
 
 
-
   assign ast_base_pwr.main_pok = ast_pwst.main_pok;
+
+  logic [rstmgr_pkg::PowerDomains-1:0] por_n;
+  assign por_n = {ast_pwst.main_pok, ast_pwst.aon_pok};
+
 
   logic [ast_pkg::UsbCalibWidth-1:0] usb_io_pu_cal;
 
@@ -840,9 +841,11 @@ module chip_earlgrey_asic (
 
   logic unused_pwr_clamp;
   assign unused_pwr_clamp = base_ast_pwr.pwr_clamp;
-  logic ast_init_done;
+
   logic usb_diff_rx_obs;
 
+
+  prim_mubi_pkg::mubi4_t ast_init_done;
 
   ast #(
     .EntropyStreams(ast_pkg::EntropyStreams),
@@ -880,7 +883,7 @@ module chip_earlgrey_asic (
     .clk_ast_alert_i (clkmgr_aon_clocks.clk_io_div4_secure),
     .clk_ast_es_i (clkmgr_aon_clocks.clk_main_secure),
     .clk_ast_rng_i (clkmgr_aon_clocks.clk_main_secure),
-    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_secure),
+    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_peri),
     .rst_ast_tlul_ni (rstmgr_aon_resets.rst_sys_io_div4_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_adc_ni (rstmgr_aon_resets.rst_sys_aon_n[rstmgr_pkg::DomainAonSel]),
     .rst_ast_alert_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
@@ -940,8 +943,6 @@ module chip_earlgrey_asic (
     .entropy_rsp_i         ( ast_edn_edn_rsp ),
     .entropy_req_o         ( ast_edn_edn_req ),
     // alerts
-    .fla_alert_src_i       ( flash_alert    ),
-    .otp_alert_src_i       ( otp_alert      ),
     .alert_rsp_i           ( ast_alert_rsp  ),
     .alert_req_o           ( ast_alert_req  ),
     // dft
@@ -1067,11 +1068,9 @@ module chip_earlgrey_asic (
   //////////////////////
   // Top-level design //
   //////////////////////
-
-  logic [rstmgr_pkg::PowerDomains-1:0] por_n;
-  assign por_n = {ast_pwst.main_pok, ast_pwst.aon_pok};
   top_earlgrey #(
-    .PinmuxAonTargetCfg(PinmuxTargetCfg)
+    .PinmuxAonTargetCfg(PinmuxTargetCfg),
+    .SecRomCtrlDisableScrambling(SecRomCtrlDisableScrambling)
   ) top_earlgrey (
     // ast connections
     .por_n_i                      ( por_n                      ),
@@ -1106,12 +1105,10 @@ module chip_earlgrey_asic (
     .obs_ctrl_i                   ( obs_ctrl                   ),
     .otp_ctrl_otp_ast_pwr_seq_o   ( otp_ctrl_otp_ast_pwr_seq   ),
     .otp_ctrl_otp_ast_pwr_seq_h_i ( otp_ctrl_otp_ast_pwr_seq_h ),
-    .otp_alert_o                  ( otp_alert                  ),
     .otp_obs_o                    ( otp_obs                    ),
     .flash_bist_enable_i          ( flash_bist_enable          ),
     .flash_power_down_h_i         ( flash_power_down_h         ),
     .flash_power_ready_h_i        ( flash_power_ready_h        ),
-    .flash_alert_o                ( flash_alert                ),
     .flash_obs_o                  ( fla_obs                    ),
     .es_rng_req_o                 ( es_rng_req                 ),
     .es_rng_rsp_i                 ( es_rng_rsp                 ),

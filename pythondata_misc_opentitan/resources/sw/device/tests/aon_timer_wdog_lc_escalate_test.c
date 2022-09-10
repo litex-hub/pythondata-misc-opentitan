@@ -15,7 +15,7 @@
 #include "sw/device/lib/dif/dif_rstmgr.h"
 #include "sw/device/lib/dif/dif_rv_plic.h"
 #include "sw/device/lib/dif/dif_rv_timer.h"
-#include "sw/device/lib/irq.h"
+#include "sw/device/lib/runtime/irq.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/alert_handler_testutils.h"
 #include "sw/device/lib/testing/aon_timer_testutils.h"
@@ -32,7 +32,7 @@ OTTF_DEFINE_TEST_CONFIG();
 /**
  * Program the alert handler to escalate on alerts upto phase 2 (i.e. reset) but
  * the phase 1 (i.e. wipe secrets) should occur and last during the time the
- * wdog is programed to bark.
+ * wdog is programmed to bark.
  */
 enum {
   kWdogBarkMicros = 3 * 100,          // 300 us

@@ -19,9 +19,12 @@ filesets:
       - flash_ctrl_eflash_ral_pkg.sv
       - flash_ctrl_env_pkg.sv
       - flash_ctrl_if.sv
+      - flash_ctrl_mem_if.sv
       - flash_mem_bkdr_util.sv: {is_include_file: true}
       - flash_mem_addr_attrs.sv: {is_include_file: true}
       - flash_otf_item.sv: {is_include_file: true}
+      - flash_otf_read_entry.sv: {is_include_file: true}
+      - flash_otf_mem_entry.sv: {is_include_file: true}
       - flash_ctrl_seq_cfg.sv: {is_include_file: true}
       - flash_ctrl_env_cfg.sv: {is_include_file: true}
       - flash_ctrl_env_cov.sv: {is_include_file: true}
@@ -66,6 +69,17 @@ filesets:
       - seq_lib/flash_ctrl_serr_counter_vseq.sv: {is_include_file: true}
       - seq_lib/flash_ctrl_serr_address_vseq.sv: {is_include_file: true}
       - seq_lib/flash_ctrl_derr_detect_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_hw_rma_reset_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_otp_reset_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_intr_rd_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_intr_wr_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_prog_reset_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_legacy_base_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_rw_evict_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_re_evict_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_oversize_error_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_connect_vseq.sv: {is_include_file: true}
+      - seq_lib/flash_ctrl_disable_vseq.sv: {is_include_file: true}
     file_type: systemVerilogSource
 
 generate:

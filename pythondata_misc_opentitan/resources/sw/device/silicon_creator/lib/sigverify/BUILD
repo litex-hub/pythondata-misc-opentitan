@@ -6,20 +6,17 @@ load("//rules:opentitan.bzl", "OPENTITAN_CPU")
 load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library", "dual_inputs")
 load(
     "//rules:opentitan_test.bzl",
+    "cw310_params",
     "opentitan_functest",
     "verilator_params",
 )
+load("//rules:otbn.bzl", "otbn_insn_count_range")
 
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
     name = "rsa_key",
     hdrs = ["rsa_key.h"],
-)
-
-cc_library(
-    name = "testvectors",
-    hdrs = ["sigverify_tests/sigverify_testvectors.h"],
 )
 
 dual_cc_library(
@@ -39,7 +36,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -59,7 +56,7 @@ cc_test(
 )
 
 opentitan_functest(
-    name = "mod_exp_ibex_functest",
+    name = "mod_exp_ibex_functest_hardcoded",
     srcs = ["mod_exp_ibex_functest.c"],
     verilator = verilator_params(
         timeout = "long",
@@ -69,10 +66,26 @@ opentitan_functest(
     ),
     deps = [
         ":mod_exp_ibex",
-        ":testvectors",
         "//sw/device/lib/testing/test_framework:ottf_main",
         "//sw/device/silicon_creator/lib:test_main",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_hardcoded",
+    ],
+)
+
+opentitan_functest(
+    name = "mod_exp_ibex_functest_wycheproof",
+    srcs = ["mod_exp_ibex_functest.c"],
+    cw310 = cw310_params(
+        timeout = "long",
+    ),
+    targets = ["cw310"],  # Test set is too large to run in simulation
+    deps = [
+        ":mod_exp_ibex",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/silicon_creator/lib:test_main",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_wycheproof",
     ],
 )
 
@@ -101,7 +114,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -112,7 +125,7 @@ dual_cc_library(
 )
 
 opentitan_functest(
-    name = "mod_exp_otbn_functest",
+    name = "mod_exp_otbn_functest_hardcoded",
     srcs = ["mod_exp_otbn_functest.c"],
     verilator = verilator_params(
         timeout = "long",
@@ -122,10 +135,52 @@ opentitan_functest(
     ),
     deps = [
         ":mod_exp_otbn",
-        ":testvectors",
         "//sw/device/lib/testing/test_framework:ottf_main",
         "//sw/device/silicon_creator/lib:test_main",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_hardcoded",
+    ],
+)
+
+opentitan_functest(
+    name = "mod_exp_otbn_functest_wycheproof",
+    srcs = ["mod_exp_otbn_functest.c"],
+    verilator = verilator_params(
+        timeout = "long",
+        tags = [
+            "manual",
+        ],
+    ),
+    deps = [
+        ":mod_exp_otbn",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/silicon_creator/lib:test_main",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_wycheproof",
+    ],
+)
+
+# This rule runs the instruction-counting script for OTBN and gets the expected
+# min/max instruction counts.
+otbn_insn_count_range(
+    name = "mod_exp_otbn_insn_count_range",
+    deps = [
+        "//sw/otbn/crypto:run_rsa_verify_3072_rr_modexp",
+    ],
+)
+
+# Check the OTBN instruction count in mod_exp_otbn.h
+sh_test(
+    name = "mod_exp_otbn_insn_count_check",
+    size = "small",
+    srcs = ["mod_exp_otbn_insn_count_check.sh"],
+    args = [
+        "$(location :mod_exp_otbn_insn_count_range)",
+        "$(location mod_exp_otbn.h)",
+    ],
+    data = [
+        "mod_exp_otbn.h",
+        ":mod_exp_otbn_insn_count_range",
     ],
 )
 
@@ -164,7 +219,7 @@ cc_library(
 
 cc_library(
     name = "sigverify_without_mod_exp_ibex_mock",
-    visibility = ["//sw/device/silicon_creator/mask_rom:__pkg__"],
+    visibility = ["//sw/device/silicon_creator/rom:__pkg__"],
     deps = [
         dual_cc_device_library_of(":mod_exp_ibex"),
         ":mod_exp_otbn",
@@ -178,7 +233,7 @@ cc_test(
     deps = [
         ":sigverify",
         "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -201,7 +256,7 @@ opentitan_functest(
 )
 
 opentitan_functest(
-    name = "sigverify_dynamic_functest",
+    name = "sigverify_dynamic_functest_hardcoded",
     srcs = ["sigverify_dynamic_functest.c"],
     verilator = verilator_params(
         timeout = "long",
@@ -211,9 +266,25 @@ opentitan_functest(
     ),
     deps = [
         ":sigverify",
-        ":testvectors",
         "//sw/device/lib/testing/test_framework:ottf_main",
         "//sw/device/silicon_creator/lib:test_main",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_hardcoded",
+    ],
+)
+
+opentitan_functest(
+    name = "sigverify_dynamic_functest_wycheproof",
+    srcs = ["sigverify_dynamic_functest.c"],
+    cw310 = cw310_params(
+        timeout = "long",
+    ),
+    targets = ["cw310"],  # Test set is too large to run in simulation
+    deps = [
+        ":sigverify",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/silicon_creator/lib:test_main",
+        "//sw/device/silicon_creator/lib/base:sec_mmio",
+        "//sw/device/silicon_creator/lib/sigverify/sigverify_tests:sigverify_testvectors_wycheproof",
     ],
 )

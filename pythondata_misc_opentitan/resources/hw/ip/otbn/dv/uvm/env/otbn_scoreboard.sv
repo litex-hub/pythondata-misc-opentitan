@@ -206,6 +206,16 @@ class otbn_scoreboard extends cip_base_scoreboard #(
             expect_alert("recov");
           end
         end
+        "ctrl": begin
+          // Let model know that CTRL register has changed. This is not ideal since scoreboard
+          // ideally supposed be a passive component. Although we are still not affecting DUT in
+          // any way while doing this and an alternative way would include catching this register
+          // write in testbench level and sending a signal to otbn_core_model, which is not ideal
+          // as well.
+          if (item.is_write) begin
+            cfg.model_agent_cfg.vif.set_software_errs_fatal(item.a_data[0]);
+          end
+        end
         default: begin
           // No other special behaviour for writes
         end
@@ -472,7 +482,9 @@ class otbn_scoreboard extends cip_base_scoreboard #(
     num_alert_wait_counters--;
 
     if (cfg.under_reset) begin
-      // If we're in reset, exit immediately. No need to check anything or update any state
+      // If we're in reset, exit immediately. No need to check anything or update any state, except
+      // that we have not seen a recoverable alert since the last reset.
+      recov_alert_seen = 1'b0;
       return;
     end
 
@@ -621,8 +633,9 @@ class otbn_scoreboard extends cip_base_scoreboard #(
   endfunction
 
   virtual function void mem_compare(string ral_name, uvm_reg_addr_t addr, tl_seq_item item);
-    // We can only compare the contents inside memories when the OTBN is not operating
-    if (model_status == otbn_pkg::StatusIdle) begin
+    // We can only compare the contents inside memories when the OTBN is not busy executing
+    // or wiping the memories
+    if (model_status inside {otbn_pkg::StatusIdle, otbn_pkg::StatusBusySecWipeInt}) begin
       super.mem_compare(ral_name, addr, item);
     // Otherwise the contents will read out as zeros so compare expected memory with zero.
     end else begin

@@ -63,7 +63,7 @@ enum {
 
 /**
  * Software binding value associated with the ROM_EXT. Programmed by
- * mask ROM.
+ * ROM.
  */
 const keymgr_binding_value_t kBindingValueRomExt = {
     .data = {0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2, 0xb8a8379d,
@@ -119,13 +119,13 @@ static void write_info_page(dif_flash_ctrl_state_t *flash, uint32_t page_id,
       flash, page_id, kFlashInfoBankId, kFlashInfoPartitionId);
 
   CHECK(flash_ctrl_testutils_erase_and_write_page(
-            flash, address, kFlashInfoPartitionId, data,
-            kDifFlashCtrlPartitionTypeInfo, kSecretWordSize) == 0);
+      flash, address, kFlashInfoPartitionId, data,
+      kDifFlashCtrlPartitionTypeInfo, kSecretWordSize));
 
   uint32_t readback_data[kSecretWordSize];
   CHECK(flash_ctrl_testutils_read(flash, address, kFlashInfoPartitionId,
                                   readback_data, kDifFlashCtrlPartitionTypeInfo,
-                                  kSecretWordSize, 0) == 0);
+                                  kSecretWordSize, 0));
   CHECK_ARRAYS_EQ(data, readback_data, kSecretWordSize);
 }
 
@@ -156,10 +156,6 @@ static void init_kmac_for_keymgr(void) {
       .msg_mask = true,
   };
   CHECK_DIF_OK(dif_kmac_configure(&kmac, config));
-  for (size_t i = 0; i < kKmacPrefixSize; ++i) {
-    mmio_region_write32(mmio_region_from_addr(TOP_EARLGREY_KMAC_BASE_ADDR),
-                        KMAC_PREFIX_0_REG_OFFSET + i * 4, kKmacPrefix[i]);
-  }
 }
 
 static void check_lock_otp_partition(const dif_otp_ctrl_t *otp) {
@@ -177,7 +173,7 @@ static void check_lock_otp_partition(const dif_otp_ctrl_t *otp) {
   otp_ctrl_testutils_lock_partition(otp, kDifOtpCtrlPartitionSecret2, 0);
 }
 
-/** Key manager configuration steps performed in mask ROM. */
+/** Key manager configuration steps performed in ROM. */
 rom_error_t keymgr_rom_test(void) {
   ASSERT_OK(keymgr_state_check(kKeymgrStateReset));
   keymgr_sw_binding_set(&kBindingValueRomExt, &kBindingValueRomExt);

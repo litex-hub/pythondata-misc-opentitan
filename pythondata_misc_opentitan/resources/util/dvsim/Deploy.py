@@ -7,9 +7,12 @@ import pprint
 import random
 import shlex
 from pathlib import Path
+from typing import List
 
+from JobTime import JobTime
 from LauncherFactory import get_launcher
-from sim_utils import get_cov_summary_table
+from sim_utils import (get_cov_summary_table, get_job_runtime,
+                       get_simulated_time)
 from tabulate import tabulate
 from utils import (VERBOSE, clean_odirs, find_and_substitute_wildcards,
                    rm_path, subst_wildcards)
@@ -21,7 +24,7 @@ class Deploy():
     """
 
     # Indicate the target for each sub-class.
-    target = None
+    target = "none"
 
     # List of variable names that are to be treated as "list of commands".
     # This tells '_construct_cmd' that these vars are lists that need to
@@ -75,6 +78,9 @@ class Deploy():
 
         # Launcher instance created later using create_launcher() method.
         self.launcher = None
+
+        # Job's wall clock time (a.k.a CPU time, or runtime).
+        self.job_runtime = JobTime()
 
     def _define_attrs(self):
         """Defines the attributes this instance needs to have.
@@ -281,7 +287,30 @@ class Deploy():
 
     def get_timeout_mins(self):
         """Returns the timeout in minutes."""
-        return 0
+        return None
+
+    def extract_info_from_log(self, log_text: List):
+        """Extracts information pertaining to the job from its log.
+
+        This method parses the log text after the job has completed, for the
+        extraction of information pertaining to the job's performance. This
+        base class method extracts the job's runtime (i.e. the wall clock time)
+        as reported by the tool. The tool reported runtime is the most accurate
+        since it is devoid of the delays incurred due to infrastructure and
+        setup overhead.
+
+        The extended classes may override this method to extract other pieces
+        of information from the log.
+
+        `log_text` is the job's log file contents as a list of lines.
+        """
+        try:
+            time, unit = get_job_runtime(log_text, self.sim_cfg.tool)
+            self.job_runtime.set(time, unit)
+        except RuntimeError as e:
+            log.warning(f"{self.full_name}: {e} Using dvsim-maintained "
+                        "job_runtime instead.")
+            self.job_runtime.set(self.launcher.job_runtime_secs, "s")
 
     def create_launcher(self):
         """Creates the launcher instance.
@@ -349,8 +378,8 @@ class CompileSim(Deploy):
         if self.sim_cfg.args.build_timeout_mins is not None:
             self.build_timeout_mins = self.sim_cfg.args.build_timeout_mins
         if self.build_timeout_mins:
-            log.log(VERBOSE, "Compile timeout for job \"%s\" is %d minutes",
-                    self.name, self.build_timeout_mins)
+            log.debug("Timeout for job \"%s\" is %d minutes.",
+                      self.name, self.build_timeout_mins)
 
     def pre_launch(self):
         # Delete old coverage database directories before building again. We
@@ -358,8 +387,11 @@ class CompileSim(Deploy):
         rm_path(self.cov_db_dir)
 
     def get_timeout_mins(self):
-        """Returns the timeout in minutes."""
-        return self.build_timeout_mins
+        """Returns the timeout in minutes.
+
+        Limit build jobs to 60 minutes if the timeout is not set.
+        """
+        return self.build_timeout_mins if self.build_timeout_mins else 60
 
 
 class CompileOneShot(Deploy):
@@ -410,12 +442,15 @@ class CompileOneShot(Deploy):
         if self.sim_cfg.args.build_timeout_mins is not None:
             self.build_timeout_mins = self.sim_cfg.args.build_timeout_mins
         if self.build_timeout_mins:
-            log.log(VERBOSE, "Compile timeout for job \"%s\" is %d minutes",
-                    self.name, self.build_timeout_mins)
+            log.debug("Timeout for job \"%s\" is %d minutes.",
+                      self.name, self.build_timeout_mins)
 
     def get_timeout_mins(self):
-        """Returns the timeout in minutes."""
-        return self.build_timeout_mins
+        """Returns the timeout in minutes.
+
+        Limit build jobs to 60 minutes if the timeout is not set.
+        """
+        return self.build_timeout_mins if self.build_timeout_mins else 60
 
 
 class RunTest(Deploy):
@@ -431,6 +466,7 @@ class RunTest(Deploy):
         self.test_obj = test
         self.index = index
         self.seed = RunTest.get_seed()
+        self.simulated_time = JobTime()
         super().__init__(sim_cfg)
 
         if build_job is not None:
@@ -488,8 +524,8 @@ class RunTest(Deploy):
         if self.sim_cfg.args.run_timeout_mins is not None:
             self.run_timeout_mins = self.sim_cfg.args.run_timeout_mins
         if self.run_timeout_mins:
-            log.log(VERBOSE, "Run timeout for job \"%s\" is %d minutes",
-                    self.name, self.run_timeout_mins)
+            log.debug("Timeout for job \"%s\" is %d minutes.",
+                      self.full_name, self.run_timeout_mins)
 
     def pre_launch(self):
         self.launcher.renew_odir = True
@@ -513,8 +549,20 @@ class RunTest(Deploy):
         return RunTest.seeds.pop(0)
 
     def get_timeout_mins(self):
-        """Returns the timeout in minutes."""
-        return self.run_timeout_mins
+        """Returns the timeout in minutes.
+
+        Limit run jobs to 60 minutes if the timeout is not set.
+        """
+        return self.run_timeout_mins if self.run_timeout_mins else 60
+
+    def extract_info_from_log(self, log_text: List):
+        """Extracts the time the design was simulated for, from the log."""
+        super().extract_info_from_log(log_text)
+        try:
+            time, unit = get_simulated_time(log_text, self.sim_cfg.tool)
+            self.simulated_time.set(time, unit)
+        except RuntimeError as e:
+            log.debug(f"{self.full_name}: {e}")
 
 
 class CovUnr(Deploy):
@@ -566,11 +614,15 @@ class CovMerge(Deploy):
 
     def __init__(self, run_items, sim_cfg):
         # Construct the cov_db_dirs right away from the run_items. This is a
-        # special variable used in the HJson.
+        # special variable used in the HJson. The coverage associated with
+        # the primary build mode needs to be first in the list.
         self.cov_db_dirs = []
         for run in run_items:
             if run.cov_db_dir not in self.cov_db_dirs:
-                self.cov_db_dirs.append(run.cov_db_dir)
+                if sim_cfg.primary_build_mode == run.build_mode:
+                    self.cov_db_dirs.insert(0, run.cov_db_dir)
+                else:
+                    self.cov_db_dirs.append(run.cov_db_dir)
 
         # Early lookup the cov_merge_db_dir, which is a mandatory misc
         # attribute anyway. We need it to compute additional cov db dirs.

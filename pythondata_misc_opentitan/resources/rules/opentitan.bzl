@@ -2,6 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
+load("@rules_cc//cc:action_names.bzl", "ACTION_NAMES")
 load("@rules_cc//cc:find_cc_toolchain.bzl", "find_cc_toolchain")
 load(
     "@lowrisc_opentitan//rules:cc_side_outputs.bzl",
@@ -18,7 +19,7 @@ load(
     _opentitan_transition = "opentitan_transition",
 )
 
-"""Rules to build OpenTitan for the RiscV target"""
+"""Rules to build OpenTitan for the RISC-V target"""
 
 # Re-exports of names from transition.bzl; many files in the repo use opentitan.bzl
 # to get to them.
@@ -41,11 +42,21 @@ PER_DEVICE_DEPS = {
     "fpga_cw310": ["@//sw/device/lib/arch:fpga_cw310"],
 }
 
+# Default keys used to sign ROM_EXT and BL0 images for testing.
+DEFAULT_SIGNING_KEYS = {
+    "test_key_0": "@//sw/device/silicon_creator/rom/keys:test_private_key_0",
+}
+
 def _obj_transform_impl(ctx):
     cc_toolchain = find_cc_toolchain(ctx).cc
     outputs = []
     for src in ctx.files.srcs:
-        binary = ctx.actions.declare_file("{}.{}".format(src.basename, ctx.attr.suffix))
+        binary = ctx.actions.declare_file(
+            "{}.{}".format(
+                src.basename.replace("." + src.extension, ""),
+                ctx.attr.suffix,
+            ),
+        )
         outputs.append(binary)
         ctx.actions.run(
             outputs = [binary],
@@ -68,6 +79,151 @@ obj_transform = rv_rule(
         "format": attr.string(default = "binary"),
         "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
     },
+    toolchains = ["@rules_cc//cc:toolchain_type"],
+)
+
+# A provider for device-specific archive files that hold binaries of SRAM programs.
+ArchiveInfo = provider(fields = ["archive_infos"])
+
+def _bin_to_archive_impl(ctx):
+    cc_infos = []
+    cc_toolchain = find_cc_toolchain(ctx).cc
+    cc_info_dict = {}
+    num_devices = len(ctx.attr.devices)
+    num_binaries = len(ctx.attr.binaries)
+    if num_devices != num_binaries:
+        fail("Number of devices", num_devices, "must be equal to number of binaries", num_binaries)
+    for (device, binary_target) in zip(ctx.attr.devices, ctx.attr.binaries):
+        devname = "{}_{}".format(ctx.attr.name, device)
+        binary_file = binary_target.files.to_list()[0]
+        object_file = ctx.actions.declare_file("{}.o".format(devname))
+        renamed_object_file = ctx.actions.declare_file("{}.renamed.o".format(devname))
+        archive_file = ctx.actions.declare_file("{}.a".format(devname))
+
+        # Create a CcInfo to be able to use this rule as a dependency in other rules.
+        # See https://bazel.build/docs/integrating-with-rules-cc.
+        feature_configuration = cc_common.configure_features(
+            ctx = ctx,
+            cc_toolchain = cc_toolchain,
+            requested_features = ctx.features,
+            unsupported_features = ctx.disabled_features,
+        )
+        action_name = ACTION_NAMES.cpp_link_executable
+        c_linker_path = cc_common.get_tool_for_action(
+            feature_configuration = feature_configuration,
+            action_name = action_name,
+        )
+        c_link_variables = cc_common.create_link_variables(
+            feature_configuration = feature_configuration,
+            cc_toolchain = cc_toolchain,
+            output_file = object_file.path,
+        )
+        command_line = cc_common.get_memory_inefficient_command_line(
+            feature_configuration = feature_configuration,
+            action_name = action_name,
+            variables = c_link_variables,
+        )
+        env = cc_common.get_environment_variables(
+            feature_configuration = feature_configuration,
+            action_name = action_name,
+            variables = c_link_variables,
+        )
+        linker_path = cc_common.get_tool_for_action(
+            feature_configuration = feature_configuration,
+            action_name = action_name,
+        )
+
+        # Create an object file that contains the binary.
+        ctx.actions.run(
+            executable = cc_toolchain.ld_executable,
+            arguments = [
+                "-r",
+                "-b",
+                "binary",
+                "-o",
+                object_file.path,
+                binary_file.path,
+            ],
+            use_default_shell_env = False,
+            env = env,
+            inputs = depset(
+                direct = [binary_file],
+                transitive = [cc_toolchain.all_files],
+            ),
+            outputs = [object_file],
+            mnemonic = "CppLink",
+        )
+
+        # Rename symbols to make them more manageable.
+        sym_prefix = "_binary_" + binary_file.path.replace(".", "_").replace("/", "_").replace("-", "_")
+        suffixes = ["start", "end", "size"]
+        rename_args = []
+        for suffix in suffixes:
+            old_name = "{}_{}".format(sym_prefix, suffix)
+            new_name = "_{}_{}".format(ctx.attr.archive_symbol_prefix, suffix)
+            rename_args.extend(["--redefine-sym", "{}={}".format(old_name, new_name)])
+        rename_args.extend(["--rename-section", ".data=.data.sram_program"])
+        rename_args.extend([object_file.path, renamed_object_file.path])
+        ctx.actions.run(
+            executable = cc_toolchain.objcopy_executable,
+            arguments = rename_args,
+            use_default_shell_env = False,
+            env = env,
+            inputs = depset(
+                direct = [object_file],
+                transitive = [cc_toolchain.all_files],
+            ),
+            outputs = [renamed_object_file],
+            mnemonic = "RenameSymbols",
+        )
+
+        # Create an archive that contains the object file.
+        ctx.actions.run(
+            executable = cc_toolchain.ar_executable,
+            arguments = [
+                "r",
+                archive_file.path,
+                renamed_object_file.path,
+            ],
+            use_default_shell_env = False,
+            env = env,
+            inputs = depset(
+                direct = [renamed_object_file],
+                transitive = [cc_toolchain.all_files],
+            ),
+            outputs = [archive_file],
+            mnemonic = "Archive",
+        )
+
+        cc_info_dict[device] = CcInfo(
+            compilation_context = cc_common.create_compilation_context(
+                headers = depset(direct = ctx.attr.hdrs[0].files.to_list()),
+            ),
+            linking_context = cc_common.create_linking_context(
+                linker_inputs = depset([cc_common.create_linker_input(
+                    owner = ctx.label,
+                    libraries = depset([cc_common.create_library_to_link(
+                        actions = ctx.actions,
+                        feature_configuration = feature_configuration,
+                        cc_toolchain = cc_toolchain,
+                        static_library = archive_file,
+                    )]),
+                )]),
+            ),
+        )
+
+    return ArchiveInfo(archive_infos = cc_info_dict)
+
+bin_to_archive = rv_rule(
+    implementation = _bin_to_archive_impl,
+    attrs = {
+        "binaries": attr.label_list(allow_files = True),
+        "devices": attr.string_list(),
+        "hdrs": attr.label_list(allow_files = True),
+        "archive_symbol_prefix": attr.string(),
+        "_cc_toolchain": attr.label(default = Label("@bazel_tools//tools/cpp:current_cc_toolchain")),
+    },
+    fragments = ["cpp"],
     toolchains = ["@rules_cc//cc:toolchain_type"],
 )
 
@@ -115,7 +271,7 @@ sign_bin = rv_rule(
     attrs = {
         "bin": attr.label(allow_single_file = True),
         "key": attr.label(
-            default = "@//sw/device/silicon_creator/mask_rom/keys:test_private_key_0",
+            default = "@//sw/device/silicon_creator/rom/keys:test_private_key_0",
             allow_single_file = True,
         ),
         "key_name": attr.string(),
@@ -134,7 +290,11 @@ def _elf_to_disassembly_impl(ctx):
     cc_toolchain = find_cc_toolchain(ctx).cc
     outputs = []
     for src in ctx.files.srcs:
-        disassembly = ctx.actions.declare_file("{}.elf.s".format(src.basename))
+        disassembly = ctx.actions.declare_file(
+            "{}.dis".format(
+                src.basename.replace("." + src.extension, ""),
+            ),
+        )
         outputs.append(disassembly)
         ctx.actions.run_shell(
             tools = [ctx.file._cleanup_script],
@@ -174,7 +334,7 @@ def _elf_to_scrambled_rom_impl(ctx):
         if src.extension != "elf":
             fail("only ROM images in the ELF format may be converted to the VMEM format and scrambled.")
         scrambled = ctx.actions.declare_file(
-            "{}.scr.39.vmem".format(
+            "{}.39.scr.vmem".format(
                 # Remove ".elf" from file basename.
                 src.basename.replace("." + src.extension, ""),
             ),
@@ -253,6 +413,7 @@ def _bin_to_vmem_impl(ctx):
         # This this executable is expected to be installed (as required by the
         # srecord package in apt-requirements.txt).
         executable = "srec_cat",
+        use_default_shell_env = True,
     )
     return [DefaultInfo(
         files = depset(outputs),
@@ -361,36 +522,76 @@ gen_sim_dv_logs_db = rule(
     },
 )
 
+def _assemble_flash_image_impl(ctx):
+    output = ctx.actions.declare_file(ctx.attr.output)
+    outputs = [output]
+    inputs = []
+    arguments = [
+        "image",
+        "assemble",
+        "--mirror",
+        "false",
+        "--output",
+        output.path,
+        "--size",
+        ctx.attr.image_size,
+    ]
+    for binary, offset in ctx.attr.binaries.items():
+        inputs.extend(binary.files.to_list())
+        arguments.append("{}@{}".format(binary.files.to_list()[0].path, offset))
+    ctx.actions.run(
+        outputs = outputs,
+        inputs = inputs,
+        arguments = arguments,
+        executable = ctx.executable._opentitantool,
+    )
+    return [DefaultInfo(
+        files = depset(outputs),
+        data_runfiles = ctx.runfiles(files = outputs),
+    )]
+
+assemble_flash_image = rv_rule(
+    implementation = _assemble_flash_image_impl,
+    attrs = {
+        "image_size": attr.string(),
+        "output": attr.string(),
+        "binaries": attr.label_keyed_string_dict(allow_empty = False),
+        "_opentitantool": attr.label(
+            default = "//sw/host/opentitantool:opentitantool",
+            allow_single_file = True,
+            executable = True,
+            cfg = "exec",
+        ),
+    },
+)
+
 def opentitan_binary(
         name,
         platform = OPENTITAN_PLATFORM,
-        output_bin = True,
-        output_disassembly = True,
         extract_sw_logs_db = False,
         **kwargs):
     """A helper macro for generating OpenTitan binary artifacts.
 
     This macro is mostly a wrapper around cc_binary, but creates artifacts
-    compatible with OpenTitan binaries. The actual artifacts created are an ELF
-    file, a BIN file, the disassembly, and a log message database (text file)
-    for the DV simulation testbench. Each of these output targets performs a
-    bazel transition to the RV32I toolchain to build the target under the
-    correct compiler.
+    compatible with OpenTitan binaries. The actual artifacts created are outputs
+    of the rules listed below.
     Args:
       @param name: The name of this rule.
       @param platform: The target platform for the artifacts.
-      @param output_bin: Whether to emit a BIN file.
-      @param output_disassembly: Whether to emit a disassembly file.
       @param extract_sw_logs_db: Whether to emit a log database for DV testbench.
       @param **kwargs: Arguments to forward to `cc_binary`.
     Emits rules:
-      cc_binary             named: <name>
-      optionally:
-        obj_transform       named: <name>_bin
-        elf_to_dissassembly named: <name>_dis
-        gen_sim_dv_logs_db  named: <name>_sim_dv_logs
-      filegroup             named: <name>
-          with all the generated rules
+      cc_binary             named: <name>.elf
+      rv_preprocess         named: <name>_preproc
+      rv_asm                named: <name>_asm
+      rv_llvm_ir            named: <name>_ll
+      rv_relink_with_map    named: <name>_map
+      obj_transform         named: <name>_bin
+      elf_to_dissassembly   named: <name>_dis
+      Optionally:
+        gen_sim_dv_logs_db  named: <name>_logs_db
+    Returns:
+      List of targets generated by all of the above rules.
     """
 
     copts = kwargs.pop("copts", []) + [
@@ -403,10 +604,11 @@ def opentitan_binary(
     ]
     deps = kwargs.pop("deps", [])
     targets = []
+    side_targets = []
 
-    # Generate ELF
+    native_binary_name = "{}.elf".format(name)
     native.cc_binary(
-        name = name,
+        name = native_binary_name,
         deps = deps,
         target_compatible_with = _targets_compatible_with[platform],
         copts = copts,
@@ -415,62 +617,48 @@ def opentitan_binary(
     )
 
     preproc_name = "{}_{}".format(name, "preproc")
-    targets.append(preproc_name)
+    side_targets.append(preproc_name)
     rv_preprocess(
         name = preproc_name,
-        target = name,
+        target = native_binary_name,
     )
 
     asm_name = "{}_{}".format(name, "asm")
-    targets.append(asm_name)
+    side_targets.append(asm_name)
     rv_asm(
         name = asm_name,
-        target = name,
+        target = native_binary_name,
     )
 
     ll_name = "{}_{}".format(name, "ll")
-    targets.append(ll_name)
+    side_targets.append(ll_name)
     rv_llvm_ir(
         name = ll_name,
-        target = name,
+        target = native_binary_name,
     )
 
     map_name = "{}_{}".format(name, "map")
-    targets.append(map_name)
+    side_targets.append(map_name)
     rv_relink_with_linkmap(
         name = map_name,
-        target = name,
+        target = native_binary_name,
     )
 
-    elf_name = "{}_{}".format(name, "elf")
-    targets.append(":" + elf_name)
+    bin_name = "{}_{}".format(name, "bin")
+    targets.append(":" + bin_name)
     obj_transform(
-        name = elf_name,
-        srcs = [name],
-        format = "elf32-little",
-        suffix = "elf",
+        name = bin_name,
+        srcs = [native_binary_name],
         platform = platform,
     )
 
-    # Generate Binary
-    if output_bin:
-        bin_name = "{}_{}".format(name, "bin")
-        targets.append(":" + bin_name)
-        obj_transform(
-            name = bin_name,
-            srcs = [name],
-            platform = platform,
-        )
-
-    # Generate Disassembly
-    if output_disassembly:
-        dis_name = "{}_{}".format(name, "dis")
-        targets.append(":" + dis_name)
-        elf_to_disassembly(
-            name = dis_name,
-            srcs = [name],
-            platform = platform,
-        )
+    dis_name = "{}_{}".format(name, "dis")
+    targets.append(":" + dis_name)
+    elf_to_disassembly(
+        name = dis_name,
+        srcs = [native_binary_name],
+        platform = platform,
+    )
 
     # Generate log message database for DV sim testbench
     if extract_sw_logs_db:
@@ -478,68 +666,69 @@ def opentitan_binary(
         targets.append(":" + logs_db_name)
         gen_sim_dv_logs_db(
             name = logs_db_name,
-            srcs = [elf_name],
+            srcs = [native_binary_name],
             platform = platform,
         )
 
+    # Create a filegroup with just the sides targets.
     native.filegroup(
-        name = name + "_base_bins",
-        srcs = targets,
+        name = name + "_side_targets",
+        srcs = side_targets,
     )
 
     return targets
 
 def opentitan_rom_binary(
         name,
+        devices = PER_DEVICE_DEPS.keys(),
         platform = OPENTITAN_PLATFORM,
-        per_device_deps = PER_DEVICE_DEPS,
         **kwargs):
     """A helper macro for generating OpenTitan binary artifacts for ROM.
 
-    This macro is mostly a wrapper around a opentitan_binary macro, which
-    itself is a wrapper around cc_binary, but also creates artifacts for each
-    of the keys in `per_device_deps`. The actual artifacts created are an ELF
-    file, a BIN file, the disassembly, the sim_dv logs database, the
-    unscrambled (ROM) VMEM file, and the scrambled (ROM) VMEM file. Each of
-    these output targets performs a bazel transition to the RV32I toolchain to
-    build the target under the correct compiler.
+    This macro is mostly a wrapper around the `opentitan_binary` macro, but also
+    creates artifacts for each of the keys in `PER_DEVICE_DEPS`. The actual
+    artifacts created are outputs of the rules emitted by the `opentitan_binary`
+    macro and those listed below.
     Args:
       @param name: The name of this rule.
+      @param devices: List of devices to build the target for.
       @param platform: The target platform for the artifacts.
-      @param per_device_deps: The deps for each of the hardware target.
       @param **kwargs: Arguments to forward to `opentitan_binary`.
     Emits rules:
       For each device in per_device_deps entry:
-        cc_binary                 named: <name>_<device>
-        obj_transform             named: <name>_<device>_elf
-        obj_transform             named: <name>_<device>_bin
-        elf_to_dissassembly       named: <name>_<device>_dis
-        bin_to_rom_vmem           named: <name>_<device>_vmem
-        elf_to_scrambled_rom_vmem named: <name>_<device>_scr_vmem
-      For the sim_dv device:
-        gen_sim_dv_logs_db        named: <name>_sim_dv_logs
-      filegroup named: <name>
-          with all the generated rules
+        rules emitted by `opentitan_binary` named: see `opentitan_binary` macro
+        bin_to_rom_vmem                     named: <name>_<device>_vmem
+        elf_to_scrambled_rom_vmem           named: <name>_<device>_scr_vmem
+        filegroup                           named: <name>_<device>
+          Containing all targets for a single device for the above generated rules.
+        filegroup                           named: <name>
+          Containing all targets across all devices for the above generated rules.
     """
-
     deps = kwargs.pop("deps", [])
-    targets = []
-    for (device, dev_deps) in per_device_deps.items():
+    all_targets = []
+    for device in devices:
+        if device not in PER_DEVICE_DEPS:
+            fail("invalid device; device must be in {}".format(PER_DEVICE_DEPS.keys()))
+        dev_deps = PER_DEVICE_DEPS[device]
         devname = "{}_{}".format(name, device)
+        dev_targets = []
 
         # Generate ELF, Binary, Disassembly, and (maybe) sim_dv logs database
-        targets.extend(opentitan_binary(
+        dev_targets.extend(opentitan_binary(
             name = devname,
             deps = deps + dev_deps,
-            extract_sw_logs_db = device in ["sim_dv", "sim_verilator"],
+            extract_sw_logs_db = device == "sim_dv",
             **kwargs
         ))
-        elf_name = "{}_{}".format(devname, "elf")
+
+        # We need to generate VMEM files even for FPGA devices, because we use
+        # them for bitstream splicing.
+        elf_name = "{}.{}".format(devname, "elf")
         bin_name = "{}_{}".format(devname, "bin")
 
         # Generate Un-scrambled ROM VMEM
         vmem_name = "{}_vmem".format(devname)
-        targets.append(":" + vmem_name)
+        dev_targets.append(":" + vmem_name)
         bin_to_vmem(
             name = vmem_name,
             bin = bin_name,
@@ -549,83 +738,213 @@ def opentitan_rom_binary(
 
         # Generate Scrambled ROM VMEM
         scr_vmem_name = "{}_scr_vmem".format(devname)
-        targets.append(":" + scr_vmem_name)
+        dev_targets.append(":" + scr_vmem_name)
         elf_to_scrambled_rom_vmem(
             name = scr_vmem_name,
             srcs = [elf_name],
             platform = platform,
         )
 
+        # Create a filegroup with just the current device's targets.
+        native.filegroup(
+            name = devname,
+            srcs = dev_targets,
+        )
+        all_targets.extend(dev_targets)
+
+    # Create a filegroup with just all targets from all devices.
     native.filegroup(
         name = name,
-        srcs = targets,
+        srcs = all_targets,
+    )
+
+def _pick_correct_archive_for_device(ctx):
+    cc_infos = []
+    for dep in ctx.attr.deps:
+        if CcInfo in dep:
+            cc_info = dep[CcInfo]
+        elif ArchiveInfo in dep:
+            cc_info = dep[ArchiveInfo].archive_infos[ctx.attr.device]
+        else:
+            fail("Expected either a CcInfo or an ArchiveInfo")
+        cc_infos.append(cc_info)
+    return [cc_common.merge_cc_infos(cc_infos = cc_infos)]
+
+pick_correct_archive_for_device = rv_rule(
+    implementation = _pick_correct_archive_for_device,
+    attrs = {
+        "deps": attr.label_list(allow_files = True),
+        "device": attr.string(),
+    },
+    fragments = ["cpp"],
+    toolchains = ["@rules_cc//cc:toolchain_type"],
+)
+
+def opentitan_multislot_flash_binary(
+        name,
+        srcs,
+        image_size,
+        devices = PER_DEVICE_DEPS.keys(),
+        platform = OPENTITAN_PLATFORM):
+    """A helper macro for generating multislot OpenTitan binary flash images.
+
+    This macro is mostly a wrapper around the `assemble_flash_image` rule, that
+    invokes `opentitantool` to stitch together multiple `opentitan_flash_binary`
+    images to create a single image for bootstrapping. Since bootstrap erases
+    the flash for programming this is the only way to load multiple
+    (A/B/Virtual) slots and (silicon creator, ROM_EXT, and owner, BL0) stages at
+    the same time.
+    Args:
+      @param name: The name of this rule.
+      @param srcs: A dictionary of `opentitan_flash_binary` targets (to stitch
+                   together) as keys, and key/offset configurations as values.
+      @param image_size: The final flash image_size to pass to `opentitantool`.
+      @param devices: List of devices to build the target for.
+      @param platform: The target platform for the artifacts.
+    Emits rules:
+      For each device in per_device_deps entry:
+        rules emitted by `opentitan_binary` named: see `opentitan_binary` macro
+        assemble_flash_image named: <name>_<device>_bin_signed
+        bin_to_vmem          named: <name>_<device>_vmem64_signed
+        scrambled_flash_vmem named: <name>_<device>_scr_vmem64_signed
+        filegroup            named: <name>_<device>
+          Containing all targets for a single device for the above generated rules.
+        filegroup            named: <name>
+          Containing all targets across all devices for the above generated rules.
+    """
+    all_targets = []
+    for device in devices:
+        if device not in PER_DEVICE_DEPS:
+            fail("invalid device; device must be in {}".format(PER_DEVICE_DEPS.keys()))
+        devname = "{}_{}".format(name, device)
+        dev_targets = []
+        signed_dev_binaries = {}
+        for src, configs in srcs.items():
+            if "key" not in configs:
+                fail("Missing signing key for binary: {}".format(src))
+            if "offset" not in configs:
+                fail("Missing offset for binary: {}".format(src))
+            signed_dev_binary = "{}_{}_bin_signed_{}".format(
+                src,
+                device,
+                configs["key"],
+            )
+            signed_dev_binaries[signed_dev_binary] = configs["offset"]
+
+        # Assemble the signed binaries into a single binary.
+        signed_bin_name = "{}_bin_signed".format(devname)
+        dev_targets.append(":" + signed_bin_name)
+        assemble_flash_image(
+            name = signed_bin_name,
+            output = "{}.signed.bin".format(devname),
+            image_size = image_size,
+            binaries = signed_dev_binaries,
+        )
+
+        # We only need to generate VMEM files for sim devices.
+        if device in ["sim_dv", "sim_verilator"]:
+            # Generate a VMEM64 from the binary.
+            signed_vmem_name = "{}_vmem64_signed".format(devname)
+            dev_targets.append(":" + signed_vmem_name)
+            bin_to_vmem(
+                name = signed_vmem_name,
+                bin = signed_bin_name,
+                platform = platform,
+                word_size = 64,  # Backdoor-load VMEM image uses 64-bit words
+            )
+
+            # Scramble signed VMEM64.
+            scr_signed_vmem_name = "{}_scr_vmem64_signed".format(devname)
+            dev_targets.append(":" + scr_signed_vmem_name)
+            scramble_flash_vmem(
+                name = scr_signed_vmem_name,
+                vmem = signed_vmem_name,
+                platform = platform,
+            )
+
+        # Create a filegroup with just the current device's targets.
+        native.filegroup(
+            name = devname,
+            srcs = dev_targets,
+        )
+        dev_targets.extend(dev_targets)
+
+    # Create a filegroup with all assembled flash images.
+    native.filegroup(
+        name = name,
+        srcs = all_targets,
     )
 
 def opentitan_flash_binary(
         name,
+        devices = PER_DEVICE_DEPS.keys(),
         platform = OPENTITAN_PLATFORM,
-        signing_keys = {
-            "test_key_0": "@//sw/device/silicon_creator/mask_rom/keys:test_private_key_0",
-        },
-        per_device_deps = PER_DEVICE_DEPS,
-        output_signed = False,
+        signing_keys = DEFAULT_SIGNING_KEYS,
+        signed = False,
         manifest = None,
         **kwargs):
     """A helper macro for generating OpenTitan binary artifacts for flash.
 
-    This macro is mostly a wrapper around a opentitan_binary macro, which itself
-    is a wrapper around cc_binary, but also creates artifacts for each of the
-    keys in `per_device_deps`, and if signing is enabled, each of the keys in
-    `signing_keys`. The actual artifacts created are an ELF file, a (signed and)
-    unsigned BIN file, the disassembly, the sim_dv logs database, a (signed and)
-    unsigned flash VMEM file, and a (signed and) unsigned scrambled flash VMEM
-    file. Some of these output targets perform a bazel transition to the RV32I
-    toolchain to build the target under the correct compiler.
+    This macro is mostly a wrapper around the `opentitan_binary` macro, but also
+    creates artifacts for each of the keys in `PER_DEVICE_DEPS`, and if signing
+    is enabled, each of the keys in `signing_keys`. The actual artifacts created
+    artifacts created are outputs of the rules emitted by the `opentitan_binary`
+    macro and those listed below.
     Args:
       @param name: The name of this rule.
+      @param devices: List of devices to build the target for.
       @param platform: The target platform for the artifacts.
       @param signing_keys: The signing keys for to sign each BIN file with.
-      @param per_device_deps: The deps for each of the hardware target.
-      @param output_signed: Whether or not to emit signed binary/VMEM files.
+      @param signed: Whether or not to emit signed binary/VMEM files.
+      @param manifest: Partially populated manifest to set boot stage/slot configs.
       @param **kwargs: Arguments to forward to `opentitan_binary`.
     Emits rules:
       For each device in per_device_deps entry:
-        cc_binary              named: <name>_<device>
-        obj_transform          named: <name>_<device>_elf
-        obj_transform          named: <name>_<device>_bin
-        elf_to_dissassembly    named: <name>_<device>_dis
-        bin_to_vmem            named: <name>_<device>_flash_vmem
-        scrambled_flash_vmem   named: <name>_<device>_scr_flash_vmem
-        optionally:
+        rules emitted by `opentitan_binary` named: see `opentitan_binary` macro
+        bin_to_vmem                         named: <name>_<device>_vmem64
+        scrambled_flash_vmem                named: <name>_<device>_scr_vmem64
+        Optionally:
           sign_bin             named: <name>_<device>_bin_signed_<key_name>
-          bin_to_vmem          named: <name>_<device>_flash_vmem_signed_<key_name>
-          scrambled_flash_vmem named: <name>_<device>_scr_flash_vmem_signed_<key_name>
-      For the sim_dv device:
-        gen_sim_dv_logs_db     named: <name>_sim_dv_logs
-      filegroup named: <name>
-          with all the generated rules
+          bin_to_vmem          named: <name>_<device>_vmem64_signed_<key_name>
+          scrambled_flash_vmem named: <name>_<device>_scr_vmem64_signed_<key_name>
+        filegroup              named: <name>_<device>
+          Containing all targets for a single device for the above generated rules.
+        filegroup              named: <name>
+          Containing all targets across all devices for the above generated rules.
     """
-
     deps = kwargs.pop("deps", [])
-    targets = []
-    for (device, dev_deps) in per_device_deps.items():
+    all_targets = []
+    for device in devices:
+        if device not in PER_DEVICE_DEPS:
+            fail("invalid device; device must be in {}".format(PER_DEVICE_DEPS.keys()))
+        dev_deps = PER_DEVICE_DEPS[device]
         devname = "{}_{}".format(name, device)
+        dev_targets = []
+
+        depname = "{}_deps".format(devname)
+        pick_correct_archive_for_device(
+            name = depname,
+            deps = deps + dev_deps,
+            device = device,
+        )
 
         # Generate ELF, Binary, Disassembly, and (maybe) sim_dv logs database
-        targets.extend(opentitan_binary(
+        dev_targets.extend(opentitan_binary(
             name = devname,
-            deps = deps + dev_deps,
-            extract_sw_logs_db = device in ["sim_dv", "sim_verilator"],
+            deps = [depname],
+            extract_sw_logs_db = device == "sim_dv",
             **kwargs
         ))
         bin_name = "{}_{}".format(devname, "bin")
 
         # Sign BIN (if required) and generate scrambled VMEM images.
-        if output_signed:
+        if signed:
+            if manifest == None:
+                fail("A 'manifest' must be provided in order to sign flash images.")
             for (key_name, key) in signing_keys.items():
                 # Sign the Binary.
                 signed_bin_name = "{}_bin_signed_{}".format(devname, key_name)
-                targets.append(":" + signed_bin_name)
+                dev_targets.append(":" + signed_bin_name)
                 sign_bin(
                     name = signed_bin_name,
                     bin = bin_name,
@@ -634,34 +953,38 @@ def opentitan_flash_binary(
                     manifest = manifest,
                 )
 
-                # Generate a VMEM64 from the signed binary.
-                signed_vmem_name = "{}_vmem64_signed_{}".format(
-                    devname,
-                    key_name,
-                )
-                targets.append(":" + signed_vmem_name)
-                bin_to_vmem(
-                    name = signed_vmem_name,
-                    bin = signed_bin_name,
-                    platform = platform,
-                    word_size = 64,  # Backdoor-load VMEM image uses 64-bit words
-                )
+                # We only need to generate VMEM files for sim devices.
+                if device in ["sim_dv", "sim_verilator"]:
+                    # Generate a VMEM64 from the signed binary.
+                    signed_vmem_name = "{}_vmem64_signed_{}".format(
+                        devname,
+                        key_name,
+                    )
+                    dev_targets.append(":" + signed_vmem_name)
+                    bin_to_vmem(
+                        name = signed_vmem_name,
+                        bin = signed_bin_name,
+                        platform = platform,
+                        word_size = 64,  # Backdoor-load VMEM image uses 64-bit words
+                    )
 
-                # Scramble signed VMEM64.
-                scr_signed_vmem_name = "{}_scr_vmem64_signed_{}".format(
-                    devname,
-                    key_name,
-                )
-                targets.append(":" + scr_signed_vmem_name)
-                scramble_flash_vmem(
-                    name = scr_signed_vmem_name,
-                    vmem = signed_vmem_name,
-                    platform = platform,
-                )
-        else:
+                    # Scramble signed VMEM64.
+                    scr_signed_vmem_name = "{}_scr_vmem64_signed_{}".format(
+                        devname,
+                        key_name,
+                    )
+                    dev_targets.append(":" + scr_signed_vmem_name)
+                    scramble_flash_vmem(
+                        name = scr_signed_vmem_name,
+                        vmem = signed_vmem_name,
+                        platform = platform,
+                    )
+
+        # We only need to generate VMEM files for sim devices.
+        if device in ["sim_dv", "sim_verilator"]:
             # Generate a VMEM64 from the binary.
             vmem_name = "{}_vmem64".format(devname)
-            targets.append(":" + vmem_name)
+            dev_targets.append(":" + vmem_name)
             bin_to_vmem(
                 name = vmem_name,
                 bin = bin_name,
@@ -671,14 +994,73 @@ def opentitan_flash_binary(
 
             # Scramble VMEM64.
             scr_vmem_name = "{}_scr_vmem64".format(devname)
-            targets.append(":" + scr_vmem_name)
+            dev_targets.append(":" + scr_vmem_name)
             scramble_flash_vmem(
                 name = scr_vmem_name,
                 vmem = vmem_name,
                 platform = platform,
             )
 
+        # Create a filegroup with just the current device's targets.
+        native.filegroup(
+            name = devname,
+            srcs = dev_targets,
+        )
+        all_targets.extend(dev_targets)
+
+    # Create a filegroup with just all targets from all devices.
     native.filegroup(
         name = name,
-        srcs = targets,
+        srcs = all_targets,
+    )
+
+def opentitan_ram_binary(
+        name,
+        archive_symbol_prefix,
+        devices = PER_DEVICE_DEPS.keys(),
+        platform = OPENTITAN_PLATFORM,
+        **kwargs):
+    """A helper macro for generating OpenTitan binary artifacts for RAM.
+
+    This macro is mostly a wrapper around the `opentitan_binary` macro, but also
+    creates artifacts for each of the keys in `PER_DEVICE_DEPS`. The actual
+    artifacts created are outputs of the rules emitted by the `opentitan_binary`
+    macro and those listed below.
+    Args:
+      @param name: The name of this rule.
+      @param archive_symbol_prefix: Prefix used to rename symbols in the binary.
+      @param devices: List of devices to build the target for.
+      @param platform: The target platform for the artifacts.
+      @param **kwargs: Arguments to forward to `opentitan_binary`.
+    Emits rules:
+      For each device in per_device_deps entry:
+        rules emitted by `opentitan_binary` named: see `opentitan_binary` macro
+      bin_to_archive named: <name>
+    """
+    deps = kwargs.pop("deps", [])
+    hdrs = kwargs.pop("hdrs", [])
+    binaries = []
+    for device in devices:
+        if device not in PER_DEVICE_DEPS:
+            fail("invalid device; device must be in {}".format(PER_DEVICE_DEPS.keys()))
+        dev_deps = PER_DEVICE_DEPS[device]
+        devname = "{}_{}".format(name, device)
+
+        # Generate the binary.
+        opentitan_binary(
+            name = devname,
+            deps = deps + dev_deps,
+            extract_sw_logs_db = False,
+            **kwargs
+        )
+        bin_name = "{}_{}".format(devname, "bin")
+        binaries.append(":" + bin_name)
+
+    # Generate the archive file.
+    bin_to_archive(
+        name = name,
+        hdrs = hdrs,
+        binaries = binaries,
+        devices = PER_DEVICE_DEPS.keys(),
+        archive_symbol_prefix = archive_symbol_prefix,
     )

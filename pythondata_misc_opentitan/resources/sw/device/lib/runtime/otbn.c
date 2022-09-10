@@ -92,12 +92,6 @@ otbn_result_t otbn_load_app(otbn_t *ctx, const otbn_app_t app) {
     return kOtbnError;
   }
 
-  // Zero all of DMEM
-  otbn_result_t err = otbn_zero_data_memory(ctx);
-  if (err != kOtbnOk) {
-    return err;
-  }
-
   // Write initialized data
   if (data_size > 0) {
     if (dif_otbn_dmem_write(&ctx->dif, 0, ctx->app.dmem_data_start,
@@ -179,7 +173,9 @@ otbn_result_t otbn_dump_dmem(const otbn_t *ctx, uint32_t max_addr) {
 
   for (int i = 0; i < max_addr; i += kOtbnWlenBytes) {
     uint32_t data[kOtbnWlenBytes / sizeof(uint32_t)];
-    dif_otbn_dmem_read(&ctx->dif, i, data, kOtbnWlenBytes);
+    if (dif_otbn_dmem_read(&ctx->dif, i, data, kOtbnWlenBytes) != kDifOk) {
+      return kOtbnError;
+    }
 
     LOG_INFO("DMEM @%04d: 0x%08x%08x%08x%08x%08x%08x%08x%08x",
              i / kOtbnWlenBytes, data[7], data[6], data[5], data[4], data[3],

@@ -46,6 +46,8 @@ title: "SPI Device HWIP Technical Specification"
 - 1 TPM command (8b) and 1 address (24bit) buffer
 - HW controlled wait state
 - Shared SPI with other SPI Device functionalities. Unique CS# for the TPM
+  - Flash or Passthrough mode can be active with TPM mode.
+    Generic and TPM modes are mutually exclusive.
 - HW processed registers for the read requests
   - TPM_ACCESS_x, TPM_STS_x, TPM_INTF_CAPABILITY, TPM_INT_ENABLE, TPM_INT_STATUS, TPM_INT_VECTOR, TPM_DID_VID, TPM_RID
   - TPM_HASH_START returns FFh
@@ -91,7 +93,7 @@ Mailbox is an exception as it shares the Read command opcode.
 
 SPI Device HWIP has three modes + TPM mode, which are "Generic" mode (also known as FwMode), "Flash" mode, and "Passthrough" mode.
 Generic mode is exclusive. Flash and Passthrough modes share many parts of the datapath.
-TPM mode only shares the SPI and has separate CSb port, which allows that the host sends TPM commands while other SPI mode is active.
+TPM mode only shares the SPI and has separate CSb port, which allows that the host sends TPM commands while other SPI mode is active (except Generic mode).
 
 Mode     | FwMode | Status | JEDEC | SFDP | Mailbox | Read | Addr4B | Upload | Passthrough
 ---------|--------|--------|-------|------|---------|------|--------|--------|-------------
@@ -496,9 +498,9 @@ The IP only uses lower 11 bits of the received read command address (`addr[10:0]
 
 SW is responsible for updating the read buffer contents.
 The HW notifies the SW to update the buffer contents when needed.
-The HW provides a SW configurable read watermark CSR and read-only {{<regref "LAST_READ_ADDRESS">}} CSR.
-The **LAST_READ_ADDRESS** shows the last read address from the buffer.
-For instance, if the host system issues `0xABCD_E000` and reads 128 bytes, the **LAST_READ_ADDRESS** after the transaction will show `0xABCD_E0FC`.
+The HW provides a SW configurable read watermark CSR and read-only {{<regref "LAST_READ_ADDR">}} CSR.
+The **LAST_READ_ADDR** shows the last read address of the recent read command.
+For instance, if the host system issues `0xABCD_E000` and reads 128 (or 0x80) bytes, the **LAST_READ_ADDR** after the transaction will show `0xABCD_E07F`.
 It does not show the commands falling into the mailbox region or Read SFDP command's address.
 
 The read watermark address width is 1 bit smaller than the read buffer address.
@@ -656,8 +658,8 @@ The module sends `START(0x01)` at the next byte followed by the actual return-by
 
 The module, by default, returns `WAIT` when the address does not fall into the return-by-HW register address.
 In the wait state, the TPM submodule watches the read FIFO status.
-The module stays in the wait state until the read FIFO is not empty.
-The module sends `START` at the next byte when the logic sees the notempty signal of the read FIFO.
+The module stays in the wait state until the read FIFO has the data >= requested transfer size.
+The module sends `START` at the next byte when the read FIFO has enough data.
 Then the module pops data from the read FIFO and sends the data over SPI.
 
 The TPM submodule accepts the payload for the TPM write command without the `WAIT` state if the write FIFO is empty.
@@ -848,6 +850,9 @@ The SRAM begins at `0x1000`, which in the figure is `0x000`.
 
 ![SPI Device Dual-port SRAM Layout](spid_sram_layout.svg)
 
+The regions starting from `0xF00` to `0xFFF` are assigned to TPM Read/Write FIFOs.
+They are not used in this version of IP.
+
 ## TPM over SPI
 
 ### Initialization
@@ -879,7 +884,8 @@ Due to the CDC issue, the SW is only permitted to update the registers when the 
 1. The SW reads a word from TPM_CMD_ADDR CSR (optional cmdaddr_notempty interrupt).
   1. If the address falls into the return-by-HW registers and TPM_CFG.hw_reg_dis is not set, the HW does not push the command and address bytes into the TPM_CMD_ADDR CSR.
 1. The SW prepares the register value and writes the value into the read FIFO.
-1. The TPM submodule sends `WAIT` until the read FIFO is available. When available, the TPM submodule sends `START` followed by the register value.
+1. The TPM submodule sends `WAIT` until the read FIFO is available.
+   When available, the TPM submodule sends `START` followed by the register value.
 
 ### TPM Write
 

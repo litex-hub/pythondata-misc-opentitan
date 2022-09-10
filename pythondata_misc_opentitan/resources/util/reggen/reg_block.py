@@ -7,17 +7,17 @@
 import re
 from typing import Callable, Dict, List, Optional, Sequence, Union
 
-from .alert import Alert
-from .access import SWAccess, HWAccess
-from .bus_interfaces import BusInterfaces
-from .clocking import Clocking, ClockingItem
-from .field import Field
-from .signal import Signal
-from .lib import check_int, check_list, check_str_dict, check_str
-from .multi_register import MultiRegister
-from .params import ReggenParams
-from .register import Register
-from .window import Window
+from reggen.alert import Alert
+from reggen.access import SWAccess, HWAccess
+from reggen.bus_interfaces import BusInterfaces
+from reggen.clocking import Clocking, ClockingItem
+from reggen.field import Field
+from reggen.signal import Signal
+from reggen.lib import check_int, check_list, check_str_dict, check_str
+from reggen.multi_register import MultiRegister
+from reggen.params import ReggenParams
+from reggen.register import Register
+from reggen.window import Window
 
 
 class RegBlock:
@@ -222,6 +222,15 @@ class RegBlock:
             assert isinstance(clk, ClockingItem)
             self.clocks[name] = clk
 
+    def _validate_sync(self, name: Optional[str], clk: object) -> None:
+        '''Check for sync definition consistency
+        '''
+        # If there is a synchronous clock defined, then the clock must be a
+        # valid clocking item
+        if name:
+            assert isinstance(clk, ClockingItem)
+            self.clocks[name] = clk
+
     def _handle_register(self,
                          where: str,
                          body: object,
@@ -235,6 +244,7 @@ class RegBlock:
                                 is_alias)
 
         self._validate_async(reg.async_name, reg.async_clk)
+        self._validate_sync(reg.sync_name, reg.sync_clk)
 
         self.add_register(reg)
 
@@ -307,6 +317,7 @@ class RegBlock:
 
         # validate async schemes
         self._validate_async(mr.async_name, mr.async_clk)
+        self._validate_sync(mr.sync_name, mr.sync_clk)
 
         for reg in mr.regs:
             lname = reg.name.lower()
@@ -478,6 +489,8 @@ class RegBlock:
                        reg_desc,
                        async_name="",
                        async_clk=None,
+                       sync_name="",
+                       sync_clk=None,
                        hwext=is_testreg,
                        hwqe=is_testreg,
                        hwre=False,
@@ -584,6 +597,12 @@ class RegBlock:
             raise ValueError('Alias register names {} are not unique in alias '
                              ' {}'.format(list(intersection), where))
 
+        # Build a name map for regwens so that we can check correspondence.
+        alias_wennames = {}
+        for name in self.wennames:
+            alias_wennames.update(
+                {name: self.name_to_flat_reg[name.lower()].alias_target})
+
         # Loop over registers, validate the structure and update the generic
         # register data structure. Since the internal register
         # lists "registers", "flat_regs", "all_regs", "type_regs"
@@ -607,9 +626,37 @@ class RegBlock:
                                          self.name,
                                          where))
 
-            # This is the register we want to alias over. Check that the
-            # non-overridable attributes match, and override the attributes.
+            # This is the register we want to alias over.
             reg = self.name_to_flat_reg[target]
+
+            # Make sure the wenreg referenced is the same.
+            if alias_reg.regwen is not None and reg.regwen is not None:
+                alias_wenreg =\
+                    alias_block.name_to_flat_reg[alias_reg.regwen.lower()]
+                if alias_wenreg.alias_target != reg.regwen:
+                    raise ValueError('Alias wenreg {} with generic name {} '
+                                     'is not the same register as generic '
+                                     'wenreg {} in aliased target register {} '
+                                     'with alias name {} in reg block {} ({}).'
+                                     .format(alias_reg.name,
+                                             alias_wenreg.alias_target,
+                                             reg.regwen,
+                                             target,
+                                             alias_reg.name,
+                                             self.name,
+                                             where))
+
+            elif alias_reg.regwen is not None or reg.regwen is not None:
+                raise ValueError('Missing regwen define in aliased target '
+                                 'register {} with alias name {} in reg '
+                                 'block {} ({}).'
+                                 .format(target,
+                                         alias_reg.name,
+                                         self.name,
+                                         where))
+
+            # Check that the non-overridable attributes match, and override the
+            # attributes.
             reg.apply_alias(alias_reg, where)
 
         # Build a local index of all multiregs. We don't store this in the
@@ -653,6 +700,12 @@ class RegBlock:
         from full alias hjson definitions. It will only work on reg blocks
         where the alias_target keys are defined, and otherwise throw an error.
         '''
+        # First build a name map for regwens so that we can replace them below.
+        alias_wennames = {}
+        for name in self.wennames:
+            alias_wennames.update(
+                {name: self.name_to_flat_reg[name.lower()].alias_target})
+
         # Loop over registers, and scrub information.
         for reg in self.registers:
             if reg.alias_target is None:
@@ -660,6 +713,9 @@ class RegBlock:
                                  'alias name {} in {}'
                                  .format(reg.name, where))
             reg.scrub_alias(where)
+            # Replace regwen name also.
+            if reg.regwen is not None:
+                reg.regwen = alias_wennames[reg.regwen]
 
         # Loop over multiregisters, and scrub information.
         for alias_mr in self.multiregs:

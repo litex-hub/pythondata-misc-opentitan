@@ -81,7 +81,8 @@ module otbn_controller
   output logic               rf_bignum_rd_en_b_o,
   input  logic [ExtWLEN-1:0] rf_bignum_rd_data_b_intg_i,
 
-  input logic rf_bignum_rf_err_i,
+  input logic rf_bignum_intg_err_i,
+  input logic rf_bignum_spurious_we_err_i,
 
   output logic [NWdr-1:0] rf_bignum_rd_a_indirect_onehot_o,
   output logic [NWdr-1:0] rf_bignum_rd_b_indirect_onehot_o,
@@ -137,6 +138,8 @@ module otbn_controller
   output logic rnd_prefetch_req_o,
   input  logic rnd_valid_i,
 
+  input  logic urnd_reseed_err_i,
+
   // Secure Wipe
   output logic secure_wipe_req_o,
   input  logic secure_wipe_ack_i,
@@ -187,6 +190,7 @@ module otbn_controller
   logic executing;
   logic state_error;
   logic spurious_secure_wipe_ack_q, spurious_secure_wipe_ack_d;
+  logic mubi_err_q, mubi_err_d;
 
   logic                     insn_fetch_req_valid_raw;
   logic [ImemAddrWidth-1:0] insn_fetch_req_addr_last;
@@ -198,6 +202,7 @@ module otbn_controller
   logic jump_or_branch;
   logic branch_taken;
   logic insn_executing;
+  logic ld_insn_with_addr_from_call_stack, st_insn_with_addr_from_call_stack;
   logic [ImemAddrWidth-1:0] branch_target;
   logic                     branch_target_overflow;
   logic [ImemAddrWidth:0]   next_insn_addr_wide;
@@ -292,13 +297,15 @@ module otbn_controller
 
   logic rf_a_indirect_err, rf_b_indirect_err, rf_d_indirect_err, rf_indirect_err;
 
-  // If we are doing an indirect lookup from the bignum register file, it's possible that the
-  // address that we use for the lookup is architecturally unknown. This happens if it came from x1
+  // If we are doing an indirect access to the bignum register file, it's possible that the
+  // address that we use for the access is architecturally unknown. This happens if it came from x1
   // and we've underflowed the call stack. When this happens, we want to ignore any read data
-  // integrity errors since the read from the bignum register file didn't happen architecturally
-  // anyway.
-  logic ignore_bignum_rf_errs;
-  logic rf_bignum_rf_err;
+  // integrity errors and spurious write enable errors since the access to the bignum register file
+  // didn't happen architecturally anyway.
+  logic ignore_rf_bignum_intg_errs;
+  logic rf_bignum_intg_err;
+  logic ignore_rf_bignum_spurious_we_errs;
+  logic rf_bignum_spurious_we_err;
 
   logic ispr_rdata_intg_err;
 
@@ -362,7 +369,15 @@ module otbn_controller
   assign executing = (state_q == OtbnStateRun) ||
                      (state_q == OtbnStateStall);
 
-  assign locking_o = (state_d == OtbnStateLocked) & ~secure_wipe_req_o;
+  // Set the *locking* output when the next state is the *locked* state and no secure wipe is
+  // running or there is a URND reseed error.  `locking_o` is thus set only after the secure wipe
+  // has completed or if it cannot complete due to an URND reseed error (in which case
+  // `secure_wipe_req_o` and `urnd_reseed_err_i` will remain high).  The condition for secure wipe
+  // running involves `secure_wipe_running_i`, which is high for the initial secure wipe, and
+  // `secure_wipe_req_o`, which is high for post-execution secure wipes.
+  assign locking_o = (state_d == OtbnStateLocked) & (~(secure_wipe_running_i | secure_wipe_req_o) |
+                                                     urnd_reseed_err_i);
+
   assign start_secure_wipe = executing & (done_complete | err);
 
   assign jump_or_branch = (insn_valid_i &
@@ -515,18 +530,56 @@ module otbn_controller
     end
   end
 
+  // Signal error if MuBi input signals take on invalid values as this means something bad is
+  // happening. Register the error signal to break circular paths (instruction fetch errors factor
+  // into fatal_escalate_en_i, RND errors factor into recov_escalate_en_i).
+  assign mubi_err_d = |{mubi4_test_invalid(fatal_escalate_en_i),
+                        mubi4_test_invalid(recov_escalate_en_i),
+                        mubi4_test_invalid(rma_req_i),
+                        mubi_err_q};
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      mubi_err_q <= 1'b0;
+    end else begin
+      mubi_err_q <= mubi_err_d;
+    end
+  end
+
   // Instruction is illegal based on the static properties of the instruction bits (illegal encoding
   // or illegal WSR/CSR referenced).
   assign illegal_insn_static = insn_illegal_i | ispr_err;
 
   assign fatal_software_err       = software_err & software_errs_fatal_i;
   assign bad_internal_state_err   = |{state_error, loop_hw_err, rf_base_call_stack_hw_err_i,
-                                      spurious_secure_wipe_ack_q};
-  assign reg_intg_violation_err   = rf_bignum_rf_err | ispr_rdata_intg_err;
+                                      rf_bignum_spurious_we_err, spurious_secure_wipe_ack_q,
+                                      mubi_err_q};
+  assign reg_intg_violation_err   = rf_bignum_intg_err | ispr_rdata_intg_err;
   assign key_invalid_err          = ispr_rd_bignum_insn & insn_valid_i & key_invalid;
   assign illegal_insn_err         = illegal_insn_static | rf_indirect_err;
-  assign bad_data_addr_err        = dmem_addr_err;
   assign call_stack_sw_err        = rf_base_call_stack_sw_err_i;
+
+  // Flag a bad data address error if the data memory address is invalid and it does not come from
+  // an empty call stack.  The second case cannot be decided as bad data address because the address
+  // on top of the empty call stack may or may not be valid.  (Also, in most RTL simulators an empty
+  // call stack that has never been pushed contains an unknown value, so this error bit would become
+  // unknown.)  Thus, a data memory address coming from an empty call stack raises a call stack
+  // error but never a bad data address error.
+  assign bad_data_addr_err = dmem_addr_err &
+                             ~(call_stack_sw_err &
+                               (ld_insn_with_addr_from_call_stack |
+                                st_insn_with_addr_from_call_stack));
+
+  // Identify load instructions that take the memory address from the call stack.
+  assign ld_insn_with_addr_from_call_stack = insn_valid_i               &
+                                             insn_dec_shared_i.ld_insn  &
+                                             insn_dec_base_i.rf_ren_a   &
+                                             (insn_dec_base_i.a == 5'd1);
+
+  // Identify store instructions that take the memory address from the call stack.
+  assign st_insn_with_addr_from_call_stack = insn_valid_i               &
+                                             insn_dec_shared_i.st_insn  &
+                                             insn_dec_base_i.rf_ren_a   &
+                                             (insn_dec_base_i.a == 5'd1);
 
   // All software errors that aren't bad_insn_addr. Factored into bad_insn_addr so it is only raised
   // if other software errors haven't ocurred. As bad_insn_addr relates to the next instruction
@@ -1105,16 +1158,30 @@ module otbn_controller
 
   assign rf_d_indirect_err = insn_dec_bignum_i.rf_d_indirect    &
                              (|rf_base_rd_data_b_no_intg[31:5]) &
+                             ~rf_base_call_stack_sw_err_i       &
                              rf_base_rd_en_b_o;
 
   assign rf_indirect_err =
       insn_valid_i & (rf_a_indirect_err | rf_b_indirect_err | rf_d_indirect_err);
 
-  assign ignore_bignum_rf_errs = (insn_dec_bignum_i.rf_a_indirect |
-                                  insn_dec_bignum_i.rf_b_indirect) &
-                                 rf_base_call_stack_sw_err_i;
 
-  assign rf_bignum_rf_err = rf_bignum_rf_err_i & ~ignore_bignum_rf_errs;
+  // If the source registers are indirectly indexed and there is a stack error, the source
+  // register indices were illegal due to a stack pop error. In this case, ignore bignum RF read
+  // integrity errors.
+  assign ignore_rf_bignum_intg_errs = (insn_dec_bignum_i.rf_a_indirect |
+                                       insn_dec_bignum_i.rf_b_indirect) &
+                                      rf_base_call_stack_sw_err_i;
+
+  assign rf_bignum_intg_err = rf_bignum_intg_err_i & ~ignore_rf_bignum_intg_errs;
+
+  // If the destination register is indirectly indexed and there is a stack error, the destination
+  // register index was illegal due to a stack pop error. In this case, ignore bignum RF
+  // write-enable errors.
+  assign ignore_rf_bignum_spurious_we_errs = insn_dec_bignum_i.rf_d_indirect &
+                                             rf_base_call_stack_sw_err_i;
+
+  assign rf_bignum_spurious_we_err = rf_bignum_spurious_we_err_i &
+                                     ~ignore_rf_bignum_spurious_we_errs;
 
   // CSR/WSR/ISPR handling
   // ISPRs (Internal Special Purpose Registers) are the internal registers. CSRs and WSRs are the

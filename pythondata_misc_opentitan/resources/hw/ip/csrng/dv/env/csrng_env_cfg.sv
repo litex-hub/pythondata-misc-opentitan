@@ -31,7 +31,7 @@ class csrng_env_cfg extends cip_base_env_cfg #(.RAL_T(csrng_reg_block));
   bit    use_invalid_mubi;
 
   rand bit       check_int_state, regwen, hw_app[NUM_HW_APPS],
-                 sw_app, aes_halt, force_state;
+                 sw_app, aes_halt;
   rand mubi4_t   enable, sw_app_enable, read_int_state;
   rand lc_tx_t   lc_hw_debug_en;
   rand mubi8_t   otp_en_cs_sw_app_read;
@@ -88,10 +88,6 @@ class csrng_env_cfg extends cip_base_env_cfg #(.RAL_T(csrng_reg_block));
                           1 :/ aes_halt_pct,
                           0 :/ (100 - aes_halt_pct) };}
 
-  constraint force_state_c { force_state dist {
-                             1 :/ force_state_pct,
-                             0 :/ (100 - force_state_pct) };}
-
   // Functions
   function void post_randomize();
     if (use_invalid_mubi) begin
@@ -138,6 +134,9 @@ class csrng_env_cfg extends cip_base_env_cfg #(.RAL_T(csrng_reg_block));
         get(null, "*.env" , "csrng_assert_vif", csrng_assert_vif)) begin
       `uvm_fatal(`gfn, $sformatf("FAILED TO GET HANDLE TO ASSERT IF"))
     end
+
+    // only support 1 outstanding TL item
+    m_tl_agent_cfg.max_outstanding_req = 1;
   endfunction
 
   // Check internal state w/ optional compare
@@ -213,8 +212,6 @@ class csrng_env_cfg extends cip_base_env_cfg #(.RAL_T(csrng_reg_block));
            regwen)};
     str = {str,  $sformatf("\n\t |***** check_int_state           : %10d *****| \t",
            check_int_state)};
-    str = {str,  $sformatf("\n\t |***** force_state               : %10d *****| \t",
-           force_state)};
     str = {str,  $sformatf("\n\t |---------------- knobs ---------------------------| \t")};
     str = {str,  $sformatf("\n\t |***** otp_en_cs_sw_app_read_pct : %10d *****| \t",
            otp_en_cs_sw_app_read_pct) };
@@ -230,8 +227,6 @@ class csrng_env_cfg extends cip_base_env_cfg #(.RAL_T(csrng_reg_block));
            regwen_pct)};
     str = {str,  $sformatf("\n\t |***** check_int_state_pct       : %10d *****| \t",
            check_int_state_pct)};
-    str = {str,  $sformatf("\n\t |***** force_state_pct           : %10d *****| \t",
-           force_state_pct)};
     str = {str,  $sformatf("\n\t |***** num_cmds_min              : %10d *****| \t",
            num_cmds_min)};
     str = {str,  $sformatf("\n\t |***** num_cmds_max              : %10d *****| \t",

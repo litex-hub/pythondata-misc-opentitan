@@ -2,23 +2,6 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-//  name: rma_hw_if
-//  desc: '''
-//        Perform RMA entry requests and check afterwards that the  software has no access to
-//        the Flash.  After RMA entry, verify that the content of the flash is wiped out.
-//        '''
-//  milestone: V2
-//  tests: ["flash_ctrl_hw_rma"]
-//
-//  name: isolation_partition
-//  desc: '''
-//        Verify the isolated information partitions. Accessablity is controlled by Life
-//        Cycle Controller.  Verify Partition can be erase, written and programmed, with
-//        HW control, and wipes after an RMA.
-//        '''
-//  milestone: V2
-//  tests: [flash_ctrl_hw_rma"]
-
 // flash_ctrl_hw_rma Test
 
 // Pseudo Code
@@ -107,28 +90,44 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
       // ERASE
 
       `uvm_info(`gfn, "ERASE", UVM_LOW)
-      do_flash_ops(flash_ctrl_pkg::FlashOpErase, READ_CHECK_NORM);
+      do_flash_ops(flash_ctrl_pkg::FlashOpErase, ReadCheckNorm);
       cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
 
       // PROGRAM
 
       `uvm_info(`gfn, "PROGRAM", UVM_LOW)
-      do_flash_ops(flash_ctrl_pkg::FlashOpProgram, READ_CHECK_NORM);
+      do_flash_ops(flash_ctrl_pkg::FlashOpProgram, ReadCheckNorm);
       cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
 
       // READ (Compare Expected Data with Data Read : EXPECT DATA MATCH)
 
       `uvm_info(`gfn, "READ", UVM_LOW)
-      do_flash_ops(flash_ctrl_pkg::FlashOpRead, READ_CHECK_NORM);
-      cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
+      do_flash_ops(flash_ctrl_pkg::FlashOpRead, ReadCheckNorm);
 
       // SEND RMA REQUEST (Erases the Flash and Writes Random Data To All Partitions)
+      fork
+        begin
+          cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
+          `uvm_info(`gfn, "RMA REQUEST", UVM_LOW)
+          rma_seed = $urandom;  // Random RMA Seed
+          send_rma_req(rma_seed);
+          cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
+        end
+        begin
+          // Assert flash_ctrl.INIT at the beginning of RMA or
+          // in the middle
+          int val = $urandom_range(0, 1);
+          `uvm_info(`gfn, $sformatf("INIT val: %0d", val), UVM_MEDIUM)
+          csr_wr(.ptr(ral.init), .value(val));
 
-      `uvm_info(`gfn, "RMA REQUEST", UVM_LOW)
-      rma_seed = $urandom;  // Random RMA Seed
-      send_rma_req(rma_seed);
-      cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
-
+          if (val == 0) begin
+            int my_wait = $urandom_range(1,100);
+            val = $urandom_range(0, 1);
+            #(my_wait * 1ms);
+            csr_wr(.ptr(ral.init), .value(val));
+          end
+        end
+      join
       // CHECK HOST SOFTWARE HAS NO ACCESS TO THE FLASH
 
       // Attempt to Read from FLASH Controller
@@ -147,7 +146,6 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
       init_info_part();
 
       // READ (Compare Expected Data with Data Read : EXPECT DATA MISMATCH or STATUS FAIL)
-
       // After Reset and DUT Initialisation, Check the FLASH is written randomly and its contents
       // mismatch against its contents before the RMA took place.
       // This may get an occasional Hit ~ 1 in 32^2-1, per location
@@ -155,7 +153,7 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
 
       `uvm_info(`gfn, "READ", UVM_LOW)
 
-      do_flash_ops(flash_ctrl_pkg::FlashOpRead, READ_CHECK_EXPLICIT);
+      do_flash_ops(flash_ctrl_pkg::FlashOpRead, ReadCheckRand);
       cfg.clk_rst_vif.wait_clks($urandom_range(10, 100));
 
     end
@@ -221,8 +219,7 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
   endtask : init_info_part
 
   // Task to perform randomly ordered selected Flash Operations on thr Flash
-  virtual task do_flash_ops (input flash_op_e op, input bit cmp = READ_CHECK_NORM);
-
+  virtual task do_flash_ops (input flash_op_e op, input read_check_e cmp = ReadCheckNorm);
     uint order_q [$] = '{0, 1, 2, 3, 4};  // Operation Order Queue
     order_q.shuffle();  // Shuffle Queue Items
 
@@ -248,7 +245,7 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
     flash_op_t flash_op;
     data_q_t   data;
     bit        result;
-
+    int        read_timeout_value_ns = 100000; // 100us
     `uvm_info(`gfn, "Attempting to READ from Flash", UVM_INFO)
 
     // Attempt to Read from FLASH, No Access Expected after RMA
@@ -288,7 +285,7 @@ class flash_ctrl_hw_rma_vseq extends flash_ctrl_base_vseq;
     flash_ctrl_start_op(flash_op);
 
     // Timeout Expected
-    wait_flash_op_done_expect_timeout(.timeout_ns(cfg.seq_cfg.read_timeout_ns), .result(result));
+    wait_flash_op_done_expect_timeout(.timeout_ns(read_timeout_value_ns), .result(result));
 
     // Expect a Timeout
     if (result == 1)

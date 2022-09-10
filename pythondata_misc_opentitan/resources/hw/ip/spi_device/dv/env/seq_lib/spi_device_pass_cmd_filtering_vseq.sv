@@ -11,7 +11,7 @@ class spi_device_pass_cmd_filtering_vseq extends spi_device_pass_base_vseq;
 
     allow_set_cmd_info_invalid = 1;
     allow_use_invalid_opcode = 1;
-    spi_device_flash_pass_init(PassthroughMode);
+    spi_device_flash_pass_init();
 
     for (int i = 0; i < num_trans; ++i) begin
       randomize_op_addr_size();
@@ -22,7 +22,8 @@ class spi_device_pass_cmd_filtering_vseq extends spi_device_pass_base_vseq;
       // - enable cmd filter, test cmd is blocked
       for (int cmd_filter = 0; cmd_filter < 2;  cmd_filter++) begin
         // Make sure filter is not blocking command opcode
-        `uvm_info(`gfn, $sformatf("sending op 0x%0h with filter = %0d", opcode, cmd_filter),
+        `uvm_info(`gfn, $sformatf("sending op 0x%0h addr: 0x%0x with filter = %0d",
+                  opcode, read_start_addr, cmd_filter),
                   UVM_MEDIUM)
         cfg_cmd_filter(cmd_filter, opcode);
         // Prepare data for transfer

@@ -4,12 +4,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import os
 import sys
 
 import hjson
 from mako.template import Template
-from pathlib import Path
 
 '''
 Read in a JSON test vector file, convert the test vector to C constants, and
@@ -18,12 +16,6 @@ generate a header file with these test vectors.
 
 # Number of 32-bit words in a coordinate or scalar
 P256_NUMWORDS = int(256 / 32)
-
-# Template file name
-TEMPLATE = 'ecdsa_p256_verify_testvectors.h.tpl'
-
-# Default output file name
-DEFAULT_OUTFILE = 'ecdsa_p256_verify_testvectors.h'
 
 
 def ecdsa_p256_int_to_hexwords(x):
@@ -39,16 +31,19 @@ def ecdsa_p256_int_to_hexwords(x):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('hjsonfile',
+    parser.add_argument('--hjsonfile', '-j',
                         metavar='FILE',
+                        required=True,
                         type=argparse.FileType('r'),
                         help='Read test vectors from this HJSON file.')
-    out_default = open(
-        os.path.join(os.path.dirname(__file__), DEFAULT_OUTFILE), 'w')
-    parser.add_argument('headerfile',
+    parser.add_argument('--template', '-t',
                         metavar='FILE',
-                        nargs='?',
-                        default=out_default,
+                        required=True,
+                        type=argparse.FileType('r'),
+                        help='Read header template from this file.')
+    parser.add_argument('--headerfile', '-o',
+                        metavar='FILE',
+                        required=True,
                         type=argparse.FileType('w'),
                         help='Write output to this file.')
 
@@ -67,12 +62,9 @@ def main() -> int:
     for t in testvecs:
         t['msg_bytes'] = t['msg'].to_bytes(t['msg_len'], byteorder='big')
 
-    # Find the header template and output file in the script's directory
-    template = (Path(__file__).parent / TEMPLATE).read_text()
-
-    args.headerfile.write(Template(template).render(tests=testvecs))
+    args.headerfile.write(Template(args.template.read()).render(tests=testvecs))
     args.headerfile.close()
-    out_default.close()
+    args.template.close()
 
     return 0
 

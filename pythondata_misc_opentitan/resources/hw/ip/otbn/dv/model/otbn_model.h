@@ -113,7 +113,8 @@ class OtbnModel {
             svBitVecVal *stop_pc /* bit [31:0] */);
 
   // Escalate errors. Returns 0 on success; -1 on failure.
-  int send_err_escalation(svBitVecVal *err_val /* bit [31:0] */);
+  int send_err_escalation(svBitVecVal *err_val /* bit [31:0] */,
+                          svBit lock_immediately);
 
   // Returns true if we have an ISS wrapper and it has the START_WIPE flag
   // asserted
@@ -121,6 +122,12 @@ class OtbnModel {
 
   // Trigger initial secure wipe.
   int initial_secure_wipe();
+
+  // Send RMA request to model.
+  int send_rma_req();
+
+  // Disable stack integrity checks
+  int disable_stack_check();
 
  private:
   // Constructs an ISS wrapper if necessary. If something goes wrong, this
@@ -158,6 +165,8 @@ class OtbnModel {
 
   OtbnMemUtil mem_util_;
   std::string design_scope_;
+
+  bool stack_check_enabled_ = true;
 };
 
 #endif  // OPENTITAN_HW_IP_OTBN_DV_MODEL_OTBN_MODEL_H_

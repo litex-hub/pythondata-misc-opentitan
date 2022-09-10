@@ -77,7 +77,9 @@ module chip_${top["name"]}_${target["name"]} #(
   parameter OtpCtrlMemInitFile = "otp_img_fpga_${target["name"]}.vmem"
 ) (
 % else:
-module chip_${top["name"]}_${target["name"]} (
+module chip_${top["name"]}_${target["name"]} #(
+  parameter bit SecRomCtrlDisableScrambling = 1'b0
+) (
 % endif
 <%
   removed_port_names = []
@@ -488,9 +490,6 @@ module chip_${top["name"]}_${target["name"]} (
   otp_ctrl_pkg::otp_ast_req_t otp_ctrl_otp_ast_pwr_seq;
   otp_ctrl_pkg::otp_ast_rsp_t otp_ctrl_otp_ast_pwr_seq_h;
 
-  // otp alert
-  ast_pkg::ast_dif_t otp_alert;
-
   logic usb_ref_pulse;
   logic usb_ref_val;
 
@@ -516,7 +515,6 @@ module chip_${top["name"]}_${target["name"]} (
   prim_mubi_pkg::mubi4_t flash_bist_enable;
   logic flash_power_down_h;
   logic flash_power_ready_h;
-  ast_pkg::ast_dif_t flash_alert;
 
   // clock bypass req/ack
   prim_mubi_pkg::mubi4_t io_clk_byp_req;
@@ -601,9 +599,12 @@ module chip_${top["name"]}_${target["name"]} (
   ast = ast[0]
 %>\
 
-% if target["name"] == "asic":
-
   assign ast_base_pwr.main_pok = ast_pwst.main_pok;
+
+  logic [rstmgr_pkg::PowerDomains-1:0] por_n;
+  assign por_n = {ast_pwst.main_pok, ast_pwst.aon_pok};
+
+% if target["name"] == "asic":
 
   logic [ast_pkg::UsbCalibWidth-1:0] usb_io_pu_cal;
 
@@ -627,15 +628,13 @@ module chip_${top["name"]}_${target["name"]} (
 
   logic unused_pwr_clamp;
   assign unused_pwr_clamp = base_ast_pwr.pwr_clamp;
-  logic ast_init_done;
+
   logic usb_diff_rx_obs;
 
 % else:
   // TODO: Hook this up when FPGA pads are updated
   assign ext_clk = '0;
   assign pad2ast = '0;
-
-  assign ast_base_pwr.main_pok = base_ast_pwr.main_pd_n;
 
   logic clk_main, clk_usb_48mhz, clk_aon, rst_n, srst_n;
   clkgen_xil7series # (
@@ -664,6 +663,8 @@ module chip_${top["name"]}_${target["name"]} (
   };
 
 % endif
+
+  prim_mubi_pkg::mubi4_t ast_init_done;
 
   ast #(
     .EntropyStreams(ast_pkg::EntropyStreams),
@@ -775,8 +776,6 @@ module chip_${top["name"]}_${target["name"]} (
     .entropy_rsp_i         ( ast_edn_edn_rsp ),
     .entropy_req_o         ( ast_edn_edn_req ),
     // alerts
-    .fla_alert_src_i       ( flash_alert    ),
-    .otp_alert_src_i       ( otp_alert      ),
     .alert_rsp_i           ( ast_alert_rsp  ),
     .alert_req_o           ( ast_alert_req  ),
     // dft
@@ -906,11 +905,13 @@ module chip_${top["name"]}_${target["name"]} (
   //////////////////////
   // Top-level design //
   //////////////////////
-
-  logic [rstmgr_pkg::PowerDomains-1:0] por_n;
-  assign por_n = {ast_pwst.main_pok, ast_pwst.aon_pok};
   top_${top["name"]} #(
+% if target["name"] != "asic":
     .PinmuxAonTargetCfg(PinmuxTargetCfg)
+% else:
+    .PinmuxAonTargetCfg(PinmuxTargetCfg),
+    .SecRomCtrlDisableScrambling(SecRomCtrlDisableScrambling)
+% endif
   ) top_${top["name"]} (
     // ast connections
     .por_n_i                      ( por_n                      ),
@@ -945,12 +946,10 @@ module chip_${top["name"]}_${target["name"]} (
     .obs_ctrl_i                   ( obs_ctrl                   ),
     .otp_ctrl_otp_ast_pwr_seq_o   ( otp_ctrl_otp_ast_pwr_seq   ),
     .otp_ctrl_otp_ast_pwr_seq_h_i ( otp_ctrl_otp_ast_pwr_seq_h ),
-    .otp_alert_o                  ( otp_alert                  ),
     .otp_obs_o                    ( otp_obs                    ),
     .flash_bist_enable_i          ( flash_bist_enable          ),
     .flash_power_down_h_i         ( flash_power_down_h         ),
     .flash_power_ready_h_i        ( flash_power_ready_h        ),
-    .flash_alert_o                ( flash_alert                ),
     .flash_obs_o                  ( fla_obs                    ),
     .es_rng_req_o                 ( es_rng_req                 ),
     .es_rng_rsp_i                 ( es_rng_rsp                 ),
@@ -1093,7 +1092,7 @@ module chip_${top["name"]}_${target["name"]} (
     .SramCtrlMainInstrExec(1),
     .PinmuxAonTargetCfg(PinmuxTargetCfg)
   ) top_${top["name"]} (
-    .por_n_i                      ( {rst_n, rst_n}        ),
+    .por_n_i                      ( por_n                 ),
     .clk_main_i                   ( ast_base_clks.clk_sys ),
     .clk_io_i                     ( ast_base_clks.clk_io  ),
     .clk_usb_i                    ( ast_base_clks.clk_usb ),
@@ -1120,7 +1119,6 @@ module chip_${top["name"]}_${target["name"]} (
     .flash_power_down_h_i         ( 1'b0                  ),
     .flash_power_ready_h_i        ( 1'b1                  ),
     .flash_obs_o                  ( flash_obs             ),
-    .flash_alert_o                ( flash_alert           ),
     .io_clk_byp_req_o             ( io_clk_byp_req        ),
     .io_clk_byp_ack_i             ( io_clk_byp_ack        ),
     .all_clk_byp_req_o            ( all_clk_byp_req       ),
@@ -1135,7 +1133,6 @@ module chip_${top["name"]}_${target["name"]} (
     .adc_rsp_i                    ( adc_rsp                    ),
     .otp_ctrl_otp_ast_pwr_seq_o   ( otp_ctrl_otp_ast_pwr_seq   ),
     .otp_ctrl_otp_ast_pwr_seq_h_i ( otp_ctrl_otp_ast_pwr_seq_h ),
-    .otp_alert_o                  ( otp_alert                  ),
     .otp_obs_o                    ( otp_obs                    ),
     .sensor_ctrl_ast_alert_req_i  ( ast_alert_req              ),
     .sensor_ctrl_ast_alert_rsp_o  ( ast_alert_rsp              ),

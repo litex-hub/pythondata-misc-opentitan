@@ -273,6 +273,7 @@ dif_result_t dif_flash_ctrl_get_allowed_prog_types(
   if (handle == NULL || allowed_types_out == NULL) {
     return kDifBadArg;
   }
+
   uint32_t reg = mmio_region_read32(handle->dev.base_addr,
                                     FLASH_CTRL_PROG_TYPE_EN_REG_OFFSET);
   dif_flash_ctrl_prog_capabilities_t allowed_types = {
@@ -292,6 +293,13 @@ dif_result_t dif_flash_ctrl_disallow_prog_types(
   if (handle == NULL) {
     return kDifBadArg;
   }
+
+  uint32_t ctrl_regwen = mmio_region_read32(handle->dev.base_addr,
+                                            FLASH_CTRL_CTRL_REGWEN_REG_OFFSET);
+  if (!bitfield_bit32_read(ctrl_regwen, FLASH_CTRL_CTRL_REGWEN_EN_BIT)) {
+    return kDifUnavailable;
+  }
+
   uint32_t reg = 0;
   reg = bitfield_bit32_write(reg, FLASH_CTRL_PROG_TYPE_EN_NORMAL_BIT,
                              !types_to_disallow.normal_prog_type);
@@ -620,11 +628,8 @@ dif_result_t dif_flash_ctrl_set_data_region_enablement(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_data_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_data_region_is_locked(handle, region, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -676,11 +681,8 @@ dif_result_t dif_flash_ctrl_set_info_region_enablement(
     return kDifBadArg;
   }
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_info_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_info_region_is_locked(handle, region, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -790,11 +792,8 @@ dif_result_t dif_flash_ctrl_set_data_region_properties(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_data_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_data_region_is_locked(handle, region, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -872,11 +871,8 @@ dif_result_t dif_flash_ctrl_set_info_region_properties(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_info_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_info_region_is_locked(handle, region, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -938,13 +934,10 @@ dif_result_t dif_flash_ctrl_lock_data_region_properties(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_data_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_data_region_is_locked(handle, region, &locked));
   if (locked) {
-    return kDifLocked;
+    return kDifOk;
   }
 
   uint32_t lock_reg_offset = get_data_region_lock_reg_offset(region);
@@ -964,13 +957,10 @@ dif_result_t dif_flash_ctrl_lock_info_region_properties(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_info_region_is_locked(handle, region, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_info_region_is_locked(handle, region, &locked));
   if (locked) {
-    return kDifLocked;
+    return kDifOk;
   }
 
   uint32_t lock_reg_offset = get_info_region_lock_reg_offset(region);
@@ -1020,11 +1010,8 @@ dif_result_t dif_flash_ctrl_set_bank_erase_enablement(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_bank_configuration_is_locked(handle, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_bank_configuration_is_locked(handle, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -1075,11 +1062,8 @@ dif_result_t dif_flash_ctrl_lock_bank_configuration(
   }
 
   bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_bank_configuration_is_locked(handle, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
+  DIF_RETURN_IF_ERROR(
+      dif_flash_ctrl_bank_configuration_is_locked(handle, &locked));
   if (locked) {
     return kDifLocked;
   }
@@ -1224,73 +1208,6 @@ dif_result_t dif_flash_ctrl_get_ecc_errors(
       bitfield_field32_read(reg, error_count_field);
   errors_out->last_error_address =
       mmio_region_read32(handle->dev.base_addr, last_addr_reg_offset);
-  return kDifOk;
-}
-
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_set_phy_configuration(
-    dif_flash_ctrl_state_t *handle, dif_flash_ctrl_phy_config_t config) {
-  if (handle == NULL) {
-    return kDifBadArg;
-  }
-
-  bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_phy_configuration_is_locked(handle, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
-  if (locked) {
-    return kDifLocked;
-  }
-
-  return kDifOk;
-}
-
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_get_phy_configuration(
-    const dif_flash_ctrl_state_t *handle,
-    dif_flash_ctrl_phy_config_t *config_out) {
-  if (handle == NULL || config_out == NULL) {
-    return kDifBadArg;
-  }
-
-  dif_flash_ctrl_phy_config_t phy_config;
-  phy_config.unused = 1;
-
-  // There is nothing at the moment
-  *config_out = phy_config;
-  return kDifOk;
-}
-
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_lock_phy_configuration(
-    dif_flash_ctrl_state_t *handle) {
-  if (handle == NULL) {
-    return kDifBadArg;
-  }
-
-  bool locked;
-  dif_result_t result =
-      dif_flash_ctrl_phy_configuration_is_locked(handle, &locked);
-  if (result != kDifOk) {
-    return result;
-  }
-  if (locked) {
-    return kDifLocked;
-  }
-
-  return kDifOk;
-}
-
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_phy_configuration_is_locked(
-    const dif_flash_ctrl_state_t *handle, bool *locked_out) {
-  if (handle == NULL || locked_out == NULL) {
-    return kDifBadArg;
-  }
-
-  *locked_out = 0;
   return kDifOk;
 }
 

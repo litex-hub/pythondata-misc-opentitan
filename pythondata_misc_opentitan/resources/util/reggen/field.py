@@ -4,13 +4,14 @@
 
 from typing import Dict, List, Optional
 
-from .access import SWAccess, HWAccess
-from .bits import Bits
-from .enum_entry import EnumEntry
-from .lib import (check_keys, check_str, check_name, check_bool,
-                  check_list, check_str_list, check_xint)
-from .params import ReggenParams
-from design.mubi.prim_mubi import is_width_valid, mubi_value_as_int  # type: ignore
+from design.mubi import prim_mubi # type: ignore
+
+from reggen.access import SWAccess, HWAccess
+from reggen.bits import Bits
+from reggen.enum_entry import EnumEntry
+from reggen.lib import (check_keys, check_str, check_name, check_bool,
+                        check_list, check_str_list, check_xint)
+from reggen.params import ReggenParams
 
 REQUIRED_FIELDS = {
     'bits': ['b', "bit or bit range (msb:lsb)"]
@@ -18,7 +19,11 @@ REQUIRED_FIELDS = {
 
 OPTIONAL_FIELDS = {
     'name': ['s', "name of the field"],
-    'desc': ['t', "description of field (required if the field has a name)"],
+    'desc': [
+        't',
+        "description of field (required if the field has a name). "
+        "This field supports the markdown syntax."
+    ],
     'alias_target': [
         's',
         "name of the field to apply the alias definition to."
@@ -161,12 +166,12 @@ class Field:
             chk_resval = check_bool(raw_resval, 'resval field for {}'.format(where))
 
             # Check mubi width is supported
-            if not is_width_valid(bits.width()):
+            if not prim_mubi.is_width_valid(bits.width()):
                 raise ValueError(f'mubi field for {name} does not support width '
                                  f'of {bits.width()}')
 
             # Get actual integer value based on mubi selection
-            raw_resval = mubi_value_as_int(chk_resval, bits.width())
+            raw_resval = prim_mubi.mubi_value_as_int(chk_resval, bits.width())
 
         if raw_resval is None:
             # The field doesn't define a reset value. Use bits from reg_resval

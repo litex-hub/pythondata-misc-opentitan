@@ -22,8 +22,9 @@ class chip_sw_gpio_smoke_vseq extends chip_sw_base_vseq;
   function void pre_randomize();
     int addr;
     // Find how many bytes the SW allocate for SW_SYM_GPIO_VALS, then convert to word size.
-    sw_symbol_get_addr_size({p_sequencer.cfg.sw_images[SwTypeTest], ".elf"},
-                            SW_SYM_GPIO_VALS, addr, num_gpio_vals);
+    void'(sw_symbol_get_addr_size(.elf_file({p_sequencer.cfg.sw_images[SwTypeTest], ".elf"}),
+                                  .symbol(SW_SYM_GPIO_VALS), .does_not_exist_ok(0), .addr(addr),
+                                  .size(num_gpio_vals)));
     num_gpio_vals /= 4;
   endfunction
 
@@ -40,7 +41,7 @@ class chip_sw_gpio_smoke_vseq extends chip_sw_base_vseq;
     super.body();
 
     // Wait until we reach the SW test state.
-    wait(cfg.sw_test_status_vif.sw_test_status == SwTestStatusInTest);
+    `DV_WAIT(cfg.sw_test_status_vif.sw_test_status == SwTestStatusInTest)
 
     // Disable the default pulldown on GPIOs.
     cfg.gpio_vif.set_pulldown_en({chip_env_pkg::NUM_GPIOS{1'b0}});

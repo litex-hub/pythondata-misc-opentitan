@@ -70,13 +70,37 @@ package kmac_pkg;
 
   // kmac_cmd_e defines the possible command sets that software issues via
   // !!CMD register. This is mainly to limit the error scenario that SW writes
-  // multiple commands at once.
-  typedef enum logic [3:0] {
-    CmdNone      = 4'b 0000,
-    CmdStart     = 4'b 0001,
-    CmdProcess   = 4'b 0010,
-    CmdManualRun = 4'b 0100,
-    CmdDone      = 4'b 1000
+  // multiple commands at once. Additionally they are sparse encoded to harden
+  // against FI attacks
+  //
+  // Encoding generated with:
+  // $ ./util/design/sparse-fsm-encode.py -d 3 -m 5 -n 6 \
+  //      -s 1891656028 --language=sv
+  //
+  // Hamming distance histogram:
+  //
+  //  0: --
+  //  1: --
+  //  2: --
+  //  3: |||||||||||||||||||| (50.00%)
+  //  4: |||||||||||||||| (40.00%)
+  //  5: |||| (10.00%)
+  //  6: --
+  //
+  // Minimum Hamming distance: 3
+  // Maximum Hamming distance: 5
+  // Minimum Hamming weight: 3
+  // Maximum Hamming weight: 4
+  //
+  typedef enum logic [5:0] {
+    //CmdNone      = 6'b001011, // dec 10
+    // CmdNone is manually set to all zero by design!
+    // The minimum Hamming distance is still 3
+    CmdNone      = 6'b000000, // dec  0
+    CmdStart     = 6'b011101, // dec 29
+    CmdProcess   = 6'b101110, // dec 46
+    CmdManualRun = 6'b110001, // dec 49
+    CmdDone      = 6'b010110  // dec 22
   } kmac_cmd_e;
 
   // Timer
@@ -184,12 +208,18 @@ package kmac_pkg;
     AppCShake = 1,
 
     // In KMAC mode, the secret key always comes from sideload.
+    // KMAC mode needs uniformly distributed entropy. The request will be
+    // silently discarded in Reset state.
     AppKMAC   = 2
   } app_mode_e;
 
   // Predefined encoded_string
-  parameter logic [15:0] EncodedStringEmpty = 16'h 0001;
-  parameter logic [47:0] EncodedStringKMAC = 48'h 4341_4D4B_2001;
+  parameter logic [15:0] EncodedStringEmpty   = 16'h                     0001;
+  parameter logic [47:0] EncodedStringKMAC    = 48'h           4341_4D4B_2001;
+  // encoded_string("LC_CTRL")
+  parameter logic [71:0] EncodedStringLcCtrl  = 72'h   4c_5254_435f_434C_3801;
+  // encoded_string("ROM_CTRL")
+  parameter logic [79:0] EncodedStringRomCtrl = 80'h 4c52_5443_5f4d_4f52_4001;
   parameter int unsigned NSPrefixW = sha3_pkg::NSRegisterSize*8;
 
   typedef struct packed {
@@ -213,8 +243,9 @@ package kmac_pkg;
     '{
       Mode:       AppKMAC, // KeyMgr uses KMAC operation
       Strength:   sha3_pkg::L256,
-      PrefixMode: 1'b 0,   // Use CSR for prefix
-      Prefix:     '0       // Not used in CSR prefix mode
+      PrefixMode: 1'b 1,   // Use prefix parameter
+      // {fname: encoded_string("KMAC"), custom_str: encoded_string("")}
+      Prefix:     NSPrefixW'({EncodedStringEmpty, EncodedStringKMAC})
     },
 
     // LC_CTRL
@@ -223,7 +254,7 @@ package kmac_pkg;
       Strength:   sha3_pkg::L128,
       PrefixMode: 1'b 1,     // Use prefix parameter
       // {fname: encode_string(""), custom_str: encode_string("LC_CTRL")}
-      Prefix: NSPrefixW'(88'h 4c_5254_435f_434C_3801_0001)
+      Prefix: NSPrefixW'({EncodedStringLcCtrl, EncodedStringEmpty})
     },
 
     // ROM_CTRL
@@ -232,7 +263,7 @@ package kmac_pkg;
       Strength:   sha3_pkg::L256,
       PrefixMode: 1'b 1,     // Use prefix parameter
       // {fname: encode_string(""), custom_str: encode_string("ROM_CTRL")}
-      Prefix: NSPrefixW'(96'h 4c52_5443_5f4d_4f52_4001_0001)
+      Prefix: NSPrefixW'({EncodedStringRomCtrl, EncodedStringEmpty})
     }
   };
 
@@ -353,7 +384,13 @@ package kmac_pkg;
     ErrShadowRegUpdate = 8'h C0,
 
     // Error due to lc_escalation_en_i or fatal fault
-    ErrFatalError = 8'h C1
+    ErrFatalError = 8'h C1,
+
+    // Error due to the counter integrity check failure inside MsgFifo.Packer
+    ErrPackerIntegrity = 8'h C2,
+
+    // Error due to the counter integrity check failure inside MsgFifo.Fifo
+    ErrMsgFifoIntegrity = 8'h C3
   } err_code_e;
 
   typedef struct packed {
@@ -361,6 +398,7 @@ package kmac_pkg;
     err_code_e   code; // Type of error
     logic [23:0] info; // Additional Debug info
   } err_t;
+  parameter int unsigned ErrInfoW = 24 ; // err_t::info
 
   typedef struct packed {
     logic [AppDigestW-1:0] digest_share0;

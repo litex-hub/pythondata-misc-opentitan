@@ -48,6 +48,7 @@ typedef struct dif_flash_ctrl_state {
  * @param base_addr The base address for the flash controller.
  * @return `kDifBadArg` if `handle` is null. `kDifOk` otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_init_state(dif_flash_ctrl_state_t *handle,
                                        mmio_region_t base_addr);
 
@@ -88,6 +89,7 @@ dif_flash_ctrl_device_info_t dif_flash_ctrl_get_device_info(void);
  * @param enable Enable/disable flash functionality.
  * @return `kDifBadArg` if `handle` is null. `kDifOk` otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_set_flash_enablement(dif_flash_ctrl_state_t *handle,
                                                  dif_toggle_t enable);
 
@@ -99,6 +101,7 @@ dif_result_t dif_flash_ctrl_set_flash_enablement(dif_flash_ctrl_state_t *handle,
  * @return `kDifBadArg` if `handle` or `enabled_out` are null and `kDifOk`
  * otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_get_flash_enablement(
     const dif_flash_ctrl_state_t *handle, dif_toggle_t *enabled_out);
 
@@ -110,6 +113,7 @@ dif_result_t dif_flash_ctrl_get_flash_enablement(
  * @return `kDifBadArg` if `handle` or `enabled_out` are null and `kDifOk`
  * otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_set_exec_enablement(dif_flash_ctrl_state_t *handle,
                                                 dif_toggle_t enable);
 
@@ -122,6 +126,7 @@ dif_result_t dif_flash_ctrl_set_exec_enablement(dif_flash_ctrl_state_t *handle,
  * @return `kDifBadArg` if `handle` or `enabled_out` are null and `kDifOk`
  * otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_get_exec_enablement(
     const dif_flash_ctrl_state_t *handle, dif_toggle_t *enabled_out);
 
@@ -135,6 +140,7 @@ dif_result_t dif_flash_ctrl_get_exec_enablement(
  * @return `kDifBadArg` if `handle` is null, `kDifError` if initialization has
  * already been started, and `kDifOk` otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_start_controller_init(
     dif_flash_ctrl_state_t *handle);
 
@@ -205,6 +211,7 @@ typedef struct dif_flash_ctrl_prog_capabilities {
  * @return `kDifBadArg` if `handle` or `allowed_types_out` are null. `kDifOk`
  * otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_get_allowed_prog_types(
     const dif_flash_ctrl_state_t *handle,
     dif_flash_ctrl_prog_capabilities_t *allowed_types_out);
@@ -220,6 +227,7 @@ dif_result_t dif_flash_ctrl_get_allowed_prog_types(
  * given type should be *disabled*.
  * @return `kDifBadArg` if handle is null. `kDifOk` otherwise.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_disallow_prog_types(
     dif_flash_ctrl_state_t *handle,
     dif_flash_ctrl_prog_capabilities_t types_to_disable);
@@ -1010,71 +1018,6 @@ OT_WARN_UNUSED_RESULT
 dif_result_t dif_flash_ctrl_get_ecc_errors(
     const dif_flash_ctrl_state_t *handle, uint32_t bank,
     dif_flash_ctrl_ecc_errors_t *errors_out);
-
-typedef struct dif_flash_ctrl_phy_config {
-  /**
-   * This struct is currently unused
-   */
-  bool unused : 1;
-} dif_flash_ctrl_phy_config_t;
-
-/**
- * Set the flash phy configuration.
- *
- * @param handle The flash controller device associated with the phy to
- * configure.
- * @param config The new configuration to be applied.
- * @return `kDifBadArg` if `handle` is null, `kDifLocked` if configuration is
- * locked out, and `kDifOk` otherwise.
- */
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_set_phy_configuration(
-    dif_flash_ctrl_state_t *handle, dif_flash_ctrl_phy_config_t config);
-
-/**
- * Get the current flash phy configuration.
- *
- * @param handle The flash controller device associated with the desired phy.
- * @param config Out parameter, pointer to the location where the current
- * configuration should be written.
- * @return `kDifBadArg` if `handle` or `config` are null. `kDifOk` otherwise.
- */
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_get_phy_configuration(
-    const dif_flash_ctrl_state_t *handle,
-    dif_flash_ctrl_phy_config_t *config_out);
-
-/**
- * Lock flash phy configuration until the device is reset.
- *
- * This will prevent any further configuration of the phy until the device is
- * reset. Future calls to functions that configure the flash phy will return
- * `kDifLocked`.
- *
- * @param handle flash controller device to lock flash phy configuration on.
- * @return `kDifBadArg` if `handle` is null, `kDifLocked` if configuration is
- * already locked, `kDifOk` otherwise.
- */
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_lock_phy_configuration(
-    dif_flash_ctrl_state_t *handle);
-
-/**
- * Query the state of the flash phy configuration lock.
- *
- * This function checks if flash phy configuration is still enabled or if it has
- * been locked. Once locked, region configuration cannot be enabled again, and
- * all calls to region configuration functions will return `kDifLocked` until
- * the device is restarted.
- *
- * @param handle flash controller device to check the lock state for.
- * @param locked_out Out-parameter, the current state of the flash phy's
- * configuration lock.
- * @return `kDifBadArg` if `handle` or `locked_out` is null. `kDifOk` otherwise.
- */
-OT_WARN_UNUSED_RESULT
-dif_result_t dif_flash_ctrl_phy_configuration_is_locked(
-    const dif_flash_ctrl_state_t *handle, bool *locked_out);
 
 typedef struct dif_flash_ctrl_phy_status {
   /** Flash phy controller is initializing. */

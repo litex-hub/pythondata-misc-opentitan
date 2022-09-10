@@ -3,14 +3,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_rust//rust:defs.bzl", "rust_library", "rust_test")
+load("//rules:ujson.bzl", "ujson_rust")
 
 package(default_visibility = ["//visibility:public"])
+
+ujson_rust(
+    name = "e2e_command",
+    srcs = ["//sw/device/silicon_creator/rom/e2e/json:command"],
+    defines = ["opentitanlib=crate"],
+)
+
+filegroup(
+    name = "config",
+    srcs = glob(["src/app/config/*.json"]),
+)
 
 rust_library(
     name = "opentitanlib",
     srcs = [
         "src/app/command.rs",
-        "src/app/conf.rs",
+        "src/app/config/mod.rs",
+        "src/app/config/structs.rs",
         "src/app/mod.rs",
         "src/backend/cw310.rs",
         "src/backend/hyperdebug.rs",
@@ -53,9 +66,12 @@ rust_library(
         "src/spiflash/mod.rs",
         "src/spiflash/sfdp.rs",
         "src/test_utils/bootstrap.rs",
+        "src/test_utils/e2e_command.rs",
         "src/test_utils/init.rs",
         "src/test_utils/load_bitstream.rs",
         "src/test_utils/mod.rs",
+        "src/test_utils/rpc.rs",
+        "src/test_utils/status.rs",
         "src/transport/common/mod.rs",
         "src/transport/common/uart.rs",
         "src/transport/cw310/gpio.rs",
@@ -101,12 +117,20 @@ rust_library(
         "src/util/parse_int.rs",
         "src/util/present.rs",
         "src/util/rom_detect.rs",
+        "src/util/unknown.rs",
         "src/util/usb.rs",
         "src/util/voltage.rs",
+    ],
+    compile_data = [
+        ":config",
+        ":e2e_command",
     ],
     proc_macro_deps = [
         "//sw/host/opentitanlib/opentitantool_derive",
     ],
+    rustc_env = {
+        "e2e_command": "$(location :e2e_command)",
+    },
     deps = [
         "//third_party/rust/crates:anyhow",
         "//third_party/rust/crates:bitflags",
@@ -148,6 +172,7 @@ rust_library(
 rust_test(
     name = "opentitanlib_test",
     compile_data = [
+        ":e2e_command",
         "src/bootstrap/simple.bin",
         "src/spiflash/SFDP_MX66L1G.bin",
     ],
@@ -163,4 +188,7 @@ rust_test(
         "src/otp/testdata/otp_ctrl_mmap.hjson",
         "src/otp/testdata/output.vmem",
     ],
+    rustc_env = {
+        "e2e_command": "$(location :e2e_command)",
+    },
 )

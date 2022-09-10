@@ -13,7 +13,7 @@
     { name:    "BootRomInitFile",
       type:    "",
       default: '""',
-      desc:    "Contents of mask ROM"
+      desc:    "Contents of ROM"
       local:   "false",
       expose:  "true"
     }
@@ -128,6 +128,15 @@
         comparison starts or to a value other than the last index after the
         comparison ends then an fatal alert is generated. This is handled by
         the wait_addr_alert and done_addr_alert signals in rom_ctrl_compare.
+      '''
+    },
+    {
+      name: "COMPARE.CTR.REDUN",
+      desc: '''
+        The hash comparison module has an internal count (indexing 32-bit words
+        in the 256-bit digests) implemented using a redundant counter module.
+        In case a mismatch is detected between the redundant counters a fatal
+        alert is generated.
       '''
     },
     {

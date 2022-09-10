@@ -21,7 +21,7 @@ from .wsr import WSRFile
 
 # The number of cycles spent per round of a secure wipe. This takes constant
 # time in the RTL, mirrored here.
-_WIPE_CYCLES = 67
+_WIPE_CYCLES = 68
 
 
 class FsmState(IntEnum):
@@ -128,6 +128,8 @@ class OTBNState:
         # we wouldn't see the final instruction get executed and then
         # cancelled).
         self.injected_err_bits = 0
+        self.lock_immediately = False
+        self.zero_insn_cnt_next = False
 
         # If this is set, all software errors should result in the model status
         # being locked.
@@ -136,6 +138,11 @@ class OTBNState:
         # This is a counter that keeps track of how many cycles have elapsed in
         # current fsm_state.
         self.cycles_in_this_state = 0
+
+        # RMA request changes state to LOCKED, basically an escalation from lifecycle
+        # controller. Initiates secure wiping through stop_at_end_of_cycle method and
+        # this flag.
+        self.rma_req = False
 
     def get_next_pc(self) -> int:
         if self._pc_next_override is not None:
@@ -344,7 +351,7 @@ class OTBNState:
         # might have updated state (either registers, memory or
         # externally-visible registers). We want to roll back any of those
         # changes.
-        if self._err_bits and self._fsm_state == FsmState.EXEC:
+        if (self._err_bits and self._fsm_state == FsmState.EXEC) or self.rma_req:
             self._abort()
 
         # INTR_STATE is the interrupt state register. Bit 0 (which is being
@@ -353,40 +360,49 @@ class OTBNState:
 
         should_lock = (((self._err_bits >> 16) != 0) or
                        ((self._err_bits >> 10) & 1) or
-                       (self._err_bits and self.software_errs_fatal))
+                       (self._err_bits and self.software_errs_fatal) or
+                       self.rma_req)
         # Make any error bits visible
         self.ext_regs.write('ERR_BITS', self._err_bits, True)
 
-        # Set the WIPE_START flag if we were running. This is used to tell the
-        # C++ model code that this is a good time to inspect DMEM and check
-        # that the RTL and model match. The flag will be cleared again on the
-        # next cycle.
-        if self._fsm_state == FsmState.EXEC:
-            # Make the final PC visible. This isn't currently in the RTL, but
-            # is useful in simulations that want to track whether we stopped
-            # where we expected to stop.
-            self.ext_regs.write('STOP_PC', self.pc, True)
-
-            self.ext_regs.write('WIPE_START', 1, True)
-            self.ext_regs.regs['WIPE_START'].commit()
-
-            # Switch to a 'wiping' state
-            self.set_fsm_state(FsmState.WIPING_BAD if should_lock
-                               else FsmState.WIPING_GOOD)
-        elif self._fsm_state in [FsmState.WIPING_BAD, FsmState.WIPING_GOOD]:
+        if self.lock_immediately:
             assert should_lock
-            self._next_fsm_state = FsmState.WIPING_BAD
+            self.set_fsm_state(FsmState.LOCKED)
+            self.ext_regs.write('STATUS', Status.LOCKED, True)
         else:
-            assert should_lock
-            self._next_fsm_state = FsmState.LOCKED
-            next_status = Status.LOCKED
-            self.ext_regs.write('STATUS', next_status, True)
+            # Set the WIPE_START flag if we were running. This is used to tell
+            # the C++ model code that this is a good time to inspect DMEM and
+            # check that the RTL and model match. The flag will be cleared
+            # again on the next cycle.
+            if self._fsm_state == FsmState.EXEC:
+                # Make the final PC visible. This isn't currently in the RTL,
+                # but is useful in simulations that want to track whether we
+                # stopped where we expected to stop.
+                self.ext_regs.write('STOP_PC', self.pc, True)
+
+                self.ext_regs.write('WIPE_START', 1, True)
+                self.ext_regs.regs['WIPE_START'].commit()
+
+                # Switch to a 'wiping' state
+                self.set_fsm_state(FsmState.WIPING_BAD if should_lock
+                                   else FsmState.WIPING_GOOD)
+            elif self._fsm_state in [FsmState.WIPING_BAD, FsmState.WIPING_GOOD]:
+                assert should_lock
+                self._next_fsm_state = FsmState.WIPING_BAD
+            elif self._init_sec_wipe_state == InitSecWipeState.DONE:
+                assert should_lock
+                self._next_fsm_state = FsmState.LOCKED
+                next_status = Status.LOCKED
+                self.ext_regs.write('STATUS', next_status, True)
 
         # Clear any pending request in the RND EDN client
         self.ext_regs.rnd_forget()
 
         # Clear the "we should stop soon" flag
         self.pending_halt = False
+
+        # Clear RMA request flag
+        self.rma_req = False
 
     def get_fsm_state(self) -> FsmState:
         return self._fsm_state

@@ -32,21 +32,24 @@ dual_cc_library(
     ),
     deps = dual_inputs(
         device = [
+            "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
             "//hw/top_earlgrey:alert_handler_regs",
             "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
+            ":lifecycle",
+            ":otp",
             "//sw/device/lib/base:abs_mmio",
             "//sw/device/lib/base:macros",
             "//sw/device/lib/base:memory",
             "//sw/device/lib/base:mmio",
+            "//sw/device/silicon_creator/lib:crc32",
             "//sw/device/silicon_creator/lib:error",
-            "//sw/device/silicon_creator/lib/base:sec_mmio",
         ],
     ),
 )
@@ -80,7 +83,6 @@ opentitan_functest(
         "//sw/device/lib/testing:rstmgr_testutils",
         "//sw/device/lib/testing/test_framework:ottf_main",
         "//sw/device/silicon_creator/lib:test_main",
-        "//sw/device/silicon_creator/lib/base:sec_mmio",
     ],
 )
 
@@ -110,7 +112,7 @@ cc_test(
     srcs = ["ast_unittest.cc"],
     deps = [
         ":ast",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -133,7 +135,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -175,7 +177,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -198,7 +200,7 @@ cc_test(
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:mmio",
         "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -232,7 +234,7 @@ cc_test(
     srcs = ["ibex_unittest.cc"],
     deps = [
         ":ibex",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -257,7 +259,7 @@ cc_test(
     srcs = ["keymgr_unittest.cc"],
     deps = [
         ":keymgr",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -306,7 +308,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -325,7 +327,7 @@ cc_test(
         dual_cc_device_library_of(":lifecycle"),
         "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -350,7 +352,7 @@ cc_test(
     srcs = ["otbn_unittest.cc"],
     deps = [
         ":otbn",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -372,7 +374,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -388,7 +390,7 @@ cc_test(
     srcs = ["otp_unittest.cc"],
     deps = [
         dual_cc_device_library_of(":otp"),
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -416,7 +418,7 @@ cc_test(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:macros",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -441,7 +443,7 @@ cc_test(
         ":retention_sram",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -485,7 +487,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -507,7 +509,7 @@ cc_test(
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:csr",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -541,7 +543,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -560,7 +562,7 @@ cc_test(
     srcs = ["rstmgr_unittest.cc"],
     deps = [
         dual_cc_device_library_of(":rstmgr"),
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -600,7 +602,7 @@ cc_test(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:mmio",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -644,7 +646,7 @@ cc_test(
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
         "//sw/device/silicon_creator/lib/drivers:otp",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -687,7 +689,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -710,7 +712,7 @@ cc_test(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/silicon_creator/lib:error",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )

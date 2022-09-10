@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import os
 import sys
 
 import hjson
@@ -22,19 +21,30 @@ RSA_3072_NUMWORDS = int(3072 / 32)
 # Number of 32-bit words in a 256-bit number
 INT_256_NUMWORDS = int(256 / 32)
 
-# Template file name
-TEMPLATE = 'sigverify_testvectors.h.tpl'
-
-# Default output file name
-DEFAULT_OUTFILE = 'sigverify_testvectors.h'
-
 
 def compute_n0_inv(n):
     '''Compute -(n^-1) mod 2^256, a Montgomery constant.
 
     Sigverify expects this constant to be precomputed.
     '''
-    return pow(-n, -1, 2**256)
+    # Note: On Python 3.8 and above, this could simply be: pow(-n, -1, 2**256).
+    # Unfortunately, older versions of Python 3 don't support negative modular
+    # exponents, so we use the standard algorithm from "Montgomery Arithmetic
+    # from a Software Perspective" (https://eprint.iacr.org/2017/1057)
+    # (algorithm 3).
+    w = 256
+    y = 1
+    # n0 = n mod 2^256
+    n0 = n & ((1 << 256) - 1)
+    # maski = 2^i - 1 (start with i=2)
+    maski = 3
+    for i in range(2, w + 1):
+        # (n * y) mod 2^i = (n0 * y) mod 2^i because i <= 256
+        if (n0 * y) & maski != 1:
+            y = y + (1 << (i - 1))
+        maski <<= 1
+        maski += 1
+    return (1 << w) - y
 
 
 def encode_message(msg_bytes):
@@ -49,9 +59,8 @@ def encode_message(msg_bytes):
     digest = SHA256.new(msg_bytes).digest()
 
     # T is the DER encoding of the digest
-    sha256_der_prefix = b'\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20'
-    T = sha256_der_prefix + digest
-
+    sha256_prefix = b'\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20'
+    T = sha256_prefix + digest
 
     # Encoding is 0x00 || 0x01 || PS || 0x00 || T
     # Encoded message should be 3072 / 8 = 384 bytes
@@ -90,16 +99,19 @@ def int_256_to_hexwords(x):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('hjsonfile',
+    parser.add_argument('--hjsonfile', '-j',
                         metavar='FILE',
+                        required=True,
                         type=argparse.FileType('r'),
                         help='Read test vectors from this HJSON file.')
-    out_default = open(
-        os.path.join(os.path.dirname(__file__), DEFAULT_OUTFILE), 'w')
-    parser.add_argument('headerfile',
+    parser.add_argument('--template', '-t',
                         metavar='FILE',
-                        nargs='?',
-                        default=out_default,
+                        required=True,
+                        type=argparse.FileType('r'),
+                        help='Read header template from this file.')
+    parser.add_argument('--headerfile', '-o',
+                        metavar='FILE',
+                        required=True,
                         type=argparse.FileType('w'),
                         help='Write output to this file.')
 
@@ -125,13 +137,9 @@ def main() -> int:
         encoded = int.from_bytes(encode_message(msg_bytes), byteorder='big')
         t['encoded_msg_hexwords'] = rsa_3072_int_to_hexwords(encoded)
 
-    # Find the header template and output file in the script's directory
-    tpl = open(os.path.join(os.path.dirname(__file__), TEMPLATE))
-
-    args.headerfile.write(Template(tpl.read()).render(tests=testvecs))
+    args.headerfile.write(Template(args.template.read()).render(tests=testvecs))
     args.headerfile.close()
-    out_default.close()
-    tpl.close()
+    args.template.close()
 
     return 0
 

@@ -469,6 +469,16 @@ typedef enum dif_entropy_src_error {
 } dif_entropy_src_error_t;
 
 /**
+ * Stops the current mode of operation and disables the entropy_src module
+ *
+ *
+ * @param entropy_src An entropy source handle.
+ * @return The result of the operation.
+ */
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_entropy_src_stop(const dif_entropy_src_t *entropy_src);
+
+/**
  * Configures entropy source with runtime information.
  *
  * This function should only need to be called once for the lifetime of the
@@ -633,11 +643,13 @@ dif_result_t dif_entropy_src_observe_fifo_blocking_read(
  * @param entropy_src An entropy source handle.
  * @param buf A buffer to push words from into the pipeline.
  * @param len The number of words to write from `buf`.
+ * @param[out] written The number of words successfully written.
  * @return The result of the operation.
  */
 OT_WARN_UNUSED_RESULT
 dif_result_t dif_entropy_src_observe_fifo_write(
-    const dif_entropy_src_t *entropy_src, const uint32_t *buf, size_t len);
+    const dif_entropy_src_t *entropy_src, const uint32_t *buf, size_t len,
+    size_t *written);
 
 /**
  * Starts conditioner operation.

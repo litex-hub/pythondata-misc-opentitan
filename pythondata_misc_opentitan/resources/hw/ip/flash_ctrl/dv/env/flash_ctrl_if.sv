@@ -8,6 +8,7 @@ interface flash_ctrl_if ();
   import lc_ctrl_pkg::*;
   import pwrmgr_pkg::*;
   import flash_ctrl_pkg::*;
+  import flash_phy_pkg::*;
   import otp_ctrl_pkg::*;
   import ast_pkg::*;
 
@@ -39,10 +40,22 @@ interface flash_ctrl_if ();
   logic                             cio_tdo_en;
   logic                             cio_tdo;
 
-  // alert
-  ast_dif_t                         flash_alert;
-
   // power ready
   logic                             power_ready_h = 1'b1;
+
+  // eviction
+  logic [flash_ctrl_pkg::NumBanks-1:0][NumBuf-1:0] hazard;
+  rd_buf_t [flash_ctrl_pkg::NumBanks-1:0][NumBuf-1:0] rd_buf;
+  logic [flash_ctrl_pkg::NumBanks-1:0]             evict_prog;
+  logic [flash_ctrl_pkg::NumBanks-1:0]             evict_erase;
+  logic                                            fatal_err;
+
+  // rma coverage
+  logic       rd_buf_en;
+  rma_state_e rma_state;
+  logic [10:0] prog_state0;
+  logic [10:0] prog_state1;
+  logic [10:0] lcmgr_state;
+  logic        init;
 
 endinterface : flash_ctrl_if

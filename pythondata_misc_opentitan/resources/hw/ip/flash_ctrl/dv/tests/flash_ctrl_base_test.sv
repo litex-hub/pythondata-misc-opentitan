@@ -58,6 +58,21 @@ class flash_ctrl_base_test #(
     void'($value$plusargs("serr_pct=%0d", cfg.serr_pct));
     void'($value$plusargs("derr_pct=%0d", cfg.derr_pct));
     void'($value$plusargs("ierr_pct=%0d", cfg.ierr_pct));
+    void'($value$plusargs("otf_num_rw=%0d", cfg.otf_num_rw));
+    void'($value$plusargs("otf_num_hr=%0d", cfg.otf_num_hr));
+    void'($value$plusargs("otf_wr_pct=%0d", cfg.otf_wr_pct));
+    void'($value$plusargs("otf_rd_pct=%0d", cfg.otf_rd_pct));
+    void'($value$plusargs("en_always_all=%0d", cfg.en_always_all));
+    void'($value$plusargs("en_always_read=%0d", cfg.en_always_read));
+    void'($value$plusargs("en_always_erase=%0d", cfg.en_always_erase));
+    void'($value$plusargs("en_always_prog=%0d", cfg.en_always_prog));
+    if (cfg.en_always_all) begin
+      cfg.en_always_read = 1;
+      cfg.en_always_prog = 1;
+      cfg.en_always_erase = 1;
+    end
+    cfg.en_always_any = (cfg.en_always_read | cfg.en_always_erase |
+                         cfg.en_always_prog);
   endfunction
 
   task run_phase(uvm_phase phase);
@@ -71,9 +86,11 @@ class flash_ctrl_base_test #(
 
     repeat(run_cnt) begin
       run_seq(test_seq_s, phase);
-      env.virtual_sequencer.stop_sequences();
-      `uvm_info("Test", $sformatf("TESTEND %0d",++dbg_run_cnt), UVM_MEDIUM)
-      foreach (env.m_tl_agents[i]) env.m_tl_agents[i].monitor.pending_a_req.delete();
+      if (run_cnt > 1) begin
+        env.virtual_sequencer.stop_sequences();
+        `uvm_info("Test", $sformatf("TESTEND %0d",++dbg_run_cnt), UVM_MEDIUM)
+        foreach (env.m_tl_agents[i]) env.m_tl_agents[i].monitor.pending_a_req.delete();
+      end
     end
     phase.drop_objection(this);
 

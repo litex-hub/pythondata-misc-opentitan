@@ -41,10 +41,18 @@ class flash_ctrl_scoreboard #(
 
   // ecc error expected
   bit ecc_error_addr[bit [AddrWidth - 1 : 0]];
+  int over_rd_err[addr_t];
+
+   //host error injection
+  bit in_error_addr[bit [AddrWidth - 1 : 0]];
 
   // TLM agent fifos
   uvm_tlm_analysis_fifo #(tl_seq_item)       eflash_tl_a_chan_fifo;
   uvm_tlm_analysis_fifo #(tl_seq_item)       eflash_tl_d_chan_fifo;
+
+  bit skip_read_check = 0;
+
+  flash_phy_pkg::rd_buf_t evict_q[NumBanks][$];
 
   // utility function to word-align an input TL address
   function addr_t word_align_addr(addr_t addr);
@@ -68,8 +76,56 @@ class flash_ctrl_scoreboard #(
     fork
       process_eflash_tl_a_chan_fifo();
       process_eflash_tl_d_chan_fifo();
+      mon_eviction();
+      mon_rma();
     join_none
   endtask
+
+  task mon_rma;
+    bit init_set = 0;
+    forever begin
+      @(negedge cfg.clk_rst_vif.clk);
+      if (init_set == 0 && cfg.flash_ctrl_vif.init == 1) begin
+        init_set = 1;
+        if (cfg.en_cov) cov.rma_init_cg.sample(cfg.flash_ctrl_vif.rma_state);
+      end
+    end
+  endtask // mon_rma
+
+  task mon_eviction;
+    flash_mp_region_cfg_t my_region;
+    bit ecc_en, scr_en;
+    int page;
+    bit [OTFBankId:0] addr;
+    forever begin
+      @(negedge cfg.clk_rst_vif.clk);
+      for (int i = 0;i < NumBanks; i++) begin
+        foreach (cfg.flash_ctrl_vif.hazard[i][j]) begin
+          if (cfg.flash_ctrl_vif.hazard[i][j]) begin
+            addr =cfg.flash_ctrl_vif.rd_buf[i][j].addr<<3;
+            page = cfg.addr2page(addr);
+            if (cfg.flash_ctrl_vif.rd_buf[i][j].part == 0) begin // data
+              my_region = cfg.get_region(page + 256*i);
+            end else begin // info
+              my_region =
+                cfg.get_region_from_info(
+                    cfg.mp_info[i][cfg.flash_ctrl_vif.rd_buf[i][j].info_sel][page]);
+            end
+            ecc_en = (my_region.ecc_en == MuBi4True);
+            scr_en = (my_region.scramble_en == MuBi4True);
+            `uvm_info(`gfn,
+                      $sformatf({"eviction bank%0d buffer%0d addr:0x%x(%x)",
+                                 " page:%0d ecc_en:%0d scr_en:%0d"},
+                                i, j ,cfg.flash_ctrl_vif.rd_buf[i][j].addr,
+                                addr, page, ecc_en, scr_en), UVM_MEDIUM)
+            if (cfg.en_cov) cov.eviction_cg.sample(j, {cfg.flash_ctrl_vif.evict_prog[i],
+                                                       cfg.flash_ctrl_vif.evict_erase[i]},
+                                                   {scr_en, ecc_en});
+          end
+        end
+      end
+    end
+  endtask // mon_eviction
 
   // Task for receiving addr trans and storing them for later usage
   virtual task process_eflash_tl_a_chan_fifo();
@@ -153,7 +209,7 @@ class flash_ctrl_scoreboard #(
     bit            data_phase_write = (write && channel == DataChannel);
     flash_op_t     flash_op_cov;
     bit            erase_req;
-
+    if (skip_read_check) do_read_check = 0;
     // if access was to a valid csr, get the csr handle
     if ((is_mem_addr(
             item, ral_name
@@ -248,6 +304,23 @@ class flash_ctrl_scoreboard #(
                  cov.erase_susp_cg.sample(erase_req);
                end
             end
+            "intr_test": begin
+               bit [TL_DW-1:0] intr_en = `gmv(ral.intr_enable);
+               bit [NumFlashCtrlIntr-1:0] intr_exp = `gmv(ral.intr_state);
+               intr_exp |= item.a_data;
+               foreach (intr_exp[i]) begin
+                  if (cfg.en_cov) begin
+                     cov.intr_test_cg.sample(i, item.a_data[i], intr_en[i], intr_exp[i]);
+                  end
+               end
+            end
+            "exec": begin
+              bit is_exec_key = `gmv(ral.exec) == CODE_EXEC_KEY;
+              tlul_pkg::tl_a_user_t a_user = item.a_user;
+              if (cfg.en_cov) begin
+                cov.fetch_code_cg.sample(is_exec_key, a_user.instr_type);
+              end
+            end
             default: begin
             // TODO: Uncomment once func cover is implemented
             // `uvm_info(`gfn, $sformatf("Not for func coverage: %0s", csr.get_full_name()))
@@ -263,26 +336,36 @@ class flash_ctrl_scoreboard #(
           // process the csr req
           // for write, update local variable and fifo at address phase
           // for read, update predication at address phase and compare at data phase
+          if(!uvm_re_match("err_code*",csr.get_name())) begin
+            if (cfg.en_cov) begin
+              cov.error_cg.sample(item.d_data);
+            end
+          end
           case (csr.get_name())
             // add individual case item for each csr
             "intr_state": begin
+              bit [TL_DW-1:0] intr_en = `gmv(ral.intr_enable);
+              bit [NumFlashCtrlIntr-1:0] intr_exp = `gmv(ral.intr_state);
+              csr_rd(.ptr(ral.curr_fifo_lvl), .value(data), .backdoor(1'b1));
+              if (cfg.en_cov) begin
+                foreach (intr_exp[i]) begin
+                  flash_ctrl_intr_e intr = flash_ctrl_intr_e'(i);
+                  cov.intr_cg.sample(i, intr_en[i], item.d_data[i]);
+                  cov.intr_pins_cg.sample(i, cfg.intr_vif.pins[i]);
+                end
+                cov.fifo_lvl_cg.sample(data[4:0], data[12:8]);
+              end
               // Skip read check on intr_state CSR, since it is WO.
               do_read_check = 1'b0;
             end
 
-            "intr_enable": begin
-            end
-
-            "intr_test": begin
-            end
-
-            "op_status", "status", "erase_suspend", "err_code",
-            "ecc_single_err_cnt", "ecc_single_err_addr_0",
-            "ecc_single_err_addr_1": begin
-              // TODO: FIXME
+            "op_status", "status", "erase_suspend", "curr_fifo_lvl", "debug_state",
+            "ecc_single_err_cnt", "ecc_single_err_addr_0", "ecc_single_err_addr_1": begin
               do_read_check = 1'b0;
             end
-
+            "err_code": begin
+              do_read_check = 1'b0;
+            end
             default: begin
               // TODO: uncomment when all CSRs are specified
               // `uvm_fatal(`gfn, $sformatf("CSR access not processed: %0s", csr.get_full_name()))
@@ -292,12 +375,6 @@ class flash_ctrl_scoreboard #(
           if (do_read_check) begin
             `DV_CHECK_EQ(csr.get_mirrored_value(), item.d_data, $sformatf(
                          "reg name: %0s", csr.get_full_name()))
-            if (csr.get_name() == "err_code") begin
-              csr_rd(.ptr(ral.err_code), .value(data), .backdoor(1));
-              if (cfg.en_cov) begin
-                cov.error_cg.sample(data);
-              end
-            end
           end
           void'(csr.predict(.value(item.d_data), .kind(UVM_PREDICT_READ)));
         end else if (is_mem_addr(item, ral_name) && cfg.scb_check) begin  // rd fifo
@@ -352,6 +429,9 @@ class flash_ctrl_scoreboard #(
     if (cfg.scb_check && cfg.check_full_scb_mem_model) begin
       cfg.check_mem_model();
     end
+
+    `DV_CHECK_EQ(cfg.tlul_core_obs_cnt, cfg.tlul_core_exp_cnt,
+                 "core_tlul_error_cnt mismatch")
   endfunction
 
   virtual function flash_dv_part_e calc_part(bit part_sel, bit [1:0] info_sel);
@@ -391,24 +471,24 @@ class flash_ctrl_scoreboard #(
   virtual function void erase_data(flash_dv_part_e part, addr_t addr, bit sel);
     case (part)
       FlashPartData: begin
-        erase_page_bank(NUM_BK_DATA_WORDS, addr, sel, cfg.scb_flash_data);
+        erase_page_bank(NUM_BK_DATA_WORDS, addr, sel, cfg.scb_flash_data, "scb_flash_data");
       end
       FlashPartInfo: begin
         if (sel) begin
-          erase_page_bank(NUM_BK_DATA_WORDS, addr, sel, cfg.scb_flash_data);
+          erase_page_bank(NUM_BK_DATA_WORDS, addr, sel, cfg.scb_flash_data, "scb_flash_data");
         end
-        erase_page_bank(NUM_BK_INFO_WORDS, addr, sel, cfg.scb_flash_info);
+        erase_page_bank(NUM_BK_INFO_WORDS, addr, sel, cfg.scb_flash_info, "scb_flash_info");
       end
       FlashPartInfo1: begin
         if (!sel) begin
-          erase_page_bank(NUM_PAGE_WORDS, addr, sel, cfg.scb_flash_info1);
+          erase_page_bank(NUM_PAGE_WORDS, addr, sel, cfg.scb_flash_info1, "scb_flash_info1");
         end else begin
           `uvm_fatal(`gfn, "flash_ctrl_scoreboard: Bank erase for INFO1 part not supported!")
         end
       end
       FlashPartInfo2: begin
         if (!sel) begin
-          erase_page_bank(NUM_PAGE_WORDS, addr, sel, cfg.scb_flash_info2);
+          erase_page_bank(NUM_PAGE_WORDS, addr, sel, cfg.scb_flash_info2, "scb_flash_info2");
         end else begin
           `uvm_fatal(`gfn, "flash_ctrl_scoreboard: Bank erase for INFO2 part not supported!")
         end
@@ -670,7 +750,8 @@ class flash_ctrl_scoreboard #(
   endtask
 
   virtual function void erase_page_bank(int num_bk_words, addr_t addr, bit sel,
-                                        ref data_model_t exp_part);
+                                        ref data_model_t exp_part,
+                                        input string scb_mem_name);
     int num_wr;
     if (sel) begin  // bank sel
       num_wr = num_bk_words;
@@ -687,7 +768,7 @@ class flash_ctrl_scoreboard #(
     for (int i = 0; i < num_wr; i++) begin
       if (exp_part.exists(addr)) begin
         exp_part[addr] = {TL_DW{1'b1}};
-        `uvm_info(`gfn, $sformatf("ERASE ADDR:0x%0h scb_flash_data: 0x%0h", addr, exp_part[addr]),
+        `uvm_info(`gfn, $sformatf("ERASE ADDR:0x%0h %s: 0x%0h", addr, scb_mem_name, exp_part[addr]),
                   UVM_LOW)
       end
       addr = addr + 4;
@@ -697,25 +778,42 @@ class flash_ctrl_scoreboard #(
   // Overriden function from cip_base_scoreboard, to handle TL/UL Error seen on Hardware Interface
   // when using Code Access Restrictions (EXEC)
   virtual function bit predict_tl_err(tl_seq_item item, tl_channels_e channel, string ral_name);
-    bit   ecc_err;
+    bit   ecc_err, in_err;
     // For flash, address has to be 8byte aligned.
     ecc_err = ecc_error_addr.exists({item.a_addr[AddrWidth-1:3],3'b0});
-
+    in_err = in_error_addr.exists({item.a_addr[AddrWidth-1:3],3'b0});
     `uvm_info("predic_tl_err_dbg",
-              $sformatf("addr:0x%x(%x) ecc_err:%0d channel:%s ral_name:%s",
+              $sformatf("addr:0x%x(%x) ecc_err:%0d in_err:%0d channel:%s ral_name:%s",
                         {item.a_addr[AddrWidth-1:3],3'b0},
-                        item.a_addr, ecc_err,
+                        item.a_addr, ecc_err, in_err,
                         channel.name, ral_name
                         ), UVM_MEDIUM)
 
-    if ((ral_name == cfg.flash_ral_name) && (get_flash_instr_type_err(item, channel))) return (1);
-    else if (ecc_err) begin
-      if (channel == DataChannel) begin
-        `DV_CHECK_EQ(item.d_error, 1, $sformatf("On interface %s, TL item: %s, ecc_err:%0d",
-                                                ral_name, item.sprint(uvm_default_line_printer),
-                                                ecc_err))
-        return 1;
+    if (over_rd_err.exists(item.a_addr)) begin
+      if (channel == DataChannel)  begin
+        over_rd_err[item.a_addr]--;
+        if (over_rd_err[item.a_addr] == 0) over_rd_err.delete(item.a_addr);
+        `uvm_info(`gfn, $sformatf("addr is clear 0x%x", item.a_addr), UVM_HIGH)
       end
+      return 1;
+    end
+
+    if (ral_name == cfg.flash_ral_name) begin
+       if (get_flash_instr_type_err(item, channel)) return (1);
+    end else begin
+       if (cfg.tlul_core_exp_cnt > 0 && item.d_error == 1) begin
+          cfg.tlul_core_obs_cnt++;
+          return 1;
+       end
+       if (ecc_err | in_err) begin
+          if (channel == DataChannel) begin
+             `DV_CHECK_EQ(item.d_error, 1,
+                          $sformatf("On interface %s, TL item: %s, ecc_err:%0d in_err:%0d",
+                                    ral_name, item.sprint(uvm_default_line_printer),
+                                    ecc_err, in_err))
+             return 1;
+          end
+       end
     end
     return (super.predict_tl_err(item, channel, ral_name));
   endfunction : predict_tl_err

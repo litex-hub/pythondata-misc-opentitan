@@ -16,6 +16,11 @@ OUTPUT_ARCH(riscv)
  */
 __DYNAMIC = 0;
 
+/* Reserving space at the top of the RAM for the stack. */
+_stack_size = 0x2000;
+_stack_end = ORIGIN(ram_main) + LENGTH(ram_main);
+_stack_start = _stack_end - _stack_size;
+
 /**
  * Marking the entry point correctly for the ELF file. The signer tool will
  * transfer this value to the `entry_point` field of the manifest, which will
@@ -49,6 +54,7 @@ _manifest_entry_point = _start_boot - _slot_start_address;
 SECTIONS {
   .manifest _slot_start_address : {
     KEEP(*(.manifest))
+    . = ALIGN(256);
   } > owner_flash
 
   /**
@@ -93,6 +99,12 @@ SECTIONS {
     *(.rodata)
     *(.rodata.*)
   } > owner_flash
+
+  /**
+   * Critical static data that is accessible by both the ROM and the ROM
+   * extension.
+   */
+  INCLUDE sw/device/silicon_creator/lib/base/static_critical.ld
 
   /**
    * Mutable data section, at the bottom of ram_main. This will be initialized

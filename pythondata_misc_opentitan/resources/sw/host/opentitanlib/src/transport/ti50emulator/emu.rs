@@ -9,16 +9,19 @@ use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::{ErrorKind, Read};
+use std::os::unix::fs::FileTypeExt;
 use std::os::unix::net::UnixListener;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command};
 use std::rc::Rc;
+use std::thread;
 use std::time::Duration;
 
 use anyhow::{bail, Context, Result};
 use log;
 use nix::sys::signal::{self, Signal};
 use nix::unistd::Pid;
+use serde::{Deserialize, Serialize};
 
 use crate::io::emu::{EmuError, EmuState, EmuValue, Emulator};
 use crate::transport::ti50emulator::gpio::GpioConfiguration;
@@ -30,8 +33,11 @@ const MAX_RETRY: usize = 5;
 const PATTERN: &[u8; 5] = b"READY";
 pub const EMULATOR_INVALID_ID: u64 = 0;
 
+#[derive(Serialize, Deserialize)]
 pub struct EmulatorConfig {
-    pub gpio_config: HashMap<String, GpioConfiguration>,
+    pub gpio: HashMap<String, GpioConfiguration>,
+    pub uart: HashMap<String, String>,
+    pub i2c: HashMap<String, String>,
 }
 
 pub struct EmulatorProcess {
@@ -93,7 +99,7 @@ impl EmulatorProcess {
         let args_list = vec![
             OsString::from("--path"),
             self.runtime_directory.clone().into_os_string(),
-            OsString::from("--get_configs"),
+            OsString::from("--gen_configs"),
         ];
 
         let exec: PathBuf = match self.current_args.get("exec") {
@@ -113,12 +119,11 @@ impl EmulatorProcess {
             .context("Could not spawn sub-process")?;
         if status.success() {
             log::info!("Ti50Emulator parsing configurations");
-            let file = File::open(self.runtime_directory.join("gpio_init_conf.json"))?;
+            let file = File::open(self.runtime_directory.join("he_conf.json"))
+                .context("Configuration file open error")?;
             let reader = BufReader::new(file);
-            let config = EmulatorConfig {
-                gpio_config: serde_json::from_reader(reader)
-                    .context("Configuration file parsing error")?,
-            };
+            let config: EmulatorConfig =
+                serde_json::from_reader(reader).context("Configuration parsing error")?;
             return Ok(config);
         } else {
             bail!(EmuError::RuntimeError(format!(
@@ -170,10 +175,6 @@ impl EmulatorProcess {
     /// Run Emulator executable as sub-process and wait until Emulator is ready to work.
     fn spawn_process(&mut self) -> Result<()> {
         let socket_path = self.runtime_directory.join("control_soc");
-        let control_socket = UnixListener::bind(&socket_path)?;
-        control_socket
-            .set_nonblocking(true)
-            .context("Set non-blocking to socket fail")?;
 
         let mut args_list = Vec::new();
 
@@ -181,7 +182,7 @@ impl EmulatorProcess {
         args_list.push(self.runtime_directory.clone().into_os_string());
 
         args_list.push(OsString::from("--control_socket"));
-        args_list.push(socket_path.into_os_string());
+        args_list.push(socket_path.clone().into_os_string());
 
         match self.current_args.get("apps") {
             Some(EmuValue::StringList(apps)) => {
@@ -217,6 +218,45 @@ impl EmulatorProcess {
             }
         };
 
+        log::info!("Waiting for sub-process start");
+        let ready_handle = thread::spawn(move || {
+            let control_socket = UnixListener::bind(socket_path).unwrap();
+            control_socket
+                .set_nonblocking(true)
+                .expect("Can't set non-blocking socket");
+            let mut buffer = [0u8; 8];
+            let mut retry = 0;
+            for stream in control_socket.incoming() {
+                match stream {
+                    Ok(mut socket) => {
+                        let len = socket.read(&mut buffer[..]).unwrap();
+                        if PATTERN[..] == buffer[0..PATTERN.len()] {
+                            log::info!("Ti50Emulator ready");
+                        }
+                        return Ok(len);
+                    }
+                    Err(err) if err.kind() == ErrorKind::WouldBlock => {
+                        log::debug!("Wait for sub-process...");
+                        std::thread::sleep(TIMEOUT);
+                        retry += 1;
+                        if retry >= MAX_RETRY {
+                            return Err(EmuError::StartFailureCause(
+                                "Spawning Ti50Emulator sub-process timeout".to_string(),
+                            ));
+                        }
+                    }
+                    Err(_err) => {
+                        return Err(EmuError::RuntimeError(
+                            "Control socket io error".to_string(),
+                        ));
+                    }
+                }
+            }
+            return Err(EmuError::StartFailureCause(
+                "Waiting for sub-process failed".to_string(),
+            ));
+        });
+
         log::info!("Spawning Ti50Emulator sub-process");
         log::info!("Command: {} {:?}", exec.display(), args_list);
         let handle = Command::new(&exec)
@@ -224,38 +264,13 @@ impl EmulatorProcess {
             .spawn()
             .context("Could not spawn sub-process")?;
         self.proc = Some(handle);
-        let mut buffer = [0u8, 8];
-        let mut retry = 0;
-        while retry < MAX_RETRY {
-            match control_socket.accept() {
-                Ok((mut socket, _address)) => {
-                    let len = socket
-                        .read(&mut buffer)
-                        .context("Control socket read error")?;
-                    if len >= PATTERN.len() && PATTERN[..] == buffer[0..PATTERN.len()] {
-                        log::info!("Ti50Emulator ready");
-                        return Ok(());
-                    }
-                }
-                Err(err) if err.kind() == ErrorKind::WouldBlock => {
-                    log::debug!("Wait for sub-process...");
-                    std::thread::sleep(TIMEOUT);
-                }
-                Err(err) => {
-                    self.state = EmuState::Error;
-                    bail!(EmuError::StartFailureCause(format!(
-                        "Can't connect to other end of sub-process control socket error:{}",
-                        err
-                    )));
-                }
-            }
-            retry += 1;
+        match ready_handle
+            .join()
+            .expect("Can't join control socket thread")
+        {
+            Ok(_) => Ok(()),
+            Err(err) => Err(err.into()),
         }
-        Err(EmuError::StartFailureCause(format!(
-            "Ti50 sub-process spawn failure to many tries MAX_RETRY: {}",
-            MAX_RETRY
-        ))
-        .into())
     }
 
     /// The function tries to safely terminate the Emulator sub-process.
@@ -264,15 +279,18 @@ impl EmulatorProcess {
     /// If all method fail, it returns an EmuError.
     fn stop_process(&mut self) -> Result<()> {
         self.power_cycle_count += 1;
-        if let Some(handle) = &self.proc {
+        if let Some(handle) = &mut self.proc {
             let pid = handle.id() as i32;
+            log::debug!("Stop sub-process PID:{} SIGTERM", pid);
             signal::kill(Pid::from_raw(pid), Signal::SIGTERM)
                 .context("Stop sub-process using SIGTERM")?;
             for _retry in 0..MAX_RETRY {
-                std::thread::sleep(TIMEOUT);
-                match signal::kill(Pid::from_raw(pid), None) {
-                    Ok(()) => {}
-                    Err(nix::Error::Sys(nix::errno::Errno::ESRCH)) => {
+                log::debug!("Stop sub-process PID:{} ...", pid);
+                match handle.try_wait() {
+                    Ok(None) => {}
+                    Ok(Some(status)) => {
+                        log::info!("Stop sub-process terminated PID: {} {}", pid, status);
+                        self.cleanup()?;
                         self.state = EmuState::Off;
                         self.proc = None;
                         return Ok(());
@@ -285,29 +303,55 @@ impl EmulatorProcess {
                         )));
                     }
                 }
+                std::thread::sleep(TIMEOUT);
             }
-            signal::kill(Pid::from_raw(pid), Signal::SIGKILL)
-                .context("Stop sub-process using SIGKILL")?;
-            std::thread::sleep(TIMEOUT);
-            match signal::kill(Pid::from_raw(pid), None) {
-                Err(nix::Error::Sys(nix::errno::Errno::ESRCH)) => {
-                    self.proc = None;
-                    self.state = EmuState::Off;
-                    return Ok(());
+            log::debug!("Stop sub-process PID:{} SIGKILL", pid);
+            for _retry in 0..MAX_RETRY {
+                match signal::kill(Pid::from_raw(pid), Signal::SIGKILL) {
+                    Ok(()) => {}
+                    Err(nix::Error::Sys(nix::errno::Errno::ESRCH)) => {
+                        log::debug!("Stop sub-process PID:{} process terminated", pid);
+                        self.cleanup()?;
+                        self.proc = None;
+                        self.state = EmuState::Off;
+                        return Ok(());
+                    }
+                    Err(e) => {
+                        self.proc = None;
+                        self.state = EmuState::Error;
+                        bail!(EmuError::StopFailureCause(format!(
+                            "Unable to stop process pid:{} error:{}",
+                            pid, e
+                        )));
+                    }
                 }
-                _ => {
-                    self.proc = None;
-                    self.state = EmuState::Error;
-                    bail!(EmuError::StopFailureCause(format!(
-                        "Unable to stop process pid:{}",
-                        pid
-                    )));
-                }
+                std::thread::sleep(TIMEOUT);
             }
+            self.state = EmuState::Error;
+            return Err(EmuError::StopFailureCause(format!(
+                "Timeout unable to stop process pid:{}",
+                pid,
+            ))
+            .into());
         } else {
             if self.state == EmuState::Error {
                 log::warn!("Stop sub-process don't exist clean error state");
+                self.cleanup()?;
                 self.state = EmuState::Off;
+            }
+        }
+        Ok(())
+    }
+
+    /// Method remove all peripheral files placed in the runtime directory.
+    fn cleanup(&mut self) -> Result<()> {
+        log::debug!("Cleanup runtime directory");
+        for file in fs::read_dir(&self.runtime_directory)? {
+            let path = file.unwrap().path();
+            let meta = fs::metadata(&path)?;
+            let file_type = meta.file_type();
+            if file_type.is_socket() || file_type.is_fifo() {
+                fs::remove_file(&path)?;
             }
         }
         Ok(())

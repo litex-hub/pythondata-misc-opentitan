@@ -15,10 +15,10 @@ ARG RUST_VERSION=1.60.0
 # This should match the version in bazelish.sh.
 ARG BAZELISK_VERSION=v1.11.0
 # This should match the version in ci/install-package-dependencies.sh
-ARG GCC_VERION=9
+ARG GCC_VERSION=9
 
 # Main container image.
-FROM ubuntu:18.04 AS opentitan
+FROM ubuntu:20.04 AS opentitan
 ARG VERILATOR_VERSION
 ARG OPENOCD_VERSION
 ARG VERIBLE_VERSION
@@ -36,7 +36,7 @@ RUN ln -sf /bin/bash /bin/sh
 
 # Add OBS repository to apt sources.
 RUN OBS_URL="https://download.opensuse.org/repositories"; \
-    OBS_PATH="/home:/phiwag:/edatools/xUbuntu_18.04"; \
+    OBS_PATH="/home:/phiwag:/edatools/xUbuntu_20.04"; \
     REPO_URL="${OBS_URL}${OBS_PATH}"; \
     \
     EDATOOLS_REPO_KEY="${REPO_URL}/Release.key"; \
@@ -63,6 +63,11 @@ RUN OBS_URL="https://download.opensuse.org/repositories"; \
 # - minicom and screen are useful to see UART communication.
 # - dc and time are requirements of Synopsys VCS.
 # - software-properties-common is required to be able to install newer gcc versions.
+
+# Necessary to avoid user interaction with tzdata during install
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
 COPY apt-requirements.txt /tmp/apt-requirements.txt
 RUN echo "verilator-${VERILATOR_VERSION}" >>/tmp/apt-requirements.txt \
     && echo "openocd-${OPENOCD_VERSION}"  >>/tmp/apt-requirements.txt \
@@ -85,9 +90,9 @@ RUN echo "verilator-${VERILATOR_VERSION}" >>/tmp/apt-requirements.txt \
 # Install the CI version of gcc and g++
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
     && apt-get update \
-    && apt-get install -y gcc-9 g++-9 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 \
-    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
+    && apt-get install -y gcc-${GCC_VERSION} g++-${GCC_VERSION} \
+    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${GCC_VERSION} 90 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${GCC_VERSION} 90
 
 # RISC-V device toolchain
 COPY util/get-toolchain.py /tmp/get-toolchain.py

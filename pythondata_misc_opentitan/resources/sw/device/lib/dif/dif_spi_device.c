@@ -1277,8 +1277,10 @@ dif_result_t dif_spi_device_get_tpm_capabilities(
   caps->revision = bitfield_field32_read(reg_val, SPI_DEVICE_TPM_CAP_REV_FIELD);
   caps->multi_locality =
       bitfield_bit32_read(reg_val, SPI_DEVICE_TPM_CAP_LOCALITY_BIT);
-  caps->max_transfer_size =
-      bitfield_field32_read(reg_val, SPI_DEVICE_TPM_CAP_MAX_XFER_SIZE_FIELD);
+  caps->max_write_size =
+      bitfield_field32_read(reg_val, SPI_DEVICE_TPM_CAP_MAX_WR_SIZE_FIELD);
+  caps->max_read_size =
+      bitfield_field32_read(reg_val, SPI_DEVICE_TPM_CAP_MAX_RD_SIZE_FIELD);
   return kDifOk;
 }
 
@@ -1542,15 +1544,28 @@ dif_result_t dif_spi_device_tpm_write_data(dif_spi_device_handle_t *spi,
   }
   dif_spi_device_tpm_data_status_t status;
   dif_result_t result = dif_spi_device_tpm_get_data_status(spi, &status);
+  uint8_t offset = length & 0x3;  // lower two bits of length
+  uint32_t rdfifo_wdata;
+
   if (result != kDifOk) {
     return result;
   }
   if (DIF_SPI_DEVICE_TPM_FIFO_DEPTH - status.read_fifo_occupancy < length) {
     return kDifOutOfRange;
   }
-  for (int i = 0; i < length; i++) {
+  for (int i = 0; i < length; i += 4) {
+    if (i + 4 > length) {
+      // Send partial
+      rdfifo_wdata = 0;
+      for (int j = 0; j <= offset; j++) {
+        rdfifo_wdata |= buf[i + j] << (8 * j);
+      }
+    } else {
+      // Type casting to uint32_t then fetch
+      rdfifo_wdata = *((uint32_t *)buf + (i >> 2));
+    }
     mmio_region_write32(spi->dev.base_addr, SPI_DEVICE_TPM_READ_FIFO_REG_OFFSET,
-                        buf[i]);
+                        rdfifo_wdata);
   }
   return kDifOk;
 }

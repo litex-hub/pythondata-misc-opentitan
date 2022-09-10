@@ -38,6 +38,7 @@ module otbn_start_stop_control
 
   output logic urnd_reseed_req_o,
   input  logic urnd_reseed_ack_i,
+  output logic urnd_reseed_err_o,
   output logic urnd_advance_o,
 
   input   logic secure_wipe_req_i,
@@ -66,14 +67,16 @@ module otbn_start_stop_control
   logic init_sec_wipe_done_q, init_sec_wipe_done_d;
   mubi4_t wipe_after_urnd_refresh_q, wipe_after_urnd_refresh_d;
   mubi4_t rma_ack_d, rma_ack_q;
+  logic state_error_q, state_error_d;
   logic mubi_err_q, mubi_err_d;
+  logic urnd_reseed_err_q, urnd_reseed_err_d;
+  logic secure_wipe_error_q, secure_wipe_error_d;
 
   logic addr_cnt_inc;
-  logic [4:0] addr_cnt_q, addr_cnt_d;
+  logic [5:0] addr_cnt_q, addr_cnt_d;
 
-  logic       state_error, spurious_urnd_ack_error;
-  logic       spurious_secure_wipe_req, dropped_secure_wipe_req;
-  logic       secure_wipe_error_q, secure_wipe_error_d;
+  logic spurious_urnd_ack_error;
+  logic spurious_secure_wipe_req, dropped_secure_wipe_req;
 
   // There are three ways in which the start/stop controller can be told to stop.
   // 1. secure_wipe_req_i comes from the controller (which means "I've run some instructions and
@@ -90,7 +93,7 @@ module otbn_start_stop_control
   // SEC_CM: CONTROLLER.FSM.GLOBAL_ESC
   logic esc_request, rma_request, should_lock_d, should_lock_q, stop;
   assign esc_request   = mubi4_test_true_loose(escalate_en_i);
-  assign rma_request   = mubi4_test_true_loose(rma_req_i);
+  assign rma_request   = mubi4_test_true_strict(rma_req_i);
   assign stop          = esc_request | rma_request | secure_wipe_req_i;
   assign should_lock_d = should_lock_q | esc_request | rma_request;
 
@@ -135,7 +138,7 @@ module otbn_start_stop_control
     addr_cnt_inc              = 1'b0;
     secure_wipe_ack_o         = 1'b0;
     secure_wipe_running_o     = 1'b0;
-    state_error               = 1'b0;
+    state_error_d             = state_error_q;
     allow_secure_wipe         = 1'b0;
     expect_secure_wipe        = 1'b0;
     spurious_urnd_ack_error   = 1'b0;
@@ -164,21 +167,37 @@ module otbn_start_stop_control
       end
       OtbnStartStopStateUrndRefresh: begin
         urnd_reseed_req_o = 1'b1;
-        if (stop && mubi4_test_false_strict(wipe_after_urnd_refresh_q) && !rma_request) begin
-          // We are refreshing URND before execution and are told to stop, so lock immediately.
-          state_d = OtbnStartStopStateLocked;
-        end else if (mubi4_test_true_strict(wipe_after_urnd_refresh_q)) begin
-          // We are refreshing URND between two rounds of secure wiping.
-          allow_secure_wipe     = 1'b1;
-          expect_secure_wipe    = 1'b1;
-          secure_wipe_running_o = 1'b1;
-          if (urnd_reseed_ack_i) begin
-            state_d = OtbnStartStopSecureWipeWdrUrnd;
+        if (stop) begin
+          if (mubi4_test_false_strict(wipe_after_urnd_refresh_q) && !rma_request) begin
+            // We are told to stop and don't have to wipe after the current URND refresh is ack'd,
+            // so we lock immediately.
+            state_d = OtbnStartStopStateLocked;
+          end else begin
+            // We are told to stop but should wipe after the current URND refresh is ack'd, so we
+            // wait for the ACK and then do a secure wipe.
+            allow_secure_wipe     = 1'b1;
+            expect_secure_wipe    = 1'b1;
+            secure_wipe_running_o = 1'b1;
+            if (urnd_reseed_ack_i) begin
+              state_d = OtbnStartStopSecureWipeWdrUrnd;
+            end
           end
         end else begin
-          // We are refreshing URND before execution.
-          if (urnd_reseed_ack_i) begin
-            state_d = OtbnStartStopStateRunning;
+          if (mubi4_test_false_strict(wipe_after_urnd_refresh_q)) begin
+            // We are not stopping and we don't have to wipe after the current URND refresh is
+            // ack'd, so we wait for the ACK and then start executing.
+            if (urnd_reseed_ack_i) begin
+              state_d = OtbnStartStopStateRunning;
+            end
+          end else begin
+            // We are not stopping but should wipe after the current URND refresh is ack'd, so we
+            // wait for the ACK and then do a secure wipe.
+            allow_secure_wipe     = 1'b1;
+            expect_secure_wipe    = 1'b1;
+            secure_wipe_running_o = 1'b1;
+            if (urnd_reseed_ack_i) begin
+              state_d = OtbnStartStopSecureWipeWdrUrnd;
+            end
           end
         end
       end
@@ -201,7 +220,18 @@ module otbn_start_stop_control
         expect_secure_wipe    = 1'b1;
         secure_wipe_running_o = 1'b1;
 
-        if (addr_cnt_q == 5'b11111) begin
+        // Count one extra cycle when wiping the WDR, because the wipe signals to the WDR
+        // (`sec_wipe_wdr_o` and `sec_wipe_wdr_urnd_o`) are flopped once but the wipe signals to the
+        // ACC register, which is wiped directly after the last WDR, are not.  If we would not count
+        // this extra cycle, the last WDR and the ACC register would be wiped simultaneously and
+        // thus with the same random value.
+        if (addr_cnt_q == 6'b100000) begin
+          // Reset `addr_cnt` on the transition out of this state.
+          addr_cnt_inc = 1'b0;
+          // The following two signals are flopped once before they reach the FSM, so clear them one
+          // cycle early here.
+          sec_wipe_wdr_o      = 1'b0;
+          sec_wipe_wdr_urnd_o = 1'b0;
           state_d = OtbnStartStopSecureWipeAccModBaseUrnd;
         end
       end
@@ -215,12 +245,12 @@ module otbn_start_stop_control
         expect_secure_wipe    = 1'b1;
         secure_wipe_running_o = 1'b1;
         // The first two clock cycles are used to write random data to accumulator and modulus.
-        sec_wipe_acc_urnd_o   = (addr_cnt_q == 5'b00000);
-        sec_wipe_mod_urnd_o   = (addr_cnt_q == 5'b00001);
+        sec_wipe_acc_urnd_o   = (addr_cnt_q == 6'b000000);
+        sec_wipe_mod_urnd_o   = (addr_cnt_q == 6'b000001);
         // Supress writes to the zero register and the call stack.
-        sec_wipe_base_o       = (addr_cnt_q > 5'b00001);
-        sec_wipe_base_urnd_o  = (addr_cnt_q > 5'b00001);
-        if (addr_cnt_q == 5'b11111) begin
+        sec_wipe_base_o       = (addr_cnt_q > 6'b000001);
+        sec_wipe_base_urnd_o  = (addr_cnt_q > 6'b000001);
+        if (addr_cnt_q == 6'b011111) begin
           state_d = OtbnStartStopSecureWipeAllZero;
         end
       end
@@ -261,7 +291,7 @@ module otbn_start_stop_control
       end
       default: begin
         // We should never get here. If we do (e.g. via a malicious glitch), error out immediately.
-        state_error = 1'b1;
+        state_error_d = 1'b1;
         rma_ack_d = MuBi4False;
         state_d = OtbnStartStopStateLocked;
       end
@@ -276,7 +306,15 @@ module otbn_start_stop_control
     end
 
     // If the MuBi signals take on invalid values, something bad is happening. Put them back to
-    // a safe value and signal an error.
+    // a safe value (if possible) and signal an error.
+    if (mubi4_test_invalid(escalate_en_i)) begin
+      mubi_err_d = 1'b1;
+      state_d = OtbnStartStopStateLocked;
+    end
+    if (mubi4_test_invalid(rma_req_i)) begin
+      mubi_err_d = 1'b1;
+      state_d = OtbnStartStopStateLocked;
+    end
     if (mubi4_test_invalid(wipe_after_urnd_refresh_q)) begin
       wipe_after_urnd_refresh_d = MuBi4False;
       mubi_err_d = 1'b1;
@@ -300,13 +338,16 @@ module otbn_start_stop_control
 
   assign done_o = ((state_q == OtbnStartStopSecureWipeComplete && init_sec_wipe_done_q) ||
                    (stop && (state_q == OtbnStartStopStateUrndRefresh) &&
-                    mubi4_test_false_strict(wipe_after_urnd_refresh_q)));
+                    mubi4_test_false_strict(wipe_after_urnd_refresh_q)) ||
+                   (spurious_urnd_ack_error && !(state_q inside {OtbnStartStopStateHalt,
+                                                                 OtbnStartStopStateLocked}) &&
+                    init_sec_wipe_done_q));
 
-  assign addr_cnt_d = addr_cnt_inc ? (addr_cnt_q + 5'd1) : 5'd0;
+  assign addr_cnt_d = addr_cnt_inc ? (addr_cnt_q + 6'd1) : 6'd0;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      addr_cnt_q           <= 5'd0;
+      addr_cnt_q           <= 6'd0;
       init_sec_wipe_done_q <= 1'b0;
     end else begin
       addr_cnt_q           <= addr_cnt_d;
@@ -314,19 +355,20 @@ module otbn_start_stop_control
     end
   end
 
-  logic [MuBi4Width-1:0] wipe_after_urnd_refresh_q_raw;
-  prim_flop #(
-    .Width      (MuBi4Width),
-    .ResetValue (MuBi4False)
+  prim_mubi4_sender #(
+    .AsyncOn(1),
+    .ResetValue(MuBi4False)
   ) u_wipe_after_urnd_refresh_flop (
     .clk_i,
     .rst_ni,
-    .d_i (wipe_after_urnd_refresh_d),
-    .q_o (wipe_after_urnd_refresh_q_raw)
+    .mubi_i(wipe_after_urnd_refresh_d),
+    .mubi_o(wipe_after_urnd_refresh_q)
   );
-  assign wipe_after_urnd_refresh_q = mubi4_t'(wipe_after_urnd_refresh_q_raw);
 
-  assign sec_wipe_addr_o = addr_cnt_q;
+  // Clip the secure wipe address to [0..31].  This is safe because the wipe enable signals are
+  // never set when the counter exceeds 5 bit, which we assert below.
+  assign sec_wipe_addr_o = addr_cnt_q[4:0];
+  `ASSERT(NoSecWipeAbove32Bit_A, addr_cnt_q[5] |-> (!sec_wipe_wdr_o && !sec_wipe_acc_urnd_o))
 
   // A check for spurious or dropped secure wipe requests.
   // We only expect to start a secure wipe when running.
@@ -342,15 +384,23 @@ module otbn_start_stop_control
   assign secure_wipe_error_d = spurious_secure_wipe_req | dropped_secure_wipe_req;
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
+      state_error_q       <= 1'b0;
       mubi_err_q          <= 1'b0;
       secure_wipe_error_q <= 1'b0;
+      urnd_reseed_err_q   <= 1'b0;
     end else begin
+      state_error_q       <= state_error_d;
       mubi_err_q          <= mubi_err_d;
       secure_wipe_error_q <= secure_wipe_error_d;
+      urnd_reseed_err_q   <= urnd_reseed_err_d;
     end
   end
 
-  assign fatal_error_o = spurious_urnd_ack_error | state_error | secure_wipe_error_q | mubi_err_q;
+  assign urnd_reseed_err_d = spurious_urnd_ack_error ? 1'b1 // set
+                                                     : urnd_reseed_err_q; // hold
+  assign urnd_reseed_err_o = urnd_reseed_err_d;
+
+  assign fatal_error_o = urnd_reseed_err_o | state_error_d | secure_wipe_error_q | mubi_err_q;
 
   assign rma_ack_o = rma_ack_q;
 

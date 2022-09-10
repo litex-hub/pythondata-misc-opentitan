@@ -6,6 +6,7 @@
 `include "cosim_dpi.svh"
 
 class ibex_cosim_scoreboard extends uvm_scoreboard;
+  import ibex_pkg::*;
   chandle cosim_handle;
 
   core_ibex_cosim_cfg cfg;
@@ -60,7 +61,8 @@ class ibex_cosim_scoreboard extends uvm_scoreboard;
     cleanup_cosim();
 
     // TODO: Ensure log file on reset gets append rather than overwrite?
-    cosim_handle = spike_cosim_init(cfg.isa_string, cfg.start_pc, cfg.start_mtvec, cfg.log_file);
+    cosim_handle = spike_cosim_init(cfg.isa_string, cfg.start_pc, cfg.start_mtvec, cfg.log_file,
+      cfg.pmp_num_regions, cfg.pmp_granularity);
 
     if (cosim_handle == null) begin
       `uvm_fatal(`gfn, "Could not initialise cosim")
@@ -124,11 +126,21 @@ class ibex_cosim_scoreboard extends uvm_scoreboard;
       riscv_cosim_set_debug_req(cosim_handle, rvfi_instr.debug_req);
       riscv_cosim_set_mcycle(cosim_handle, rvfi_instr.mcycle);
 
+      // Set performance counters through a pseudo-backdoor write
+      for (int i=0; i < 10; i++) begin
+        riscv_cosim_set_csr(cosim_handle, CSR_MHPMCOUNTER3 + i, rvfi_instr.mhpmcounters[i]);
+        riscv_cosim_set_csr(cosim_handle, CSR_MHPMCOUNTER3H + i, rvfi_instr.mhpmcountersh[i]);
+      end
+
       if (!riscv_cosim_step(cosim_handle, rvfi_instr.rd_addr, rvfi_instr.rd_wdata, rvfi_instr.pc,
                             rvfi_instr.trap)) begin
         // cosim instruction step doesn't match rvfi captured instruction, report a fatal error
         // with the details
-        `uvm_fatal(`gfn, get_cosim_error_str())
+        if (cfg.relax_cosim_check) begin
+          `uvm_info(`gfn, get_cosim_error_str(), UVM_LOW)
+        end else begin
+          `uvm_fatal(`gfn, get_cosim_error_str())
+        end
       end
     end
   endtask: run_cosim_rvfi

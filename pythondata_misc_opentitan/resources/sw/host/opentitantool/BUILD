@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_filegroup", "pkg_files")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -52,6 +53,18 @@ filegroup(
     name = "test_resources",
     srcs = [
         ":opentitantool",
-        "//sw/host/opentitantool/config",
     ],
+)
+
+pkg_files(
+    name = "binary",
+    srcs = [":opentitantool"],
+)
+
+pkg_filegroup(
+    name = "package",
+    srcs = [
+        ":binary",
+    ],
+    prefix = "opentitantool",
 )

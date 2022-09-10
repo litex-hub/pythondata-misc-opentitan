@@ -34,7 +34,7 @@ Once the specification has been shared with the OpenTitan audience and sufficien
 The next life stage is **Development**.
 The hardware IP is being developed in GitHub, the specification is converted to Markdown, and design and verification planning is underway.
 This is a long phase expected to last until a more formal review is requested for full completion sign-off.
-When in Development phase, the stage tracking of the design and verification milestones are valid.
+When in Development phase, the stage tracking of the design and verification stages are valid.
 See those sections that follow for details there.
 To exit this stage, a sign-off review must occur.
 See the section on sign-off for details.
@@ -62,8 +62,8 @@ We may later evaluate adding a **Silicon Proven** stage, after deciding criteria
 
 ## Hardware Design Stages (D)
 
-The following development milestones are for hardware peripheral designs, i.e. SystemVerilog RTL development.
-They are similar to typical chip design milestones, but less rigid in the movement from one stage to the next.
+The following development stages are for hardware peripheral designs, i.e. SystemVerilog RTL development.
+They are similar to typical chip design stages, but less rigid in the movement from one stage to the next.
 The metric here is the quality bar and feature completeness of the design.
 
 The first design stage is **Initial Work**.
@@ -93,8 +93,8 @@ Once all bugs have been fixed, lint and CDC violations cleaned up, the design mo
 
 ## Hardware Verification Stages (V)
 
-The following development milestones are for hardware peripheral verification work.
-They are similar to typical chip verification milestones, but less rigid in the movement from one stage to the next.
+The following development stages are for hardware peripheral verification work.
+They are similar to typical chip verification stages, but less rigid in the movement from one stage to the next.
 The metric here is the progress towards testing completion and proof of testing coverage.
 The verification stages can be applied to simulation-based DV and formal property verification (FPV) approaches.
 
@@ -121,7 +121,7 @@ Once all coverage metrics have been met, waivers checked, the verification moves
 | --- | --- | --- |
 | V0 | Initial Work | Testbench being developed, not functional; testplan being written; decided which methodology to use (sim-based DV, FPV, or both). |
 | V1 | Under Test | <ul> <li> Documentation: <ul> <li> [DV document]({{< relref "doc/ug/dv_methodology#documentation" >}}) available, <li> [Testplan]({{< relref "doc/ug/dv_methodology#documentation" >}}) completed and reviewed </ul> <li> Testbench: <ul> <li> DUT instantiated with major interfaces hooked up <li> All available interface assertion monitors hooked up <li> X / unknown checks on DUT outputs added <li> Skeleton environment created with UVCs <li> TLM connections made from interface monitors to the scoreboard </ul> <li> Tests (written and passing): <ul> <li> Sanity test accessing basic functionality <li> CSR / mem test suite </ul> <li> Regressions: Sanity and nightly regression set up</ul> |
-| V2 | Testing Complete | <ul> <li> Documentation: <ul> <li> DV document completely written </ul> <li> Design Issues: <ul> <li> all high priority bugs addressed <li> low priority bugs root-caused </ul> <li> Testbench: <ul> <li> all interfaces hooked up and exercised <li> all assertions written and enabled </ul> <li> UVM environment: fully developed with end-to-end checks in scoreboard <li> Tests (written and passing): all tests planned for in the testplan  <li> Functional coverage (written): all covergroups planned for in the testplan <li> Regression: all tests passing in nightly regression with multiple seeds (> 90%)  <li> Coverage: 90% code coverage across the board, 100% functional coverpoints covered and 75% crosses covered</ul></ul> |
+| V2 | Testing Complete | <ul> <li> Documentation: <ul> <li> DV document completely written </ul> <li> Design Issues: <ul> <li> all high priority bugs addressed <li> low priority bugs root-caused </ul> <li> Testbench: <ul> <li> all interfaces hooked up and exercised <li> all assertions written and enabled </ul> <li> UVM environment: fully developed with end-to-end checks in scoreboard <li> Tests (written and passing): all tests planned for in the testplan  <li> Functional coverage (written): all covergroups planned for in the testplan <li> Regression: all tests passing in nightly regression with multiple seeds (> 90%)  <li> Coverage: 90% code coverage across the board and 90% functional coverage</ul></ul> |
 | V2S | Security Countermeasures Verified | <ul> <li> Tests (written and passing): all tests for security countermeasures (if any) </ul> |
 | V3 | Verification Complete | <ul> <li> Design Issues: all bugs addressed <li> Tests (written and passing): all tests including newly added post-V2 tests (if any) <li> Regression: all tests with all seeds passing <li> Coverage: 100% code and 100% functional coverage with waivers </ul> </ul> |
 
@@ -138,9 +138,9 @@ Once all coverage metrics have been met, waivers checked, the verification moves
 ## Device Interface Function Stages (S)
 
 The following development stages are for [Device Interface Function (DIF)]({{< relref "doc/rm/device_interface_functions.md" >}}) work.
-These milestones have a slightly different emphasis to the hardware design and verification milestones, because software is much easier to change if bugs are found.
+These stages have a slightly different emphasis to the hardware design and verification stages, because software is much easier to change if bugs are found.
 The metric they are trying to capture is the stability and completeness of a low-level software interface to hardware design.
-We are aiming to keep this process fairly lightweight in the early stages, and not significantly burdeonsome to the associated HW designer through all stages.
+We are aiming to keep this process fairly lightweight in the early stages, and not significantly burdensome to the associated HW designer through all stages.
 
 There are explicit checkpoints in these stages to ensure that DIF development does not overtake design and verification.
 
@@ -185,7 +185,7 @@ The process will be refined by the Technical Committee as necessary.
 ## Indicating Stages and Making Transitions
 
 Stages are indicated via a text file checked into the GitHub and thus transitions can be reviewed through the standard pull request process.
-Transitions for Design and Verification stages are _self-nominated_ in the sense that the design or verification owner can modify the text file and submit a pull request (PR) to transition the stage.
+Transitions for Design and Verification stages are _self-nominated_ in the sense that the design or verification maintainer can modify the text file and submit a pull request (PR) to transition the stage.
 In this manner other reviewers can challenge the transition in the standard pull request review process.
 These transitions should be done in their own PR (i.e. not interspersed with other changes), and the PR summary and commit message should give any necessary detail on how the transition criteria have been met, as well as any other notes useful for a reviewer.
 
@@ -244,7 +244,7 @@ They are converted to complete URLs in the generated dashboard.
 The _Version_ of a design element indicates its progress towards its _final feature set for expected product_.
 Typically all designs are expected to simply be in 1.0 version, but there are reasons for exceptions.
 Designs which have a specification that defines an _intermediate goal_ are indicated as < 1.0 version.
-There are many times where this is useful: when the intermediate goal is a beneficial subset of functionality to enable other development; when the final feature set is not known but a sufficient set is ready for development; when the final feature set is postponed until a future date, but owners are keen to get the design started; etc.
+There are many times where this is useful: when the intermediate goal is a beneficial subset of functionality to enable other development; when the final feature set is not known but a sufficient set is ready for development; when the final feature set is postponed until a future date, but maintainers are keen to get the design started; etc.
 In essence, the sub-1.0 designation indicates that it is understood that the stage metrics are temporary pending a final feature set.
 Rarely will a sub-1.0 design be taken past Feature Complete and Testing Complete stages.
 An exception is a proof of concept to show what a sign-off process looks like for a design that has modifications expected in the future.

@@ -275,8 +275,8 @@ module kmac_errchk
                  code: ErrSwCmdSequence,
                  info: {5'h0,
                         {err_swsequence, err_modestrength, err_prefix},
-                        8'h 0,
-                        {1'b0, stL, sw_cmd_i}
+                        {5'h 0, stL},
+                        {2'b0, sw_cmd_i}
                        }
                };
       end
@@ -312,7 +312,7 @@ module kmac_errchk
   assign error_o = err;
 
   // If below failed, revise err_swsequence error response info field.
-  `ASSERT_INIT(ExpectedStSwCmdBits_A, $bits(st) == StateWidth && $bits(sw_cmd_i) == 4)
+  `ASSERT_INIT(ExpectedStSwCmdBits_A, $bits(st) == StateWidth && $bits(sw_cmd_i) == 6)
 
   // If failed, revise err_modestrength error info field.
   `ASSERT_INIT(ExpectedModeStrengthBits_A,
@@ -322,7 +322,17 @@ module kmac_errchk
   ///////////////////
   // State Machine //
   ///////////////////
-  `PRIM_FLOP_SPARSE_FSM(u_state_regs, st_d, st, st_e, StIdle)
+  st_e st_gated_d;
+
+  `PRIM_FLOP_SPARSE_FSM(u_state_regs, st_gated_d, st, st_e, StIdle)
+
+  // ICEBOX(#14631): Move block_swcmd to PRIM_FLOP_SPARSE_FSM()
+  //
+  // It would be better to place this condition (block_swcmd) in `always_ff`
+  // block to clearly indicate the clock gating condition. However, the
+  // statemachine uses the sparse encoding scheme and macro. It prevents any
+  // latch enable signals.
+  assign st_gated_d = (block_swcmd) ? st : st_d ;
 
   always_comb begin : next_state
     st_d = st;

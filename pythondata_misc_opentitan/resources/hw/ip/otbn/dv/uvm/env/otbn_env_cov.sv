@@ -550,17 +550,17 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
   // alert. This gets sampled when we read a FATAL_ALERT_CAUSE with just FATAL_SOFTWARE and is given
   // last_err_bits (see comment above declaration of that variable for more details).
   covergroup promoted_err_cg
-    with function sample(logic [31:0] last_err_bits);
+    with function sample(logic [5:0] last_err_bits);
 
     // We're interested in the "one-hot" values corresponding to each error that wouldn't normally
     // be fatal.
     err_bits_cp: coverpoint last_err_bits {
-      bins bad_data_addr = {32'h1};
-      bins bad_insn_addr = {32'h2};
-      bins call_stack    = {32'h4};
-      bins illegal_insn  = {32'h8};
-      bins loop          = {32'h10};
-      bins key_invalid   = {32'h20};
+      bins bad_data_addr = {6'h1};
+      bins bad_insn_addr = {6'h2};
+      bins call_stack    = {6'h4};
+      bins illegal_insn  = {6'h8};
+      bins loop          = {6'h10};
+      bins key_invalid   = {6'h20};
     }
   endgroup
 
@@ -620,6 +620,60 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     clr_L_cross: cross fg_cp, clr_L_cp;
     clr_M_cross: cross fg_cp, clr_M_cp;
     clr_C_cross: cross fg_cp, clr_C_cp;
+  endgroup
+
+  // This covergroup tracks each possible "Bad Internal State" fatal error
+  // cause using probes from RTL.
+  covergroup bad_internal_state_cg
+    with function sample(logic urnd_all_zero,
+                         logic insn_addr_err,
+                         logic scramble_state_err,
+                         otbn_pkg::predec_err_t predec_err,
+                         otbn_pkg::missed_gnt_t missed_gnt,
+                         otbn_pkg::controller_bad_int_t controller_bad_int,
+                         otbn_pkg::start_stop_bad_int_t start_stop_bad_int,
+                         logic rf_base_spurious_we_err,
+                         logic rf_bignum_spurious_we_err);
+
+    `DEF_SEEN_CP(alu_bignum_predec_err, predec_err.alu_bignum_err)
+    `DEF_SEEN_CP(mac_bignum_predec_err, predec_err.mac_bignum_err)
+    `DEF_SEEN_CP(ispr_bignum_predec_err, predec_err.ispr_bignum_err)
+    `DEF_SEEN_CP(controller_predec_err, predec_err.controller_err)
+    `DEF_SEEN_CP(rf_predec_err, predec_err.rf_err)
+    `DEF_SEEN_CP(rd_predec_err, predec_err.rd_err)
+
+    `DEF_SEEN_CP(spr_urnd_acks_cp, start_stop_bad_int.spr_urnd_acks)
+    `DEF_SEEN_CP(spr_secwipe_reqs_cp, start_stop_bad_int.spr_secwipe_reqs)
+    `DEF_SEEN_CP(mubi_rma_err_cp, start_stop_bad_int.mubi_rma_err)
+    `DEF_SEEN_CP(mubi_urnd_err_cp, start_stop_bad_int.mubi_urnd_err)
+    `DEF_SEEN_CP(start_stop_state_err_cp, start_stop_bad_int.state_err)
+
+    `DEF_SEEN_CP(loop_hw_cnt_err_cp, controller_bad_int.loop_hw_cnt_err)
+    `DEF_SEEN_CP(loop_hw_stack_cnt_err_cp, controller_bad_int.loop_hw_stack_cnt_err)
+    `DEF_SEEN_CP(loop_hw_intg_err_cp, controller_bad_int.loop_hw_intg_err)
+    `DEF_SEEN_CP(rf_base_call_stack_err_cp, controller_bad_int.rf_base_call_stack_err)
+    `DEF_SEEN_CP(spr_secwipe_acks_cp, controller_bad_int.spr_secwipe_acks)
+    `DEF_SEEN_CP(controller_state_err_cp, controller_bad_int.state_err)
+
+    `DEF_SEEN_CP(imem_gnt_missed_err_cp, missed_gnt.imem_gnt_missed_err)
+    `DEF_SEEN_CP(dmem_gnt_missed_err_cp, missed_gnt.dmem_gnt_missed_err)
+
+    `DEF_SEEN_CP(urnd_all_zero_cp, urnd_all_zero)
+    `DEF_SEEN_CP(insn_addr_err_cp, insn_addr_err)
+    `DEF_SEEN_CP(scramble_state_err_cp, scramble_state_err)
+    `DEF_SEEN_CP(rf_base_spurious_we_err_cp, rf_base_spurious_we_err)
+    `DEF_SEEN_CP(rf_bignum_spurious_we_err_cp, rf_bignum_spurious_we_err)
+
+  endgroup
+
+  // This covergroup tracks straight-line instructions (i.e., instructions that do not
+  // branch or jump) at the top of instruction memory (i.e., at the highest possible
+  // address).
+  covergroup insn_addr_cg with function sample(mnem_str_t mnemonic, logic [31:0] insn_addr);
+    `DEF_SEEN_CP(str_insn_at_top_cp, (insn_addr == ImemSizeByte - 4) &&
+                                     !(mnemonic inside {mnem_beq, mnem_bne, mnem_jal, mnem_jalr,
+                                                        mnem_ecall, mnem_loop, mnem_loopi}))
+
   endgroup
 
   // Pairwise instructions /////////////////////////////////////////////////////
@@ -2043,6 +2097,8 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     promoted_err_cg = new;
     scratchpad_writes_cg = new;
 
+    bad_internal_state_cg = new;
+    insn_addr_cg = new;
     call_stack_cg = new;
     flag_write_cg = new;
     pairwise_insn_cg = new;
@@ -2168,6 +2224,17 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
   function void on_state_change(operational_state_e new_state);
     last_err_bits = 0;
     last_mnem = '0;
+    // Sample bad internal state related signals here because otherwise they tend to not get
+    // captured.
+    bad_internal_state_cg.sample(cfg.trace_vif.urnd_all_zero_q,
+                                 cfg.trace_vif.insn_addr_err_q,
+                                 cfg.trace_vif.scramble_state_err_q,
+                                 cfg.trace_vif.predec_err_q,
+                                 cfg.trace_vif.missed_gnt_q,
+                                 cfg.trace_vif.controller_bad_int_q,
+                                 cfg.trace_vif.start_stop_bad_int_q,
+                                 cfg.trace_vif.rf_base_spurious_we_err_q,
+                                 cfg.trace_vif.rf_bignum_spurious_we_err_q);
   endfunction
 
   function void on_write_to_wr_csr(uvm_reg csr, logic [31:0] data, operational_state_e state);
@@ -2200,6 +2267,7 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
         ext_csr_status_cg.sample(otbn_pkg::status_e'(data), access_type);
       end
       "err_bits": begin
+        last_err_bits = data;
         ext_csr_err_bits_cg.sample(otbn_pkg::err_bits_t'(data),
                                    csr.get_mirrored_value(), access_type, state);
       end
@@ -2211,7 +2279,7 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
         if ((state == OperationalStateLocked) &&
             (access_type == AccessSoftwareRead) &&
             (data == (1 << 7))) begin
-          promoted_err_cg.sample(last_err_bits);
+          promoted_err_cg.sample(last_err_bits[5:0]);
         end
       end
       "insn_cnt": begin
@@ -2313,6 +2381,10 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
 
     mnem = mnem_str_t'(iss_item.mnemonic);
     insn_data = rtl_item.insn_data;
+
+    // Track and catch when we are on the top of the instruction memory and have a straight-line
+    // instruction.
+    insn_addr_cg.sample(mnem, rtl_item.insn_addr);
 
     // Call stack tracking. Some instructions want to know whether they are over- or under-flowing
     // the call stack so, as well as sampling in the call_stack_cg covergroup, we also compute those

@@ -14,6 +14,21 @@ cc_library(
 )
 
 cc_library(
+    name = "coverage_llvm",
+    srcs = [
+        "coverage_llvm.c",
+        "//sw/vendor:llvm_clang_rt_profile",
+    ],
+    hdrs = ["coverage.h"],
+    deps = [
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/runtime:print",
+        "//sw/device/silicon_creator/lib:crc32",
+    ],
+)
+
+cc_library(
     name = "status",
     srcs = ["status.c"],
     hdrs = ["status.h"],
@@ -41,51 +56,44 @@ cc_library(
 )
 
 ld_library(
-    name = "linker_script",
-    script = "ottf.ld",
+    name = "ottf_ld_common",
+    fragments = ["ottf_common.ld"],
     deps = [
-        "//hw/top_earlgrey/sw/autogen:top_earlgrey_memory",
         "//sw/device:info_sections",
+        "//sw/device/silicon_creator/lib/base:static_critical_sections",
     ],
 )
 
-# This target provides start files without providing the full OTTF, and can be used
-# to bootstrap post-ROM execution without pulling in the full OTTF.
-#
-# The binary target must provide a `noreturn void _ottf_main(void)` function that
-# this library will call.
-cc_library(
-    name = "ottf_start",
-    srcs = [
-        "ottf_isrs.S",
-        "ottf_isrs.c",
-        "ottf_start.S",
-    ],
-    hdrs = [
-        "ottf_isrs.h",
-        "ottf_macros.h",
-    ],
-    target_compatible_with = [OPENTITAN_CPU],
+ld_library(
+    name = "ottf_ld_silicon_creator_slot_a",
+    script = "ottf_silicon_creator_a.ld",
     deps = [
-        ":linker_script",
-        "//sw/device/lib/base:csr",
-        "//sw/device/lib/base:macros",
-        "//sw/device/lib/crt",
-        "//sw/device/lib/runtime:hart",
-        "//sw/device/lib/runtime:log",
-        "//sw/device/silicon_creator/lib:manifest_size",
+        ":ottf_ld_common",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey_memory",
     ],
 )
 
-cc_library(
-    name = "ottf_test_config",
-    hdrs = [
-        "ottf_test_config.h",
+ld_library(
+    name = "ottf_ld_silicon_creator_slot_b",
+    script = "ottf_silicon_creator_b.ld",
+    deps = [
+        ":ottf_ld_common",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey_memory",
     ],
 )
 
-# TODO(#12905): Use a slightly hollowed out version of the silicon_creator manifest_def
-# implementation when building the test_framework for the english breakfast top level.
+ld_library(
+    name = "ottf_ld_silicon_creator_slot_virtual",
+    script = "ottf_silicon_creator_virtual.ld",
+    deps = [
+        ":ottf_ld_common",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey_memory",
+    ],
+)
+
+# TODO(#12905): Use a slightly hollowed out version of the silicon_creator
+# manifest_def implementation when building the test_framework for the english
+# breakfast top level.
 cc_library(
     name = "english_breakfast_test_framework_manifest_def",
     srcs = [
@@ -109,6 +117,47 @@ alias(
     }),
 )
 
+# This target provides start files without providing the full OTTF, and can be
+# used to bootstrap post-ROM execution without pulling in the full OTTF. This is
+# useful for programs in `sw/device/examples/` and `sw/device/sca/` that do not
+# make use of the full OTTF. This target is also suitable for preparing ROM_EXT
+# and BLO images since it reserves space at the start of main SRAM for the
+# `.static_critical` section that holds boot measurements and sec_mmio context.
+#
+# The binary target must provide a `noreturn void _ottf_main(void)` function
+# that this library will call.
+cc_library(
+    name = "ottf_start",
+    srcs = [
+        "ottf_isrs.S",
+        "ottf_isrs.c",
+        "ottf_start.S",
+    ],
+    hdrs = [
+        "ottf_isrs.h",
+        "ottf_macros.h",
+    ],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        ":test_framework_manifest_def",
+        "//sw/device/lib/base:csr",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/crt",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/silicon_creator/lib/base:static_critical_boot_measurements",
+        "//sw/device/silicon_creator/lib/base:static_critical_sec_mmio",
+    ],
+)
+
+cc_library(
+    name = "ottf_test_config",
+    hdrs = [
+        "ottf_test_config.h",
+    ],
+)
+
 cc_library(
     name = "ottf_main",
     srcs = ["ottf_main.c"],
@@ -121,20 +170,33 @@ cc_library(
         ":ottf_start",
         ":ottf_test_config",
         ":status",
-        ":test_framework_manifest_def",
         "//sw/device/lib/arch:device",
         "//sw/device/lib/base:macros",
+        "//sw/device/lib/dif:rv_core_ibex",
         "//sw/device/lib/dif:uart",
         "//sw/device/lib/runtime:hart",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/runtime:print",
+        "//sw/device/lib/testing:rand_testutils",
         "//third_party/freertos",
         "@manufacturer_test_hooks//:test_hooks",
     ],
-    # `:ottf` depends on `:ottf_start`, but `:ottf_start` gets its main function from
-    # `:ottf`. Thus we need to include all of the objects in `:ottf` unconditionally
-    # so that the linker can find the symbol later.
+    # `:ottf` depends on `:ottf_start`, but `:ottf_start` gets its main function
+    # from `:ottf`. Thus we need to include all of the objects in `:ottf`
+    # unconditionally so that the linker can find the symbol later.
     alwayslink = True,
+)
+
+cc_library(
+    name = "ujson_ottf",
+    srcs = ["ujson_ottf.c"],
+    hdrs = ["ujson_ottf.h"],
+    deps = [
+        ":ottf_main",
+        "//sw/device/lib/base:status",
+        "//sw/device/lib/dif:uart",
+        "//sw/device/lib/ujson",
+    ],
 )
 
 cc_library(
@@ -157,10 +219,10 @@ cc_library(
         ":freertos_config",
         ":ottf_start",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
-        "//sw/device/lib:irq",
         "//sw/device/lib/dif:rv_timer",
         "//sw/device/lib/dif:uart",
         "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:irq",
         "//sw/device/lib/runtime:log",
         "//third_party/freertos",
     ],

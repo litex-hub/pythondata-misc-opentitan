@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "sw/device/lib/arch/device.h"
 #include "sw/device/lib/base/math.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/dif/dif_aon_timer.h"
@@ -15,7 +16,8 @@
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 
 uint32_t aon_timer_testutils_get_aon_cycles_from_us(uint64_t microseconds) {
-  uint64_t cycles = udiv64_slow(microseconds * kClockFreqAonHz, 1000000, NULL);
+  uint64_t cycles = udiv64_slow(microseconds * kClockFreqAonHz, 1000000,
+                                /*rem_out=*/NULL);
   CHECK(cycles < UINT32_MAX,
         "The value 0x%08x%08x can't fit into the 32 bits timer counter.",
         (cycles >> 32), (uint32_t)cycles);
@@ -23,7 +25,8 @@ uint32_t aon_timer_testutils_get_aon_cycles_from_us(uint64_t microseconds) {
 }
 
 uint32_t aon_timer_testutils_get_us_from_aon_cycles(uint64_t cycles) {
-  uint64_t uss = udiv64_slow(cycles * 1000000, kClockFreqAonHz, NULL);
+  uint64_t uss = udiv64_slow(cycles * 1000000, kClockFreqAonHz,
+                             /*rem_out=*/NULL);
   CHECK(uss < UINT32_MAX,
         "The value 0x%08x%08x can't fit into the 32 bits timer counter.",
         (uss >> 32), (uint32_t)uss);
@@ -64,4 +67,18 @@ void aon_timer_testutils_watchdog_config(const dif_aon_timer_t *aon_timer,
   CHECK(!is_pending);
   CHECK_DIF_OK(dif_aon_timer_watchdog_start(aon_timer, bark_cycles, bite_cycles,
                                             pause_in_sleep, false));
+}
+
+void aon_timer_testutils_shutdown(const dif_aon_timer_t *aon_timer) {
+  CHECK_DIF_OK(dif_aon_timer_wakeup_stop(aon_timer));
+  CHECK_DIF_OK(dif_aon_timer_watchdog_stop(aon_timer));
+  CHECK_DIF_OK(dif_aon_timer_clear_wakeup_cause(aon_timer));
+  CHECK_DIF_OK(dif_aon_timer_irq_acknowledge_all(aon_timer));
+  // Read and verify both timers are actually disabled. This ensures the
+  // synchronization from the core clock to the AON clock domain completed.
+  bool enabled;
+  CHECK_DIF_OK(dif_aon_timer_wakeup_is_enabled(aon_timer, &enabled));
+  CHECK(enabled == false);
+  CHECK_DIF_OK(dif_aon_timer_watchdog_is_enabled(aon_timer, &enabled));
+  CHECK(enabled == false);
 }

@@ -221,6 +221,8 @@ module flash_ctrl_core_reg_top (
   logic alert_test_recov_err_wd;
   logic alert_test_fatal_std_err_wd;
   logic alert_test_fatal_err_wd;
+  logic alert_test_fatal_prim_flash_alert_wd;
+  logic alert_test_recov_prim_flash_alert_wd;
   logic dis_we;
   logic [3:0] dis_qs;
   logic [3:0] dis_wd;
@@ -1436,7 +1438,7 @@ module flash_ctrl_core_reg_top (
 
   // R[alert_test]: V(True)
   logic alert_test_qe;
-  logic [2:0] alert_test_flds_we;
+  logic [4:0] alert_test_flds_we;
   assign alert_test_qe = &alert_test_flds_we;
   //   F[recov_err]: 0:0
   prim_subreg_ext #(
@@ -1485,6 +1487,38 @@ module flash_ctrl_core_reg_top (
     .qs     ()
   );
   assign reg2hw.alert_test.fatal_err.qe = alert_test_qe;
+
+  //   F[fatal_prim_flash_alert]: 3:3
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_alert_test_fatal_prim_flash_alert (
+    .re     (1'b0),
+    .we     (alert_test_we),
+    .wd     (alert_test_fatal_prim_flash_alert_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (alert_test_flds_we[3]),
+    .q      (reg2hw.alert_test.fatal_prim_flash_alert.q),
+    .ds     (),
+    .qs     ()
+  );
+  assign reg2hw.alert_test.fatal_prim_flash_alert.qe = alert_test_qe;
+
+  //   F[recov_prim_flash_alert]: 4:4
+  prim_subreg_ext #(
+    .DW    (1)
+  ) u_alert_test_recov_prim_flash_alert (
+    .re     (1'b0),
+    .we     (alert_test_we),
+    .wd     (alert_test_recov_prim_flash_alert_wd),
+    .d      ('0),
+    .qre    (),
+    .qe     (alert_test_flds_we[4]),
+    .q      (reg2hw.alert_test.recov_prim_flash_alert.q),
+    .ds     (),
+    .qs     ()
+  );
+  assign reg2hw.alert_test.recov_prim_flash_alert.qe = alert_test_qe;
 
 
   // R[dis]: V(False)
@@ -1772,6 +1806,9 @@ module flash_ctrl_core_reg_top (
 
 
   // R[addr]: V(False)
+  // Create REGWEN-gated WE signal
+  logic addr_gated_we;
+  assign addr_gated_we = addr_we & ctrl_regwen_qs;
   prim_subreg #(
     .DW      (20),
     .SwAccess(prim_subreg_pkg::SwAccessRW),
@@ -1781,7 +1818,7 @@ module flash_ctrl_core_reg_top (
     .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (addr_we),
+    .we     (addr_gated_we),
     .wd     (addr_wd),
 
     // from internal hardware
@@ -1799,6 +1836,9 @@ module flash_ctrl_core_reg_top (
 
 
   // R[prog_type_en]: V(False)
+  // Create REGWEN-gated WE signal
+  logic prog_type_en_gated_we;
+  assign prog_type_en_gated_we = prog_type_en_we & ctrl_regwen_qs;
   //   F[normal]: 0:0
   prim_subreg #(
     .DW      (1),
@@ -1809,7 +1849,7 @@ module flash_ctrl_core_reg_top (
     .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (prog_type_en_we),
+    .we     (prog_type_en_gated_we),
     .wd     (prog_type_en_normal_wd),
 
     // from internal hardware
@@ -1835,7 +1875,7 @@ module flash_ctrl_core_reg_top (
     .rst_ni  (rst_ni),
 
     // from register interface
-    .we     (prog_type_en_we),
+    .we     (prog_type_en_gated_we),
     .wd     (prog_type_en_repair_wd),
 
     // from internal hardware
@@ -11596,6 +11636,10 @@ module flash_ctrl_core_reg_top (
   assign alert_test_fatal_std_err_wd = reg_wdata[1];
 
   assign alert_test_fatal_err_wd = reg_wdata[2];
+
+  assign alert_test_fatal_prim_flash_alert_wd = reg_wdata[3];
+
+  assign alert_test_recov_prim_flash_alert_wd = reg_wdata[4];
   assign dis_we = addr_hit[4] & reg_we & !reg_error;
 
   assign dis_wd = reg_wdata[3:0];
@@ -12362,8 +12406,8 @@ module flash_ctrl_core_reg_top (
     reg_we_check[6] = init_we;
     reg_we_check[7] = 1'b0;
     reg_we_check[8] = control_gated_we;
-    reg_we_check[9] = addr_we;
-    reg_we_check[10] = prog_type_en_we;
+    reg_we_check[9] = addr_gated_we;
+    reg_we_check[10] = prog_type_en_gated_we;
     reg_we_check[11] = erase_suspend_we;
     reg_we_check[12] = region_cfg_regwen_0_we;
     reg_we_check[13] = region_cfg_regwen_1_we;
@@ -12497,6 +12541,8 @@ module flash_ctrl_core_reg_top (
         reg_rdata_next[0] = '0;
         reg_rdata_next[1] = '0;
         reg_rdata_next[2] = '0;
+        reg_rdata_next[3] = '0;
+        reg_rdata_next[4] = '0;
       end
 
       addr_hit[4]: begin

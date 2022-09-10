@@ -9,6 +9,7 @@
 #include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/stdasm.h"
 #include "sw/device/lib/runtime/hart.h"
+#include "sw/device/silicon_creator/lib/base/chip.h"
 #include "sw/device/silicon_creator/lib/base/sec_mmio.h"
 #include "sw/device/silicon_creator/lib/drivers/flash_ctrl.h"
 #include "sw/device/silicon_creator/lib/drivers/hmac.h"
@@ -22,7 +23,7 @@
 #include "sw/device/silicon_creator/lib/rom_print.h"
 #include "sw/device/silicon_creator/lib/shutdown.h"
 #include "sw/device/silicon_creator/lib/sigverify/sigverify.h"
-#include "sw/device/silicon_creator/mask_rom/sigverify_keys.h"
+#include "sw/device/silicon_creator/rom/sigverify_keys.h"
 #include "sw/device/silicon_creator/rom_ext/rom_ext_boot_policy.h"
 #include "sw/device/silicon_creator/rom_ext/rom_ext_epmp.h"
 
@@ -101,8 +102,7 @@ extern char _owner_virtual_size[];
  */
 static uintptr_t owner_vma_get(const manifest_t *manifest, uintptr_t lma_addr) {
   return (lma_addr - (uintptr_t)manifest +
-          (uintptr_t)_owner_virtual_start_address +
-          MANIFEST_LENGTH_FIELD_ROM_EXT_MAX);
+          (uintptr_t)_owner_virtual_start_address + CHIP_ROM_EXT_SIZE_MAX);
 }
 
 static rom_error_t rom_ext_boot(const manifest_t *manifest) {
@@ -156,13 +156,13 @@ static rom_error_t rom_ext_boot(const manifest_t *manifest) {
   rom_printf("entry: 0x%x\r\n", (unsigned int)entry_point);
   ((owner_stage_entry_point *)entry_point)();
 
-  return kErrorMaskRomBootFailed;
+  return kErrorRomBootFailed;
 }
 
 static rom_error_t rom_ext_try_boot(void) {
   rom_ext_boot_policy_manifests_t manifests =
       rom_ext_boot_policy_manifests_get();
-  rom_error_t error = kErrorMaskRomBootFailed;
+  rom_error_t error = kErrorRomBootFailed;
   for (size_t i = 0; i < ARRAYSIZE(manifests.ordered); ++i) {
     error = rom_ext_verify(manifests.ordered[i]);
     if (error != kErrorOk) {
@@ -172,7 +172,7 @@ static rom_error_t rom_ext_try_boot(void) {
     RETURN_IF_ERROR(rom_ext_boot(manifests.ordered[i]));
     // `rom_ext_boot()` should never return `kErrorOk`, but if it does
     // we must shut down the chip instead of trying the next ROM_EXT.
-    return kErrorMaskRomBootFailed;
+    return kErrorRomBootFailed;
   }
   return error;
 }

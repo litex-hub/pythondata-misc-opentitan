@@ -15,7 +15,7 @@
 #include "sw/device/silicon_creator/lib/drivers/mock_alert.h"
 #include "sw/device/silicon_creator/lib/drivers/mock_otp.h"
 #include "sw/device/silicon_creator/lib/error.h"
-#include "sw/device/silicon_creator/testing/mask_rom_test.h"
+#include "sw/device/silicon_creator/testing/rom_test.h"
 
 #include "alert_handler_regs.h"
 #include "flash_ctrl_regs.h"
@@ -40,6 +40,7 @@ class MockShutdownImpl : public ::global_mock::GlobalMock<MockShutdownImpl> {
   MOCK_METHOD(void, shutdown_report_error, (rom_error_t));
   MOCK_METHOD(void, shutdown_software_escalate, ());
   MOCK_METHOD(void, shutdown_keymgr_kill, ());
+  MOCK_METHOD(void, shutdown_reset, ());
   MOCK_METHOD(void, shutdown_flash_kill, ());
   MOCK_METHOD(void, shutdown_hang, ());
 };
@@ -55,6 +56,9 @@ void shutdown_software_escalate(void) {
 }
 void shutdown_keymgr_kill(void) {
   return MockShutdownImpl::Instance().shutdown_keymgr_kill();
+}
+void shutdown_reset(void) {
+  return MockShutdownImpl::Instance().shutdown_reset();
 }
 void shutdown_flash_kill(void) {
   return MockShutdownImpl::Instance().shutdown_flash_kill();
@@ -83,7 +87,7 @@ constexpr uint32_t Pack32(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
   Pack32(kAlertClass##prod, kAlertClass##prodend, kAlertClass##dev, \
          kAlertClass##rma)
 
-// This alert configuration is described in the Mask ROM Shutdown specification:
+// This alert configuration is described in the ROM Shutdown specification:
 // https://docs.google.com/document/d/1V8hRvQnJhsvddieJbRHS3azbPZvoBWxfxPZV_0YA1QU/edit#
 // Dummy alerts have been added to prevent the tests breaking when new alerts
 // are added (see #7183). These lists of alerts and local alerts are for test
@@ -193,7 +197,6 @@ constexpr uint32_t Pack32(uint8_t a, uint8_t b, uint8_t c, uint8_t d) {
 struct OtpConfiguration {
   uint32_t rom_error_reporting;
   uint32_t rom_bootstrap_en;
-  uint32_t rom_fault_response;
   uint32_t rom_alert_class_en;
   uint32_t rom_alert_escalation;
   uint32_t rom_alert_classification[80];
@@ -214,7 +217,6 @@ struct DefaultAlertClassification {
 constexpr OtpConfiguration kOtpConfig = {
     .rom_error_reporting = (uint32_t)kShutdownErrorRedactNone,
     .rom_bootstrap_en = 1,
-    .rom_fault_response = 0,
     .rom_alert_class_en = Pack32(kAlertEnableLocked, kAlertEnableEnabled,
                                  kAlertEnableNone, kAlertEnableNone),
     .rom_alert_escalation = Pack32(kAlertEscalatePhase3, kAlertEscalatePhase3,
@@ -236,7 +238,8 @@ constexpr DefaultAlertClassification kDefaultAlertClassification[] = {
     ALERTS(FULL),
 };
 static_assert(ARRAYSIZE(kDefaultAlertClassification) <=
-                  (OTP_CTRL_PARAM_ROM_ALERT_CLASSIFICATION_SIZE / 4),
+                  (OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_CLASSIFICATION_SIZE /
+                   4),
               "The default alert classification must be less than or equal to "
               "the number of reserved OTP words");
 
@@ -246,10 +249,11 @@ static_assert(kTopEarlgreyAlertIdLast < ARRAYSIZE(kDefaultAlertClassification),
 
 constexpr DefaultAlertClassification kDefaultLocAlertClassification[] = {
     LOC_ALERTS(FULL)};
-static_assert(ARRAYSIZE(kDefaultLocAlertClassification) <=
-                  (OTP_CTRL_PARAM_ROM_LOCAL_ALERT_CLASSIFICATION_SIZE / 4),
-              "The default local alert classification must be less than or "
-              "equal to the number of reserved OTP words");
+static_assert(
+    ARRAYSIZE(kDefaultLocAlertClassification) <=
+        (OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_LOCAL_ALERT_CLASSIFICATION_SIZE / 4),
+    "The default local alert classification must be less than or "
+    "equal to the number of reserved OTP words");
 
 constexpr alert_class_t kClasses[] = {
     kAlertClassA,
@@ -294,7 +298,7 @@ alert_escalate_t RomAlertClassEscalation(alert_class_t cls) {
   }
 }
 
-class ShutdownTest : public mask_rom_test::MaskRomTest {
+class ShutdownTest : public rom_test::RomTest {
  protected:
   void SetupOtpReads() {
     // Make OTP reads retrieve their values from `otp_config_`.
@@ -351,6 +355,7 @@ class ShutdownTest : public mask_rom_test::MaskRomTest {
     EXPECT_CALL(shutdown_, shutdown_report_error(error));
     EXPECT_CALL(shutdown_, shutdown_software_escalate());
     EXPECT_CALL(shutdown_, shutdown_keymgr_kill());
+    EXPECT_CALL(shutdown_, shutdown_reset());
     EXPECT_CALL(shutdown_, shutdown_flash_kill());
     EXPECT_CALL(shutdown_, shutdown_hang());
   }
@@ -358,10 +363,10 @@ class ShutdownTest : public mask_rom_test::MaskRomTest {
   OtpConfiguration otp_config_ = kOtpConfig;
   // Use NiceMock because we aren't interested in the specifics of OTP reads,
   // but we want to mock out calls to otp_read32.
-  mask_rom_test::NiceMockOtp otp_;
+  rom_test::NiceMockOtp otp_;
   MockShutdownImpl shutdown_;
-  mask_rom_test::MockAlert alert_;
-  mask_rom_test::MockAbsMmio mmio_;
+  rom_test::MockAlert alert_;
+  rom_test::MockAbsMmio mmio_;
 };
 
 TEST_F(ShutdownTest, InitializeProd) {
@@ -532,10 +537,11 @@ TEST_F(ShutdownTest, RedactPolicyProduction) {
     EXPECT_ABS_READ32(
         TOP_EARLGREY_LC_CTRL_BASE_ADDR + LC_CTRL_LC_STATE_REG_OFFSET,
         static_cast<uint32_t>(state));
-    EXPECT_ABS_READ32(TOP_EARLGREY_OTP_CTRL_CORE_BASE_ADDR +
-                          OTP_CTRL_SW_CFG_WINDOW_REG_OFFSET +
-                          OTP_CTRL_PARAM_ROM_ERROR_REPORTING_OFFSET,
-                      static_cast<uint32_t>(kShutdownErrorRedactModule));
+    EXPECT_ABS_READ32(
+        TOP_EARLGREY_OTP_CTRL_CORE_BASE_ADDR +
+            OTP_CTRL_SW_CFG_WINDOW_REG_OFFSET +
+            OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ERROR_REPORTING_OFFSET,
+        static_cast<uint32_t>(kShutdownErrorRedactModule));
     EXPECT_EQ(shutdown_redact_policy(), kShutdownErrorRedactModule);
   }
 }
@@ -571,14 +577,11 @@ TEST(ShutdownModule, RedactErrors) {
   EXPECT_EQ(shutdown_redact(kErrorOk, kShutdownErrorRedactModule), 0);
   EXPECT_EQ(shutdown_redact(kErrorOk, kShutdownErrorRedactAll), 0);
 
-  EXPECT_EQ(shutdown_redact(kErrorUartBadBaudRate, kShutdownErrorRedactNone),
-            0x02554103);
-  EXPECT_EQ(shutdown_redact(kErrorUartBadBaudRate, kShutdownErrorRedactError),
-            0x00554103);
-  EXPECT_EQ(shutdown_redact(kErrorUartBadBaudRate, kShutdownErrorRedactModule),
-            0x00000003);
-  EXPECT_EQ(shutdown_redact(kErrorUartBadBaudRate, kShutdownErrorRedactAll),
-            0xFFFFFFFF);
+  rom_error_t error = static_cast<rom_error_t>(0xaabbccdd);
+  EXPECT_EQ(shutdown_redact(error, kShutdownErrorRedactNone), 0xaabbccdd);
+  EXPECT_EQ(shutdown_redact(error, kShutdownErrorRedactError), 0x00bbccdd);
+  EXPECT_EQ(shutdown_redact(error, kShutdownErrorRedactModule), 0x000000dd);
+  EXPECT_EQ(shutdown_redact(error, kShutdownErrorRedactAll), 0xffffffff);
 }
 
 TEST_F(ShutdownTest, ShutdownFinalize) {

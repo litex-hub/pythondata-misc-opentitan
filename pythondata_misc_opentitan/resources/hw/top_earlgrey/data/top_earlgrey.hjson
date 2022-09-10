@@ -308,8 +308,8 @@
       reset_connections: {rst_ni: "lc_io_div4", rst_kmac_ni: "sys"},
       base_addr: "0x40140000",
       param_decl: {
-        ChipGen: "16'h 00000",
-        ChipRev: "16'h 00000",
+        ChipGen: "16'h 0000",
+        ChipRev: "16'h 0000",
         IdcodeValue: "jtag_id_pkg::JTAG_IDCODE",
       },
     },
@@ -351,7 +351,7 @@
       clock_srcs: {
         clk_i: "io_div4",
         clk_slow_i: "aon",
-        clk_esc_i: {
+        clk_lc_i: {
           clock: "io_div4",
           group: "secure"
         }
@@ -365,7 +365,7 @@
           name: "por_aon",
           domain: "0"
         },
-        rst_esc_ni: {
+        rst_lc_ni: {
           name: "lc_io_div4",
           domain: "0"
         },
@@ -381,11 +381,26 @@
     },
     { name: "rstmgr_aon",
       type: "rstmgr",
-      clock_srcs: {clk_i: "io_div4", clk_aon_i: "aon", clk_main_i: "main", clk_io_i: "io", clk_usb_i: "usb",
-                   clk_io_div2_i: "io_div2", clk_io_div4_i: "io_div4"},
+      clock_srcs: {
+        clk_i: {
+          clock: "io_div4",
+          group: "secure"
+        },
+        clk_por_i: "io_div4", clk_aon_i: "aon", clk_main_i: "main", clk_io_i: "io", clk_usb_i: "usb",
+        clk_io_div2_i: "io_div2", clk_io_div4_i: "io_div4"
+      },
       clock_group: "powerup",
-      reset_connections: {rst_ni: "por_io_div4"}
-      domain: ["Aon"],
+      reset_connections: {
+        rst_ni: {
+          name: "lc_io_div4",
+          domain: "0"
+        },
+        rst_por_ni: {
+          name: "por_io_div4",
+          domain: "Aon"
+        },
+      }
+      domain: ["Aon", "0"],
       base_addr: "0x40410000",
       attr: "templated",
     },
@@ -478,7 +493,10 @@
         clk_ast_alert_i: "io_div4",
         clk_ast_es_i: "main",
         clk_ast_rng_i: "main",
-        clk_ast_usb_i: "usb"
+        clk_ast_usb_i: {
+	  clock: "usb",
+	  group: "peri"
+	}
       },
       clock_group: "secure",
       reset_connections: {
@@ -1047,7 +1065,6 @@
         'clkmgr_aon.hi_speed_sel'         : 'hi_speed_sel',
         'clkmgr_aon.div_step_down_req'    : 'div_step_down_req',
         'clkmgr_aon.calib_rdy'            : 'calib_rdy',
-        'flash_ctrl.flash_alert'          : 'flash_alert',
         'flash_ctrl.flash_bist_enable'    : 'flash_bist_enable',
         'flash_ctrl.flash_power_down_h'   : 'flash_power_down_h',
         'flash_ctrl.flash_power_ready_h'  : 'flash_power_ready_h',
@@ -1065,7 +1082,6 @@
         'otp_ctrl.otp_ast_pwr_seq'        : '',
         'otp_ctrl.otp_ast_pwr_seq_h'      : '',
         'otp_ctrl.otp_ext_voltage_h'      : 'otp_ext_voltage_h',
-        'otp_ctrl.otp_alert'              : 'otp_alert',
         'otp_ctrl.otp_obs'                : 'otp_obs',
         'rstmgr_aon.por_n'                : 'por_n'
         'rv_core_ibex.fpga_info'          : 'fpga_info'

@@ -24,13 +24,6 @@ class kmac_app_vseq extends kmac_sideload_vseq;
       // application interface outputs 384-bit digest (48 bytes)
       output_len == kmac_pkg::AppDigestW / 8;
 
-      // LC_CTRL uses 128-bit strength, KeyMgr and OTP_CTRL use 256-bit strength
-      if (app_mode == AppLc) {
-        strength == sha3_pkg::L128;
-      } else {
-        strength == sha3_pkg::L256;
-      }
-
       // KMAC_APP will never use XOF mode
       xof_en == 0;
     }
@@ -40,9 +33,6 @@ class kmac_app_vseq extends kmac_sideload_vseq;
     if (en_app) {
       if (app_mode == AppKeymgr) {
         kmac_en == 1;
-        // Only enable sideload interface, but does not necessarily need to set
-        // cfg_shadowed.sideload to 1.
-        en_sideload == 1;
       } else {
         kmac_en == 0;
       }

@@ -18,6 +18,7 @@
 #include "sw/device/silicon_creator/lib/drivers/alert.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
 #include "sw/device/silicon_creator/lib/drivers/otp.h"
+#include "sw/device/silicon_creator/lib/epmp_defs.h"
 
 #include "alert_handler_regs.h"
 #include "flash_ctrl_regs.h"
@@ -31,11 +32,12 @@
 #include "uart_regs.h"
 
 static_assert(ALERT_HANDLER_ALERT_CLASS_SHADOWED_MULTIREG_COUNT <=
-                  OTP_CTRL_PARAM_ROM_ALERT_CLASSIFICATION_SIZE / 4,
+                  OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_CLASSIFICATION_SIZE / 4,
               "More alerts than alert classification OTP words!");
-static_assert(ALERT_HANDLER_LOC_ALERT_CLASS_SHADOWED_MULTIREG_COUNT <=
-                  OTP_CTRL_PARAM_ROM_LOCAL_ALERT_CLASSIFICATION_SIZE / 4,
-              "More local alerts than local alert classification OTP words!");
+static_assert(
+    ALERT_HANDLER_LOC_ALERT_CLASS_SHADOWED_MULTIREG_COUNT <=
+        OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_LOCAL_ALERT_CLASSIFICATION_SIZE / 4,
+    "More local alerts than local alert classification OTP words!");
 
 #define NO_MODIFIERS
 
@@ -122,9 +124,10 @@ rom_error_t shutdown_init(lifecycle_state_t lc_state) {
   // escalate configs per alert class (a/b/c/d).
   size_t i = 0;
   rom_error_t error = kErrorOk;
-  uint32_t class_enable = otp_read32(OTP_CTRL_PARAM_ROM_ALERT_CLASS_EN_OFFSET);
+  uint32_t class_enable =
+      otp_read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_CLASS_EN_OFFSET);
   uint32_t class_escalate =
-      otp_read32(OTP_CTRL_PARAM_ROM_ALERT_ESCALATION_OFFSET);
+      otp_read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_ESCALATION_OFFSET);
   alert_enable_t enable[ALERT_CLASSES];
   alert_escalate_t escalate[ALERT_CLASSES];
   for (i = 0; launder32(i) < ALERT_CLASSES; ++i) {
@@ -141,8 +144,9 @@ rom_error_t shutdown_init(lifecycle_state_t lc_state) {
   // configuration for the current lifecycle state.
   for (i = 0; launder32(i) < ALERT_HANDLER_ALERT_CLASS_SHADOWED_MULTIREG_COUNT;
        ++i) {
-    uint32_t value = otp_read32(OTP_CTRL_PARAM_ROM_ALERT_CLASSIFICATION_OFFSET +
-                                i * sizeof(uint32_t));
+    uint32_t value =
+        otp_read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_CLASSIFICATION_OFFSET +
+                   i * sizeof(uint32_t));
     alert_class_t cls = (alert_class_t)bitfield_field32_read(
         value, (bitfield_field32_t){.mask = 0xff, .index = lc_shift});
     rom_error_t e = alert_configure(i, cls, enable[clsindex(cls)]);
@@ -161,9 +165,9 @@ rom_error_t shutdown_init(lifecycle_state_t lc_state) {
   for (i = 0;
        launder32(i) < ALERT_HANDLER_LOC_ALERT_CLASS_SHADOWED_MULTIREG_COUNT;
        ++i) {
-    uint32_t value =
-        otp_read32(OTP_CTRL_PARAM_ROM_LOCAL_ALERT_CLASSIFICATION_OFFSET +
-                   i * sizeof(uint32_t));
+    uint32_t value = otp_read32(
+        OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_LOCAL_ALERT_CLASSIFICATION_OFFSET +
+        i * sizeof(uint32_t));
     alert_class_t cls = (alert_class_t)bitfield_field32_read(
         value, (bitfield_field32_t){.mask = 0xff, .index = lc_shift});
     rom_error_t e = alert_local_configure(i, cls, enable[clsindex(cls)]);
@@ -193,14 +197,16 @@ rom_error_t shutdown_init(lifecycle_state_t lc_state) {
   for (i = 0; launder32(i) < ALERT_CLASSES; ++i) {
     config.enabled = enable[i];
     config.escalation = escalate[i];
-    config.accum_threshold = otp_read32(
-        OTP_CTRL_PARAM_ROM_ALERT_ACCUM_THRESH_OFFSET + i * sizeof(uint32_t));
-    config.timeout_cycles = otp_read32(
-        OTP_CTRL_PARAM_ROM_ALERT_TIMEOUT_CYCLES_OFFSET + i * sizeof(uint32_t));
+    config.accum_threshold =
+        otp_read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_ACCUM_THRESH_OFFSET +
+                   i * sizeof(uint32_t));
+    config.timeout_cycles =
+        otp_read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_TIMEOUT_CYCLES_OFFSET +
+                   i * sizeof(uint32_t));
     size_t phase = 0;
     for (; launder32(phase) < ARRAYSIZE(config.phase_cycles); ++phase) {
       config.phase_cycles[phase] = otp_read32(
-          OTP_CTRL_PARAM_ROM_ALERT_PHASE_CYCLES_OFFSET +
+          OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ALERT_PHASE_CYCLES_OFFSET +
           (i * ARRAYSIZE(config.phase_cycles) + phase) * sizeof(uint32_t));
     }
     if (phase != ARRAYSIZE(config.phase_cycles)) {
@@ -280,7 +286,7 @@ static shutdown_error_redact_t shutdown_redact_policy_inline(
       return (shutdown_error_redact_t)abs_mmio_read32(
           TOP_EARLGREY_OTP_CTRL_CORE_BASE_ADDR +
           OTP_CTRL_SW_CFG_WINDOW_REG_OFFSET +
-          OTP_CTRL_PARAM_ROM_ERROR_REPORTING_OFFSET);
+          OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_ERROR_REPORTING_OFFSET);
     default:
       // Redact everything if in an unexpected lifecycle state.
       return kShutdownErrorRedactAll;
@@ -416,6 +422,11 @@ SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_keymgr_kill(void)) {
   abs_mmio_write32(kBase + KEYMGR_SIDELOAD_CLEAR_REG_OFFSET, 1);
 }
 
+SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_reset(void)) {
+  enum { kBase = TOP_EARLGREY_RSTMGR_AON_BASE_ADDR };
+  abs_mmio_write32(kBase + RSTMGR_RESET_REQ_REG_OFFSET, kMultiBitBool4True);
+}
+
 SHUTDOWN_FUNC(NO_MODIFIERS, shutdown_flash_kill(void)) {
   enum { kBase = TOP_EARLGREY_FLASH_CTRL_CORE_BASE_ADDR };
   // Setting DIS (rw0c) to a value other than 5 will disable flash permanently.
@@ -438,33 +449,48 @@ SHUTDOWN_FUNC(noreturn, shutdown_hang(void)) {
 
   // Switch to assembly as RAM (incl. stack) is about to get scrambled.
 #ifdef OT_PLATFORM_RV32
-  while (true) {
-    asm volatile(
-        "1:"
-        // Request a new scrambling key.
-        "sw %[kSramRenewKey], %[kSramCtrlCtrlReg](%[kSramCtrlBase]);"
-        // Request a system reset.
-        "sw %[kMultiBitBool4True], %[kRstmgrResetReqReg](%[kRstmgrBase]);"
+  asm volatile(
+      ".L_shutdown_hang_asm_start:"
+      // Request a new scrambling key.
+      "sw %[kSramRenewKey], %[kSramCtrlCtrlReg](%[kSramCtrlBase]);"
+      // Request a system reset.
+      "sw %[kMultiBitBool4True], %[kRstmgrResetReqReg](%[kRstmgrBase]);"
 
-        // TODO(lowRISC/opentitan#7148): restrict the ePMP such that only
-        // ROM may execute.  mundaym's suggestion: set entry 2 as a NAPOT
-        // region covering the entire address space, clear all its permission
-        // bits and set the lock bit, and then finally disable RLB to prevent
-        // any further modifications.
+      // Reconfigure ePMP such that only this inline asm is executable:
+      // - Entry 1: TOR, LRX, [.L_shutdown_hang_asm_start,
+      // .L_shutdown_hang_asm_end).
+      // - Entry 2: NAPOT, L, entire address space.
+      // - MSECCFG: MMWP set RLB unset to prevent any further modifications.
+      "la   t0, .L_shutdown_hang_asm_start;"
+      "srli t0, t0, 2;"
+      "csrw pmpaddr0, t0;"
+      "la   t0, .L_shutdown_hang_asm_end;"
+      "srli t0, t0, 2;"
+      "csrw pmpaddr1, t0;"
+      "csrw pmpaddr2, %[kNapotEntireAddressSpace];"
+      "csrw pmpcfg0, %[kPmpCfg0];"
+      "csrw pmpcfg1, zero;"
+      "csrw pmpcfg2, zero;"
+      "csrw pmpcfg3, zero;"
+      "csrw %[kMSecCfgReg], %[kMSecCfgVal];"
 
-        // Generate a halt-maze.
-        "wfi; wfi; wfi; wfi; j 1b;"
-        "wfi; wfi; j 1b;"
-        "wfi; j 1b;"
-        "wfi;"
-        :
-        : [kSramRenewKey] "r"(1 << SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT),
-          [kSramCtrlCtrlReg] "I"(SRAM_CTRL_CTRL_REG_OFFSET),
-          [kSramCtrlBase] "r"(kSramCtrlBase),
-          [kMultiBitBool4True] "r"(kMultiBitBool4True),
-          [kRstmgrBase] "r"(kRstmgrBase),
-          [kRstmgrResetReqReg] "I"(RSTMGR_RESET_REQ_REG_OFFSET));
-  }
+      // Generate a halt-maze.
+      "wfi; wfi; wfi; wfi; j .L_shutdown_hang_asm_start;"
+      "wfi; wfi; j .L_shutdown_hang_asm_start;"
+      "wfi; j .L_shutdown_hang_asm_start;"
+      ".L_shutdown_hang_asm_end:"
+      :
+      : [kSramRenewKey] "r"(1 << SRAM_CTRL_CTRL_RENEW_SCR_KEY_BIT),
+        [kSramCtrlCtrlReg] "I"(SRAM_CTRL_CTRL_REG_OFFSET),
+        [kSramCtrlBase] "r"(kSramCtrlBase),
+        [kMultiBitBool4True] "r"(kMultiBitBool4True),
+        [kRstmgrResetReqReg] "I"(RSTMGR_RESET_REQ_REG_OFFSET),
+        [kRstmgrBase] "r"(kRstmgrBase),
+        [kNapotEntireAddressSpace] "r"(0x7fffffff),
+        [kPmpCfg0] "r"((EPMP_CFG_A_TOR | EPMP_CFG_LRX) << 8 |
+                       (EPMP_CFG_A_NAPOT | EPMP_CFG_L) << 16),
+        [kMSecCfgReg] "I"(EPMP_MSECCFG), [kMSecCfgVal] "r"(EPMP_MSECCFG_MMWP));
+  OT_UNREACHABLE();
 #endif
 }
 
@@ -479,6 +505,8 @@ void shutdown_finalize(rom_error_t reason) {
   shutdown_report_error(reason);
   shutdown_software_escalate();
   shutdown_keymgr_kill();
+  // Reset before killing the flash to be able to use this also in flash.
+  shutdown_reset();
   shutdown_flash_kill();
   // If we get here, we'll wait for the watchdog to reset the chip.
   shutdown_hang();

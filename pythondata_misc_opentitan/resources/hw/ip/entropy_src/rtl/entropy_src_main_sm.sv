@@ -18,7 +18,6 @@ module entropy_src_main_sm #(
   input logic                   ht_done_pulse_i,
   input logic                   ht_fail_pulse_i,
   input logic                   alert_thresh_fail_i,
-  input logic                   sfifo_esfinal_full_i,
   output logic                  rst_alert_cntr_o,
   input logic                   bypass_mode_i,
   input logic                   main_stage_rdy_i,
@@ -29,7 +28,7 @@ module entropy_src_main_sm #(
   output logic                  boot_phase_done_o,
   output logic                  sha3_start_o,
   output logic                  sha3_process_o,
-  output logic                  sha3_done_o,
+  output prim_mubi_pkg::mubi4_t sha3_done_o,
   output logic                  cs_aes_halt_req_o,
   input logic                   cs_aes_halt_ack_i,
   input logic                   local_escalate_i,
@@ -100,7 +99,7 @@ module entropy_src_main_sm #(
     boot_phase_done_o = 1'b0;
     sha3_start_o = 1'b0;
     sha3_process_o = 1'b0;
-    sha3_done_o = 1'b0;
+    sha3_done_o = prim_mubi_pkg::MuBi4False;
     cs_aes_halt_req_o = 1'b0;
     main_sm_alert_o = 1'b0;
     main_sm_idle_o = 1'b0;
@@ -111,7 +110,12 @@ module entropy_src_main_sm #(
         if (enable_i) begin
           // running fw override mode and in sha3 mode
           if (fw_ov_ent_insert_i && !bypass_mode_i) begin
-            state_d = FWInsertStart;
+            if (fw_ov_sha3_start_i || !enable_i) begin
+              sha3_start_o = 1'b1;
+              state_d = FWInsertMsg;
+            end else begin
+              state_d = FWInsertStart;
+            end
           // running in bypass_mode and not fw override mode
           end else if (bypass_mode_i && !fw_ov_ent_insert_i) begin
             state_d = BootHTRunning;
@@ -161,9 +165,18 @@ module entropy_src_main_sm #(
         if (!enable_i) begin
           state_d = Idle;
         end
+        // Even when stalled we keep monitoring for alerts and maintaining  alert statistics.
+        // However, we don't signal alerts or clear HT stats in FW_OV mode.
+        if(!fw_ov_ent_insert_i && ht_done_pulse_i) begin
+          if (alert_thresh_fail_i) begin
+            state_d = AlertState;
+          end else if (!ht_fail_pulse_i) begin
+            rst_alert_cntr_o = 1'b1;
+          end
+        end
       end
       StartupHTStart: begin
-        if (!enable_i || sfifo_esfinal_full_i) begin
+        if (!enable_i) begin
           state_d = Idle;
         end else begin
           sha3_start_o = 1'b1;
@@ -212,7 +225,7 @@ module entropy_src_main_sm #(
         end
       end
       ContHTStart: begin
-        if (!enable_i || sfifo_esfinal_full_i) begin
+        if (!enable_i) begin
           state_d = Idle;
         end else begin
           sha3_start_o = 1'b1;
@@ -220,9 +233,16 @@ module entropy_src_main_sm #(
         end
       end
       ContHTRunning: begin
-        // pass or fail of HT is the same path
-        if (ht_done_pulse_i || !enable_i) begin
-          state_d = Sha3MsgDone;
+        if (!enable_i) begin
+          state_d = Idle;
+        end else begin
+          if (ht_done_pulse_i) begin
+            if (alert_thresh_fail_i) begin
+              state_d = AlertState;
+            end else if (!ht_fail_pulse_i) begin
+              state_d = Sha3MsgDone;
+            end
+          end
         end
       end
       FWInsertStart: begin
@@ -241,7 +261,9 @@ module entropy_src_main_sm #(
         end
       end
       Sha3MsgDone: begin
-        state_d = Sha3Prep;
+        if (!cs_aes_halt_ack_i) begin
+          state_d = Sha3Prep;
+        end
       end
       Sha3Prep: begin
         // for normal or halt cases, always prevent a power spike
@@ -252,7 +274,13 @@ module entropy_src_main_sm #(
       end
       Sha3Process: begin
         cs_aes_halt_req_o = 1'b1;
-        rst_alert_cntr_o = 1'b1;
+        // The SHA control is asynchronous from the HT's in FW_OV mode
+        // breaking some of the timing assumptions associated with this
+        // alert clear pulse.  This makes predicting the alert count registers
+        // harder, and even though the alerts are surpressed in this mode
+        // the counters are still scoreboarded, so we supress this clear
+        // pulse in FW_OV insert mode.
+        rst_alert_cntr_o = ~fw_ov_ent_insert_i;
         sha3_process_o = 1'b1;
         state_d = Sha3Valid;
       end
@@ -264,11 +292,11 @@ module entropy_src_main_sm #(
       end
       Sha3Done: begin
         if (!enable_i) begin
-          sha3_done_o = 1'b1;
+          sha3_done_o = prim_mubi_pkg::MuBi4True;
           state_d = Idle;
         end else begin
           if (main_stage_rdy_i) begin
-            sha3_done_o = 1'b1;
+            sha3_done_o = prim_mubi_pkg::MuBi4True;
             main_stage_push_o = 1'b1;
             if (fw_ov_ent_insert_i) begin
               state_d = Idle;

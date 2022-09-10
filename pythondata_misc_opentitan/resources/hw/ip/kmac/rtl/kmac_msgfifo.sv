@@ -15,6 +15,8 @@ module kmac_msgfifo
   // pushing to MsgFIFO
   parameter int OutWidth = 64,
 
+  parameter bit EnMasking = 1'b 1,
+
   // Internal MsgFIFO Entry count
   parameter  int MsgDepth = 9,
   localparam int MsgDepthW = $clog2(MsgDepth+1) // derived parameter
@@ -39,12 +41,14 @@ module kmac_msgfifo
   output logic [MsgDepthW-1:0] fifo_depth_o,
 
   // Control
-  input clear_i,
+  input prim_mubi_pkg::mubi4_t clear_i,
 
   // process_i --> process_o
   // process_o asserted after all internal messages are flushed out to MSG interface
   input        process_i,
-  output logic process_o
+  output logic process_o,
+
+  err_t err_o
 );
 
   /////////////////
@@ -91,15 +95,23 @@ module kmac_msgfifo
   fifo_t fifo_rdata;
   logic  fifo_rready;
 
+  logic fifo_err; // FIFO dup. counter error
+
   // packer flush to msg_fifo, then msg_fifo empty out the internals
   // then assert msgfifo_flush_done
   logic packer_flush_done;
   logic msgfifo_flush_done;
 
+  logic packer_err;
+
+  // SEC_CM: PACKER.CTR.REDUN
   prim_packer #(
     .InW          (OutWidth),
     .OutW         (OutWidth),
-    .HintByteData (1)
+    .HintByteData (1),
+
+    // Turn on dup counter when EnMasking is set
+    .EnProtection (EnMasking)
   ) u_packer (
     .clk_i,
     .rst_ni,
@@ -115,7 +127,9 @@ module kmac_msgfifo
     .ready_i      (packer_wready),
 
     .flush_i      (process_i),
-    .flush_done_o (packer_flush_done)
+    .flush_done_o (packer_flush_done),
+
+    .err_o (packer_err)
   );
 
   // Assign packer wdata and wmask to FIFO struct
@@ -131,25 +145,26 @@ module kmac_msgfifo
 
   // MsgFIFO
   prim_fifo_sync #(
-    .Width ($bits(fifo_t)),
-    .Pass  (1'b 1),
-    .Depth (MsgDepth)
+    .Width  ($bits(fifo_t)),
+    .Pass   (1'b 1),
+    .Depth  (MsgDepth),
+    .Secure (EnMasking)
   ) u_msgfifo (
     .clk_i,
     .rst_ni,
-    .clr_i   (clear_i),
+    .clr_i   (prim_mubi_pkg::mubi4_test_true_strict(clear_i)),
 
     .wvalid_i(fifo_wvalid),
     .wready_o(fifo_wready),
     .wdata_i (fifo_wdata),
 
-    .depth_o (fifo_depth_o),
-    .full_o  (fifo_full_o),
-
     .rvalid_o (fifo_rvalid),
     .rready_i (fifo_rready),
     .rdata_o  (fifo_rdata),
-    .err_o    ()
+
+    .full_o  (fifo_full_o),
+    .depth_o (fifo_depth_o),
+    .err_o   (fifo_err)
 
   );
 
@@ -207,7 +222,7 @@ module kmac_msgfifo
       end
 
       FlushClear: begin
-        if (clear_i) begin
+        if (prim_mubi_pkg::mubi4_test_true_strict(clear_i)) begin
           flush_st_d = FlushIdle;
         end else begin
           flush_st_d = FlushClear;
@@ -221,6 +236,31 @@ module kmac_msgfifo
   end
 
   assign process_o = msgfifo_flush_done;
+
+  // Error assign
+  always_comb begin : error_logic
+    err_o = '{
+      valid: 1'b 0,
+      code: kmac_pkg::ErrNone,
+      info: '0
+    };
+
+    // Priority case -> if .. else if
+    if (packer_err) begin
+      err_o = '{
+        // If EnProtection is 0, packer_err is tied to 0
+        valid: 1'b 1,
+        code:  kmac_pkg::ErrPackerIntegrity,
+        info:  kmac_pkg::ErrInfoW'(flush_st)
+      };
+    end else if (fifo_err) begin
+      err_o = '{
+        valid: 1'b 1,
+        code:  kmac_pkg::ErrMsgFifoIntegrity,
+        info:  kmac_pkg::ErrInfoW'(flush_st)
+      };
+    end
+  end : error_logic
 
   ////////////////
   // Assertions //

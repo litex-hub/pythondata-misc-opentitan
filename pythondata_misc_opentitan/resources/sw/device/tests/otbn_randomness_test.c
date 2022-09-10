@@ -5,8 +5,8 @@
 #include "sw/device/lib/dif/dif_base.h"
 #include "sw/device/lib/dif/dif_clkmgr.h"
 #include "sw/device/lib/dif/dif_otbn.h"
-#include "sw/device/lib/irq.h"
 #include "sw/device/lib/runtime/ibex.h"
+#include "sw/device/lib/runtime/irq.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/runtime/otbn.h"
 #include "sw/device/lib/testing/clkmgr_testutils.h"
@@ -153,7 +153,8 @@ void initialize_clkmgr(void) {
 }
 
 bool test_main(void) {
-  entropy_testutils_boot_mode_init();
+  // Initialize EDN in auto mode.
+  entropy_testutils_auto_mode_init();
 
   initialize_clkmgr();
 
@@ -177,6 +178,7 @@ bool test_main(void) {
   // verify that the OTBN clk hint status within clkmgr reads 1 (OTBN is not
   // idle).
   CHECK(otbn_load_app(&otbn_ctx, kOtbnAppCfiTest) == kOtbnOk);
+
   CHECK(otbn_execute(&otbn_ctx) == kOtbnOk);
 
   CLKMGR_TESTUTILS_SET_AND_CHECK_CLOCK_HINT(

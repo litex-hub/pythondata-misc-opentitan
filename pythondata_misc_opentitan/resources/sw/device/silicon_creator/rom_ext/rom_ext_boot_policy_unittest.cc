@@ -7,31 +7,31 @@
 #include "gtest/gtest.h"
 #include "sw/device/silicon_creator/lib/mock_manifest.h"
 #include "sw/device/silicon_creator/rom_ext/mock_rom_ext_boot_policy_ptrs.h"
-#include "sw/device/silicon_creator/testing/mask_rom_test.h"
+#include "sw/device/silicon_creator/testing/rom_test.h"
 
 namespace manifest_unittest {
 namespace {
 using ::testing::Return;
 
-class RomExtBootPolicyTest : public mask_rom_test::MaskRomTest {
+class RomExtBootPolicyTest : public rom_test::RomTest {
  protected:
-  mask_rom_test::MockRomExtBootPolicyPtrs rom_ext_boot_policy_ptrs_;
-  mask_rom_test::MockManifest mock_manifest_;
+  rom_test::MockRomExtBootPolicyPtrs rom_ext_boot_policy_ptrs_;
+  rom_test::MockManifest mock_manifest_;
 };
 
 TEST_F(RomExtBootPolicyTest, ManifestCheck) {
   manifest_t manifest{};
-  manifest.identifier = MANIFEST_IDENTIFIER_OWNER_STAGE;
+  manifest.identifier = CHIP_BL0_IDENTIFIER;
 
-  manifest.length = MANIFEST_LENGTH_FIELD_OWNER_STAGE_MIN;
+  manifest.length = CHIP_BL0_SIZE_MIN;
   EXPECT_CALL(mock_manifest_, Check(&manifest)).WillOnce(Return(kErrorOk));
   EXPECT_EQ(rom_ext_boot_policy_manifest_check(&manifest), kErrorOk);
 
-  manifest.length = MANIFEST_LENGTH_FIELD_OWNER_STAGE_MAX >> 1;
+  manifest.length = CHIP_BL0_SIZE_MAX >> 1;
   EXPECT_CALL(mock_manifest_, Check(&manifest)).WillOnce(Return(kErrorOk));
   EXPECT_EQ(rom_ext_boot_policy_manifest_check(&manifest), kErrorOk);
 
-  manifest.length = MANIFEST_LENGTH_FIELD_OWNER_STAGE_MAX;
+  manifest.length = CHIP_BL0_SIZE_MAX;
   EXPECT_CALL(mock_manifest_, Check(&manifest)).WillOnce(Return(kErrorOk));
   EXPECT_EQ(rom_ext_boot_policy_manifest_check(&manifest), kErrorOk);
 }
@@ -45,13 +45,13 @@ TEST_F(RomExtBootPolicyTest, ManifestCheckBadIdentifier) {
 
 TEST_F(RomExtBootPolicyTest, ManifestCheckBadLength) {
   manifest_t manifest{};
-  manifest.identifier = MANIFEST_IDENTIFIER_OWNER_STAGE;
+  manifest.identifier = CHIP_BL0_IDENTIFIER;
 
-  manifest.length = MANIFEST_LENGTH_FIELD_OWNER_STAGE_MIN - 1;
+  manifest.length = CHIP_BL0_SIZE_MIN - 1;
   EXPECT_EQ(rom_ext_boot_policy_manifest_check(&manifest),
             kErrorBootPolicyBadLength);
 
-  manifest.length = MANIFEST_LENGTH_FIELD_OWNER_STAGE_MAX + 1;
+  manifest.length = CHIP_BL0_SIZE_MAX + 1;
   EXPECT_EQ(rom_ext_boot_policy_manifest_check(&manifest),
             kErrorBootPolicyBadLength);
 }

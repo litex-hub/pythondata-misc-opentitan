@@ -42,8 +42,8 @@ class chip_stub_cpu_base_vseq extends chip_base_vseq;
   virtual task apply_reset(string kind = "HARD");
     super.apply_reset(kind);
     // internal reset does not immediately go to 0 when external reset is applied
-    wait (cfg.rst_n_mon_vif.pins[0] === 0);
-    wait (cfg.rst_n_mon_vif.pins[0] === 1);
+    `DV_WAIT(cfg.rst_n_mon_vif.pins[0] === 0)
+    `DV_WAIT(cfg.rst_n_mon_vif.pins[0] === 1)
 
   endtask
 
@@ -60,7 +60,7 @@ class chip_stub_cpu_base_vseq extends chip_base_vseq;
 
   // Write AST registers with the configuration data backdoor loaded into OTP creator SW cfg region.
   //
-  // This mimics what the test ROM / mask ROM does in SW based tests, but for non-SW tests. Invoked
+  // This mimics what the test ROM / ROM does in SW based tests, but for non-SW tests. Invoked
   // in dut_init(), which is called in pre_start().
   virtual task do_ast_cfg();
     logic [31:0] data;

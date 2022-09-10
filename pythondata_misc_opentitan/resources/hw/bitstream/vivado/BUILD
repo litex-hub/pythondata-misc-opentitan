@@ -2,6 +2,7 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
+load("@rules_pkg//pkg:mappings.bzl", "pkg_filegroup", "pkg_files")
 load("//rules:fusesoc.bzl", "fusesoc_build")
 load("//rules:splice.bzl", "bitstream_splice")
 
@@ -72,17 +73,17 @@ filegroup(
 )
 
 bitstream_splice(
-    name = "fpga_cw310_mask_rom",
+    name = "fpga_cw310_rom",
     src = ":fpga_cw310_test_rom",
-    data = "//sw/device/silicon_creator/mask_rom:mask_rom_fpga_cw310_scr_vmem",
+    data = "//sw/device/silicon_creator/rom:rom_fpga_cw310_scr_vmem",
     meminfo = ":rom_mmi",
     tags = ["manual"],
 )
 
 # Splice in the dev OTP image, replacing the RMA image.
 bitstream_splice(
-    name = "fpga_cw310_mask_rom_otp_dev",
-    src = ":fpga_cw310_mask_rom",
+    name = "fpga_cw310_rom_otp_dev",
+    src = ":fpga_cw310_rom",
     data = "//hw/ip/otp_ctrl/data:img_dev",
     meminfo = ":otp_mmi",
     tags = ["manual"],
@@ -110,4 +111,59 @@ fusesoc_build(
     systems = ["lowrisc:systems:chip_earlgrey_cw310_hyperdebug"],
     tags = ["manual"],
     target = "synth",
+)
+
+filegroup(
+    name = "fpga_cw310_test_rom_hyp",
+    srcs = [":fpga_cw310_hyperdebug"],
+    output_group = "bitstream",
+    tags = ["manual"],
+)
+
+filegroup(
+    name = "rom_mmi_hyp",
+    srcs = [":fpga_cw310_hyperdebug"],
+    output_group = "rom_mmi",
+    tags = ["manual"],
+)
+
+filegroup(
+    name = "otp_mmi_hyp",
+    srcs = [":fpga_cw310_hyperdebug"],
+    output_group = "otp_mmi",
+    tags = ["manual"],
+)
+
+# Packaging rules for bitstreams
+pkg_files(
+    name = "standard",
+    srcs = [
+        ":fpga_cw310_rom",
+        ":fpga_cw310_rom_otp_dev",
+        ":fpga_cw310_test_rom",
+        ":otp_mmi",
+        ":rom_mmi",
+    ],
+    prefix = "earlgrey/fpga_cw310/standard",
+    tags = ["manual"],
+)
+
+pkg_files(
+    name = "hyperdebug",
+    srcs = [
+        ":fpga_cw310_test_rom_hyp",
+        ":otp_mmi_hyp",
+        ":rom_mmi_hyp",
+    ],
+    prefix = "earlgrey/fpga_cw310/hyperdebug",
+    tags = ["manual"],
+)
+
+pkg_filegroup(
+    name = "package",
+    srcs = [
+        ":hyperdebug",
+        ":standard",
+    ],
+    tags = ["manual"],
 )

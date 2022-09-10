@@ -27,6 +27,9 @@ static dif_lc_ctrl_t lc;
 
 // TODO(lowRISC/opentitan:#11795): when the sw_symbol_backdoor_overwrite
 // is fixed for ROM, this can be overriden by the testbench as a SW variable.
+// Since rma process takes more than 100ms in dvsim,
+// the test runs 1.6h (110ms in simtime).
+
 static mmio_region_t sram_region_ret_base_addr;
 
 enum {
@@ -87,7 +90,7 @@ static void write_info_page_scrambled(uint32_t page_index,
                                       const uint32_t *data) {
   uint32_t address = flash_ctrl_testutils_info_region_scrambled_setup(
       &flash_state, page_index, kFlashInfoBank, kPartitionId);
-  CHECK(!flash_ctrl_testutils_erase_and_write_page(
+  CHECK(flash_ctrl_testutils_erase_and_write_page(
       &flash_state, address, kPartitionId, data, kDifFlashCtrlPartitionTypeInfo,
       kDataSize));
 }
@@ -96,7 +99,7 @@ static void write_data_page_scrambled(uint32_t page_index, uint32_t region,
                                       const uint32_t *data) {
   uint32_t address = flash_ctrl_testutils_data_region_scrambled_setup(
       &flash_state, page_index, region, kRegionSize);
-  CHECK(!flash_ctrl_testutils_erase_and_write_page(
+  CHECK(flash_ctrl_testutils_erase_and_write_page(
       &flash_state, address, kPartitionId, data, kDifFlashCtrlPartitionTypeData,
       kDataSize));
 }
@@ -108,9 +111,9 @@ static void read_and_check_info_page_scrambled(bool is_equal,
   uint32_t address = flash_ctrl_testutils_info_region_scrambled_setup(
       &flash_state, page_index, kFlashInfoBank, kPartitionId);
 
-  CHECK(!flash_ctrl_testutils_read(
-      &flash_state, address, kPartitionId, readback_data,
-      kDifFlashCtrlPartitionTypeInfo, kDataSize, 0));
+  CHECK(flash_ctrl_testutils_read(&flash_state, address, kPartitionId,
+                                  readback_data, kDifFlashCtrlPartitionTypeInfo,
+                                  kDataSize, 0));
   if (is_equal) {
     CHECK_ARRAYS_EQ(readback_data, data, kDataSize);
   } else {
@@ -126,9 +129,9 @@ static void read_and_check_data_page_scrambled(bool is_equal,
   uint32_t address = flash_ctrl_testutils_data_region_scrambled_setup(
       &flash_state, page_index, region, kRegionSize);
 
-  CHECK(!flash_ctrl_testutils_read(
-      &flash_state, address, kPartitionId, readback_data,
-      kDifFlashCtrlPartitionTypeData, kDataSize, 0));
+  CHECK(flash_ctrl_testutils_read(&flash_state, address, kPartitionId,
+                                  readback_data, kDifFlashCtrlPartitionTypeData,
+                                  kDataSize, 0));
   if (is_equal) {
     CHECK_ARRAYS_EQ(readback_data, data, kDataSize);
   } else {

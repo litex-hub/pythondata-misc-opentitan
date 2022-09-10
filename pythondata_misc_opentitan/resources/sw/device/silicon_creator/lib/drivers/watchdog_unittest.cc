@@ -11,7 +11,7 @@
 #include "sw/device/silicon_creator/lib/base/mock_sec_mmio.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
 #include "sw/device/silicon_creator/lib/drivers/mock_otp.h"
-#include "sw/device/silicon_creator/testing/mask_rom_test.h"
+#include "sw/device/silicon_creator/testing/rom_test.h"
 
 #include "aon_timer_regs.h"
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
@@ -22,7 +22,7 @@ namespace watchdog_unittest {
 namespace {
 using ::testing::Return;
 
-class WatchdogTest : public mask_rom_test::MaskRomTest {
+class WatchdogTest : public rom_test::RomTest {
  protected:
   /**
    * Sets up expectations for `watchdog_init()`.
@@ -32,7 +32,9 @@ class WatchdogTest : public mask_rom_test::MaskRomTest {
   void ExpectInit(bool enabled) {
     const uint32_t kBiteThreshold = 0x12345678;
     EXPECT_CALL(
-        otp_, read32(OTP_CTRL_PARAM_ROM_WATCHDOG_BITE_THRESHOLD_CYCLES_OFFSET))
+        otp_,
+        read32(
+            OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_WATCHDOG_BITE_THRESHOLD_CYCLES_OFFSET))
         .WillOnce(Return(kBiteThreshold));
 
     EXPECT_SEC_WRITE32(pwrmgr_ + PWRMGR_RESET_EN_REG_OFFSET,
@@ -54,9 +56,9 @@ class WatchdogTest : public mask_rom_test::MaskRomTest {
 
   uint32_t pwrmgr_ = TOP_EARLGREY_PWRMGR_AON_BASE_ADDR;
   uint32_t wdog_ = TOP_EARLGREY_AON_TIMER_AON_BASE_ADDR;
-  mask_rom_test::MockAbsMmio abs_;
-  mask_rom_test::MockSecMmio sec_;
-  mask_rom_test::MockOtp otp_;
+  rom_test::MockAbsMmio abs_;
+  rom_test::MockSecMmio sec_;
+  rom_test::MockOtp otp_;
 };
 
 TEST_F(WatchdogTest, InitializeNoOtp) {

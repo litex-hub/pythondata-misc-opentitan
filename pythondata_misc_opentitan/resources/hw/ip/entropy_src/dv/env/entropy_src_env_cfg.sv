@@ -18,6 +18,7 @@ class entropy_src_env_cfg extends cip_base_env_cfg #(.RAL_T(entropy_src_reg_bloc
   virtual pins_if#(8)   otp_en_es_fw_read_vif;
   virtual pins_if#(8)   otp_en_es_fw_over_vif;
 
+
   // Configuration for DUT CSRs (held in a separate object for easy re-randomization)
   entropy_src_dut_cfg dut_cfg;
 
@@ -25,6 +26,13 @@ class entropy_src_env_cfg extends cip_base_env_cfg #(.RAL_T(entropy_src_reg_bloc
   virtual entropy_src_assert_if entropy_src_assert_vif;
   // handle to entropy_src path interface
   virtual entropy_src_path_if   entropy_src_path_vif;
+
+  // handle to the interrupt interface
+  dv_utils_pkg::intr_vif interrupt_vif;
+  // Pointer to the preconditioning fifo exception interface.
+  // (For tracking errors during FW_OV mode)
+  virtual entropy_subsys_fifo_exception_if#(1) precon_fifo_vif;
+
   //
   // Variables for controlling test duration.  Depending on the test there are two options:
   // fixed duration in time or total number of seeds.
@@ -74,7 +82,7 @@ class entropy_src_env_cfg extends cip_base_env_cfg #(.RAL_T(entropy_src_reg_bloc
   // Number of clock cycles between a TLUL disable signal, and deassertion
   // of enable on the RNG bus.
 
-  int tlul_to_rng_disable_delay = 1;
+  int tlul_to_rng_disable_delay = 0;
   int tlul_to_fifo_clr_delay    = 5;
 
   // When expecting an alert, the cip scoreboarding routines expect a to see the
@@ -135,10 +143,10 @@ class entropy_src_env_cfg extends cip_base_env_cfg #(.RAL_T(entropy_src_reg_bloc
     dut_cfg = entropy_src_dut_cfg::type_id::create("dut_cfg");
 
     // create agent config objs
-    m_rng_agent_cfg   = push_pull_agent_cfg#(.HostDataWidth(RNG_BUS_WIDTH))::
-                        type_id::create("m_rng_agent_cfg");
-    m_csrng_agent_cfg = push_pull_agent_cfg#(.HostDataWidth(FIPS_CSRNG_BUS_WIDTH))::
-                        type_id::create("m_csrng_agent_cfg");
+    m_rng_agent_cfg       = push_pull_agent_cfg#(.HostDataWidth(RNG_BUS_WIDTH))::
+                            type_id::create("m_rng_agent_cfg");
+    m_csrng_agent_cfg     = push_pull_agent_cfg#(.HostDataWidth(FIPS_CSRNG_BUS_WIDTH))::
+                            type_id::create("m_csrng_agent_cfg");
 
     // set num_interrupts & num_alerts
     begin
@@ -153,6 +161,9 @@ class entropy_src_env_cfg extends cip_base_env_cfg #(.RAL_T(entropy_src_reg_bloc
         get(null, "*.env" , "entropy_src_assert_vif", entropy_src_assert_vif)) begin
       `uvm_fatal(`gfn, $sformatf("FAILED TO GET HANDLE TO ASSERT IF"))
     end
+
+    // only support 1 outstanding TL item
+    m_tl_agent_cfg.max_outstanding_req = 1;
   endfunction
 
   virtual function string convert2string();

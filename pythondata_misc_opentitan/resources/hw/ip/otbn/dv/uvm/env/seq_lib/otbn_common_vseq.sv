@@ -115,7 +115,14 @@ class otbn_common_vseq extends otbn_base_vseq;
     if (if_proxy.sec_cm_type == SecCmPrimOnehot) begin
       fatal_cause = ral.fatal_alert_cause.reg_intg_violation;
     end else begin
-      fatal_cause = ral.fatal_alert_cause.bad_internal_state;
+      if (if_proxy.sec_cm_type == SecCmPrimCount &&
+          !uvm_re_match("*.u_tlul_adapter_sram_*", if_proxy.path)) begin
+        // Faults injected into the counters of an OTBN TLUL adapter manifest as bus integrity
+        // violation.
+        fatal_cause = ral.fatal_alert_cause.bus_intg_violation;
+      end else begin
+        fatal_cause = ral.fatal_alert_cause.bad_internal_state;
+      end
     end
     csr_utils_pkg::csr_rd_check(.ptr(fatal_cause), .compare_value(1));
     csr_utils_pkg::csr_rd_check(.ptr(ral.status), .compare_value('hFF));
@@ -131,6 +138,33 @@ class otbn_common_vseq extends otbn_base_vseq;
       $assertoff(0, "tb.MatchingStatus_A");
       $assertoff(0, "tb.dut.u_otbn_core.u_otbn_start_stop_control.StartStopStateValid_A");
     end
+    if (if_proxy.sec_cm_type == SecCmPrimCount) begin
+      cfg.model_agent_cfg.vif.otbn_disable_stack_check();
+      $assertoff(0, "tb.dut.u_otbn_core.u_otbn_controller.u_otbn_loop_controller.loop_info_stack\
+               .next_stack_top_idx_correct");
+      $assertoff(0, "tb.dut.u_otbn_core.u_otbn_rf_base.u_call_stack.next_stack_top_idx_correct");
+      if (if_proxy.path == {"tb.dut.u_tlul_adapter_sram_dmem.u_rspfifo.gen_normal_fifo.u_fifo_cnt.",
+                            "gen_secure_ptrs.u_wptr"} ||
+          if_proxy.path == {"tb.dut.u_tlul_adapter_sram_dmem.u_rspfifo.gen_normal_fifo.u_fifo_cnt.",
+                            "gen_secure_ptrs.u_rptr"}) begin
+        if (enable) begin
+          $asserton(0, "tb.dut.u_tlul_adapter_sram_dmem.u_rspfifo.DataKnown_A");
+        end else begin
+          $assertoff(0, "tb.dut.u_tlul_adapter_sram_dmem.u_rspfifo.DataKnown_A");
+        end
+      end
+      if (if_proxy.path == {"tb.dut.u_tlul_adapter_sram_imem.u_rspfifo.gen_normal_fifo.u_fifo_cnt.",
+                            "gen_secure_ptrs.u_wptr"} ||
+          if_proxy.path == {"tb.dut.u_tlul_adapter_sram_imem.u_rspfifo.gen_normal_fifo.u_fifo_cnt.",
+                            "gen_secure_ptrs.u_rptr"}) begin
+        if (enable) begin
+          $asserton(0, "tb.dut.u_tlul_adapter_sram_imem.u_rspfifo.DataKnown_A");
+        end else begin
+          $assertoff(0, "tb.dut.u_tlul_adapter_sram_imem.u_rspfifo.DataKnown_A");
+        end
+      end
+    end
+
   endfunction: sec_cm_fi_ctrl_svas
 
   virtual task sec_cm_inject_fault(sec_cm_base_if_proxy if_proxy);

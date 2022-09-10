@@ -25,7 +25,7 @@ DICE compatible identity flow:
 
 Boot stages:
 
-*   `ROM`: Metal mask ROM, sometimes known as Boot ROM.
+*   `ROM`: Metal ROM, sometimes known as Boot ROM.
 *   `ROM_EXT`: ROM Extension. Stored in flash and signed by the Silicon
     Creator[^1].
 *   `BL0`: Bootloader. Signed by the Silicon Owner.
@@ -98,7 +98,7 @@ as an example.
 ## Creator Root Key (`CreatorRootKey`) {#creator-root-key}
 
 The following sequence describes the creation of the `CreatorRootKey`. All
-inputs into the key manager can be locked down during mask ROM execution.
+inputs into the key manager can be locked down during ROM execution.
 
 The size of the inputs is dependent on the security strength and masking
 configuration of the implementation. Depending on the KM\_DERIVE intrinsic
@@ -458,7 +458,7 @@ Each key manager binding stage shall provide at least 128b of data.
 ### Key Versioning {#key-versioning}
 
 Key versioning is the mechanism by which software implements key rotation
-triggered by security updates. Since there may be more than one updatable code
+triggered by security updates. Since there may be more than one updateable code
 partition in the system, the key versioning scheme has to implement at least 8
 32b version comparators with lockable controls, which will be configured as part
 of the secure boot process.

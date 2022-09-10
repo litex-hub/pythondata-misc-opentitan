@@ -37,6 +37,7 @@ package chip_env_pkg;
   import tl_agent_pkg::*;
   import uart_agent_pkg::*;
   import xbar_env_pkg::*;
+  import top_earlgrey_pkg::*;
   import top_earlgrey_rnd_cnst_pkg::*;
   import pwm_monitor_pkg::*;
   import pwm_reg_pkg::NOutputs;
@@ -74,6 +75,7 @@ package chip_env_pkg;
   typedef virtual pins_if #(NUM_GPIOS) gpio_vif;
   typedef virtual sw_logger_if         sw_logger_vif;
   typedef virtual sw_test_status_if    sw_test_status_vif;
+  typedef virtual alerts_if            alerts_vif;
   typedef virtual ast_supply_if        ast_supply_vif;
   typedef virtual ast_ext_clk_if       ast_ext_clk_vif;
 
@@ -95,6 +97,8 @@ package chip_env_pkg;
     FlashBank1Data,
     FlashBank0Info,
     FlashBank1Info,
+    OtbnDmem[16],
+    OtbnImem,
     Otp,
     RamMain[16],
     RamRet[16],
@@ -169,10 +173,12 @@ package chip_env_pkg;
   // / corp machines. If not available, the assumption is, it can be relatively easily installed.
   // The actual job of writing the new value into the symbol is handled externally (often via a
   // backdoor mechanism to write the memory).
-  function automatic void sw_symbol_get_addr_size(input string elf_file,
-                                                  input string symbol,
-                                                  output longint unsigned addr,
-                                                  output longint unsigned size);
+  // Return 1 on success and 0 on failure.
+  function automatic bit sw_symbol_get_addr_size(input string elf_file,
+                                                 input string symbol,
+                                                 input bit does_not_exist_ok,
+                                                 output longint unsigned addr,
+                                                 output longint unsigned size);
 
     string msg_id = "sw_symbol_get_addr_size";
     `DV_CHECK_STRNE_FATAL(elf_file, "", "Input arg \"elf_file\" cannot be an empty string", msg_id)
@@ -197,6 +203,10 @@ package chip_env_pkg;
       `DV_CHECK_FATAL(out_file_d, $sformatf("Failed to open \"%0s\"", out_file), msg_id)
 
       ret = $fgets(line, out_file_d);
+
+      // If the symbol did not exist in the elf (empty file), and we are ok with that, then return.
+      if (!ret && does_not_exist_ok) return 0;
+
       `DV_CHECK_FATAL(ret, $sformatf("Failed to read line from \"%0s\"", out_file), msg_id)
 
       // The first line should have the addr in hex followed by its size as integer.
@@ -212,6 +222,7 @@ package chip_env_pkg;
 
       ret = $system($sformatf("rm -rf %0s", out_file));
       `DV_CHECK_EQ_FATAL(ret, 0, $sformatf("Failed to delete \"%0s\"", out_file), msg_id)
+      return 1;
     end
   endfunction
 

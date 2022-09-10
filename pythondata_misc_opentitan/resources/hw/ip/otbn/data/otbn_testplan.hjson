@@ -11,6 +11,7 @@
                      "hw/dv/tools/dvsim/testplans/stress_all_with_reset_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/passthru_mem_intg_testplan.hjson",
                      "hw/dv/tools/dvsim/testplans/sec_cm_fsm_testplan.hjson",
+                     "hw/dv/tools/dvsim/testplans/sec_cm_count_testplan.hjson",
                      "otbn_sec_cm_testplan.hjson"]
   testpoints: [
     {
@@ -24,7 +25,7 @@
             appropriate for CI.
 
             '''
-      milestone: V1
+      stage: V1
       tests: ["otbn_smoke"]
     }
     {
@@ -42,7 +43,7 @@
             error interrupt work correctly.
 
             '''
-      milestone: V1
+      stage: V1
       tests: ["otbn_single"]
     }
 
@@ -58,7 +59,7 @@
             relevant FSM/toggle coverage.
 
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_reset"]
     }
 
@@ -74,7 +75,7 @@
             compile and run all the binaries in a collection of ISS unit tests.
             We have coverage points to ensure we see every event we expect.
        '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_multi_err"]
     }
 
@@ -83,7 +84,7 @@
       desc: '''
             Inject ECC errors into DMEM and IMEM and expect an alert
             '''
-      milestone: V2S
+      stage: V2S
       tests: ["otbn_imem_err", "otbn_dmem_err"]
     }
     {
@@ -91,8 +92,11 @@
       desc: '''
         Corrupt internal state and expect an alert
       '''
-      milestone: V2S
-      tests: []
+      stage: V2S
+      tests: ["otbn_alu_bignum_mod_err",
+              "otbn_controller_ispr_rdata_err",
+              "otbn_mac_bignum_acc_err",
+              "otbn_urnd_err"]
     }
     {
       name: back_to_back
@@ -104,7 +108,7 @@
             is cleared between programs when there's no reset.
 
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_multi"]
     }
     {
@@ -112,7 +116,7 @@
       desc: '''
             Run assorted sequences back-to-back.
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_stress_all"]
     }
     {
@@ -120,7 +124,7 @@
       desc: '''
             Trigger the life cycle escalation input.
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_escalate"]
     }
     {
@@ -129,7 +133,7 @@
               Trigger the "state is zero" error in URND,
               Check that fatal error is asserted.
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_zero_state_err_urnd"]
     }
     {
@@ -138,7 +142,7 @@
             Trigger reads and writes to both DMEM and IMEM and expect a fatal alert for
             ILLEGAL_BUS_ACCESS. Check that *mem_rdata_bus pins are at 0 when reads are done
             '''
-      milestone: V2S
+      stage: V2S
       tests: ["otbn_illegal_mem_acc"]
     }
     {
@@ -147,8 +151,18 @@
               Set ctrl.software_errs_fatal.
               When set software errors produce fatal errors, rather than recoverable errors.
             '''
-      milestone: V2
+      stage: V2
       tests: ["otbn_sw_errs_fatal_chk"]
+    }
+    {
+      name: otbn_mem_gnt_acc_err
+      desc: '''
+              Trigger a fault to cause the IMEM/DMEM grant signal to be false when req is asserted.
+              This in turn should cause dmem_missed_gnt/imem_missed_gnt to get asserted resulting
+              in a fatal alert (a bad_internal_state fatal error).
+            '''
+      stage: V2S
+      tests: ["otbn_mem_gnt_acc_err"]
     }
   ]
 }

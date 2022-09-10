@@ -15,21 +15,25 @@ package flash_ctrl_env_pkg;
   import flash_ctrl_pkg::*;
   import flash_ctrl_core_ral_pkg::*;
   import flash_ctrl_eflash_ral_pkg::*;
+  import flash_ctrl_prim_ral_pkg::*;
   import mem_bkdr_util_pkg::*;
   import prim_mubi_pkg::*;
   import lc_ctrl_pkg::*;
   import flash_phy_prim_agent_pkg::*;
+  import sec_cm_pkg::*;
+
   // macro includes
   `include "uvm_macros.svh"
   `include "dv_macros.svh"
 
   // parameters
-  parameter string LIST_OF_ALERTS[] = {"recov_err", "fatal_std_err", "fatal_err"};
+  parameter string LIST_OF_ALERTS[] = {"recov_err", "fatal_std_err", "fatal_err",
+                                       "fatal_prim_flash_alert", "recov_prim_flash_alert"};
 
-  parameter uint NUM_ALERTS = 3;
+  parameter uint NUM_ALERTS = 5;
   parameter uint FlashNumPages = flash_ctrl_pkg::NumBanks * flash_ctrl_pkg::PagesPerBank;
-  parameter uint FlashSizeBytes         = FlashNumPages * flash_ctrl_pkg::WordsPerPage *
-                                            flash_ctrl_pkg::DataWidth / 8;
+  parameter uint FlashSizeBytes = FlashNumPages * flash_ctrl_pkg::WordsPerPage *
+                                  flash_ctrl_pkg::DataWidth / 8;
 
   parameter uint ProgFifoDepth = 4;
   parameter uint ReadFifoDepth = 16;
@@ -132,6 +136,18 @@ package flash_ctrl_env_pkg;
   parameter uint FlashUpdateErr   = 7;
 
   // types
+  typedef enum bit [1:0] {
+    OTFCfgTrue,
+    OTFCfgFalse,
+    OTFCfgRand
+  } otf_cfg_mode_e;
+
+  typedef enum {
+    ReadCheckNorm = 0,
+    ReadCheckRand = 1,
+    ReadCheckErased = 2
+  } read_check_e;
+
   typedef enum int {
     FlashCtrlIntrProgEmpty = 0,
     FlashCtrlIntrProgLvl   = 1,
@@ -184,6 +200,7 @@ package flash_ctrl_env_pkg;
     TgtRd = 0,
     TgtDr = 1, // direct read
     TgtWr = 2, // program
+    TgtEr = 3, // erase
     NumTgt = 4
   } flash_tgt_prefix_e;
 
@@ -246,6 +263,14 @@ package flash_ctrl_env_pkg;
     // addres for the ctrl interface per bank, 18:0
     bit [flash_ctrl_pkg::BusAddrByteW-2:0] otf_addr;
   } flash_op_t;
+
+  // Address combined with region
+  // Need for error injection.
+  typedef struct packed {
+    bit          bank;
+    addr_t addr;
+    flash_dv_part_e part;
+  } rd_cache_t;
 
   parameter uint ALL_ZEROS = 32'h0000_0000;
   parameter uint ALL_ONES = 32'hffff_ffff;
@@ -422,10 +447,39 @@ package flash_ctrl_env_pkg;
     end
   endfunction // flash_otf_print_data64
 
+  function automatic flash_dv_part_e get_part_name(flash_phy_pkg::flash_phy_prim_flash_req_t req);
+    flash_dv_part_e part;
+
+    if (req.part == 0) return FlashPartData;
+    else begin
+      case(req.info_sel)
+        0: begin
+          return FlashPartInfo;
+        end
+        1: begin
+          return FlashPartInfo1;
+        end
+        2: begin
+          return FlashPartInfo2;
+        end
+        default: begin
+          `uvm_error("get_partition_name", $sformatf("part:%0d info_sel:%0d doesn't exist",
+                                                     req.part, req.info_sel))
+        end
+      endcase
+    end
+
+    `uvm_error("get_partition_name", $sformatf("part:%0d info_sel:%0d doesn't exist",
+                                               req.part, req.info_sel))
+    return FlashPartData;
+  endfunction // get_part_name
+
   // package sources
   `include "flash_mem_bkdr_util.sv"
   `include "flash_mem_addr_attrs.sv"
   `include "flash_otf_item.sv"
+  `include "flash_otf_read_entry.sv"
+  `include "flash_otf_mem_entry.sv"
   `include "flash_ctrl_seq_cfg.sv"
   `include "flash_ctrl_env_cfg.sv"
   `include "flash_ctrl_env_cov.sv"

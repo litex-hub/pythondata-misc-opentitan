@@ -670,9 +670,6 @@ module chip_earlgrey_cw310 #(
   otp_ctrl_pkg::otp_ast_req_t otp_ctrl_otp_ast_pwr_seq;
   otp_ctrl_pkg::otp_ast_rsp_t otp_ctrl_otp_ast_pwr_seq_h;
 
-  // otp alert
-  ast_pkg::ast_dif_t otp_alert;
-
   logic usb_ref_pulse;
   logic usb_ref_val;
 
@@ -698,7 +695,6 @@ module chip_earlgrey_cw310 #(
   prim_mubi_pkg::mubi4_t flash_bist_enable;
   logic flash_power_down_h;
   logic flash_power_ready_h;
-  ast_pkg::ast_dif_t flash_alert;
 
   // clock bypass req/ack
   prim_mubi_pkg::mubi4_t io_clk_byp_req;
@@ -778,11 +774,14 @@ module chip_earlgrey_cw310 #(
   //////////////////////////////////
 
 
+  assign ast_base_pwr.main_pok = ast_pwst.main_pok;
+
+  logic [rstmgr_pkg::PowerDomains-1:0] por_n;
+  assign por_n = {ast_pwst.main_pok, ast_pwst.aon_pok};
+
   // TODO: Hook this up when FPGA pads are updated
   assign ext_clk = '0;
   assign pad2ast = '0;
-
-  assign ast_base_pwr.main_pok = base_ast_pwr.main_pd_n;
 
   logic clk_main, clk_usb_48mhz, clk_aon, rst_n, srst_n;
   clkgen_xil7series # (
@@ -810,6 +809,8 @@ module chip_earlgrey_cw310 #(
     aon: clk_aon
   };
 
+
+  prim_mubi_pkg::mubi4_t ast_init_done;
 
   ast #(
     .EntropyStreams(ast_pkg::EntropyStreams),
@@ -851,7 +852,7 @@ module chip_earlgrey_cw310 #(
     .clk_ast_alert_i (clkmgr_aon_clocks.clk_io_div4_secure),
     .clk_ast_es_i (clkmgr_aon_clocks.clk_main_secure),
     .clk_ast_rng_i (clkmgr_aon_clocks.clk_main_secure),
-    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_secure),
+    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_peri),
     .rst_ast_tlul_ni (rstmgr_aon_resets.rst_sys_io_div4_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_adc_ni (rstmgr_aon_resets.rst_sys_aon_n[rstmgr_pkg::DomainAonSel]),
     .rst_ast_alert_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
@@ -911,8 +912,6 @@ module chip_earlgrey_cw310 #(
     .entropy_rsp_i         ( ast_edn_edn_rsp ),
     .entropy_req_o         ( ast_edn_edn_req ),
     // alerts
-    .fla_alert_src_i       ( flash_alert    ),
-    .otp_alert_src_i       ( otp_alert      ),
     .alert_rsp_i           ( ast_alert_rsp  ),
     .alert_req_o           ( ast_alert_req  ),
     // dft
@@ -1001,7 +1000,7 @@ module chip_earlgrey_cw310 #(
     .SramCtrlMainInstrExec(1),
     .PinmuxAonTargetCfg(PinmuxTargetCfg)
   ) top_earlgrey (
-    .por_n_i                      ( {rst_n, rst_n}        ),
+    .por_n_i                      ( por_n                 ),
     .clk_main_i                   ( ast_base_clks.clk_sys ),
     .clk_io_i                     ( ast_base_clks.clk_io  ),
     .clk_usb_i                    ( ast_base_clks.clk_usb ),
@@ -1028,7 +1027,6 @@ module chip_earlgrey_cw310 #(
     .flash_power_down_h_i         ( 1'b0                  ),
     .flash_power_ready_h_i        ( 1'b1                  ),
     .flash_obs_o                  ( flash_obs             ),
-    .flash_alert_o                ( flash_alert           ),
     .io_clk_byp_req_o             ( io_clk_byp_req        ),
     .io_clk_byp_ack_i             ( io_clk_byp_ack        ),
     .all_clk_byp_req_o            ( all_clk_byp_req       ),
@@ -1042,7 +1040,6 @@ module chip_earlgrey_cw310 #(
     .adc_rsp_i                    ( adc_rsp                    ),
     .otp_ctrl_otp_ast_pwr_seq_o   ( otp_ctrl_otp_ast_pwr_seq   ),
     .otp_ctrl_otp_ast_pwr_seq_h_i ( otp_ctrl_otp_ast_pwr_seq_h ),
-    .otp_alert_o                  ( otp_alert                  ),
     .otp_obs_o                    ( otp_obs                    ),
     .sensor_ctrl_ast_alert_req_i  ( ast_alert_req              ),
     .sensor_ctrl_ast_alert_rsp_o  ( ast_alert_rsp              ),

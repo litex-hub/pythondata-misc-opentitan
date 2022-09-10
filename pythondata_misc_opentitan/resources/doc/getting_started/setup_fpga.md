@@ -28,7 +28,7 @@ You can either download the latest bitstream for the ChipWhisperer CW310 board o
 
 ### Download a Pre-built Bitstream
 
-If you are using the ChipWhisperer CW310 board with the Xilinx Kintex 7 XC7K410T FPGA, you can download the latest passing [pre-built bitstream](http://storage.googleapis.com/opentitan-bitstreams/master/bitstream-latest.tar.gz).
+If you are using the ChipWhisperer CW310 board with the Xilinx Kintex 7 XC7K410T FPGA, you can download the latest passing [pre-built bitstream](https://storage.googleapis.com/opentitan-bitstreams/master/bitstream-latest.tar.gz).
 
 For example, to download and unpack the bitstream, run the following:
 
@@ -40,17 +40,17 @@ tar -xvf bitstream-latest.tar.gz
 ```
 
 By default, the bitstream is built with a version of the boot ROM used for testing (called the _test ROM_; pulled from `sw/device/lib/testing/test_rom`).
-There is also a version of the boot ROM used in production (called the _mask ROM_; pulled from `sw/device/silicon_creator/mask_rom`).
+There is also a version of the boot ROM used in production (called the _ROM_; pulled from `sw/device/silicon_creator/rom`).
 This can be spliced into the bitstream to overwrite the testing boot ROM as described in the [FPGA Reference Manual]({{< relref "ref_manual_fpga.md#boot-rom-development" >}}).
-However, if you do not want to do the splicing yourself, both versions of the bitstream are available in the download as `*.bit.orig` and `*.bit.splice` (containing the test ROM and the mask ROM respectively).
+However, if you do not want to do the splicing yourself, both versions of the bitstream are available in the download as `*.bit.orig` and `*.bit.splice` (containing the test ROM and the ROM respectively).
 The metadata for the latest bitstream (the approximate creation time and the associated commit hash) is also available as a text file and can be [downloaded separately](https://storage.googleapis.com/opentitan-bitstreams/master/latest/latest.txt).
 
 ### Build an FPGA bitstream
 
 Synthesizing a design for an FPGA board is simple with Bazel.
-While Bazel is the entry point for kicking off the FPGA sythesis, under the hood, it invokes FuseSoC, the hardware package manager / build system supported by OpenTitan.
+While Bazel is the entry point for kicking off the FPGA synthesis, under the hood, it invokes FuseSoC, the hardware package manager / build system supported by OpenTitan.
 During the build process, the boot ROM is baked into the bitstream.
-As mentioned above, we maintain two boot ROM programs, one for testing (_test ROM_), and one for production (_mask ROM_).
+As mentioned above, we maintain two boot ROM programs, one for testing (_test ROM_), and one for production (_ROM_).
 
 To build an FPGA bitstream with the _test ROM_, use:
 ```console
@@ -58,16 +58,18 @@ cd $REPO_TOP
 bazel build //hw/bitstream/vivado:fpga_cw310_test_rom
 ```
 
-To build an FPGA bitstream with the _mask ROM_, use:
+To build an FPGA bitstream with the _ROM_, use:
 ```console
 cd $REPO_TOP
-bazel build //hw/bitstream/vivado:fpga_cw310_mask_rom
+bazel build //hw/bitstream/vivado:fpga_cw310_rom
 ```
+
+Note, building these bitstreams will require Vivado be installed on your system, with access to the proper licenses, described [here]({{< relref "doc/getting_started/install_vivado" >}}).
 
 #### Dealing with FPGA Congestion Issues
 
 The default Vivado tool placement may sometimes result in congested FPGA floorplans.
-When this happens, the implemenation time and results become unpredictable.
+When this happens, the implementation time and results become unpredictable.
 It may become necessary for the user to manually adjust certain placement.
 See [this comment](https://github.com/lowRISC/opentitan/pull/8138#issuecomment-916696830) for a thorough analysis of one such situation and what changes were made to improve congestion.
 
@@ -140,12 +142,12 @@ There are two ways to load a bitstream on to the FPGA and bootstrap software int
 1. **automatically**, on single invocations of `bazel test ...`.
 1. **manually**, using multiple invocations of `opentitantool`, and
 Which one you use, will depend on how the build target is defined for the software you would like to test on the FPGA.
-Specifically, for software build targets defined in Bazel BUILD files uing the `opentitan_functest` Bazel macro, you will use the latter (**automatic**) approach.
+Specifically, for software build targets defined in Bazel BUILD files using the `opentitan_functest` Bazel macro, you will use the latter (**automatic**) approach.
 Alternatively, for software build targets defined in Bazel BUILD files using the `opentitan_flash_binary` Bazel macro, you will use the former (**manual**) approach.
 
 See below for details on both approaches.
 
-### Automatically loading FPGA bitstreams and bootstrapping software Bazel
+### Automatically loading FPGA bitstreams and bootstrapping software with Bazel
 
 A majority of on-device software tests are defined using the custom `opentitan_functest` Bazel macro, which under the hood, instantiates several Bazel [`native.sh_test` rules](https://docs.bazel.build/versions/main/be/shell.html#sh_test).
 In doing so, this macro provides a convenient interface for developers to run software tests on OpenTitan FPGA instances with a single invocation of `bazel test ...`.
@@ -190,11 +192,10 @@ Below, we describe how to accomplish this, and in doing so, we shed some light o
 
 #### Manually loading a bitstream onto the FPGA with `opentitantool`
 
-Note: The following examples assume that you have a `~/.config/opentitantool/config` with the proper `--interface` and `--conf` options.
+Note: The following examples assume that you have a `~/.config/opentitantool/config` with the proper `--interface` option.
 For the CW310, its contents would look like:
 ```
 --interface=cw310
---conf=<ABS_PATH_TO_YOUR_CLONE>/sw/host/opentitantool/config/opentitan_cw310.json
 ```
 
 To flash the bitstream onto the FPGA using `opentitantool`, use the following command:
@@ -356,10 +357,10 @@ Then a connection between OpenOCD and GDB may be established with:
 ```console
 cd $REPO_TOP
 riscv32-unknown-elf-gdb -ex "target extended-remote :3333" -ex "info reg" \
-  $(find -L bazel-out/ -type f -name "uart_smoketest_sim_verilator | head -n 1")
+  "$(./bazelisk.sh outquery --config=riscv32 //sw/device/tests:uart_smoketest_prog_fpga_cw310.elf)"
 ```
 
-Note, the above will print out the contents of the registers upon successs.
+Note, the above will print out the contents of the registers upon success.
 
 #### Common operations with GDB
 
@@ -406,3 +407,38 @@ It is especially useful in the context of our `rom.elf`, which resides in the RO
 ```
 
 The output of the disassemble should now contain additional information.
+
+## Reproducing FPGA CI Failures Locally
+
+When an FPGA test fails in CI, it can be helpful to run the tests locally with the version of the bitstream generated by the failing CI run.
+To avoid rebuilding the bitstream, you can download the bitstream artifact from the Azure Pipeline CI run and use opentitantool to load the bitstream manually.
+
+To download the bitstream:
+
+1. Open your PR on Github and navigate to the "Checks" tab.
+1. On the left sidebar, expand the "Azure Pipelines" menu.
+1. Open the "CI (CW310's Earl Grey Bitstream)" job and click on "View more details on Azure Pipelines".
+1. Click on "1 artifact produced".
+1. Click on the three dots for "partial-build-bin-chip_earlgrey_cw310_splice_rom".
+1. You can either download the artifact directly or download with the URL.
+
+Note that Azure does not allow you to download the artifact with `wget` or `curl` by default, so to use the download URL, you need to specify a `user-agent` header.
+For example, to download with `curl`, you can use the following command
+
+```console
+curl --output /tmp/artifact.tar.gz -H 'user-agent: Mozilla/5.0' <download_URL>
+```
+
+After extracting the artifact, the bitstream is located at `build-bin/hw/top_earlgrey/lowrisc_systems_chip_earlgrey_cw310_0.1.bit.{splice,orig}`.
+The `.splice` bitstream has the ROM spliced in, and the `.orig` bitstream has the test ROM.
+
+Next, load the bitstream with opentitantool, and run the test.
+The FPGA tests attempt to load the latest bitstream by default, but because we wish to use the bitstream that we just loaded, we need to tell Bazel to skip the automatic bitstream loading.
+
+```console
+# Load the bitstream with opentitantool
+bazel run //sw/host/opentitantool --interface=cw310 load-bitstream <path_to_your_bitstream>
+
+# Run the broken test locally, showing all test output and skipping the bitstream loading
+bazel test <broken_test_rule> --define bitstream=skip --test_output=streamed
+```

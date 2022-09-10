@@ -7,11 +7,23 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
                                                           .COV_T (spi_device_env_cov));
   `uvm_component_utils(spi_device_scoreboard)
 
-  localparam int NumInternalRecognizedCmd = 11;
+  localparam int FLASH_STATUS_UPDATE_DLY_AFTER_CSB_DEASSERT = 3;
+  typedef enum int {
+    NoInternalProcess,
+    InternalProcessStatus,
+    InternalProcessJedec,
+    InternalProcessSfdp,
+    InternalProcessReadCmd,
+    // cmd like write enable/disable, enter/exit 4B addr
+    InternalProcessCfgCmd,
+    UploadCmd
+  } internal_process_cmd_e;
 
   // TLM fifos to pick up the packets
   uvm_tlm_analysis_fifo #(spi_item) upstream_spi_host_fifo;
   uvm_tlm_analysis_fifo #(spi_item) upstream_spi_device_fifo;
+  // connect with req_analysis_port where it receives item when opcode and address are received
+  uvm_tlm_analysis_fifo #(spi_item) upstream_spi_req_fifo;
   uvm_tlm_analysis_fifo #(spi_item) downstream_spi_host_fifo;
 
   // mem model to save expected value
@@ -21,19 +33,30 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
   local uint rx_wptr_exp;
   local mem_model spi_mem;
 
-
-  // expected values
-  local bit [NumSpiDevIntr-1:0] intr_exp;
+  // when interrupt is triggered, it may take a few cycles before it's reflected in a TL read
+  local bit [NumSpiDevIntr-1:0] intr_trigger_pending;
 
   // tx/rx async fifo, size is 2 words
   local bit [31:0] tx_word_q[$];
   local bit [31:0] rx_word_q[$];
 
   // for passthrough
-  spi_item spi_passthrough_upstream_q[$];
-  spi_item spi_passthrough_intercept_upstream_q[$];
+  spi_item spi_passthrough_downstream_q[$];
+
+  // for upload
+  bit [7:0] upload_cmd_q[$];
+  bit [31:0] upload_addr_q[$];
+
+  // for read buffer
+  // once triggered, it won't be triggered again until it flips
+  bit read_buffer_watermark_triggered;
 
   flash_status_t flash_status_q[$];
+  flash_status_t flash_status_settle_q[$];
+  // this queue contains the previous value of flash_status
+  // it's ok the readback value matches to either this one or the mirror value
+  // after a flash_status access, delete this queue as the uncertain window is only a few cycles
+  flash_status_t flash_status_tl_pre_val_q[$];
 
   `uvm_component_new
 
@@ -41,6 +64,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     super.build_phase(phase);
     upstream_spi_host_fifo = new("upstream_spi_host_fifo", this);
     upstream_spi_device_fifo = new("upstream_spi_device_fifo", this);
+    upstream_spi_req_fifo = new("upstream_spi_req_fifo", this);
     downstream_spi_host_fifo = new("downstream_spi_host_fifo", this);
     tx_mem = mem_model#()::type_id::create("tx_mem", this);
     rx_mem = mem_model#()::type_id::create("rx_mem", this);
@@ -55,6 +79,8 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
       process_upstream_spi_host_fifo();
       process_upstream_spi_device_fifo();
       process_downstream_spi_fifo();
+      process_read_buffer_cmd();
+      forever_latch_flash_status();
     join_none
   endtask
 
@@ -63,6 +89,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     spi_item item;
     forever begin
       bit is_status, is_jedec, is_sfdp, is_mbx_read;
+      bit update_wel, wel_val;
       upstream_spi_host_fifo.get(item);
       `uvm_info(`gfn, $sformatf("upstream received host spi item:\n%0s", item.sprint()),
                 UVM_MEDIUM)
@@ -72,78 +99,197 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
           receive_spi_rx_data({item.data[3], item.data[2], item.data[1], item.data[0]});
         end
         FlashMode, PassthroughMode: begin
+          internal_process_cmd_e cmd_type;
+          bit is_intercepted;
+          bit set_busy;
           `DV_CHECK_EQ(item.item_type, SpiFlashTrans)
-          if (is_internal_processed_cmd(item.opcode, is_status, is_jedec,
-                                        is_sfdp, is_mbx_read)) begin
-            if (is_status) check_internal_processed_read_status(item);
-            if (is_jedec) check_internal_processed_read_jedec(item);
-            if (is_sfdp) check_internal_processed_read_sfdp(item);
-            if (is_mbx_read) check_mbx_read(item);
-            // TODO, support more
 
-            // addr/data swap only occurs to passthrough, call handle_addr_payload_swap after
-            // all internal processed cmds are done
-            if (is_opcode_passthrough(item.opcode)) begin
-              handle_addr_payload_swap(item);
-              spi_passthrough_intercept_upstream_q.push_back(item);
+          // read buffer is handled at `process_read_buffer_cmd`
+          if (!cfg.is_read_buffer_cmd(item)) begin
+            // downstream item should be in the queue at the same time, add small delay
+            #1ps;
+            cmd_type = triage_flash_cmd(item.opcode, set_busy);
+            `uvm_info(`gfn, $sformatf("Triage flash cmd: %s, set_busy: %0d", cmd_type, set_busy),
+                      UVM_MEDIUM)
+
+            is_intercepted = 1;
+            case (cmd_type)
+              NoInternalProcess: begin
+                is_intercepted = 0;
+              end
+              InternalProcessStatus: begin
+                check_internal_processed_read_status(item);
+              end
+              InternalProcessJedec: begin
+                check_internal_processed_read_jedec(item);
+              end
+              InternalProcessSfdp: begin
+                check_internal_processed_read_sfdp(item);
+              end
+              InternalProcessReadCmd: begin
+                spi_item downstream_item;
+                if (is_opcode_passthrough(item.opcode)) begin
+                  `DV_CHECK_EQ_FATAL(spi_passthrough_downstream_q.size, 1)
+                  downstream_item = spi_passthrough_downstream_q[0];
+                end
+                check_read_cmd_data_for_non_read_buffer(item, downstream_item);
+              end
+              InternalProcessCfgCmd: begin
+                if (`GET_OPCODE_VALID_AND_MATCH(cmd_info_en4b, item.opcode)) begin
+                  void'(ral.cfg.addr_4b_en.predict(.value(1), .kind(UVM_PREDICT_WRITE)));
+                  `uvm_info(`gfn, "Enable 4b addr due to cmd EN4B", UVM_MEDIUM)
+                end else if (`GET_OPCODE_VALID_AND_MATCH(cmd_info_ex4b, item.opcode)) begin
+                  void'(ral.cfg.addr_4b_en.predict(.value(0), .kind(UVM_PREDICT_WRITE)));
+                  `uvm_info(`gfn, "Disable 4b addr due to cmd EX4B", UVM_MEDIUM)
+                end else if (`GET_OPCODE_VALID_AND_MATCH(cmd_info_wren, item.opcode)) begin
+                  update_wel = 1;
+                  wel_val = 1;
+                end else if (`GET_OPCODE_VALID_AND_MATCH(cmd_info_wrdi, item.opcode)) begin
+                  update_wel = 1;
+                  wel_val = 0;
+                end else begin
+                  `uvm_fatal(`gfn, $sformatf("shouldn't enter here, opcode 0x%0x", item.opcode))
+                end
+              end
+              UploadCmd: begin
+                process_upload_cmd(item);
+              end
+              default: `uvm_fatal(`gfn, "can't get here")
+            endcase
+
+            // if busy, passthrough is blocked
+            if (is_opcode_passthrough(item.opcode) && !`gmv(ral.flash_status.busy)) begin
+              compare_passthru_item(.upstream_item(item), .is_intercepted(is_intercepted));
             end
-          end else if (is_opcode_passthrough(item.opcode)) begin
-            handle_addr_payload_swap(item);
-            spi_passthrough_upstream_q.push_back(item);
-          end
+          end // if (!cfg.is_read_buffer_cmd(item))
+
+          latch_flash_status(set_busy, update_wel, wel_val);
         end
         default: `uvm_fatal(`gfn, $sformatf("Unexpected mode: %0d", `gmv(ral.control.mode)))
-      endcase
-
-      latch_flash_status();
-    end
+      endcase // case (`gmv(ral.control.mode))
+    end // forever
   endtask
 
   // update flash_status to the value of the last item
-  virtual function void latch_flash_status();
-    if (flash_status_q.size == 0) return;
+  virtual function void latch_flash_status(bit set_busy, bit update_wel, bit wel_val);
+    fork begin
+      bit[TL_DW-1:0] rdata;
+      flash_status_t pre_flash_status_val = `gmv(ral.flash_status);
+      flash_status_t cur_flash_status_val;
+      bit match;
 
-    void'(ral.flash_status.predict(.value(flash_status_q[$]), .kind(UVM_PREDICT_WRITE)));
-    `uvm_info(`gfn, $sformatf("flash status updated to: 0x%0h", flash_status_q[$]), UVM_MEDIUM)
-    flash_status_q.delete();
+      // it takes 3-4 cycles to update the status after spi item completes
+      // since we may have another thread to keep polling this csr, it's easier to predict it
+      // and compare with the backdoor value, to make sure both align
+      cfg.clk_rst_vif.wait_n_clks(FLASH_STATUS_UPDATE_DLY_AFTER_CSB_DEASSERT + 1);
+      flash_status_tl_pre_val_q.delete();
+
+      if (flash_status_settle_q.size != 0) begin
+        `DV_CHECK_LE(flash_status_settle_q.size, 1)
+        void'(ral.flash_status.predict(.value(flash_status_settle_q[0]),
+                                       .kind(UVM_PREDICT_WRITE)));
+        `uvm_info(`gfn, $sformatf("flash_status updated to: 0x%0h", `gmv(ral.flash_status)),
+                  UVM_MEDIUM)
+        flash_status_settle_q.delete();
+      end
+      if (set_busy) begin
+        void'(ral.flash_status.busy.predict(.value(1), .kind(UVM_PREDICT_READ)));
+        `uvm_info(`gfn, "busy bit is set due to upload command", UVM_MEDIUM)
+      end
+
+      cur_flash_status_val = `gmv(ral.flash_status);
+      if (update_wel && wel_val != cur_flash_status_val.wel) begin
+        cur_flash_status_val.wel = wel_val;
+        void'(ral.flash_status.predict(.value(cur_flash_status_val), .kind(UVM_PREDICT_READ)));
+        `uvm_info(`gfn, $sformatf("update wel to %0d due to wren/wrdi command", wel_val),
+                  UVM_MEDIUM)
+      end
+      // if sw updates this csr around the end of the spi item, it's hard to predict if the value
+      // is accepted or not. So do a backdoor check, it's ok if the rdata matchs to predict value
+      // or any value in the flash_status_q
+      csr_rd(.ptr(ral.flash_status), .value(rdata), .backdoor(1));
+
+      if (rdata == `gmv(ral.flash_status)) match = 1;
+
+      if (!match) begin
+        `DV_CHECK_LE(flash_status_q.size, 1)
+        while (flash_status_q.size > 0) begin
+          bit[TL_DW-1:0] predict_val = flash_status_q.pop_front();
+          if (predict_val == rdata) begin
+            match = 1;
+            void'(ral.flash_status.predict(.value(predict_val), .kind(UVM_PREDICT_READ)));
+            `uvm_info(`gfn, $sformatf("found match, flash_status updated to: 0x%0h", predict_val),
+                      UVM_MEDIUM)
+            break;
+          end
+        end
+      end
+
+      if (!match) begin
+        `uvm_error(`gfn,
+                   $sformatf("flash_status mismatch, backdoor value: 0x%0x, exp: 0x%0x, or %p",
+                   rdata, `gmv(ral.flash_status), flash_status_q))
+      end
+
+      // when this is just updated, TL interface may read back old value and it's ok, it will get
+      // the new one in the next read
+      if (pre_flash_status_val != `gmv(ral.flash_status)) begin
+        flash_status_tl_pre_val_q.push_back(pre_flash_status_val);
+      end
+    end join_none
   endfunction
 
-  virtual function bit is_internal_processed_cmd(bit[7:0] opcode,
-      output bit is_status, output bit is_jedec, output bit is_sfdp, output bit is_mbx_read);
-
-    bit is_internal_processed;
-    bit valid_cmd;
-    bit is_passthru = `gmv(ral.control.mode) == PassthroughMode;
-
-    is_status = opcode inside {READ_STATUS_1, READ_STATUS_2, READ_STATUS_3};
-    if (is_passthru) is_status &= `gmv(ral.intercept_en.status);
-
-    is_jedec = opcode == READ_JEDEC && `gmv(ral.intercept_en.jedec);
-    if (is_passthru) is_jedec &= `gmv(ral.intercept_en.jedec);
-
-    is_sfdp = opcode == READ_SFDP;
-    if (is_passthru) is_sfdp &= `gmv(ral.intercept_en.sfdp);
-
-    is_mbx_read = opcode inside {READ_CMD_LIST} &&
-                  `gmv(ral.cfg.mailbox_en);
-    if (is_passthru) is_mbx_read &= `gmv(ral.intercept_en.mbx);
-
-    is_internal_processed = (is_status | is_jedec | is_sfdp | is_mbx_read) &&
-                            is_internal_recog_cmd(opcode);
-    valid_cmd = cfg.spi_host_agent_cfg.is_opcode_supported(opcode);
-
-    `uvm_info(`gfn, $sformatf("Internal processed opcode: 0x%0h, valid: %0d",
-              opcode, valid_cmd), UVM_MEDIUM)
-    return is_internal_processed && valid_cmd;
-  endfunction
-
-  // if the cmd isn't in the first 11 slots, it won't be processed in spi_device
-  // interception or returning data from spi mem won't occur. It can only passthru to downstream
-  virtual function bit is_internal_recog_cmd(bit[7:0] opcode);
-    for (int i = 0; i < NumInternalRecognizedCmd; i++) begin
-      if (`gmv(ral.cmd_info[i].valid) == 1 && `gmv(ral.cmd_info[i].opcode) == opcode) return 1;
+  // flash status can be set by SW, then it's updated when a spi transaction completes
+  // If a flash status write occurs during spi transaction, not sure if it will be taken or not
+  // latch the flash_status at the beginning of the transaction. If some write happens during
+  // transaction, save to flash_status_q. it's ok that HW update status to any value in both Q.
+  virtual task forever_latch_flash_status();
+    forever begin
+      @(negedge cfg.spi_host_agent_cfg.vif.csb);
+      if (flash_status_q.size > 0) begin
+        flash_status_settle_q.delete();
+        flash_status_settle_q.push_back(flash_status_q[$]);
+        flash_status_q.delete();
+      end
     end
-    return 0;
+  endtask
+
+  // this only triages post-process cmd. read buffer cmd isn't handled here as it needs to be
+  // processed during transaction.
+  virtual function internal_process_cmd_e triage_flash_cmd(bit[7:0] opcode, output bit set_busy);
+    internal_process_cmd_e cmd_type;
+    bit is_status, is_jedec, is_sfdp;
+    bit is_passthru = `gmv(ral.control.mode) == PassthroughMode;
+    spi_device_reg_cmd_info reg_cmd_info = cfg.get_cmd_info_reg_by_opcode(opcode);
+
+    set_busy = 0;
+    if (reg_cmd_info != null && `gmv(reg_cmd_info.upload)) begin
+      if (`gmv(reg_cmd_info.busy)) set_busy = 1;
+      return UploadCmd;
+    end
+
+    is_status = opcode inside {READ_STATUS_1, READ_STATUS_2, READ_STATUS_3} &&
+                cfg.is_internal_recog_cmd(opcode);
+    if (is_passthru) is_status &= `gmv(ral.intercept_en.status);
+    if (is_status) return InternalProcessStatus;
+
+    is_jedec = opcode == READ_JEDEC && `gmv(ral.intercept_en.jedec) &&
+              cfg.is_internal_recog_cmd(opcode);
+    if (is_passthru) is_jedec &= `gmv(ral.intercept_en.jedec);
+    if (is_jedec) return InternalProcessJedec;
+
+    is_sfdp = opcode == READ_SFDP &&
+              cfg.is_internal_recog_cmd(opcode);
+    if (is_passthru) is_sfdp &= `gmv(ral.intercept_en.sfdp);
+    if (is_sfdp) return InternalProcessSfdp;
+
+    if (opcode inside {READ_CMD_LIST} && cfg.is_internal_recog_cmd(opcode)) begin
+      return InternalProcessReadCmd;
+    end
+
+    if (cfg.is_internal_cfg_cmd(opcode)) return InternalProcessCfgCmd;
+
+    return NoInternalProcess;
   endfunction
 
   virtual function bit is_opcode_passthrough(bit[7:0] opcode);
@@ -170,7 +316,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     foreach (item.payload_q[i]) begin
       // status has 3 bytes, if read OOB, it will wrap
       int offset = (start_addr + i) % 3;
-      `DV_CHECK_EQ(item.payload_q[i], status[offset * 8 +: 8],
+      `DV_CHECK_CASE_EQ(item.payload_q[i], status[offset * 8 +: 8],
           $sformatf("status mismatch, offset %0d, act: 0x%0h, exp: 0x%0h",
               offset, item.payload_q[i], status[offset * 8 +: 8]))
     end
@@ -189,10 +335,10 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
 
     foreach (item.payload_q[i]) begin
       if (i < exp_jedec_q.size) begin
-        `DV_CHECK_EQ(item.payload_q[i], exp_jedec_q[i],
+        `DV_CHECK_CASE_EQ(item.payload_q[i], exp_jedec_q[i],
             $sformatf("act 0x%0x != exp 0x%0x, index: %0d", item.payload_q[i], exp_jedec_q[i], i))
       end else begin
-        `DV_CHECK_EQ(item.payload_q[i], 0,
+        `DV_CHECK_CASE_EQ(item.payload_q[i], 0,
             $sformatf("act 0x%0x != exp 0x0, index: %0d (OOB)", item.payload_q[i], i))
       end
     end
@@ -206,46 +352,122 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
       `DV_CHECK_EQ(item.address_q.size, 3)
       offset = (item.address_q[2] + i) % SFDP_SIZE;
 
-      // get_normalized_addr makes it word-aligned, but we need byte offset
-      addr = get_converted_addr(offset + SFDP_START_ADDR);
-
-      `DV_CHECK(spi_mem.addr_exists(addr))
-      spi_mem.compare_byte(addr, item.payload_q[i]);
-      `uvm_info(`gfn, $sformatf("compare sfdp idx %0d, act: 0x%0x, mem addr 0x%0x, exp: 0x%0x",
-                offset, item.payload_q[i], addr, spi_mem.read_byte(addr)), UVM_MEDIUM)
+      compare_mem_byte(SFDP_START_ADDR, offset, item.payload_q[i], i, "SFDP");
     end
   endfunction
 
+  virtual function void compare_mem_byte(bit [31:0] base_addr, bit [31:0] offset, bit[7:0] act_val,
+                                         // these 2 inputs are for log only
+                                         int payload_idx, string msg);
+    bit [31:0] addr = get_converted_addr(base_addr + offset);
+    `DV_CHECK(spi_mem.addr_exists(addr))
+    spi_mem.compare_byte(addr, act_val);
+      `uvm_info(`gfn, $sformatf(
+                "%s compare idx: %0d, offset %0d, mem addr 0x%0x, act: 0x%0x, exp: 0x%0x",
+                msg, payload_idx, offset, addr, act_val, spi_mem.read_byte(addr)), UVM_MEDIUM)
+  endfunction
 
-  virtual function void check_mbx_read(spi_item item);
+  // check read return data again exp_mem or downstream item
+  // this doesn't handle read cmd falling in read buffer
+  virtual function void check_read_cmd_data_for_non_read_buffer(spi_item up_item,
+                                                                spi_item dn_item);
     bit [31:0] start_addr;
-    bit [31:0] mbx_base_addr = get_mbx_base_addr(ral);
-    foreach (item.address_q[i]) begin
+    // TODO, sample this for coverage
+    read_addr_size_type_e read_addr_size_type;
+    bit is_passthru = `gmv(ral.control.mode) == PassthroughMode;
+
+    foreach (up_item.address_q[i]) begin
       if (i > 0) start_addr = start_addr << 8;
-      start_addr[7:0] = item.address_q[i];
+      start_addr[7:0] = up_item.address_q[i];
     end
-    // TODO, handle addr across boundary later
-    if (start_addr < mbx_base_addr || start_addr > mbx_base_addr + MAILBOX_BUFFER_SIZE) return;
+    start_addr = convert_addr_from_byte_queue(up_item.address_q);
+
+    if (dn_item != null) `DV_CHECK_EQ(up_item.payload_q.size, dn_item.payload_q.size)
+    foreach (up_item.payload_q[i]) begin
+      bit [31:0] cur_addr = start_addr + i;
+
+      if (cfg.is_in_mailbox_region(cur_addr)) begin
+        bit [31:0] offset = cur_addr % MAILBOX_BUFFER_SIZE;
+        compare_mem_byte(MAILBOX_START_ADDR, offset, up_item.payload_q[i], i, "Mailbox");
+      end else begin // out of mbx region
+        string str;
+
+        `DV_CHECK_EQ_FATAL(is_passthru, 1)
+        if (dn_item != null) begin
+          str = $sformatf("compare mbx data with downstread item. idx %0d, up: 0x%0x, dn: 0x%0x",
+                          i, up_item.payload_q[i], dn_item.payload_q[i]);
+          `DV_CHECK_CASE_EQ(up_item.payload_q[i], dn_item.payload_q[i], str)
+        end else begin // cmd is filtered
+          str = $sformatf("compare mbx data. idx %0d, value 0x%0x != z",
+                          i, up_item.payload_q[i]);
+          `DV_CHECK_CASE_EQ(up_item.payload_q[i], 8'dz, str)
+        end
+
+        `uvm_info(`gfn, str, UVM_MEDIUM)
+      end
+    end
+
+    // TODO, sample read_addr_size_type for coverage
+  endfunction
+
+  virtual function void process_upload_cmd(spi_item item);
+    bit [31:0] payload_start_addr = get_converted_addr(PAYLOAD_FIFO_START_ADDR);
+    int payload_depth_exp;
+    upload_cmd_q.push_back(item.opcode);
+    intr_trigger_pending[CmdFifoNotEmpty] = 1;
+
+    if (item.address_q.size > 0) begin
+      bit[31:0] addr = convert_addr_from_byte_queue(item.address_q);
+      upload_addr_q.push_back(addr);
+    end
 
     foreach (item.payload_q[i]) begin
-      bit [31:0] offset = (start_addr + i) % MAILBOX_BUFFER_SIZE + MAILBOX_START_ADDR;
-      bit [31:0] addr   = get_converted_addr(offset);
+      uvm_reg_addr_t addr = payload_start_addr + (i % PAYLOAD_FIFO_SIZE);
 
-      `DV_CHECK(spi_mem.addr_exists(addr))
-      spi_mem.compare_byte(addr, item.payload_q[i]);
-      `uvm_info(`gfn, $sformatf("compare mbx idx %0d, act: 0x%0x, mem addr 0x%0x, exp: 0x%0x",
-                i, item.payload_q[i], addr, spi_mem.read_byte(addr)), UVM_MEDIUM)
+      spi_mem.write_byte(addr, item.payload_q[i]);
+      `uvm_info(`gfn, $sformatf("write upload payload idx %0d, mem addr 0x%0x, val: 0x%0x",
+                i, addr, item.payload_q[i]), UVM_MEDIUM)
     end
+    if (item.payload_q.size > 0) intr_trigger_pending[PayloadNotEmpty] = 1;
+
+    update_cmdfifo_status();
+    update_addrfifo_status();
+
+    payload_depth_exp = item.payload_q.size > 256 ? 256 : item.payload_q.size;
+    void'(ral.upload_status2.payload_depth.predict(.value(payload_depth_exp),
+                                                   .kind(UVM_PREDICT_READ)));
+    // if received payload is bigger than fifo size, payload_start_idx = payload size % fifo size.
+    if (item.payload_q.size > PAYLOAD_FIFO_SIZE) begin
+      int start_idx = item.payload_q.size % PAYLOAD_FIFO_SIZE;
+      void'(ral.upload_status2.payload_start_idx.predict(.value(start_idx),
+                                                         .kind(UVM_PREDICT_READ)));
+    end else begin
+      void'(ral.upload_status2.payload_start_idx.predict(.value(0), .kind(UVM_PREDICT_READ)));
+    end
+  endfunction
+
+  virtual function void update_cmdfifo_status();
+    void'(ral.upload_status.cmdfifo_depth.predict(.value(upload_cmd_q.size),
+                                                  .kind(UVM_PREDICT_READ)));
+    void'(ral.upload_status.cmdfifo_notempty.predict(.value(upload_cmd_q.size > 0),
+                                                  .kind(UVM_PREDICT_READ)));
+  endfunction
+
+  virtual function void update_addrfifo_status();
+    void'(ral.upload_status.addrfifo_depth.predict(.value(upload_addr_q.size),
+                                                  .kind(UVM_PREDICT_READ)));
+    void'(ral.upload_status.addrfifo_notempty.predict(.value(upload_addr_q.size > 0),
+                                                  .kind(UVM_PREDICT_READ)));
   endfunction
 
   // convert offset to the mem address that is used to find the locaiton in exp_mem
   // lsb 2 bit will be kept
   virtual function bit [31:0] get_converted_addr(bit [31:0] offset);
-    return cfg.ral.get_normalized_addr(offset) + offset[1:0];
+    return ral.get_normalized_addr(offset) + offset[1:0];
   endfunction
 
   virtual function void handle_addr_payload_swap(spi_item item);
-    spi_device_reg_cmd_info reg_cmd_info = get_cmd_info_reg_by_opcode(item.opcode);
+    spi_device_reg_cmd_info reg_cmd_info = cfg.get_cmd_info_reg_by_opcode(item.opcode);
     if (reg_cmd_info == null) return;
 
     if (`gmv(reg_cmd_info.addr_swap_en)) begin
@@ -280,13 +502,28 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     end
   endfunction
 
-  virtual function spi_device_reg_cmd_info get_cmd_info_reg_by_opcode(bit [7:0] opcode);
-    foreach (ral.cmd_info[i]) begin
-      if (`gmv(ral.cmd_info[i].valid) == 1 && `gmv(ral.cmd_info[i].opcode) == opcode) begin
-        return ral.cmd_info[i];
+  virtual function void compare_passthru_item(spi_item upstream_item, bit is_intercepted);
+    spi_item downstream_item;
+
+    handle_addr_payload_swap(upstream_item);
+
+    `DV_CHECK_EQ_FATAL(spi_passthrough_downstream_q.size, 1)
+    downstream_item = spi_passthrough_downstream_q.pop_front();
+
+    if (is_intercepted) begin
+      // compare opcode and address. data is ignored as data is checked in
+      // check_read_cmd_data_for_non_read_buffer
+      `DV_CHECK_EQ(upstream_item.opcode, downstream_item.opcode)
+      `DV_CHECK_EQ(upstream_item.address_q.size, downstream_item.address_q.size)
+      foreach (upstream_item.address_q[i]) begin
+        `DV_CHECK_EQ(upstream_item.address_q[i], downstream_item.address_q[i])
+      end
+    end else begin
+      if (!downstream_item.compare(upstream_item)) begin
+        `uvm_error(`gfn, $sformatf("Compare failed, downstream item:\n%s upstream item:\n%s",
+              downstream_item.sprint(), upstream_item.sprint()))
       end
     end
-    return null;
   endfunction
 
   // extract spi items sent from device
@@ -307,37 +544,65 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
       `uvm_info(`gfn, $sformatf("downstream received spi item:\n%0s", downstream_item.sprint()),
                 UVM_MEDIUM)
       `DV_CHECK_EQ(`gmv(ral.control.mode), PassthroughMode)
+      `DV_CHECK_EQ(spi_passthrough_downstream_q.size, 0)
+      spi_passthrough_downstream_q.push_back(downstream_item);
+    end
+  endtask
 
-      // upstream item should be in the queue at the same time, add small delay
-      #1ps;
-      if (spi_passthrough_intercept_upstream_q.size > 0) begin
-        bit is_read_cmd; // this doesn't include state, jedec, sfdp
-        `DV_CHECK_EQ(spi_passthrough_intercept_upstream_q.size, 1)
-        `DV_CHECK_EQ(spi_passthrough_upstream_q.size, 0)
+  // read buffer cmd is handled separately as we can't wait until the item is completed.
+  // while upstream reads the buffer, SW may prepare the data on the other side of the buffer.
+  // when the item completes, the buffer may be overwritten with other data
+  virtual task process_read_buffer_cmd();
+    forever begin
+      spi_item item;
+      uint payload_idx;
+      bit [31:0] start_addr, offset, read_buffer_addr;
 
-        upstream_item = spi_passthrough_intercept_upstream_q.pop_front();
+      upstream_spi_req_fifo.get(item);
+      if (!cfg.is_read_buffer_cmd(item)) continue;
 
-        if (is_read_cmd) begin
-          // TODO, add this later
-        end else begin
-          // compare opcode and address. data is ignored
-          `DV_CHECK_EQ(upstream_item.opcode, downstream_item.opcode)
-          `DV_CHECK_EQ(upstream_item.address_q.size, downstream_item.address_q.size)
-          foreach (upstream_item.address_q[i]) begin
-            `DV_CHECK_EQ(upstream_item.address_q[i], downstream_item.address_q[i])
+      start_addr = convert_addr_from_byte_queue(item.address_q);
+      `DV_SPINWAIT(
+        while (1) begin
+          wait (item.payload_q.size > payload_idx || item.mon_item_complete);
+          if (item.payload_q.size > payload_idx) begin
+            offset = (start_addr + payload_idx) % READ_BUFFER_SIZE;
+            compare_mem_byte(READ_BUFFER_START_ADDR, offset, item.payload_q[payload_idx],
+                             payload_idx, "Read buffer");
+            read_buffer_addr = start_addr + payload_idx; // it's kept until reset
+            payload_idx++; // clear to 0 when transaction is done
+            predict_read_buffer_intr(read_buffer_addr + 1);
+            `DV_CHECK_EQ(item.payload_q.size, payload_idx)
           end
+          if (item.mon_item_complete) break;
         end
-      end else begin
-        `DV_CHECK_EQ(spi_passthrough_upstream_q.size, 1)
-
-        upstream_item = spi_passthrough_upstream_q.pop_front();
-        if (!downstream_item.compare(upstream_item)) begin
-          `uvm_error(`gfn, $sformatf("Compare failed, downstream item:\n%s upstream item:\n%s",
-                downstream_item.sprint(), upstream_item.sprint()))
-        end
+      )
+      // only update when it has payload
+      if (payload_idx > 0) begin
+        `uvm_info(`gfn, $sformatf("Update last_read_addr to 0x%0x", read_buffer_addr), UVM_MEDIUM)
+        void'(ral.last_read_addr.predict(.value(read_buffer_addr), .kind(UVM_PREDICT_READ)));
       end
     end
   endtask
+
+  virtual function void predict_read_buffer_intr(int addr);
+    int threshold = `gmv(ral.read_threshold);
+    int offset = addr % READ_BUFFER_HALF_SIZE;
+
+    if (offset >= threshold && threshold > 0 && !read_buffer_watermark_triggered) begin
+      read_buffer_watermark_triggered = 1;
+      intr_trigger_pending[ReadbufWatermark] = 1;
+      `uvm_info(`gfn, $sformatf("read buffer watermark is triggered, addr: 0x%0x", addr),
+                UVM_MEDIUM)
+    end
+    if (addr % READ_BUFFER_HALF_SIZE == 0) begin
+      // after flip, WM can be triggered again
+      read_buffer_watermark_triggered = 0;
+      intr_trigger_pending[ReadbufFlip] = 1;
+      `uvm_info(`gfn, $sformatf("read buffer flip is triggered, addr: 0x%0x", addr),
+                UVM_MEDIUM)
+    end
+  endfunction
 
   // process_tl_access:this task processes incoming access into the IP over tl interface
   // this is already called in cip_base_scoreboard::process_tl_a/d_chan_fifo tasks
@@ -352,28 +617,36 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
       csr = cfg.ral_models[ral_name].default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
     end
-    else if (item.a_addr inside {[cfg.sram_start_addr:cfg.sram_end_addr]}) begin
-      uint tx_base  = ral.txf_addr.base.get_mirrored_value();
-      uint rx_base  = ral.rxf_addr.base.get_mirrored_value();
-      uint tx_limit = ral.txf_addr.limit.get_mirrored_value();
-      uint rx_limit = ral.rxf_addr.limit.get_mirrored_value();
-      uint mem_addr = item.a_addr - cfg.sram_start_addr;
-      tx_base[1:0] = 0;
-      rx_base[1:0] = 0;
-      if (mem_addr inside {[tx_base : tx_base + tx_limit]}) begin // TX address
-        if (write && channel == AddrChannel) begin
-          tx_mem.write(mem_addr - tx_base, item.a_data);
-          `uvm_info(`gfn, $sformatf("write tx_mem addr 0x%0h, data: 0x%0h",
-                                    mem_addr - tx_base, item.a_data), UVM_MEDIUM)
-        end
-      end else if (mem_addr inside {[rx_base : rx_base + rx_limit]}) begin // RX address
-        if (!write && channel == DataChannel) begin //TODO UVM_ERROR unexpected write on RX mem
-          uint            addr     = mem_addr - rx_base;
-          bit [TL_DW-1:0] data_exp = rx_mem.read(addr);
-          `DV_CHECK_EQ(item.d_data, data_exp, $sformatf("Compare SPI RX data, addr: 0x%0h", addr))
+    else if (csr_addr inside {[cfg.sram_start_addr:cfg.sram_end_addr]}) begin
+      if (`gmv(ral.control.mode) == GenericMode) begin
+        uint tx_base  = ral.txf_addr.base.get_mirrored_value();
+        uint rx_base  = ral.rxf_addr.base.get_mirrored_value();
+        uint tx_limit = ral.txf_addr.limit.get_mirrored_value();
+        uint rx_limit = ral.rxf_addr.limit.get_mirrored_value();
+        uint mem_addr = item.a_addr - cfg.sram_start_addr;
+        tx_base[1:0] = 0;
+        rx_base[1:0] = 0;
+        if (mem_addr inside {[tx_base : tx_base + tx_limit]}) begin // TX address
+          if (write && channel == AddrChannel) begin
+            tx_mem.write(mem_addr - tx_base, item.a_data);
+            `uvm_info(`gfn, $sformatf("write tx_mem addr 0x%0h, data: 0x%0h",
+                                      mem_addr - tx_base, item.a_data), UVM_MEDIUM)
+          end
+        end else if (mem_addr inside {[rx_base : rx_base + rx_limit]}) begin // RX address
+          if (!write && channel == DataChannel) begin //TODO UVM_ERROR unexpected write on RX mem
+            uint            addr     = mem_addr - rx_base;
+            bit [TL_DW-1:0] data_exp = rx_mem.read(addr);
+            `DV_CHECK_EQ(item.d_data, data_exp, $sformatf("Compare SPI RX data, addr: 0x%0h", addr))
+          end
+        end else begin
+          // TODO hit unlocated mem, sample coverage
         end
       end else begin
-        // TODO hit unlocated mem, sample coverage
+        if (!write) begin
+          // cip_base_scoreboard compares the mem read only when the address exists
+          // just need to ensure address exists here and mem check is done at process_mem_read
+          `DV_CHECK(spi_mem.addr_exists(csr_addr))
+        end
       end
       return;
     end
@@ -404,25 +677,98 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
           // store the item in a queue as flash_status is updated at the end of spi transaction
           flash_status_q.push_back(item.a_data);
         end
+        if (!write && channel == DataChannel) begin
+          // it's ok to read back old value once.
+          flash_status_t exp_val = `gmv(ral.flash_status);
+          flash_status_t exp_data_q[$] = {flash_status_tl_pre_val_q, exp_val};
+          `DV_CHECK(item.d_data inside {exp_data_q},
+                    $sformatf("act (0x%0x) != exp %p", item.d_data, exp_data_q))
+          flash_status_tl_pre_val_q.delete();
+        end
+        // check is done above and predict is done after spi item completes. can return now
+        return;
       end
-      "intr_test": begin
-        if (write && channel == AddrChannel) begin
-          bit [TL_DW-1:0] intr_en = ral.intr_enable.get_mirrored_value();
-          intr_exp |= item.a_data;
-          if (cfg.en_cov) begin
-            foreach (intr_exp[i]) begin
-              cov.intr_test_cg.sample(i, item.a_data[i], intr_en[i], intr_exp[i]);
+      "intr_state": begin
+        if (!write && channel == DataChannel) begin
+          bit [NumSpiDevIntr-1:0] intr_exp = `gmv(csr);
+          foreach (intr_exp[i]) begin
+            spi_device_intr_e intr = spi_device_intr_e'(i);
+            // TODO, only test these interrupts for now
+            if (!(i inside {ReadbufFlip, ReadbufWatermark,
+                            CmdFifoNotEmpty, PayloadNotEmpty})) begin
+              continue;
+            end
+            if (!intr_trigger_pending[i]) begin
+              `DV_CHECK_EQ(item.d_data[i], intr_exp[i],
+                           $sformatf("Compare %s mismatch, act (0x%0x) != exp %p",
+                           intr.name, item.d_data[i], intr_exp[i]))
+            end else begin
+              // there is an interrupt pending, update interrupt to 1
+              // skip the check, as either 0 or 1 is fine
+              intr_exp[i] = 1;
+              void'(csr.predict(.value(intr_exp), .kind(UVM_PREDICT_READ)));
+              // clear pending interrupt
+              intr_trigger_pending[i] = 0;
+            end
+          end // foreach (intr_exp[i])
+          // skip updating predict value to d_data
+          return;
+        end // if (!write && channel == DataChannel)
+        else if (write && channel == AddrChannel) begin
+          bit [NumSpiDevIntr-1:0] intr_val = item.a_data;
+          foreach (intr_val[i]) begin
+            spi_device_intr_e intr = spi_device_intr_e'(i);
+            if (intr_val[i]) begin
+              `uvm_info(`gfn, $sformatf("Clear %s", intr.name), UVM_MEDIUM)
             end
           end
         end
       end
-      // TODO the other regs
+      "intr_test": begin
+        if (write && channel == AddrChannel) begin
+          bit [TL_DW-1:0] intr_en = ral.intr_enable.get_mirrored_value();
+          bit [NumSpiDevIntr-1:0] intr_val;
+          intr_val = `gmv(ral.intr_state) | item.a_data;
+          if (cfg.en_cov) begin
+            foreach (intr_val[i]) begin
+              cov.intr_test_cg.sample(i, item.a_data[i], intr_en[i], intr_val[i]);
+            end
+          end
+        end
+      end
+      "control": begin
+        if (write && channel == AddrChannel) begin
+          if (!`gmv(ral.control.rst_txfifo) || `gmv(ral.control.abort)) tx_word_q.delete();
+        end
+      end
+      "upload_cmdfifo": begin
+        if (!write && channel == DataChannel) begin
+          `DV_CHECK_GT(upload_cmd_q.size, 0)
+          `DV_CHECK_EQ(item.d_data, upload_cmd_q.pop_front())
+          update_cmdfifo_status();
+        end
+      end
+      "upload_addrfifo": begin
+        if (!write && channel == DataChannel) begin
+          `DV_CHECK_GT(upload_addr_q.size, 0)
+          `DV_CHECK_EQ(item.d_data, upload_addr_q.pop_front())
+          update_addrfifo_status();
+        end
+      end
+      "last_read_addr", "upload_status", "upload_status2": begin
+        do_read_check = 1;
+      end
+      default: begin
+        // TODO the other regs
+      end
     endcase
 
     // On reads, if do_read_check, is set, then check mirrored_value against item.d_data
     if (!write && channel == DataChannel) begin
       if (do_read_check) begin
-        `DV_CHECK_EQ(csr.get_mirrored_value(), item.d_data)
+        `DV_CHECK_EQ(item.d_data, `gmv(csr),
+                    $sformatf("CSR %s compare mismatch act 0x%0x != exp 0x%0x",
+                    csr.`gn, item.d_data, `gmv(csr)))
       end
       void'(csr.predict(.value(item.d_data), .kind(UVM_PREDICT_READ)));
     end
@@ -553,24 +899,35 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     super.reset(kind);
     tx_rptr_exp = ral.txf_ptr.rptr.get_reset();
     rx_wptr_exp = ral.rxf_ptr.wptr.get_reset();
-    intr_exp    = ral.intr_state.get_reset();
+    intr_trigger_pending = ral.intr_state.get_reset();
 
     tx_word_q.delete();
     rx_word_q.delete();
-    spi_passthrough_upstream_q.delete();
-    spi_passthrough_intercept_upstream_q.delete();
+    spi_passthrough_downstream_q.delete();
     flash_status_q.delete();
+    flash_status_settle_q.delete();
+    flash_status_tl_pre_val_q.delete();
+
+    // used in seq
+    cfg.next_read_buffer_addr = 0;
+    cfg.read_buffer_ptr  = 0;
+
+    read_buffer_watermark_triggered = 0;
   endfunction
 
   function void check_phase(uvm_phase phase);
     super.check_phase(phase);
     `DV_EOT_PRINT_TLM_FIFO_CONTENTS(spi_item, upstream_spi_host_fifo)
     `DV_EOT_PRINT_TLM_FIFO_CONTENTS(spi_item, upstream_spi_device_fifo)
+    `DV_EOT_PRINT_TLM_FIFO_CONTENTS(spi_item, upstream_spi_req_fifo)
     `DV_EOT_PRINT_TLM_FIFO_CONTENTS(spi_item, downstream_spi_host_fifo)
     `DV_CHECK_EQ(tx_word_q.size, 0)
     `DV_CHECK_EQ(rx_word_q.size, 0)
-    `DV_CHECK_EQ(spi_passthrough_upstream_q.size, 0)
+    `DV_CHECK_EQ(spi_passthrough_downstream_q.size, 0)
+    `DV_CHECK_EQ(upload_cmd_q.size, 0)
+    `DV_CHECK_EQ(upload_addr_q.size, 0)
     `DV_CHECK_EQ(flash_status_q.size, 0)
+    `DV_CHECK_EQ(flash_status_settle_q.size, 0)
+    `DV_CHECK_EQ(flash_status_tl_pre_val_q.size, 0)
   endfunction
-
 endclass

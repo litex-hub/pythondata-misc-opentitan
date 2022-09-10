@@ -7,16 +7,20 @@ class clkmgr_env_cfg extends cip_base_env_cfg #(
 );
 
   // This scoreboard handle is used to flag expected errors.
-  clkmgr_scoreboard scoreboard;
+  clkmgr_scoreboard  scoreboard;
 
   // ext component cfgs
 
   // ext interfaces
-  clkmgr_vif clkmgr_vif;
+  virtual clkmgr_if  clkmgr_vif;
   virtual clk_rst_if main_clk_rst_vif;
   virtual clk_rst_if io_clk_rst_vif;
   virtual clk_rst_if usb_clk_rst_vif;
   virtual clk_rst_if aon_clk_rst_vif;
+
+  virtual clk_rst_if root_io_clk_rst_vif;
+  virtual clk_rst_if root_main_clk_rst_vif;
+  virtual clk_rst_if root_usb_clk_rst_vif;
 
   `uvm_object_utils_begin(clkmgr_env_cfg)
   `uvm_object_utils_end
@@ -30,6 +34,7 @@ class clkmgr_env_cfg extends cip_base_env_cfg #(
 
     // This is for the integrity error test.
     tl_intg_alert_fields[ral.fatal_err_code.reg_intg] = 1;
+    m_tl_agent_cfg.max_outstanding_req = 1;
 
     // shadow registers
     shadow_update_err_status_fields[ral.recov_err_code.shadow_update_err] = 1;

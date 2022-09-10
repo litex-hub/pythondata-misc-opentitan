@@ -83,6 +83,7 @@ module ibex_lockstep import ibex_pkg::*; #(
   input  logic [LineSizeECC-1:0]       ic_data_wdata_i,
   input  logic [LineSizeECC-1:0]       ic_data_rdata_i [IC_NUM_WAYS],
   input  logic                         ic_scr_key_valid_i,
+  input  logic                         ic_scr_key_req_i,
 
   input  logic                         irq_software_i,
   input  logic                         irq_timer_i,
@@ -99,7 +100,6 @@ module ibex_lockstep import ibex_pkg::*; #(
   output logic                         alert_minor_o,
   output logic                         alert_major_internal_o,
   output logic                         alert_major_bus_o,
-  input  logic                         icache_inval_i,
   input  logic                         core_busy_i,
   input  logic                         test_en_i,
   input  logic                         scan_rst_ni
@@ -259,10 +259,10 @@ module ibex_lockstep import ibex_pkg::*; #(
     logic                        ic_data_write;
     logic [IC_INDEX_W-1:0]       ic_data_addr;
     logic [LineSizeECC-1:0]      ic_data_wdata;
+    logic                        ic_scr_key_req;
     logic                        irq_pending;
     crash_dump_t                 crash_dump;
     logic                        double_fault_seen;
-    logic                        icache_inval;
     logic                        core_busy;
   } delayed_outputs_t;
 
@@ -292,10 +292,10 @@ module ibex_lockstep import ibex_pkg::*; #(
   assign core_outputs_in.ic_data_write       = ic_data_write_i;
   assign core_outputs_in.ic_data_addr        = ic_data_addr_i;
   assign core_outputs_in.ic_data_wdata       = ic_data_wdata_i;
+  assign core_outputs_in.ic_scr_key_req      = ic_scr_key_req_i;
   assign core_outputs_in.irq_pending         = irq_pending_i;
   assign core_outputs_in.crash_dump          = crash_dump_i;
   assign core_outputs_in.double_fault_seen   = double_fault_seen_i;
-  assign core_outputs_in.icache_inval        = icache_inval_i;
   assign core_outputs_in.core_busy           = core_busy_i;
 
   // Delay the outputs
@@ -386,6 +386,7 @@ module ibex_lockstep import ibex_pkg::*; #(
     .ic_data_wdata_o     (shadow_outputs_d.ic_data_wdata),
     .ic_data_rdata_i     (shadow_data_rdata_q[0]),
     .ic_scr_key_valid_i  (shadow_inputs_q[0].ic_scr_key_valid),
+    .ic_scr_key_req_o    (shadow_outputs_d.ic_scr_key_req),
 
     .irq_software_i      (shadow_inputs_q[0].irq_software),
     .irq_timer_i         (shadow_inputs_q[0].irq_timer),
@@ -399,40 +400,41 @@ module ibex_lockstep import ibex_pkg::*; #(
     .double_fault_seen_o (shadow_outputs_d.double_fault_seen),
 
 `ifdef RVFI
-    .rvfi_valid         (),
-    .rvfi_order         (),
-    .rvfi_insn          (),
-    .rvfi_trap          (),
-    .rvfi_halt          (),
-    .rvfi_intr          (),
-    .rvfi_mode          (),
-    .rvfi_ixl           (),
-    .rvfi_rs1_addr      (),
-    .rvfi_rs2_addr      (),
-    .rvfi_rs3_addr      (),
-    .rvfi_rs1_rdata     (),
-    .rvfi_rs2_rdata     (),
-    .rvfi_rs3_rdata     (),
-    .rvfi_rd_addr       (),
-    .rvfi_rd_wdata      (),
-    .rvfi_pc_rdata      (),
-    .rvfi_pc_wdata      (),
-    .rvfi_mem_addr      (),
-    .rvfi_mem_rmask     (),
-    .rvfi_mem_wmask     (),
-    .rvfi_mem_rdata     (),
-    .rvfi_mem_wdata     (),
-    .rvfi_ext_mip       (),
-    .rvfi_ext_nmi       (),
-    .rvfi_ext_debug_req (),
-    .rvfi_ext_mcycle    (),
+    .rvfi_valid             (),
+    .rvfi_order             (),
+    .rvfi_insn              (),
+    .rvfi_trap              (),
+    .rvfi_halt              (),
+    .rvfi_intr              (),
+    .rvfi_mode              (),
+    .rvfi_ixl               (),
+    .rvfi_rs1_addr          (),
+    .rvfi_rs2_addr          (),
+    .rvfi_rs3_addr          (),
+    .rvfi_rs1_rdata         (),
+    .rvfi_rs2_rdata         (),
+    .rvfi_rs3_rdata         (),
+    .rvfi_rd_addr           (),
+    .rvfi_rd_wdata          (),
+    .rvfi_pc_rdata          (),
+    .rvfi_pc_wdata          (),
+    .rvfi_mem_addr          (),
+    .rvfi_mem_rmask         (),
+    .rvfi_mem_wmask         (),
+    .rvfi_mem_rdata         (),
+    .rvfi_mem_wdata         (),
+    .rvfi_ext_mip           (),
+    .rvfi_ext_nmi           (),
+    .rvfi_ext_debug_req     (),
+    .rvfi_ext_mcycle        (),
+    .rvfi_ext_mhpmcounters  (),
+    .rvfi_ext_mhpmcountersh (),
 `endif
 
     .fetch_enable_i         (shadow_inputs_q[0].fetch_enable),
     .alert_minor_o          (shadow_alert_minor),
     .alert_major_internal_o (shadow_alert_major_internal),
     .alert_major_bus_o      (shadow_alert_major_bus),
-    .icache_inval_o         (shadow_outputs_d.icache_inval),
     .core_busy_o            (shadow_outputs_d.core_busy)
   );
 

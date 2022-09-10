@@ -14,10 +14,7 @@ module flash_phy
   import flash_ctrl_pkg::*;
   import prim_mubi_pkg::mubi4_t;
 #(
-  parameter bit SecScrambleEn = 1'b1,
-  parameter int ModelOnlyReadLatency   = 1,   // generic model read latency
-  parameter int ModelOnlyProgLatency   = 50,  // generic model program latency
-  parameter int ModelOnlyEraseLatency  = 200 // generic model program latency
+  parameter bit SecScrambleEn = 1'b1
 )
 (
   input clk_i,
@@ -43,7 +40,8 @@ module flash_phy
   input lc_ctrl_pkg::lc_tx_t lc_nvm_debug_en_i,
   input ast_pkg::ast_obs_ctrl_t obs_ctrl_i,
   output logic [7:0] fla_obs_o,
-  output ast_pkg::ast_dif_t flash_alert_o
+  output logic fatal_prim_flash_alert_o,
+  output logic recov_prim_flash_alert_o
 );
 
   import prim_mubi_pkg::MuBi4False;
@@ -331,10 +329,7 @@ module flash_phy
     .InfoTypesWidth(InfoTypesWidth),
     .PagesPerBank(PagesPerBank),
     .WordsPerPage(WordsPerPage),
-    .DataWidth(flash_phy_pkg::FullDataWidth),
-    .ModelOnlyReadLatency(ModelOnlyReadLatency),
-    .ModelOnlyProgLatency(ModelOnlyProgLatency),
-    .ModelOnlyEraseLatency(ModelOnlyEraseLatency)
+    .DataWidth(flash_phy_pkg::FullDataWidth)
   ) u_flash (
     .clk_i,
     .rst_ni,
@@ -360,8 +355,8 @@ module flash_phy
     .flash_test_mode_a_io,
     .flash_test_voltage_h_io,
     .flash_err_o(flash_ctrl_o.macro_err),
-    // There alert signals are forwarded to both flash controller and ast
-    .fl_alert_src_o(flash_alert_o)
+    .fatal_alert_o(fatal_prim_flash_alert_o),
+    .recov_alert_o(recov_prim_flash_alert_o)
   );
   logic unused_alert;
   assign unused_alert = flash_ctrl_i.alert_trig & flash_ctrl_i.alert_ack;

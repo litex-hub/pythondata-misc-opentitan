@@ -27,7 +27,7 @@ arg_enum! {
     #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
     pub enum RomKind {
         TestRom,
-        MaskRom,
+        Rom,
     }
 }
 
@@ -44,7 +44,7 @@ impl RomDetect {
             usr_access: Self::scan_usr_access(bitstream)?,
             console: UartConsole {
                 timeout: timeout,
-                exit_success: Some(Regex::new(r"(\w+ROM):([^\r\n]+)[\r\n]").unwrap()),
+                exit_success: Some(Regex::new(r"(\w*ROM):([^\r\n]+)[\r\n]").unwrap()),
                 ..Default::default()
             },
         })

@@ -34,7 +34,7 @@
 #include "sw/device/lib/dif/dif_sysrst_ctrl.h"
 #include "sw/device/lib/dif/dif_uart.h"
 #include "sw/device/lib/dif/dif_usbdev.h"
-#include "sw/device/lib/irq.h"
+#include "sw/device/lib/runtime/irq.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/test_framework/check.h"
 #include "sw/device/lib/testing/rv_plic_testutils.h"
@@ -164,7 +164,7 @@ void ottf_external_isr(void) {
     case kTopEarlgreyPlicPeripheralAdcCtrlAon: {
       dif_adc_ctrl_irq_t irq = (dif_adc_ctrl_irq_t)(
           plic_irq_id -
-          (dif_rv_plic_irq_id_t)kTopEarlgreyPlicIrqIdAdcCtrlAonDebugCable);
+          (dif_rv_plic_irq_id_t)kTopEarlgreyPlicIrqIdAdcCtrlAonMatchDone);
       CHECK(irq == adc_ctrl_irq_expected,
             "Incorrect adc_ctrl_aon IRQ triggered: exp = %d, obs = %d",
             adc_ctrl_irq_expected, irq);
@@ -644,7 +644,7 @@ void ottf_external_isr(void) {
     case kTopEarlgreyPlicPeripheralSysrstCtrlAon: {
       dif_sysrst_ctrl_irq_t irq = (dif_sysrst_ctrl_irq_t)(
           plic_irq_id -
-          (dif_rv_plic_irq_id_t)kTopEarlgreyPlicIrqIdSysrstCtrlAonSysrstCtrl);
+          (dif_rv_plic_irq_id_t)kTopEarlgreyPlicIrqIdSysrstCtrlAonEventDetected);
       CHECK(irq == sysrst_ctrl_irq_expected,
             "Incorrect sysrst_ctrl_aon IRQ triggered: exp = %d, obs = %d",
             sysrst_ctrl_irq_expected, irq);
@@ -1030,8 +1030,8 @@ static void peripheral_irqs_enable(void) {
  */
 static void peripheral_irqs_trigger(void) {
   peripheral_expected = kTopEarlgreyPlicPeripheralAdcCtrlAon;
-  for (dif_adc_ctrl_irq_t irq = kDifAdcCtrlIrqDebugCable;
-       irq <= kDifAdcCtrlIrqDebugCable; ++irq) {
+  for (dif_adc_ctrl_irq_t irq = kDifAdcCtrlIrqMatchDone;
+       irq <= kDifAdcCtrlIrqMatchDone; ++irq) {
     adc_ctrl_irq_expected = irq;
     LOG_INFO("Triggering adc_ctrl_aon IRQ %d.", irq);
     CHECK_DIF_OK(dif_adc_ctrl_irq_force(&adc_ctrl_aon, irq));
@@ -1342,8 +1342,8 @@ static void peripheral_irqs_trigger(void) {
   }
 
   peripheral_expected = kTopEarlgreyPlicPeripheralSysrstCtrlAon;
-  for (dif_sysrst_ctrl_irq_t irq = kDifSysrstCtrlIrqSysrstCtrl;
-       irq <= kDifSysrstCtrlIrqSysrstCtrl; ++irq) {
+  for (dif_sysrst_ctrl_irq_t irq = kDifSysrstCtrlIrqEventDetected;
+       irq <= kDifSysrstCtrlIrqEventDetected; ++irq) {
     sysrst_ctrl_irq_expected = irq;
     LOG_INFO("Triggering sysrst_ctrl_aon IRQ %d.", irq);
     CHECK_DIF_OK(dif_sysrst_ctrl_irq_force(&sysrst_ctrl_aon, irq));

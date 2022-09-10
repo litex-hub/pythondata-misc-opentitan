@@ -68,29 +68,78 @@ dif_result_t dif_edn_set_auto_mode(const dif_edn_t *edn,
   }
   DIF_RETURN_IF_ERROR(check_locked(edn));
 
-  uint32_t reg = mmio_region_read32(edn->base_addr, EDN_CTRL_REG_OFFSET);
-  reg = bitfield_field32_write(reg, EDN_CTRL_CMD_FIFO_RST_FIELD,
-                               kMultiBitBool4True);
-  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, reg);
+  // Check that EDN is disabled.  If it is not disabled (e.g., through a call
+  // to `dif_edn_stop()`), we are not ready to change mode.
+  uint32_t ctrl_reg = mmio_region_read32(edn->base_addr, EDN_CTRL_REG_OFFSET);
+  const uint32_t edn_en =
+      bitfield_field32_read(ctrl_reg, EDN_CTRL_EDN_ENABLE_FIELD);
+  if (dif_multi_bit_bool_to_toggle(edn_en) != kDifToggleDisabled) {
+    return kDifError;
+  }
 
+  // Ensure neither automatic nor boot request mode is set.
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_AUTO_REQ_MODE_FIELD,
+                                    kMultiBitBool4False);
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_BOOT_REQ_MODE_FIELD,
+                                    kMultiBitBool4False);
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, ctrl_reg);
+
+  // Clear the reseed command FIFO and the generate command FIFO.
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_CMD_FIFO_RST_FIELD,
+                                    kMultiBitBool4True);
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, ctrl_reg);
+
+  // Restore command FIFOs to normal operation mode.  This is a prerequisite
+  // before any further commands can be issued to these FIFOs.
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_CMD_FIFO_RST_FIELD,
+                                    kMultiBitBool4False);
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, ctrl_reg);
+
+  // Fill the reseed command FIFO.
   for (size_t i = 0; i < config.reseed_material.len; ++i) {
     mmio_region_write32(edn->base_addr, EDN_RESEED_CMD_REG_OFFSET,
                         config.reseed_material.data[i]);
   }
+
+  // Fill the generate command FIFO.
   for (size_t i = 0; i < config.generate_material.len; ++i) {
     mmio_region_write32(edn->base_addr, EDN_GENERATE_CMD_REG_OFFSET,
                         config.generate_material.data[i]);
   }
 
+  // Set the maximum number of requests between reseeds.
   mmio_region_write32(edn->base_addr,
                       EDN_MAX_NUM_REQS_BETWEEN_RESEEDS_REG_OFFSET,
                       config.reseed_interval);
 
-  reg = bitfield_field32_write(reg, EDN_CTRL_AUTO_REQ_MODE_FIELD,
-                               kMultiBitBool4True);
-  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, reg);
+  // Re-enable EDN in automatic request mode.
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_EDN_ENABLE_FIELD,
+                                    kMultiBitBool4True);
+  ctrl_reg = bitfield_field32_write(ctrl_reg, EDN_CTRL_AUTO_REQ_MODE_FIELD,
+                                    kMultiBitBool4True);
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, ctrl_reg);
 
-  return kDifOk;
+  // Wait until EDN is ready to accept commands.
+  bool ready = false;
+  while (!ready) {
+    DIF_RETURN_IF_ERROR(dif_edn_get_status(edn, kDifEdnStatusReady, &ready));
+  }
+
+  // Command CSRNG Instantiate.  As soon as CSRNG acknowledges this command,
+  // EDN will start automatically sending reseed and generate commands.
+  DIF_RETURN_IF_ERROR(
+      dif_edn_instantiate(edn, kDifEdnEntropySrcToggleEnable, NULL));
+
+  // Wait until CSRNG acknowledges command.
+  ready = false;
+  while (!ready) {
+    DIF_RETURN_IF_ERROR(dif_edn_get_status(edn, kDifEdnStatusReady, &ready));
+  }
+
+  // Read request acknowledge error and return accordingly.
+  bool ack_err;
+  DIF_RETURN_IF_ERROR(dif_edn_get_status(edn, kDifEdnStatusCsrngAck, &ack_err));
+  return ack_err ? kDifError : kDifOk;
 }
 
 dif_result_t dif_edn_get_status(const dif_edn_t *edn, dif_edn_status_t flag,
@@ -219,18 +268,16 @@ dif_result_t dif_edn_get_main_state_machine(const dif_edn_t *edn,
 dif_result_t dif_edn_instantiate(
     const dif_edn_t *edn, dif_edn_entropy_src_toggle_t entropy_src_enable,
     const dif_edn_seed_material_t *seed_material) {
-  if (edn == NULL || seed_material == NULL) {
+  if (edn == NULL) {
     return kDifBadArg;
   }
-  dif_csrng_seed_material_t seed_material2;
-  memcpy(&seed_material2, seed_material, sizeof(seed_material2));
   return csrng_send_app_cmd(
       edn->base_addr, EDN_SW_CMD_REQ_REG_OFFSET,
       (csrng_app_cmd_t){
           .id = kCsrngAppCmdInstantiate,
           .entropy_src_enable =
               (dif_csrng_entropy_src_toggle_t)entropy_src_enable,
-          .seed_material = &seed_material2,
+          .seed_material = (const dif_csrng_seed_material_t *)seed_material,
       });
 }
 
@@ -293,6 +340,12 @@ dif_result_t dif_edn_stop(const dif_edn_t *edn) {
   }
   DIF_RETURN_IF_ERROR(check_locked(edn));
 
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, EDN_CTRL_REG_RESVAL);
+
+  // clear command fifo, see #14506
+  uint32_t reg = bitfield_field32_write(
+      EDN_CTRL_REG_RESVAL, EDN_CTRL_CMD_FIFO_RST_FIELD, kMultiBitBool4True);
+  mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, reg);
   mmio_region_write32(edn->base_addr, EDN_CTRL_REG_OFFSET, EDN_CTRL_REG_RESVAL);
 
   return kDifOk;

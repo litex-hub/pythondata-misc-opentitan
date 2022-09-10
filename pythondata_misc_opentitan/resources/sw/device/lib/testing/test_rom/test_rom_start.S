@@ -6,7 +6,6 @@
 #include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/multibits_asm.h"
 #include "ast_regs.h"
-#include "clkmgr_regs.h"
 #include "csrng_regs.h"
 #include "edn_regs.h"
 #include "entropy_src_regs.h"
@@ -64,7 +63,7 @@ _test_rom_interrupt_vector:
   // Set size so this vector can be disassembled.
   .size _test_rom_interrupt_vector, .-_test_rom_interrupt_vector
 
-  // Pop Mask ROM interrupt vector options.
+  // Pop ROM interrupt vector options.
   //
   // Re-enable compressed instructions, linker relaxation.
   .option pop
@@ -87,10 +86,17 @@ _test_rom_interrupt_vector:
   .global _reset_start
   .type _reset_start, @function
 _reset_start:
+
+  // Set up the global pointer. This requires that we disable linker relaxations
+  // (or it will be relaxed to `mv gp, gp`).
+  .option push
+  .option norelax
+  la  gp, __global_pointer$
+  .option pop
+
   // Clobber all writeable registers.
   li  x1, 0x0
   li  x2, 0x0
-  li  x3, 0x0
   li  x4, 0x0
   li  x5, 0x0
   li  x6, 0x0
@@ -123,12 +129,6 @@ _reset_start:
   // Set up the stack.
   la  sp, _stack_end
 
-  // Set up the global pointer. This requires that we disable linker relaxations
-  // (or it will be relaxed to `mv gp, gp`).
-  .option push
-  .option norelax
-  la  gp, __global_pointer$
-  .option pop
 
   // Explicit fall-through to `_start`.
   .size _reset_start, .-_reset_start
@@ -145,13 +145,6 @@ _reset_start:
   .global _start
   .type _start, @function
 _start:
-  // Re-enable all SW gateable clocks in case the clkmgr was not reset.
-  li   a0, TOP_EARLGREY_CLKMGR_AON_BASE_ADDR
-  li   t0, CLKMGR_CLK_ENABLES_REG_RESVAL
-  sw   t0, CLKMGR_CLK_ENABLES_REG_OFFSET(a0)
-  li   t0, CLKMGR_CLK_HINTS_REG_RESVAL
-  sw   t0, CLKMGR_CLK_HINTS_REG_OFFSET(a0)
-
 #if !OT_IS_ENGLISH_BREAKFAST
   // Check if AST initialization should be skipped.
   li   a0, (TOP_EARLGREY_OTP_CTRL_CORE_BASE_ADDR + \
@@ -203,8 +196,21 @@ _start:
          (MULTIBIT_ASM_BOOL4_FALSE << EDN_CTRL_AUTO_REQ_MODE_OFFSET) | \
          (MULTIBIT_ASM_BOOL4_FALSE << EDN_CTRL_CMD_FIFO_RST_OFFSET)
   sw t0, EDN_CTRL_REG_OFFSET(a0)
-#endif
 
+  // Remove address space protections by configuring entry 15 as
+  // read-write-execute for the entire address space and then clearing
+  // all other entries.
+  // NOTE: This should happen before attemting to access any address outside
+  // the initial ePMP RX region at reset, e.g. `kDeviceType` which is in
+  // .rodata.
+  li   t0, (0x9f << 24) // Locked NAPOT read-write-execute.
+  csrw pmpcfg3, t0
+  li   t0, 0x7fffffff   // NAPOT encoded region covering entire 34-bit address space.
+  csrw pmpaddr15, t0
+  csrw pmpcfg0, zero
+  csrw pmpcfg1, zero
+  csrw pmpcfg2, zero
+#endif
   // Scramble and initialize main memory (main SRAM).
   // Memory accesses will stall until initialization is complete.
   // Skip SRAM initialization for DV sim device type, as the testbench handles
@@ -216,17 +222,6 @@ _start:
   sw    t0, SRAM_CTRL_CTRL_REG_OFFSET(a0)
 
 .L_sram_init_skip:
-  // Remove address space protections by configuring entry 15 as
-  // read-write-execute for the entire address space and then clearing
-  // all other entries.
-  li   t0, (0x9f << 24) // Locked NAPOT read-write-execute.
-  csrw pmpcfg3, t0
-  li   t0, -1           // NAPOT encoded region covering entire 32-bit address space.
-  csrw pmpaddr15, t0
-  csrw pmpcfg0, zero
-  csrw pmpcfg1, zero
-  csrw pmpcfg2, zero
-
   // Zero out the `.bss` segment.
   la   a0, _bss_start
   la   a1, _bss_end

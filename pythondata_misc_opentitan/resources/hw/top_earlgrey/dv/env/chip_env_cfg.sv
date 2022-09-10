@@ -19,18 +19,19 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
   bit                 use_spi_load_bootstrap = 0;
 
   // chip top interfaces
-  gpio_vif            gpio_vif;
-  virtual pins_if#(2) tap_straps_vif;
-  virtual pins_if#(2) dft_straps_vif;
-  virtual pins_if#(3) sw_straps_vif;
-  virtual pins_if#(1) rst_n_mon_vif;
-  virtual clk_rst_if  cpu_clk_rst_vif;
-  virtual pins_if#(1) pinmux_wkup_vif;
-  virtual pins_if#(1) por_rstn_vif;
-  virtual pins_if#(1) pwrb_in_vif;
-  virtual pins_if#(1) ec_rst_vif;
-  virtual pins_if#(1) flash_wp_vif;
-  virtual pins_if#(8) sysrst_ctrl_vif;
+  gpio_vif              gpio_vif;
+  virtual pins_if#(2)   tap_straps_vif;
+  virtual pins_if#(2)   dft_straps_vif;
+  virtual pins_if#(3)   sw_straps_vif;
+  virtual pins_if#(1)   rst_n_mon_vif;
+  virtual clk_rst_if    cpu_clk_rst_vif;
+  virtual clk_rst_if    usb_clk_rst_vif;
+  virtual pins_if#(1)   pinmux_wkup_vif;
+  virtual pins_if#(1)   por_rstn_vif;
+  virtual pins_if#(1)   pwrb_in_vif;
+  virtual pins_if#(1)   ec_rst_vif;
+  virtual pins_if#(1)   flash_wp_vif;
+  virtual pins_if#(8)   sysrst_ctrl_vif;
 
   // pwrmgr probe interface
   virtual pwrmgr_low_power_if   pwrmgr_low_power_vif;
@@ -84,12 +85,14 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
   uint               sw_test_timeout_ns = 12_000_000; // 12ms
   sw_logger_vif      sw_logger_vif;
   sw_test_status_vif sw_test_status_vif;
+  alerts_vif         alerts_vif;
   ast_supply_vif     ast_supply_vif;
   ast_ext_clk_vif    ast_ext_clk_vif;
 
   // Number of RAM tiles for each RAM instance.
   uint num_ram_main_tiles;
   uint num_ram_ret_tiles;
+  uint num_otbn_dmem_tiles;
 
   // ext component cfgs
   rand uart_agent_cfg       m_uart_agent_cfgs[NUM_UARTS];
@@ -128,7 +131,6 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
     // Set up second RAL model for ROM memory and associated collateral
     if (use_jtag_dmi == 1) begin
       ral_model_names.push_back(rv_dm_rom_ral_name);
-      clk_freqs_mhz[rv_dm_rom_ral_name] = clk_freq_mhz;
     end
 
     super.initialize(csr_base_addr);
@@ -177,15 +179,23 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
 
     `DV_CHECK_LE_FATAL(num_ram_main_tiles, 16)
     `DV_CHECK_LE_FATAL(num_ram_ret_tiles, 16)
+    `DV_CHECK_LE_FATAL(num_otbn_dmem_tiles, 16)
 
     // Set external clock frequency.
     `DV_GET_ENUM_PLUSARG(ext_clk_type_e, ext_clk_type, ext_clk_type)
     case (ext_clk_type)
-      UseInternalClk: ; // clk_freq_mhz can be a random value
+      UseInternalClk:  begin
+        // if it's internal clk, the ext clk is only used in ast, the freq doesn't matter
+        randcase
+          1: clk_freq_mhz = 48;
+          1: clk_freq_mhz = 96;
+        endcase
+      end
       ExtClkLowSpeed:  clk_freq_mhz = 48;
       ExtClkHighSpeed: clk_freq_mhz = 96;
       default: `uvm_fatal(`gfn, $sformatf("Unexpected ext_clk_type: %s", ext_clk_type.name))
     endcase // case (ext_clk_type)
+    clk_freq_mhz.rand_mode(0);
 
     // ral_model_names = chip_reg_block // 1 entry
     if (use_jtag_dmi == 1) begin
@@ -325,7 +335,8 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
   // The index (optional) is mapped to the type of SW image (enumerated in sw_type_e). If index is
   // not specified, then `SwTypeTest` is assumed. Flags (optional) are arbitrary strings attached to
   // the SW image. They can be used to treat the SW image in a specific way. The flag "signed" for
-  // example, is used to set the SW image extension correctly.
+  // example, is used to set the SW image extension correctly. The flag "test_in_rom" is used to
+  // indicate a test runs directly out of ROM instead of flash.
   virtual function void parse_sw_images_string(string sw_images_string);
     string sw_images_split[$];
 
@@ -366,7 +377,13 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
         // `rules/opentitan.bzl` for options.
         sw_images[i] = $sformatf("%0s_prog_%0s.test_key_0.signed", sw_images[i], sw_build_device);
       end else begin
-        if (i == SwTypeTest) begin
+        // If Rom type but not test_in_rom, no need to tweak name further
+        // If Rom type AND test_in_rom, append suffix to the image name
+        if (i == SwTypeRom && ("test_in_rom" inside {sw_image_flags[i]})) begin
+            string test_image_suffix = "rom_prog_";
+            sw_images[i] = $sformatf("%0s_%0s%0s", sw_images[i], test_image_suffix,
+              sw_build_device);
+        end else if (i == SwTypeTest) begin
           sw_images[i] = $sformatf("%0s_prog_%0s", sw_images[i],
             sw_build_device);
         end else begin
@@ -374,6 +391,21 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
         end
       end
     end
+  endfunction
+
+  // Returns the chip memory instance to which the address belongs.
+  virtual function bit get_mem_from_addr(input uint addr, output chip_mem_e mem);
+    chip_mem_e mem_iter = mem_iter.first();
+    do begin
+      if (mem_bkdr_util_h[mem_iter] != null) begin
+        if (mem_bkdr_util_h[mem_iter].is_valid_addr(addr)) begin
+          mem = mem_iter;
+          return 1;
+        end
+      end
+      mem_iter = mem_iter.next();
+    end while (mem_iter != mem_iter.first());
+    return 0;
   endfunction
 
 endclass

@@ -42,6 +42,15 @@ enum {
   kDifEntropySeedMaterialMaxWordLen = 12,
 };
 
+enum {
+  /**
+   * Csrng commands
+   */
+  kDifEdnCmdInstantiate = 1,
+  kDifEdnCmdReseed = 2,
+  kDifEdnCmdGenerate = 3
+};
+
 /**
  * CSRNG additional parameters for instantiate and generate commands.
  */
@@ -248,6 +257,7 @@ dif_result_t dif_edn_set_auto_mode(const dif_edn_t *edn,
  * @param set Flag state (set/unset).
  * @return The result of the operation.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_edn_get_status(const dif_edn_t *edn, dif_edn_status_t flag,
                                 bool *set);
 
@@ -261,6 +271,7 @@ dif_result_t dif_edn_get_status(const dif_edn_t *edn, dif_edn_status_t flag,
  * `dif_edn_error_t`.
  * @return The result of the operation.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_edn_get_errors(const dif_edn_t *edn, uint32_t *unhealthy_fifos,
                                 uint32_t *errors);
 

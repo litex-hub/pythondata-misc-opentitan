@@ -5,7 +5,7 @@
 """Helpers for transitioning to the RISC-V target."""
 
 OPENTITAN_CPU = "@platforms//cpu:riscv32"
-OPENTITAN_PLATFORM = "@bazel_embedded//platforms:opentitan_rv32imc"
+OPENTITAN_PLATFORM = "@crt//platforms/riscv32:opentitan"
 
 # This constant holds a dictionary of per-device dependencies which are used to
 # generate slightly different binaries for each hardware target, including two
@@ -29,8 +29,8 @@ opentitan_transition = transition(
 
 def rv_rule(**kwargs):
     """
-    A wraper over rule() for painlessly creating rules that trigger the opentitan
-    transition.
+    A wrapper over rule() for painlessly creating rules that trigger the
+    opentitan transition.
     """
 
     attrs = kwargs.pop("attrs", {})

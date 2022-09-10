@@ -117,6 +117,28 @@ typedef enum dif_clkmgr_recov_err_type {
  */
 typedef uint32_t dif_clkmgr_recov_err_codes_t;
 
+typedef enum dif_clkmgr_fatal_err_type {
+  /**
+   * A fatal error for regfile integrity.
+   */
+  kDifClkmgrFatalErrTypeRegfileIntegrity = 1u << 0,
+  /**
+   * A fatal error for a duplicate idle counter.
+   */
+  kDifClkmgrFatalErrTypeIdleCount = 1u << 1,
+  /**
+   * A fatal error for a shadow register storage.
+   */
+  kDifClkmgrFatalErrTypeShadowStorage = 1u << 2,
+} dif_clkmgr_fatal_err_type_t;
+
+/**
+ * A set of fatal errors.
+ *
+ * This type is used to read the fatal error codes.
+ */
+typedef uint32_t dif_clkmgr_fatal_err_codes_t;
+
 /**
  * Check if jitter is Enabled.
  * @param clkmgr Clock Manager Handle.
@@ -310,6 +332,7 @@ dif_result_t dif_clkmgr_disable_measure_counts(
  * @param[out] state The state of control enable.
  * @returns The result of the operation.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_clkmgr_measure_counts_get_enable(
     const dif_clkmgr_t *clkmgr, dif_clkmgr_measure_clock_t clock,
     dif_toggle_t *state);
@@ -323,6 +346,7 @@ dif_result_t dif_clkmgr_measure_counts_get_enable(
  * @param[out] max_threshold The maximum threshold.
  * @returns The result of the operation.
  */
+OT_WARN_UNUSED_RESULT
 dif_result_t dif_clkmgr_measure_counts_get_thresholds(
     const dif_clkmgr_t *clkmgr, dif_clkmgr_measure_clock_t clock,
     uint32_t *min_threshold, uint32_t *max_threshold);
@@ -348,6 +372,17 @@ dif_result_t dif_clkmgr_recov_err_code_get_codes(
 OT_WARN_UNUSED_RESULT
 dif_result_t dif_clkmgr_recov_err_code_clear_codes(
     const dif_clkmgr_t *clkmgr, dif_clkmgr_recov_err_codes_t codes);
+
+/**
+ * Read the fatal error codes.
+ *
+ * @param clkmgr Clock Manager Handle.
+ * @param[out] codes The fatal error codes.
+ * @returns The result of the operation.
+ */
+OT_WARN_UNUSED_RESULT
+dif_result_t dif_clkmgr_fatal_err_code_get_codes(
+    const dif_clkmgr_t *clkmgr, dif_clkmgr_fatal_err_codes_t *codes);
 
 /**
  * Wait for external clock switch to finish.

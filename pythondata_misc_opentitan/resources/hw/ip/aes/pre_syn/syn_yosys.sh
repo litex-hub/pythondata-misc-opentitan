@@ -68,6 +68,8 @@ OT_DEP_SOURCES=(
     "$LR_SYNTH_SRC_DIR"/../prim/rtl/prim_lfsr.sv
     "$LR_SYNTH_SRC_DIR"/../prim/rtl/prim_flop_2sync.sv
     "$LR_SYNTH_SRC_DIR"/../prim/rtl/prim_cdc_rand_delay.sv
+    "$LR_SYNTH_SRC_DIR"/../prim/rtl/prim_reg_we_check.sv
+    "$LR_SYNTH_SRC_DIR"/../prim/rtl/prim_onehot_check.sv
     "$LR_SYNTH_SRC_DIR"/../prim_generic/rtl/prim_generic_flop.sv
     "$LR_SYNTH_SRC_DIR"/../prim_xilinx/rtl/prim_xilinx_flop.sv
     "$LR_SYNTH_SRC_DIR"/../prim_xilinx/rtl/prim_xilinx_flop_en.sv
@@ -87,7 +89,7 @@ OT_DEP_PACKAGES=(
 )
 
 # Convert OpenTitan dependency sources.
-for file in ${OT_DEP_SOURCES[@]}; do
+for file in "${OT_DEP_SOURCES[@]}"; do
     module=`basename -s .sv $file`
 
     # Skip packages

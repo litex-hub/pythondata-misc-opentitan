@@ -16,6 +16,11 @@ OUTPUT_ARCH(riscv)
  */
 __DYNAMIC = 0;
 
+/* Reserving space at the top of the RAM for the stack. */
+_stack_size = 0x2000;
+_stack_end = ORIGIN(ram_main) + LENGTH(ram_main);
+_stack_start = _stack_end - _stack_size;
+
 /**
  * Symbols to be used in the setup of the address translation for ROM_EXT.
  */
@@ -25,7 +30,7 @@ _owner_virtual_size = LENGTH(owner_virtual);
 /**
  * Marking the entry point correctly for the ELF file. The signer tool will
  * transfer this value to the `entry_point` field of the manifest, which will
- * then be used by `mask_rom_boot` to handover execution to ROM_EXT.
+ * then be used by `rom_boot` to handover execution to ROM_EXT.
  */
 ENTRY(_rom_ext_start_boot)
 
@@ -56,6 +61,7 @@ _manifest_entry_point = _rom_ext_start_boot - _rom_ext_start_address;
 SECTIONS {
   .manifest _rom_ext_start_address : {
     KEEP(*(.manifest))
+    . = ALIGN(256);
   } > rom_ext_flash
 
   /**
@@ -115,7 +121,7 @@ SECTIONS {
   } > rom_ext_flash
 
   /**
-   * Critical static data that is accessible by both the mask ROM and the ROM
+   * Critical static data that is accessible by both the ROM and the ROM
    * extension.
    */
   INCLUDE sw/device/silicon_creator/lib/base/static_critical.ld

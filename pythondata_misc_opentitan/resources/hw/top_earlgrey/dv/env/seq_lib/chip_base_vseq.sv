@@ -69,6 +69,14 @@ class chip_base_vseq #(
     callback_vseq.pre_dut_init();
     // Randomize the ROM image. Subclasses that have an actual ROM image will load it later.
     cfg.mem_bkdr_util_h[Rom].randomize_mem();
+    // Initialize selected memories to all 0. This is required for some chip-level tests such as
+    // otbn_mem_scramble that may intentionally read memories before writing them. Reading these
+    // memories still triggeres ECC integrity errors that need to be handled by the test.
+    cfg.mem_bkdr_util_h[OtbnImem].clear_mem();
+    for (int ram_idx = 0; ram_idx < cfg.num_otbn_dmem_tiles; ram_idx++) begin
+      cfg.mem_bkdr_util_h[chip_mem_e'(OtbnDmem0 + ram_idx)].clear_mem();
+    end
+
     // Bring the chip out of reset.
     super.dut_init(reset_kind);
     alert_ping_en_shorten();
@@ -148,15 +156,17 @@ class chip_base_vseq #(
   // shorten alert ping timer enable wait time
   virtual task check_lc_ctrl_broadcast(bit [LcBroadcastLast-1:0] bool_vector);
     foreach (lc_broadcast_paths[i]) begin
-      uvm_hdl_data_t curr_val;
+      logic [lc_ctrl_pkg::TxWidth-1:0] curr_val;
       string path = {`DV_STRINGIFY(`LC_CTRL_HIER), ".", lc_broadcast_paths[i]};
       `DV_CHECK_FATAL(uvm_hdl_read(path, curr_val))
       // if bool vector bit is 1, the probed value should be ON
       // if bool vector bit is 0, the probed value should be OFF
       if (bool_vector[i] ~^ (curr_val == lc_ctrl_pkg::On)) begin
-        `uvm_info(`gfn, $sformatf("%s: 0x%h matched", lc_broadcast_paths[i], curr_val), UVM_HIGH)
+        `uvm_info(`gfn, $sformatf("%s: %d matched", lc_broadcast_paths[i],
+                                  curr_val), UVM_HIGH)
       end else begin
-        `uvm_error(`gfn, $sformatf("%s: 0x%h mismatched", lc_broadcast_paths[i], curr_val))
+        `uvm_error(`gfn, $sformatf("%s: %d mismatched", lc_broadcast_paths[i],
+                                   curr_val))
       end
     end
   endtask : check_lc_ctrl_broadcast
@@ -192,43 +202,46 @@ class chip_base_vseq #(
   endfunction
 
   task test_mem_rw(uvm_mem mem, int max_access = 2048);
-    uvm_reg_data_t rdata;
-    int wdata, exp_data[$];  // Because all data is 32bit wide in this test.
+    int unsigned expected_data[int unsigned];
     int offmax = mem.get_size() - 1;
     int sizemax = offmax / 4;
-    int st, sz;
-    int byte_addr;
-    st = $urandom_range(0, offmax);
-    // Set the maximum transaction.
-    if (sizemax > max_access) sizemax = max_access;
 
-    sz = $urandom_range(1, sizemax);
-    `uvm_info(`gfn, $sformatf("Mem write to %s  offset:%0d size: %0d", mem.get_full_name(), st, sz),
+    `uvm_info(`gfn, $sformatf("Mem writes to %s %0d times", mem.get_full_name(), max_access),
               UVM_MEDIUM)
 
-    for (int i = 0; i < sz; ++i) begin
-      wdata = $urandom();
-      exp_data.push_back(wdata);
+    for (int i = 0; i < max_access; ++i) begin
+      int unsigned offset = $urandom_range(sizemax, 0);
+
+      int unsigned wdata = $urandom();
+      expected_data[offset] = wdata;
+      `uvm_info(`gfn, $sformatf("Writing 0x%x to offset 0x%x in %s", wdata, offset, mem.get_name()),
+                UVM_MEDIUM)
 
       if (mem.get_access() == "RW") begin
-        mem_wr(.ptr(mem), .offset((st + i) % (offmax + 1)), .data(wdata));
+        mem_wr(.ptr(mem), .offset(offset), .data(wdata));
       end else begin  // if (mem.get_access() == "RW")
         // deposit random data to rom
-        byte_addr = ((st + i) % (offmax + 1)) * 4;
+        int byte_addr = offset * 4;
         cfg.mem_bkdr_util_h[Rom].rom_encrypt_write32_integ(
             .addr(byte_addr), .data(wdata), .key(RndCnstRomCtrlScrKey),
             .nonce(RndCnstRomCtrlScrNonce), .scramble_data(1));
       end
     end
 
-    `uvm_info(`gfn, $sformatf("write to %s is complete, read back start...", mem.get_full_name()),
+    `uvm_info(`gfn, $sformatf("Writes to %s is complete, read back start...", mem.get_full_name()),
               UVM_MEDIUM)
-    for (int i = 0; i < sz; ++i) begin
-      mem_rd(.ptr(mem), .offset((st + i) % (offmax + 1)), .data(rdata));
-      `DV_CHECK_EQ((int'(rdata)), exp_data[i], $sformatf(
-                   "read back check for offset:%0d failed", ((st + i) % (offmax + 1))))
+
+    foreach (expected_data[address]) begin
+      int unsigned rdata;
+      int unsigned exp_data = expected_data[address];
+
+      mem_rd(.ptr(mem), .offset(address), .data(rdata));
+      `DV_CHECK_EQ(rdata, exp_data, $sformatf(
+                   "read back check for offset 0x%x failed, got 0x%x, expected 0x%x",
+                    address, rdata, exp_data))
     end
-    `uvm_info(`gfn, $sformatf("read check from %s is complete", mem.get_full_name()), UVM_MEDIUM)
+    `uvm_info(`gfn, $sformatf("read check from %s is complete", mem.get_full_name()),
+              UVM_MEDIUM)
 
   endtask : test_mem_rw
 

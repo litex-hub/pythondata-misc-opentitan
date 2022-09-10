@@ -20,8 +20,8 @@ module adc_ctrl_core import adc_ctrl_reg_pkg::* ; (
   output adc_ctrl_hw2reg_filter_status_reg_t aon_filter_status_o,
 
   // interrupt and wakeup outputs
-  output debug_cable_wakeup_o,
-  output intr_debug_cable_o,
+  output wkup_req_o,
+  output intr_o,
 
   // adc interface
   input  ast_pkg::adc_ast_rsp_t adc_i,
@@ -104,9 +104,29 @@ module adc_ctrl_core import adc_ctrl_reg_pkg::* ; (
             (aon_filter_ctl[1][k].min_v <= chn1_val) && (chn1_val <= aon_filter_ctl[1][k].max_v) :
             (aon_filter_ctl[1][k].min_v >  chn1_val) || (chn1_val >  aon_filter_ctl[1][k].max_v);
 
-    assign match[k] = (chn0_match[k] & aon_filter_ctl[0][k].en) &
-                      (chn1_match[k] & aon_filter_ctl[1][k].en);
+    // If the filter on a paritcular channel is NOT enabled, it does not participate in the final
+    // match decision.  This means the match value should have no impact on the final result.
+    // For example, if channel 0's filter is enabled, but channel 1's is not, the match result
+    // is determined solely based on whether channel 0's filter shows a match.
+    // On the other hand, if all channel's filters are enabled, then a match is seen only when
+    // both filters match.
+    assign match[k] = |{aon_filter_ctl[0][k].en, aon_filter_ctl[1][k].en} &
+                      (!aon_filter_ctl[0][k].en | (chn0_match[k] & aon_filter_ctl[0][k].en)) &
+                      (!aon_filter_ctl[1][k].en | (chn1_match[k] & aon_filter_ctl[1][k].en)) ;
+
     assign match_pulse[k] = adc_ctrl_done && match[k];
+
+   // Explicitly create assertions for all the matching conditions.
+   // These assertions are unwieldly and not suitable for expansion to more channels.
+   // They should be adjusted eventually.
+   `ASSERT(MatchCheck00_A, !aon_filter_ctl[0][k].en & !aon_filter_ctl[1][k].en |->
+           !match[k], clk_aon_i, !rst_aon_ni)
+   `ASSERT(MatchCheck01_A, !aon_filter_ctl[0][k].en & aon_filter_ctl[1][k].en  |->
+           match[k] == chn1_match[k], clk_aon_i, !rst_aon_ni)
+   `ASSERT(MatchCheck10_A, aon_filter_ctl[0][k].en & !aon_filter_ctl[1][k].en  |->
+           match[k] == chn0_match[k], clk_aon_i, !rst_aon_ni)
+   `ASSERT(MatchCheck11_A, aon_filter_ctl[0][k].en & aon_filter_ctl[1][k].en   |->
+           match[k] == (chn0_match[k] & chn1_match[k]), clk_aon_i, !rst_aon_ni)
   end
 
   // adc filter status
@@ -115,8 +135,8 @@ module adc_ctrl_core import adc_ctrl_reg_pkg::* ; (
 
   // generate wakeup to external power manager if filter status
   // and wakeup enable are set.
-  assign debug_cable_wakeup_o = |(reg2hw_i.filter_status.q &
-                                  reg2hw_i.adc_wakeup_ctl.q);
+  assign wkup_req_o = |(reg2hw_i.filter_status.q &
+                      reg2hw_i.adc_wakeup_ctl.q);
 
   //instantiate the main state machine
   adc_ctrl_fsm u_adc_ctrl_fsm (
@@ -169,8 +189,9 @@ module adc_ctrl_core import adc_ctrl_reg_pkg::* ; (
     .intr_enable_i(reg2hw_i.intr_enable),
     .intr_test_i(reg2hw_i.intr_test),
     .intr_state_o,
+    .adc_intr_status_i(reg2hw_i.adc_intr_status),
     .adc_intr_status_o,
-    .intr_debug_cable_o
+    .intr_o
   );
 
   // unused register inputs

@@ -8,11 +8,11 @@
 #include <stddef.h>
 
 #include "sw/device/lib/base/macros.h"
+#include "sw/device/silicon_creator/lib/base/chip.h"
 #include "sw/device/silicon_creator/lib/drivers/lifecycle.h"
 #include "sw/device/silicon_creator/lib/epmp.h"
 #include "sw/device/silicon_creator/lib/error.h"
 #include "sw/device/silicon_creator/lib/keymgr_binding_value.h"
-#include "sw/device/silicon_creator/lib/manifest_size.h"
 #include "sw/device/silicon_creator/lib/sigverify/rsa_key.h"
 
 #ifdef __cplusplus
@@ -107,7 +107,7 @@ enum {
  *
  * OpenTitan secure boot, at a minimum, consists of three boot stages: ROM,
  * ROM_EXT, and the first owner boot stage, e.g. BL0. ROM is stored in the
- * read-only Mask ROM while remaining stages are stored in flash. This structure
+ * read-only ROM while remaining stages are stored in flash. This structure
  * must be placed at the start of ROM_EXT and first owner boot stage images so
  * that ROM and ROM_EXT can verify the integrity and authenticity of the next
  * stage and configure peripherals as needed before handing over execution.
@@ -226,7 +226,7 @@ OT_ASSERT_MEMBER_OFFSET(manifest_t, max_key_version, 880);
 OT_ASSERT_MEMBER_OFFSET(manifest_t, code_start, 884);
 OT_ASSERT_MEMBER_OFFSET(manifest_t, code_end, 888);
 OT_ASSERT_MEMBER_OFFSET(manifest_t, entry_point, 892);
-OT_ASSERT_SIZE(manifest_t, MANIFEST_SIZE);
+OT_ASSERT_SIZE(manifest_t, CHIP_MANIFEST_SIZE);
 
 /**
  * Region of an image that should be included in the digest computation.
@@ -241,29 +241,6 @@ typedef struct manifest_digest_region {
    */
   size_t length;
 } manifest_digest_region_t;
-
-/**
- * ROM_EXT manifest identifier (ASCII "OTRE").
- */
-#define MANIFEST_IDENTIFIER_ROM_EXT 0x4552544f
-
-/**
- * First owner boot stage manifest identifier (ASCII "OTSO").
- */
-#define MANIFEST_IDENTIFIER_OWNER_STAGE 0x4f53544f
-
-/**
- * Allowed bounds for the `length` field of a ROM_EXT manifest.
- */
-// TODO(#9045): Move ROM_EXT size to a common location.
-#define MANIFEST_LENGTH_FIELD_ROM_EXT_MIN MANIFEST_SIZE
-#define MANIFEST_LENGTH_FIELD_ROM_EXT_MAX 0x10000
-
-/**
- * Allowed bounds for the `length` field of a first owner boot stage manifest.
- */
-#define MANIFEST_LENGTH_FIELD_OWNER_STAGE_MIN MANIFEST_SIZE
-#define MANIFEST_LENGTH_FIELD_OWNER_STAGE_MAX 0x70000
 
 #if defined(OT_PLATFORM_RV32) || defined(MANIFEST_UNIT_TEST_)
 /**

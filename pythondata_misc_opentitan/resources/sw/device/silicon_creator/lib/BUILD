@@ -28,7 +28,7 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
@@ -70,13 +70,20 @@ cc_library(
 )
 
 cc_library(
+    name = "epmp_defs",
+    hdrs = [
+        "epmp_defs.h",
+    ],
+)
+
+cc_library(
     name = "epmp",
     srcs = ["epmp.c"],
     hdrs = [
         "epmp.h",
-        "epmp_defs.h",
     ],
     deps = [
+        ":epmp_defs",
         ":error",
         "//sw/device/lib/base:csr",
         "//sw/device/lib/base:hardened",
@@ -88,7 +95,7 @@ cc_test(
     srcs = ["epmp_unittest.cc"],
     deps = [
         ":epmp",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -109,9 +116,9 @@ cc_library(
     name = "error",
     hdrs = ["error.h"],
     deps = [
-        "//sw/device/lib/base:absl_status",
         "//sw/device/lib/base:bitfield",
         "//sw/device/lib/base:hardened",
+        "//sw/device/lib/base/internal:status",
     ],
 )
 
@@ -184,11 +191,6 @@ cc_test(
     ],
 )
 
-cc_library(
-    name = "manifest_size",
-    hdrs = ["manifest_size.h"],
-)
-
 dual_cc_library(
     name = "manifest",
     srcs = dual_inputs(
@@ -205,17 +207,17 @@ dual_cc_library(
         ],
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
             ":epmp",
             ":error",
             ":keymgr_binding",
-            ":manifest_size",
             "//sw/device/lib/base:macros",
             "//sw/device/silicon_creator/lib/drivers:lifecycle",
             "//sw/device/silicon_creator/lib/sigverify:rsa_key",
+            "//sw/device/silicon_creator/lib/base:chip",
         ],
     ),
 )
@@ -249,7 +251,7 @@ cc_test(
     deps = [
         dual_cc_device_library_of(":manifest"),
         "//sw/device/lib/base:csr",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -286,11 +288,12 @@ dual_cc_library(
     deps = dual_inputs(
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
             ":error",
+            ":epmp_defs",
             "//sw/device/lib/base:hardened",
             "//sw/device/lib/base:macros",
             "//sw/device/silicon_creator/lib/drivers:lifecycle",
@@ -322,7 +325,7 @@ cc_test(
     srcs = ["shutdown_unittest.cc"],
     deps = [
         dual_cc_device_library_of(":shutdown"),
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -334,5 +337,37 @@ cc_library(
         ":error",
         "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+dual_cc_library(
+    name = "crc32",
+    srcs = dual_inputs(
+        device = ["crc32.c"],
+        host = ["mock_crc32.cc"],
+    ),
+    hdrs = dual_inputs(
+        host = ["mock_crc32.h"],
+        shared = ["crc32.h"],
+    ),
+    deps = dual_inputs(
+        host = [
+            "//sw/device/lib/base:global_mock",
+            "//sw/device/silicon_creator/testing:rom_test",
+            "@googletest//:gtest",
+        ],
+        shared = [
+            "//sw/device/lib/base:memory",
+        ],
+    ),
+)
+
+cc_test(
+    name = "crc32_unittest",
+    srcs = ["crc32_unittest.cc"],
+    deps = [
+        dual_cc_device_library_of(":crc32"),
+        "//sw/device/silicon_creator/testing:rom_test",
+        "@googletest//:gtest_main",
     ],
 )

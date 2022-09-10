@@ -51,10 +51,16 @@ module keccak_round
   // Life cycle
   input  lc_ctrl_pkg::lc_tx_t lc_escalate_en_i,
 
+  // Errors:
+  //  sparse_fsm_error: Checking if FSM state falls into unknown value
   output logic             sparse_fsm_error_o,
+  //  round_count_error: prim_count checks round value consistency
   output logic             round_count_error_o,
+  //  rst_storage_error: check if reset signal asserted out of the
+  //                     permitted window
+  output logic             rst_storage_error_o,
 
-  input                    clear_i     // Clear internal state to '0
+  input  prim_mubi_pkg::mubi4_t clear_i     // Clear internal state to '0
 );
 
   /////////////////////
@@ -212,7 +218,7 @@ module keccak_round
 
           xor_message    = 1'b 1;
           update_storage = 1'b 1;
-        end else if (clear_i) begin
+        end else if (prim_mubi_pkg::mubi4_test_true_strict(clear_i)) begin
           // Opt1. State machine allows resetting the storage only in Idle
           // Opt2. storage resets regardless of states but clear_i
           // Both are added in the design at this time. Will choose the
@@ -405,6 +411,23 @@ module keccak_round
     end // if xor_message
   end
 
+  // Check the rst_storage integrity
+  logic rst_storage_error;
+
+  always_comb begin : chk_rst_storage
+    rst_storage_error = 1'b 0;
+
+    if (rst_storage) begin
+      // FSM should be in StIdle and clear_i should be high
+      if ((keccak_st != StIdle) ||
+        prim_mubi_pkg::mubi4_test_false_loose(clear_i)) begin
+        rst_storage_error = 1'b 1;
+      end
+    end
+  end : chk_rst_storage
+
+  assign rst_storage_error_o = rst_storage_error ;
+
   //////////////
   // Datapath //
   //////////////
@@ -473,7 +496,9 @@ module keccak_round
   `ASSUME(ValidRunAssertStIdle_A, valid_i || run_i |-> keccak_st == StIdle, clk_i, !rst_ni)
 
   // clear_i is assumed to be asserted in Idle state
-  `ASSUME(ClearAssertStIdle_A, clear_i |-> keccak_st == StIdle, clk_i, !rst_ni)
+  `ASSUME(ClearAssertStIdle_A,
+    prim_mubi_pkg::mubi4_test_true_strict(clear_i)
+     |-> keccak_st == StIdle, clk_i, !rst_ni)
 
   // EnMasking controls the valid states
   if (EnMasking) begin : gen_mask_st_chk

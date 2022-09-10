@@ -68,7 +68,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
     cfg.mem_bkdr_util_h[FlashBank1Data].set_mem();
 
     // Randomize retention memory.  This is done intentionally with wrong integrity
-    // as early portions of mask ROM will initialize it to the correct value.
+    // as early portions of ROM will initialize it to the correct value.
     // The randomization here is just to ensure we do not have x's in the memory.
     for (int ram_idx = 0; ram_idx < cfg.num_ram_ret_tiles; ram_idx++) begin
       cfg.mem_bkdr_util_h[chip_mem_e'(RamRet0 + ram_idx)].randomize_mem();
@@ -76,8 +76,11 @@ class chip_sw_base_vseq extends chip_base_vseq;
 
     `uvm_info(`gfn, "Initializing ROM", UVM_MEDIUM)
     // Backdoor load memories with sw images.
-    cfg.mem_bkdr_util_h[Rom].load_mem_from_file({cfg.sw_images[SwTypeRom], ".scr.39.vmem"});
-
+`ifdef DISABLE_ROM_INTEGRITY_CHECK
+    cfg.mem_bkdr_util_h[Rom].load_mem_from_file({cfg.sw_images[SwTypeRom], ".32.vmem"});
+`else
+    cfg.mem_bkdr_util_h[Rom].load_mem_from_file({cfg.sw_images[SwTypeRom], ".39.scr.vmem"});
+`endif
     // TODO: the location of the main execution image should be randomized to either bank in future.
     if (cfg.sw_images.exists(SwTypeTest)) begin
       if (cfg.use_spi_load_bootstrap) begin
@@ -95,9 +98,9 @@ class chip_sw_base_vseq extends chip_base_vseq;
     `uvm_info(`gfn, "CPU_init done", UVM_MEDIUM)
   endtask
 
-  // The jitter enable mechanism is different from test_rom and mask_rom right now.
+  // The jitter enable mechanism is different from test_rom and rom right now.
   // That's why below there is both a symbol overwrite and an otp backdoor load.
-  // Once test_rom and mask_rom are consistent in this area, the symbol backdoor load
+  // Once test_rom and rom are consistent in this area, the symbol backdoor load
   // can be removed.
   task config_jitter();
     bit en_jitter;
@@ -105,13 +108,13 @@ class chip_sw_base_vseq extends chip_base_vseq;
     if (en_jitter) begin
       // enable for test_rom
       bit [7:0] en_jitter_arr[] = {1};
-      sw_symbol_backdoor_overwrite("kJitterEnabled", en_jitter_arr, Rom, SwTypeRom);
+      sw_symbol_backdoor_overwrite("kJitterEnabled", en_jitter_arr, SwTypeRom);
 
-      // enable for mask_rom
+      // enable for rom
       cfg.mem_bkdr_util_h[Otp].write32(otp_ctrl_reg_pkg::CreatorSwCfgJitterEnOffset,
                                        prim_mubi_pkg::MuBi4True);
     end else begin
-      // mask rom blindly copies from otp, backdoor load a false value
+      // rom blindly copies from otp, backdoor load a false value
       cfg.mem_bkdr_util_h[Otp].write32(otp_ctrl_reg_pkg::CreatorSwCfgJitterEnOffset,
                                        prim_mubi_pkg::MuBi4False);
     end
@@ -199,7 +202,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
     fork
       begin: isolation_thread
         fork
-          wait(cfg.sw_test_status_vif.sw_test_done);
+          wait (cfg.sw_test_status_vif.sw_test_done);
           #(cfg.sw_test_timeout_ns * 1ns);
         join_any
         disable fork;
@@ -230,7 +233,8 @@ class chip_sw_base_vseq extends chip_base_vseq;
     // wait until spi init is done
     // TODO, in some cases though, we might use UART logger instead of SW logger - need to keep that
     // in mind
-    wait(cfg.sw_logger_vif.printed_log == "HW initialisation completed, waiting for SPI input...");
+    `DV_WAIT(cfg.sw_logger_vif.printed_log ==
+             "HW initialisation completed, waiting for SPI input...")
 
     // for the first frame of data, sdo from chip is unknown, ignore checking that
     cfg.m_spi_agent_cfg.en_monitor_checks = 0;
@@ -246,15 +250,16 @@ class chip_sw_base_vseq extends chip_base_vseq;
         `uvm_info(`gfn, $sformatf("SPI flash data[%0d] = 0x%0x", i, sw_byte_q[i]), UVM_LOW)
       end
       `DV_CHECK_RANDOMIZE_WITH_FATAL(m_spi_host_seq,
-                                     data.size() == SPI_FRAME_BYTE_SIZE;
-                                     foreach (data[i]) {data[i] == sw_byte_q[byte_cnt+i];})
+                                    data.size() == SPI_FRAME_BYTE_SIZE;
+                                    foreach (data[i]) {data[i] == sw_byte_q[byte_cnt+i];})
       `uvm_send(m_spi_host_seq)
-      wait (string'(cfg.sw_logger_vif.printed_log) ==
-            $sformatf("Frame #%0d processed done", num_frame));
+      `DV_WAIT(string'(cfg.sw_logger_vif.printed_log) ==
+            $sformatf("Frame #%0d processed done", num_frame))
       num_frame++;
 
       byte_cnt += SPI_FRAME_BYTE_SIZE;
     end
+
   endtask
 
   virtual function void read_sw_frames(string sw_image, ref byte sw_byte_q[$]);
@@ -284,22 +289,36 @@ class chip_sw_base_vseq extends chip_base_vseq;
   // TODO: Need to deal with scrambling.
   virtual function void sw_symbol_backdoor_overwrite(input string symbol,
                                                      inout bit [7:0] data[],
-                                                     input chip_mem_e mem = FlashBank0Data,
-                                                     input sw_type_e sw_type = SwTypeTest);
+                                                     input sw_type_e sw_type = SwTypeTest,
+                                                     input bit does_not_exist_ok = 0);
 
     bit [bus_params_pkg::BUS_AW-1:0] addr, mem_addr;
+    chip_mem_e mem;
     uint size;
     uint addr_mask;
+    string image;
+    bit ret;
 
     // Elf file name checks.
     `DV_CHECK_FATAL(cfg.sw_images.exists(sw_type))
     `DV_CHECK_STRNE_FATAL(cfg.sw_images[sw_type], "")
-    `DV_CHECK_FATAL(mem inside {Rom, [RamMain0:RamMain15], FlashBank0Data, FlashBank1Data},
-        $sformatf("SW symbol cannot appear in %0s mem", mem))
 
     // Find the symbol in the sw elf file.
-    sw_symbol_get_addr_size({cfg.sw_images[sw_type], ".elf"}, symbol, addr, size);
+    image = $sformatf("%0s.elf", cfg.sw_images[sw_type]);
+    ret = sw_symbol_get_addr_size(image, symbol, does_not_exist_ok, addr, size);
+    if (!ret) begin
+      string msg = $sformatf("Failed to find symbol %0s in %0s", symbol, image);
+      if (does_not_exist_ok) begin
+        `uvm_info(`gfn, msg, UVM_LOW)
+        return;
+      end else `uvm_fatal(`gfn, msg)
+    end
     `DV_CHECK_EQ_FATAL(size, data.size())
+
+    // Infer mem from address.
+    `DV_CHECK(cfg.get_mem_from_addr(addr, mem))
+    `DV_CHECK_FATAL(mem inside {Rom, [RamMain0:RamMain15], FlashBank0Data, FlashBank1Data},
+        $sformatf("SW symbol %0s is not expected to appear in %0s mem", symbol, mem))
 
     addr_mask = (2**$clog2(cfg.mem_bkdr_util_h[mem].get_size_bytes()))-1;
     mem_addr = addr & addr_mask;
@@ -309,6 +328,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
                               symbol, mem, addr, mem_addr, size, addr_mask), UVM_LOW)
     for (int i = 0; i < size; i++) mem_bkdr_write8(mem, mem_addr + i, data[i]);
 
+    // TODO: Move this specialization to an extended class called rom_bkdr_util.
     if (mem == Rom) begin
       `uvm_info(`gfn, "Regenerate ROM digest and update via backdoor", UVM_LOW)
       cfg.mem_bkdr_util_h[mem].update_rom_digest(RndCnstRomCtrlScrKey, RndCnstRomCtrlScrNonce);
@@ -322,6 +342,8 @@ class chip_sw_base_vseq extends chip_base_vseq;
                                         input bit [bus_params_pkg::BUS_AW-1:0] addr,
                                         input byte data);
     byte prev_data;
+    // TODO: Move these specializations to extended classes so that no special handling is needed at
+    // the call site.
     if (mem == Rom) begin
       bit [127:0] key = RndCnstRomCtrlScrKey;
       bit [63:0] nonce = RndCnstRomCtrlScrNonce;
@@ -337,7 +359,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
   // LC state transition tasks
   // This function takes the token value from the four LC_CTRL token CSRs, then runs through
   // cshake128 to get a 768-bit XORed token output.
-  // The first 128 bits of the decoded token should match the OTP paritition's descrambled tokens
+  // The first 128 bits of the decoded token should match the OTP partition's descrambled tokens
   // value.
   virtual function bit [TokenWidthBit-1:0] dec_otp_token_from_lc_csrs(
       bit [7:0] token_in[TokenWidthByte]);

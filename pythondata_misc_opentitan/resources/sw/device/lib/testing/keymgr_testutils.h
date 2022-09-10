@@ -6,6 +6,74 @@
 #define OPENTITAN_SW_DEVICE_LIB_TESTING_KEYMGR_TESTUTILS_H_
 
 #include "sw/device/lib/dif/dif_keymgr.h"
+#include "sw/device/lib/dif/dif_kmac.h"
+
+/**
+ * Versioned key parameters for testing.
+ *
+ * Change destination in order to sideload keys to hardware.
+ */
+static const dif_keymgr_versioned_key_params_t kKeyVersionedParams = {
+    .dest = kDifKeymgrVersionedKeyDestSw,
+    .salt =
+        {
+            0xb6521d8f,
+            0x13a0e876,
+            0x1ca1567b,
+            0xb4fb0fdf,
+            0x9f89bc56,
+            0x4bd127c7,
+            0x322288d8,
+            0xde919d54,
+        },
+    .version = 0x1,
+};
+
+/**
+ * Software binding value for advancing to creator root key state.
+ */
+static const dif_keymgr_state_params_t kCreatorParams = {
+    .binding_value = {0xdc96c23d, 0xaf36e268, 0xcb68ff71, 0xe92f76e2,
+                      0xb8a8379d, 0x426dc745, 0x19f5cff7, 0x4ec9c6d6},
+    .max_key_version = 0x11,
+};
+
+/**
+ * Software binding value for advancing to owner intermediate key state.
+ */
+static const dif_keymgr_state_params_t kOwnerIntParams = {
+    .binding_value = {0xe4987b39, 0x3f83d390, 0xc2f3bbaf, 0x3195dbfa,
+                      0x23fb480c, 0xb012ae5e, 0xf1394d28, 0x1940ceeb},
+    .max_key_version = 0xaa,
+};
+
+/**
+ * Programs flash, restarts, and advances keymgr to CreatorRootKey state.
+ *
+ * This procedure essentially gets the keymgr into the first state where it can
+ * be used for tests. Tests should call it before anything else, like below:
+ *
+ * void test_main(void) {
+ *   // Set up and advance to CreatorRootKey state.
+ *   dif_keymgr_t keymgr;
+ *   dif_kmac_t kmac;
+ *   keymgr_testutils_startup(&keymgr, &kmac);
+ *
+ *   // Remainder of test; optionally advance to OwnerIntKey state, generate
+ *   // keys and identities.
+ *   ...
+ * }
+ *
+ * Because the key manager uses KMAC, this procedure also initializes and
+ * configures KMAC. Software should not rely on the configuration here and
+ * should reconfigure KMAC if needed. The purpose of configuring KMAC in this
+ * procedure is so that the key manager will not use KMAC with the default
+ * entropy settings.
+ *
+ * @param keymgr A key manager handle, may be uninitialized.
+ * @param kmac A KMAC handle, may be uninitialized.
+ */
+void keymgr_testutils_startup(dif_keymgr_t *keymgr, dif_kmac_t *kmac);
 
 /**
  * Issues a keymgr advance operation and wait for it to complete

@@ -4,6 +4,7 @@
 
 #include "sw/device/silicon_creator/lib/drivers/spi_device.h"
 
+#include <array>
 #include <cstring>
 #include <limits>
 
@@ -11,8 +12,9 @@
 #include "sw/device/lib/base/mock_abs_mmio.h"
 #include "sw/device/silicon_creator/lib/drivers/mock_lifecycle.h"
 #include "sw/device/silicon_creator/lib/error.h"
-#include "sw/device/silicon_creator/testing/mask_rom_test.h"
+#include "sw/device/silicon_creator/testing/rom_test.h"
 
+#include "flash_ctrl_regs.h"
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 #include "spi_device_regs.h"
 
@@ -21,11 +23,11 @@ namespace {
 using ::testing::NotNull;
 using ::testing::SetArgPointee;
 
-class SpiDeviceTest : public mask_rom_test::MaskRomTest {
+class SpiDeviceTest : public rom_test::RomTest {
  protected:
   uint32_t base_ = TOP_EARLGREY_SPI_DEVICE_BASE_ADDR;
-  mask_rom_test::MockAbsMmio mmio_;
-  mask_rom_test::MockLifecycle lifecycle_;
+  rom_test::MockAbsMmio mmio_;
+  rom_test::MockLifecycle lifecycle_;
 };
 
 class InitTest : public SpiDeviceTest {};
@@ -53,15 +55,39 @@ TEST_F(InitTest, Init) {
       .chip_rev = 3,
   };
   EXPECT_CALL(lifecycle_, HwRev(NotNull())).WillOnce(SetArgPointee<0>(hw_rev));
+
   EXPECT_ABS_WRITE32(
       base_ + SPI_DEVICE_JEDEC_ID_REG_OFFSET,
       {
           {SPI_DEVICE_DEV_ID_CHIP_REV_FIELD.index, hw_rev.chip_rev},
           {SPI_DEVICE_DEV_ID_ROM_BOOTSTRAP_BIT, 1},
           {SPI_DEVICE_DEV_ID_CHIP_GEN_FIELD.index, hw_rev.chip_gen},
-          {SPI_DEVICE_DEV_ID_DENSITY_FIELD.index, kSpiDeviceJedecDensity},
+          {SPI_DEVICE_DEV_ID_DENSITY_FIELD.index,
+           (uint32_t)bitfield_count_trailing_zeroes32(
+               FLASH_CTRL_PARAM_REG_NUM_BANKS *
+               FLASH_CTRL_PARAM_BYTES_PER_BANK)},
           {SPI_DEVICE_JEDEC_ID_MF_OFFSET, kSpiDeviceJedecManufId},
       });
+
+  std::array<uint32_t, kSpiDeviceSfdpAreaNumBytes / sizeof(uint32_t)>
+      sfdp_buffer;
+  sfdp_buffer.fill(std::numeric_limits<uint32_t>::max());
+  std::memcpy(sfdp_buffer.data(), &kSpiDeviceSfdpTable,
+              sizeof(kSpiDeviceSfdpTable));
+  uint32_t offset =
+      base_ + SPI_DEVICE_BUFFER_REG_OFFSET + kSpiDeviceSfdpAreaOffset;
+  for (size_t i = 0; i < sfdp_buffer.size(); ++i) {
+    EXPECT_ABS_WRITE32(offset, sfdp_buffer[i]);
+    offset += sizeof(uint32_t);
+  }
+
+  offset = base_ + SPI_DEVICE_BUFFER_REG_OFFSET + kSpiDevicePayloadAreaOffset;
+  for (size_t i = 0; i < kSpiDevicePayloadAreaNumWords; ++i) {
+    EXPECT_ABS_WRITE32(offset, 0);
+    offset += sizeof(uint32_t);
+  }
+
+  EXPECT_ABS_WRITE32(base_ + SPI_DEVICE_FLASH_STATUS_REG_OFFSET, 0);
 
   EXPECT_ABS_WRITE32(
       base_ + SPI_DEVICE_CMD_INFO_0_REG_OFFSET,
@@ -141,26 +167,6 @@ TEST_F(InitTest, Init) {
                           kSpiDeviceOpcodeWriteDisable},
                          {SPI_DEVICE_CMD_INFO_WRDI_VALID_BIT, 1},
                      });
-
-  std::array<uint32_t, kSpiDeviceSfdpAreaNumBytes / sizeof(uint32_t)>
-      sfdp_buffer;
-  sfdp_buffer.fill(std::numeric_limits<uint32_t>::max());
-  std::memcpy(sfdp_buffer.data(), &kSpiDeviceSfdpTable,
-              sizeof(kSpiDeviceSfdpTable));
-  uint32_t offset =
-      base_ + SPI_DEVICE_BUFFER_REG_OFFSET + kSpiDeviceSfdpAreaOffset;
-  for (size_t i = 0; i < sfdp_buffer.size(); ++i) {
-    EXPECT_ABS_WRITE32(offset, sfdp_buffer[i]);
-    offset += sizeof(uint32_t);
-  }
-
-  offset = base_ + SPI_DEVICE_BUFFER_REG_OFFSET + kSpiDevicePayloadAreaOffset;
-  for (size_t i = 0; i < kSpiDevicePayloadAreaNumWords; ++i) {
-    EXPECT_ABS_WRITE32(offset, 0);
-    offset += sizeof(uint32_t);
-  }
-
-  EXPECT_ABS_WRITE32(base_ + SPI_DEVICE_FLASH_STATUS_REG_OFFSET, 0);
 
   spi_device_init();
 }

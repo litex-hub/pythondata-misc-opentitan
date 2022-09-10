@@ -66,7 +66,7 @@ Tools developed by the project should accept and ignore this key.
 All IP must follow the [lowRISC Verilog Coding Style Guide](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md).
 This style guide sets the definition of agreed-upon SystemVerilog style, requirements and preferences.
 See that document for details.
-It is the goal of lowRISC to create technical collateral to inform when an IP does not conform, as well as assist in the formating of Verilog to this style.
+It is the goal of lowRISC to create technical collateral to inform when an IP does not conform, as well as assist in the formatting of Verilog to this style.
 The methods and details for this collateral have not been agreed upon yet.
 
 ### Documentation
@@ -323,7 +323,7 @@ The following standardised countermeasures are defined:
 | LOCAL_ESC      | A local escalation event is triggered when an attack is detected |
 | GLOBAL_ESC     | A global escalation event is triggered when an attack is detected |
 | UNPREDICTABLE  | Behaviour is unpredictable to frustrate repeatable FI attacks |
-| TERMINAL       | The asset goes into a terminal statet that no longer responds to any stimulus |
+| TERMINAL       | The asset goes into a terminal state that no longer responds to any stimulus |
 | COUNT          | The number of operations or items processed is counted which can be checked by software to ensure the correct number have occurred |
 | CM             | Catch-all for countermeasures that cannot be further specified. This is a very broad category: avoid if possible and give an instance or net name if not. |
 
@@ -629,7 +629,7 @@ Every alert of a peripheral has one field bit inside the `ALERT_TEST` register, 
 Internal events are sent active-high to a piece of IP within the peripheral called the `prim_alert_sender`.
 One `prim_alert_sender` must be instantiated per distinct alert event, and the `IsFatal` parameter of the alert sender must be set to 1 for fatal alerts (this causes the alert sender to latch the alert until the next system reset).
 
-It is up to the peripheral owner to determine what are distinct alert events;
+It is up to the peripheral maintainer to determine what are distinct alert events;
 multiple ones can be bundled depending upon the distinction required within the module (i.e.  high priority threat vs. low level threat).
 As a general guideline, it is recommended that each peripheral bundles alert sources into one or two distinct alerts, for example one fatal and one recoverable alert.
 This helps to keep the total number of alerts (and their physical impact) low at the system level.
@@ -654,7 +654,7 @@ Inter-module signal aims to handle the connection by the tool [topgen]({{<relref
 
 ### Defining the inter-module signal
 
-The example configuaration file above specifies two cases of inter-module signals, `msg_fifo` and `suspend`.
+The example configuration file above specifies two cases of inter-module signals, `msg_fifo` and `suspend`.
 
 | Attribute | Mand/Opt  | Description |
 | --------- | --------- | ----------- |

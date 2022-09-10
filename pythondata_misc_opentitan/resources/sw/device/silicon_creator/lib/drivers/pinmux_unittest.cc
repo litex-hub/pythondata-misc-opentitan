@@ -8,7 +8,7 @@
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/base/mock_abs_mmio.h"
 #include "sw/device/silicon_creator/lib/drivers/mock_otp.h"
-#include "sw/device/silicon_creator/testing/mask_rom_test.h"
+#include "sw/device/silicon_creator/testing/rom_test.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 #include "otp_ctrl_regs.h"
@@ -18,11 +18,11 @@ namespace pinmux_unittest {
 namespace {
 using ::testing::Return;
 
-class PinmuxTest : public mask_rom_test::MaskRomTest {
+class PinmuxTest : public rom_test::RomTest {
  protected:
   uint32_t base_ = TOP_EARLGREY_PINMUX_AON_BASE_ADDR;
-  mask_rom_test::MockAbsMmio mmio_;
-  mask_rom_test::MockOtp otp_;
+  rom_test::MockAbsMmio mmio_;
+  rom_test::MockOtp otp_;
 };
 
 class InitTest : public PinmuxTest {
@@ -71,7 +71,7 @@ class InitTest : public PinmuxTest {
 
 TEST_F(InitTest, WithBootstrap) {
   // The inputs that will be configured.
-  EXPECT_CALL(otp_, read32(OTP_CTRL_PARAM_ROM_BOOTSTRAP_EN_OFFSET))
+  EXPECT_CALL(otp_, read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_BOOTSTRAP_EN_OFFSET))
       .WillOnce(Return(kHardenedBoolTrue));
   EXPECT_ABS_WRITE32(RegInSel(kTopEarlgreyPinmuxPeripheralInGpioGpio22),
                      kTopEarlgreyPinmuxInselIoc0)
@@ -97,7 +97,7 @@ TEST_F(InitTest, WithBootstrap) {
 
 TEST_F(InitTest, WithoutBootstrap) {
   // The inputs that will be configured.
-  EXPECT_CALL(otp_, read32(OTP_CTRL_PARAM_ROM_BOOTSTRAP_EN_OFFSET))
+  EXPECT_CALL(otp_, read32(OTP_CTRL_PARAM_OWNER_SW_CFG_ROM_BOOTSTRAP_EN_OFFSET))
       .WillOnce(Return(kHardenedBoolFalse));
   EXPECT_ABS_WRITE32(RegInSel(kTopEarlgreyPinmuxPeripheralInUart0Rx),
                      kTopEarlgreyPinmuxInselIoc3);

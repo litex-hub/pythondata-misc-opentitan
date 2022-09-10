@@ -53,18 +53,10 @@ package spi_device_env_pkg;
     PassthroughMode
   } device_mode_e;
 
-  typedef enum bit [1:0] {
-    AddrDisabled,
-    AddrCfg,
-    Addr3B,
-    Addr4B
-  } addr_mode_e;
-
   typedef enum bit {
     PayloadIn,
     PayloadOut
   } payload_dir_e;
-
 
   typedef enum int {
     ReadAddrWithinMailbox,
@@ -75,9 +67,9 @@ package spi_device_env_pkg;
   } read_addr_size_type_e;
 
   typedef struct packed {
-    bit busy;
-    bit WEL;
     bit [21:0] other_status;
+    bit wel;
+    bit busy;
   } flash_status_t;
 
   // alerts
@@ -91,10 +83,11 @@ package spi_device_env_pkg;
   parameter uint SRAM_PTR_PHASE_BIT              = SRAM_MSB + 1;
   parameter uint SRAM_WORD_SIZE                  = 4;
   parameter uint ASYNC_FIFO_SIZE                 = 8;
-  parameter uint READ_CMD_START_ADDR             = SRAM_OFFSET;
-  parameter uint READ_CMD_BUFFER_SIZE            = 2048;
+  parameter uint READ_BUFFER_START_ADDR          = SRAM_OFFSET;
+  parameter uint READ_BUFFER_SIZE                = 2048;
+  parameter uint READ_BUFFER_HALF_SIZE           = READ_BUFFER_SIZE / 2;
   // MAILBOX_START_ADDR is 0x800
-  parameter uint MAILBOX_START_ADDR              = READ_CMD_START_ADDR + READ_CMD_BUFFER_SIZE;
+  parameter uint MAILBOX_START_ADDR              = READ_BUFFER_START_ADDR + READ_BUFFER_SIZE;
   parameter uint MAILBOX_BUFFER_SIZE             = 1024;
   // SFDP_START_ADDR is 0xc00
   parameter uint SFDP_START_ADDR                 = MAILBOX_START_ADDR + MAILBOX_BUFFER_SIZE;
@@ -114,6 +107,8 @@ package spi_device_env_pkg;
   parameter bit[11:0] TPM_HW_STS_OFFSET          = 12'h018;
   parameter bit[11:0] TPM_HW_INT_CAP_OFFSET      = 12'h014;
   parameter bit[23:0] TPM_BASE_ADDR              = 24'hD40000;
+
+  parameter uint     NUM_INTERNAL_PROCESSED_CMD  = 11; // exclude WREN, WRDI, EN4B, EX4B
   parameter bit[7:0] READ_JEDEC                  = 8'h9F;
   parameter bit[7:0] READ_SFDP                   = 8'h5A;
   parameter bit[7:0] READ_STATUS_1               = 8'h05;
@@ -125,6 +120,10 @@ package spi_device_env_pkg;
   parameter bit[7:0] READ_QUAD                   = 8'h6B;
   parameter bit[7:0] READ_DUALIO                 = 8'hBB;
   parameter bit[7:0] READ_QUADIO                 = 8'hEB;
+  parameter bit[7:0] WREN                        = 8'h06;
+  parameter bit[7:0] WRDI                        = 8'h04;
+  parameter bit[7:0] EN4B                        = 8'hB7;
+  parameter bit[7:0] EX4B                        = 8'hE9;
 
   parameter bit[7:0] READ_CMD_LIST[] = {READ_NORMAL, READ_FAST, READ_DUAL,
                                         READ_QUAD, READ_DUALIO, READ_QUADIO};
@@ -186,11 +185,6 @@ package spi_device_env_pkg;
     return TPM_BASE_ADDR | (locality << 12) | TPM_HW_STS_OFFSET;
   endfunction
 
-  // Get mailbox base addr, the first 10 bits are 0
-  function automatic bit[31:0] get_mbx_base_addr(spi_device_reg_block ral);
-    return `gmv(ral.mailbox_addr) >> 10 << 10;
-  endfunction
-
   // return the index the cmd_filter for the input opcode
   function automatic int get_cmd_filter_index(bit[7:0] opcode);
     return opcode / 32;
@@ -199,6 +193,16 @@ package spi_device_env_pkg;
   // return the field offset of the cmd_filter for the input opcode
   function automatic int get_cmd_filter_offset(bit[7:0] opcode);
     return opcode % 32;
+  endfunction
+
+  // return the field offset of the cmd_filter for the input opcode
+  function automatic bit[31:0] convert_addr_from_byte_queue(const ref bit[7:0] addr_byte_q[$]);
+    bit[31:0] addr;
+    foreach (addr_byte_q[i]) begin
+      if (i > 0) addr = addr << 8;
+      addr[7:0] = addr_byte_q[i];
+    end
+    return addr;
   endfunction
 
   // macros
@@ -210,6 +214,9 @@ package spi_device_env_pkg;
     get_allocated_sram_size_bytes(ral.rxf_addr.base.get_mirrored_value(), \
                                   ral.rxf_addr.limit.get_mirrored_value())
 
+  `define GET_OPCODE_VALID_AND_MATCH(CSR, OPCODE) \
+    (`gmv(ral.CSR.valid) == 1 && `gmv(ral.CSR.opcode) == OPCODE)
+
   // package sources
   `include "spi_device_env_cfg.sv"
   `include "spi_device_env_cov.sv"
@@ -220,4 +227,5 @@ package spi_device_env_pkg;
 
   `undef GET_TX_ALLOCATED_SRAM_SIZE_BYTES
   `undef GET_RX_ALLOCATED_SRAM_SIZE_BYTES
+  `undef GET_OPCODE_VALID_AND_MATCH
 endpackage

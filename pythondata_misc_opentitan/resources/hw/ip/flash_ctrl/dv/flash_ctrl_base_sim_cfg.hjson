@@ -30,7 +30,7 @@
                 "{proj_root}/hw/dv/tools/dvsim/tests/shadow_reg_errors_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/tl_access_tests.hjson",
                 "{proj_root}/hw/dv/tools/dvsim/tests/sec_cm_tests.hjson",
-                "{proj_root}/hw/dv/tools/dvsim/tests/stress_tests.hjson"],
+                "{proj_root}/hw/dv/tools/dvsim/tests/stress_all_test.hjson"],
 
   en_build_modes: ["{tool}_crypto_dpi_prince_build_opts"]
   // Flash references pwrmgr directly, need to reference the top version
@@ -45,14 +45,15 @@
     }
   ]
 
-  // Add additional tops for simulation.
-  sim_tops: ["flash_ctrl_bind","flash_ctrl_cov_bind", "sec_cm_prim_onehot_check_bind"]
-
-  // Flash Ctrl coverage exclusion.
-  // xcelium_cov_refine_files: ["{proj_root}/hw/ip/flash_ctrl/dv/cov/flash_ctrl_cov.vRefine"]
+// Add additional tops for simulation.
+  sim_tops: ["flash_ctrl_bind","flash_ctrl_cov_bind", "sec_cm_prim_onehot_check_bind",
+             "sec_cm_prim_count_bind", "sec_cm_prim_sparse_fsm_flop_bind"]
 
   // Default iterations for all tests - each test entry can override this.
   reseed: 50
+
+  // Add default run opt
+  run_opts: ["+flash_rand_delay_en=1"]
 
   // Default UVM test and seq class name.
   uvm_test: flash_ctrl_base_test
@@ -63,15 +64,17 @@
     {
       name: flash_ctrl_smoke
       uvm_test_seq: flash_ctrl_smoke_vseq
+      reseed: 5
     }
     {
       name: flash_ctrl_smoke_hw
       uvm_test_seq: flash_ctrl_smoke_hw_vseq
+      reseed: 5
     }
     {
       name: flash_ctrl_rand_ops
       uvm_test_seq: flash_ctrl_rand_ops_vseq
-      reseed: 5
+      reseed: 20
     }
     {
       name: flash_ctrl_sw_op
@@ -99,7 +102,7 @@
     {
       name: flash_ctrl_hw_sec_otp
       uvm_test_seq: flash_ctrl_hw_sec_otp_vseq
-      run_opts: ["+test_timeout_ns=300000000000"]
+      run_opts: ["+test_timeout_ns=300_000_000_000"]
       reseed: 5
     }
     {
@@ -111,30 +114,42 @@
     {
       name: flash_ctrl_hw_rma
       uvm_test_seq: flash_ctrl_hw_rma_vseq
-      run_opts: ["+test_timeout_ns=300000000000"]
+      run_opts: ["+flash_program_latency=5", "+test_timeout_ns=300_000_000_000"]
       reseed: 3
+    }
+    {
+      name: flash_ctrl_hw_rma_reset
+      uvm_test_seq: flash_ctrl_hw_rma_reset_vseq
+      run_opts: ["+flash_program_latency=5", "+test_timeout_ns=300_000_000_000"]
+      reseed: 20
+    }
+    {
+      name: flash_ctrl_otp_reset
+      uvm_test_seq: flash_ctrl_otp_reset_vseq
+      run_opts: ["+test_timeout_ns=300_000_000_000"]
+      reseed: 20
     }
     {
       name: flash_ctrl_host_ctrl_arb
       uvm_test_seq: flash_ctrl_host_ctrl_arb_vseq
-      run_opts: ["+zero_delays=1", "+test_timeout_ns=300000000000"]
+      run_opts: ["+zero_delays=1", "+test_timeout_ns=300_000_000_000"]
       reseed: 5
     }
     {
       name: flash_ctrl_mp_regions
       uvm_test_seq: flash_ctrl_mp_regions_vseq
-      run_opts: ["+multi_alert=1", "+test_timeout_ns=300000000000"]
-      reseed: 8
+      run_opts: ["+multi_alert=1", "+test_timeout_ns=300_000_000_000"]
+      reseed: 20
     }
     {
       name: flash_ctrl_fetch_code
       uvm_test_seq: flash_ctrl_fetch_code_vseq
-      reseed: 5
+      reseed: 10
     }
     {
       name: flash_ctrl_full_mem_access
       uvm_test_seq: flash_ctrl_full_mem_access_vseq
-      run_opts: ["+test_timeout_ns=300000000000"]
+      run_opts: ["+test_timeout_ns=300_000_000_000"]
       reseed: 5
     }
     {
@@ -150,13 +165,13 @@
     {
       name: flash_ctrl_error_mp
       uvm_test_seq: flash_ctrl_error_mp_vseq
-      run_opts: ["+test_timeout_ns=300000000000"]
+      run_opts: ["+test_timeout_ns=300_000_000_000"]
       reseed: 10
     }
     {
       name: flash_ctrl_invalid_op
       uvm_test_seq: flash_ctrl_invalid_op_vseq
-      reseed: 5
+      reseed: 20
     }
     {
       name: flash_ctrl_mid_op_rst
@@ -165,9 +180,9 @@
     }
     {
       name: flash_ctrl_wo
-      uvm_test_seq: flash_ctrl_wo_vseq
-      run_opts: ["+scb_otf_en=1"]
-      reseed: 5
+      uvm_test_seq: flash_ctrl_rw_vseq
+      run_opts: ["+scb_otf_en=1", "+otf_num_rw=100", "+otf_num_hr=0", "+otf_rd_pct=0"]
+      reseed: 20
     }
     {
       name: flash_ctrl_write_word_sweep
@@ -176,88 +191,22 @@
       reseed: 1
     }
     {
-      name: flash_ctrl_write_rand_word
-      uvm_test_seq: flash_ctrl_write_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1"]
-      reseed: 5
-    }
-    {
       name: flash_ctrl_read_word_sweep
       uvm_test_seq: flash_ctrl_read_word_sweep_vseq
       run_opts: ["+scb_otf_en=1"]
       reseed: 1
     }
     {
-      name: flash_ctrl_read_rand_word
-      uvm_test_seq: flash_ctrl_read_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1"]
-      reseed: 5
-    }
-    {
       name: flash_ctrl_ro
-      uvm_test_seq: flash_ctrl_ro_vseq
-      run_opts: ["+scb_otf_en=1"]
-      reseed: 10
+      uvm_test_seq: flash_ctrl_rw_vseq
+      run_opts: ["+scb_otf_en=1", "+otf_num_rw=100", "+otf_num_hr=1000", "+otf_wr_pct=0"]
+      reseed: 20
     }
     {
       name: flash_ctrl_rw
       uvm_test_seq: flash_ctrl_rw_vseq
       run_opts: ["+scb_otf_en=1"]
-      reseed: 10
-    }
-    {
-      name: flash_ctrl_rw_rand_word
-      uvm_test_seq: flash_ctrl_rw_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1"]
-      reseed: 10
-    }
-    {
-      name: flash_ctrl_wo_ecc
-      uvm_test_seq: flash_ctrl_wo_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 5
-    }
-    {
-      name: flash_ctrl_write_word_sweep_ecc
-      uvm_test_seq: flash_ctrl_write_word_sweep_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 1
-    }
-    {
-      name: flash_ctrl_write_rand_word_ecc
-      uvm_test_seq: flash_ctrl_write_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 5
-    }
-    {
-      name: flash_ctrl_read_word_sweep_ecc
-      uvm_test_seq: flash_ctrl_read_word_sweep_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 1
-    }
-    {
-      name: flash_ctrl_read_rand_word_ecc
-      uvm_test_seq: flash_ctrl_read_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 5
-    }
-    {
-      name: flash_ctrl_ro_ecc
-      uvm_test_seq: flash_ctrl_ro_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 10
-    }
-    {
-      name: flash_ctrl_rw_ecc
-      uvm_test_seq: flash_ctrl_rw_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 10
-    }
-    {
-      name: flash_ctrl_rw_rand_word_ecc
-      uvm_test_seq: flash_ctrl_rw_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
-      reseed: 10
+      reseed: 20
     }
     {
       name: flash_ctrl_read_word_sweep_serr
@@ -266,15 +215,10 @@
       reseed: 5
     }
     {
-      name: flash_ctrl_read_rand_word_serr
-      uvm_test_seq: flash_ctrl_read_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=3"]
-      reseed: 5
-    }
-    {
       name: flash_ctrl_ro_serr
-      uvm_test_seq: flash_ctrl_ro_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=3"]
+      uvm_test_seq: flash_ctrl_rw_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=3",
+                 "+otf_num_rw=100", "+otf_num_hr=1000", "+otf_wr_pct=0"]
       reseed: 10
     }
     {
@@ -284,24 +228,19 @@
       reseed: 10
     }
     {
-      name: flash_ctrl_rw_rand_word_serr
-      uvm_test_seq: flash_ctrl_rw_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=3"]
-      reseed: 10
-    }
-    {
       name: flash_ctrl_serr_counter
       uvm_test_seq: flash_ctrl_serr_counter_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=1"]
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=1",
+                 "+otf_num_rw=50", "+otf_num_hr=5"]
       reseed: 5
     }
     {
       name: flash_ctrl_serr_address
       uvm_test_seq: flash_ctrl_serr_address_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=1"]
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=1",
+                 "+otf_num_rw=5", "+otf_num_hr=0"]
       reseed: 5
     }
-
     {
       name: flash_ctrl_read_word_sweep_derr
       uvm_test_seq: flash_ctrl_read_word_sweep_vseq
@@ -310,16 +249,10 @@
       reseed: 5
     }
     {
-      name: flash_ctrl_read_rand_word_derr
-      uvm_test_seq: flash_ctrl_read_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=3", "+derr_pct=3",
-                 "+bypass_alert_ready_to_end_check=1"]
-      reseed: 5
-    }
-    {
       name: flash_ctrl_ro_derr
-      uvm_test_seq: flash_ctrl_ro_vseq
+      uvm_test_seq: flash_ctrl_rw_vseq
       run_opts: ["+scb_otf_en=1", "+ecc_mode=3", "+derr_pct=3",
+                 "+otf_num_rw=100", "+otf_num_hr=1000", "+otf_wr_pct=0",
                  "+bypass_alert_ready_to_end_check=1"]
       reseed: 10
     }
@@ -331,23 +264,86 @@
       reseed: 10
     }
     {
-      name: flash_ctrl_rw_rand_word_derr
-      uvm_test_seq: flash_ctrl_rw_rnd_wd_vseq
-      run_opts: ["+scb_otf_en=1", "+ecc_mode=3", "+derr_pct=3",
-                 "+bypass_alert_ready_to_end_check=1"]
-      reseed: 10
-    }
-    {
       name: flash_ctrl_derr_detect
       uvm_test_seq: flash_ctrl_derr_detect_vseq
       run_opts: ["+scb_otf_en=1", "+ecc_mode=3", "+derr_pct=1", "+rerun=5"]
       reseed: 5
     }
     {
+      name: flash_ctrl_oversize_error
+      uvm_test_seq: flash_ctrl_oversize_error_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+serr_pct=0",
+                 "+otf_num_hr=1000", "+otf_num_rw=100",
+		 "+otf_wr_pct=4", "+otf_rd_pct=4"]
+      reseed: 5
+    }
+    {
       name: flash_ctrl_integrity
-      uvm_test_seq: flash_ctrl_rw_rnd_wd_vseq
+      uvm_test_seq: flash_ctrl_rw_vseq
       run_opts: ["+scb_otf_en=1", "+ecc_mode=4", "+ierr_pct=3",
                  "+bypass_alert_ready_to_end_check=1"]
+      reseed: 5
+    }
+    {
+      name: flash_ctrl_intr_rd
+      uvm_test_seq: flash_ctrl_intr_rd_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=1", "+en_always_read=1"]
+      reseed: 40
+    }
+    {
+      name: flash_ctrl_intr_wr
+      uvm_test_seq: flash_ctrl_intr_wr_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=1", "+test_timeout_ns=500_000_000"]
+      reseed: 10
+    }
+    {
+      name: flash_ctrl_intr_rd_slow_flash
+      uvm_test_seq: flash_ctrl_intr_rd_vseq
+      run_opts: ["+scb_otf_en=1", "+flash_read_latency=50", "+flash_program_latency=500"]
+      reseed: 40
+    }
+    {
+      name: flash_ctrl_intr_wr_slow_flash
+      uvm_test_seq: flash_ctrl_intr_wr_vseq
+      run_opts: ["+scb_otf_en=1", "+flash_read_latency=50", "+flash_program_latency=500", "+test_timeout_ns=500_000_000"]
+      reseed: 10
+    }
+    {
+      name: flash_ctrl_prog_reset
+      uvm_test_seq: flash_ctrl_prog_reset_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=1"]
+      reseed: 30
+    }
+    {
+      name: flash_ctrl_rw_evict
+      uvm_test_seq: flash_ctrl_rw_evict_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=1", "+en_always_read=1"]
+      reseed: 40
+    }
+    {
+      name: flash_ctrl_re_evict
+      uvm_test_seq: flash_ctrl_re_evict_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=1", "+en_always_read=1"]
+      reseed: 20
+    }
+    {
+      name: flash_ctrl_disable
+      uvm_test_seq: flash_ctrl_disable_vseq
+      run_opts: ["+scb_otf_en=1", "+ecc_mode=2", "+en_always_all=1",
+                 "+bypass_alert_ready_to_end_check=1"]
+      reseed: 1
+    }
+    {
+      name: flash_ctrl_sec_cm
+      run_timeout_mins: 120
+    }
+    {
+      name: flash_ctrl_stress_all
+      reseed: 5
+    }
+    {
+      name: flash_ctrl_connect
+      uvm_test_seq: flash_ctrl_connect_vseq
       reseed: 5
     }
   ]
@@ -364,6 +360,12 @@
       tests: ["flash_ctrl_smoke",
               "flash_ctrl_smoke_hw"
               ]
+    }
+    {
+      name: flash_err
+      tests: ["flash_ctrl_error_mp", "flash_ctrl_error_prog_win",
+              "flash_ctrl_error_prog_type"
+             ]
     }
   ]
 }

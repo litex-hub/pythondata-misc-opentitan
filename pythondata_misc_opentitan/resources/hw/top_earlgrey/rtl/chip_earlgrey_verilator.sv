@@ -243,11 +243,7 @@ module chip_earlgrey_verilator (
   logic unused_pwr_clamp;
   assign unused_pwr_clamp = base_ast_pwr.pwr_clamp;
 
-  ast_pkg::ast_dif_t flash_alert;
-  ast_pkg::ast_dif_t otp_alert;
-  logic ast_init_done;
-
-
+  prim_mubi_pkg::mubi4_t ast_init_done;
   ast #(
     .EntropyStreams(ast_pkg::EntropyStreams),
     .AdcChannels(ast_pkg::AdcChannels),
@@ -285,14 +281,14 @@ module chip_earlgrey_verilator (
     .tl_i                  ( base_ast_bus ),
     .tl_o                  ( ast_base_bus ),
     // init done indication
-    .ast_init_done_o       ( ast_init_done ),
+    .ast_init_done_o       ( ast_init_done),
     // buffered clocks & resets
     .clk_ast_tlul_i (clkmgr_aon_clocks.clk_io_div4_secure),
     .clk_ast_adc_i (clkmgr_aon_clocks.clk_aon_secure),
     .clk_ast_alert_i (clkmgr_aon_clocks.clk_io_div4_secure),
     .clk_ast_es_i (clkmgr_aon_clocks.clk_main_secure),
     .clk_ast_rng_i (clkmgr_aon_clocks.clk_main_secure),
-    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_secure),
+    .clk_ast_usb_i (clkmgr_aon_clocks.clk_usb_peri),
     .rst_ast_tlul_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_adc_ni (rstmgr_aon_resets.rst_sys_aon_n[rstmgr_pkg::Domain0Sel]),
     .rst_ast_alert_ni (rstmgr_aon_resets.rst_lc_io_div4_n[rstmgr_pkg::Domain0Sel]),
@@ -351,8 +347,6 @@ module chip_earlgrey_verilator (
     .entropy_rsp_i         ( ast_edn_edn_rsp ),
     .entropy_req_o         ( ast_edn_edn_req ),
     // alerts
-    .fla_alert_src_i       ( flash_alert    ),
-    .otp_alert_src_i       ( otp_alert      ),
     .alert_rsp_i           ( ast_alert_rsp  ),
     .alert_req_o           ( ast_alert_req  ),
     // dft
@@ -445,11 +439,9 @@ module chip_earlgrey_verilator (
     .ast_edn_rsp_o                ( ast_edn_edn_rsp  ),
     .otp_ctrl_otp_ast_pwr_seq_o   ( otp_ctrl_otp_ast_pwr_seq   ),
     .otp_ctrl_otp_ast_pwr_seq_h_i ( otp_ctrl_otp_ast_pwr_seq_h ),
-    .otp_alert_o                  ( otp_alert                  ),
     .flash_bist_enable_i          ( flash_bist_enable          ),
     .flash_power_down_h_i         ( flash_power_down_h         ),
     .flash_power_ready_h_i        ( flash_power_ready_h        ),
-    .flash_alert_o                ( flash_alert                ),
     .es_rng_req_o                 ( es_rng_req                 ),
     .es_rng_rsp_i                 ( es_rng_rsp                 ),
     .es_rng_fips_o                ( es_rng_fips                ),

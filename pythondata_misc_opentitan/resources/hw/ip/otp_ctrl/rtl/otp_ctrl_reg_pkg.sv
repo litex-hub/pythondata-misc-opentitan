@@ -58,31 +58,37 @@ package otp_ctrl_reg_pkg;
   parameter int CreatorSwCfgDigestSize = 8;
   parameter int OwnerSwCfgOffset = 864;
   parameter int OwnerSwCfgSize = 800;
-  parameter int RomErrorReportingOffset = 864;
-  parameter int RomErrorReportingSize = 4;
-  parameter int RomBootstrapEnOffset = 868;
-  parameter int RomBootstrapEnSize = 4;
-  parameter int RomFaultResponseOffset = 872;
-  parameter int RomFaultResponseSize = 4;
-  parameter int RomAlertClassEnOffset = 876;
-  parameter int RomAlertClassEnSize = 4;
-  parameter int RomAlertEscalationOffset = 880;
-  parameter int RomAlertEscalationSize = 4;
-  parameter int RomAlertClassificationOffset = 884;
-  parameter int RomAlertClassificationSize = 320;
-  parameter int RomLocalAlertClassificationOffset = 1204;
-  parameter int RomLocalAlertClassificationSize = 64;
-  parameter int RomAlertAccumThreshOffset = 1268;
-  parameter int RomAlertAccumThreshSize = 16;
-  parameter int RomAlertTimeoutCyclesOffset = 1284;
-  parameter int RomAlertTimeoutCyclesSize = 16;
-  parameter int RomAlertPhaseCyclesOffset = 1300;
-  parameter int RomAlertPhaseCyclesSize = 64;
-  parameter int RomWatchdogBiteThresholdCyclesOffset = 1364;
-  parameter int RomWatchdogBiteThresholdCyclesSize = 4;
-  parameter int RomKeymgrRomExtMeasEnOffset = 1368;
-  parameter int RomKeymgrRomExtMeasEnSize = 4;
-  parameter int OwnerSwCfgManufStateOffset = 1372;
+  parameter int OwnerSwCfgRomErrorReportingOffset = 864;
+  parameter int OwnerSwCfgRomErrorReportingSize = 4;
+  parameter int OwnerSwCfgRomBootstrapEnOffset = 868;
+  parameter int OwnerSwCfgRomBootstrapEnSize = 4;
+  parameter int OwnerSwCfgRomAlertClassEnOffset = 872;
+  parameter int OwnerSwCfgRomAlertClassEnSize = 4;
+  parameter int OwnerSwCfgRomAlertEscalationOffset = 876;
+  parameter int OwnerSwCfgRomAlertEscalationSize = 4;
+  parameter int OwnerSwCfgRomAlertClassificationOffset = 880;
+  parameter int OwnerSwCfgRomAlertClassificationSize = 320;
+  parameter int OwnerSwCfgRomLocalAlertClassificationOffset = 1200;
+  parameter int OwnerSwCfgRomLocalAlertClassificationSize = 64;
+  parameter int OwnerSwCfgRomAlertAccumThreshOffset = 1264;
+  parameter int OwnerSwCfgRomAlertAccumThreshSize = 16;
+  parameter int OwnerSwCfgRomAlertTimeoutCyclesOffset = 1280;
+  parameter int OwnerSwCfgRomAlertTimeoutCyclesSize = 16;
+  parameter int OwnerSwCfgRomAlertPhaseCyclesOffset = 1296;
+  parameter int OwnerSwCfgRomAlertPhaseCyclesSize = 64;
+  parameter int OwnerSwCfgRomAlertDigestProdOffset = 1360;
+  parameter int OwnerSwCfgRomAlertDigestProdSize = 4;
+  parameter int OwnerSwCfgRomAlertDigestProdEndOffset = 1364;
+  parameter int OwnerSwCfgRomAlertDigestProdEndSize = 4;
+  parameter int OwnerSwCfgRomAlertDigestDevOffset = 1368;
+  parameter int OwnerSwCfgRomAlertDigestDevSize = 4;
+  parameter int OwnerSwCfgRomAlertDigestRmaOffset = 1372;
+  parameter int OwnerSwCfgRomAlertDigestRmaSize = 4;
+  parameter int OwnerSwCfgRomWatchdogBiteThresholdCyclesOffset = 1376;
+  parameter int OwnerSwCfgRomWatchdogBiteThresholdCyclesSize = 4;
+  parameter int OwnerSwCfgRomKeymgrRomExtMeasEnOffset = 1380;
+  parameter int OwnerSwCfgRomKeymgrRomExtMeasEnSize = 4;
+  parameter int OwnerSwCfgManufStateOffset = 1384;
   parameter int OwnerSwCfgManufStateSize = 4;
   parameter int OwnerSwCfgDigestOffset = 1656;
   parameter int OwnerSwCfgDigestSize = 8;
@@ -136,7 +142,7 @@ package otp_ctrl_reg_pkg;
   parameter int LcTransitionCntSize = 48;
   parameter int LcStateOffset = 2008;
   parameter int LcStateSize = 40;
-  parameter int NumAlerts = 3;
+  parameter int NumAlerts = 5;
 
   // Address widths within the block
   parameter int CoreAw = 13;
@@ -188,6 +194,14 @@ package otp_ctrl_reg_pkg;
       logic        q;
       logic        qe;
     } fatal_bus_integ_error;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } fatal_prim_otp_alert;
+    struct packed {
+      logic        q;
+      logic        qe;
+    } recov_prim_otp_alert;
   } otp_ctrl_reg2hw_alert_test_reg_t;
 
   typedef struct packed {
@@ -355,10 +369,10 @@ package otp_ctrl_reg_pkg;
 
   // Register -> HW type for core interface
   typedef struct packed {
-    otp_ctrl_reg2hw_intr_state_reg_t intr_state; // [197:196]
-    otp_ctrl_reg2hw_intr_enable_reg_t intr_enable; // [195:194]
-    otp_ctrl_reg2hw_intr_test_reg_t intr_test; // [193:190]
-    otp_ctrl_reg2hw_alert_test_reg_t alert_test; // [189:184]
+    otp_ctrl_reg2hw_intr_state_reg_t intr_state; // [201:200]
+    otp_ctrl_reg2hw_intr_enable_reg_t intr_enable; // [199:198]
+    otp_ctrl_reg2hw_intr_test_reg_t intr_test; // [197:194]
+    otp_ctrl_reg2hw_alert_test_reg_t alert_test; // [193:184]
     otp_ctrl_reg2hw_direct_access_cmd_reg_t direct_access_cmd; // [183:178]
     otp_ctrl_reg2hw_direct_access_address_reg_t direct_access_address; // [177:167]
     otp_ctrl_reg2hw_direct_access_wdata_mreg_t [1:0] direct_access_wdata; // [166:103]
@@ -429,10 +443,12 @@ package otp_ctrl_reg_pkg;
   parameter logic [1:0] OTP_CTRL_INTR_TEST_RESVAL = 2'h 0;
   parameter logic [0:0] OTP_CTRL_INTR_TEST_OTP_OPERATION_DONE_RESVAL = 1'h 0;
   parameter logic [0:0] OTP_CTRL_INTR_TEST_OTP_ERROR_RESVAL = 1'h 0;
-  parameter logic [2:0] OTP_CTRL_ALERT_TEST_RESVAL = 3'h 0;
+  parameter logic [4:0] OTP_CTRL_ALERT_TEST_RESVAL = 5'h 0;
   parameter logic [0:0] OTP_CTRL_ALERT_TEST_FATAL_MACRO_ERROR_RESVAL = 1'h 0;
   parameter logic [0:0] OTP_CTRL_ALERT_TEST_FATAL_CHECK_ERROR_RESVAL = 1'h 0;
   parameter logic [0:0] OTP_CTRL_ALERT_TEST_FATAL_BUS_INTEG_ERROR_RESVAL = 1'h 0;
+  parameter logic [0:0] OTP_CTRL_ALERT_TEST_FATAL_PRIM_OTP_ALERT_RESVAL = 1'h 0;
+  parameter logic [0:0] OTP_CTRL_ALERT_TEST_RECOV_PRIM_OTP_ALERT_RESVAL = 1'h 0;
   parameter logic [16:0] OTP_CTRL_STATUS_RESVAL = 17'h 0;
   parameter logic [0:0] OTP_CTRL_STATUS_VENDOR_TEST_ERROR_RESVAL = 1'h 0;
   parameter logic [0:0] OTP_CTRL_STATUS_CREATOR_SW_CFG_ERROR_RESVAL = 1'h 0;

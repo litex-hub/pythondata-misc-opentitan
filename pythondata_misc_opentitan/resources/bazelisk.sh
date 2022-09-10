@@ -31,20 +31,21 @@ declare -A architectures=(
 )
 
 function os_arch() {
-    local arch="$(uname -m -o)"
+    local arch
+    arch="$(uname -m -o)"
     echo "${architectures[$arch]:-${arch}}"
 }
 
 function check_hash() {
-    local file="$1"
-    local target="$(os_arch)"
-    local value="$(sha256sum "${file}" | cut -f1 -d' ')"
-    local expect="${hashes[$target]}"
-    return $(test "$value" == "$expect")
+    local file target
+    file="$1"
+    target="$(os_arch)"
+    echo "${hashes[$target]}  $file" | sha256sum --check --quiet
 }
 
 function prepare() {
-    local target="$(os_arch)"
+    local target
+    target="$(os_arch)"
     local bindir="${REPO_TOP}/${BINDIR}"
     local file="${bindir}/bazelisk"
     local url="https://github.com/bazelbuild/bazelisk/releases/download/${release}/bazelisk-${target}"
@@ -116,7 +117,9 @@ function main() {
             #   outquery.x: return output files ending with the substring ".x".
             QEXPR="$(outquery_starlark_expr "$1")"
             shift
-            exec "$file" cquery "$@" --output=starlark --starlark:expr="$QEXPR"
+            exec "$file" cquery "$@" \
+                --output=starlark --starlark:expr="$QEXPR" \
+                --ui_event_filters=-info --noshow_progress
             ;;
         *)
             exec "$file" "$@"

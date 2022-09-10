@@ -136,7 +136,10 @@ struct ISSWrapper {
   void reset(bool gen_trace);
 
   // Send an error escalation
-  void send_err_escalation(uint32_t err_val);
+  void send_err_escalation(uint32_t err_val, bool lock_immediately);
+
+  // Send RMA request
+  void send_rma_req();
 
   const MirroredRegs &get_mirrored() const { return mirrored_; }
 

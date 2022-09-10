@@ -54,13 +54,13 @@ class spi_monitor extends dv_base_monitor#(
     fork
       begin: isolation_thread
         fork
-          begin: csb_deassert_thread
+          begin : csb_deassert_thread
             wait(cfg.vif.csb[cfg.csb_sel] == 1'b1);
           end
-          begin: sample_thread
+          begin : sample_thread
             // for mode 1 and 3, get the leading edges out of the way
             cfg.wait_sck_edge(LeadingEdge);
-            forever begin
+            forever begin : loop_forever
               bit [7:0] host_byte;    // from sio
               bit [7:0] device_byte;  // from sio
               int       which_bit_h;
@@ -74,21 +74,21 @@ class spi_monitor extends dv_base_monitor#(
               end
 
               case(cmd)
-              CmdOnly, ReadStd, WriteStd: begin
-                data_shift = 1;
-              end
-              ReadDual, WriteDual: begin
-                data_shift = 2;
-              end
-              ReadQuad, WriteQuad: begin
-                data_shift = 4;
-              end
-              default: begin
-                data_shift = 1;
-              end
+                CmdOnly, ReadStd, WriteStd: begin
+                  data_shift = 1;
+                end
+                ReadDual, WriteDual: begin
+                  data_shift = 2;
+                end
+                ReadQuad, WriteQuad: begin
+                  data_shift = 4;
+                end
+                default: begin
+                  data_shift = 1;
+                end
               endcase
 
-              for (int i = 0; i < num_samples; i = i + data_shift) begin
+              for (int i = 0; i < num_samples; i = i + data_shift) begin : loop_num_samples
                 // wait for the sampling edge
                 cfg.wait_sck_edge(SamplingEdge);
                 // check sio not x or z
@@ -99,51 +99,51 @@ class spi_monitor extends dv_base_monitor#(
 
                 which_bit_h = cfg.host_bit_dir ? i : 7 - i;
                 which_bit_d = cfg.device_bit_dir ? i : 7 - i;
-              case(cmd)
-              CmdOnly, ReadStd, WriteStd: begin
-                // sample sio[0] for tx
-                host_byte[which_bit_h] = cfg.vif.sio[0];
-                // sample sio[1] for rx
-                device_byte[which_bit_d] = cfg.vif.sio[1];
-              end // cmdonly,readstd,writestd
-              ReadDual, WriteDual: begin
-                // sample sio[0] sio[1] for tx bidir
-                host_byte[which_bit_h] = cfg.vif.sio[1];
-                host_byte[which_bit_h-1] = cfg.vif.sio[0];
-                // sample sio[0] sio[1] for rx bidir
-                device_byte[which_bit_d] = cfg.vif.sio[1];
-                device_byte[which_bit_d-1] = cfg.vif.sio[0];
-              end // ReadDual,WriteDual
-              ReadQuad, WriteQuad: begin
-                // sample sio[0] sio[1] sio[2] sio[3] for tx bidir
-                host_byte[which_bit_h] = cfg.vif.sio[3];
-                host_byte[which_bit_h-1] = cfg.vif.sio[2];
-                host_byte[which_bit_h-2] = cfg.vif.sio[1];
-                host_byte[which_bit_h-3] = cfg.vif.sio[0];
-                // sample sio[0] sio[1] sio[2] sio[3] for rx bidir
-                device_byte[which_bit_d] = cfg.vif.sio[3];
-                device_byte[which_bit_d-1] = cfg.vif.sio[2];
-                device_byte[which_bit_d-2] = cfg.vif.sio[1];
-                device_byte[which_bit_d-3] = cfg.vif.sio[0];
-              end // ReadQuad,WriteQuad
-              default: begin
-                // sample sio[0] for tx
-                host_byte[which_bit_h] = cfg.vif.sio[0];
-                // sample sio[1] for rx
-                device_byte[which_bit_d] = cfg.vif.sio[1];
-              end
-              endcase
+                case(cmd)
+                  CmdOnly, ReadStd, WriteStd: begin
+                    // sample sio[0] for tx
+                    host_byte[which_bit_h] = cfg.vif.sio[0];
+                    // sample sio[1] for rx
+                    device_byte[which_bit_d] = cfg.vif.sio[1];
+                  end // cmdonly,readstd,writestd
+                  ReadDual, WriteDual: begin
+                    // sample sio[0] sio[1] for tx bidir
+                    host_byte[which_bit_h] = cfg.vif.sio[1];
+                    host_byte[which_bit_h-1] = cfg.vif.sio[0];
+                    // sample sio[0] sio[1] for rx bidir
+                    device_byte[which_bit_d] = cfg.vif.sio[1];
+                    device_byte[which_bit_d-1] = cfg.vif.sio[0];
+                  end // ReadDual,WriteDual
+                  ReadQuad, WriteQuad: begin
+                    // sample sio[0] sio[1] sio[2] sio[3] for tx bidir
+                    host_byte[which_bit_h] = cfg.vif.sio[3];
+                    host_byte[which_bit_h-1] = cfg.vif.sio[2];
+                    host_byte[which_bit_h-2] = cfg.vif.sio[1];
+                    host_byte[which_bit_h-3] = cfg.vif.sio[0];
+                    // sample sio[0] sio[1] sio[2] sio[3] for rx bidir
+                    device_byte[which_bit_d] = cfg.vif.sio[3];
+                    device_byte[which_bit_d-1] = cfg.vif.sio[2];
+                    device_byte[which_bit_d-2] = cfg.vif.sio[1];
+                    device_byte[which_bit_d-3] = cfg.vif.sio[0];
+                  end // ReadQuad,WriteQuad
+                  default: begin
+                    // sample sio[0] for tx
+                    host_byte[which_bit_h] = cfg.vif.sio[0];
+                    // sample sio[1] for rx
+                    device_byte[which_bit_d] = cfg.vif.sio[1];
+                  end
+                endcase
 
                 cfg.vif.host_bit  = which_bit_h;
                 cfg.vif.host_byte = host_byte;
-               // sending 7 bits will be padded with 0 for the last bit
+                // sending 7 bits will be padded with 0 for the last bit
                 if (i == 6 && num_samples == 7) begin
                   which_bit_d = cfg.device_bit_dir ? 7 : 0;
                   device_byte[which_bit_d] = 0;
                 end
                 cfg.vif.device_bit = which_bit_d;
                 cfg.vif.device_byte = device_byte;
-              end
+              end : loop_num_samples
 
               // sending less than 7 bits will not be captured, byte to be re-sent
               if (num_samples >= 7) begin
@@ -153,15 +153,15 @@ class spi_monitor extends dv_base_monitor#(
               // sending transactions when collect a word data
               if (host_item.data.size == cfg.num_bytes_per_trans_in_mon &&
                   device_item.data.size == cfg.num_bytes_per_trans_in_mon) begin
-              if (host_item.first_byte == 1 && cfg.decode_commands == 1)  begin
-                cmdtmp = spi_cmd_e'(host_byte);
-                `uvm_info(`gfn, $sformatf("spi_monitor: cmdtmp \n%0h", cmdtmp), UVM_DEBUG)
-                 end
-                 cmd_byte++;
-              if (cmd_byte == cfg.num_bytes_per_trans_in_mon)begin
-                 cmd = cmdtmp;
-                `uvm_info(`gfn, $sformatf("spi_monitor: cmd \n%0h", cmd), UVM_DEBUG)
-                 end
+                if (host_item.first_byte == 1 && cfg.decode_commands == 1)  begin
+                  cmdtmp = spi_cmd_e'(host_byte);
+                  `uvm_info(`gfn, $sformatf("spi_monitor: cmdtmp \n%0h", cmdtmp), UVM_DEBUG)
+                end
+                cmd_byte++;
+                if (cmd_byte == cfg.num_bytes_per_trans_in_mon)begin
+                  cmd = cmdtmp;
+                  `uvm_info(`gfn, $sformatf("spi_monitor: cmd \n%0h", cmd), UVM_DEBUG)
+                end
                 `uvm_info(`gfn, $sformatf("spi_monitor: host packet:\n%0s", host_item.sprint()),
                           UVM_DEBUG)
                 `uvm_info(`gfn, $sformatf("spi_monitor: device packet:\n%0s", device_item.sprint()),
@@ -177,8 +177,8 @@ class spi_monitor extends dv_base_monitor#(
                 host_item   = spi_item::type_id::create("host_item", this);
                 device_item = spi_item::type_id::create("device_item", this);
               end
-            end // forever
-          end: sample_thread
+            end : loop_forever
+          end : sample_thread
         join_any
         disable fork;
       end
@@ -195,21 +195,22 @@ class spi_monitor extends dv_base_monitor#(
             wait(cfg.vif.csb[cfg.csb_sel] == 1'b1);
           end
           begin: sample_thread
-            int addr_bytes;
+            int num_addr_bytes;
             opcode_received = 0;
             item.item_type = SpiFlashTrans;
             // for mode 1 and 3, get the leading edges out of the way
             cfg.wait_sck_edge(LeadingEdge);
 
             // first byte is opcode. opcode or address is always sent on single mode
-            sample_flash_one_byte_data(.num_lanes(1), .is_device_rsp(0), .data(item.opcode));
+            sample_and_check_flash_byte(.num_lanes(1), .is_device_rsp(0),
+                              .data(item.opcode), .check_data_not_z(1));
             opcode_received = 1;
             cfg.extract_cmd_info_from_opcode(item.opcode,
                 // output
-                addr_bytes, item.write_command, item.num_lanes, item.dummy_cycles);
+                num_addr_bytes, item.write_command, item.num_lanes, item.dummy_cycles);
             `uvm_info(`gfn, $sformatf("sampled flash opcode: 0x%0h", item.opcode), UVM_MEDIUM)
 
-            sample_flash_address(addr_bytes, item.address_q);
+            sample_flash_address(num_addr_bytes, item.address_q);
 
             repeat (item.dummy_cycles) begin
               cfg.wait_sck_edge(SamplingEdge);
@@ -217,10 +218,8 @@ class spi_monitor extends dv_base_monitor#(
             req_analysis_port.write(item);
 
             forever begin
-              byte byte_data;
-              sample_flash_one_byte_data(.num_lanes(item.num_lanes),
-                                         .is_device_rsp(!item.write_command),
-                                         .data(byte_data));
+              logic[7:0] byte_data;
+              sample_and_check_flash_byte(item.num_lanes, !item.write_command, byte_data);
               item.payload_q.push_back(byte_data);
             end
           end: sample_thread
@@ -229,44 +228,38 @@ class spi_monitor extends dv_base_monitor#(
 
         // only send out the item when opcode is fully received, otherwise,
         // it's consider dropped
-        if (opcode_received) host_analysis_port.write(item);
+        if (opcode_received) begin
+          host_analysis_port.write(item);
+          item.mon_item_complete = 1;
+        end
       end
     join
   endtask : collect_flash_trans
-
-  virtual task sample_flash_one_byte_data(input int num_lanes, input bit is_device_rsp,
-                                          output bit[7:0] data);
-    int which_bit = 8;
-    for (int i = 0; i < 8; i += num_lanes) begin
-      cfg.wait_sck_edge(SamplingEdge);
-      case(num_lanes)
-        1: data[--which_bit] = is_device_rsp ? cfg.vif.sio[1] : cfg.vif.sio[0];
-        2: begin
-          data[--which_bit] = cfg.vif.sio[1];
-          data[--which_bit] = cfg.vif.sio[0];
-        end
-        4: begin
-          data[--which_bit] = cfg.vif.sio[3];
-          data[--which_bit] = cfg.vif.sio[2];
-          data[--which_bit] = cfg.vif.sio[1];
-          data[--which_bit] = cfg.vif.sio[0];
-        end
-        default: `uvm_fatal(`gfn, $sformatf("Unsupported lanes num 0x%0h", num_lanes))
-      endcase
-    end
-    `DV_CHECK_EQ(which_bit, 0)
-    `uvm_info(`gfn, $sformatf("sampled one byte data for flash: 0x%0h", data), UVM_HIGH)
-  endtask : sample_flash_one_byte_data
 
   // address is 3 or 4 bytes
   virtual task sample_flash_address(input int num_bytes, output bit[7:0] byte_addr_q[$]);
     for (int i = 0; i < num_bytes; i++) begin
       byte addr;
-      sample_flash_one_byte_data(.num_lanes(1), .is_device_rsp(0), .data(addr));
+      sample_and_check_flash_byte(.num_lanes(1), .is_device_rsp(0),
+                        .data(addr), .check_data_not_z(1));
       byte_addr_q.push_back(addr);
     end
     `uvm_info(`gfn, $sformatf("sampled flash addr: %p", byte_addr_q), UVM_HIGH)
   endtask : sample_flash_address
+
+  task sample_and_check_flash_byte(input int num_lanes,
+                                   input bit is_device_rsp,
+                                   output logic [7:0] data,
+                                   input bit check_data_not_z = 0);
+    cfg.read_flash_byte(num_lanes, is_device_rsp, data);
+
+    if (cfg.en_monitor_checks) begin
+      foreach (data[i]) begin
+        `DV_CHECK_CASE_NE(data[i], 1'bx)
+        if (check_data_not_z) `DV_CHECK_CASE_NE(data[i], 1'bz)
+      end
+    end
+  endtask
 
   virtual task monitor_ready_to_end();
     ok_to_end = cfg.vif.csb[cfg.csb_sel];

@@ -55,7 +55,7 @@ module sha3pad
   // done_i is a pulse signal to make the pad logic to clear internal variables
   // and to move back to the Idle state for next hashing process.
   // done_i may not needed if sw controls the keccak_round directly.
-  input done_i,
+  input prim_mubi_pkg::mubi4_t done_i,
 
   // Indication of the Keccak Sponge Absorbing is complete, it is time for SW to
   // control the Keccak-round if it needs more digest, or complete by asserting
@@ -267,7 +267,7 @@ module sha3pad
       process_latched <= 1'b 0;
     end else if (process_i) begin
       process_latched <= 1'b 1;
-    end else if (done_i) begin
+    end else if (prim_mubi_pkg::mubi4_test_true_strict(done_i)) begin
       process_latched <= 1'b0;
     end
   end
@@ -384,8 +384,11 @@ module sha3pad
           keccak_run_o = 1'b 1;
           clr_sentmsg = 1'b 1;
           hold_msg = 1'b 1;
-        end else if (process_latched) begin
+        end else if (process_latched || process_i) begin
           st_d = StPad;
+
+          // Not asserting the msg_ready_o
+          hold_msg = 1'b 1;
         end else begin
           st_d = StMessage;
 
@@ -743,7 +746,9 @@ module sha3pad
   // Assume pulse signals: start, process, done
   `ASSUME(StartPulse_A, start_i |=> !start_i)
   `ASSUME(ProcessPulse_A, process_i |=> !process_i)
-  `ASSUME(DonePulse_A, done_i |=> !done_i)
+  `ASSUME(DonePulse_A,
+    prim_mubi_pkg::mubi4_test_true_strict(done_i) |=>
+      prim_mubi_pkg::mubi4_test_false_strict(done_i))
 
   // ASSERT output pulse signals: absorbed_o, keccak_run_o
   `ASSERT(AbsorbedPulse_A,
@@ -752,7 +757,12 @@ module sha3pad
   `ASSERT(KeccakRunPulse_A, keccak_run_o |=> !keccak_run_o)
 
   // start_i, done_i, process_i cannot set high at the same time
-  `ASSUME(StartProcessDoneMutex_a, $onehot0({start_i, process_i, done_i}))
+  `ASSUME(StartProcessDoneMutex_a,
+    $onehot0({
+      start_i,
+      process_i,
+      prim_mubi_pkg::mubi4_test_true_loose(done_i)
+    }))
 
   // Sequence, start_i --> process_i --> absorbed_o --> done_i
   //`ASSUME(Sequence_a, start_i ##[1:$] process_i ##[1:$] ##[1:$] absorbed_o ##[1:$] done_i)
@@ -769,7 +779,7 @@ module sha3pad
       start_valid <= 1'b 1;
     end else if (start_i) begin
       start_valid <= 1'b 0;
-    end else if (done_i) begin
+    end else if (prim_mubi_pkg::mubi4_test_true_strict(done_i)) begin
       start_valid <= 1'b 1;
     end
   end
@@ -788,7 +798,7 @@ module sha3pad
       done_valid <= 1'b 0;
     end else if (prim_mubi_pkg::mubi4_test_true_strict(absorbed_o)) begin
       done_valid <= 1'b 1;
-    end else if (done_i) begin
+    end else if (prim_mubi_pkg::mubi4_test_true_strict(done_i)) begin
       done_valid <= 1'b 0;
     end
   end
@@ -796,9 +806,13 @@ module sha3pad
   // Message can be fed in between start_i and process_i.
   `ASSUME(MessageCondition_M, msg_valid_i && msg_ready_o |-> process_valid && !process_i)
 
+  // Message ready should be asserted only in between start_i and process_i
+  `ASSERT(MsgReadyCondition_A, msg_ready_o |-> process_valid && !process_i)
+
   `ASSUME(ProcessCondition_M, process_i |-> process_valid)
   `ASSUME(StartCondition_M, start_i |-> start_valid)
-  `ASSUME(DoneCondition_M, done_i |-> done_valid)
+  `ASSUME(DoneCondition_M,
+    prim_mubi_pkg::mubi4_test_true_strict(done_i) |-> done_valid)
 
   // Assume mode_i and strength_i are stable during the operation
   // This will be guarded at the kmac top level

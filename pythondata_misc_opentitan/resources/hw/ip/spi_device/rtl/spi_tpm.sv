@@ -13,8 +13,9 @@ module spi_tpm
 
   // Max Write/Read buffer size to support is 64B in TPM spec.
   // But more than 4B is for future use. So, 4B is recommended.
-  parameter int unsigned WrFifoDepth   = 4,
-  parameter int unsigned RdFifoDepth   = 4,
+  parameter int unsigned WrFifoDepth = 4,
+  parameter int unsigned RdFifoDepth = 4,
+  parameter int unsigned RdFifoWidth = 32,
 
   // Locality determines the number of TPM_ACCESS registers.
   // Other HW managed registers are shared across the locality.
@@ -41,17 +42,32 @@ module spi_tpm
 
   localparam int unsigned ActiveLocalityBitPos = 5, // Access[5]
 
-  localparam int unsigned CmdAddrSize  = 32, // Cmd 8bit + Addr 24bit
-  localparam int unsigned FifoRegSize  = 12, // lower 12bit excluding locality
-  localparam int unsigned DataFifoSize = $bits(spi_byte_t),
+  localparam int unsigned NumBits        = $bits(spi_byte_t),
+  localparam int unsigned CmdAddrSize    = 32, // Cmd 8bit + Addr 24bit
+  localparam int unsigned FifoRegSize    = 12, // lower 12bit excluding locality
+
+  localparam int unsigned WrFifoWidth    = NumBits,
+
+  // Read FIFO byte_offset calculation
+  localparam int unsigned RdFifoNumBytes = RdFifoWidth / NumBits,
+  localparam int unsigned RdFifoOffsetW  = prim_util_pkg::vbits(RdFifoNumBytes),
+
+  // RdFifoBytesW is used to calculate the ReadFifo data in bytes.
+  // TPM FSM compares the value to the requested xfer_size.
+  localparam int unsigned RdFifoBytesW   = $clog2(RdFifoNumBytes),
+
+  // FIFO size
+  localparam int unsigned RdFifoSize = RdFifoDepth * RdFifoNumBytes,
+  localparam int unsigned WrFifoSize = WrFifoDepth * (WrFifoWidth / NumBits),
 
   // TPM_CAP related constants.
   //  - Revision: the number visible in TPM_CAP CSR. Need to update the
   //    revision when the SW interface is revised.
   localparam logic [7:0] CapTpmRevision = 8'h 00,
-  //  - Max Xfer Size: the supported xfer_size is visible to the SW via
+  //  - Max Write Size: the supported write FIFO size is visible to the SW via
   //    TPM_CAP CSR
-  localparam logic [2:0] CapMaxXferSize = 3'($clog2(WrFifoDepth))
+  localparam logic [2:0] CapMaxWrSize = 3'(unsigned'($clog2(WrFifoSize))),
+  localparam logic [2:0] CapMaxRdSize = 3'(unsigned'($clog2(RdFifoSize)))
 ) (
   input clk_in_i,
   input clk_out_i,
@@ -107,13 +123,13 @@ module spi_tpm
   output logic [CmdAddrSize-1:0] sys_cmdaddr_rdata_o,
   input                          sys_cmdaddr_rready_i,
 
-  output logic                    sys_wrfifo_rvalid_o,
-  output logic [DataFifoSize-1:0] sys_wrfifo_rdata_o,
-  input                           sys_wrfifo_rready_i,
+  output logic                   sys_wrfifo_rvalid_o,
+  output logic [WrFifoWidth-1:0] sys_wrfifo_rdata_o,
+  input                          sys_wrfifo_rready_i,
 
-  input                     sys_rdfifo_wvalid_i,
-  input  [DataFifoSize-1:0] sys_rdfifo_wdata_i,
-  output logic              sys_rdfifo_wready_o,
+  input                    sys_rdfifo_wvalid_i,
+  input  [RdFifoWidth-1:0] sys_rdfifo_wdata_i,
+  output logic             sys_rdfifo_wready_o,
 
   // TPM_STATUS
   output logic                  sys_cmdaddr_notempty_o,
@@ -124,9 +140,10 @@ module spi_tpm
 
   // Capability
   assign tpm_cap_o = '{
-    rev:           CapTpmRevision,
-    locality:      EnLocality,
-    max_xfer_size: CapMaxXferSize
+    rev:         CapTpmRevision,
+    locality:    EnLocality,
+    max_wr_size: CapMaxWrSize,
+    max_rd_size: CapMaxRdSize
   };
 
   localparam int unsigned TpmRegisterSize = (AccessRegSize * NumLocality)
@@ -359,16 +376,27 @@ module spi_tpm
   // (sys_cmdaddr_rdepth > 0)
   assign sys_cmdaddr_notempty_o = |sys_cmdaddr_rdepth;
 
-  logic                    sck_wrfifo_wvalid, sck_wrfifo_wready;
-  logic [DataFifoSize-1:0] sck_wrfifo_wdata;
-  logic [WrFifoPtrW-1:0]   sys_wrfifo_rdepth, sck_wrfifo_wdepth;
+  logic                   sck_wrfifo_wvalid, sck_wrfifo_wready;
+  logic [WrFifoWidth-1:0] sck_wrfifo_wdata;
+  logic [WrFifoPtrW-1:0]  sys_wrfifo_rdepth, sck_wrfifo_wdepth;
 
   assign sys_wrfifo_depth_o = sys_wrfifo_rdepth;
 
   // Read FIFO uses inverted SCK (clk_out_i)
-  logic                    isck_rdfifo_rvalid, isck_rdfifo_rready;
-  logic [DataFifoSize-1:0] isck_rdfifo_rdata;
-  logic [RdFifoPtrW-1:0]   sys_rdfifo_wdepth, isck_rdfifo_rdepth;
+  logic                     isck_rdfifo_rvalid, isck_rdfifo_rready;
+  logic [RdFifoWidth-1:0]   isck_rdfifo_rdata;
+  logic [RdFifoPtrW-1:0]    sys_rdfifo_wdepth, isck_rdfifo_rdepth;
+
+  logic [RdFifoOffsetW-1:0]     isck_rdfifo_idx;
+  logic                         isck_rd_byte_sent;
+
+  // If NumBytes != 1, then the logic selects a byte from isck_rdfifo_rdata
+  logic [NumBits-1:0] isck_sel_rdata;
+
+  // Assume the NumBytes is power of two
+  `ASSERT_INIT(RdFifoNumBytesPoT_A,
+    (2**RdFifoOffsetW == RdFifoNumBytes) || (RdFifoNumBytes == 1))
+  `ASSERT_INIT(RdFifoDepthPoT_A, 2**$clog2(RdFifoDepth) == RdFifoDepth)
 
   assign sys_rdfifo_depth_o    = sys_rdfifo_wdepth;
   assign sys_rdfifo_notempty_o = |sys_rdfifo_wdepth;
@@ -432,6 +460,9 @@ module spi_tpm
   logic [5:0] xfer_size;
   logic [5:0] xfer_bytes_q, xfer_bytes_d;
   logic       xfer_size_met;
+
+  // Indicating that the Read FIFO has enough data to send to the host.
+  logic       enough_payload_in_rdfifo;
 
   // Output MISO
   typedef enum logic [2:0] {
@@ -744,6 +775,11 @@ module spi_tpm
   assign xfer_bytes_d  = xfer_bytes_q + 6'h 1;
   assign xfer_size_met = xfer_bytes_q == xfer_size;
 
+  // xfer_size is 0 based. FIFO depth is 1 based. GTE -> Greater than
+  assign enough_payload_in_rdfifo =
+    (7'({isck_rdfifo_rdepth, RdFifoBytesW'(0)}) > {1'b 0, xfer_size})
+    | (7'(RdFifoSize) <= 7'(xfer_size));
+
   // Output data mux
   `ASSERT_KNOWN(DataSelKnown_A, isck_data_sel, clk_out_i, !rst_n)
   always_comb begin
@@ -767,7 +803,7 @@ module spi_tpm
       end
 
       SelRdFifo: begin
-        isck_p2s_data = isck_rdfifo_rdata;
+        isck_p2s_data = isck_sel_rdata;
       end
 
       default: begin
@@ -901,11 +937,37 @@ module spi_tpm
   assign isck_miso    = isck_p2s_data[isck_p2s_bitcnt];
   assign isck_miso_en = isck_p2s_valid;
 
-  // rvalid -> rready is OK not the opposit direction (rready -> rvalid)
-  assign isck_rdfifo_rready = isck_rdfifo_rvalid
-                            && isck_p2s_sent
-                            && (isck_data_sel == SelRdFifo);
 
+  // Read FIFO data selection and FIFO ready
+  // rvalid -> rready is OK not the opposit direction (rready -> rvalid)
+  assign isck_rd_byte_sent = isck_rdfifo_rvalid
+                             && isck_p2s_sent
+                             && (isck_data_sel == SelRdFifo);
+  if (RdFifoNumBytes == 1) begin : g_rdfifo_1_to_1
+    assign isck_rdfifo_rready = isck_rd_byte_sent;
+
+    assign isck_sel_rdata = isck_rdfifo_rdata;
+
+    logic  unused_rdfifo_idx;
+    assign unused_rdfifo_idx = isck_rdfifo_idx;
+    assign isck_rdfifo_idx = 1'b 0;
+  end else begin : g_rdfifo_n_to_1
+    // Select RdFIFO RDATA
+    assign isck_sel_rdata = isck_rdfifo_rdata[NumBits*isck_rdfifo_idx+:NumBits];
+
+    // Index Increase
+    always_ff @(posedge clk_out_i or negedge rst_n) begin
+      if (!rst_n) begin
+        isck_rdfifo_idx <= '0;
+      end else if (isck_rd_byte_sent) begin
+        isck_rdfifo_idx <= isck_rdfifo_idx + 1'b 1;
+      end
+    end
+
+    // Only when isck_rdfifo_idx reached end byte, pop the FIFO entry
+    assign isck_rdfifo_rready = isck_rd_byte_sent && (&isck_rdfifo_idx);
+
+  end
 
   ///////////////////
   // State Machine //
@@ -1025,7 +1087,7 @@ module spi_tpm
 
         // at every LSB of a byte, check the next state condition
         if (isck_p2s_sent &&
-          (((cmd_type == Read) && |isck_rdfifo_rdepth) ||
+          (((cmd_type == Read) && enough_payload_in_rdfifo) ||
           ((cmd_type == Write) && ~|sck_wrfifo_wdepth))) begin
           sck_st_d = StStartByte;
         end
@@ -1130,7 +1192,7 @@ module spi_tpm
   );
 
   prim_fifo_async #(
-    .Width (DataFifoSize),
+    .Width (WrFifoWidth),
     .Depth (WrFifoDepth),
     .OutputZeroIfEmpty (1'b 1)
   ) u_wrfifo (
@@ -1154,7 +1216,7 @@ module spi_tpm
   // transaction is completed (CSb deasserted).  So, everytime CSb is
   // deasserted --> rst_n asserted. So, reset the read FIFO.
   prim_fifo_async #(
-    .Width (DataFifoSize),
+    .Width (RdFifoWidth),
     .Depth (RdFifoDepth),
     .OutputZeroIfEmpty (1'b 1)
   ) u_rdfifo (

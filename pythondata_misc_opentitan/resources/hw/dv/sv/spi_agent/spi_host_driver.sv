@@ -87,6 +87,9 @@ class spi_host_driver extends spi_driver;
       bit [7:0] device_byte;
       int       which_bit;
       bit [3:0] num_bits;
+
+      if (transfer_data.size == 0) return;
+
       if (cfg.partial_byte == 1) begin
         num_bits = cfg.bits_to_transfer;
       end else begin
@@ -137,12 +140,14 @@ class spi_host_driver extends spi_driver;
 
     cmd_addr_bytes = {req.opcode, req.address_q};
     sck_pulses = cmd_addr_bytes.size() * 8 + req.dummy_cycles;
-    if (req.write_command) begin
-      `DV_CHECK_EQ(req.num_lanes, 1)
-      sck_pulses += req.payload_q.size * 8;
-    end else begin
-      `DV_CHECK_EQ(req.payload_q.size, 0)
-      sck_pulses += req.read_size * (8 / req.num_lanes);
+    if (req.num_lanes > 0) begin
+      if (req.write_command) begin
+        `DV_CHECK_EQ(req.num_lanes, 1)
+        sck_pulses += req.payload_q.size * 8;
+      end else begin
+        `DV_CHECK_EQ(req.payload_q.size, 0)
+        sck_pulses += req.read_size * (8 / req.num_lanes);
+      end
     end
 
     // for mode 1 and 3, get the leading edges out of the way
@@ -153,13 +158,22 @@ class spi_host_driver extends spi_driver;
 
     // align to DrivingEdge, if the item has more to send
     if (req.dummy_cycles > 0 || req.payload_q.size > 0 ) cfg.wait_sck_edge(DrivingEdge);
+    cfg.vif.sio <= 'dz;
 
     repeat (req.dummy_cycles) begin
-      //cfg.vif.sio <= 'dz;
       cfg.wait_sck_edge(DrivingEdge);
     end
     // drive data
-    issue_data(req.payload_q);
+    if (req.write_command) begin
+      issue_data(req.payload_q);
+    end else begin
+      repeat (req.read_size) begin
+        logic [7:0] data;
+        cfg.read_flash_byte(.num_lanes(req.num_lanes), .is_device_rsp(1), .data(data));
+        rsp.payload_q.push_back(data);
+      end
+      `uvm_info(`gfn, $sformatf("collect read data for flash: 0x%p", rsp.payload_q), UVM_MEDIUM)
+    end
 
     wait(sck_pulses == 0);
     cfg.vif.csb[cfg.csb_sel] <= 1'b1;

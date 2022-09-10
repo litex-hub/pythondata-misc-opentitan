@@ -5,7 +5,7 @@
 load("//rules:manifest.bzl", "CONST", "manifest")
 load("//rules:opentitan.bzl", "opentitan_flash_binary")
 load("//rules:linker.bzl", "ld_library")
-load("//rules:cross_platform.bzl", "dual_cc_device_library_of", "dual_cc_library", "dual_inputs")
+load("//rules:cross_platform.bzl", "dual_cc_library", "dual_inputs")
 load("//rules:opentitan_test.bzl", "cw310_params", "opentitan_functest")
 
 package(default_visibility = ["//visibility:public"])
@@ -34,10 +34,11 @@ dual_cc_library(
     deps = dual_inputs(
         host = [
             "//sw/device/lib/base:global_mock",
-            "//sw/device/silicon_creator/testing:mask_rom_test",
+            "//sw/device/silicon_creator/testing:rom_test",
             "@googletest//:gtest",
         ],
         shared = [
+            "//sw/device/silicon_creator/lib/base:chip",
             "//sw/device/lib/base:macros",
             "//sw/device/silicon_creator/lib:manifest",
             "//hw/top_earlgrey/sw/autogen:top_earlgrey",
@@ -64,7 +65,7 @@ cc_test(
     srcs = ["rom_ext_boot_policy_unittest.cc"],
     deps = [
         ":rom_ext_boot_policy",
-        "//sw/device/silicon_creator/testing:mask_rom_test",
+        "//sw/device/silicon_creator/testing:rom_test",
         "@googletest//:gtest_main",
     ],
 )
@@ -97,8 +98,8 @@ ld_library(
 )
 
 ld_library(
-    name = "ld_virtual_addr",
-    script = "rom_ext_virtual_addr.ld",
+    name = "ld_slot_virtual",
+    script = "rom_ext_slot_virtual.ld",
     deps = [
         ":ld_common",
         "//hw/top_earlgrey/sw/autogen:top_earlgrey_memory",
@@ -121,6 +122,7 @@ cc_library(
         "//sw/device/silicon_creator/lib:manifest_def",
         "//sw/device/silicon_creator/lib:rom_print",
         "//sw/device/silicon_creator/lib:shutdown",
+        "//sw/device/silicon_creator/lib/base:chip",
         "//sw/device/silicon_creator/lib/base:sec_mmio",
         "//sw/device/silicon_creator/lib/base:static_critical_boot_measurements",
         "//sw/device/silicon_creator/lib/base:static_critical_sec_mmio",
@@ -132,7 +134,7 @@ cc_library(
         "//sw/device/silicon_creator/lib/drivers:pinmux",
         "//sw/device/silicon_creator/lib/drivers:uart",
         "//sw/device/silicon_creator/lib/sigverify",
-        "//sw/device/silicon_creator/mask_rom:sigverify_keys",
+        "//sw/device/silicon_creator/rom:sigverify_keys",
     ],
 )
 
@@ -150,10 +152,10 @@ manifest(
 )
 
 opentitan_flash_binary(
-    name = "slot_a",
+    name = "rom_ext_slot_a",
     srcs = ["rom_ext_start.S"],
     manifest = ":manifest_standard",
-    output_signed = True,
+    signed = True,
     deps = [
         ":ld_slot_a",
         ":rom_ext",
@@ -163,10 +165,10 @@ opentitan_flash_binary(
 )
 
 opentitan_flash_binary(
-    name = "slot_b",
+    name = "rom_ext_slot_b",
     srcs = ["rom_ext_start.S"],
     manifest = ":manifest_standard",
-    output_signed = True,
+    signed = True,
     deps = [
         ":ld_slot_b",
         ":rom_ext",
@@ -176,12 +178,12 @@ opentitan_flash_binary(
 )
 
 opentitan_flash_binary(
-    name = "virtual_addr",
+    name = "rom_ext_slot_virtual",
     srcs = ["rom_ext_start.S"],
     manifest = ":manifest_virtual",
-    output_signed = True,
+    signed = True,
     deps = [
-        ":ld_virtual_addr",
+        ":ld_slot_virtual",
         ":rom_ext",
         "//sw/device/lib/crt",
         "//sw/device/silicon_creator/lib:manifest_def",
@@ -190,30 +192,26 @@ opentitan_flash_binary(
 
 BOOT_SUCCESS_MSG = "Starting ROM_EXT"
 
-BOOT_FAILURE_MSG = "BFV:[0-9a-f]{8}"
-
 opentitan_functest(
-    name = "e2e_rom_ext_slot_a",
+    name = "rom_ext_slot_a_boot_test",
     cw310 = cw310_params(
-        bitstream = "//hw/bitstream:mask_rom",
-        exit_failure = BOOT_FAILURE_MSG,
+        bitstream = "//hw/bitstream:rom",
         exit_success = BOOT_SUCCESS_MSG,
     ),
+    ot_flash_binary = ":rom_ext_slot_a",
     signed = True,
     targets = ["cw310"],
-    test_binary = ":slot_a",
 )
 
 # TODO(#13511): Add a positive test for slot_b.
 
 opentitan_functest(
-    name = "e2e_rom_ext_virtual_addr",
+    name = "rom_ext_slot_virtual_boot_test",
     cw310 = cw310_params(
-        bitstream = "//hw/bitstream:mask_rom",
-        exit_failure = BOOT_FAILURE_MSG,
+        bitstream = "//hw/bitstream:rom",
         exit_success = BOOT_SUCCESS_MSG,
     ),
+    ot_flash_binary = ":rom_ext_slot_virtual",
     signed = True,
     targets = ["cw310"],
-    test_binary = ":virtual_addr",
 )

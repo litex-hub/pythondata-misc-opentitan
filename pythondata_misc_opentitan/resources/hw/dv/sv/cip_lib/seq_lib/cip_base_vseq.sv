@@ -17,11 +17,12 @@
     end : isolation_fork \
   join
 
-class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
-                      type CFG_T               = cip_base_env_cfg,
-                      type COV_T               = cip_base_env_cov,
-                      type VIRTUAL_SEQUENCER_T = cip_base_virtual_sequencer)
-                      extends dv_base_vseq #(RAL_T, CFG_T, COV_T, VIRTUAL_SEQUENCER_T);
+class cip_base_vseq #(
+  type RAL_T               = dv_base_reg_block,
+  type CFG_T               = cip_base_env_cfg,
+  type COV_T               = cip_base_env_cov,
+  type VIRTUAL_SEQUENCER_T = cip_base_virtual_sequencer
+) extends dv_base_vseq #(RAL_T, CFG_T, COV_T, VIRTUAL_SEQUENCER_T);
   `uvm_object_new
   // knobs to disable post_start clear interrupt routine
   bit do_clear_all_interrupts = 1'b1;
@@ -44,7 +45,7 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
 
   // address mask struct
   typedef struct packed {
-    bit [BUS_AW-1:0]  addr;
+    bit [BUS_AW-1:0] addr;
     bit [BUS_DBW-1:0] mask;
   } addr_mask_t;
 
@@ -64,10 +65,10 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
   rand uint rand_reset_delay;
   constraint rand_reset_delay_c {
     rand_reset_delay dist {
-        [1         :1000]       :/ 1,
-        [1001      :100_000]    :/ 2,
-        [100_001   :1_000_000]  :/ 6,
-        [1_000_001 :5_000_000]  :/ 1
+      [1 : 1000]              :/ 1,
+      [1001 : 100_000]        :/ 2,
+      [100_001 : 1_000_000]   :/ 6,
+      [1_000_001 : 5_000_000] :/ 1
     };
   }
 
@@ -76,13 +77,13 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
   rand uint csr_access_abort_pct;
   constraint csr_access_abort_pct_c {
     csr_access_abort_pct dist {
-      0      :/ 50,
-      [1:99] :/ 40,
-      100    :/ 10
+      0        :/ 50,
+      [1 : 99] :/ 40,
+      100      :/ 10
     };
   }
 
-  `uvm_object_param_utils_begin(cip_base_vseq #(RAL_T, CFG_T, COV_T, VIRTUAL_SEQUENCER_T))
+  `uvm_object_param_utils_begin(cip_base_vseq#(RAL_T, CFG_T, COV_T, VIRTUAL_SEQUENCER_T))
     `uvm_field_string(common_seq_type, UVM_DEFAULT)
   `uvm_object_utils_end
 
@@ -96,7 +97,7 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
     // Wait for alert init done, then start the sequence.
     foreach (cfg.list_of_alerts[i]) begin
       if (cfg.m_alert_agent_cfg[cfg.list_of_alerts[i]].is_active) begin
-        wait (cfg.m_alert_agent_cfg[cfg.list_of_alerts[i]].alert_init_done == 1);
+        wait(cfg.m_alert_agent_cfg[cfg.list_of_alerts[i]].alert_init_done == 1);
       end
     end
 
@@ -316,7 +317,7 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
       csr_name = {csr_name, suffix};
     end
     // check within scope first, if supplied
-    if (scope != null)  begin
+    if (scope != null) begin
       get_interrupt_csr = scope.get_dv_base_reg_by_name(csr_name);
     end else begin
       get_interrupt_csr = ral.get_dv_base_reg_by_name(csr_name);
@@ -633,8 +634,19 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
                             bit    do_rand_wr_and_reset = 1,
                             dv_base_reg_block models[$] = {},
                             string ral_name = "");
+    bit has_shadow_reg;
+    dv_base_reg regs[$];
 
-    if (csr_access_abort_pct.rand_mode()) begin
+    // if there is any shadow reg, we shouldn't abort TL access, otherwise, it may do only one
+    // write to the shadow reg, which may cause an unexpected recoverable error.
+    foreach (cfg.ral_models[i]) cfg.ral_models[i].get_dv_base_regs(regs);
+    foreach (regs[i]) begin
+      if (regs[i].get_is_shadowed()) begin
+        has_shadow_reg = 1;
+        break;
+      end
+    end
+    if (!has_shadow_reg && csr_access_abort_pct.rand_mode()) begin
       `DV_CHECK_MEMBER_RANDOMIZE_FATAL(csr_access_abort_pct)
     end else begin
       csr_access_abort_pct = 0;
@@ -665,6 +677,7 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
   // override this task from {block}_common_vseq if needed
   virtual task rand_reset_eor_clean_up();
   endtask
+
   // Run the given sequence and possibly a TL errors vseq (if do_tl_err is set). Suddenly inject a
   // reset after at most reset_delay_bound cycles. When we come out of reset, check all CSR values
   // to ensure they are the documented reset values.
@@ -758,46 +771,52 @@ class cip_base_vseq #(type RAL_T               = dv_base_reg_block,
     for (int trans = 1; trans <= num_times; trans++) begin
       `uvm_info(`gfn, $sformatf("Running same CSR outstanding test iteration %0d/%0d",
                                  trans, num_times), UVM_LOW)
-      all_csrs.shuffle();
 
       // first iteration already issued dut_init in pre_start
       if (trans != 1 && $urandom_range(0, 1)) dut_init();
 
-      foreach (all_csrs[i]) begin
-        uvm_reg_data_t exp_data = all_csrs[i].get_mirrored_value();
-        uvm_reg_data_t rd_data, wr_data, rd_mask, wr_mask;
-        csr_excl_item  csr_excl = get_excl_item(all_csrs[i]);
+      foreach (cfg.ral_models[ral_name]) begin
+        dv_base_reg csrs[$];
+        cfg.ral_models[ral_name].get_dv_base_regs(csrs);
+        csrs.shuffle();
 
-        rd_mask = get_mask_excl_fields(all_csrs[i], CsrExclWriteCheck, csr_test_type);
-        wr_mask = get_mask_excl_fields(all_csrs[i], CsrExclWrite, csr_test_type);
+        foreach (csrs[i]) begin
+          uvm_reg_data_t exp_data = csrs[i].get_mirrored_value();
+          uvm_reg_data_t rd_data, wr_data, rd_mask, wr_mask;
+          csr_excl_item  csr_excl = get_excl_item(csrs[i]);
 
-        repeat ($urandom_range(2, 20)) begin
-          // do read, exclude CsrExclWriteCheck, CsrExclCheck
-          if ($urandom_range(0, 1) &&
-              !csr_excl.is_excl(all_csrs[i], CsrExclWriteCheck, csr_test_type)) begin
-            tl_access(.addr(all_csrs[i].get_address()), .write(0), .data(rd_data),
-                      .exp_data(exp_data), .check_exp_data(1), .compare_mask(rd_mask),
-                      .blocking(0));
-          end
-          // do write, exclude CsrExclWrite
-          if ($urandom_range(0, 1) &&
-              !csr_excl.is_excl(all_csrs[i], CsrExclWrite, csr_test_type)) begin
-            // Shadowed register requires two writes and thus call predict function twice.
-            int num_write = all_csrs[i].get_is_shadowed() ? 2 : 1;
+          rd_mask = get_mask_excl_fields(csrs[i], CsrExclWriteCheck, csr_test_type);
+          wr_mask = get_mask_excl_fields(csrs[i], CsrExclWrite, csr_test_type);
 
-            `DV_CHECK_STD_RANDOMIZE_FATAL(wr_data)
-            wr_data &= wr_mask;
-            repeat (num_write) begin
-              tl_access(.addr(all_csrs[i].get_address()), .write(1), .data(wr_data), .blocking(0));
-              void'(all_csrs[i].predict(.value(wr_data), .kind(UVM_PREDICT_WRITE)));
+          repeat ($urandom_range(2, 20)) begin
+            // do read, exclude CsrExclWriteCheck, CsrExclCheck
+            if ($urandom_range(0, 1) &&
+                !csr_excl.is_excl(csrs[i], CsrExclWriteCheck, csr_test_type)) begin
+              tl_access(.addr(csrs[i].get_address()), .write(0), .data(rd_data),
+                        .exp_data(exp_data), .check_exp_data(1), .compare_mask(rd_mask),
+                        .blocking(0), .tl_sequencer_h(p_sequencer.tl_sequencer_hs[ral_name]));
             end
-            exp_data = all_csrs[i].get_mirrored_value();
-          end
-        end
-        csr_utils_pkg::wait_no_outstanding_access();
+            // do write, exclude CsrExclWrite
+            if ($urandom_range(0, 1) &&
+                !csr_excl.is_excl(csrs[i], CsrExclWrite, csr_test_type)) begin
+              // Shadowed register requires two writes and thus call predict function twice.
+              int num_write = csrs[i].get_is_shadowed() ? 2 : 1;
 
-        // Manually lock lockable flds because we use tl_access() instead of csr_wr().
-        if (all_csrs[i].is_wen_reg()) all_csrs[i].lock_lockable_flds(`gmv(all_csrs[i]));
+              `DV_CHECK_STD_RANDOMIZE_FATAL(wr_data)
+              wr_data &= wr_mask;
+              repeat (num_write) begin
+                tl_access(.addr(csrs[i].get_address()), .write(1), .data(wr_data), .blocking(0),
+                          .tl_sequencer_h(p_sequencer.tl_sequencer_hs[ral_name]));
+                void'(csrs[i].predict(.value(wr_data), .kind(UVM_PREDICT_WRITE)));
+              end
+              exp_data = csrs[i].get_mirrored_value();
+            end
+          end
+          csr_utils_pkg::wait_no_outstanding_access();
+
+          // Manually lock lockable flds because we use tl_access() instead of csr_wr().
+          if (csrs[i].is_wen_reg()) csrs[i].lock_lockable_flds(`gmv(csrs[i]));
+        end
       end
     end
   endtask

@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import os
 import sys
 
 import hjson
@@ -17,12 +16,6 @@ generate a header file with these test vectors.
 
 # Number of 32-bit words in a 3072-bit number
 RSA_3072_NUMWORDS = int(3072 / 32)
-
-# Template file name
-TEMPLATE = 'rsa_3072_verify_testvectors.h.tpl'
-
-# Default output file name
-DEFAULT_OUTFILE = 'rsa_3072_verify_testvectors.h'
 
 
 def rsa_3072_int_to_hexwords(x):
@@ -39,16 +32,19 @@ def rsa_3072_int_to_hexwords(x):
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('hjsonfile',
+    parser.add_argument('--hjsonfile', '-j',
                         metavar='FILE',
+                        required=True,
                         type=argparse.FileType('r'),
                         help='Read test vectors from this HJSON file.')
-    out_default = open(
-        os.path.join(os.path.dirname(__file__), DEFAULT_OUTFILE), 'w')
-    parser.add_argument('headerfile',
+    parser.add_argument('--template', '-t',
                         metavar='FILE',
-                        nargs='?',
-                        default=out_default,
+                        required=True,
+                        type=argparse.FileType('r'),
+                        help='Read header template from this file.')
+    parser.add_argument('--headerfile', '-o',
+                        metavar='FILE',
+                        required=True,
                         type=argparse.FileType('w'),
                         help='Write output to this file.')
 
@@ -67,13 +63,10 @@ def main() -> int:
     for t in testvecs:
         t['msg_bytes'] = t['msg'].to_bytes(t['msg_len'], byteorder='big')
 
-    # Find the header template and output file in the script's directory
-    tpl = open(os.path.join(os.path.dirname(__file__), TEMPLATE))
-
-    args.headerfile.write(Template(tpl.read()).render(tests=testvecs))
+    tpl = Template(args.template.read())
+    args.headerfile.write(tpl.render(tests=testvecs))
     args.headerfile.close()
-    out_default.close()
-    tpl.close()
+    args.template.close()
 
     return 0
 

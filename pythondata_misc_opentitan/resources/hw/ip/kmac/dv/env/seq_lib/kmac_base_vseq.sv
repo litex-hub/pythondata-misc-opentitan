@@ -54,8 +54,8 @@ class kmac_base_vseq extends cip_base_vseq #(
   // does not control whether the cfg.sideload field is set.
   rand bit provide_sideload_key;
 
-  // Controls whether to actually enable sideloading functionality
-  rand bit en_sideload;
+  // Controls whether to actually enable sideloading functionality via cfg_shadowed register.
+  rand bit reg_en_sideload;
 
   // entropy mode
   rand kmac_pkg::entropy_mode_e entropy_mode = EntropyModeSw;
@@ -109,7 +109,6 @@ class kmac_base_vseq extends cip_base_vseq #(
   rand bit [TL_DBW-1:0] data_mask;
 
   // Error control fields
-  rand bit en_kmac_err;
   rand kmac_pkg::err_code_e kmac_err_type;
   // When creating errors by issue the wrong SW command, we need to have access
   // to what operational state to send an erroneous command in,
@@ -171,7 +170,7 @@ class kmac_base_vseq extends cip_base_vseq #(
   }
 
   constraint key_len_c {
-    (en_sideload) -> key_len == Key256;
+    (reg_en_sideload) -> key_len == Key256;
   }
 
   constraint entropy_mode_c {
@@ -199,7 +198,7 @@ class kmac_base_vseq extends cip_base_vseq #(
   // Create an appropriate incorrect command based on what state to send an error in
   constraint err_sw_cmd_seq_c {
     solve err_sw_cmd_seq_st before err_sw_cmd_seq_cmd;
-    if (en_kmac_err && kmac_err_type == kmac_pkg::ErrSwCmdSequence) {
+    if (kmac_err_type == kmac_pkg::ErrSwCmdSequence) {
       if (err_sw_cmd_seq_st == sha3_pkg::StIdle) {
         err_sw_cmd_seq_cmd inside {CmdProcess, CmdManualRun, CmdDone};
       } else if (err_sw_cmd_seq_st == sha3_pkg::StAbsorb) {
@@ -291,7 +290,7 @@ class kmac_base_vseq extends cip_base_vseq #(
     cfg_interrupts(.interrupts(enable_intr));
     // For error cases that does not support in scb, predict its value so can be used in
     // `check_err` task.
-    if (cfg.en_scb == 0) ral.intr_enable.predict(enable_intr);
+    if (cfg.en_scb == 0) void'(ral.intr_enable.predict(enable_intr));
     `uvm_info(`gfn, $sformatf("intr[KmacDone] = %0b", enable_intr[KmacDone]), UVM_HIGH)
     `uvm_info(`gfn, $sformatf("intr[KmacFifoEmpty] = %0b", enable_intr[KmacFifoEmpty]), UVM_HIGH)
     `uvm_info(`gfn, $sformatf("intr[KmacErr] = %0b", enable_intr[KmacErr]), UVM_HIGH)
@@ -305,7 +304,7 @@ class kmac_base_vseq extends cip_base_vseq #(
     end
 
     csr_wr(.ptr(ral.entropy_refresh_threshold_shadowed), .value(hash_threshold));
-    csr_wr(.ptr(ral.cmd), .value(hash_cnt_clr << KmacHashCntClrIdx));
+    csr_wr(.ptr(ral.cmd), .value((hash_cnt_clr << KmacHashCntClrIdx) | CmdNone));
 
     // setup CFG csr with default random values
     ral.cfg_shadowed.kmac_en.set(kmac_en);
@@ -319,17 +318,14 @@ class kmac_base_vseq extends cip_base_vseq #(
     ral.cfg_shadowed.msg_mask.set(msg_mask);
     ral.cfg_shadowed.err_processed.set(1'b0);
     ral.cfg_shadowed.en_unsupported_modestrength.set(en_unsupported_modestrength);
-    // It is not required to set up sideload bit when keymgr app interface is requesting a hash
-    // operation, because it will always use sideload key regardless of the cfg settings.
-    if (keymgr_app_intf) ral.cfg_shadowed.sideload.set($urandom_range(0, 1));
-    else                 ral.cfg_shadowed.sideload.set(en_sideload);
+    ral.cfg_shadowed.sideload.set(reg_en_sideload);
 
     csr_update(.csr(ral.cfg_shadowed));
 
     // setup KEY_LEN csr
     // The key length will be override to 256 bits if design uses keymgr app interface or the
     // sideload is enabled.
-    if (!en_sideload || $urandom_range(0, 1)) csr_wr(.ptr(ral.key_len), .value(key_len));
+    if (!reg_en_sideload || $urandom_range(0, 1)) csr_wr(.ptr(ral.key_len), .value(key_len));
 
     // print debug info
     `uvm_info(`gfn, $sformatf("KMAC INITIALIZATION INFO:\n%0s", convert2string()), UVM_HIGH)
@@ -348,10 +344,10 @@ class kmac_base_vseq extends cip_base_vseq #(
   virtual task check_state();
     bit [TL_DW-1:0] data;
 
+    csr_rd(.ptr(ral.status), .value(data));
+
     csr_rd(.ptr(ral.intr_state), .value(data));
     csr_wr(.ptr(ral.intr_state), .value(data));
-
-    csr_rd(.ptr(ral.status), .value(data));
   endtask
 
   virtual task check_err(bit clear_err = 1'b1);
@@ -412,7 +408,7 @@ class kmac_base_vseq extends cip_base_vseq #(
             $sformatf("output_len %0d\n", output_len),
             $sformatf("msg_endian: %0b\n", msg_endian),
             $sformatf("state_endian: %0b\n", state_endian),
-            $sformatf("en_sideload: %0b\n", en_sideload),
+            $sformatf("en_sideload: %0b\n", reg_en_sideload),
             $sformatf("provide_sideload_key: %0b\n", provide_sideload_key),
             $sformatf("fname_arr: %0p\n", fname_arr),
             $sformatf("fname: %0s\n", str_utils_pkg::bytes_to_str(fname_arr)),

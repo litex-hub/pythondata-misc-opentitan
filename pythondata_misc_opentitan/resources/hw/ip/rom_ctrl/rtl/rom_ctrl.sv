@@ -77,15 +77,6 @@ module rom_ctrl
 
   logic                     internal_alert;
 
-  // Force point for reset glitch tests
-  logic rst_n;
-  prim_clock_buf #(
-    .NoFpgaBuf(1)
-  ) u_prim_clock_buf_rst_n (
-    .clk_i(rst_ni),
-    .clk_o(rst_n)
-  );
-
   // Pack / unpack kmac connection data ========================================
 
   logic [63:0]              kmac_rom_data;
@@ -100,10 +91,31 @@ module rom_ctrl
     // The usual situation, with scrambling enabled. Collect up output signals for kmac and split up
     // the input struct into separate signals.
 
+    // Neglecting any first / last block effects, and assuming that ROM_CTRL can always fill the
+    // KMAC message FIFO while a KMAC round is running, the total processing time for a 32kB ROM is
+    // calculated as follows:
+    //
+    // (Padding Overhead) x (ROM Size) / (Block Size) x (Block Processing Time + KMAC Absorb Time)
+    //
+    // ROM_CTRL can only read out one 32 or 39 bit (with ECC) word per cycle, so if we were to zero
+    // pad this to align with the 64bit KMAC interface, the padding overhead would amount to 2x
+    // in this equation:
+    //
+    // 2 x 32 kByte / (1600 bit - 2x 256bit) x (96 cycles + (1600 bit - 2x 256bit) / 64bit)) =
+    // 2 x 32 x 1024 x 8bit / 1088bit x (96 cycles + 17 cycles) =
+    // 2 x 262144 bit / 1088 bit x 113 cycles =
+    // 2 x 27226.35 cycles
+    //
+    // Luckily, the KMAC interface allows to transmit data with a byte enable mask, and only the
+    // enabled bytes will be packed into the message FIFO. Assuming that the processing is the
+    // bottleneck, we can thus reduce the overhead of 2x in that equation to 1x or 5/8x if we only
+    // set 4 or 5 byte enables (4 for 32bit, 5 for 39bit)!
+    localparam int NumBytes = (DataWidth + 7) / 8;
+
     // SEC_CM: MEM.DIGEST
     assign kmac_data_o = '{valid: kmac_rom_vld,
                            data: kmac_rom_data,
-                           strb: '1,
+                           strb: kmac_pkg::MsgStrbW'({NumBytes{1'b1}}),
                            last: kmac_rom_last};
 
     assign kmac_rom_rdy = kmac_data_i.ready;
@@ -143,8 +155,8 @@ module rom_ctrl
   logic  rom_reg_integrity_error;
 
   rom_ctrl_rom_reg_top u_rom_top (
-    .clk_i      (clk_i),
-    .rst_ni     (rst_n),
+    .clk_i,
+    .rst_ni,
     .tl_i       (rom_tl_i),
     .tl_o       (rom_tl_o),
     .tl_win_o   (tl_rom_h2d_upstream),
@@ -186,8 +198,8 @@ module rom_ctrl
     .EnableDataIntgPt(!SecDisableScrambling), // SEC_CM: BUS.INTEGRITY
     .SecFifoPtr      (1)                      // SEC_CM: TLUL_FIFO.CTR.REDUN
   ) u_tl_adapter_rom (
-    .clk_i        (clk_i),
-    .rst_ni       (rst_n),
+    .clk_i,
+    .rst_ni,
 
     .tl_i         (tl_rom_h2d_downstream),
     .tl_o         (tl_rom_d2h),
@@ -222,8 +234,8 @@ module rom_ctrl
     .AW (RomIndexWidth),
     .DW (DataWidth)
   ) u_mux (
-    .clk_i             (clk_i),
-    .rst_ni            (rst_n),
+    .clk_i,
+    .rst_ni,
     .sel_bus_i         (rom_select_bus),
     .bus_rom_addr_i    (bus_rom_rom_index),
     .bus_prince_addr_i (bus_rom_prince_index),
@@ -266,8 +278,8 @@ module rom_ctrl
       .ScrNonce    (RndCnstScrNonce),
       .ScrKey      (RndCnstScrKey)
     ) u_rom (
-      .clk_i         (clk_i),
-      .rst_ni        (rst_n),
+      .clk_i,
+      .rst_ni,
       .req_i         (rom_req),
       .rom_addr_i    (rom_rom_index),
       .prince_addr_i (rom_prince_index),
@@ -288,8 +300,8 @@ module rom_ctrl
       .Depth       (RomSizeWords),
       .MemInitFile (BootRomInitFile)
     ) u_rom (
-      .clk_i    (clk_i),
-      .rst_ni   (rst_n),
+      .clk_i,
+      .rst_ni,
       .req_i    (rom_req),
       .addr_i   (rom_rom_index),
       .rvalid_o (rom_rvalid),
@@ -316,8 +328,8 @@ module rom_ctrl
   logic                  reg_integrity_error;
 
   rom_ctrl_regs_reg_top u_reg_regs (
-    .clk_i      (clk_i),
-    .rst_ni     (rst_n),
+    .clk_i,
+    .rst_ni,
     .tl_i       (regs_tl_i),
     .tl_o       (regs_tl_o),
     .reg2hw     (reg2hw),
@@ -343,8 +355,8 @@ module rom_ctrl
       .RomDepth (RomSizeWords),
       .TopCount (8)
     ) u_checker_fsm (
-      .clk_i                (clk_i),
-      .rst_ni               (rst_n),
+      .clk_i,
+      .rst_ni,
       .digest_i             (digest_q),
       .exp_digest_i         (exp_digest_q),
       .digest_o             (digest_d),
@@ -445,7 +457,7 @@ module rom_ctrl
       .IsFatal(i == AlertFatal)
     ) u_alert_sender (
       .clk_i,
-      .rst_ni(rst_n),
+      .rst_ni,
       .alert_test_i  ( alert_test[i] ),
       .alert_req_i   ( alerts[i]     ),
       .alert_ack_o   (               ),
@@ -482,6 +494,10 @@ module rom_ctrl
                                          gen_fsm_scramble_enabled.
                                          u_checker_fsm.u_state_regs,
                                          alert_tx_o[AlertFatal])
+    `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(CompareAddrCtrCheck_A,
+                                           gen_fsm_scramble_enabled.
+                                           u_checker_fsm.u_compare.u_prim_count_addr,
+                                           alert_tx_o[AlertFatal])
   end
 
   // The pwrmgr_data_o output (the "done" and "good" signals) should have a known value when out of
@@ -523,9 +539,12 @@ module rom_ctrl
 
   // Check that whenever there is an alert triggered and FSM state is Invalid, there is no response
   // to read requests.
-  `ASSERT(BusLocalEscChk_A,
-          (gen_fsm_scramble_enabled.u_checker_fsm.state_d == rom_ctrl_pkg::Invalid)
-          |-> always(!bus_rom_rvalid))
+  if (!SecDisableScrambling) begin : gen_fsm_scramble_enabled_asserts
+
+    `ASSERT(BusLocalEscChk_A,
+            (gen_fsm_scramble_enabled.u_checker_fsm.state_d == rom_ctrl_pkg::Invalid)
+            |-> always(!bus_rom_rvalid))
+  end
 
   // Alert assertions for reg_we onehot check
   `ASSERT_PRIM_REG_WE_ONEHOT_ERROR_TRIGGER_ALERT(RegWeOnehotCheck_A,

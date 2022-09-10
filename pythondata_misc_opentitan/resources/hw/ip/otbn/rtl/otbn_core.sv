@@ -148,7 +148,8 @@ module otbn_core
   logic                     rf_base_rd_commit;
   logic                     rf_base_call_stack_sw_err;
   logic                     rf_base_call_stack_hw_err;
-  logic                     rf_base_rf_err;
+  logic                     rf_base_intg_err;
+  logic                     rf_base_spurious_we_err;
 
   alu_base_operation_t  alu_base_operation;
   alu_base_comparison_t alu_base_comparison;
@@ -183,7 +184,8 @@ module otbn_core
   logic [WdrAw-1:0]   rf_bignum_rd_addr_b;
   logic               rf_bignum_rd_en_b;
   logic [ExtWLEN-1:0] rf_bignum_rd_data_b_intg;
-  logic               rf_bignum_rf_err;
+  logic               rf_bignum_intg_err;
+  logic               rf_bignum_spurious_we_err;
 
   alu_bignum_operation_t alu_bignum_operation;
   logic                  alu_bignum_operation_valid;
@@ -222,6 +224,7 @@ module otbn_core
 
   logic            urnd_reseed_req;
   logic            urnd_reseed_ack;
+  logic            urnd_reseed_err;
   logic            urnd_advance;
   logic            urnd_advance_start_stop_control;
   logic [WLEN-1:0] urnd_data;
@@ -256,6 +259,7 @@ module otbn_core
   logic                 prefetch_ignore_errs;
 
   core_err_bits_t err_bits_q, err_bits_d;
+  logic           mubi_err;
 
   logic start_stop_fatal_error;
   logic rf_bignum_predec_error, alu_bignum_predec_error, ispr_predec_error, mac_bignum_predec_error;
@@ -279,6 +283,7 @@ module otbn_core
 
     .urnd_reseed_req_o (urnd_reseed_req),
     .urnd_reseed_ack_i (urnd_reseed_ack),
+    .urnd_reseed_err_o (urnd_reseed_err),
     .urnd_advance_o    (urnd_advance_start_stop_control),
 
     .secure_wipe_req_i (secure_wipe_req),
@@ -441,7 +446,7 @@ module otbn_core
     .rf_base_call_stack_sw_err_i(rf_base_call_stack_sw_err),
     .rf_base_call_stack_hw_err_i(rf_base_call_stack_hw_err),
 
-    // To/from bignunm register file
+    // To/from bignum register file
     .rf_bignum_wr_addr_o         (rf_bignum_wr_addr_ctrl),
     .rf_bignum_wr_en_o           (rf_bignum_wr_en_ctrl),
     .rf_bignum_wr_commit_o       (rf_bignum_wr_commit_ctrl),
@@ -454,7 +459,8 @@ module otbn_core
     .rf_bignum_rd_addr_b_o       (rf_bignum_rd_addr_b),
     .rf_bignum_rd_en_b_o         (rf_bignum_rd_en_b),
     .rf_bignum_rd_data_b_intg_i  (rf_bignum_rd_data_b_intg),
-    .rf_bignum_rf_err_i          (rf_bignum_rf_err),
+    .rf_bignum_intg_err_i        (rf_bignum_intg_err),
+    .rf_bignum_spurious_we_err_i (rf_bignum_spurious_we_err),
 
     .rf_bignum_rd_a_indirect_onehot_o(rf_bignum_rd_a_indirect_onehot),
     .rf_bignum_rd_b_indirect_onehot_o(rf_bignum_rd_b_indirect_onehot),
@@ -508,6 +514,8 @@ module otbn_core
     .rnd_prefetch_req_o(rnd_prefetch_req),
     .rnd_valid_i       (rnd_valid),
 
+    .urnd_reseed_err_i(urnd_reseed_err),
+
     // Secure wipe
     .secure_wipe_req_o     (secure_wipe_req),
     .secure_wipe_ack_i     (secure_wipe_ack),
@@ -546,7 +554,7 @@ module otbn_core
 
   logic non_controller_reg_intg_violation;
   assign non_controller_reg_intg_violation =
-      |{alu_bignum_reg_intg_violation_err, mac_bignum_reg_intg_violation_err, rf_base_rf_err};
+      |{alu_bignum_reg_intg_violation_err, mac_bignum_reg_intg_violation_err, rf_base_intg_err};
 
 
   // Generate an err_bits output by combining errors from all the blocks in otbn_core
@@ -556,7 +564,9 @@ module otbn_core
                            start_stop_fatal_error,
                            urnd_all_zero,
                            predec_error,
-                           insn_addr_err},
+                           insn_addr_err,
+                           rf_base_spurious_we_err,
+                           mubi_err},
     reg_intg_violation:  |{controller_err_bits.reg_intg_violation,
                            non_controller_reg_intg_violation},
     dmem_intg_violation: lsu_rdata_err,
@@ -590,8 +600,9 @@ module otbn_core
   assign controller_fatal_escalate_en =
       mubi4_or_hi(escalate_en_i,
                   mubi4_bool_to_mubi(|{start_stop_fatal_error, urnd_all_zero, predec_error,
-                                       rf_base_rf_err, lsu_rdata_err, insn_fetch_err,
-                                       non_controller_reg_intg_violation, insn_addr_err}));
+                                       rf_base_intg_err, rf_base_spurious_we_err, lsu_rdata_err,
+                                       insn_fetch_err, non_controller_reg_intg_violation,
+                                       insn_addr_err}));
 
   assign controller_recov_escalate_en =
       mubi4_bool_to_mubi(|{rnd_rep_err, rnd_fips_err});
@@ -599,9 +610,14 @@ module otbn_core
   // Similarly for the start/stop controller
   assign start_stop_escalate_en =
       mubi4_or_hi(escalate_en_i,
-                  mubi4_bool_to_mubi(|{urnd_all_zero, rf_base_rf_err, predec_error,
-                                       lsu_rdata_err, insn_fetch_err, controller_fatal_err,
-                                       insn_addr_err}));
+                  mubi4_bool_to_mubi(|{urnd_all_zero, rf_base_intg_err, rf_base_spurious_we_err,
+                                       predec_error, lsu_rdata_err, insn_fetch_err,
+                                       controller_fatal_err, insn_addr_err}));
+
+  // Signal error if MuBi input signals take on invalid values as this means something bad is
+  // happening. The explicit error detection is required as the mubi4_or_hi operations above
+  // might mask invalid values depending on other input operands.
+  assign mubi_err = mubi4_test_invalid(escalate_en_i);
 
   assign insn_cnt_o = insn_cnt;
 
@@ -662,7 +678,8 @@ module otbn_core
 
     .call_stack_sw_err_o(rf_base_call_stack_sw_err),
     .call_stack_hw_err_o(rf_base_call_stack_hw_err),
-    .rf_err_o           (rf_base_rf_err)
+    .intg_err_o         (rf_base_intg_err),
+    .spurious_we_err_o  (rf_base_spurious_we_err)
   );
 
   assign rf_base_wr_addr         = sec_wipe_base ? sec_wipe_addr : rf_base_wr_addr_ctrl;
@@ -715,10 +732,12 @@ module otbn_core
     .rd_en_b_i       (rf_bignum_rd_en_b),
     .rd_data_b_intg_o(rf_bignum_rd_data_b_intg),
 
-    .rf_err_o(rf_bignum_rf_err),
+    .intg_err_o(rf_bignum_intg_err),
 
     .rf_predec_bignum_i(rf_predec_bignum),
-    .predec_error_o    (rf_bignum_predec_error)
+    .predec_error_o    (rf_bignum_predec_error),
+
+    .spurious_we_err_o(rf_bignum_spurious_we_err)
   );
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -887,6 +906,7 @@ module otbn_core
   `ASSERT_KNOWN(EdnRndReqOKnown_A, edn_rnd_req_o)
   `ASSERT_KNOWN(EdnUrndReqOKnown_A, edn_urnd_req_o)
   `ASSERT_KNOWN(InsnCntOKnown_A, insn_cnt_o)
+  `ASSERT_KNOWN(ErrBitsKnown_A, err_bits_o)
 
   // Keep the EDN requests active until they are acknowledged.
   `ASSERT(EdnRndReqStable_A, edn_rnd_req_o & ~edn_rnd_ack_i |=> edn_rnd_req_o)

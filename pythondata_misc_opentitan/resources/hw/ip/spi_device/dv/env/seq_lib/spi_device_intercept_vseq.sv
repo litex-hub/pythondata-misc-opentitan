@@ -7,24 +7,25 @@
 class spi_device_intercept_vseq extends spi_device_pass_cmd_filtering_vseq;
   `uvm_object_utils(spi_device_intercept_vseq)
   `uvm_object_new
-  // TODO, enable all opcode later
-  bit [7:0] intercept_ops[$] = {//READ_STATUS_1, READ_STATUS_2, READ_STATUS_3,
-                                //READ_JEDEC,
-                                //READ_SFDP,
-                                READ_CMD_LIST};
 
-  rand bit use_intercept_op;
+  // can override this queue to increase the chance to test these opcodes in extended vseq
+  bit [7:0] target_ops[$] = {READ_STATUS_1, READ_STATUS_2, READ_STATUS_3,
+                             READ_JEDEC,
+                             READ_SFDP,
+                             READ_CMD_LIST};
+
+  rand bit use_target_op;
   constraint opcode_c {
-    solve use_intercept_op before opcode;
-    if (use_intercept_op) {
-      opcode inside {intercept_ops};
+    solve use_target_op before opcode;
+    if (use_target_op) {
+      opcode inside {target_ops};
     } else {
       opcode inside {valid_opcode_q} &&
-      !(opcode inside {intercept_ops});
+      !(opcode inside {target_ops});
     }
   }
 
-  constraint simple_mailbox_addr_c {
+  constraint mailbox_addr_size_c {
     read_addr_size_type == ReadAddrWithinMailbox;
   }
 
@@ -35,8 +36,8 @@ class spi_device_intercept_vseq extends spi_device_pass_cmd_filtering_vseq;
 
   // randomly set flash_status for every spi transaction
   virtual task spi_host_xfer_flash_item(bit [7:0] op, uint payload_size,
-                                        bit [31:0] addr);
-    random_write_flash_status();
-    super.spi_host_xfer_flash_item(op, payload_size, addr);
+                                        bit [31:0] addr, bit wait_on_busy = 1);
+    random_access_flash_status();
+    super.spi_host_xfer_flash_item(op, payload_size, addr, wait_on_busy);
   endtask
 endclass : spi_device_intercept_vseq

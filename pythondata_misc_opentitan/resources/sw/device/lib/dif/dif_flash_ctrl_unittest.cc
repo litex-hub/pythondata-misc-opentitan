@@ -166,20 +166,6 @@ TEST_F(FlashCtrlTest, NullArgs) {
   EXPECT_DIF_BADARG(
       dif_flash_ctrl_get_ecc_errors(&dif_flash_ctrl_, 0, nullptr));
 
-  dif_flash_ctrl_phy_config_t phy_config_arg{};
-  EXPECT_DIF_BADARG(
-      dif_flash_ctrl_set_phy_configuration(nullptr, phy_config_arg));
-  EXPECT_DIF_BADARG(
-      dif_flash_ctrl_get_phy_configuration(nullptr, &phy_config_arg));
-  EXPECT_DIF_BADARG(
-      dif_flash_ctrl_get_phy_configuration(&dif_flash_ctrl_, nullptr));
-
-  EXPECT_DIF_BADARG(dif_flash_ctrl_lock_phy_configuration(nullptr));
-  EXPECT_DIF_BADARG(
-      dif_flash_ctrl_phy_configuration_is_locked(nullptr, &bool_arg));
-  EXPECT_DIF_BADARG(
-      dif_flash_ctrl_phy_configuration_is_locked(&dif_flash_ctrl_, nullptr));
-
   dif_flash_ctrl_phy_status_t phy_status_arg{};
   EXPECT_DIF_BADARG(dif_flash_ctrl_get_phy_status(nullptr, &phy_status_arg));
   EXPECT_DIF_BADARG(dif_flash_ctrl_get_phy_status(&dif_flash_ctrl_, nullptr));
@@ -253,6 +239,10 @@ TEST_F(FlashCtrlTest, SetProgPermissions) {
       .normal_prog_type = 0,
       .repair_prog_type = 1,
   };
+
+  EXPECT_READ32(FLASH_CTRL_CTRL_REGWEN_REG_OFFSET,
+                {{FLASH_CTRL_CTRL_REGWEN_EN_BIT, 1}});
+
   EXPECT_WRITE32(FLASH_CTRL_PROG_TYPE_EN_REG_OFFSET,
                  {
                      {FLASH_CTRL_PROG_TYPE_EN_NORMAL_BIT, 1},
@@ -272,6 +262,10 @@ TEST_F(FlashCtrlTest, SetProgPermissions) {
 
   prog_caps.normal_prog_type = 1;
   prog_caps.repair_prog_type = 0;
+
+  EXPECT_READ32(FLASH_CTRL_CTRL_REGWEN_REG_OFFSET,
+                {{FLASH_CTRL_CTRL_REGWEN_EN_BIT, 1}});
+
   EXPECT_WRITE32(FLASH_CTRL_PROG_TYPE_EN_REG_OFFSET,
                  {
                      {FLASH_CTRL_PROG_TYPE_EN_NORMAL_BIT, 0},

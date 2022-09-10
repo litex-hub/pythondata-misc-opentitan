@@ -72,10 +72,6 @@ class chip_tap_straps_vseq extends chip_sw_base_vseq;
     end
   endtask
 
-  // no need to wait for SW test to complete, as we only need rom image for init
-  virtual task wait_for_sw_test_done();
-  endtask
-
   virtual task body();
     bit dft_straps_en = 1;
     chip_tap_type_e allowed_taps_q[$];
@@ -85,7 +81,7 @@ class chip_tap_straps_vseq extends chip_sw_base_vseq;
     // load rom/flash and wait for rom_check to complete
     cpu_init();
     wait_rom_check_done();
-    wait(cfg.sw_test_status_vif.sw_test_status == SwTestStatusInBootRom);
+    `DV_WAIT(cfg.sw_test_status_vif.sw_test_status == SwTestStatusInBootRom)
 
     check_dft_straps();
 

@@ -16,6 +16,7 @@ cc_library(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:hardened",
         "//sw/device/lib/base:macros",
     ],
 )
@@ -28,6 +29,93 @@ opentitan_functest(
     ),
     deps = [
         ":aes",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+cc_library(
+    name = "kmac",
+    srcs = ["kmac.c"],
+    hdrs = ["kmac.h"],
+    deps = [
+        "//hw/ip/kmac/data:kmac_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:abs_mmio",
+        "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:macros",
+    ],
+)
+
+cc_library(
+    name = "kmac_test_vectors",
+    srcs = ["kmac_test_vectors.c"],
+    hdrs = ["kmac_test_vectors.h"],
+    deps = [
+        ":kmac",
+    ],
+)
+
+opentitan_functest(
+    name = "kmac_test",
+    srcs = ["kmac_test.c"],
+    verilator = verilator_params(
+        timeout = "long",
+    ),
+    deps = [
+        ":kmac",
+        ":kmac_test_vectors",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/testing/test_framework:check",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+cc_library(
+    name = "entropy",
+    srcs = ["entropy.c"],
+    hdrs = ["entropy.h"],
+    deps = [
+        "//hw/ip/csrng/data:csrng_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:abs_mmio",
+        "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:hardened",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/base:status",
+    ],
+)
+
+cc_library(
+    name = "entropy_kat",
+    srcs = ["entropy_kat.c"],
+    hdrs = ["entropy_kat.h"],
+    deps = [
+        ":entropy",
+        "//hw/ip/csrng/data:csrng_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:abs_mmio",
+        "//sw/device/lib/base:bitfield",
+        "//sw/device/lib/base:macros",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/base:status",
+        "//sw/device/lib/runtime:log",
+    ],
+)
+
+opentitan_functest(
+    name = "entropy_test",
+    srcs = ["entropy_test.c"],
+    verilator = verilator_params(
+        timeout = "long",
+    ),
+    deps = [
+        ":entropy",
+        ":entropy_kat",
         "//sw/device/lib/base:macros",
         "//sw/device/lib/base:memory",
         "//sw/device/lib/testing/test_framework:check",

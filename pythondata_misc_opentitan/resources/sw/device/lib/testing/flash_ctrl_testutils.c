@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "sw/device/lib/base/abs_mmio.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/dif/dif_flash_ctrl.h"
 #include "sw/device/lib/runtime/hart.h"
@@ -49,11 +50,10 @@ bool flash_ctrl_testutils_wait_transaction_end(
     error_reg =
         bitfield_bit32_write(error_reg, FLASH_CTRL_ERR_CODE_UPDATE_ERR_BIT,
                              codes.shadow_register_error);
-    LOG_INFO("Transaction end error_codes = %08x", error_reg);
   }
   CHECK_DIF_OK(
       dif_flash_ctrl_clear_error_codes(flash_state, output.error_code.codes));
-  return output.operation_error;
+  return output.operation_error == 0;
 }
 
 uint32_t flash_ctrl_testutils_data_region_setup_properties(
@@ -170,7 +170,8 @@ bool flash_ctrl_testutils_write(dif_flash_ctrl_state_t *flash_state,
   // When 13773 is supported, programs to non-scrambled or ecc enabled
   // pages can support byte writes.  While programs to scrambled or ecc
   // enabled pages can support only flash item writes.
-  if (byte_address & sizeof(uint32_t) - 1) {
+  if (byte_address & (sizeof(uint32_t) - 1)) {
+    LOG_ERROR("Unaligned address 0x%x", byte_address);
     return false;
   }
   dif_flash_ctrl_transaction_t transaction = {.byte_address = byte_address,
@@ -186,7 +187,7 @@ bool flash_ctrl_testutils_write(dif_flash_ctrl_state_t *flash_state,
   const uint32_t prog_window_size =
       (uint32_t)FLASH_CTRL_PARAM_REG_BUS_PGM_RES_BYTES / sizeof(uint32_t);
   const uint32_t prog_window_mask = ~(prog_window_size - 1);
-  bool retval = false;
+  bool retval = true;
   while (words_written < word_count) {
     // Writes must not cross programming resolution window boundaries, which
     // occur at every prog_window_size words.
@@ -200,7 +201,7 @@ bool flash_ctrl_testutils_write(dif_flash_ctrl_state_t *flash_state,
     CHECK_DIF_OK(dif_flash_ctrl_start(flash_state, transaction));
     CHECK_DIF_OK(dif_flash_ctrl_prog_fifo_push(flash_state, words_to_write,
                                                data + words_written));
-    retval |= flash_ctrl_testutils_wait_transaction_end(flash_state);
+    retval &= flash_ctrl_testutils_wait_transaction_end(flash_state);
     word_address += words_to_write;
     words_written += words_to_write;
   }
@@ -214,7 +215,7 @@ bool flash_ctrl_testutils_erase_and_write_page(
     dif_flash_ctrl_partition_type_t partition_type, uint32_t word_count) {
   bool retval = flash_ctrl_testutils_erase_page(flash_state, byte_address,
                                                 partition_id, partition_type);
-  retval |= flash_ctrl_testutils_write(flash_state, byte_address, partition_id,
+  retval &= flash_ctrl_testutils_write(flash_state, byte_address, partition_id,
                                        data, partition_type, word_count);
   return retval;
 }
@@ -283,4 +284,28 @@ bool flash_ctrl_testutils_bank_erase(dif_flash_ctrl_state_t *flash_state,
                                                         bank_erase_enabled));
 
   return retval;
+}
+
+uint32_t flash_ctrl_testutils_get_count(uint32_t *strike_counter) {
+  uint32_t addr = (uint32_t)strike_counter;
+  uint32_t val = abs_mmio_read32(addr);
+
+  for (size_t i = 0; i < 32; ++i) {
+    if (val >> i & 0x1) {
+      return i;
+    }
+  }
+  CHECK(false, "the counter is all zero?");
+  return -1;
+}
+
+void flash_ctrl_testutils_increment_counter(dif_flash_ctrl_state_t *flash_state,
+                                            uint32_t *strike_counter,
+                                            uint32_t index) {
+  uint32_t addr = (uint32_t)strike_counter;
+  uint32_t val = abs_mmio_read32(addr) & ~(1 << index);
+  CHECK(val != 0, "The counter overflows past 31");
+  CHECK(flash_ctrl_testutils_write(flash_state, addr, 0, &val,
+                                   kDifFlashCtrlPartitionTypeData, 1),
+        "Error incrementing strike counter");
 }

@@ -3,13 +3,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import logging as log
 import os
 import shlex
 import subprocess
 
 from Launcher import ErrorMessage, Launcher, LauncherError
-from utils import VERBOSE
 
 
 class LocalLauncher(Launcher):
@@ -54,8 +52,7 @@ class LocalLauncher(Launcher):
             f.flush()
             timeout_mins = self.deploy.get_timeout_mins()
             if timeout_mins:
-                self.timeout_secs = datetime.timedelta(
-                    seconds=timeout_mins * 60)
+                self.timeout_secs = timeout_mins * 60
             else:
                 self.timeout_secs = None
             self.process = subprocess.Popen(shlex.split(self.deploy.cmd),
@@ -84,9 +81,11 @@ class LocalLauncher(Launcher):
         '''
 
         assert self.process is not None
+        elapsed_time = datetime.datetime.now() - self.start_time
+        self.job_runtime_secs = elapsed_time.total_seconds()
         if self.process.poll() is None:
-            if self.timeout_secs and (self.start_time + self.timeout_secs <
-                                      datetime.datetime.now()):
+            if self.timeout_secs and (self.job_runtime_secs >
+                                      self.timeout_secs):
                 self._kill()
                 timeout_message = 'Job timed out after {} minutes'.format(
                     self.deploy.get_timeout_mins())
@@ -94,7 +93,7 @@ class LocalLauncher(Launcher):
                     'K',
                     ErrorMessage(line_number=None,
                                  message=timeout_message,
-                                 context=[]))
+                                 context=[timeout_message]))
                 return 'K'
 
             return 'D'

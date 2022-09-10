@@ -358,9 +358,8 @@ class Scrambler:
         '''
         digest_size_words = 8
         initial_len = self.rom_size_words - digest_size_words
-        seed = self.key + self.nonce
 
-        flattened = mem.flatten(initial_len, seed)
+        flattened = mem.flatten(initial_len)
         assert len(flattened.chunks) == 1
         assert len(flattened.chunks[0].words) == initial_len
 
@@ -478,7 +477,10 @@ class Scrambler:
         for log_addr in range(self.rom_size_words - num_digest_words):
             phy_addr = self.addr_sp_enc(log_addr)
             scr_word = scr_chunk.words[phy_addr]
-            to_hash += scr_word.to_bytes(64 // 8, byteorder='little')
+            # Note that a scrambled word with ECC amounts to 39bit. The
+            # expression (39 + 7) // 8 calculates the amount of bytes that are
+            # required to store these bits.
+            to_hash += scr_word.to_bytes((39 + 7) // 8, byteorder='little')
 
         # Hash it
         hash_obj = cSHAKE256.new(data=to_hash,

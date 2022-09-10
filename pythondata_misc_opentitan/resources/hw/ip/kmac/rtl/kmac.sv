@@ -145,7 +145,9 @@ module kmac
 
   // SHA3 core control signals and its response.
   // Sequence: start --> process(multiple) --> get absorbed event --> {run -->} done
-  logic sha3_start, sha3_run, sha3_done, unused_sha3_squeeze;
+  logic sha3_start, sha3_run, unused_sha3_squeeze;
+  prim_mubi_pkg::mubi4_t sha3_done;
+  prim_mubi_pkg::mubi4_t sha3_done_d;
   prim_mubi_pkg::mubi4_t sha3_absorbed;
 
   // Indicate one block processed
@@ -284,6 +286,8 @@ module kmac
   entropy_mode_e entropy_mode;
   logic entropy_fast_process;
 
+  prim_mubi_pkg::mubi4_t entropy_configured;
+
   // Message Masking
   logic msg_mask_en, cfg_msg_mask;
   logic [MsgWidth-1:0] msg_mask;
@@ -299,6 +303,9 @@ module kmac
 
   // Error checker
   kmac_pkg::err_t errchecker_err;
+
+  // MsgFIFO Error
+  kmac_pkg::err_t msgfifo_err;
 
   logic err_processed;
 
@@ -401,7 +408,7 @@ module kmac
   always_comb begin
     sha3_start = 1'b 0;
     sha3_run = 1'b 0;
-    sha3_done = 1'b 0;
+    sha3_done_d = prim_mubi_pkg::MuBi4False;
     reg2msgfifo_process = 1'b 0;
 
     unique case (kmac_cmd)
@@ -418,7 +425,7 @@ module kmac
       end
 
       CmdDone: begin
-        sha3_done = 1'b 1;
+        sha3_done_d = prim_mubi_pkg::MuBi4True;
       end
 
       CmdNone: begin
@@ -626,6 +633,10 @@ module kmac
         hw2reg.err_code.d = {entropy_err.code, entropy_err.info};
       end
 
+      msgfifo_err.valid: begin
+        hw2reg.err_code.d = {msgfifo_err.code, msgfifo_err.info};
+      end
+
       default: begin
         hw2reg.err_code.d = '0;
       end
@@ -634,10 +645,14 @@ module kmac
 
   // Counter errors
   logic counter_error, sha3_count_error, key_index_error;
+  logic msgfifo_counter_error;
   logic kmac_entropy_hash_counter_error;
   assign counter_error = sha3_count_error
                        | kmac_entropy_hash_counter_error
-                       | key_index_error;
+                       | key_index_error
+                       | msgfifo_counter_error;
+
+  assign msgfifo_counter_error = msgfifo_err.valid;
 
   // State Errors
   logic sparse_fsm_error;
@@ -650,6 +665,11 @@ module kmac
                           | kmac_app_state_error
                           | kmac_entropy_state_error
                           | kmac_state_error;
+
+  // Control Signal Integrity Errors
+  logic control_integrity_error;
+  logic sha3_storage_rst_error;
+  assign control_integrity_error = sha3_storage_rst_error;
 
   prim_intr_hw #(.Width(1)) intr_kmac_err (
     .clk_i,
@@ -713,12 +733,14 @@ module kmac
 
       KmacMsgFeed: begin
         // If absorbed, move to Digest
-        if (prim_mubi_pkg::mubi4_test_true_strict(sha3_absorbed) && sha3_done) begin
+        if (prim_mubi_pkg::mubi4_test_true_strict(sha3_absorbed) &&
+          prim_mubi_pkg::mubi4_test_true_strict(sha3_done)) begin
           // absorbed and done can be asserted at a cycle if Applications have
           // requested the hash operation. kmac_app FSM issues CmdDone command
           // if it receives absorbed signal.
           kmac_st_d = KmacIdle;
-        end else if (prim_mubi_pkg::mubi4_test_true_strict(sha3_absorbed) && !sha3_done) begin
+        end else if (prim_mubi_pkg::mubi4_test_true_strict(sha3_absorbed) &&
+          prim_mubi_pkg::mubi4_test_false_strict(sha3_done)) begin
           kmac_st_d = KmacDigest;
         end else begin
           kmac_st_d = KmacMsgFeed;
@@ -727,7 +749,7 @@ module kmac
 
       KmacDigest: begin
         // SW can manually run it, wait till done
-        if (sha3_done) begin
+        if (prim_mubi_pkg::mubi4_test_true_strict(sha3_done)) begin
           kmac_st_d = KmacIdle;
         end else begin
           kmac_st_d = KmacDigest;
@@ -870,9 +892,10 @@ module kmac
     .state_valid_o (state_valid),
     .state_o       (state), // [Share]
 
-    .error_o            (sha3_err),
-    .sparse_fsm_error_o (sha3_state_error),
-    .count_error_o  (sha3_count_error)
+    .error_o                    (sha3_err),
+    .sparse_fsm_error_o         (sha3_state_error),
+    .count_error_o              (sha3_count_error),
+    .keccak_storage_rst_error_o (sha3_storage_rst_error)
   );
 
   // MSG_FIFO window interface to FIFO interface ===============================
@@ -1002,6 +1025,9 @@ module kmac
     .sw_cmd_i (checked_sw_cmd),
     .cmd_o    (kmac_cmd),
 
+    // Status
+    .entropy_ready_i (entropy_configured),
+
     // LC escalation
     .lc_escalate_en_i (lc_escalate_en[3]),
 
@@ -1013,8 +1039,9 @@ module kmac
 
   // Message FIFO
   kmac_msgfifo #(
-    .OutWidth (kmac_pkg::MsgWidth),
-    .MsgDepth (kmac_pkg::MsgFifoDepth)
+    .OutWidth  (kmac_pkg::MsgWidth),
+    .MsgDepth  (kmac_pkg::MsgFifoDepth),
+    .EnMasking (EnMasking)
   ) u_msgfifo (
     .clk_i,
     .rst_ni,
@@ -1036,7 +1063,9 @@ module kmac
     .clear_i (sha3_done),
 
     .process_i (reg2msgfifo_process ),
-    .process_o (msgfifo2kmac_process)
+    .process_o (msgfifo2kmac_process),
+
+    .err_o (msgfifo_err)
   );
 
   logic [sha3_pkg::StateW-1:0] reg_state_tl [Share];
@@ -1169,6 +1198,8 @@ module kmac
       .hash_cnt_clr_i   (entropy_hash_clr),
       .hash_threshold_i (entropy_hash_threshold),
 
+      .entropy_configured_o (entropy_configured),
+
       // LC escalation
       .lc_escalate_en_i (lc_escalate_en[5]),
 
@@ -1216,7 +1247,20 @@ module kmac
 
     logic [1:0] unused_entropy_status;
     assign unused_entropy_status = entropy_in_keyblock;
+
+    // If Masking is off, always entropy configured
+    assign entropy_configured = prim_mubi_pkg::MuBi4True;
   end
+
+  // MUBI4 buf
+  prim_mubi4_sender #(
+    .AsyncOn (0)
+  ) u_sha3_done_sender (
+    .clk_i,
+    .rst_ni,
+    .mubi_i (sha3_done_d),
+    .mubi_o (sha3_done)
+  );
 
   // Register top
   logic [NumAlerts-1:0] alert_test, alerts, alerts_q;
@@ -1293,6 +1337,7 @@ module kmac
                      | alert_intg_err
                      | sparse_fsm_error
                      | counter_error
+                     | control_integrity_error
                      ;
 
   // Make the fatal alert observable via status register.
@@ -1387,8 +1432,9 @@ module kmac
   // Parameter as desired
   `ASSERT_INIT(SecretKeyDivideBy32_A, (kmac_pkg::MaxKeyLen % 32) == 0)
 
-  // Command input should be onehot0
-  `ASSUME(CmdOneHot0_M, reg2hw.cmd.cmd.qe |-> $onehot0(reg2hw.cmd.cmd.q))
+  // Command input should be sparse
+  `ASSUME(CmdSparse_M, reg2hw.cmd.cmd.qe |-> reg2hw.cmd.cmd.q inside {CmdStart, CmdProcess,
+                                                                CmdManualRun,CmdDone, CmdNone})
 
   // redundant counter error
   `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(SentMsgCountCheck_A, u_sha3.u_pad.u_sentmsg_count,
@@ -1418,6 +1464,25 @@ module kmac
     `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(SeedIdxCountCheck_A,
                                            gen_entropy.u_entropy.u_seed_idx_count,
                                            alert_tx_o[1])
+
+    // MsgFifo.Packer
+    `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(
+      PackerCountCheck_A,
+      u_msgfifo.u_packer.g_pos_dupcnt.u_pos,
+      alert_tx_o[1]
+    )
+
+    // MsgFifo.Fifo
+    `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(
+      MsgFifoWptrCheck_A,
+      u_msgfifo.u_msgfifo.gen_normal_fifo.u_fifo_cnt.gen_secure_ptrs.u_wptr,
+      alert_tx_o[1]
+    )
+    `ASSERT_PRIM_COUNT_ERROR_TRIGGER_ALERT(
+      MsgFifoRptrCheck_A,
+      u_msgfifo.u_msgfifo.gen_normal_fifo.u_fifo_cnt.gen_secure_ptrs.u_rptr,
+      alert_tx_o[1]
+    )
   end
 
   // Alert assertions for reg_we onehot check

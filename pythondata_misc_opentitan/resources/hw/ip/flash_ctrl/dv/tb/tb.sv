@@ -60,6 +60,10 @@ module tb;
     .clk  (clk),
     .rst_n(rst_n)
   );
+  tl_if prim_tl_if (
+    .clk  (clk),
+    .rst_n(rst_n)
+  );
   flash_ctrl_if flash_ctrl_if ();
   flash_phy_prim_if fpp_if (
     .clk  (clk),
@@ -69,10 +73,22 @@ module tb;
   `define FLASH_DEVICE_HIER tb.dut.u_eflash.u_flash
   assign fpp_if.req = `FLASH_DEVICE_HIER.flash_req_i;
   assign fpp_if.rsp = `FLASH_DEVICE_HIER.flash_rsp_o;
-  assign fpp_if.rreq[0] = tb.dut.u_eflash.gen_flash_cores[0].u_core.u_rd.req_i;
-  assign fpp_if.rreq[1] = tb.dut.u_eflash.gen_flash_cores[1].u_core.u_rd.req_i;
-  assign fpp_if.rdy[0] = tb.dut.u_eflash.gen_flash_cores[0].u_core.u_rd.rdy_o;
-  assign fpp_if.rdy[1] = tb.dut.u_eflash.gen_flash_cores[1].u_core.u_rd.rdy_o;
+  for (genvar i = 0; i < flash_ctrl_pkg::NumBanks; i++) begin : gen_bank_loop
+    assign fpp_if.rreq[i] = tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.req_i;
+    assign fpp_if.rdy[i] = tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.rdy_o;
+
+    assign flash_ctrl_if.hazard[i] =
+                        tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.data_hazard[3:0];
+    assign flash_ctrl_if.evict_prog[i] =
+                        tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.prog_i;
+    assign flash_ctrl_if.evict_erase[i] =
+                        tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.pg_erase_i;
+    for (genvar j = 0; j < flash_phy_pkg::NumBuf; j++) begin : gen_per_buffer
+      assign flash_ctrl_if.rd_buf[i][j] =
+                        tb.dut.u_eflash.gen_flash_cores[i].u_core.u_rd.read_buf[j];
+    end
+  end
+  assign flash_ctrl_if.fatal_err = tb.dut.fatal_err;
   `undef  FLASH_DEVICE_HIER
 
   `DV_ALERT_IF_CONNECT
@@ -90,6 +106,15 @@ module tb;
   assign otp_rsp.key        = flash_ctrl_if.otp_rsp.key;
   assign otp_rsp.rand_key   = flash_ctrl_if.otp_rsp.rand_key;
   assign otp_rsp.seed_valid = flash_ctrl_if.otp_rsp.seed_valid;
+
+  assign flash_ctrl_if.rd_buf_en   = tb.dut.u_flash_hw_if.rd_buf_en_o;
+  assign flash_ctrl_if.rma_state   = tb.dut.u_flash_hw_if.rma_state_q;
+  assign flash_ctrl_if.prog_state0 =
+               tb.dut.u_eflash.gen_flash_cores[0].u_core.gen_prog_data.u_prog.state_q;
+  assign flash_ctrl_if.prog_state1 =
+               tb.dut.u_eflash.gen_flash_cores[1].u_core.gen_prog_data.u_prog.state_q;
+  assign flash_ctrl_if.lcmgr_state = tb.dut.u_flash_hw_if.state_q;
+  assign flash_ctrl_if.init = tb.dut.u_flash_hw_if.init_i;
 
   wire flash_test_v;
   assign (pull1, pull0) flash_test_v = 1'b1;
@@ -110,8 +135,8 @@ module tb;
     // various tlul interfaces
     .core_tl_i(tl_if.h2d),
     .core_tl_o(tl_if.d2h),
-    .prim_tl_i('0),
-    .prim_tl_o(),
+    .prim_tl_i(prim_tl_if.h2d),
+    .prim_tl_o(prim_tl_if.d2h),
     .mem_tl_i (eflash_tl_if.h2d),
     .mem_tl_o (eflash_tl_if.d2h),
 
@@ -164,8 +189,7 @@ module tb;
     .intr_op_done_o   (intr_op_done),
     .intr_corr_err_o  (intr_err),
     .alert_rx_i       (alert_rx),
-    .alert_tx_o       (alert_tx),
-    .flash_alert_o    (flash_ctrl_if.flash_alert)
+    .alert_tx_o       (alert_tx)
   );
 
   // Create edge in flash_power_down_h_i, whenever reset is asserted
@@ -202,9 +226,12 @@ module tb;
   //
   // For eflash of a specific vendor implementation, set the hierarchy to the memory element
   // correctly when creating these instances in the extended testbench.
-  `define FLASH_DATA_MEM_HIER(i)                                                        \
+  `define FLASH_BANK_HIER(i)                                                            \
       tb.dut.u_eflash.u_flash.gen_generic.u_impl_generic.gen_prim_flash_banks[i].       \
-      u_prim_flash_bank.u_mem.gen_generic.u_impl_generic.mem
+      u_prim_flash_bank
+
+  `define FLASH_DATA_MEM_HIER(i)                                                        \
+      `FLASH_BANK_HIER(i).u_mem.gen_generic.u_impl_generic.mem
 
   `define FLASH_DATA_MEM_HIER_STR(i)                                                    \
       $sformatf({"tb.dut.u_eflash.u_flash.gen_generic.u_impl_generic.",                 \
@@ -254,9 +281,28 @@ module tb;
         end
       end : gen_each_info_type
 
+      bind `FLASH_BANK_HIER(i) flash_ctrl_mem_if flash_ctrl_mem_if (
+        .clk_i,
+        .rst_ni,
+        .data_mem_req,
+        .mem_wr,
+        .mem_addr,
+        .mem_wdata,
+        .mem_part,
+        .mem_info_sel,
+        .info0_mem_req (gen_info_types[0].info_mem_req),
+        .info1_mem_req (gen_info_types[1].info_mem_req),
+        .info2_mem_req (gen_info_types[2].info_mem_req)
+      );
+      initial begin
+        uvm_config_db#(virtual flash_ctrl_mem_if)::set(null, "*.env",
+            $sformatf("flash_ctrl_mem_vif[%0d]", i), `FLASH_BANK_HIER(i).flash_ctrl_mem_if);
+      end
+
     end : gen_each_bank
   end : gen_generic
 
+  `undef FLASH_BANK_HIER
   `undef FLASH_DATA_MEM_HIER
   `undef FLASH_INFO_MEM_HIER
 
@@ -274,6 +320,9 @@ module tb;
     uvm_config_db#(virtual clk_rst_if)::set(null, "*.env", "clk_rst_vif", clk_rst_if);
     uvm_config_db#(virtual clk_rst_if)::set(null, "*.env",
                                             "clk_rst_vif_flash_ctrl_eflash_reg_block", clk_rst_if);
+    uvm_config_db#(virtual clk_rst_if)::set(null, "*.env",
+                                            "clk_rst_vif_flash_ctrl_prim_reg_block", clk_rst_if);
+
     uvm_config_db#(virtual rst_shadowed_if)::set(null, "*.env", "rst_shadowed_vif",
                                                  rst_shadowed_if);
     uvm_config_db#(intr_vif)::set(null, "*.env", "intr_vif", intr_if);
@@ -282,6 +331,8 @@ module tb;
                                        tl_if);
     uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent_flash_ctrl_eflash_reg_block*", "vif",
                                        eflash_tl_if);
+    uvm_config_db#(virtual tl_if)::set(null, "*.env.m_tl_agent_flash_ctrl_prim_reg_block*", "vif",
+                                       prim_tl_if);
     uvm_config_db#(virtual flash_ctrl_if)::set(null, "*.env", "flash_ctrl_vif", flash_ctrl_if);
     uvm_config_db#(virtual flash_phy_prim_if)::set(null, "*.env.m_fpp_agent*", "vif", fpp_if);
     $timeformat(-9, 1, " ns", 9);

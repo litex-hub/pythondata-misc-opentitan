@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "sw/device/lib/dif/dif_otbn.h"
-#include "sw/device/lib/irq.h"
 #include "sw/device/lib/runtime/ibex.h"
+#include "sw/device/lib/runtime/irq.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/runtime/otbn.h"
 #include "sw/device/lib/testing/entropy_testutils.h"
@@ -168,6 +168,9 @@ static void otbn_wait_for_done_irq(otbn_t *otbn_ctx) {
   // Disable Done interrupt.
   CHECK_DIF_OK(dif_otbn_irq_set_enabled(&otbn_ctx->dif, kDifOtbnIrqDone,
                                         kDifToggleDisabled));
+
+  // Acknowledge Done interrupt. This clears INTR_STATE.done back to 0.
+  CHECK_DIF_OK(dif_otbn_irq_acknowledge(&otbn_ctx->dif, kDifOtbnIrqDone));
 }
 
 static void otbn_init_irq(void) {
@@ -190,6 +193,16 @@ static void otbn_init_irq(void) {
   // Enable the external IRQ (so that we see the interrupt from the PLIC).
   irq_global_ctrl(true);
   irq_external_ctrl(true);
+}
+
+/**
+ * Securely wipes OTBN DMEM and waits for Done interrupt.
+ *
+ * @param otbn_ctx The OTBN context object.
+ */
+static void otbn_wipe_dmem(otbn_t *otbn_ctx) {
+  CHECK_DIF_OK(dif_otbn_write_cmd(&otbn_ctx->dif, kDifOtbnCmdSecWipeDmem));
+  otbn_wait_for_done_irq(otbn_ctx);
 }
 
 /**
@@ -395,9 +408,9 @@ static void test_ecdsa_p256_roundtrip(void) {
   p256_ecdsa_sign(&otbn_ctx, kIn, kPrivateKeyD, signature_r, signature_s);
   profile_end(t_start_sign, "Sign");
 
-  // Clear OTBN memory and reload app
-  LOG_INFO("Clearing OTBN memory and reloading app");
-  CHECK(otbn_zero_data_memory(&otbn_ctx) == kOtbnOk);
+  // Securely wipe OTBN data memory and reload app
+  LOG_INFO("Wiping OTBN DMEM and reloading app");
+  otbn_wipe_dmem(&otbn_ctx);
   CHECK(otbn_load_app(&otbn_ctx, kOtbnAppP256Ecdsa) == kOtbnOk);
 
   // Verify
@@ -414,13 +427,13 @@ static void test_ecdsa_p256_roundtrip(void) {
   check_data("signature_x_r", signature_r, signature_x_r, 32);
   profile_end(t_start_verify, "Verify");
 
-  // Clear OTBN memory
-  LOG_INFO("Clearing OTBN memory");
-  CHECK(otbn_zero_data_memory(&otbn_ctx) == kOtbnOk);
+  // Securely wipe OTBN data memory
+  LOG_INFO("Wiping OTBN DMEM");
+  otbn_wipe_dmem(&otbn_ctx);
 }
 
 bool test_main(void) {
-  entropy_testutils_boot_mode_init();
+  entropy_testutils_auto_mode_init();
 
   test_ecdsa_p256_roundtrip();
 

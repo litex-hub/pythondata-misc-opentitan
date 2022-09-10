@@ -7,21 +7,27 @@ class spi_item extends uvm_sequence_item;
   // hold transaction type
   rand spi_trans_type_e item_type;
   // byte of data sent or received
-  rand bit [7:0] data[$];
+  rand logic [7:0] data[$];
   // start of transaction
   bit first_byte;
   // flash command constraints
   rand int read_size;
-  rand bit [7:0] payload_q[$];
+  rand logic [7:0] payload_q[$];
   rand bit write_command;
   rand bit [7:0] address_q[$];
   rand bit [7:0] opcode;
-  rand bit [2:0] num_lanes; // 1,2 or 4 lanes for read response
+  // 1,2 or 4 lanes for read response, 0 means no data
+  rand bit [2:0] num_lanes;
   rand int dummy_cycles;
 
   // for dummy transaction
   rand uint dummy_clk_cnt;
   rand uint dummy_sck_length_ns;
+
+  // transaction status. only use in monitor on flash mode
+  // allow scb to process payload when one byte data is received, instead
+  // of wait until the entire item is collected. This indicates item has collected all data.
+  bit mon_item_complete;
 
   // constrain size of data sent / received to be at most 64kB
   constraint data_size_c { data.size() inside {[1:65536]}; }
@@ -32,7 +38,7 @@ class spi_item extends uvm_sequence_item;
 
   constraint num_lanes_c {
     write_command -> num_lanes == 1;
-    num_lanes inside {1, 2, 4};
+    num_lanes inside {0, 1, 2, 4};
   }
 
   `uvm_object_utils_begin(spi_item)

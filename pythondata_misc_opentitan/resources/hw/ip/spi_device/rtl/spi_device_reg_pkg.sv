@@ -10,6 +10,9 @@ package spi_device_reg_pkg;
   parameter int unsigned SramDepth = 1024;
   parameter int unsigned NumCmdInfo = 24;
   parameter int unsigned NumLocality = 5;
+  parameter int unsigned TpmWrFifoPtrW = 7;
+  parameter int unsigned TpmRdFifoPtrW = 5;
+  parameter int unsigned TpmRdFifoWidth = 32;
   parameter int NumAlerts = 1;
 
   // Address widths within the block
@@ -460,7 +463,7 @@ package spi_device_reg_pkg;
   } spi_device_reg2hw_tpm_cmd_addr_reg_t;
 
   typedef struct packed {
-    logic [7:0]  q;
+    logic [31:0] q;
     logic        qe;
   } spi_device_reg2hw_tpm_read_fifo_reg_t;
 
@@ -635,7 +638,11 @@ package spi_device_reg_pkg;
     struct packed {
       logic [2:0]  d;
       logic        de;
-    } max_xfer_size;
+    } max_wr_size;
+    struct packed {
+      logic [2:0]  d;
+      logic        de;
+    } max_rd_size;
   } spi_device_hw2reg_tpm_cap_reg_t;
 
   typedef struct packed {
@@ -648,11 +655,11 @@ package spi_device_reg_pkg;
       logic        de;
     } rdfifo_notempty;
     struct packed {
-      logic [2:0]  d;
+      logic [4:0]  d;
       logic        de;
     } rdfifo_depth;
     struct packed {
-      logic [2:0]  d;
+      logic [6:0]  d;
       logic        de;
     } wrfifo_depth;
   } spi_device_hw2reg_tpm_status_reg_t;
@@ -672,65 +679,65 @@ package spi_device_reg_pkg;
 
   // Register -> HW type
   typedef struct packed {
-    spi_device_reg2hw_intr_state_reg_t intr_state; // [1647:1636]
-    spi_device_reg2hw_intr_enable_reg_t intr_enable; // [1635:1624]
-    spi_device_reg2hw_intr_test_reg_t intr_test; // [1623:1600]
-    spi_device_reg2hw_alert_test_reg_t alert_test; // [1599:1598]
-    spi_device_reg2hw_control_reg_t control; // [1597:1592]
-    spi_device_reg2hw_cfg_reg_t cfg; // [1591:1578]
-    spi_device_reg2hw_fifo_level_reg_t fifo_level; // [1577:1546]
-    spi_device_reg2hw_rxf_ptr_reg_t rxf_ptr; // [1545:1530]
-    spi_device_reg2hw_txf_ptr_reg_t txf_ptr; // [1529:1514]
-    spi_device_reg2hw_rxf_addr_reg_t rxf_addr; // [1513:1482]
-    spi_device_reg2hw_txf_addr_reg_t txf_addr; // [1481:1450]
-    spi_device_reg2hw_intercept_en_reg_t intercept_en; // [1449:1446]
-    spi_device_reg2hw_flash_status_reg_t flash_status; // [1445:1420]
-    spi_device_reg2hw_jedec_cc_reg_t jedec_cc; // [1419:1404]
-    spi_device_reg2hw_jedec_id_reg_t jedec_id; // [1403:1380]
-    spi_device_reg2hw_read_threshold_reg_t read_threshold; // [1379:1370]
-    spi_device_reg2hw_mailbox_addr_reg_t mailbox_addr; // [1369:1338]
-    spi_device_reg2hw_upload_cmdfifo_reg_t upload_cmdfifo; // [1337:1329]
-    spi_device_reg2hw_upload_addrfifo_reg_t upload_addrfifo; // [1328:1296]
-    spi_device_reg2hw_cmd_filter_mreg_t [255:0] cmd_filter; // [1295:1040]
-    spi_device_reg2hw_addr_swap_mask_reg_t addr_swap_mask; // [1039:1008]
-    spi_device_reg2hw_addr_swap_data_reg_t addr_swap_data; // [1007:976]
-    spi_device_reg2hw_payload_swap_mask_reg_t payload_swap_mask; // [975:944]
-    spi_device_reg2hw_payload_swap_data_reg_t payload_swap_data; // [943:912]
-    spi_device_reg2hw_cmd_info_mreg_t [23:0] cmd_info; // [911:312]
-    spi_device_reg2hw_cmd_info_en4b_reg_t cmd_info_en4b; // [311:303]
-    spi_device_reg2hw_cmd_info_ex4b_reg_t cmd_info_ex4b; // [302:294]
-    spi_device_reg2hw_cmd_info_wren_reg_t cmd_info_wren; // [293:285]
-    spi_device_reg2hw_cmd_info_wrdi_reg_t cmd_info_wrdi; // [284:276]
-    spi_device_reg2hw_tpm_cfg_reg_t tpm_cfg; // [275:271]
-    spi_device_reg2hw_tpm_access_mreg_t [4:0] tpm_access; // [270:231]
-    spi_device_reg2hw_tpm_sts_reg_t tpm_sts; // [230:199]
-    spi_device_reg2hw_tpm_intf_capability_reg_t tpm_intf_capability; // [198:167]
-    spi_device_reg2hw_tpm_int_enable_reg_t tpm_int_enable; // [166:135]
-    spi_device_reg2hw_tpm_int_vector_reg_t tpm_int_vector; // [134:127]
-    spi_device_reg2hw_tpm_int_status_reg_t tpm_int_status; // [126:95]
-    spi_device_reg2hw_tpm_did_vid_reg_t tpm_did_vid; // [94:63]
-    spi_device_reg2hw_tpm_rid_reg_t tpm_rid; // [62:55]
-    spi_device_reg2hw_tpm_cmd_addr_reg_t tpm_cmd_addr; // [54:19]
-    spi_device_reg2hw_tpm_read_fifo_reg_t tpm_read_fifo; // [18:10]
+    spi_device_reg2hw_intr_state_reg_t intr_state; // [1671:1660]
+    spi_device_reg2hw_intr_enable_reg_t intr_enable; // [1659:1648]
+    spi_device_reg2hw_intr_test_reg_t intr_test; // [1647:1624]
+    spi_device_reg2hw_alert_test_reg_t alert_test; // [1623:1622]
+    spi_device_reg2hw_control_reg_t control; // [1621:1616]
+    spi_device_reg2hw_cfg_reg_t cfg; // [1615:1602]
+    spi_device_reg2hw_fifo_level_reg_t fifo_level; // [1601:1570]
+    spi_device_reg2hw_rxf_ptr_reg_t rxf_ptr; // [1569:1554]
+    spi_device_reg2hw_txf_ptr_reg_t txf_ptr; // [1553:1538]
+    spi_device_reg2hw_rxf_addr_reg_t rxf_addr; // [1537:1506]
+    spi_device_reg2hw_txf_addr_reg_t txf_addr; // [1505:1474]
+    spi_device_reg2hw_intercept_en_reg_t intercept_en; // [1473:1470]
+    spi_device_reg2hw_flash_status_reg_t flash_status; // [1469:1444]
+    spi_device_reg2hw_jedec_cc_reg_t jedec_cc; // [1443:1428]
+    spi_device_reg2hw_jedec_id_reg_t jedec_id; // [1427:1404]
+    spi_device_reg2hw_read_threshold_reg_t read_threshold; // [1403:1394]
+    spi_device_reg2hw_mailbox_addr_reg_t mailbox_addr; // [1393:1362]
+    spi_device_reg2hw_upload_cmdfifo_reg_t upload_cmdfifo; // [1361:1353]
+    spi_device_reg2hw_upload_addrfifo_reg_t upload_addrfifo; // [1352:1320]
+    spi_device_reg2hw_cmd_filter_mreg_t [255:0] cmd_filter; // [1319:1064]
+    spi_device_reg2hw_addr_swap_mask_reg_t addr_swap_mask; // [1063:1032]
+    spi_device_reg2hw_addr_swap_data_reg_t addr_swap_data; // [1031:1000]
+    spi_device_reg2hw_payload_swap_mask_reg_t payload_swap_mask; // [999:968]
+    spi_device_reg2hw_payload_swap_data_reg_t payload_swap_data; // [967:936]
+    spi_device_reg2hw_cmd_info_mreg_t [23:0] cmd_info; // [935:336]
+    spi_device_reg2hw_cmd_info_en4b_reg_t cmd_info_en4b; // [335:327]
+    spi_device_reg2hw_cmd_info_ex4b_reg_t cmd_info_ex4b; // [326:318]
+    spi_device_reg2hw_cmd_info_wren_reg_t cmd_info_wren; // [317:309]
+    spi_device_reg2hw_cmd_info_wrdi_reg_t cmd_info_wrdi; // [308:300]
+    spi_device_reg2hw_tpm_cfg_reg_t tpm_cfg; // [299:295]
+    spi_device_reg2hw_tpm_access_mreg_t [4:0] tpm_access; // [294:255]
+    spi_device_reg2hw_tpm_sts_reg_t tpm_sts; // [254:223]
+    spi_device_reg2hw_tpm_intf_capability_reg_t tpm_intf_capability; // [222:191]
+    spi_device_reg2hw_tpm_int_enable_reg_t tpm_int_enable; // [190:159]
+    spi_device_reg2hw_tpm_int_vector_reg_t tpm_int_vector; // [158:151]
+    spi_device_reg2hw_tpm_int_status_reg_t tpm_int_status; // [150:119]
+    spi_device_reg2hw_tpm_did_vid_reg_t tpm_did_vid; // [118:87]
+    spi_device_reg2hw_tpm_rid_reg_t tpm_rid; // [86:79]
+    spi_device_reg2hw_tpm_cmd_addr_reg_t tpm_cmd_addr; // [78:43]
+    spi_device_reg2hw_tpm_read_fifo_reg_t tpm_read_fifo; // [42:10]
     spi_device_reg2hw_tpm_write_fifo_reg_t tpm_write_fifo; // [9:0]
   } spi_device_reg2hw_t;
 
   // HW -> register type
   typedef struct packed {
-    spi_device_hw2reg_intr_state_reg_t intr_state; // [279:256]
-    spi_device_hw2reg_cfg_reg_t cfg; // [255:254]
-    spi_device_hw2reg_async_fifo_level_reg_t async_fifo_level; // [253:238]
-    spi_device_hw2reg_status_reg_t status; // [237:232]
-    spi_device_hw2reg_rxf_ptr_reg_t rxf_ptr; // [231:215]
-    spi_device_hw2reg_txf_ptr_reg_t txf_ptr; // [214:198]
-    spi_device_hw2reg_last_read_addr_reg_t last_read_addr; // [197:166]
-    spi_device_hw2reg_flash_status_reg_t flash_status; // [165:142]
-    spi_device_hw2reg_upload_status_reg_t upload_status; // [141:126]
-    spi_device_hw2reg_upload_status2_reg_t upload_status2; // [125:107]
-    spi_device_hw2reg_upload_cmdfifo_reg_t upload_cmdfifo; // [106:99]
-    spi_device_hw2reg_upload_addrfifo_reg_t upload_addrfifo; // [98:67]
-    spi_device_hw2reg_tpm_cap_reg_t tpm_cap; // [66:52]
-    spi_device_hw2reg_tpm_status_reg_t tpm_status; // [51:40]
+    spi_device_hw2reg_intr_state_reg_t intr_state; // [289:266]
+    spi_device_hw2reg_cfg_reg_t cfg; // [265:264]
+    spi_device_hw2reg_async_fifo_level_reg_t async_fifo_level; // [263:248]
+    spi_device_hw2reg_status_reg_t status; // [247:242]
+    spi_device_hw2reg_rxf_ptr_reg_t rxf_ptr; // [241:225]
+    spi_device_hw2reg_txf_ptr_reg_t txf_ptr; // [224:208]
+    spi_device_hw2reg_last_read_addr_reg_t last_read_addr; // [207:176]
+    spi_device_hw2reg_flash_status_reg_t flash_status; // [175:152]
+    spi_device_hw2reg_upload_status_reg_t upload_status; // [151:136]
+    spi_device_hw2reg_upload_status2_reg_t upload_status2; // [135:117]
+    spi_device_hw2reg_upload_cmdfifo_reg_t upload_cmdfifo; // [116:109]
+    spi_device_hw2reg_upload_addrfifo_reg_t upload_addrfifo; // [108:77]
+    spi_device_hw2reg_tpm_cap_reg_t tpm_cap; // [76:58]
+    spi_device_hw2reg_tpm_status_reg_t tpm_status; // [57:40]
     spi_device_hw2reg_tpm_cmd_addr_reg_t tpm_cmd_addr; // [39:8]
     spi_device_hw2reg_tpm_write_fifo_reg_t tpm_write_fifo; // [7:0]
   } spi_device_hw2reg_t;
@@ -843,7 +850,7 @@ package spi_device_reg_pkg;
   parameter logic [7:0] SPI_DEVICE_UPLOAD_CMDFIFO_RESVAL = 8'h 0;
   parameter logic [31:0] SPI_DEVICE_UPLOAD_ADDRFIFO_RESVAL = 32'h 0;
   parameter logic [31:0] SPI_DEVICE_TPM_CMD_ADDR_RESVAL = 32'h 0;
-  parameter logic [7:0] SPI_DEVICE_TPM_READ_FIFO_RESVAL = 8'h 0;
+  parameter logic [31:0] SPI_DEVICE_TPM_READ_FIFO_RESVAL = 32'h 0;
   parameter logic [7:0] SPI_DEVICE_TPM_WRITE_FIFO_RESVAL = 8'h 0;
 
   // Window parameters
@@ -1001,7 +1008,7 @@ package spi_device_reg_pkg;
     4'b 1111, // index[63] SPI_DEVICE_CMD_INFO_WRDI
     4'b 0111, // index[64] SPI_DEVICE_TPM_CAP
     4'b 0001, // index[65] SPI_DEVICE_TPM_CFG
-    4'b 0011, // index[66] SPI_DEVICE_TPM_STATUS
+    4'b 0111, // index[66] SPI_DEVICE_TPM_STATUS
     4'b 1111, // index[67] SPI_DEVICE_TPM_ACCESS_0
     4'b 0001, // index[68] SPI_DEVICE_TPM_ACCESS_1
     4'b 1111, // index[69] SPI_DEVICE_TPM_STS
@@ -1012,7 +1019,7 @@ package spi_device_reg_pkg;
     4'b 1111, // index[74] SPI_DEVICE_TPM_DID_VID
     4'b 0001, // index[75] SPI_DEVICE_TPM_RID
     4'b 1111, // index[76] SPI_DEVICE_TPM_CMD_ADDR
-    4'b 0001, // index[77] SPI_DEVICE_TPM_READ_FIFO
+    4'b 1111, // index[77] SPI_DEVICE_TPM_READ_FIFO
     4'b 0001  // index[78] SPI_DEVICE_TPM_WRITE_FIFO
   };
 

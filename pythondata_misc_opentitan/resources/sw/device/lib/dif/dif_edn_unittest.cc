@@ -93,7 +93,21 @@ TEST_F(SetModeTest, Auto) {
                      {EDN_CTRL_EDN_ENABLE_OFFSET, kMultiBitBool4False},
                      {EDN_CTRL_BOOT_REQ_MODE_OFFSET, kMultiBitBool4False},
                      {EDN_CTRL_AUTO_REQ_MODE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_CMD_FIFO_RST_OFFSET, kMultiBitBool4False},
+                 });
+  EXPECT_WRITE32(EDN_CTRL_REG_OFFSET,
+                 {
+                     {EDN_CTRL_EDN_ENABLE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_BOOT_REQ_MODE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_AUTO_REQ_MODE_OFFSET, kMultiBitBool4False},
                      {EDN_CTRL_CMD_FIFO_RST_OFFSET, kMultiBitBool4True},
+                 });
+  EXPECT_WRITE32(EDN_CTRL_REG_OFFSET,
+                 {
+                     {EDN_CTRL_EDN_ENABLE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_BOOT_REQ_MODE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_AUTO_REQ_MODE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_CMD_FIFO_RST_OFFSET, kMultiBitBool4False},
                  });
 
   dif_edn_auto_params_t params = {
@@ -122,11 +136,19 @@ TEST_F(SetModeTest, Auto) {
 
   EXPECT_WRITE32(EDN_CTRL_REG_OFFSET,
                  {
-                     {EDN_CTRL_EDN_ENABLE_OFFSET, kMultiBitBool4False},
+                     {EDN_CTRL_EDN_ENABLE_OFFSET, kMultiBitBool4True},
                      {EDN_CTRL_BOOT_REQ_MODE_OFFSET, kMultiBitBool4False},
                      {EDN_CTRL_AUTO_REQ_MODE_OFFSET, kMultiBitBool4True},
-                     {EDN_CTRL_CMD_FIFO_RST_OFFSET, kMultiBitBool4True},
+                     {EDN_CTRL_CMD_FIFO_RST_OFFSET, kMultiBitBool4False},
                  });
+
+  EXPECT_READ32(EDN_SW_CMD_STS_REG_OFFSET, 1);
+
+  EXPECT_WRITE32(EDN_SW_CMD_REQ_REG_OFFSET, 1);
+
+  EXPECT_READ32(EDN_SW_CMD_STS_REG_OFFSET, 1);
+
+  EXPECT_READ32(EDN_SW_CMD_STS_REG_OFFSET, 1);
 
   EXPECT_DIF_OK(dif_edn_set_auto_mode(&edn_, params));
 }
@@ -268,6 +290,13 @@ TEST_F(CommandTest, InstantiateBadArgs) {
   EXPECT_DIF_BADARG(dif_edn_instantiate(nullptr, kDifEdnEntropySrcToggleDisable,
                                         &seed_material_));
 
+  // Unaligned `seed_material` pointer.
+  dif_edn_seed_material_t *corrupt_seed_material_ptr =
+      reinterpret_cast<dif_edn_seed_material_t *>(
+          reinterpret_cast<uintptr_t>(&seed_material_) + 3);
+  EXPECT_DIF_BADARG(dif_edn_instantiate(&edn_, kDifEdnEntropySrcToggleDisable,
+                                        corrupt_seed_material_ptr));
+
   // Failed overflow check.
   seed_material_.len = 16;
   EXPECT_DIF_BADARG(dif_edn_instantiate(&edn_, kDifEdnEntropySrcToggleDisable,
@@ -334,6 +363,10 @@ TEST_F(StopTest, BadArgs) { EXPECT_DIF_BADARG(dif_edn_stop(nullptr)); }
 
 TEST_F(StopTest, Stop) {
   EXPECT_READ32(EDN_REGWEN_REG_OFFSET, 1);
+  EXPECT_WRITE32(EDN_CTRL_REG_OFFSET, EDN_CTRL_REG_RESVAL);
+  uint32_t ctrl_reg = bitfield_field32_write(
+      EDN_CTRL_REG_RESVAL, EDN_CTRL_CMD_FIFO_RST_FIELD, kMultiBitBool4True);
+  EXPECT_WRITE32(EDN_CTRL_REG_OFFSET, ctrl_reg);
   EXPECT_WRITE32(EDN_CTRL_REG_OFFSET, EDN_CTRL_REG_RESVAL);
   EXPECT_DIF_OK(dif_edn_stop(&edn_));
 }

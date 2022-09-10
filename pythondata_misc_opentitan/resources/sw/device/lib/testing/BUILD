@@ -72,6 +72,7 @@ cc_library(
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/arch:device",
         "//sw/device/lib/base:math",
         "//sw/device/lib/dif:aon_timer",
         "//sw/device/lib/testing/test_framework:check",
@@ -111,6 +112,7 @@ cc_library(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:mmio",
         "//sw/device/lib/dif:csrng",
+        "//sw/device/lib/dif:edn",
         "//sw/device/lib/dif:entropy_src",
         "//sw/device/lib/testing/test_framework:check",
     ],
@@ -123,6 +125,7 @@ cc_library(
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/top_earlgrey/ip/flash_ctrl/data/autogen:flash_ctrl_regs",
+        "//sw/device/lib/base:abs_mmio",
         "//sw/device/lib/base:mmio",
         "//sw/device/lib/dif:flash_ctrl",
         "//sw/device/lib/runtime:hart",
@@ -145,15 +148,47 @@ cc_library(
 )
 
 cc_library(
+    name = "i2c_testutils",
+    srcs = ["i2c_testutils.c"],
+    hdrs = ["i2c_testutils.h"],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        "//hw/ip/i2c/data:i2c_regs",
+        "//sw/device/lib/dif:i2c",
+        "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/testing/test_framework:check",
+    ],
+)
+
+cc_library(
     name = "keymgr_testutils",
     srcs = ["keymgr_testutils.c"],
     hdrs = ["keymgr_testutils.h"],
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
         "//hw/ip/keymgr/data:keymgr_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:flash_ctrl",
         "//sw/device/lib/dif:keymgr",
+        "//sw/device/lib/dif:otp_ctrl",
+        "//sw/device/lib/dif:rstmgr",
         "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/testing:flash_ctrl_testutils",
+        "//sw/device/lib/testing:kmac_testutils",
+        "//sw/device/lib/testing:otp_ctrl_testutils",
+        "//sw/device/lib/testing:rstmgr_testutils",
+        "//sw/device/lib/testing/test_framework:check",
+    ],
+)
+
+cc_library(
+    name = "kmac_testutils",
+    srcs = ["kmac_testutils.c"],
+    hdrs = ["kmac_testutils.h"],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        "//sw/device/lib/dif:kmac",
         "//sw/device/lib/testing/test_framework:check",
     ],
 )
@@ -214,6 +249,11 @@ cc_library(
     hdrs = ["rand_testutils.h"],
     target_compatible_with = [OPENTITAN_CPU],
     deps = [
+        ":rv_core_ibex_testutils",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/arch:device",
+        "//sw/device/lib/dif:rv_core_ibex",
+        "//sw/device/lib/runtime:log",
         "//sw/device/lib/testing/test_framework:check",
     ],
 )
@@ -227,6 +267,18 @@ cc_library(
         "//sw/device/lib/dif:rstmgr",
         "//sw/device/lib/testing/test_framework:check",
         "//sw/device/silicon_creator/lib/drivers:retention_sram",
+    ],
+)
+
+cc_library(
+    name = "rv_core_ibex_testutils",
+    srcs = ["rv_core_ibex_testutils.c"],
+    hdrs = ["rv_core_ibex_testutils.h"],
+    target_compatible_with = [OPENTITAN_CPU],
+    deps = [
+        "//sw/device/lib/dif:rv_core_ibex",
+        "//sw/device/lib/runtime:ibex",
+        "//sw/device/lib/testing/test_framework:check",
     ],
 )
 

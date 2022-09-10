@@ -476,11 +476,13 @@ int OtbnModel::check() const {
     return -1;
   }
 
-  try {
-    good &= check_call_stack(*iss);
-  } catch (const std::exception &err) {
-    std::cerr << "Failed to check call stack: " << err.what() << "\n";
-    return -1;
+  if (stack_check_enabled_) {
+    try {
+      good &= check_call_stack(*iss);
+    } catch (const std::exception &err) {
+      std::cerr << "Failed to check call stack: " << err.what() << "\n";
+      return -1;
+    }
   }
 
   return good ? 1 : 0;
@@ -559,6 +561,11 @@ int OtbnModel::set_no_sec_wipe_chk() {
   return 0;
 }
 
+int OtbnModel::disable_stack_check() {
+  stack_check_enabled_ = false;
+  return 0;
+}
+
 int OtbnModel::step_crc(const svBitVecVal *item /* bit [47:0] */,
                         svBitVecVal *state /* bit [31:0] */) {
   ISSWrapper *iss = ensure_wrapper();
@@ -609,16 +616,32 @@ int OtbnModel::reset(svBitVecVal *status /* bit [7:0] */,
   return 0;
 }
 
-int OtbnModel::send_err_escalation(svBitVecVal *err_val /* bit [31:0] */) {
+int OtbnModel::send_err_escalation(svBitVecVal *err_val /* bit [31:0] */,
+                                   svBit lock_immediately) {
   ISSWrapper *iss = ensure_wrapper();
   if (!iss)
     return -1;
 
   try {
-    iss->send_err_escalation(err_val[0]);
+    iss->send_err_escalation(err_val[0], lock_immediately);
   } catch (const std::exception &err) {
     std::cerr << "Error when sending error escalation signal to ISS: "
               << err.what() << "\n";
+    return -1;
+  }
+
+  return 0;
+}
+
+int OtbnModel::send_rma_req() {
+  ISSWrapper *iss = ensure_wrapper();
+  if (!iss)
+    return -1;
+
+  try {
+    iss->send_rma_req();
+  } catch (const std::exception &err) {
+    std::cerr << "Error when sending RMA req to ISS: " << err.what() << "\n";
     return -1;
   }
 
@@ -1006,6 +1029,11 @@ int otbn_set_no_sec_wipe_chk(OtbnModel *model) {
   return model->set_no_sec_wipe_chk();
 }
 
+int otbn_disable_stack_check(OtbnModel *model) {
+  assert(model);
+  return model->disable_stack_check();
+}
+
 int otbn_model_step_crc(OtbnModel *model, svBitVecVal *item /* bit [47:0] */,
                         svBitVecVal *state /* inout bit [31:0] */) {
   assert(model && item && state);
@@ -1022,9 +1050,15 @@ int otbn_model_reset(OtbnModel *model, svBitVecVal *status /* bit [7:0] */,
 }
 
 int otbn_model_send_err_escalation(OtbnModel *model,
-                                   svBitVecVal *err_val /* bit [31:0] */) {
+                                   svBitVecVal *err_val /* bit [31:0] */,
+                                   svBit lock_immediately) {
   assert(model);
-  return model->send_err_escalation(err_val);
+  return model->send_err_escalation(err_val, lock_immediately);
+}
+
+int otbn_model_send_rma_req(OtbnModel *model) {
+  assert(model);
+  return model->send_rma_req();
 }
 
 int otbn_model_initial_secure_wipe(OtbnModel *model) {

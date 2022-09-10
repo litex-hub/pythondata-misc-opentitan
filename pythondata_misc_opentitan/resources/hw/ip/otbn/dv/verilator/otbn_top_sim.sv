@@ -173,6 +173,9 @@ module otbn_top_sim (
   bind otbn_core otbn_trace_if #(.ImemAddrWidth, .DmemAddrWidth) i_otbn_trace_if (.*);
   bind otbn_core otbn_tracer u_otbn_tracer(.*, .otbn_trace(i_otbn_trace_if));
 
+  assign u_otbn_core.i_otbn_trace_if.scramble_state_err_i = '0;
+  assign u_otbn_core.i_otbn_trace_if.missed_gnt_i = '0;
+
   // Convert from core_err_bits_t to err_bits_t
   assign otbn_err_bits = '{
     fatal_software:       core_err_bits.fatal_software,
@@ -356,6 +359,7 @@ module otbn_top_sim (
     .cmd_en_i              ( otbn_start ),
 
     .lc_escalate_en_i      ( 1'b0 ),
+    .lc_rma_req_i          ( 1'b0 ),
 
     .err_bits_o            ( otbn_model_err_bits ),
 

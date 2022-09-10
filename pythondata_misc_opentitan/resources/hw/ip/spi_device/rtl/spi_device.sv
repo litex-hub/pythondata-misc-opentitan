@@ -79,6 +79,16 @@ module spi_device
   localparam int unsigned ReadBufferDepth = spi_device_pkg::SramMsgDepth;
   localparam int unsigned BufferAw        = $clog2(ReadBufferDepth);
 
+  localparam int unsigned TpmRdFifoWidth  = spi_device_reg_pkg::TpmRdFifoWidth;
+  localparam int unsigned TpmWrFifoDepth  = 64; // 64B
+  localparam int unsigned TpmRdFifoDepth  = 16;
+  localparam int unsigned TpmWrFifoPtrW   = $clog2(TpmWrFifoDepth+1);
+  localparam int unsigned TpmRdFifoPtrW   = $clog2(TpmRdFifoDepth+1);
+  `ASSERT_INIT(TpmWrPtrMatch_A,
+    TpmWrFifoPtrW == spi_device_reg_pkg::TpmWrFifoPtrW)
+  `ASSERT_INIT(TpmRdPtrMatch_A,
+    TpmRdFifoPtrW == spi_device_reg_pkg::TpmRdFifoPtrW)
+
   // Derived parameters
 
   logic clk_spi_in, clk_spi_in_muxed, clk_spi_in_buf;   // clock for latch SDI
@@ -251,7 +261,6 @@ module spi_device
   io_mode_e           sub_iomode[IoModeEnd];
   logic               s2p_data_valid;
   spi_byte_t          s2p_data;
-  logic [BitCntW-1:0] s2p_bitcnt;
 
   logic        p2s_valid;
   spi_byte_t   p2s_data;
@@ -327,9 +336,6 @@ module spi_device
   logic flash_sck_readbuf_watermark, flash_sck_readbuf_flip;
 
   // TPM ===============================================================
-  localparam int unsigned TpmFifoDepth    = 4; // 4B
-  localparam int unsigned TpmFifoPtrW     = $clog2(TpmFifoDepth+1);
-
   // pulse signal to set once from tpm_status_cmdaddr_notempty
   logic intr_tpm_cmdaddr_notempty;
 
@@ -348,12 +354,12 @@ module spi_device
   logic [7:0]                                   tpm_rid;
 
   // Buffer and FIFO signals
-  logic        tpm_cmdaddr_rvalid, tpm_cmdaddr_rready;
-  logic [31:0] tpm_cmdaddr_rdata;
-  logic        tpm_wrfifo_rvalid, tpm_wrfifo_rready;
-  logic [7:0]  tpm_wrfifo_rdata;
-  logic        tpm_rdfifo_wvalid, tpm_rdfifo_wready;
-  logic [7:0]  tpm_rdfifo_wdata;
+  logic                       tpm_cmdaddr_rvalid, tpm_cmdaddr_rready;
+  logic [31:0]                tpm_cmdaddr_rdata;
+  logic                       tpm_wrfifo_rvalid, tpm_wrfifo_rready;
+  logic [7:0]                 tpm_wrfifo_rdata;
+  logic                       tpm_rdfifo_wvalid, tpm_rdfifo_wready;
+  logic [TpmRdFifoWidth-1:0]  tpm_rdfifo_wdata;
 
   tpm_cap_t tpm_cap;
 
@@ -363,8 +369,8 @@ module spi_device
 
   // TPM_STATUS
   logic tpm_status_cmdaddr_notempty, tpm_status_rdfifo_notempty;
-  logic [TpmFifoPtrW-1:0] tpm_status_rdfifo_depth;
-  logic [TpmFifoPtrW-1:0] tpm_status_wrfifo_depth;
+  logic [TpmRdFifoPtrW-1:0] tpm_status_rdfifo_depth;
+  logic [TpmWrFifoPtrW-1:0] tpm_status_wrfifo_depth;
 
   // TPM ---------------------------------------------------------------
 
@@ -1198,9 +1204,10 @@ module spi_device
     if (!rst_spi_n) intercept_en <= 1'b 0;
     else            intercept_en <= |intercept;
   end
-  // intercept_en shall not be de-asserted except reset
+  // intercept_en shall not be de-asserted except mailbox
   `ASSUME(InterceptLevel_M,
-    $rose(intercept_en) |=> $stable(intercept_en) until !rst_spi_n,
+    $rose(|{intercept.status, intercept.jedec, intercept.sfdp}) |=>
+      ##1 $stable(intercept_en) until !rst_spi_n,
     clk_spi_out_buf, !rst_spi_n)
 
   ////////////////////////////
@@ -1215,7 +1222,6 @@ module spi_device
 
     .data_valid_o (s2p_data_valid),
     .data_o       (s2p_data      ),
-    .bitcnt_o     (s2p_bitcnt    ),
 
     // Config (changed dynamically)
     .order_i      (rxorder),
@@ -1360,7 +1366,6 @@ module spi_device
     // S2P
     .s2p_valid_i   (s2p_data_valid),
     .s2p_byte_i    (s2p_data),
-    .s2p_bitcnt_i  (s2p_bitcnt),
 
     // P2S
     .p2s_valid_o   (sub_p2s_valid [IoModeReadCmd]),
@@ -1526,7 +1531,6 @@ module spi_device
     // Interface: SPI to Parallel
     .s2p_valid_i  (s2p_data_valid),
     .s2p_byte_i   (s2p_data),
-    .s2p_bitcnt_i (s2p_bitcnt),
 
     // Interface: Parallel to SPI
     .p2s_valid_o (sub_p2s_valid[IoModeUpload]),
@@ -1694,8 +1698,9 @@ module spi_device
   // Instance of spi_tpm
   spi_tpm #(
     // CmdAddrFifoDepth
-    .WrFifoDepth (TpmFifoDepth),
-    .RdFifoDepth (TpmFifoDepth),
+    .WrFifoDepth (TpmWrFifoDepth),
+    .RdFifoDepth (TpmRdFifoDepth),
+    .RdFifoWidth (TpmRdFifoWidth),
     .EnLocality  (1)
   ) u_spi_tpm (
     .clk_in_i  (clk_spi_in_buf ),
@@ -1750,9 +1755,10 @@ module spi_device
   // Register connection
   //  TPM_CAP:
   assign hw2reg.tpm_cap = '{
-    rev:           '{ de: 1'b 1, d: tpm_cap.rev           },
-    locality:      '{ de: 1'b 1, d: tpm_cap.locality      },
-    max_xfer_size: '{ de: 1'b 1, d: tpm_cap.max_xfer_size }
+    rev:         '{ de: 1'b 1, d: tpm_cap.rev         },
+    locality:    '{ de: 1'b 1, d: tpm_cap.locality    },
+    max_wr_size: '{ de: 1'b 1, d: tpm_cap.max_wr_size },
+    max_rd_size: '{ de: 1'b 1, d: tpm_cap.max_rd_size }
   };
 
   //  CFG:

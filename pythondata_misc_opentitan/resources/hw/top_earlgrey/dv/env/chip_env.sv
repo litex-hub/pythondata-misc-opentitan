@@ -56,6 +56,12 @@ class chip_env extends cip_base_env #(
       `uvm_fatal(`gfn, "failed to get cpu_clk_rst_vif from uvm_config_db")
     end
 
+    if (!uvm_config_db#(virtual clk_rst_if)::get(
+            this, "", "usb_clk_rst_vif", cfg.usb_clk_rst_vif
+        )) begin
+      `uvm_fatal(`gfn, "failed to get usb_clk_rst_vif from uvm_config_db")
+    end
+
     if (!uvm_config_db#(virtual pins_if #(1))::get(
             this, "", "pinmux_wkup_vif", cfg.pinmux_wkup_vif
         )) begin
@@ -91,6 +97,9 @@ class chip_env extends cip_base_env #(
 
       is_invalid |= mem inside {[RamRet0:RamRet15]} && (int'(mem - RamRet0) >
                                                         cfg.num_ram_ret_tiles - 1);
+
+      is_invalid |= mem inside {[OtbnDmem0:OtbnDmem15]} && (int'(mem - OtbnDmem0) >
+                                                            cfg.num_otbn_dmem_tiles - 1);
       if (is_invalid) continue;
       if (!uvm_config_db#(mem_bkdr_util)::get(this, "", inst, cfg.mem_bkdr_util_h[mem])) begin
         `uvm_fatal(`gfn, {"failed to get ", inst, " from uvm_config_db"})
@@ -106,6 +115,13 @@ class chip_env extends cip_base_env #(
             this, "", "sw_test_status_vif", cfg.sw_test_status_vif
         )) begin
       `uvm_fatal(`gfn, "failed to get sw_test_status_vif from uvm_config_db")
+    end
+
+    // get the handle to the alerts interface.
+    if (!uvm_config_db#(alerts_vif)::get(
+            this, "", "alerts_vif", cfg.alerts_vif
+        )) begin
+      `uvm_fatal(`gfn, "failed to get alerts_vif from uvm_config_db")
     end
 
     // get the handle to the ast supply interface.
@@ -159,9 +175,6 @@ class chip_env extends cip_base_env #(
             this, "", "por_rstn_vif", cfg.por_rstn_vif
         )) begin
       `uvm_fatal(`gfn, "failed to get por_rstn_vif from uvm_config_db")
-    end
-    if (!uvm_config_db#(virtual pins_if #(1))::get(this, "", "pwrb_in_vif", cfg.pwrb_in_vif)) begin
-      `uvm_fatal(`gfn, "failed to get pwrb_in_vif from uvm_config_db")
     end
 
     // disable alert_esc_agent's driver and only use its monitor

@@ -370,7 +370,7 @@ A functional coverage shell object has been created - this may not contain cover
 ### PRE_VERIFIED_SUB_MODULES_V1
 
 Sub-modules that are pre-verified with their own testbenches have already reached V1 or a higher stage.
-The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification milestones), meets or exceeds the V1 milestone requirement.
+The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification stages), meets or exceeds the V1 stage requirement.
 They are clearly cited in the DV document and the coverage of these sub-modules can be excluded in the IP-level testbench.
 
 ### DESIGN_SPEC_REVIEWED
@@ -419,7 +419,7 @@ The DV document is fully complete.
 ### FUNCTIONAL_COVERAGE_IMPLEMENTED
 
 The functional coverage plan is fully implemented.
-All covergoups have been created and sampled in the reactive components of the testbench (passive interfaces, monitors and scoreboards).
+All covergroups have been created and sampled in the reactive components of the testbench (passive interfaces, monitors and scoreboards).
 
 ### ALL_INTERFACES_EXERCISED
 
@@ -467,7 +467,7 @@ Toggle coverage of the ports of the DUT and all pre-verified sub-modules have in
 
 ### SIM_FUNCTIONAL_COVERAGE_V2
 
-Functional coverage has reached 70%.
+Functional coverage has reached 90%.
 
 ### FPV_CODE_COVERAGE_V2
 
@@ -480,7 +480,7 @@ COI coverage for FPV testbenches has reached 75%.
 ### PRE_VERIFIED_SUB_MODULES_V2
 
 Sub-modules that are pre-verified with their own testbenches have already reached V2 or a higher stage.
-The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification milestones), meets or exceeds the V2 milestone requirement.
+The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification stages), meets or exceeds the V2 stage requirement.
 
 ### SEC_CM_PLANNED
 
@@ -613,7 +613,7 @@ Any lint waiver files have been reviewed and signed off by the technical steerin
 ### PRE_VERIFIED_SUB_MODULES_V3
 
 Sub-modules that are pre-verified with their own testbenches have already reached the V3 stage.
-The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification milestones), meets the V3 milestone requirement.
+The coverage level of the pre-verified sub-modules that are not tracked (i.e., not taken through the verification stages), meets the V3 stage requirement.
 
 ### NO_ISSUES_PENDING
 

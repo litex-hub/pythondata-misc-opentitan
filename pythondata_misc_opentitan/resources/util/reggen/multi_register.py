@@ -5,12 +5,12 @@
 from typing import Dict, List
 
 from reggen import register
-from .clocking import Clocking
-from .field import Field
-from .lib import check_keys, check_str, check_name, check_bool
-from .params import ReggenParams
-from .reg_base import RegBase
-from .register import Register
+from reggen.clocking import Clocking
+from reggen.field import Field
+from reggen.lib import check_keys, check_str, check_name, check_bool
+from reggen.params import ReggenParams
+from reggen.reg_base import RegBase
+from reggen.register import Register
 
 REQUIRED_FIELDS = {
     'name': ['s', "base name of the registers"],
@@ -80,6 +80,9 @@ class MultiRegister(RegBase):
         # This is guaranteed by design
         self.async_name = self.reg.async_name
         self.async_clk = self.reg.async_clk
+
+        self.sync_name = self.reg.sync_name
+        self.sync_clk = self.reg.sync_clk
 
         self.cname = check_name(rd['cname'],
                                 'cname field of multireg {}'
@@ -198,7 +201,8 @@ class MultiRegister(RegBase):
         attributes like 'name', 'desc', 'resval' and 'tags'.
         '''
         # Attributes to be crosschecked
-        attrs = ['async_name', 'async_clk', 'count', 'regwen_multi', 'compact']
+        attrs = ['async_name', 'async_clk', 'sync_name', 'sync_clk', 'count',
+                 'regwen_multi', 'compact']
         for attr in attrs:
             if getattr(self, attr) != getattr(alias_reg, attr):
                 raise ValueError('Value mismatch for attribute {} between '

@@ -1496,7 +1496,8 @@ module spi_device_reg_top (
   logic cmd_info_wrdi_valid_wd;
   logic [7:0] tpm_cap_rev_qs;
   logic tpm_cap_locality_qs;
-  logic [2:0] tpm_cap_max_xfer_size_qs;
+  logic [2:0] tpm_cap_max_wr_size_qs;
+  logic [2:0] tpm_cap_max_rd_size_qs;
   logic tpm_cfg_we;
   logic tpm_cfg_en_qs;
   logic tpm_cfg_en_wd;
@@ -1510,8 +1511,8 @@ module spi_device_reg_top (
   logic tpm_cfg_invalid_locality_wd;
   logic tpm_status_cmdaddr_notempty_qs;
   logic tpm_status_rdfifo_notempty_qs;
-  logic [2:0] tpm_status_rdfifo_depth_qs;
-  logic [2:0] tpm_status_wrfifo_depth_qs;
+  logic [4:0] tpm_status_rdfifo_depth_qs;
+  logic [6:0] tpm_status_wrfifo_depth_qs;
   logic tpm_access_0_we;
   logic [7:0] tpm_access_0_access_0_qs;
   logic [7:0] tpm_access_0_access_0_wd;
@@ -1551,7 +1552,7 @@ module spi_device_reg_top (
   logic [23:0] tpm_cmd_addr_addr_qs;
   logic [7:0] tpm_cmd_addr_cmd_qs;
   logic tpm_read_fifo_we;
-  logic [7:0] tpm_read_fifo_wd;
+  logic [31:0] tpm_read_fifo_wd;
   logic tpm_write_fifo_re;
   logic [7:0] tpm_write_fifo_qs;
 
@@ -18241,12 +18242,12 @@ module spi_device_reg_top (
     .qs     (tpm_cap_locality_qs)
   );
 
-  //   F[max_xfer_size]: 18:16
+  //   F[max_wr_size]: 18:16
   prim_subreg #(
     .DW      (3),
     .SwAccess(prim_subreg_pkg::SwAccessRO),
-    .RESVAL  (3'h2)
-  ) u_tpm_cap_max_xfer_size (
+    .RESVAL  (3'h6)
+  ) u_tpm_cap_max_wr_size (
     .clk_i   (clk_i),
     .rst_ni  (rst_ni),
 
@@ -18255,8 +18256,8 @@ module spi_device_reg_top (
     .wd     ('0),
 
     // from internal hardware
-    .de     (hw2reg.tpm_cap.max_xfer_size.de),
-    .d      (hw2reg.tpm_cap.max_xfer_size.d),
+    .de     (hw2reg.tpm_cap.max_wr_size.de),
+    .d      (hw2reg.tpm_cap.max_wr_size.d),
 
     // to internal hardware
     .qe     (),
@@ -18264,7 +18265,33 @@ module spi_device_reg_top (
     .ds     (),
 
     // to register interface (read)
-    .qs     (tpm_cap_max_xfer_size_qs)
+    .qs     (tpm_cap_max_wr_size_qs)
+  );
+
+  //   F[max_rd_size]: 22:20
+  prim_subreg #(
+    .DW      (3),
+    .SwAccess(prim_subreg_pkg::SwAccessRO),
+    .RESVAL  (3'h4)
+  ) u_tpm_cap_max_rd_size (
+    .clk_i   (clk_i),
+    .rst_ni  (rst_ni),
+
+    // from register interface
+    .we     (1'b0),
+    .wd     ('0),
+
+    // from internal hardware
+    .de     (hw2reg.tpm_cap.max_rd_size.de),
+    .d      (hw2reg.tpm_cap.max_rd_size.d),
+
+    // to internal hardware
+    .qe     (),
+    .q      (),
+    .ds     (),
+
+    // to register interface (read)
+    .qs     (tpm_cap_max_rd_size_qs)
   );
 
 
@@ -18453,11 +18480,11 @@ module spi_device_reg_top (
     .qs     (tpm_status_rdfifo_notempty_qs)
   );
 
-  //   F[rdfifo_depth]: 6:4
+  //   F[rdfifo_depth]: 12:8
   prim_subreg #(
-    .DW      (3),
+    .DW      (5),
     .SwAccess(prim_subreg_pkg::SwAccessRO),
-    .RESVAL  (3'h0)
+    .RESVAL  (5'h0)
   ) u_tpm_status_rdfifo_depth (
     .clk_i   (clk_i),
     .rst_ni  (rst_ni),
@@ -18479,11 +18506,11 @@ module spi_device_reg_top (
     .qs     (tpm_status_rdfifo_depth_qs)
   );
 
-  //   F[wrfifo_depth]: 10:8
+  //   F[wrfifo_depth]: 22:16
   prim_subreg #(
-    .DW      (3),
+    .DW      (7),
     .SwAccess(prim_subreg_pkg::SwAccessRO),
-    .RESVAL  (3'h0)
+    .RESVAL  (7'h0)
   ) u_tpm_status_wrfifo_depth (
     .clk_i   (clk_i),
     .rst_ni  (rst_ni),
@@ -18899,7 +18926,7 @@ module spi_device_reg_top (
   logic [0:0] tpm_read_fifo_flds_we;
   assign tpm_read_fifo_qe = &tpm_read_fifo_flds_we;
   prim_subreg_ext #(
-    .DW    (8)
+    .DW    (32)
   ) u_tpm_read_fifo (
     .re     (1'b0),
     .we     (tpm_read_fifo_we),
@@ -20468,7 +20495,7 @@ module spi_device_reg_top (
   assign tpm_cmd_addr_re = addr_hit[76] & reg_re & !reg_error;
   assign tpm_read_fifo_we = addr_hit[77] & reg_we & !reg_error;
 
-  assign tpm_read_fifo_wd = reg_wdata[7:0];
+  assign tpm_read_fifo_wd = reg_wdata[31:0];
   assign tpm_write_fifo_re = addr_hit[78] & reg_re & !reg_error;
 
   // Assign write-enables to checker logic vector.
@@ -21398,7 +21425,8 @@ module spi_device_reg_top (
       addr_hit[64]: begin
         reg_rdata_next[7:0] = tpm_cap_rev_qs;
         reg_rdata_next[8] = tpm_cap_locality_qs;
-        reg_rdata_next[18:16] = tpm_cap_max_xfer_size_qs;
+        reg_rdata_next[18:16] = tpm_cap_max_wr_size_qs;
+        reg_rdata_next[22:20] = tpm_cap_max_rd_size_qs;
       end
 
       addr_hit[65]: begin
@@ -21412,8 +21440,8 @@ module spi_device_reg_top (
       addr_hit[66]: begin
         reg_rdata_next[0] = tpm_status_cmdaddr_notempty_qs;
         reg_rdata_next[1] = tpm_status_rdfifo_notempty_qs;
-        reg_rdata_next[6:4] = tpm_status_rdfifo_depth_qs;
-        reg_rdata_next[10:8] = tpm_status_wrfifo_depth_qs;
+        reg_rdata_next[12:8] = tpm_status_rdfifo_depth_qs;
+        reg_rdata_next[22:16] = tpm_status_wrfifo_depth_qs;
       end
 
       addr_hit[67]: begin
@@ -21462,7 +21490,7 @@ module spi_device_reg_top (
       end
 
       addr_hit[77]: begin
-        reg_rdata_next[7:0] = '0;
+        reg_rdata_next[31:0] = '0;
       end
 
       addr_hit[78]: begin

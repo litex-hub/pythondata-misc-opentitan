@@ -116,6 +116,9 @@ int otbn_model_set_software_errs_fatal(OtbnModel *model, unsigned char new_val);
 // random data to all registers before wiping them with zeroes.
 int otbn_set_no_sec_wipe_chk(OtbnModel *model);
 
+// Disable stack integrity checks
+int otbn_disable_stack_check(OtbnModel *model);
+
 // Step the CRC calculation for item
 //
 // state is an inout parameter and should be updated in-place. This is
@@ -133,7 +136,11 @@ int otbn_model_reset(OtbnModel *model, svBitVecVal *status /* bit [7:0] */,
 
 // React to an error escalation. Returns 0 on success or -1 on failure.
 int otbn_model_send_err_escalation(OtbnModel *model,
-                                   svBitVecVal *err_val /* bit [31:0] */);
+                                   svBitVecVal *err_val /* bit [31:0] */,
+                                   svBit lock_immediately);
+
+// Trigger RMA request in model
+int otbn_model_send_rma_req(OtbnModel *model);
 
 // Trigger initial secure wipe.
 int otbn_model_initial_secure_wipe(OtbnModel *model);
