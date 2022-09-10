@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post13343"
-version_tuple = (0, 0, 13343)
+version_str = "0.0.post14107"
+version_tuple = (0, 0, 14107)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post13343")
+    pversion = V("0.0.post14107")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13201"
-data_version_tuple = (0, 0, 13201)
+data_version_str = "0.0.post13965"
+data_version_tuple = (0, 0, 13965)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13201")
+    pdata_version = V("0.0.post13965")
 except ImportError:
     pass
-data_git_hash = "cf59384407ef7733f96a1717cb7bb0c79e77205a"
-data_git_describe = "v0.0-13201-gcf59384407"
+data_git_hash = "7e3bb0a70951a7542f13f7d7143c3f55acb0e8a1"
+data_git_describe = "v0.0-13965-g7e3bb0a709"
 data_git_msg = """\
-commit cf59384407ef7733f96a1717cb7bb0c79e77205a
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Jul 26 16:07:07 2022 -0700
+commit 7e3bb0a70951a7542f13f7d7143c3f55acb0e8a1
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Mon Sep 5 14:38:50 2022 -0700
 
-    [otp_ctrl/doc] Document what can be re-parameterized after D3/V3
+    [sw] Allow for the optional inclusion of a .bazelrc-site file
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    The .bazelrc-site file allows for site-specific compile options
+    (output roots, library paths etc).   This file is an optional
+    addition to each working repository, however this file should
+    not be added to the upstrem repository. Therefore this file
+    is also added to .gitignore, and a CI check is added to
+    entsure that this file is not forcibly added to git where
+    it could contaminate the site-specific setup of other users.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
