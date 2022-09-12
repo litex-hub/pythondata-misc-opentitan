@@ -2,6 +2,9 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
+// This base sequence consists of common kmac tasks and functions.
+// In this sequence, when it uses a plain `csr_rd` without checking, the read value should be
+// predicted and checked in the kmac scoreboard.
 class kmac_base_vseq extends cip_base_vseq #(
     .RAL_T               (kmac_reg_block),
     .CFG_T               (kmac_env_cfg),
@@ -124,6 +127,10 @@ class kmac_base_vseq extends cip_base_vseq #(
   bit [7:0] output_len_enc[];
 
   bit do_kmac_init = 1'b1;
+
+  constraint hash_cnt_clr_c{
+    hash_cnt_clr dist {0 :/ 9, 1 :/ 1};
+  }
 
   // constrain xof_en to 0 if not in kmac mode
   constraint xof_en_c {
@@ -885,4 +892,8 @@ class kmac_base_vseq extends cip_base_vseq #(
 
   endtask
 
+  virtual task check_hash_cnt();
+    bit [TL_DW-1:0] val;
+    csr_rd(.ptr(ral.entropy_refresh_hash_cnt), .value(val));
+  endtask
 endclass : kmac_base_vseq
