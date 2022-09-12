@@ -4,37 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14118"
-version_tuple = (0, 0, 14118)
+version_str = "0.0.post14128"
+version_tuple = (0, 0, 14128)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14118")
+    pversion = V("0.0.post14128")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13976"
-data_version_tuple = (0, 0, 13976)
+data_version_str = "0.0.post13986"
+data_version_tuple = (0, 0, 13986)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13976")
+    pdata_version = V("0.0.post13986")
 except ImportError:
     pass
-data_git_hash = "91e674c39b045e5c85f17e0989cae1a719280bc7"
-data_git_describe = "v0.0-13976-g91e674c39b"
+data_git_hash = "863be67224777cbf2da1c520af0745631108614e"
+data_git_describe = "v0.0-13986-g863be67224"
 data_git_msg = """\
-commit 91e674c39b045e5c85f17e0989cae1a719280bc7
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Aug 1 16:37:19 2022 +0100
+commit 863be67224777cbf2da1c520af0745631108614e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Sep 9 16:35:07 2022 -0400
 
-    [silicon_creator] Ensure OTBN is idle before writes/commands.
+    [test] Add rom_e2e_bootstrap_phase1_read
     
-    Adjust the silicon_creator OTBN driver to add a blocking check that OTBN
-    is idle and call this before loading applciations. Since OTBN now
-    performs a secure wipe after coming out of reset, this check is needed
-    to ensure mask ROM code waits for the secure wipe to finish.
+    Fixes #14462
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
