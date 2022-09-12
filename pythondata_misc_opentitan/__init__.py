@@ -4,50 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14116"
-version_tuple = (0, 0, 14116)
+version_str = "0.0.post14117"
+version_tuple = (0, 0, 14117)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14116")
+    pversion = V("0.0.post14117")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13974"
-data_version_tuple = (0, 0, 13974)
+data_version_str = "0.0.post13975"
+data_version_tuple = (0, 0, 13975)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13974")
+    pdata_version = V("0.0.post13975")
 except ImportError:
     pass
-data_git_hash = "3c54b1eb225f685fe528a88992a1b8de3e30cd4b"
-data_git_describe = "v0.0-13974-g3c54b1eb22"
+data_git_hash = "bccbd2cf9d7ab53506a1fa7e88c7d77b9c1baeb3"
+data_git_describe = "v0.0-13975-gbccbd2cf9d"
 data_git_msg = """\
-commit 3c54b1eb225f685fe528a88992a1b8de3e30cd4b
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Sat Sep 10 01:01:26 2022 -0700
+commit bccbd2cf9d7ab53506a1fa7e88c7d77b9c1baeb3
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Sep 8 11:37:50 2022 -0400
 
-    [util] Fix extract_sw_logs.py
+    [opentitanlib] Update FixedSizeBigInt to_bytes methods to return BYTE_LEN long vectors
     
-    Fixes #14636.
-    Fixes issue encountered in #14858.
+    Fixes #14863
     
-    Rather than being told which ELF sections to parse and generate a database
-    from, the script now reads ALL valid sections from the ELF and creates a
-    database of address and string found at that address. This eliminates the
-    need to pass sections using the `--rodata-sections` arg in the bazel rules.
-    This takes care of string constants that reside in other sections (for
-    example, the `chip_info` which resides in its own `.chip_info` section).
-    
-    The other bug was in the `get_str_at_addr()` method, which returns
-    a string (or substring) starting at a particular address. This computation
-    requires the original length of the string to be known. Since the strings
-    go through sanitization, the orignal length may change, leading to errors
-    thrown when printing single whitespace characters, such as
-    `LOG_INFO("\n")`. The change records the original length of the string
-    along with the string (as a tuple) at each address.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
