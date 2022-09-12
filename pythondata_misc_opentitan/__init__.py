@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14117"
-version_tuple = (0, 0, 14117)
+version_str = "0.0.post14118"
+version_tuple = (0, 0, 14118)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14117")
+    pversion = V("0.0.post14118")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13975"
-data_version_tuple = (0, 0, 13975)
+data_version_str = "0.0.post13976"
+data_version_tuple = (0, 0, 13976)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13975")
+    pdata_version = V("0.0.post13976")
 except ImportError:
     pass
-data_git_hash = "bccbd2cf9d7ab53506a1fa7e88c7d77b9c1baeb3"
-data_git_describe = "v0.0-13975-gbccbd2cf9d"
+data_git_hash = "91e674c39b045e5c85f17e0989cae1a719280bc7"
+data_git_describe = "v0.0-13976-g91e674c39b"
 data_git_msg = """\
-commit bccbd2cf9d7ab53506a1fa7e88c7d77b9c1baeb3
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 8 11:37:50 2022 -0400
+commit 91e674c39b045e5c85f17e0989cae1a719280bc7
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Aug 1 16:37:19 2022 +0100
 
-    [opentitanlib] Update FixedSizeBigInt to_bytes methods to return BYTE_LEN long vectors
+    [silicon_creator] Ensure OTBN is idle before writes/commands.
     
-    Fixes #14863
+    Adjust the silicon_creator OTBN driver to add a blocking check that OTBN
+    is idle and call this before loading applciations. Since OTBN now
+    performs a secure wipe after coming out of reset, this check is needed
+    to ensure mask ROM code waits for the secure wipe to finish.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
