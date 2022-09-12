@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14137"
-version_tuple = (0, 0, 14137)
+version_str = "0.0.post14139"
+version_tuple = (0, 0, 14139)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14137")
+    pversion = V("0.0.post14139")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13995"
-data_version_tuple = (0, 0, 13995)
+data_version_str = "0.0.post13997"
+data_version_tuple = (0, 0, 13997)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13995")
+    pdata_version = V("0.0.post13997")
 except ImportError:
     pass
-data_git_hash = "d6398dd297e6945dbb164bbca25ce926c9787270"
-data_git_describe = "v0.0-13995-gd6398dd297"
+data_git_hash = "a00ce54bf6341a296c0d3864008487e0b65e5787"
+data_git_describe = "v0.0-13997-ga00ce54bf6"
 data_git_msg = """\
-commit d6398dd297e6945dbb164bbca25ce926c9787270
-Author: Miles Dai <milesdai@google.com>
-Date:   Tue Aug 30 16:38:16 2022 -0400
+commit a00ce54bf6341a296c0d3864008487e0b65e5787
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Sep 8 14:29:42 2022 -0700
 
-    [doc] Update commands for connecting to FPGA with openOCD
+    [dv/kmac] clean up void usage in predict function
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    This PR cleans up using `void` for ral predict function, instead I
+    should use `DV_CHECK`.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
