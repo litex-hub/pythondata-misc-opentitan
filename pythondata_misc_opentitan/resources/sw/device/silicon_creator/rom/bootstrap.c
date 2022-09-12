@@ -179,15 +179,21 @@ static rom_error_t bootstrap_page_program(uint32_t addr, size_t byte_count,
       .write = kMultiBitBool4True,
       .erase = kMultiBitBool4False,
   });
-  // Wrap to the start of the flash programming page if `addr` is not aligned.
+  // Perform two writes if the start address is not page-aligned (256 bytes).
+  // Note: Address is flash-word-aligned (8 bytes) due to the check above.
   rom_error_t err_0 = kErrorOk;
   size_t prog_page_misalignment = addr & kFlashProgPageMask;
   if (prog_page_misalignment > 0) {
     size_t word_count =
         (kFlashProgPageSize - prog_page_misalignment) / sizeof(uint32_t);
+    if (word_count > rem_word_count) {
+      word_count = rem_word_count;
+    }
     err_0 = flash_ctrl_data_write(addr, word_count, data);
     rem_word_count -= word_count;
     data += word_count * sizeof(uint32_t);
+    // Wrap to the beginning of the current page since PAGE_PROGRAM modifies
+    // a single page only.
     addr &= ~kFlashProgPageMask;
   }
   rom_error_t err_1 = kErrorOk;
@@ -231,14 +237,16 @@ static rom_error_t bootstrap_handle_erase(bootstrap_state_t *state) {
       error = bootstrap_chip_erase();
       HARDENED_RETURN_IF_ERROR(error);
       *state = kBootstrapStateEraseVerify;
+      // Note: We clear WIP and WEN bits in `bootstrap_handle_erase_verify()`
+      // after checking that both data banks have been erased.
       break;
     default:
-      // Ignore any other command, e.g. PAGE_PROGRAM, RESET.
+      // Ignore any other command, e.g. PAGE_PROGRAM, RESET, and clear WIP and
+      // WEN bits right away.
+      spi_device_flash_status_clear();
       error = kErrorOk;
   }
 
-  // Note: We clear WIP and WEN bits in `bootstrap_handle_erase_verify()` after
-  // checking that both data banks have been erased.
   return error;
 }
 

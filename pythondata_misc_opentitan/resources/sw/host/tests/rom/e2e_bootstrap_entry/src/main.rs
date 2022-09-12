@@ -6,7 +6,6 @@ use anyhow::{bail, Result};
 use regex::Regex;
 use std::matches;
 use std::ops::Drop;
-use std::thread;
 use std::time::Duration;
 use structopt::StructOpt;
 
@@ -80,18 +79,19 @@ impl<'a> BootstrapTest<'a> {
         };
         transport.apply_pin_strapping("ROM_BOOTSTRAP")?;
         transport.reset_target(b.reset_delay, true)?;
-
-        let spi = transport.spi("0")?;
-        while SpiFlash::read_status(&*spi)? != 0 {
-            thread::sleep(Duration::from_millis(10));
-        }
-
         Ok(b)
     }
 }
 
 impl<'a> Drop for BootstrapTest<'a> {
     fn drop(&mut self) {
+        self.transport.apply_pin_strapping("ROM_BOOTSTRAP").unwrap();
+        self.transport.reset_target(self.reset_delay, true).unwrap();
+        let spi = self.transport.spi("0").unwrap();
+        SpiFlash::from_spi(&*spi)
+            .unwrap()
+            .chip_erase(&*spi)
+            .unwrap();
         self.transport
             .remove_pin_strapping("ROM_BOOTSTRAP")
             .unwrap();
@@ -289,31 +289,170 @@ fn test_bootstrap_shutdown(
     Ok(())
 }
 
+fn test_bootstrap_phase1_reset(opts: &Opts, transport: &TransportWrapper) -> Result<()> {
+    let _bs = BootstrapTest::start(transport, opts.init.bootstrap.options.reset_delay)?;
+
+    let spi = transport.spi("0")?;
+    let uart = transport.uart("0")?;
+    // RESET should be ignored and we should not see any messages.
+    let mut console = UartConsole {
+        timeout: Some(Duration::new(1, 0)),
+        exit_failure: Some(Regex::new(".+")?),
+        ..Default::default()
+    };
+    // Discard buffered messages before interacting with the console.
+    uart.clear_rx_buffer()?;
+    SpiFlash::chip_reset(&*spi)?;
+    let result = console.interact(&*uart, None, Some(&mut std::io::stdout()))?;
+    if result != ExitStatus::Timeout {
+        bail!("FAIL: {:?}", result);
+    }
+
+    Ok(())
+}
+
+fn test_bootstrap_phase1_page_program(opts: &Opts, transport: &TransportWrapper) -> Result<()> {
+    let _bs = BootstrapTest::start(transport, opts.init.bootstrap.options.reset_delay)?;
+
+    let spi = transport.spi("0")?;
+    let uart = transport.uart("0")?;
+    let mut console = UartConsole {
+        timeout: Some(Duration::new(1, 0)),
+        // `kErrorBootPolicyBadIdentifier` (0142500d) is defined in `error.h`.
+        exit_success: Some(Regex::new("BFV:0142500d\r\n")?),
+        // `kErrorBootPolicyBadLength` (0242500d) is defined in `error.h`.
+        exit_failure: Some(Regex::new("BFV:0242500d\r\n")?),
+        ..Default::default()
+    };
+    SpiFlash::from_spi(&*spi)?
+        // Write "OTRE" to the identifier field of the manifest in the second slot.
+        // Note: We must start at a flash-word-aligned address.
+        .program(&*spi, 0x80330, &0x4552544f_00000000u64.to_le_bytes())?;
+    // Remove strapping so that chip fails to boot instead of going into bootstrap.
+    transport.remove_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+
+    // We should see the expected BFV.
+    let result = console.interact(&*uart, None, Some(&mut std::io::stdout()))?;
+    if result != ExitStatus::ExitSuccess {
+        bail!("FAIL: {:?}", result);
+    }
+
+    Ok(())
+}
+
+fn test_bootstrap_phase1_erase(
+    opts: &Opts,
+    transport: &TransportWrapper,
+    erase_cmd: u8,
+) -> Result<()> {
+    let _bs = BootstrapTest::start(transport, opts.init.bootstrap.options.reset_delay)?;
+    let spi = transport.spi("0")?;
+    let uart = transport.uart("0")?;
+    let spiflash = SpiFlash::from_spi(&*spi)?;
+    let mut console = UartConsole {
+        timeout: Some(Duration::new(1, 0)),
+        ..Default::default()
+    };
+
+    let erase = || match erase_cmd {
+        SpiFlash::SECTOR_ERASE => spiflash.erase(&*spi, 0, 4096),
+        SpiFlash::CHIP_ERASE => spiflash.chip_erase(&*spi),
+        _ => bail!("Unexpected erase command opcode: {:?}", erase_cmd),
+    };
+
+    // Send `erase_cmd` to transition to phase 2.
+    erase()?
+        // Write "OTRE" to the identifier field of the manifest in the second slot.
+        .program(&*spi, 0x80330, &0x4552544f_00000000u64.to_le_bytes())?;
+
+    // Remove strapping so that chip fails to boot instead of going into bootstrap.
+    transport.remove_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+    // `kErrorBootPolicyBadLength` (0242500d) is defined in `error.h`.
+    console.exit_success = Some(Regex::new("BFV:0242500d")?);
+    let result = console.interact(&*uart, None, Some(&mut std::io::stdout()))?;
+    if result != ExitStatus::ExitSuccess {
+        bail!("FAIL: {:?}", result);
+    }
+
+    // Put the chip into bootstrap mode again and erase.
+    transport.apply_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+    erase()?;
+    uart.clear_rx_buffer()?;
+    transport.remove_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+    // `kErrorBootPolicyBadIdentifier` (0142500d) is defined in `error.h`.
+    console.exit_success = Some(Regex::new("BFV:0142500d")?);
+    let result = console.interact(&*uart, None, Some(&mut std::io::stdout()))?;
+    if result != ExitStatus::ExitSuccess {
+        bail!("FAIL: {:?}", result);
+    }
+
+    Ok(())
+}
+
+fn test_bootstrap_phase1_read(opts: &Opts, transport: &TransportWrapper) -> Result<()> {
+    let _bs = BootstrapTest::start(transport, opts.init.bootstrap.options.reset_delay)?;
+    let spi = transport.spi("0")?;
+    let uart = transport.uart("0")?;
+    let mut console = UartConsole {
+        timeout: Some(Duration::new(1, 0)),
+        ..Default::default()
+    };
+
+    SpiFlash::from_spi(&*spi)?
+        // Send CHIP_ERASE to transition to phase 2.
+        .chip_erase(&*spi)?
+        // Write "OTRE" to the identifier field of the manifest in the second slot.
+        .program(&*spi, 0x80330, &0x4552544f_00000000u64.to_le_bytes())?;
+
+    // Remove strapping so that chip fails to boot instead of going into bootstrap.
+    transport.remove_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+    // `kErrorBootPolicyBadLength` (0242500d) is defined in `error.h`.
+    console.exit_success = Some(Regex::new("0242500d")?);
+    let result = console.interact(&*uart, None, Some(&mut std::io::stdout()))?;
+    if result != ExitStatus::ExitSuccess {
+        bail!("FAIL: {:?}", result);
+    }
+
+    transport.apply_pin_strapping("ROM_BOOTSTRAP")?;
+    transport.reset_target(opts.init.bootstrap.options.reset_delay, true)?;
+    assert_eq!(SpiFlash::read_status(&*spi)?, 0x00);
+    let mut buf: [u8; 8] = [0xa5; 8];
+    SpiFlash::from_spi(&*spi)?.read(&*spi, 0x80330, &mut buf)?;
+    log::info!("Received: {:?}", &buf);
+    assert_ne!(u64::from_le_bytes(buf), 0x4552544f_00000000u64);
+
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let opts = Opts::from_args();
     opts.init.init_logging();
-
     let transport = opts.init.init_target()?;
+
     execute_test!(test_bootstrap_enabled_not_requested, &opts, &transport);
     execute_test!(test_bootstrap_enabled_requested, &opts, &transport);
     execute_test!(test_jedec_id, &opts, &transport);
     execute_test!(test_sfdp, &opts, &transport);
     execute_test!(test_write_enable_disable, &opts, &transport);
-    // `kErrorBootstrapEraseAddress` (01425303) is defined in `error.h`.
-    execute_test!(
-        test_bootstrap_shutdown,
-        &opts,
-        &transport,
-        SpiFlash::SECTOR_ERASE,
-        "01425303"
-    );
-    // `kErrorBootstrapProgramAddress` (02425303) is defined in `error.h`.
-    execute_test!(
-        test_bootstrap_shutdown,
-        &opts,
-        &transport,
-        SpiFlash::PAGE_PROGRAM,
-        "02425303"
-    );
+    for (cmd, bfv) in [
+        // `kErrorBootstrapEraseAddress` (01425303) is defined in `error.h`.
+        (SpiFlash::SECTOR_ERASE, "01425303"),
+        // `kErrorBootstrapProgramAddress` (02425303) is defined in `error.h`.
+        (SpiFlash::PAGE_PROGRAM, "02425303"),
+    ] {
+        execute_test!(test_bootstrap_shutdown, &opts, &transport, cmd, bfv);
+    }
+    execute_test!(test_bootstrap_phase1_reset, &opts, &transport);
+    execute_test!(test_bootstrap_phase1_page_program, &opts, &transport);
+    for erase_cmd in [SpiFlash::SECTOR_ERASE, SpiFlash::CHIP_ERASE] {
+        execute_test!(test_bootstrap_phase1_erase, &opts, &transport, erase_cmd);
+    }
+    execute_test!(test_bootstrap_phase1_read, &opts, &transport);
+
     Ok(())
 }
