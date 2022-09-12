@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14131"
-version_tuple = (0, 0, 14131)
+version_str = "0.0.post14137"
+version_tuple = (0, 0, 14137)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14131")
+    pversion = V("0.0.post14137")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13989"
-data_version_tuple = (0, 0, 13989)
+data_version_str = "0.0.post13995"
+data_version_tuple = (0, 0, 13995)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13989")
+    pdata_version = V("0.0.post13995")
 except ImportError:
     pass
-data_git_hash = "14626b98175da2bd514eee989628a5bf9b21c7e5"
-data_git_describe = "v0.0-13989-g14626b9817"
+data_git_hash = "d6398dd297e6945dbb164bbca25ce926c9787270"
+data_git_describe = "v0.0-13995-gd6398dd297"
 data_git_msg = """\
-commit 14626b98175da2bd514eee989628a5bf9b21c7e5
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Aug 31 09:23:03 2022 -0700
+commit d6398dd297e6945dbb164bbca25ce926c9787270
+Author: Miles Dai <milesdai@google.com>
+Date:   Tue Aug 30 16:38:16 2022 -0400
 
-    [otp_ctrl/dif] Fix up lock reg handling
+    [doc] Update commands for connecting to FPGA with openOCD
     
-    Update for regwen change from rw1c to rw0c. Also, use the check trigger
-    lock for check triggers and the check lock for check configuration.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
