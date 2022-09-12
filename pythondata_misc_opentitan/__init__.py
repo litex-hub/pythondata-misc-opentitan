@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14129"
-version_tuple = (0, 0, 14129)
+version_str = "0.0.post14131"
+version_tuple = (0, 0, 14131)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14129")
+    pversion = V("0.0.post14131")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13987"
-data_version_tuple = (0, 0, 13987)
+data_version_str = "0.0.post13989"
+data_version_tuple = (0, 0, 13989)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13987")
+    pdata_version = V("0.0.post13989")
 except ImportError:
     pass
-data_git_hash = "28d4235ed758eb8edc988e96a68f82fd0c68bb5f"
-data_git_describe = "v0.0-13987-g28d4235ed7"
+data_git_hash = "14626b98175da2bd514eee989628a5bf9b21c7e5"
+data_git_describe = "v0.0-13989-g14626b9817"
 data_git_msg = """\
-commit 28d4235ed758eb8edc988e96a68f82fd0c68bb5f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Sep 7 11:56:53 2022 -0700
+commit 14626b98175da2bd514eee989628a5bf9b21c7e5
+Author: Alexander Williams <awill@google.com>
+Date:   Wed Aug 31 09:23:03 2022 -0700
 
-    [dv/kmac] Fix err_code regression error
+    [otp_ctrl/dif] Fix up lock reg handling
     
-    This PR fixes err_code regression error because we removed the cycle
-    accurate model. Now we do not know which sha3 state from design so I
-    masked these bits when checking the readout value.
-    However, I will create some direct sequence test to make sure design
-    reflects the correct error bits regarding the sha3 states.
+    Update for regwen change from rw1c to rw0c. Also, use the check trigger
+    lock for check triggers and the check lock for check configuration.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
