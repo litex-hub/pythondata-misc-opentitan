@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14171"
-version_tuple = (0, 0, 14171)
+version_str = "0.0.post14173"
+version_tuple = (0, 0, 14173)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14171")
+    pversion = V("0.0.post14173")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14029"
-data_version_tuple = (0, 0, 14029)
+data_version_str = "0.0.post14031"
+data_version_tuple = (0, 0, 14031)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14029")
+    pdata_version = V("0.0.post14031")
 except ImportError:
     pass
-data_git_hash = "e954fe0aacaef634327bed411e42a224e8093633"
-data_git_describe = "v0.0-14029-ge954fe0aac"
+data_git_hash = "de4d178aa78d053ef3bcf166ec6f7322ce1517c5"
+data_git_describe = "v0.0-14031-gde4d178aa7"
 data_git_msg = """\
-commit e954fe0aacaef634327bed411e42a224e8093633
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Jul 20 11:13:29 2022 +0100
+commit de4d178aa78d053ef3bcf166ec6f7322ce1517c5
+Author: Jorge Prendes <jorge.prendes@gmail.com>
+Date:   Tue Sep 13 13:56:07 2022 +0100
 
-    [crypto, test] Test timing properties of AES-GCM decryption.
+    [ottool] Use a constant for the programming speed
     
-    Add a test that checks if AES-GCM decryption is constant-time relative
-    to different invalid tags. This helps ensure that an attacker cannot get
-    information about how much of the tag they've guessed correctly.
-    
-    As part of this change, refactor AES-GCM testing so that utilities can
-    be imported by multiple files.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Jorge Prendes <jorge.prendes@gmail.com>
 
 """
 
