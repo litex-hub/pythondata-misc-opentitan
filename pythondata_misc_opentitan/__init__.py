@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14170"
-version_tuple = (0, 0, 14170)
+version_str = "0.0.post14171"
+version_tuple = (0, 0, 14171)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14170")
+    pversion = V("0.0.post14171")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14028"
-data_version_tuple = (0, 0, 14028)
+data_version_str = "0.0.post14029"
+data_version_tuple = (0, 0, 14029)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14028")
+    pdata_version = V("0.0.post14029")
 except ImportError:
     pass
-data_git_hash = "6f12fbe44f45962fff8c6ef5c1a43e88a65ba650"
-data_git_describe = "v0.0-14028-g6f12fbe44f"
+data_git_hash = "e954fe0aacaef634327bed411e42a224e8093633"
+data_git_describe = "v0.0-14029-ge954fe0aac"
 data_git_msg = """\
-commit 6f12fbe44f45962fff8c6ef5c1a43e88a65ba650
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Sep 12 13:55:16 2022 -0400
+commit e954fe0aacaef634327bed411e42a224e8093633
+Author: Jade Philipoom <jadep@google.com>
+Date:   Wed Jul 20 11:13:29 2022 +0100
 
-    [opentitantool] cargo raze --generate-lockfile
+    [crypto, test] Test timing properties of AES-GCM decryption.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Add a test that checks if AES-GCM decryption is constant-time relative
+    to different invalid tags. This helps ensure that an attacker cannot get
+    information about how much of the tag they've guessed correctly.
+    
+    As part of this change, refactor AES-GCM testing so that utilities can
+    be imported by multiple files.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
