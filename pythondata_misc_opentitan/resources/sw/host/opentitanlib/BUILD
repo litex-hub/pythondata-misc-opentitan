@@ -119,6 +119,7 @@ rust_library(
         "src/util/rom_detect.rs",
         "src/util/unknown.rs",
         "src/util/usb.rs",
+        "src/util/usr_access.rs",
         "src/util/voltage.rs",
     ],
     compile_data = [
@@ -135,6 +136,7 @@ rust_library(
         "//third_party/rust/crates:anyhow",
         "//third_party/rust/crates:bitflags",
         "//third_party/rust/crates:byteorder",
+        "//third_party/rust/crates:chrono",
         "//third_party/rust/crates:deser_hjson",
         "//third_party/rust/crates:directories",
         "//third_party/rust/crates:env_logger",
