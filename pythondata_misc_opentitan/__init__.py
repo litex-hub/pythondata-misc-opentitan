@@ -4,112 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14175"
-version_tuple = (0, 0, 14175)
+version_str = "0.0.post14178"
+version_tuple = (0, 0, 14178)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14175")
+    pversion = V("0.0.post14178")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14033"
-data_version_tuple = (0, 0, 14033)
+data_version_str = "0.0.post14036"
+data_version_tuple = (0, 0, 14036)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14033")
+    pdata_version = V("0.0.post14036")
 except ImportError:
     pass
-data_git_hash = "1fb830b76ab75e1489857a67e7bf340fe493b23d"
-data_git_describe = "v0.0-14033-g1fb830b76a"
+data_git_hash = "2c9e03508018a54abe52198e8316eff15197e997"
+data_git_describe = "v0.0-14036-g2c9e035080"
 data_git_msg = """\
-commit 1fb830b76ab75e1489857a67e7bf340fe493b23d
-Author: Sharon Topaz <sharon.topaz@nuvoton.com>
-Date:   Thu Jun 3 22:22:56 2021 +0300
+commit 2c9e03508018a54abe52198e8316eff15197e997
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Sep 13 12:15:24 2022 -0700
 
-    SunGrid launcher support
+    Fix unit test
     
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    lint fixes
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    fix lint issues
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    add open source header
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    update message in SGE.py and a comment in SgeLauncher.py
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    closing the log file
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    update SGE lower case and strings
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    update SGE PR
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Resolving comments
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix lint issues
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SGE lint issue
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SGE lint indent issue
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SGE lint indent issue2
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SGE lint indent issue3
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SGE comments 3-Aug
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix SgeLauncher
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Resolve SGE PR comments
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Remove trailing spaces
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix lint issues
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Fix latest comments
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
-    
-    Update exception description
-    
-    Signed-off-by: Sharon Topaz <sharon.topaz@nuvoton.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
