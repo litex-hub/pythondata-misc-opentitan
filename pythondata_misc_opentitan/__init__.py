@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14151"
-version_tuple = (0, 0, 14151)
+version_str = "0.0.post14152"
+version_tuple = (0, 0, 14152)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14151")
+    pversion = V("0.0.post14152")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14009"
-data_version_tuple = (0, 0, 14009)
+data_version_str = "0.0.post14010"
+data_version_tuple = (0, 0, 14010)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14009")
+    pdata_version = V("0.0.post14010")
 except ImportError:
     pass
-data_git_hash = "f4a8a3af6ec38c27fc0ec7a57ec29d962d2c75e5"
-data_git_describe = "v0.0-14009-gf4a8a3af6e"
+data_git_hash = "5dbc328dfd71f8be72c3403eee83c22c79deb318"
+data_git_describe = "v0.0-14010-g5dbc328dfd"
 data_git_msg = """\
-commit f4a8a3af6ec38c27fc0ec7a57ec29d962d2c75e5
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Sep 2 23:06:39 2022 -0700
+commit 5dbc328dfd71f8be72c3403eee83c22c79deb318
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Sep 1 12:26:31 2022 -0400
 
-    [spi_device/dv] Update spi agent for CSB
+    [sw/silicon_creator, test] Move shared constants to toplevel_memory.ld.tpl
     
-    Update agent to be able to control CSB via an item, rather than just via
-    agent_cfg, so that we could start TPM seq across with flash seq, as they use
-    different CSB.
+    This commit moves linker constants such as stack size, chip info size,
+    etc. to toplevel_memory.ld.tpl. Since the linker script generated from
+    this template is included by rom, rom_ext, bare_metal, and ottf linker
+    scripts, this change makes it easier to keep all these settings in sync.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
