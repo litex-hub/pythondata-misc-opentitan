@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14139"
-version_tuple = (0, 0, 14139)
+version_str = "0.0.post14151"
+version_tuple = (0, 0, 14151)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14139")
+    pversion = V("0.0.post14151")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post13997"
-data_version_tuple = (0, 0, 13997)
+data_version_str = "0.0.post14009"
+data_version_tuple = (0, 0, 14009)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post13997")
+    pdata_version = V("0.0.post14009")
 except ImportError:
     pass
-data_git_hash = "a00ce54bf6341a296c0d3864008487e0b65e5787"
-data_git_describe = "v0.0-13997-ga00ce54bf6"
+data_git_hash = "f4a8a3af6ec38c27fc0ec7a57ec29d962d2c75e5"
+data_git_describe = "v0.0-14009-gf4a8a3af6e"
 data_git_msg = """\
-commit a00ce54bf6341a296c0d3864008487e0b65e5787
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Sep 8 14:29:42 2022 -0700
+commit f4a8a3af6ec38c27fc0ec7a57ec29d962d2c75e5
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Sep 2 23:06:39 2022 -0700
 
-    [dv/kmac] clean up void usage in predict function
+    [spi_device/dv] Update spi agent for CSB
     
-    This PR cleans up using `void` for ral predict function, instead I
-    should use `DV_CHECK`.
+    Update agent to be able to control CSB via an item, rather than just via
+    agent_cfg, so that we could start TPM seq across with flash seq, as they use
+    different CSB.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
