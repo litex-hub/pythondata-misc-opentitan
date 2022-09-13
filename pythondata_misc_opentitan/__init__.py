@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14152"
-version_tuple = (0, 0, 14152)
+version_str = "0.0.post14162"
+version_tuple = (0, 0, 14162)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14152")
+    pversion = V("0.0.post14162")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14010"
-data_version_tuple = (0, 0, 14010)
+data_version_str = "0.0.post14020"
+data_version_tuple = (0, 0, 14020)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14010")
+    pdata_version = V("0.0.post14020")
 except ImportError:
     pass
-data_git_hash = "5dbc328dfd71f8be72c3403eee83c22c79deb318"
-data_git_describe = "v0.0-14010-g5dbc328dfd"
+data_git_hash = "db5c8367b0474e7cad215db8dc0ad6ad1271cacb"
+data_git_describe = "v0.0-14020-gdb5c8367b0"
 data_git_msg = """\
-commit 5dbc328dfd71f8be72c3403eee83c22c79deb318
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 1 12:26:31 2022 -0400
+commit db5c8367b0474e7cad215db8dc0ad6ad1271cacb
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Tue Aug 30 15:57:40 2022 -0700
 
-    [sw/silicon_creator, test] Move shared constants to toplevel_memory.ld.tpl
+    [test] alert_handler_reverse_ping_in_deep_sleep
     
-    This commit moves linker constants such as stack size, chip info size,
-    etc. to toplevel_memory.ld.tpl. Since the linker script generated from
-    this template is included by rom, rom_ext, bare_metal, and ottf linker
-    scripts, this change makes it easier to keep all these settings in sync.
+    Check that escalation receivers located inside always-on blocks do not
+    auto-escalate due to the reverse ping feature while the system is in deep
+    sleep.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
