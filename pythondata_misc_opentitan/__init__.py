@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14173"
-version_tuple = (0, 0, 14173)
+version_str = "0.0.post14174"
+version_tuple = (0, 0, 14174)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14173")
+    pversion = V("0.0.post14174")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14031"
-data_version_tuple = (0, 0, 14031)
+data_version_str = "0.0.post14032"
+data_version_tuple = (0, 0, 14032)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14031")
+    pdata_version = V("0.0.post14032")
 except ImportError:
     pass
-data_git_hash = "de4d178aa78d053ef3bcf166ec6f7322ce1517c5"
-data_git_describe = "v0.0-14031-gde4d178aa7"
+data_git_hash = "b1cc27a98e2c21dbe93aceca6f1c34e0da852ac7"
+data_git_describe = "v0.0-14032-gb1cc27a98e"
 data_git_msg = """\
-commit de4d178aa78d053ef3bcf166ec6f7322ce1517c5
-Author: Jorge Prendes <jorge.prendes@gmail.com>
-Date:   Tue Sep 13 13:56:07 2022 +0100
+commit b1cc27a98e2c21dbe93aceca6f1c34e0da852ac7
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Tue Sep 13 14:26:06 2022 +0100
 
-    [ottool] Use a constant for the programming speed
+    [otbn,dv] Fix OTBN block level tests for xlm
     
-    Signed-off-by: Jorge Prendes <jorge.prendes@gmail.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
