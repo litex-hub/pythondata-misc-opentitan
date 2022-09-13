@@ -25,19 +25,20 @@ class chip_sw_base_vseq extends chip_base_vseq;
     super.dut_init(reset_kind);
   endtask
 
-  // Backdoor load the sw test image, setup UART, logger and test status interfaces.
+  // Initialize the chip to enable SW to boot up and execute code.
+  //
+  // Backdoor load the sw test image, initialize memories, sw logger and test status interfaces.
+  // Note that this function is called the moment POR_N asserts. The chip resources including the
+  // CPU are brought out of reset much later, after the pwrmgr has gone through the wakeup sequence.
+  // Invoke cfg.chip_vif.cpu_clk_rst_vif.wait_for_reset() to bring the simulation to the point where
+  // the CPU is out of reset and ready to execute code.
   virtual task cpu_init();
      int size_bytes;
      int total_bytes;
 
-    `uvm_info(`gfn, "Started cpu_init", UVM_MEDIUM)
-    // TODO: Fixing this for now - need to find a way to pass this on to the SW test.
-    foreach (cfg.m_uart_agent_cfgs[i]) begin
-      cfg.m_uart_agent_cfgs[i].set_parity(1'b0, 1'b0);
-      cfg.m_uart_agent_cfgs[i].set_baud_rate(cfg.uart_baud_rate);
-    end
+    `uvm_info(`gfn, "Starting cpu_init", UVM_MEDIUM)
 
-    // initialize the sw logger interface
+    // Initialize the sw logger interface.
     foreach (cfg.sw_images[i]) begin
       cfg.sw_logger_vif.add_sw_log_db(cfg.sw_images[i]);
     end
@@ -45,12 +46,12 @@ class chip_sw_base_vseq extends chip_base_vseq;
     cfg.sw_logger_vif.write_sw_logs_to_file = cfg.write_sw_logs_to_file;
     cfg.sw_logger_vif.ready();
 
-    // initialize the sw test status
+    // Initialize the sw test status.
     cfg.sw_test_status_vif.sw_test_status_addr = SW_DV_TEST_STATUS_ADDR;
 
-    `uvm_info(`gfn, "Initializing RAM", UVM_MEDIUM)
+    `uvm_info(`gfn, "Initializing SRAMs", UVM_MEDIUM)
 
-    // Assume each tile contains the same number of bytes
+    // Assume each tile contains the same number of bytes.
     size_bytes = cfg.mem_bkdr_util_h[chip_mem_e'(RamMain0)].get_size_bytes();
     total_bytes = size_bytes * cfg.num_ram_main_tiles;
 
@@ -81,6 +82,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
 `else
     cfg.mem_bkdr_util_h[Rom].load_mem_from_file({cfg.sw_images[SwTypeRom], ".39.scr.vmem"});
 `endif
+
     // TODO: the location of the main execution image should be randomized to either bank in future.
     if (cfg.sw_images.exists(SwTypeTest)) begin
       if (cfg.use_spi_load_bootstrap) begin
@@ -95,7 +97,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
 
     config_jitter();
 
-    `uvm_info(`gfn, "CPU_init done", UVM_MEDIUM)
+    `uvm_info(`gfn, "cpu_init completed", UVM_MEDIUM)
   endtask
 
   // The jitter enable mechanism is different from test_rom and rom right now.
@@ -186,7 +188,7 @@ class chip_sw_base_vseq extends chip_base_vseq;
 
   virtual task body();
     cfg.sw_test_status_vif.set_num_iterations(num_trans);
-    // Initialize the CPU to kick off the sw test.
+    // Initialize the CPU to kick off the sw test. TODO: Should be called in pre_start() instead.
     cpu_init();
   endtask
 
@@ -412,15 +414,11 @@ class chip_sw_base_vseq extends chip_base_vseq;
   //     This transition will use default raw unlock token.
   // 2). Test lock state N -> test unlock state N+1
   //     This transition requires user to input the correct test unlock token.
-  // During this operation switch to LC_CTRL JTAG tap.
   virtual task jtag_lc_state_transition(dec_lc_state_e src_state,
                                         dec_lc_state_e dest_state,
                                         bit [TokenWidthBit-1:0] test_unlock_token = 0);
     bit [TL_DW-1:0] actual_src_state;
     bit valid_transition;
-
-    cfg.chip_vif.enable_jtag = 1'b1;
-    cfg.chip_vif.tap_straps_if.drive(SelectLCJtagTap);
 
     jtag_riscv_agent_pkg::jtag_read_csr(ral.lc_ctrl.lc_state.get_offset(),
                                         p_sequencer.jtag_sequencer_h,
@@ -511,7 +509,6 @@ class chip_sw_base_vseq extends chip_base_vseq;
 
     wait_lc_status(LcTransitionSuccessful);
     `uvm_info(`gfn, "LC transition request succeed!", UVM_LOW)
-    cfg.chip_vif.enable_jtag = 1'b0;
   endtask
 
   // These assertions check if OTP image sets the correct mubi type. However, when loading the raw

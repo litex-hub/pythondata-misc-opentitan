@@ -97,6 +97,7 @@ interface chip_if;
     // These are "inactive high".
     ios_if.pins_pu[PorN] = 1;
     ios_if.pins_pu[UsbP] = 1;
+    ios_if.pins_pu[IoR4] = 1;  // JTAG t_rst_n.
     ios_if.pins_pu[IoR8] = 1;
     ios_if.pins_pu[IoR9] = 1;
     // Leave dedicated chip outputs undriven.
@@ -109,21 +110,17 @@ interface chip_if;
   // Chip IOs must always either be undriven or driven to a known value. Xs indicate multiple
   // drivers, which is an issue likely caused by multiple functions simultaneously attempting to
   // control the shared (muxed) pads.
-  initial begin
-    wait (ios_if.pins_pd == {IoNumTotal{1'b1}});
-    foreach (ios[i]) begin
-      fork
-        begin
-          automatic int a_i = i;
-          forever @(ios[a_i]) begin
-            automatic chip_io_e io = chip_io_e'(a_i);
-            `DV_CHECK_FATAL(ios[a_i] !== 1'bx,
-                            $sformatf("Possible multiple drivers on chip IO %0s", io.name()), MsgId)
-          end
-        end
-      join_none
+  for (genvar i = 0; i < IoNumTotal; i++) begin : gen_ios_x_check
+    wire glitch_free_io;
+    assign #1ps glitch_free_io = ios[i];
+
+    chip_io_e named_io = chip_io_e'(i);
+    always @(glitch_free_io) begin
+      if (glitch_free_io === 1'bx) begin
+        `uvm_error(MsgId, $sformatf("Detected an X on %0s", named_io.name()))
+      end
     end
-  end
+  end : gen_ios_x_check
 
   // Functional interfaces.
   //
@@ -173,21 +170,29 @@ interface chip_if;
 
   // Functional (dedicated) interface: SPI host interface (drives traffic into the chip).
   // TODO: Update spi_if to emit all signals as inout ports.
-  // spi_if spi_host_if(.rst_n(top_earlgrey.u_spi_device.rst_ni),
+  // spi_if spi_host_if(.rst_n(`SPI_DEVICE_HIER.rst_ni),
   //                    .sck(ios[SpiDevClk]),
   //                    .csb(ios[SpiDevCsL]),
   //                    .sio(ios[SpiDevD3:SpiDevD0]));
 
+  bit enable_spi_host = 1;  // Since these are DIOs.
   spi_if spi_host_if(.rst_n(`SPI_DEVICE_HIER.rst_ni));
-  assign ios[SpiDevClk] = spi_host_if.sck;
-  assign ios[SpiDevCsL] = spi_host_if.csb;
-  assign ios[SpiDevD0] = spi_host_if.sio[0];
-  assign spi_host_if.sio[1] = ios[SpiDevD1];
+  assign ios[SpiDevClk] = enable_spi_host ? spi_host_if.sck : 1'bz;
+  assign ios[SpiDevCsL] = enable_spi_host ? spi_host_if.csb : 1'bz;
+  assign ios[SpiDevD0] = enable_spi_host ? spi_host_if.sio[0] : 1'bz;
+  assign spi_host_if.sio[1] = enable_spi_host ? ios[SpiDevD1] : 1'bz;
 
   // Functional (dedicated) interface: SPI AP device interface (receives traffic from the chip).
+  // TODO: Update spi_if to emit all signals as inout ports.
+  // spi_if spi_device_ap_if(.rst_n(`SPI_HOST_HIER(0).rst_ni),
+  //                         .sck(ios[SpiHostClk]),
+  //                         .csb(ios[SpiHostCsL]),
+  //                         .sio(ios[SpiHostD3:SpiHostD0]));
+
+  bit enable_spi_device_ap = 1;  // Since these are DIOs.
   spi_if spi_device_ap_if(.rst_n(`SPI_HOST_HIER(0).rst_ni));
-  assign spi_device_ap_if.sck = ios[SpiHostClk];
-  assign spi_device_ap_if.csb = ios[SpiHostCsL];
+  assign spi_device_ap_if.sck = enable_spi_device_ap ? ios[SpiHostClk] : 1'bz;
+  assign spi_device_ap_if.csb = enable_spi_device_ap ? ios[SpiHostCsL] : 1'bz;
   // for (genvar i = 0; i < 4; i++) begin : gen_spi_device_ap_if_sio_conn
   //   // TODO: This logic needs to be firmed up.
   //   assign ios[SpiHostD0 + i] = spi_device_ap_if.sio_oe[i] ? spi_device_ap_if.sio[i] : 1'bz;
@@ -206,11 +211,56 @@ interface chip_if;
   // Functional (muxed) interface: sysrst_ctrl.
   // TODO: Replace with sysrst_ctrl IP level interface.
   // TODO; combine all into 1 single sysrst_ctrl_if.
-  pins_if #(8) sysrst_ctrl_if(.pins({ios[IoB3], ios[IoB6], ios[IoB8], ios[IoB9],
-                                     ios[IoC7], ios[IoC9], ios[IoR5], ios[IoR6]}));
+  pins_if #(8) sysrst_ctrl_if(.pins({ios[IoR6], ios[IoR5], ios[IoC9], ios[IoC7],
+                                     ios[IoB9], ios[IoB8], ios[IoB6], ios[IoB3]}));
 
   // Functional (dedicated) interface (input): AST misc.
   pins_if #(1) ast_misc_if(.pins(ios[AstMisc]));
+
+  // Functional (muxed) interface: DFT straps.
+  pins_if #(2) dft_straps_if(.pins(ios[IoC4:IoC3]));
+
+  // Functional (muxed) interface: TAP straps.
+  pins_if #(2) tap_straps_if(.pins({ios[IoC5], ios[IoC8]}));
+
+  // Set JTAG TAP straps during the next powerup.
+  //
+  // The function waits for the pwrmgr fast FSM state to reach the strap sampling state and sets the
+  // JTAG TAP strap pins to the desired values. This function must be called after asserting POR
+  // or just before a new low power entry. The strap pins are set the moment pwrmgr FSM reaches the
+  // strap sampling state. The strap interface is disconnected from the chip IOs immediately once
+  // the pwrmgr advances to the next state, so that the chip IOs are freed up for other uses.
+  //
+  // In DFT-enabled LC state, the TAP straps are continuously sampled to allow switching back and
+  // forth between RV_DM and LC TAPs. For this usecase, the test sequence can set the TAP straps
+  // directly using the tap_straps_if interface.
+  //
+  // This method is non-blocking - it immediately returns back to the caller after spawning a
+  // thread. Care must be taken to ensure the calling thread is not killed unless desired.
+  wire pwrmgr_pkg::fast_pwr_state_e pwrmgr_fast_pwr_state = `PWRMGR_HIER.u_fsm.state_q;
+  function automatic void set_tap_straps_on_powerup(chip_jtag_tap_e tap_strap);
+    fork begin
+      wait (pwrmgr_fast_pwr_state == pwrmgr_pkg::FastPwrStateStrap);
+      tap_straps_if.drive(tap_strap);
+      wait (pwrmgr_fast_pwr_state != pwrmgr_pkg::FastPwrStateStrap);
+      tap_straps_if.drive_en('0);
+    end join_none
+  endfunction
+
+  // Set DFT straps during the next powerup.
+  //
+  // Similar in behavior to set_tap_straps_on_next_powerup(), but used for setting the DFT straps.
+  function automatic void set_dft_straps_on_powerup(bit [1:0] dft_strap);
+    fork begin
+      wait (pwrmgr_fast_pwr_state == pwrmgr_pkg::FastPwrStateStrap);
+      dft_straps_if.drive(dft_strap);
+      wait (pwrmgr_fast_pwr_state != pwrmgr_pkg::FastPwrStateStrap);
+      dft_straps_if.drive_en('0);
+    end join_none
+  endfunction
+
+  // Functional (muxed) interface: SW straps.
+  pins_if #(3) sw_straps_if(.pins(ios[IoC2:IoC0]));
 
   // Functional (muxed) interface: GPIOs.
   //
@@ -229,35 +279,32 @@ interface chip_if;
   );
 
   // Functional (muxed) interface: JTAG (valid during debug enabled LC state only).
+
+  // To connect the JTAG interface to chip IOs, just set the TAP strap to the desired value.
+  //
+  // Whether the desired JTAG TAP will actually selected or not depends on the LC state and the
+  // window of time when the TAP straps are set. It is upto the test sequence to orchestrate it
+  // correctly. Disconnect the TAP strap interface to free up the muxed IOs.
+  wire __enable_jtag = (tap_straps_if.pins != 0);
   wire lc_hw_debug_en = (`LC_CTRL_HIER.lc_hw_debug_en_o == lc_ctrl_pkg::On);
-  bit enable_jtag, jtag_enabled;
   jtag_if jtag_if();
 
-  assign jtag_enabled = enable_jtag && lc_hw_debug_en;
-  assign ios[IoR0] = jtag_enabled ? jtag_if.tms : 1'bz;
-  assign jtag_if.tdo = jtag_enabled ? ios[IoR1] : 1'bz;
-  assign ios[IoR2] = jtag_enabled ? jtag_if.tdi : 1'bz;
-  assign ios[IoR3] = jtag_enabled ? jtag_if.tck : 1'bz;
-  assign ios[IoR4] = jtag_enabled ? jtag_if.trst_n : 1'bz;
+  assign ios[IoR0] = __enable_jtag ? jtag_if.tms : 1'bz;
+  assign jtag_if.tdo = __enable_jtag ? ios[IoR1] : 1'bz;
+  assign ios[IoR2] = __enable_jtag ? jtag_if.tdi : 1'bz;
+  assign ios[IoR3] = __enable_jtag ? jtag_if.tck : 1'bz;
+  assign ios[IoR4] = __enable_jtag ? jtag_if.trst_n : 1'bz;
 
   // Functional (muxed) interface: Flash controller JTAG.
-  logic enable_flash_ctrl_jtag, flash_ctrl_jtag_enabled;
+  bit enable_flash_ctrl_jtag, flash_ctrl_jtag_enabled;
   jtag_if flash_ctrl_jtag_if();
 
+  // TODO: Revisit this logic.
   assign flash_ctrl_jtag_enabled = enable_flash_ctrl_jtag && lc_hw_debug_en;
   assign ios[IoB0] = flash_ctrl_jtag_enabled ? flash_ctrl_jtag_if.tms : 1'bz;
   assign flash_ctrl_jtag_if.tdo = flash_ctrl_jtag_enabled ? ios[IoB1] : 1'bz;
   assign ios[IoB2] = flash_ctrl_jtag_enabled ? flash_ctrl_jtag_if.tdi : 1'bz;
   assign ios[IoB3] = flash_ctrl_jtag_enabled ? flash_ctrl_jtag_if.tck : 1'bz;
-
-  // Functional (muxed) interface: DFT straps.
-  pins_if #(2) dft_straps_if(.pins(ios[IoC4:IoC3]));
-
-  // Functional (muxed) interface: TAP straps.
-  pins_if #(2) tap_straps_if(.pins({ios[IoC8], ios[IoC5]}));
-
-  // Functional (muxed) interface: SW straps.
-  pins_if #(3) sw_straps_if(.pins(ios[IoC2:IoC0]));
 
   // Functional (muxed) interface: AST2PAD.
   pins_if #(9) ast2pad_if(.pins({ios[IoA0], ios[IoA1], ios[IoB3], ios[IoB4],
@@ -302,11 +349,11 @@ interface chip_if;
   endfunction
 
   // Functional (muxed) interface: SPI EC device interface (receives traffic from the chip).
-  // spi_if spi_device_ec_if(.rst_n(top_earlgrey.u_spi_host1.rst_ni));
-  // assign spi_device_ec_if.csk = ios[IoB3];
-  // assign spi_device_ec_if.csb = ios[IoB0];
-  // assign spi_device_ec_if.sio[0] = ios[IoB1];
-  // assign ios[IoB2] = assign spi_device_ec_if.sio[1] : 1'bz;
+  // TODO: Update spi_if to emit all signals as inout ports.
+  // spi_if spi_device_ec_if(.rst_n(`SPI_HOST_HIER(1).rst_ni),
+  //                         .sck(ios[IoB3]),
+  //                         .csb(ios[IoB0]),
+  //                         .sio(ios[IoB1:IoB2]));
 
   // Functional (muxed) interface: I2Cs.
   bit [NUM_I2CS-1:0] enable_i2c;
@@ -460,6 +507,43 @@ interface chip_if;
   end
 
   // Helper methods.
+
+  // Verifies an LC control signal broadcast by the LC controller.
+  function automatic void check_lc_ctrl_enable_signal(lc_ctrl_signal_e signal, bit expected_value);
+    lc_ctrl_pkg::lc_tx_t value;
+    case (signal)
+      LcCtrlSignalDftEn:          value = `LC_CTRL_HIER.lc_dft_en_o;
+      LcCtrlSignalNvmDebugEn:     value = `LC_CTRL_HIER.lc_nvm_debug_en_o;
+      LcCtrlSignalHwDebugEn:      value = `LC_CTRL_HIER.lc_hw_debug_en_o;
+      LcCtrlSignalCpuEn:          value = `LC_CTRL_HIER.lc_cpu_en_o;
+      LcCtrlSignalCreatorSeedEn:  value = `LC_CTRL_HIER.lc_creator_seed_sw_rw_en_o;
+      LcCtrlSignalOwnerSeedEn:    value = `LC_CTRL_HIER.lc_owner_seed_sw_rw_en_o;
+      LcCtrlSignalIsoRdEn:        value = `LC_CTRL_HIER.lc_iso_part_sw_rd_en_o;
+      LcCtrlSignalIsoWrEn:        value = `LC_CTRL_HIER.lc_iso_part_sw_wr_en_o;
+      LcCtrlSignalSeedRdEn:       value = `LC_CTRL_HIER.lc_seed_hw_rd_en_o;
+      LcCtrlSignalKeyMgrEn:       value = `LC_CTRL_HIER.lc_keymgr_en_o;
+      LcCtrlSignalEscEn:          value = `LC_CTRL_HIER.lc_escalate_en_o;
+      LcCtrlSignalCheckBypEn:     value = `LC_CTRL_HIER.lc_check_byp_en_o;
+      default:        `uvm_fatal(MsgId, $sformatf("Bad choice: %0s", signal.name()))
+    endcase
+    if (expected_value ~^ (value == lc_ctrl_pkg::On)) begin
+      `uvm_info(MsgId, $sformatf("LC control signal %0s: value = %0s matched",
+                                 signal.name(), value.name()), UVM_HIGH)
+    end else begin
+      `uvm_error(MsgId, $sformatf("LC control signal %0s: value = %0s mismatched",
+                                  signal.name(), value.name()))
+    end
+  endfunction
+
+  // Verifies all LC control signals broadcast by the LC controller.
+  function automatic void check_lc_ctrl_all_enable_signals(
+      bit [LcCtrlSignalNumTotal-1:0] expected_values);
+    foreach (expected_values[i]) begin
+      check_lc_ctrl_enable_signal(lc_ctrl_signal_e'(i), expected_values[i]);
+    end
+  endfunction
+
+  // Returns string path to an IP block instance.
   function automatic string get_hier_path(chip_peripheral_e peripheral, int inst_num = 0);
     string path = dv_utils_pkg::get_parent_hier($sformatf("%m"));
     case (peripheral)
@@ -500,6 +584,41 @@ interface chip_if;
     endcase
     return path;
   endfunction
+
+  /*
+   * Helper methods for forcing internal signals.
+   *
+   * The macros invoked below create a static function to sample / force / release an internal
+   * signal. Please see definition in `hw/dv/sv/dv_utils/dv_macros.svh` for more details.
+   */
+
+  // Signal probe function for LC program error signal in OTP ctrl.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_otp_ctrl_lc_err_o,
+      `OTP_CTRL_HIER.u_otp_ctrl_lci.lc_err_o)
+
+  // Signal probe function for wait cycle mask in alert handler.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_alert_handler_ping_timer_wait_cyc_mask_i,
+      `ALERT_HANDLER_HIER.u_ping_timer.wait_cyc_mask_i)
+
+  // Signal probe function for keymgr key state.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_keymgr_key_state,
+      `KEYMGR_HIER.u_ctrl.key_state_q)
+
+  // Signal probe function for RX idle detection in usbdev.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_usbdev_rx_idle_det_o,
+      `USBDEV_HIER.usbdev_impl.u_usb_fs_nb_pe.u_usb_fs_rx.rx_idle_det_o)
+
+  // Signal probe function for se0 signal in usbdev.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_usbdev_se0,
+      `USBDEV_HIER.usbdev_impl.u_usbdev_linkstate.line_se0_raw)
+
+  // Signal probe function for link reset signal in usbdev.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_usbdev_link_reset_o,
+      `USBDEV_HIER.usbdev_impl.u_usbdev_linkstate.link_reset_o)
+
+  // Signal probe function for SOF valid signal in usbdev.
+  `DV_CREATE_SIGNAL_PROBE_FUNCTION(signal_probe_usbdev_sof_valid_o,
+      `USBDEV_HIER.usbdev_impl.u_usb_fs_nb_pe.sof_valid_o)
 
 `undef TOP_HIER
 `undef ADC_CTRL_HIER
