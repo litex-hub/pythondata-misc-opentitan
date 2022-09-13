@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14162"
-version_tuple = (0, 0, 14162)
+version_str = "0.0.post14163"
+version_tuple = (0, 0, 14163)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14162")
+    pversion = V("0.0.post14163")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14020"
-data_version_tuple = (0, 0, 14020)
+data_version_str = "0.0.post14021"
+data_version_tuple = (0, 0, 14021)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14020")
+    pdata_version = V("0.0.post14021")
 except ImportError:
     pass
-data_git_hash = "db5c8367b0474e7cad215db8dc0ad6ad1271cacb"
-data_git_describe = "v0.0-14020-gdb5c8367b0"
+data_git_hash = "85057ad934a7e13fd28ed4f142fc943259f328a6"
+data_git_describe = "v0.0-14021-g85057ad934"
 data_git_msg = """\
-commit db5c8367b0474e7cad215db8dc0ad6ad1271cacb
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Tue Aug 30 15:57:40 2022 -0700
+commit 85057ad934a7e13fd28ed4f142fc943259f328a6
+Author: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
+Date:   Tue Aug 30 10:12:52 2022 +0100
 
-    [test] alert_handler_reverse_ping_in_deep_sleep
+    [otbn, dv] Added a testcase to verify *_STACK.ADDR.INTEGRITY
     
-    Check that escalation receivers located inside always-on blocks do not
-    auto-escalate due to the reverse ping feature while the system is in deep
-    sleep.
+    This commit adds a new testcase called otbn_stack_addr_integ_chk to
+    verify OTBN.CALL_STACK.ADDR.INTEGRITY and OTBN.LOOP_STACK.ADDR.INTEGRITY
+    countermeasures.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Prajwala Puttappa <prajwalaputtappa@lowrisc.org>
 
 """
 
