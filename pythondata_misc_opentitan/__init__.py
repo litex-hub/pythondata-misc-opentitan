@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14193"
-version_tuple = (0, 0, 14193)
+version_str = "0.0.post14194"
+version_tuple = (0, 0, 14194)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14193")
+    pversion = V("0.0.post14194")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14051"
-data_version_tuple = (0, 0, 14051)
+data_version_str = "0.0.post14052"
+data_version_tuple = (0, 0, 14052)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14051")
+    pdata_version = V("0.0.post14052")
 except ImportError:
     pass
-data_git_hash = "178fab89009e7290fb1c01a95a81b9b583c233ba"
-data_git_describe = "v0.0-14051-g178fab8900"
+data_git_hash = "d4641339ed703904120639d1504804fb725535ce"
+data_git_describe = "v0.0-14052-gd4641339ed"
 data_git_msg = """\
-commit 178fab89009e7290fb1c01a95a81b9b583c233ba
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Sep 13 11:42:41 2022 -0700
+commit d4641339ed703904120639d1504804fb725535ce
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Wed Sep 14 05:46:30 2022 +0000
 
-    [test] Correct cross referenced testpoint name
+    [flash_ctrl/dv] Sign off V2
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
