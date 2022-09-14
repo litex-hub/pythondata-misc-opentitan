@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14185"
-version_tuple = (0, 0, 14185)
+version_str = "0.0.post14186"
+version_tuple = (0, 0, 14186)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14185")
+    pversion = V("0.0.post14186")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14043"
-data_version_tuple = (0, 0, 14043)
+data_version_str = "0.0.post14044"
+data_version_tuple = (0, 0, 14044)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14043")
+    pdata_version = V("0.0.post14044")
 except ImportError:
     pass
-data_git_hash = "d93ed33baf9cd3227b1f78acfd55222746f4383e"
-data_git_describe = "v0.0-14043-gd93ed33baf"
+data_git_hash = "94e1ca7da17dd6ff39e7ab34e4f6a7b0f27b3b74"
+data_git_describe = "v0.0-14044-g94e1ca7da1"
 data_git_msg = """\
-commit d93ed33baf9cd3227b1f78acfd55222746f4383e
-Author: Dan Petrisko <petrisko@cs.washington.edu>
-Date:   Tue Sep 13 01:25:16 2022 -0700
+commit 94e1ca7da17dd6ff39e7ab34e4f6a7b0f27b3b74
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Sep 1 14:36:10 2022 +0200
 
-    Review fixes
+    [crypto] Remove now-empty header file.
     
-    Signed-off-by: Dan Petrisko <petrisko@cs.washington.edu>
+    Final step in splitting api.h into many header files; remove the
+    now-empty api.h.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
