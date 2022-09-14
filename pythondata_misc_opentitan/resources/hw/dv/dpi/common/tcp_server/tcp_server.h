@@ -16,6 +16,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 struct tcp_server_ctx;
@@ -47,7 +48,8 @@ void tcp_server_write(struct tcp_server_ctx *ctx, char dat);
  * @param listen_port On which port the server should listen
  * @return A pointer to the created context struct
  */
-tcp_server_ctx *tcp_server_create(const char *display_name, int listen_port);
+struct tcp_server_ctx *tcp_server_create(const char *display_name,
+                                         int listen_port);
 
 /**
  * Shut down the server and free all reserved memory

@@ -31,7 +31,7 @@ const int IDCODEVAL = 0x04F5484D;
 // [3:0]    0x1  - Protocol version (0.13)
 const int DTMCSRVAL = 0x00000071;
 
-enum jtag_state_t : uint8_t {
+enum jtag_state_t {
   TestLogicReset,
   RunTestIdle,
   SelectDrScan,
@@ -50,7 +50,7 @@ enum jtag_state_t : uint8_t {
   UpdateIr
 };
 
-enum jtag_reg_t : uint8_t {
+enum jtag_reg_t {
   Bypass0 = 0x0,
   IdCode = 0x1,
   DTMCSR = 0x10,
@@ -65,7 +65,7 @@ struct jtag_ctx {
   uint64_t dr_captured;
   uint8_t dr_length;
   uint8_t jtag_tdo;
-  jtag_state_t jtag_state;
+  enum jtag_state_t jtag_state;
   uint8_t dmi_outstanding;
 };
 
