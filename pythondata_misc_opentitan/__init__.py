@@ -4,45 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14181"
-version_tuple = (0, 0, 14181)
+version_str = "0.0.post14183"
+version_tuple = (0, 0, 14183)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14181")
+    pversion = V("0.0.post14183")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14039"
-data_version_tuple = (0, 0, 14039)
+data_version_str = "0.0.post14041"
+data_version_tuple = (0, 0, 14041)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14039")
+    pdata_version = V("0.0.post14041")
 except ImportError:
     pass
-data_git_hash = "b6f1ac7835b81041dd7e1241efe5c0a4b74ef001"
-data_git_describe = "v0.0-14039-gb6f1ac7835"
+data_git_hash = "9c79dbbbf42e85651b614c3b2541471e30580a4b"
+data_git_describe = "v0.0-14041-g9c79dbbbf4"
 data_git_msg = """\
-commit b6f1ac7835b81041dd7e1241efe5c0a4b74ef001
-Author: Eunchan Kim <eunchan@opentitan.org>
-Date:   Tue Sep 13 16:08:38 2022 -0700
+commit 9c79dbbbf42e85651b614c3b2541471e30580a4b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Sep 8 13:03:36 2022 -0700
 
-    feat(kmac): Allow ENTROPY SEED update after REGWEN off
+    [flash_ctrl/doc] Change integrity ECC to ICV
     
-    _Related Issue: https://github.com/lowRISC/opentitan/issues/14902 _
+    This hopefully makes the documentation clearer and better reflects
+    which of the two ECC implementations we are referring to.
     
-    `ENTROPY_SEED[i]` is being used to issue LFSR seeds in the SW entropy
-    mode. The updating of the seeds is one-time event. After the first
-    update, SW is not permitted to change the seeds.
-    
-    The CSRs were also blocked by `CFG_REGWEN`. If SW clears the
-    `CFG_REGWEN` before it updates the seeds, the SW is not able to update
-    the seeds again until reset.
-    
-    This commit releases the restriction. It allows the `ENTROPY_SEED[i]`
-    can be updated afer the SW clearing of `CFG_REGWEN`.
-    
-    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
