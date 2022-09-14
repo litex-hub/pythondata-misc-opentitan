@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14200"
-version_tuple = (0, 0, 14200)
+version_str = "0.0.post14203"
+version_tuple = (0, 0, 14203)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14200")
+    pversion = V("0.0.post14203")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14058"
-data_version_tuple = (0, 0, 14058)
+data_version_str = "0.0.post14061"
+data_version_tuple = (0, 0, 14061)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14058")
+    pdata_version = V("0.0.post14061")
 except ImportError:
     pass
-data_git_hash = "6a9a3e310765253a6c033b0910c13533a2410a26"
-data_git_describe = "v0.0-14058-g6a9a3e3107"
+data_git_hash = "18419550510bc8327550cfb9a49beacbb66c535b"
+data_git_describe = "v0.0-14061-g1841955051"
 data_git_msg = """\
-commit 6a9a3e310765253a6c033b0910c13533a2410a26
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Sep 14 13:12:55 2022 -0700
+commit 18419550510bc8327550cfb9a49beacbb66c535b
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Feb 19 17:19:53 2022 -0800
 
-    [bazel] fix bazel airgapped prep script
+    [entropy_src/rtl] Standardize Ext. Health Test Interface
     
-    PR #14924 should have also added another dep to the airgapped script.
+    In preparation for creating an agent for the external health test,
+    this commit updates the extht interface to make it more consistent
+    with the current implementation of the other health checks.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
