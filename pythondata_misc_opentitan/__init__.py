@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14178"
-version_tuple = (0, 0, 14178)
+version_str = "0.0.post14180"
+version_tuple = (0, 0, 14180)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14178")
+    pversion = V("0.0.post14180")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14036"
-data_version_tuple = (0, 0, 14036)
+data_version_str = "0.0.post14038"
+data_version_tuple = (0, 0, 14038)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14036")
+    pdata_version = V("0.0.post14038")
 except ImportError:
     pass
-data_git_hash = "2c9e03508018a54abe52198e8316eff15197e997"
-data_git_describe = "v0.0-14036-g2c9e035080"
+data_git_hash = "bf9bd4a1f1cbd0a2ba7645106df7e1dea5e2a678"
+data_git_describe = "v0.0-14038-gbf9bd4a1f1"
 data_git_msg = """\
-commit 2c9e03508018a54abe52198e8316eff15197e997
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Sep 13 12:15:24 2022 -0700
+commit bf9bd4a1f1cbd0a2ba7645106df7e1dea5e2a678
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Sep 13 11:53:15 2022 -0700
 
-    Fix unit test
+    [chip, dv] Fix chip_sw_keymgr_key_derivation
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Addressed #14835
+    fixed SW and SV key version mismatch
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
