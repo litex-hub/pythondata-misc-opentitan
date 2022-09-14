@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14183"
-version_tuple = (0, 0, 14183)
+version_str = "0.0.post14185"
+version_tuple = (0, 0, 14185)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14183")
+    pversion = V("0.0.post14185")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14041"
-data_version_tuple = (0, 0, 14041)
+data_version_str = "0.0.post14043"
+data_version_tuple = (0, 0, 14043)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14041")
+    pdata_version = V("0.0.post14043")
 except ImportError:
     pass
-data_git_hash = "9c79dbbbf42e85651b614c3b2541471e30580a4b"
-data_git_describe = "v0.0-14041-g9c79dbbbf4"
+data_git_hash = "d93ed33baf9cd3227b1f78acfd55222746f4383e"
+data_git_describe = "v0.0-14043-gd93ed33baf"
 data_git_msg = """\
-commit 9c79dbbbf42e85651b614c3b2541471e30580a4b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Sep 8 13:03:36 2022 -0700
+commit d93ed33baf9cd3227b1f78acfd55222746f4383e
+Author: Dan Petrisko <petrisko@cs.washington.edu>
+Date:   Tue Sep 13 01:25:16 2022 -0700
 
-    [flash_ctrl/doc] Change integrity ECC to ICV
+    Review fixes
     
-    This hopefully makes the documentation clearer and better reflects
-    which of the two ECC implementations we are referring to.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Dan Petrisko <petrisko@cs.washington.edu>
 
 """
 
