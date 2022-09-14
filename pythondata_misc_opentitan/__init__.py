@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14191"
-version_tuple = (0, 0, 14191)
+version_str = "0.0.post14193"
+version_tuple = (0, 0, 14193)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14191")
+    pversion = V("0.0.post14193")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14049"
-data_version_tuple = (0, 0, 14049)
+data_version_str = "0.0.post14051"
+data_version_tuple = (0, 0, 14051)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14049")
+    pdata_version = V("0.0.post14051")
 except ImportError:
     pass
-data_git_hash = "63f72f5423d46526f9611ba98678d2430c52b0b7"
-data_git_describe = "v0.0-14049-g63f72f5423"
+data_git_hash = "178fab89009e7290fb1c01a95a81b9b583c233ba"
+data_git_describe = "v0.0-14051-g178fab8900"
 data_git_msg = """\
-commit 63f72f5423d46526f9611ba98678d2430c52b0b7
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Sep 9 18:52:39 2022 -0700
+commit 178fab89009e7290fb1c01a95a81b9b583c233ba
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Sep 13 11:42:41 2022 -0700
 
-    [top/dv] shorten sensor_ctrl_alert_test
+    [test] Correct cross referenced testpoint name
     
-    fixes #14844
-    
-    randomize the events tested each time and increase the number
-    of reseeds
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
