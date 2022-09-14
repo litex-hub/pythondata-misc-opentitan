@@ -4,35 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14180"
-version_tuple = (0, 0, 14180)
+version_str = "0.0.post14181"
+version_tuple = (0, 0, 14181)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14180")
+    pversion = V("0.0.post14181")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14038"
-data_version_tuple = (0, 0, 14038)
+data_version_str = "0.0.post14039"
+data_version_tuple = (0, 0, 14039)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14038")
+    pdata_version = V("0.0.post14039")
 except ImportError:
     pass
-data_git_hash = "bf9bd4a1f1cbd0a2ba7645106df7e1dea5e2a678"
-data_git_describe = "v0.0-14038-gbf9bd4a1f1"
+data_git_hash = "b6f1ac7835b81041dd7e1241efe5c0a4b74ef001"
+data_git_describe = "v0.0-14039-gb6f1ac7835"
 data_git_msg = """\
-commit bf9bd4a1f1cbd0a2ba7645106df7e1dea5e2a678
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Sep 13 11:53:15 2022 -0700
+commit b6f1ac7835b81041dd7e1241efe5c0a4b74ef001
+Author: Eunchan Kim <eunchan@opentitan.org>
+Date:   Tue Sep 13 16:08:38 2022 -0700
 
-    [chip, dv] Fix chip_sw_keymgr_key_derivation
+    feat(kmac): Allow ENTROPY SEED update after REGWEN off
     
-    Addressed #14835
-    fixed SW and SV key version mismatch
+    _Related Issue: https://github.com/lowRISC/opentitan/issues/14902 _
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    `ENTROPY_SEED[i]` is being used to issue LFSR seeds in the SW entropy
+    mode. The updating of the seeds is one-time event. After the first
+    update, SW is not permitted to change the seeds.
+    
+    The CSRs were also blocked by `CFG_REGWEN`. If SW clears the
+    `CFG_REGWEN` before it updates the seeds, the SW is not able to update
+    the seeds again until reset.
+    
+    This commit releases the restriction. It allows the `ENTROPY_SEED[i]`
+    can be updated afer the SW clearing of `CFG_REGWEN`.
+    
+    Signed-off-by: Eunchan Kim <eunchan@opentitan.org>
 
 """
 
