@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14199"
-version_tuple = (0, 0, 14199)
+version_str = "0.0.post14200"
+version_tuple = (0, 0, 14200)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14199")
+    pversion = V("0.0.post14200")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14057"
-data_version_tuple = (0, 0, 14057)
+data_version_str = "0.0.post14058"
+data_version_tuple = (0, 0, 14058)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14057")
+    pdata_version = V("0.0.post14058")
 except ImportError:
     pass
-data_git_hash = "a6bc82ee68ded1144c0dcf637a67e12eeec00294"
-data_git_describe = "v0.0-14057-ga6bc82ee68"
+data_git_hash = "6a9a3e310765253a6c033b0910c13533a2410a26"
+data_git_describe = "v0.0-14058-g6a9a3e3107"
 data_git_msg = """\
-commit a6bc82ee68ded1144c0dcf637a67e12eeec00294
+commit 6a9a3e310765253a6c033b0910c13533a2410a26
 Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Sep 14 11:58:30 2022 -0700
+Date:   Wed Sep 14 13:12:55 2022 -0700
 
-    [bazel] fix airgapped directory generation script
+    [bazel] fix bazel airgapped prep script
     
-    Turns out #14860 requires an update to this script.
+    PR #14924 should have also added another dep to the airgapped script.
     
     Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
