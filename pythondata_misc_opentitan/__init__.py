@@ -4,33 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14186"
-version_tuple = (0, 0, 14186)
+version_str = "0.0.post14188"
+version_tuple = (0, 0, 14188)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14186")
+    pversion = V("0.0.post14188")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14044"
-data_version_tuple = (0, 0, 14044)
+data_version_str = "0.0.post14046"
+data_version_tuple = (0, 0, 14046)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14044")
+    pdata_version = V("0.0.post14046")
 except ImportError:
     pass
-data_git_hash = "94e1ca7da17dd6ff39e7ab34e4f6a7b0f27b3b74"
-data_git_describe = "v0.0-14044-g94e1ca7da1"
+data_git_hash = "1b4bb0e07f0304747a3014471170a1ca83ed9a58"
+data_git_describe = "v0.0-14046-g1b4bb0e07f"
 data_git_msg = """\
-commit 94e1ca7da17dd6ff39e7ab34e4f6a7b0f27b3b74
+commit 1b4bb0e07f0304747a3014471170a1ca83ed9a58
 Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Sep 1 14:36:10 2022 +0200
+Date:   Tue Aug 30 13:46:07 2022 +0200
 
-    [crypto] Remove now-empty header file.
+    [sw,otbn] Add Bazel targets for the OTBN simulator.
     
-    Final step in splitting api.h into many header files; remove the
-    now-empty api.h.
+    Create Bazel targets for the OTBN simulator and its dependencies and use
+    the new targets in the OTBN simulator test rule.
     
     Signed-off-by: Jade Philipoom <jadep@google.com>
 
