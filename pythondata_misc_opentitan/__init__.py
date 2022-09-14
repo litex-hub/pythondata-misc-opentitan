@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14188"
-version_tuple = (0, 0, 14188)
+version_str = "0.0.post14191"
+version_tuple = (0, 0, 14191)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14188")
+    pversion = V("0.0.post14191")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14046"
-data_version_tuple = (0, 0, 14046)
+data_version_str = "0.0.post14049"
+data_version_tuple = (0, 0, 14049)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14046")
+    pdata_version = V("0.0.post14049")
 except ImportError:
     pass
-data_git_hash = "1b4bb0e07f0304747a3014471170a1ca83ed9a58"
-data_git_describe = "v0.0-14046-g1b4bb0e07f"
+data_git_hash = "63f72f5423d46526f9611ba98678d2430c52b0b7"
+data_git_describe = "v0.0-14049-g63f72f5423"
 data_git_msg = """\
-commit 1b4bb0e07f0304747a3014471170a1ca83ed9a58
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Aug 30 13:46:07 2022 +0200
+commit 63f72f5423d46526f9611ba98678d2430c52b0b7
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Sep 9 18:52:39 2022 -0700
 
-    [sw,otbn] Add Bazel targets for the OTBN simulator.
+    [top/dv] shorten sensor_ctrl_alert_test
     
-    Create Bazel targets for the OTBN simulator and its dependencies and use
-    the new targets in the OTBN simulator test rule.
+    fixes #14844
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    randomize the events tested each time and increase the number
+    of reseeds
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
