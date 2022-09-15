@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14225"
-version_tuple = (0, 0, 14225)
+version_str = "0.0.post14240"
+version_tuple = (0, 0, 14240)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14225")
+    pversion = V("0.0.post14240")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14083"
-data_version_tuple = (0, 0, 14083)
+data_version_str = "0.0.post14098"
+data_version_tuple = (0, 0, 14098)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14083")
+    pdata_version = V("0.0.post14098")
 except ImportError:
     pass
-data_git_hash = "7d941705c42a8bec8f360f5468dd08e28a07d740"
-data_git_describe = "v0.0-14083-g7d941705c4"
+data_git_hash = "1923e596f5ad0cc4d3f3477b3c93eee001a8f7e6"
+data_git_describe = "v0.0-14098-g1923e596f5"
 data_git_msg = """\
-commit 7d941705c42a8bec8f360f5468dd08e28a07d740
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Sep 14 12:43:56 2022 -0700
+commit 1923e596f5ad0cc4d3f3477b3c93eee001a8f7e6
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Sep 15 03:14:43 2022 -0700
 
-    [dv/kmac] support entropy request reg
+    [chip dv] Fix for UARt smoketest signed
     
-    This PR supports entropy_req reg to request entropy.
+    Contention on IOC4 caused due to external weak pull up
+    from the testbench and weak pull down by the ROM
+    code. Quick and dirty patch applied for now, by
+    disabling the X check on IOC4.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
