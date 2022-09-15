@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14222"
-version_tuple = (0, 0, 14222)
+version_str = "0.0.post14223"
+version_tuple = (0, 0, 14223)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14222")
+    pversion = V("0.0.post14223")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14080"
-data_version_tuple = (0, 0, 14080)
+data_version_str = "0.0.post14081"
+data_version_tuple = (0, 0, 14081)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14080")
+    pdata_version = V("0.0.post14081")
 except ImportError:
     pass
-data_git_hash = "7200ca3677141d0f3c6d9a341c9bcf2d97685d58"
-data_git_describe = "v0.0-14080-g7200ca3677"
+data_git_hash = "4ba47bb4622ae5e9331f658d383002e806bdd51e"
+data_git_describe = "v0.0-14081-g4ba47bb462"
 data_git_msg = """\
-commit 7200ca3677141d0f3c6d9a341c9bcf2d97685d58
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Sep 6 15:39:15 2022 -0400
+commit 4ba47bb4622ae5e9331f658d383002e806bdd51e
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Mon Sep 12 14:15:54 2022 +0300
 
-    [bazel] Add bazel rules for manual tests
+    [ast] Update the useability of the Jitter model
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
