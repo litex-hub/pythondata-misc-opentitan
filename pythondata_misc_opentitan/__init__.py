@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14224"
-version_tuple = (0, 0, 14224)
+version_str = "0.0.post14225"
+version_tuple = (0, 0, 14225)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14224")
+    pversion = V("0.0.post14225")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14082"
-data_version_tuple = (0, 0, 14082)
+data_version_str = "0.0.post14083"
+data_version_tuple = (0, 0, 14083)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14082")
+    pdata_version = V("0.0.post14083")
 except ImportError:
     pass
-data_git_hash = "259a661278b1a5e8aa1aa3424a6bef6a7675efae"
-data_git_describe = "v0.0-14082-g259a661278"
+data_git_hash = "7d941705c42a8bec8f360f5468dd08e28a07d740"
+data_git_describe = "v0.0-14083-g7d941705c4"
 data_git_msg = """\
-commit 259a661278b1a5e8aa1aa3424a6bef6a7675efae
-Author: Johnathan Van Why <jrvanwhy@google.com>
-Date:   Thu Sep 8 09:46:13 2022 -0700
+commit 7d941705c42a8bec8f360f5468dd08e28a07d740
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Sep 14 12:43:56 2022 -0700
 
-    Move opentitantool's set-pll and load-bitstream commands into a new fpga command group.
+    [dv/kmac] support entropy request reg
     
-    In a future PR, I will add a new command to this group to reset the FPGA board (described in #14686).
+    This PR supports entropy_req reg to request entropy.
     
-    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
