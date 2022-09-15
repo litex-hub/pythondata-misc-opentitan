@@ -24,6 +24,131 @@
     }
 
     /////////////////////////
+    // ast_clkmgr.csv      //
+    /////////////////////////
+    {
+      name: ast_clockmgr_clocks
+      desc: '''Verify the clock connectivity between AST and clock manager.
+            '''
+      stage: V2
+      tests: ["ast_clk_sys_out",
+              "ast_clk_aon_out",
+              "ast_clk_usb_out",
+              "ast_clk_io_out",
+              "ast_all_byp_ack_out",
+              "ast_io_byp_ack_out",
+              "ast_clk_adc_in",
+              "ast_clk_alert_in",
+              "ast_clk_es_in",
+              "ast_clk_rng_in",
+              "ast_clk_tlul_in",
+              "ast_clk_usb_in",
+              "ast_clk_sns_in",
+              "ast_clk_jen_in",
+              "ast_all_byp_ack_in",
+              "ast_io_byp_ack_in",
+              "ast_hispeed_sel_in"]
+      tags: ["conn"]
+    }
+
+    /////////////////////////
+    // pwrmgr_ast.csv      //
+    /////////////////////////
+    {
+      name: ast_pwrmgr_pok
+      desc: '''Verify the connectivity of power-related signals between AST and power manager.
+            '''
+      stage: V2
+      tests: ["ast_clk_sys_val_out",
+              "ast_clk_aon_val_out",
+              "ast_clk_usb_val_out",
+              "ast_clk_io_val_out",
+              "ast_main_pok_out",
+              "ast_clk_sys_en_in",
+              "ast_clk_usb_en_in",
+              "ast_clk_io_en_in"]
+      tags: ["conn"]
+    }
+    /////////////////////////
+    // rstmgr_ast.csv      //
+    /////////////////////////
+    {
+      name: ast_rstmgr_resets
+      desc: '''Verify the reset connectivity between AST and reset manager.
+            '''
+      stage: V2
+      tests: ["ast_rst_adc_in",
+              "ast_rst_alert_in",
+              "ast_rst_es_in",
+              "ast_rst_rng_in",
+              "ast_rst_tlul_in",
+              "ast_rst_usb_in",
+              "ast_rst_sns_in"]
+      tags: ["conn"]
+    }
+
+    /////////////////////////
+    // ast_infra.csv       //
+    /////////////////////////
+    {
+      name: ast_pad_shorts
+      desc: '''Verify pads that are directly shorted to pads
+            '''
+      stage: V2
+      tests: ["ast_pad0",
+              "ast_pad1"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_pinmux
+      desc: '''Verify AST -> pinmux connectivity
+            '''
+      stage: V2
+      tests: ["ast_pinmux"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_pad_inputs
+      desc: '''Verify pad inputs that are connected to AST
+            '''
+      stage: V2
+      tests: ["pad_ast"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_other_clocks
+      desc: '''Verify clock connectivity between AST and other blocks in the system,
+               excluding clkmgr connections.
+            '''
+      stage: V2
+      tests: ["ast_clk_ext_in", "ast_clk_spi_sns_in"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_other_resets
+      desc: '''Verify reset connectivity between AST and other blocks in the system,
+               excluding rstmgr connections.
+            '''
+      stage: V2
+      tests: ["ast_rst_por_in"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_other_pok
+      desc: '''Verify the connectivity of power-related signals between AST and other blocks in
+               the system, excluding power manager.
+            '''
+      stage: V2
+      tests: ["ast_usb_ref_in",
+              "ast_usb_ref_val_in",
+              "ast_otp_pwr_seq_in",
+              "ast_main_pd_in",
+              "ast_main_iso_en_in",
+              "ast_otp_pwr_seq_out",]
+      tags: ["conn"]
+    }
+
+    /////////////////////////
     // ast_mem_cfg.csv     //
     /////////////////////////
     {
@@ -91,45 +216,6 @@
       tags: ["conn"]
     }
 
-    /////////////////////////
-    // clkmgr_ast.csv      //
-    /////////////////////////
-    {
-      name: ast_sys_clk_clkmgr
-      desc: '''Verify ast model's `clk_src_sys_o` is connected to clkmgr's main clock.'''
-      stage: V2
-      tests: ["ast_sys_clk_clkmgr"]
-      tags: ["conn"]
-    }
-    {
-      name: ast_io_clk_clkmgr
-      desc: '''Verify ast model's `clk_src_io_o` is connected to clkmgr's io clock.'''
-      stage: V2
-      tests: ["ast_io_clk_clkmgr"]
-      tags: ["conn"]
-    }
-    {
-      name: ast_usb_clk_clkmgr
-      desc: '''Verify ast model's `clk_src_usb_o` is connected to clkmgr's usb clock.'''
-      stage: V2
-      tests: ["ast_usb_clk_clkmgr"]
-      tags: ["conn"]
-    }
-    {
-      name: ast_aon_clk_clkmgr
-      desc: '''Verify ast model's `clk_src_aon_o` is connected to clkmgr's aon clock.'''
-      stage: V2
-      tests: ["ast_aon_clk_clkmgr"]
-      tags: ["conn"]
-    }
-    {
-      name: clkmgr_jitter_ast
-      desc: '''Verify clkmgr's jitter enable is connected to ast.'''
-      stage: V2
-      tests: ["clkmgr_jitter_ast"]
-      tags: ["conn"]
-    }
-
     //////////////////////////
     // clkmgr_cg_en.csv     //
     //////////////////////////
@@ -149,9 +235,13 @@
     }
     {
       name: cg_en_io_div4_infra
-      desc: '''Verify clkmgr's cg_en_o.io_div4_infra is connected to alert_handler's lpg_cg_en[12].'''
+      desc: '''Verify clkmgr's cg_en_o.io_div4_infra is connected to:
+            - alert_handler's lpg_cg_en_i[12]
+            - alert_handler's lpg_cg_en_i[16]
+            '''
       stage: V2
-      tests: ["clkmgr_io_div2_infra_alert_12_cg_en"]
+      tests: ["clkmgr_io_div2_infra_alert_12_cg_en",
+              "clkmgr_io_div4_infra_alert_16_cg_en"]
       tags: ["conn"]
     }
     {
@@ -185,11 +275,10 @@
       name: cg_en_io_div4_secure
       desc: '''Verify clkmgr's cg_en_o.io_div4_secure is connected to the following:
             - alert_handler's lpg_cg_en_i[6]
-            - alert_handler's lpg_cg_en_i[15]
+            - alert_handler's lpg_cg_en_i[17]
             '''
       stage: V2
       tests: ["clkmgr_io_div4_secure_alert_6_cg_en",
-              "clkmgr_io_div4_secure_alert_16_cg_en",
               "clkmgr_io_div4_secure_alert_17_cg_en"]
       tags: ["conn"]
     }
@@ -382,23 +471,19 @@
     {
       name: clkmgr_clk_usb_peri
       desc: '''Verify clkmgr's `clk_usb_peri` is connected to the following:
-            - ast's clk_ast_usb_i
             - usbdev's clk_i
             '''
       stage: V2
-      tests: ["clkmgr_peri_clk_ast_usb_clk",
-              "clkmgr_peri_clk_usbdev_usb_clk"]
+      tests: ["clkmgr_peri_clk_usbdev_usb_clk"]
       tags: ["conn"]
     }
     {
       name: clkmgr_clk_aon_peri
       desc: '''Verify clkmgr's `clk_aon_peri` is connected to the following blocks' clock input:
-            - adc_ctrl clk_aon_i
             - usbdev clk_aon_i
             '''
       stage: V2
-      tests: ["clkmgr_peri_clk_adc_ctrl_aon_clk",
-              "clkmgr_peri_clk_usbdev_aon_clk"]
+      tests: ["clkmgr_peri_clk_usbdev_aon_clk"]
       tags: ["conn"]
     }
 
@@ -421,7 +506,7 @@
               "clkmgr_powerup_clk_pinmux_clk",
               "clkmgr_powerup_clk_pwm_clk",
               "clkmgr_powerup_clk_pwrmgr_clk",
-              "clkmgr_powerup_clk_rstmgr_clk",
+              "clkmgr_powerup_clk_rstmgr_por_clk",
               "clkmgr_powerup_clk_rstmgr_io4_clk"]
       tags: ["conn"]
     }
@@ -480,8 +565,6 @@
       desc: '''Verify clkmgr's `clk_io_div4_secure` is connected to the following blocks' clock
             input:
             - alert_handler clk_i
-            - ast clk_ast_tlul_i
-            - ast clk_ast_alert_i
             - lc_ctrl clk_i
             - otbn clk_otp_i
             - otp_ctrl clk_i
@@ -492,8 +575,6 @@
             '''
       stage: V2
       tests: ["clkmgr_secure_clk_alert_handler_clk",
-              "clkmgr_secure_clk_ast_tlul_clk",
-              "clkmgr_secure_clk_ast_alert_clk",
               "clkmgr_secure_clk_lc_ctrl_clk",
               "clkmgr_secure_clk_otbn_otp_clk",
               "clkmgr_secure_clk_otp_ctrl_clk",
@@ -507,8 +588,6 @@
       name: clkmgr_clk_main_secure
       desc: '''Verify clkmgr's `clk_main_secure` is connected to the following blocks' clock input:
             - alert_handler's clk_edn_i
-            - ast clk_es_i
-            - ast clk_rng_i
             - csrgn clk_i
             - edn0 clk_i
             - edn1 clk_i
@@ -522,8 +601,6 @@
             '''
       stage: V2
       tests: ["clkmgr_secure_clk_alert_handler_edn_clk",
-              "clkmgr_secure_clk_ast_es_clk",
-              "clkmgr_secure_clk_ast_rng_clk",
               "clkmgr_secure_clk_csrng_clk",
               "clkmgr_secure_clk_edn0_clk",
               "clkmgr_secure_clk_edn1_clk",
@@ -539,12 +616,10 @@
     {
       name: clkmgr_clk_aon_secure
       desc: '''Verify clkmgr's `clk_aon_secure` is connected to the following blocks' clock input:
-            - ast clk_ast_adc_i
             - sensor_ctrl clk_aon_i
             '''
       stage: V2
-      tests: ["clkmgr_secure_clk_ast_adc_clk",
-              "clkmgr_secure_clk_sensor_ctrl_aon_clk"]
+      tests: ["clkmgr_secure_clk_sensor_ctrl_aon_clk"]
       tags: ["conn"]
     }
 
@@ -606,13 +681,31 @@
     }
 
     /////////////////////////
-    // flash_ast.csv       //
+    // ast_flash.csv       //
     /////////////////////////
     {
-      name: flash_ast_obs_ctrl
-      desc: '''Verify ast's `obs_ctrl_o` is connected to flash_ctrl's `obs_ctrl_i`.'''
+      name: ast_flash_ctrl
+      desc: '''Verify ast's flash signals are connected to the flash controller.'''
       stage: V2
-      tests: ["flash_ast_obs_ctrl"]
+      tests: ["ast_flash_obs_ctrl",
+              "ast_flash_pwr_dwn_out",
+              "ast_flash_pwr_rdy_out",
+              "ast_flash_bist_en_out"]
+      tags: ["conn"]
+    }
+    /////////////////////////////
+    // ast_entropy_src_cfg.csv //
+    /////////////////////////////
+    {
+      name: chip_sw_entropy_src_ast_fips
+      desc: '''
+              Verify the connectivity of rng_fips_o feedback signal to RNG.
+            '''
+      stage: V2
+      tests: ["ast_entropy_src_rng_val",
+              "ast_entropy_src_rng_b",
+              "ast_entropy_src_rng_fips",
+              "ast_entropy_src_rng_en"]
       tags: ["conn"]
     }
 
@@ -713,13 +806,6 @@
     // rstmgr_resets_o.csv //
     /////////////////////////
     {
-      name: rst_all
-      desc: '''Verify all rstmgr's resets_o are connected to ast's sns_rsts_i.'''
-      stage: V2
-      tests: ["rstmgr_all_resets_ast_sns_rsts_i"]
-      tags: ["conn"]
-    }
-    {
       name: rst_i2c0_n_d0
       desc: '''Verify rstmgr's rst_i2c0_n[1] is connected to i2c0's rst_ni.'''
       stage: V2
@@ -769,20 +855,21 @@
             - clkmgr's rst_io_div4_ni
             - pinmux's rst_ni
             - sram_ctrl_ret's rst_otp_ni
+            - rstmgr's rst_ni
             '''
       stage: V2
       tests: ["rstmgr_lc_io_div4_aon_aon_timer_rst_ni",
               "rstmgr_lc_io_div4_aon_clkmgr_rst_ni",
               "rstmgr_lc_io_div4_aon_clkmgr_rst_io_div4_ni",
               "rstmgr_lc_io_div4_aon_pinmux_rst_ni",
-              "rstmgr_lc_io_div4_aon_sram_ctrl_ret_rst_otp_ni"]
+              "rstmgr_lc_io_div4_aon_sram_ctrl_ret_rst_otp_ni",
+              "rstmgr_lc_io_div4_aon_rstmgr_rst_ni"]
       tags: ["conn"]
     }
     {
       name: rst_lc_io_div4_d0
       desc: '''Verify rstmgr's rst_lc_io_div4_n[1] is connected to the following:
             - alert_handler's rst_ni
-            - ast's rst_ast_alert_ni
             - lc_ctrl's rst_ni
             - otbn's rst_otp_ni
             - otp_ctrl's rst_ni
@@ -793,7 +880,6 @@
             '''
       stage: V2
       tests: ["rstmgr_lc_io_div4_d0_alert_handler_rst_ni",
-              "rstmgr_lc_io_div4_d0_ast_rst_ast_alert_ni",
               "rstmgr_lc_io_div4_d0_lc_ctrl_rst_ni",
               "rstmgr_lc_io_div4_d0_otbn_rst_otp_ni",
               "rstmgr_lc_io_div4_d0_otp_ctrl_rst_ni",
@@ -879,7 +965,7 @@
             - clkmgr's rst_root_io_div4_ni
             - clkmgr's rst_root_ni
             - pwrmgr's rst_ni
-            - rstmgr's rst_ni
+            - rstmgr's rst_por_ni
             '''
       stage: V2
       tests: ["rstmgr_por_io_div4_aon_clkmgr_rst_root_io_div4_ni",
@@ -920,14 +1006,12 @@
       name: rst_sys_aon_aon
       desc: '''Verify rstmgr's rst_sys_aon_n[0] is connected to the following:
             - adc_ctrl's rst_aon_ni
-            - ast's rst_ast_adc_ni
             - pwm's rst_core_ni
             - sensor_ctrl's rst_aon_ni
             - sysrst_ctrl's rst_aon_ni
             '''
       stage: V2
       tests: ["rstmgr_sys_aon_aon_adc_ctrl_rst_aon_ni",
-              "rstmgr_sys_aon_aon_ast_rst_ast_adc_ni",
               "rstmgr_sys_aon_aon_pwm_rst_aon_ni",
               "rstmgr_sys_aon_aon_sensor_ctrl_rst_aon_ni",
               "rstmgr_sys_aon_aon_sysrst_ctrl_rst_aon_ni"]
@@ -967,7 +1051,6 @@
     {
       name: rst_sys_io_div4_d0
       desc: '''Verify rstmgr's rst_sys_io_div4_n[1] is connected to the following:
-            - ast's rst_ast_tlul_ni
             - flash_ctrl's rst_otp_ni
             - gpio's rst_ni
             - pattgen's rst_ni
@@ -980,8 +1063,7 @@
             - xbar_peri's rst_peri_ni
             '''
       stage: V2
-      tests: ["rstmgr_sys_io_div4_d0_ast_rst_ast_tlul_ni",
-              "rstmgr_sys_io_div4_d0_flash_ctrl_rst_otp_ni",
+      tests: ["rstmgr_sys_io_div4_d0_flash_ctrl_rst_otp_ni",
               "rstmgr_sys_io_div4_d0_gpio_rst_ni",
               "rstmgr_sys_io_div4_d0_pattgen_rst_ni",
               "rstmgr_sys_io_div4_d0_rv_timer_rst_ni",
@@ -999,8 +1081,6 @@
             - aes's rst_edn_ni
             - aes's rst_ni
             - alert_handler's rst_edn_ni
-            - ast's rst_ast_es_ni
-            - ast's rst_ast_rng_ni
             - csrng's rst_ni
             - edn0's rst_ni
             - edn1's rst_ni
@@ -1025,8 +1105,6 @@
       tests: ["rstmgr_sys_d0_aes_rst_edn_ni",
               "rstmgr_sys_d0_aes_rst_ni",
               "rstmgr_sys_d0_alert_handler_rst_edn_ni",
-              "rstmgr_sys_d0_ast_rst_ast_es_ni",
-              "rstmgr_sys_d0_ast_rst_ast_rng_ni",
               "rstmgr_sys_d0_csrng_rst_ni",
               "rstmgr_sys_d0_edn0_rst_ni",
               "rstmgr_sys_d0_edn1_rst_ni",
@@ -1081,12 +1159,10 @@
     {
       name: rst_usb_d0
       desc: '''Verify rstmgr's rst_usb_n[1] is connected to the following:
-            - ast's rst_ast_usb_ni
             - usbdev's rst_ni
             '''
       stage: V2
-      tests: ["rstmgr_usb_d0_ast_rst_ast_usb_ni",
-              "rstmgr_usb_d0_usbdev_rst_ni"]
+      tests: ["rstmgr_usb_d0_usbdev_rst_ni"]
       tags: ["conn"]
     }
     ///////////////////////
@@ -1216,25 +1292,36 @@
     }
 
     /////////////////////////
-    // TODO: OTP_CTRL      //
+    // analog_sigs.csv     //
     /////////////////////////
     {
       name: otp_ctrl_external_voltage
-      desc: "Verify the connectivity of the external voltage signal to OTP ctrl."
+      desc: "Verify the connectivity between the external voltage pad and otp_ctrl."
       stage: V2
-      tests: []
+      tests: ["otp_ext_volt"]
       tags: ["conn"]
     }
-    ////////////////////////////
-    // TODO: AST Connectivity //
-    ////////////////////////////
     {
-      name: chip_sw_entropy_src_ast_fips
-      desc: '''
-              Verify the connectivity of rng_fips_o feedback signal to RNG.
-            '''
+      name: flash_ctrl_test_voltage
+      desc: "Verify the connectivity between the test voltage pad and flash_ctrl."
       stage: V2
-      tests: []
+      tests: ["flash_test_volt"]
+      tags: ["conn"]
+    }
+    {
+      name: flash_ctrl_test_mode
+      desc: "Verify the connectivity between the test mode pads and flash_ctrl."
+      stage: V2
+      tests: ["flash_test_mode0",
+              "flash_test_mode1"]
+      tags: ["conn"]
+    }
+    {
+      name: ast_adc
+      desc: "Verify the connectivity between the CC pads and the ast ADC input."
+      stage: V2
+      tests: ["ast_cc1",
+              "ast_cc2"]
       tags: ["conn"]
     }
   ]
