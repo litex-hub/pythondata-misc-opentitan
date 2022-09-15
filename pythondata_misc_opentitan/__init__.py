@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14204"
-version_tuple = (0, 0, 14204)
+version_str = "0.0.post14209"
+version_tuple = (0, 0, 14209)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14204")
+    pversion = V("0.0.post14209")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14062"
-data_version_tuple = (0, 0, 14062)
+data_version_str = "0.0.post14067"
+data_version_tuple = (0, 0, 14067)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14062")
+    pdata_version = V("0.0.post14067")
 except ImportError:
     pass
-data_git_hash = "228f0d4ceac5399086de337a122b89011556b776"
-data_git_describe = "v0.0-14062-g228f0d4cea"
+data_git_hash = "28f79af3c25d17cee70597881b6b8ba0fa0fc434"
+data_git_describe = "v0.0-14067-g28f79af3c2"
 data_git_msg = """\
-commit 228f0d4ceac5399086de337a122b89011556b776
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Sep 14 13:48:35 2022 -0700
+commit 28f79af3c25d17cee70597881b6b8ba0fa0fc434
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Sep 14 16:36:53 2022 -0700
 
-    [top-test] Increase reverse ping test timeout
+    [bazel,ottool] rollback #14860
     
-    Increase chip_sw_alert_handler_reverse_ping_in_deep_sleep test timeout
-    to 0.300s. The previous calculations didn't take into account the time
-    needed to increase the counters before going into deep sleep.
+    PR #14860 is causing issues in the airgapped environment so temporarily
+    rolling back.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
