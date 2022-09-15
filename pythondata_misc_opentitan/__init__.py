@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14223"
-version_tuple = (0, 0, 14223)
+version_str = "0.0.post14224"
+version_tuple = (0, 0, 14224)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14223")
+    pversion = V("0.0.post14224")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14081"
-data_version_tuple = (0, 0, 14081)
+data_version_str = "0.0.post14082"
+data_version_tuple = (0, 0, 14082)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14081")
+    pdata_version = V("0.0.post14082")
 except ImportError:
     pass
-data_git_hash = "4ba47bb4622ae5e9331f658d383002e806bdd51e"
-data_git_describe = "v0.0-14081-g4ba47bb462"
+data_git_hash = "259a661278b1a5e8aa1aa3424a6bef6a7675efae"
+data_git_describe = "v0.0-14082-g259a661278"
 data_git_msg = """\
-commit 4ba47bb4622ae5e9331f658d383002e806bdd51e
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Mon Sep 12 14:15:54 2022 +0300
+commit 259a661278b1a5e8aa1aa3424a6bef6a7675efae
+Author: Johnathan Van Why <jrvanwhy@google.com>
+Date:   Thu Sep 8 09:46:13 2022 -0700
 
-    [ast] Update the useability of the Jitter model
+    Move opentitantool's set-pll and load-bitstream commands into a new fpga command group.
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    In a future PR, I will add a new command to this group to reset the FPGA board (described in #14686).
+    
+    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
 
 """
 
