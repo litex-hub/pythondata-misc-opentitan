@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14240"
-version_tuple = (0, 0, 14240)
+version_str = "0.0.post14242"
+version_tuple = (0, 0, 14242)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14240")
+    pversion = V("0.0.post14242")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14098"
-data_version_tuple = (0, 0, 14098)
+data_version_str = "0.0.post14100"
+data_version_tuple = (0, 0, 14100)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14098")
+    pdata_version = V("0.0.post14100")
 except ImportError:
     pass
-data_git_hash = "1923e596f5ad0cc4d3f3477b3c93eee001a8f7e6"
-data_git_describe = "v0.0-14098-g1923e596f5"
+data_git_hash = "6f7094c7b1fc37b0a1955a04d3c259aab86d50c5"
+data_git_describe = "v0.0-14100-g6f7094c7b1"
 data_git_msg = """\
-commit 1923e596f5ad0cc4d3f3477b3c93eee001a8f7e6
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Sep 15 03:14:43 2022 -0700
+commit 6f7094c7b1fc37b0a1955a04d3c259aab86d50c5
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Fri Sep 9 17:31:34 2022 +0100
 
-    [chip dv] Fix for UARt smoketest signed
+    [dv, sram_ctrl] Adust the `scramble_test` to tolerate the right amount of false positives
     
-    Contention on IOC4 caused due to external weak pull up
-    from the testbench and weak pull down by the ROM
-    code. Quick and dirty patch applied for now, by
-    disabling the X check on IOC4.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
