@@ -4,32 +4,62 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14242"
-version_tuple = (0, 0, 14242)
+version_str = "0.0.post14243"
+version_tuple = (0, 0, 14243)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14242")
+    pversion = V("0.0.post14243")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14100"
-data_version_tuple = (0, 0, 14100)
+data_version_str = "0.0.post14101"
+data_version_tuple = (0, 0, 14101)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14100")
+    pdata_version = V("0.0.post14101")
 except ImportError:
     pass
-data_git_hash = "6f7094c7b1fc37b0a1955a04d3c259aab86d50c5"
-data_git_describe = "v0.0-14100-g6f7094c7b1"
+data_git_hash = "40ba9daefe8726641547990503142fcd752cd2f2"
+data_git_describe = "v0.0-14101-g40ba9daefe"
 data_git_msg = """\
-commit 6f7094c7b1fc37b0a1955a04d3c259aab86d50c5
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Sep 9 17:31:34 2022 +0100
+commit 40ba9daefe8726641547990503142fcd752cd2f2
+Author: Jes B. Klinke <jbk@chromium.org>
+Date:   Mon Jun 13 04:52:52 2022 -0700
 
-    [dv, sram_ctrl] Adust the `scramble_test` to tolerate the right amount of false positives
+    [opentitantool] Add transport subcommand
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    UltraDebug and the CW310 Atmel chip both have firmware that hard-codes
+    the functionality of reset, uart, and all other pins, and are therefore
+    ready for operation upon powering on.
+    
+    HyperDebug on the other hand, is not hard-coded for any OpenTitan pin
+    assignments, and all its ports default to high-impedance.  Hence, it
+    needs some initialization to be told among other things that the reset
+    pin should be open-drain with pullup, defaulting high, and the boot0
+    pins should be push-pull defaulting to a low level.  These pin
+    configurations and defaults are generally declared in configuration
+    files.  OpenTitan tool cannot blindly apply these defaults at every
+    invocation, as it would override any previous pin manipulation in the
+    session.
+    
+    This PR introduces a new command `transport init`, meant to explicitly
+    tell the OpenTitan tool to configure all pins according to the
+    configuration, and set their level to the default (discarding any
+    previously set levels).
+    
+    I have create the `transport` top-level command with the intent that
+    HyperDebug or other transports may have some special features that do
+    not fit well into any generic trait, and we could add a channel for
+    sending arbitrary instructions to the transport, without OpenTitan tool
+    understanding those instructions.  HyperDebug for instance already has a
+    textual command line interface, if it had a command for setting e.g. the
+    slope control on I2C or SPI lines, then OpenTitan tool could be fitted
+    with a `transport passthrough` command, allowing the sending of a text
+    string verbatim to the transport for processing.
+    
+    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Change-Id: Ifd004b024a087beb91ae57268a87d02063af8e85
 
 """
 
