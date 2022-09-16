@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14260"
-version_tuple = (0, 0, 14260)
+version_str = "0.0.post14264"
+version_tuple = (0, 0, 14264)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14260")
+    pversion = V("0.0.post14264")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14118"
-data_version_tuple = (0, 0, 14118)
+data_version_str = "0.0.post14122"
+data_version_tuple = (0, 0, 14122)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14118")
+    pdata_version = V("0.0.post14122")
 except ImportError:
     pass
-data_git_hash = "476fd521585a806fcbce21a41e6e5dded2207c4b"
-data_git_describe = "v0.0-14118-g476fd52158"
+data_git_hash = "f89fce8767805dd174f1674e8886864ca958b214"
+data_git_describe = "v0.0-14122-gf89fce8767"
 data_git_msg = """\
-commit 476fd521585a806fcbce21a41e6e5dded2207c4b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Sep 15 16:39:47 2022 -0700
+commit f89fce8767805dd174f1674e8886864ca958b214
+Author: Miles Dai <milesdai@google.com>
+Date:   Mon Sep 12 22:40:01 2022 -0400
 
-    [util/topgen] Update alert lpg generation
+    [bazel/otp] Consolidate OTP bazel rules
     
-    - fixes #14954
-    
-    The alert lpg generation currently uses the clock group, clock domain
-    and power domain of a particular clock to uniquely identify lpg groups.
-    
-    As a result, it lumps all the transactional clocks of the same domains
-    into one group.  This behavior however is not correct, as the
-    transactional clocks are unique and can be individually gated.
-    
-    This commit updates the lpg generation to take this into account.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
