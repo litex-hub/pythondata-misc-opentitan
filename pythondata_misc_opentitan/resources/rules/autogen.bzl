@@ -104,55 +104,6 @@ autogen_chip_info = rule(
     },
 )
 
-def _otp_image(ctx):
-    # TODO(dmcardle) I don't like hardcoding the width in the filename. Maybe we
-    # can write it into some metadata in the file instead.
-    output = ctx.actions.declare_file(ctx.attr.name + ".24.vmem")
-    ctx.actions.run(
-        outputs = [output],
-        inputs = [
-            ctx.file.src,
-            ctx.file.lc_state_def,
-            ctx.file.mmap_def,
-            ctx.executable._tool,
-        ],
-        arguments = [
-            "--quiet",
-            "--lc-state-def",
-            ctx.file.lc_state_def.path,
-            "--mmap-def",
-            ctx.file.mmap_def.path,
-            "--img-cfg",
-            ctx.file.src.path,
-            "--out",
-            "{}/{}.BITWIDTH.vmem".format(output.dirname, ctx.attr.name),
-        ],
-        executable = ctx.executable._tool,
-    )
-    return [DefaultInfo(files = depset([output]), data_runfiles = ctx.runfiles(files = [output]))]
-
-otp_image = rule(
-    implementation = _otp_image,
-    attrs = {
-        "src": attr.label(allow_single_file = True),
-        "lc_state_def": attr.label(
-            allow_single_file = True,
-            default = "//hw/ip/lc_ctrl/data:lc_ctrl_state.hjson",
-            doc = "Life-cycle state definition file in Hjson format.",
-        ),
-        "mmap_def": attr.label(
-            allow_single_file = True,
-            default = "//hw/ip/otp_ctrl/data:otp_ctrl_mmap.hjson",
-            doc = "OTP Controller memory map file in Hjson format.",
-        ),
-        "_tool": attr.label(
-            default = "//util/design:gen-otp-img",
-            executable = True,
-            cfg = "exec",
-        ),
-    },
-)
-
 def _cryptotest_hjson_external(ctx):
     """
     Implementation of the Bazel rule for parsing externally-sourced test vectors.
