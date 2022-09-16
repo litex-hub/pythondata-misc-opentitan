@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14267"
-version_tuple = (0, 0, 14267)
+version_str = "0.0.post14268"
+version_tuple = (0, 0, 14268)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14267")
+    pversion = V("0.0.post14268")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14125"
-data_version_tuple = (0, 0, 14125)
+data_version_str = "0.0.post14126"
+data_version_tuple = (0, 0, 14126)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14125")
+    pdata_version = V("0.0.post14126")
 except ImportError:
     pass
-data_git_hash = "d4214070b91694a4656507cf705ec56e000219c7"
-data_git_describe = "v0.0-14125-gd4214070b9"
+data_git_hash = "e3894c4e4dd8e2cd612ec340e2f7ec2b9a588c38"
+data_git_describe = "v0.0-14126-ge3894c4e4d"
 data_git_msg = """\
-commit d4214070b91694a4656507cf705ec56e000219c7
-Author: Eli Kim <eli@opentitan.org>
-Date:   Fri Sep 16 11:38:33 2022 -0700
+commit e3894c4e4dd8e2cd612ec340e2f7ec2b9a588c38
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Sep 12 20:40:43 2022 -0700
 
-    refactor(chip): Use override_test_status_and_finish()
+    [test] Do not use PLIC for NMI test
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    This disables regular interrupts and the PLIC for the NMI test so that
+    we can be certain that the NMI handler is triggered via NMI channels
+    only.
+    
+    Fix #14673
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
