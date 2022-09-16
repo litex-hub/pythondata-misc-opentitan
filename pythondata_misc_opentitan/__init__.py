@@ -4,40 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14251"
-version_tuple = (0, 0, 14251)
+version_str = "0.0.post14253"
+version_tuple = (0, 0, 14253)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14251")
+    pversion = V("0.0.post14253")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14109"
-data_version_tuple = (0, 0, 14109)
+data_version_str = "0.0.post14111"
+data_version_tuple = (0, 0, 14111)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14109")
+    pdata_version = V("0.0.post14111")
 except ImportError:
     pass
-data_git_hash = "4cbd30c1a12d66713f42b0be28308ba4014aac98"
-data_git_describe = "v0.0-14109-g4cbd30c1a1"
+data_git_hash = "38b8c5e626ec6f975db50daadb25ca3b41a91941"
+data_git_describe = "v0.0-14111-g38b8c5e626"
 data_git_msg = """\
-commit 4cbd30c1a12d66713f42b0be28308ba4014aac98
-Author: Eli Kim <eli@opentitan.org>
-Date:   Thu Sep 15 16:59:29 2022 -0700
+commit 38b8c5e626ec6f975db50daadb25ca3b41a91941
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Sep 7 18:37:24 2022 -0700
 
-    feat(chip): Add Deep Powerdown Indicator
+    [top/dv] Add i2c_tx_rx test
     
-    `pwrmgr_low_power_if.low_power` represents if the chip enters low power
-    mode or not. The low power is the moment PWRMGR gating clocks to peri.
+    - this is an early version that does not have interrupts yet.
+    - The test sends a random number of bytes to the tb i2c agent,
+      which then loops the data back to the host for comparison.
+    - The host (DUT C test) then is responsible for making sure what
+      was sent out was read back correctly.
     
-    Deep powerdown happens after a few additional steps.
+    - This PR is the DV side integration
     
-    This commit uses AST main_pok feeding into pwrmgr as deep powerdown
-    indicator.
+    Signed-off-by: Timothy Chen <timothytim@google.com>
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    address some comments
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    fixes to enable i2c testing
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
