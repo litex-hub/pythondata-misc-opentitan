@@ -31,6 +31,14 @@ pub struct OtpImg {
     pub partitions: Vec<OtpImgPartition>,
 }
 
+pub trait OtpRead {
+    fn read32(&self, name: &str) -> Result<u32> {
+        self.read32_offset(Some(name), 0)
+    }
+
+    fn read32_offset(&self, name: Option<&str>, offset: usize) -> Result<u32>;
+}
+
 impl OtpImgPartition {
     pub fn get_item(&mut self, name: &str) -> Option<&mut OtpImgItem> {
         self.items

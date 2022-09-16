@@ -31,6 +31,15 @@ alias(
 )
 
 alias(
+    name = "bitvec",
+    actual = "@raze__bitvec__1_0_1//:bitvec",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "byteorder",
     actual = "@raze__byteorder__1_4_3//:byteorder",
     tags = [
@@ -42,6 +51,15 @@ alias(
 alias(
     name = "chrono",
     actual = "@raze__chrono__0_4_22//:chrono",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "crc",
+    actual = "@raze__crc__3_0_0//:crc",
     tags = [
         "cargo-raze",
         "manual",
