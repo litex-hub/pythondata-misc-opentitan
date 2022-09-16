@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14265"
-version_tuple = (0, 0, 14265)
+version_str = "0.0.post14267"
+version_tuple = (0, 0, 14267)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14265")
+    pversion = V("0.0.post14267")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14123"
-data_version_tuple = (0, 0, 14123)
+data_version_str = "0.0.post14125"
+data_version_tuple = (0, 0, 14125)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14123")
+    pdata_version = V("0.0.post14125")
 except ImportError:
     pass
-data_git_hash = "6ea75e8c34dcb115edc51747255ff386ab7df2a1"
-data_git_describe = "v0.0-14123-g6ea75e8c34"
+data_git_hash = "d4214070b91694a4656507cf705ec56e000219c7"
+data_git_describe = "v0.0-14125-gd4214070b9"
 data_git_msg = """\
-commit 6ea75e8c34dcb115edc51747255ff386ab7df2a1
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Sep 15 10:31:37 2022 -0700
+commit d4214070b91694a4656507cf705ec56e000219c7
+Author: Eli Kim <eli@opentitan.org>
+Date:   Fri Sep 16 11:38:33 2022 -0700
 
-    [dv/kmac] Add scb checkings for entropy
+    refactor(chip): Use override_test_status_and_finish()
     
-    Upon entropy request or hash_cnt reaches threshold, we expect to see an
-    entropy fetch.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
