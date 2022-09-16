@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14264"
-version_tuple = (0, 0, 14264)
+version_str = "0.0.post14265"
+version_tuple = (0, 0, 14265)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14264")
+    pversion = V("0.0.post14265")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14122"
-data_version_tuple = (0, 0, 14122)
+data_version_str = "0.0.post14123"
+data_version_tuple = (0, 0, 14123)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14122")
+    pdata_version = V("0.0.post14123")
 except ImportError:
     pass
-data_git_hash = "f89fce8767805dd174f1674e8886864ca958b214"
-data_git_describe = "v0.0-14122-gf89fce8767"
+data_git_hash = "6ea75e8c34dcb115edc51747255ff386ab7df2a1"
+data_git_describe = "v0.0-14123-g6ea75e8c34"
 data_git_msg = """\
-commit f89fce8767805dd174f1674e8886864ca958b214
-Author: Miles Dai <milesdai@google.com>
-Date:   Mon Sep 12 22:40:01 2022 -0400
+commit 6ea75e8c34dcb115edc51747255ff386ab7df2a1
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Sep 15 10:31:37 2022 -0700
 
-    [bazel/otp] Consolidate OTP bazel rules
+    [dv/kmac] Add scb checkings for entropy
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Upon entropy request or hash_cnt reaches threshold, we expect to see an
+    entropy fetch.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
