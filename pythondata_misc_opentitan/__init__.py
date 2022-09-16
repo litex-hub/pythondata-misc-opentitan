@@ -4,48 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14253"
-version_tuple = (0, 0, 14253)
+version_str = "0.0.post14258"
+version_tuple = (0, 0, 14258)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14253")
+    pversion = V("0.0.post14258")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14111"
-data_version_tuple = (0, 0, 14111)
+data_version_str = "0.0.post14116"
+data_version_tuple = (0, 0, 14116)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14111")
+    pdata_version = V("0.0.post14116")
 except ImportError:
     pass
-data_git_hash = "38b8c5e626ec6f975db50daadb25ca3b41a91941"
-data_git_describe = "v0.0-14111-g38b8c5e626"
+data_git_hash = "80e3a6cb0ab922adb51cf7ccabeebd64394d74e2"
+data_git_describe = "v0.0-14116-g80e3a6cb0a"
 data_git_msg = """\
-commit 38b8c5e626ec6f975db50daadb25ca3b41a91941
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Sep 7 18:37:24 2022 -0700
+commit 80e3a6cb0ab922adb51cf7ccabeebd64394d74e2
+Author: Jon Flatley <jflat@google.com>
+Date:   Wed Sep 14 12:02:23 2022 -0400
 
-    [top/dv] Add i2c_tx_rx test
+    [opentitanlib] Add alert_handler_reg tests
     
-    - this is an early version that does not have interrupts yet.
-    - The test sends a random number of bytes to the tb i2c agent,
-      which then loops the data back to the host for comparison.
-    - The host (DUT C test) then is responsible for making sure what
-      was sent out was read back correctly.
-    
-    - This PR is the DV side integration
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    address some comments
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    fixes to enable i2c testing
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
