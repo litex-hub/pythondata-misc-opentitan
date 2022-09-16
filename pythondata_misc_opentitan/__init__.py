@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14268"
-version_tuple = (0, 0, 14268)
+version_str = "0.0.post14275"
+version_tuple = (0, 0, 14275)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14268")
+    pversion = V("0.0.post14275")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14126"
-data_version_tuple = (0, 0, 14126)
+data_version_str = "0.0.post14133"
+data_version_tuple = (0, 0, 14133)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14126")
+    pdata_version = V("0.0.post14133")
 except ImportError:
     pass
-data_git_hash = "e3894c4e4dd8e2cd612ec340e2f7ec2b9a588c38"
-data_git_describe = "v0.0-14126-ge3894c4e4d"
+data_git_hash = "88f78ad969a50dc088008ac58f399f524288bc91"
+data_git_describe = "v0.0-14133-g88f78ad969"
 data_git_msg = """\
-commit e3894c4e4dd8e2cd612ec340e2f7ec2b9a588c38
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Sep 12 20:40:43 2022 -0700
+commit 88f78ad969a50dc088008ac58f399f524288bc91
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Sep 14 08:29:41 2022 -0400
 
-    [test] Do not use PLIC for NMI test
+    [bazel] Disable NV scratch and counters if building for english breakfast
     
-    This disables regular interrupts and the PLIC for the NMI test so that
-    we can be certain that the NMI handler is triggered via NMI channels
-    only.
-    
-    Fix #14673
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
