@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14275"
-version_tuple = (0, 0, 14275)
+version_str = "0.0.post14280"
+version_tuple = (0, 0, 14280)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14275")
+    pversion = V("0.0.post14280")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14133"
-data_version_tuple = (0, 0, 14133)
+data_version_str = "0.0.post14138"
+data_version_tuple = (0, 0, 14138)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14133")
+    pdata_version = V("0.0.post14138")
 except ImportError:
     pass
-data_git_hash = "88f78ad969a50dc088008ac58f399f524288bc91"
-data_git_describe = "v0.0-14133-g88f78ad969"
+data_git_hash = "4e3eac69d6bd3d17cb106f2507834546ff256f0d"
+data_git_describe = "v0.0-14138-g4e3eac69d6"
 data_git_msg = """\
-commit 88f78ad969a50dc088008ac58f399f524288bc91
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Sep 14 08:29:41 2022 -0400
+commit 4e3eac69d6bd3d17cb106f2507834546ff256f0d
+Author: Eli Kim <eli@opentitan.org>
+Date:   Fri Sep 16 13:27:56 2022 -0700
 
-    [bazel] Disable NV scratch and counters if building for english breakfast
+    refactor(chip): Remove unused tasks
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
