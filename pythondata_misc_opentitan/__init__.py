@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14281"
-version_tuple = (0, 0, 14281)
+version_str = "0.0.post14283"
+version_tuple = (0, 0, 14283)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14281")
+    pversion = V("0.0.post14283")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14139"
-data_version_tuple = (0, 0, 14139)
+data_version_str = "0.0.post14141"
+data_version_tuple = (0, 0, 14141)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14139")
+    pdata_version = V("0.0.post14141")
 except ImportError:
     pass
-data_git_hash = "ef2fc00e45e7b44e058a81a65614733ab0b91da6"
-data_git_describe = "v0.0-14139-gef2fc00e45"
+data_git_hash = "d430668982f70873d7e58245de31da4ed3de51b1"
+data_git_describe = "v0.0-14141-gd430668982"
 data_git_msg = """\
-commit ef2fc00e45e7b44e058a81a65614733ab0b91da6
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Sep 16 14:38:38 2022 -0700
+commit d430668982f70873d7e58245de31da4ed3de51b1
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Sep 13 17:53:44 2022 -0400
 
-    [test/rv_dm] Consolidate two testpoints
+    [bazel] Add update_usr_access parameter to bitstream_splice
     
-    These two testpoints were essentially testing the same thing,
-    hence they can be consolidated.
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
