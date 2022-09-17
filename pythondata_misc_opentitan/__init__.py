@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14280"
-version_tuple = (0, 0, 14280)
+version_str = "0.0.post14281"
+version_tuple = (0, 0, 14281)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14280")
+    pversion = V("0.0.post14281")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14138"
-data_version_tuple = (0, 0, 14138)
+data_version_str = "0.0.post14139"
+data_version_tuple = (0, 0, 14139)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14138")
+    pdata_version = V("0.0.post14139")
 except ImportError:
     pass
-data_git_hash = "4e3eac69d6bd3d17cb106f2507834546ff256f0d"
-data_git_describe = "v0.0-14138-g4e3eac69d6"
+data_git_hash = "ef2fc00e45e7b44e058a81a65614733ab0b91da6"
+data_git_describe = "v0.0-14139-gef2fc00e45"
 data_git_msg = """\
-commit 4e3eac69d6bd3d17cb106f2507834546ff256f0d
-Author: Eli Kim <eli@opentitan.org>
-Date:   Fri Sep 16 13:27:56 2022 -0700
+commit ef2fc00e45e7b44e058a81a65614733ab0b91da6
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Sep 16 14:38:38 2022 -0700
 
-    refactor(chip): Remove unused tasks
+    [test/rv_dm] Consolidate two testpoints
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    These two testpoints were essentially testing the same thing,
+    hence they can be consolidated.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
