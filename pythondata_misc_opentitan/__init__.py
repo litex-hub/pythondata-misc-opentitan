@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14294"
-version_tuple = (0, 0, 14294)
+version_str = "0.0.post14295"
+version_tuple = (0, 0, 14295)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14294")
+    pversion = V("0.0.post14295")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14152"
-data_version_tuple = (0, 0, 14152)
+data_version_str = "0.0.post14153"
+data_version_tuple = (0, 0, 14153)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14152")
+    pdata_version = V("0.0.post14153")
 except ImportError:
     pass
-data_git_hash = "318a5af53ee41d4030ab6a4b3a81f2402ec62e77"
-data_git_describe = "v0.0-14152-g318a5af53e"
+data_git_hash = "d183fc800818994068025b62e3275fdb3ad1c407"
+data_git_describe = "v0.0-14153-gd183fc8008"
 data_git_msg = """\
-commit 318a5af53ee41d4030ab6a4b3a81f2402ec62e77
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Sep 16 18:28:30 2022 +0000
+commit d183fc800818994068025b62e3275fdb3ad1c407
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Sep 19 12:07:24 2022 -0700
 
-    [flash_ctrl,dv] Add checker for flash_ctrl_sec_cm test
+    [spi_device/dv] Update to handle TPM transaction in spi agent (part1)
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    1. Update spi sequence to be able to select CSB
+    2. update agent to switch polariy/phase when CSB is changed
+    3. Update agent to pick CSB from either cfg or item
+    Also fixed TPM tests due to a polarity issue
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
