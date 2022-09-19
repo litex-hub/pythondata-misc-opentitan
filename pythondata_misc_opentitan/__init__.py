@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14295"
-version_tuple = (0, 0, 14295)
+version_str = "0.0.post14298"
+version_tuple = (0, 0, 14298)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14295")
+    pversion = V("0.0.post14298")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14153"
-data_version_tuple = (0, 0, 14153)
+data_version_str = "0.0.post14156"
+data_version_tuple = (0, 0, 14156)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14153")
+    pdata_version = V("0.0.post14156")
 except ImportError:
     pass
-data_git_hash = "d183fc800818994068025b62e3275fdb3ad1c407"
-data_git_describe = "v0.0-14153-gd183fc8008"
+data_git_hash = "343e4faf144f69ef4c862e6c86933859cf0a3284"
+data_git_describe = "v0.0-14156-g343e4faf14"
 data_git_msg = """\
-commit d183fc800818994068025b62e3275fdb3ad1c407
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Sep 19 12:07:24 2022 -0700
+commit 343e4faf144f69ef4c862e6c86933859cf0a3284
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Sat Sep 17 13:19:00 2022 -0700
 
-    [spi_device/dv] Update to handle TPM transaction in spi agent (part1)
+    [dv/kmac] Force random internal mubi values
     
-    1. Update spi sequence to be able to select CSB
-    2. update agent to switch polariy/phase when CSB is changed
-    3. Update agent to pick CSB from either cfg or item
-    Also fixed TPM tests due to a polarity issue
+    This PR adds a sequence for mubi sec countermeasures to make sure when
+    forcing mubi value to non-true or non-false, the IP behaves as expected.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
