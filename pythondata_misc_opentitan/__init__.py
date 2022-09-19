@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14293"
-version_tuple = (0, 0, 14293)
+version_str = "0.0.post14294"
+version_tuple = (0, 0, 14294)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14293")
+    pversion = V("0.0.post14294")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14151"
-data_version_tuple = (0, 0, 14151)
+data_version_str = "0.0.post14152"
+data_version_tuple = (0, 0, 14152)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14151")
+    pdata_version = V("0.0.post14152")
 except ImportError:
     pass
-data_git_hash = "3d8aaefa4dd79b284cd65907b5728f5384399119"
-data_git_describe = "v0.0-14151-g3d8aaefa4d"
+data_git_hash = "318a5af53ee41d4030ab6a4b3a81f2402ec62e77"
+data_git_describe = "v0.0-14152-g318a5af53e"
 data_git_msg = """\
-commit 3d8aaefa4dd79b284cd65907b5728f5384399119
-Author: Weicai Yang <weicai@google.com>
-Date:   Sun Sep 18 23:05:00 2022 -0700
+commit 318a5af53ee41d4030ab6a4b3a81f2402ec62e77
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Sep 16 18:28:30 2022 +0000
 
-    [spi_device/dv] Fix xcelium errors
+    [flash_ctrl,dv] Add checker for flash_ctrl_sec_cm test
     
-    2 places that kill the thread when csb is dropped, which caused errors in xcelium
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
