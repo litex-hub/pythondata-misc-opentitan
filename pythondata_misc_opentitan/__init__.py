@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14287"
-version_tuple = (0, 0, 14287)
+version_str = "0.0.post14288"
+version_tuple = (0, 0, 14288)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14287")
+    pversion = V("0.0.post14288")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14145"
-data_version_tuple = (0, 0, 14145)
+data_version_str = "0.0.post14146"
+data_version_tuple = (0, 0, 14146)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14145")
+    pdata_version = V("0.0.post14146")
 except ImportError:
     pass
-data_git_hash = "c80a2e2e1bc2cb727ae82cb5c00c666a677c191f"
-data_git_describe = "v0.0-14145-gc80a2e2e1b"
+data_git_hash = "fdbd80ef827b93d73480764b13c97e2153fafbed"
+data_git_describe = "v0.0-14146-gfdbd80ef82"
 data_git_msg = """\
-commit c80a2e2e1bc2cb727ae82cb5c00c666a677c191f
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Sep 16 14:54:43 2022 -0700
+commit fdbd80ef827b93d73480764b13c97e2153fafbed
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Sep 16 22:30:49 2022 -0700
 
-    [test/rv_plic] Add a hart_id check to the test
+    [spi_device/dv] Update spi_agent interface
     
-    This additional check makes sure that the configured PLIC target
-    ID corresponds to the hart ID of the processor this is executed on.
-    To be used in single-hart systems only.
+    1. Updated interface to take sio as inout ports
+    2. Fixed an issue caused by recent update that SPI host assigns z when it's idle, while
+    the sio[1] is assigned with a DUT output.
+    3. This enables chip-level to test dual/quad mode on SPI device
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Also fixed failed test - chip_sw_spi_device_tx_rx
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
