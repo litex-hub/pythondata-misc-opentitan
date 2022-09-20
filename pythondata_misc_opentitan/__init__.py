@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14304"
-version_tuple = (0, 0, 14304)
+version_str = "0.0.post14309"
+version_tuple = (0, 0, 14309)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14304")
+    pversion = V("0.0.post14309")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14162"
-data_version_tuple = (0, 0, 14162)
+data_version_str = "0.0.post14167"
+data_version_tuple = (0, 0, 14167)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14162")
+    pdata_version = V("0.0.post14167")
 except ImportError:
     pass
-data_git_hash = "97ca83996d00a1865f60f8dc0604939d610110d2"
-data_git_describe = "v0.0-14162-g97ca83996d"
+data_git_hash = "f613046ab59dcf5ba23039e456cdc1740b29e030"
+data_git_describe = "v0.0-14167-gf613046ab5"
 data_git_msg = """\
-commit 97ca83996d00a1865f60f8dc0604939d610110d2
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Sep 19 15:55:06 2022 -0700
+commit f613046ab59dcf5ba23039e456cdc1740b29e030
+Author: Alexander Williams <awill@google.com>
+Date:   Mon Sep 19 20:24:06 2022 -0700
 
-    [dv/kmac] Add more coverage sampling points
+    [dv] Update testplan for chip_sw_spi_device_flash_mode
     
-    This PR fixes three empty fcov bins:
-    1). Cmd_process_cg: this samples when command process is issued, what is
-      the internal state. I created an interface to probe and sample it.
-    2). Msgfifo_level_cg: add sampling in scb.
-    3). Sha3_status_cg: add sampling in scb.
+    Fill in the test used (chip_sw_uart_tx_rx_bootstrap).
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
