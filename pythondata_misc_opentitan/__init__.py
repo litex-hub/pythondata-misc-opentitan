@@ -4,33 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14316"
-version_tuple = (0, 0, 14316)
+version_str = "0.0.post14323"
+version_tuple = (0, 0, 14323)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14316")
+    pversion = V("0.0.post14323")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14174"
-data_version_tuple = (0, 0, 14174)
+data_version_str = "0.0.post14181"
+data_version_tuple = (0, 0, 14181)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14174")
+    pdata_version = V("0.0.post14181")
 except ImportError:
     pass
-data_git_hash = "1f3a24718d33c975f12f902994c39d2497b8623e"
-data_git_describe = "v0.0-14174-g1f3a24718d"
+data_git_hash = "93dc5862ed78e85df8205dc252a8eee9696e5d1b"
+data_git_describe = "v0.0-14181-g93dc5862ed"
 data_git_msg = """\
-commit 1f3a24718d33c975f12f902994c39d2497b8623e
+commit 93dc5862ed78e85df8205dc252a8eee9696e5d1b
 Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Sep 15 18:08:20 2022 -0700
+Date:   Tue Sep 20 12:31:07 2022 -0700
 
-    [top/dv] update testplan for manufacturing
-    
-    - enhance existing tests
-    - add new test points.
+    [top/dv] Increase reseed for wdog sleep pause
     
     Signed-off-by: Timothy Chen <timothytim@google.com>
 
