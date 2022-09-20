@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14298"
-version_tuple = (0, 0, 14298)
+version_str = "0.0.post14299"
+version_tuple = (0, 0, 14299)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14298")
+    pversion = V("0.0.post14299")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14156"
-data_version_tuple = (0, 0, 14156)
+data_version_str = "0.0.post14157"
+data_version_tuple = (0, 0, 14157)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14156")
+    pdata_version = V("0.0.post14157")
 except ImportError:
     pass
-data_git_hash = "343e4faf144f69ef4c862e6c86933859cf0a3284"
-data_git_describe = "v0.0-14156-g343e4faf14"
+data_git_hash = "d78041711d5d2d8f8782151cb13d8cc40d35c8d5"
+data_git_describe = "v0.0-14157-gd78041711d"
 data_git_msg = """\
-commit 343e4faf144f69ef4c862e6c86933859cf0a3284
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Sat Sep 17 13:19:00 2022 -0700
+commit d78041711d5d2d8f8782151cb13d8cc40d35c8d5
+Author: Michael Munday <mike.munday@lowrisc.org>
+Date:   Mon Sep 19 16:13:35 2022 +0100
 
-    [dv/kmac] Force random internal mubi values
+    [COMMITTERS] Make Jaedon Kim and Drew Macrae committers
     
-    This PR adds a sequence for mubi sec countermeasures to make sure when
-    forcing mubi value to non-true or non-false, the IP behaves as expected.
+    Jaedon and Drew have been made committers by the Technical
+    Committee. Thanks for your contributions!
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
 
 """
 
