@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14315"
-version_tuple = (0, 0, 14315)
+version_str = "0.0.post14316"
+version_tuple = (0, 0, 14316)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14315")
+    pversion = V("0.0.post14316")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14173"
-data_version_tuple = (0, 0, 14173)
+data_version_str = "0.0.post14174"
+data_version_tuple = (0, 0, 14174)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14173")
+    pdata_version = V("0.0.post14174")
 except ImportError:
     pass
-data_git_hash = "838afcd5d8f73da7c62f6eb355ceb861c6fca96b"
-data_git_describe = "v0.0-14173-g838afcd5d8"
+data_git_hash = "1f3a24718d33c975f12f902994c39d2497b8623e"
+data_git_describe = "v0.0-14174-g1f3a24718d"
 data_git_msg = """\
-commit 838afcd5d8f73da7c62f6eb355ceb861c6fca96b
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Sep 19 16:51:40 2022 -0400
+commit 1f3a24718d33c975f12f902994c39d2497b8623e
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Sep 15 18:08:20 2022 -0700
 
-    [bazel, ci] Group tests with the same ROM
+    [top/dv] update testplan for manufacturing
     
-    Fixes #13202
+    - enhance existing tests
+    - add new test points.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
