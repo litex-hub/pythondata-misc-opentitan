@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14302"
-version_tuple = (0, 0, 14302)
+version_str = "0.0.post14303"
+version_tuple = (0, 0, 14303)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14302")
+    pversion = V("0.0.post14303")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14160"
-data_version_tuple = (0, 0, 14160)
+data_version_str = "0.0.post14161"
+data_version_tuple = (0, 0, 14161)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14160")
+    pdata_version = V("0.0.post14161")
 except ImportError:
     pass
-data_git_hash = "4278b4be90f15e45ef6e66b127b345b4b0227851"
-data_git_describe = "v0.0-14160-g4278b4be90"
+data_git_hash = "bf10cf94cc2fd0082450aaa6a7f4a256d58a0d0d"
+data_git_describe = "v0.0-14161-gbf10cf94cc"
 data_git_msg = """\
-commit 4278b4be90f15e45ef6e66b127b345b4b0227851
-Author: Jade Philipoom <jadep@google.com>
-Date:   Wed Sep 14 09:57:15 2022 +0200
+commit bf10cf94cc2fd0082450aaa6a7f4a256d58a0d0d
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Sep 20 09:02:24 2022 +0100
 
-    [crypto] Update cryptolib OTBN driver based on silicon_creator version.
+    [dv, entropy_src] Fix the test chip_sw_entropy_src_fuse_en_fw_read_test
     
-    Since the cryptolib's OTBN driver was originally copied over from
-    silicon_creator, extensive effort has been applied to hardening the
-    silicon_creator version. This commit essentially replaces the cryptolib
-    OTBN driver with the silicon_creator version in order to take advantage
-    of the existing hardening effort.
+    Add a mandatory configuration for the function `dif_entropy_src_configure()`.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
