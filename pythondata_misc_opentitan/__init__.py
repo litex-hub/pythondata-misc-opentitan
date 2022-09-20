@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14303"
-version_tuple = (0, 0, 14303)
+version_str = "0.0.post14304"
+version_tuple = (0, 0, 14304)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14303")
+    pversion = V("0.0.post14304")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14161"
-data_version_tuple = (0, 0, 14161)
+data_version_str = "0.0.post14162"
+data_version_tuple = (0, 0, 14162)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14161")
+    pdata_version = V("0.0.post14162")
 except ImportError:
     pass
-data_git_hash = "bf10cf94cc2fd0082450aaa6a7f4a256d58a0d0d"
-data_git_describe = "v0.0-14161-gbf10cf94cc"
+data_git_hash = "97ca83996d00a1865f60f8dc0604939d610110d2"
+data_git_describe = "v0.0-14162-g97ca83996d"
 data_git_msg = """\
-commit bf10cf94cc2fd0082450aaa6a7f4a256d58a0d0d
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Tue Sep 20 09:02:24 2022 +0100
+commit 97ca83996d00a1865f60f8dc0604939d610110d2
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Sep 19 15:55:06 2022 -0700
 
-    [dv, entropy_src] Fix the test chip_sw_entropy_src_fuse_en_fw_read_test
+    [dv/kmac] Add more coverage sampling points
     
-    Add a mandatory configuration for the function `dif_entropy_src_configure()`.
+    This PR fixes three empty fcov bins:
+    1). Cmd_process_cg: this samples when command process is issued, what is
+      the internal state. I created an interface to probe and sample it.
+    2). Msgfifo_level_cg: add sampling in scb.
+    3). Sha3_status_cg: add sampling in scb.
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
