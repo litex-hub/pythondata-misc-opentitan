@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14300"
-version_tuple = (0, 0, 14300)
+version_str = "0.0.post14301"
+version_tuple = (0, 0, 14301)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14300")
+    pversion = V("0.0.post14301")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14158"
-data_version_tuple = (0, 0, 14158)
+data_version_str = "0.0.post14159"
+data_version_tuple = (0, 0, 14159)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14158")
+    pdata_version = V("0.0.post14159")
 except ImportError:
     pass
-data_git_hash = "cdbab62550468412698e60542a15463032722913"
-data_git_describe = "v0.0-14158-gcdbab62550"
+data_git_hash = "b0ca56797ff459e1f74e010bbc6bc6019f38d772"
+data_git_describe = "v0.0-14159-gb0ca56797f"
 data_git_msg = """\
-commit cdbab62550468412698e60542a15463032722913
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Sep 19 17:52:58 2022 -0700
+commit b0ca56797ff459e1f74e010bbc6bc6019f38d772
+Author: Jade Philipoom <jadep@google.com>
+Date:   Thu Sep 15 17:40:29 2022 +0200
 
-    [dv] Fix clk_rst_if limitation
+    [otbn, util] Add start constants to information-flow analysis.
     
-    The clock and reset drivability was limited to
-    t = 0 time setting. There is no need to have
-    this limitation.
+    Starting constants were previously added to `check_const_time.py`; this
+    adds them to `analyze_information_flow.py` as well, since the two use
+    the same backend.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
