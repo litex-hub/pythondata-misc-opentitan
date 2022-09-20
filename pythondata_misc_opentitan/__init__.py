@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14301"
-version_tuple = (0, 0, 14301)
+version_str = "0.0.post14302"
+version_tuple = (0, 0, 14302)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14301")
+    pversion = V("0.0.post14302")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14159"
-data_version_tuple = (0, 0, 14159)
+data_version_str = "0.0.post14160"
+data_version_tuple = (0, 0, 14160)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14159")
+    pdata_version = V("0.0.post14160")
 except ImportError:
     pass
-data_git_hash = "b0ca56797ff459e1f74e010bbc6bc6019f38d772"
-data_git_describe = "v0.0-14159-gb0ca56797f"
+data_git_hash = "4278b4be90f15e45ef6e66b127b345b4b0227851"
+data_git_describe = "v0.0-14160-g4278b4be90"
 data_git_msg = """\
-commit b0ca56797ff459e1f74e010bbc6bc6019f38d772
+commit 4278b4be90f15e45ef6e66b127b345b4b0227851
 Author: Jade Philipoom <jadep@google.com>
-Date:   Thu Sep 15 17:40:29 2022 +0200
+Date:   Wed Sep 14 09:57:15 2022 +0200
 
-    [otbn, util] Add start constants to information-flow analysis.
+    [crypto] Update cryptolib OTBN driver based on silicon_creator version.
     
-    Starting constants were previously added to `check_const_time.py`; this
-    adds them to `analyze_information_flow.py` as well, since the two use
-    the same backend.
+    Since the cryptolib's OTBN driver was originally copied over from
+    silicon_creator, extensive effort has been applied to hardening the
+    silicon_creator version. This commit essentially replaces the cryptolib
+    OTBN driver with the silicon_creator version in order to take advantage
+    of the existing hardening effort.
     
     Signed-off-by: Jade Philipoom <jadep@google.com>
 
