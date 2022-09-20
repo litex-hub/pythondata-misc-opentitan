@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14299"
-version_tuple = (0, 0, 14299)
+version_str = "0.0.post14300"
+version_tuple = (0, 0, 14300)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14299")
+    pversion = V("0.0.post14300")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14157"
-data_version_tuple = (0, 0, 14157)
+data_version_str = "0.0.post14158"
+data_version_tuple = (0, 0, 14158)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14157")
+    pdata_version = V("0.0.post14158")
 except ImportError:
     pass
-data_git_hash = "d78041711d5d2d8f8782151cb13d8cc40d35c8d5"
-data_git_describe = "v0.0-14157-gd78041711d"
+data_git_hash = "cdbab62550468412698e60542a15463032722913"
+data_git_describe = "v0.0-14158-gcdbab62550"
 data_git_msg = """\
-commit d78041711d5d2d8f8782151cb13d8cc40d35c8d5
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Mon Sep 19 16:13:35 2022 +0100
+commit cdbab62550468412698e60542a15463032722913
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Sep 19 17:52:58 2022 -0700
 
-    [COMMITTERS] Make Jaedon Kim and Drew Macrae committers
+    [dv] Fix clk_rst_if limitation
     
-    Jaedon and Drew have been made committers by the Technical
-    Committee. Thanks for your contributions!
+    The clock and reset drivability was limited to
+    t = 0 time setting. There is no need to have
+    this limitation.
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
