@@ -4,46 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14311"
-version_tuple = (0, 0, 14311)
+version_str = "0.0.post14315"
+version_tuple = (0, 0, 14315)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14311")
+    pversion = V("0.0.post14315")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14169"
-data_version_tuple = (0, 0, 14169)
+data_version_str = "0.0.post14173"
+data_version_tuple = (0, 0, 14173)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14169")
+    pdata_version = V("0.0.post14173")
 except ImportError:
     pass
-data_git_hash = "902ca28e32018f7fb4f3db9e71fdf395ced7ed09"
-data_git_describe = "v0.0-14169-g902ca28e32"
+data_git_hash = "838afcd5d8f73da7c62f6eb355ceb861c6fca96b"
+data_git_describe = "v0.0-14173-g838afcd5d8"
 data_git_msg = """\
-commit 902ca28e32018f7fb4f3db9e71fdf395ced7ed09
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Mon Sep 19 18:04:51 2022 -0700
+commit 838afcd5d8f73da7c62f6eb355ceb861c6fca96b
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Sep 19 16:51:40 2022 -0400
 
-    [chip dv] Fix JTAG interface enablement
+    [bazel, ci] Group tests with the same ROM
     
-    THe previous code relied on the test bench setting the TAP
-    strap pins to enable the JTAG interface, rather than adding
-    a dedicated `enable_jtag` mux signal.
+    Fixes #13202
     
-    The existing code looked at the `tap_straps_if.pins`, which
-    is just a wire which will reflect the value of the pins
-    IOC5,8 which may have been wiggled for a different test with
-    a different interface, and that would inadvertantly end up
-    enabling JTAG, causing contention.
-    
-    This commit makes it look at both, the `pins_o` and `pins_oe`
-    values, so that the actual intent of setting the TAP straps
-    is what causes the JTAG to be enabled.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
