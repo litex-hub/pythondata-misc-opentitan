@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14356"
-version_tuple = (0, 0, 14356)
+version_str = "0.0.post14357"
+version_tuple = (0, 0, 14357)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14356")
+    pversion = V("0.0.post14357")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14214"
-data_version_tuple = (0, 0, 14214)
+data_version_str = "0.0.post14215"
+data_version_tuple = (0, 0, 14215)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14214")
+    pdata_version = V("0.0.post14215")
 except ImportError:
     pass
-data_git_hash = "75b37362afef4de946b109d584df385ef226bc84"
-data_git_describe = "v0.0-14214-g75b37362af"
+data_git_hash = "a339c389b819905dcc52c3dc3472b86df6364f70"
+data_git_describe = "v0.0-14215-ga339c389b8"
 data_git_msg = """\
-commit 75b37362afef4de946b109d584df385ef226bc84
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Wed Sep 21 10:01:52 2022 +0300
+commit a339c389b819905dcc52c3dc3472b86df6364f70
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Sep 20 16:33:35 2022 -0700
 
-    [adc_crrl test] Fix ADC enum kPower-upTimeAonCycles from 2 to 6
+    [dv] Reduce the length of POR and fix regression failures
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    Reset took too long which caused wait timeout.
+    
+    Addressed #15026 and fixed these 2 tests
+    - chip_sw_lc_ctrl_transition
+    - chip_sw_clkmgr_external_clk_src_for_lc
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
