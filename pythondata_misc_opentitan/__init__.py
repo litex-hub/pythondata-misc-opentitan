@@ -4,32 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14360"
-version_tuple = (0, 0, 14360)
+version_str = "0.0.post14363"
+version_tuple = (0, 0, 14363)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14360")
+    pversion = V("0.0.post14363")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14218"
-data_version_tuple = (0, 0, 14218)
+data_version_str = "0.0.post14221"
+data_version_tuple = (0, 0, 14221)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14218")
+    pdata_version = V("0.0.post14221")
 except ImportError:
     pass
-data_git_hash = "6978ac72828fabd72fd9aaf3c071d07157c125b9"
-data_git_describe = "v0.0-14218-g6978ac7282"
+data_git_hash = "a18d6f6810beb8c7db850ad186ab9ed5f06c3f0f"
+data_git_describe = "v0.0-14221-ga18d6f6810"
 data_git_msg = """\
-commit 6978ac72828fabd72fd9aaf3c071d07157c125b9
+commit a18d6f6810beb8c7db850ad186ab9ed5f06c3f0f
 Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Sep 20 18:18:04 2022 -0700
+Date:   Wed Sep 21 09:39:30 2022 -0700
 
-    fix(chip): Fix index size
-    
-    Index size of `miodio_to_ios()` function was incorrect.
+    test(chip): Add chip_sw_sleep_pin_mio_dio_val to testplan
     
     Signed-off-by: Eli Kim <eli@opentitan.org>
 
