@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14354"
-version_tuple = (0, 0, 14354)
+version_str = "0.0.post14356"
+version_tuple = (0, 0, 14356)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14354")
+    pversion = V("0.0.post14356")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14212"
-data_version_tuple = (0, 0, 14212)
+data_version_str = "0.0.post14214"
+data_version_tuple = (0, 0, 14214)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14212")
+    pdata_version = V("0.0.post14214")
 except ImportError:
     pass
-data_git_hash = "3ecad13714190fb493897e02fc14805eaf43aa7a"
-data_git_describe = "v0.0-14212-g3ecad13714"
+data_git_hash = "75b37362afef4de946b109d584df385ef226bc84"
+data_git_describe = "v0.0-14214-g75b37362af"
 data_git_msg = """\
-commit 3ecad13714190fb493897e02fc14805eaf43aa7a
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Sep 20 08:19:29 2022 -0700
+commit 75b37362afef4de946b109d584df385ef226bc84
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Wed Sep 21 10:01:52 2022 +0300
 
-    [dif/sysrst_ctrl] move to S2
+    [adc_crrl test] Fix ADC enum kPower-upTimeAonCycles from 2 to 6
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
