@@ -4,37 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14341"
-version_tuple = (0, 0, 14341)
+version_str = "0.0.post14342"
+version_tuple = (0, 0, 14342)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14341")
+    pversion = V("0.0.post14342")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14199"
-data_version_tuple = (0, 0, 14199)
+data_version_str = "0.0.post14200"
+data_version_tuple = (0, 0, 14200)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14199")
+    pdata_version = V("0.0.post14200")
 except ImportError:
     pass
-data_git_hash = "8bee7aa0fe3a882a96866ce621ec77f3847fa443"
-data_git_describe = "v0.0-14199-g8bee7aa0fe"
+data_git_hash = "b465af6cff561d6636708c9905dee644f42b5fb4"
+data_git_describe = "v0.0-14200-gb465af6cff"
 data_git_msg = """\
-commit 8bee7aa0fe3a882a96866ce621ec77f3847fa443
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Sep 20 16:32:46 2022 -0700
+commit b465af6cff561d6636708c9905dee644f42b5fb4
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Sep 19 11:57:24 2022 -0700
 
-    [dv/kmac] Add random pre-scaler and edn timeout val
+    [rtl/tlul] Fix typo in tlul_cmd_intg_gen.sv
     
-    Previously if we do not want EDN timeout, we will just turn off the
-    timer. This pr calculates the max edn return time with some buffer, then
-    configure the EDN prescaler and wait time to make sure it should not
-    timeout.
+    Also, it is much better to use SV a ":" module_identifier with an
+    endmodule, since the compiler checks the identifier matches the module
+    name. This is also a good practice for other constructs, like tasks,
+    functions, interfaces, packages, classes, etc.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
