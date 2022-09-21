@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14342"
-version_tuple = (0, 0, 14342)
+version_str = "0.0.post14354"
+version_tuple = (0, 0, 14354)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14342")
+    pversion = V("0.0.post14354")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14200"
-data_version_tuple = (0, 0, 14200)
+data_version_str = "0.0.post14212"
+data_version_tuple = (0, 0, 14212)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14200")
+    pdata_version = V("0.0.post14212")
 except ImportError:
     pass
-data_git_hash = "b465af6cff561d6636708c9905dee644f42b5fb4"
-data_git_describe = "v0.0-14200-gb465af6cff"
+data_git_hash = "3ecad13714190fb493897e02fc14805eaf43aa7a"
+data_git_describe = "v0.0-14212-g3ecad13714"
 data_git_msg = """\
-commit b465af6cff561d6636708c9905dee644f42b5fb4
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Sep 19 11:57:24 2022 -0700
+commit 3ecad13714190fb493897e02fc14805eaf43aa7a
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Sep 20 08:19:29 2022 -0700
 
-    [rtl/tlul] Fix typo in tlul_cmd_intg_gen.sv
+    [dif/sysrst_ctrl] move to S2
     
-    Also, it is much better to use SV a ":" module_identifier with an
-    endmodule, since the compiler checks the identifier matches the module
-    name. This is also a good practice for other constructs, like tasks,
-    functions, interfaces, packages, classes, etc.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
