@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14333"
-version_tuple = (0, 0, 14333)
+version_str = "0.0.post14336"
+version_tuple = (0, 0, 14336)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14333")
+    pversion = V("0.0.post14336")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14191"
-data_version_tuple = (0, 0, 14191)
+data_version_str = "0.0.post14194"
+data_version_tuple = (0, 0, 14194)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14191")
+    pdata_version = V("0.0.post14194")
 except ImportError:
     pass
-data_git_hash = "3575ab2b6f1fff58cdc5a3111632fe30ec59bfb8"
-data_git_describe = "v0.0-14191-g3575ab2b6f"
+data_git_hash = "614df919a602a105be4ff0c105204c05a7cb72ee"
+data_git_describe = "v0.0-14194-g614df919a6"
 data_git_msg = """\
-commit 3575ab2b6f1fff58cdc5a3111632fe30ec59bfb8
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Sep 20 05:39:45 2022 -0700
+commit 614df919a602a105be4ff0c105204c05a7cb72ee
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Sep 20 15:47:23 2022 -0700
 
-    [dif] update checklists to align with #14632
+    [chip, dv] Fix chip_tap_straps failures
     
-    This updates the checklists of the following IPs:
-    - sysrst_ctrl
-    - uart
-    - usbdev
+    Fixed typo on the variable and use CASE_EQ to compare as signals could be unknown
     
-    This fixes #14632.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
