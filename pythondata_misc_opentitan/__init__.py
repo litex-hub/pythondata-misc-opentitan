@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14357"
-version_tuple = (0, 0, 14357)
+version_str = "0.0.post14360"
+version_tuple = (0, 0, 14360)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14357")
+    pversion = V("0.0.post14360")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14215"
-data_version_tuple = (0, 0, 14215)
+data_version_str = "0.0.post14218"
+data_version_tuple = (0, 0, 14218)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14215")
+    pdata_version = V("0.0.post14218")
 except ImportError:
     pass
-data_git_hash = "a339c389b819905dcc52c3dc3472b86df6364f70"
-data_git_describe = "v0.0-14215-ga339c389b8"
+data_git_hash = "6978ac72828fabd72fd9aaf3c071d07157c125b9"
+data_git_describe = "v0.0-14218-g6978ac7282"
 data_git_msg = """\
-commit a339c389b819905dcc52c3dc3472b86df6364f70
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Sep 20 16:33:35 2022 -0700
+commit 6978ac72828fabd72fd9aaf3c071d07157c125b9
+Author: Eli Kim <eli@opentitan.org>
+Date:   Tue Sep 20 18:18:04 2022 -0700
 
-    [dv] Reduce the length of POR and fix regression failures
+    fix(chip): Fix index size
     
-    Reset took too long which caused wait timeout.
+    Index size of `miodio_to_ios()` function was incorrect.
     
-    Addressed #15026 and fixed these 2 tests
-    - chip_sw_lc_ctrl_transition
-    - chip_sw_clkmgr_external_clk_src_for_lc
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
