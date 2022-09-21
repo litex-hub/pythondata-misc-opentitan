@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14336"
-version_tuple = (0, 0, 14336)
+version_str = "0.0.post14340"
+version_tuple = (0, 0, 14340)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14336")
+    pversion = V("0.0.post14340")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14194"
-data_version_tuple = (0, 0, 14194)
+data_version_str = "0.0.post14198"
+data_version_tuple = (0, 0, 14198)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14194")
+    pdata_version = V("0.0.post14198")
 except ImportError:
     pass
-data_git_hash = "614df919a602a105be4ff0c105204c05a7cb72ee"
-data_git_describe = "v0.0-14194-g614df919a6"
+data_git_hash = "4358baf636fea6358e7ad8cbfeb060f94138473c"
+data_git_describe = "v0.0-14198-g4358baf636"
 data_git_msg = """\
-commit 614df919a602a105be4ff0c105204c05a7cb72ee
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Sep 20 15:47:23 2022 -0700
+commit 4358baf636fea6358e7ad8cbfeb060f94138473c
+Author: Eli Kim <eli@opentitan.org>
+Date:   Tue Sep 20 15:00:27 2022 -0700
 
-    [chip, dv] Fix chip_tap_straps failures
+    refactor(chip): Convert MIO/DIO retention type to IOS type
     
-    Fixed typo on the variable and use CASE_EQ to compare as signals could be unknown
+    This commit adds `miodio_to_ios()` function. The function converts
+    MIO/DIO specific retention type to ios_if map.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    With the conversion, the test code can have unified test regardless of
+    MIO/DIO types.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
