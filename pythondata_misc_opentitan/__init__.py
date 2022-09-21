@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14340"
-version_tuple = (0, 0, 14340)
+version_str = "0.0.post14341"
+version_tuple = (0, 0, 14341)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14340")
+    pversion = V("0.0.post14341")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14198"
-data_version_tuple = (0, 0, 14198)
+data_version_str = "0.0.post14199"
+data_version_tuple = (0, 0, 14199)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14198")
+    pdata_version = V("0.0.post14199")
 except ImportError:
     pass
-data_git_hash = "4358baf636fea6358e7ad8cbfeb060f94138473c"
-data_git_describe = "v0.0-14198-g4358baf636"
+data_git_hash = "8bee7aa0fe3a882a96866ce621ec77f3847fa443"
+data_git_describe = "v0.0-14199-g8bee7aa0fe"
 data_git_msg = """\
-commit 4358baf636fea6358e7ad8cbfeb060f94138473c
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Sep 20 15:00:27 2022 -0700
+commit 8bee7aa0fe3a882a96866ce621ec77f3847fa443
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Sep 20 16:32:46 2022 -0700
 
-    refactor(chip): Convert MIO/DIO retention type to IOS type
+    [dv/kmac] Add random pre-scaler and edn timeout val
     
-    This commit adds `miodio_to_ios()` function. The function converts
-    MIO/DIO specific retention type to ios_if map.
+    Previously if we do not want EDN timeout, we will just turn off the
+    timer. This pr calculates the max edn return time with some buffer, then
+    configure the EDN prescaler and wait time to make sure it should not
+    timeout.
     
-    With the conversion, the test code can have unified test regardless of
-    MIO/DIO types.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
