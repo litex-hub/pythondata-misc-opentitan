@@ -4,30 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14380"
-version_tuple = (0, 0, 14380)
+version_str = "0.0.post14381"
+version_tuple = (0, 0, 14381)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14380")
+    pversion = V("0.0.post14381")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14238"
-data_version_tuple = (0, 0, 14238)
+data_version_str = "0.0.post14239"
+data_version_tuple = (0, 0, 14239)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14238")
+    pdata_version = V("0.0.post14239")
 except ImportError:
     pass
-data_git_hash = "3731187647ca2bed9df6bc9dd712645f9c01156a"
-data_git_describe = "v0.0-14238-g3731187647"
+data_git_hash = "d54b1e031ec8129634443291b7ea8980228423c6"
+data_git_describe = "v0.0-14239-gd54b1e031e"
 data_git_msg = """\
-commit 3731187647ca2bed9df6bc9dd712645f9c01156a
+commit d54b1e031ec8129634443291b7ea8980228423c6
 Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Aug 31 20:38:25 2022 -0400
+Date:   Thu Sep 22 06:00:35 2022 -0400
 
-    [test] Make boot_data_functest compatible with rom
+    fix merge skew
+    
+    Fixes a merge skew issue between #14855 and #15056.
     
     Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
