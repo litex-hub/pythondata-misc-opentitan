@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14385"
-version_tuple = (0, 0, 14385)
+version_str = "0.0.post14386"
+version_tuple = (0, 0, 14386)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14385")
+    pversion = V("0.0.post14386")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14243"
-data_version_tuple = (0, 0, 14243)
+data_version_str = "0.0.post14244"
+data_version_tuple = (0, 0, 14244)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14243")
+    pdata_version = V("0.0.post14244")
 except ImportError:
     pass
-data_git_hash = "c1308a72923b6262af7ff96697c1c5ec2bbe24d9"
-data_git_describe = "v0.0-14243-gc1308a7292"
+data_git_hash = "9d0b3194bc63906274478d3c96a6e57d751021bc"
+data_git_describe = "v0.0-14244-g9d0b3194bc"
 data_git_msg = """\
-commit c1308a72923b6262af7ff96697c1c5ec2bbe24d9
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 22 11:41:31 2022 -0400
+commit 9d0b3194bc63906274478d3c96a6e57d751021bc
+Author: Eli Kim <eli@opentitan.org>
+Date:   Thu Sep 22 09:56:24 2022 -0700
 
-    [util] Print stderr if generate_compilation_db.py fails
+    fix(kmac): Check SHA3 done loosely for false value
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Related Issue: https://github.com/lowRISC/opentitan/issues/15002
+    
+    KMAC checks `sha3_done` false value strictly. It opened the attackers
+    making KMAC not finished and keep feeding messages.
+    
+    By checking `sha3_done` loosely in this commit, the state always moves
+    to next state when `sha3_absorbed` is true.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
