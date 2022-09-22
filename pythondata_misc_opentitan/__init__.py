@@ -4,40 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14386"
-version_tuple = (0, 0, 14386)
+version_str = "0.0.post14387"
+version_tuple = (0, 0, 14387)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14386")
+    pversion = V("0.0.post14387")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14244"
-data_version_tuple = (0, 0, 14244)
+data_version_str = "0.0.post14245"
+data_version_tuple = (0, 0, 14245)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14244")
+    pdata_version = V("0.0.post14245")
 except ImportError:
     pass
-data_git_hash = "9d0b3194bc63906274478d3c96a6e57d751021bc"
-data_git_describe = "v0.0-14244-g9d0b3194bc"
+data_git_hash = "8bf8012ef4548b7b783ee50a7b81c37107c8f18d"
+data_git_describe = "v0.0-14245-g8bf8012ef4"
 data_git_msg = """\
-commit 9d0b3194bc63906274478d3c96a6e57d751021bc
-Author: Eli Kim <eli@opentitan.org>
-Date:   Thu Sep 22 09:56:24 2022 -0700
+commit 8bf8012ef4548b7b783ee50a7b81c37107c8f18d
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Fri Sep 16 10:46:50 2022 -0400
 
-    fix(kmac): Check SHA3 done loosely for false value
+    [i2c dif] Add headers for functions to control i2c device in the dif
     
-    Related Issue: https://github.com/lowRISC/opentitan/issues/15002
+    * Changed documentation references to consistently refer to FMT and RX
+      buffers as FIFOs when applying names and short descriptions
+    * Added a documentation referring to ability to reset the I2C block
+      (because it might be useful)
+    * Changed documentation references to RESTART to repeated START to
+      make them more consistent with I2C standards
+    * Annotated states with Shared, host and device mode to help track
+      which features acted in which modes
+    * Updated header for i2c_dif to support device mode and clarify
+      which registers control which modes
+    * corrected FIFO references in device tx rx test portion of
+      testplan and added requirement to perform an I2C read
+    * fixed i2c_dif_unittest that swapped rx and fmt fifo levels
     
-    KMAC checks `sha3_done` false value strictly. It opened the attackers
-    making KMAC not finished and keep feeding messages.
-    
-    By checking `sha3_done` loosely in this commit, the state always moves
-    to next state when `sha3_absorbed` is true.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
