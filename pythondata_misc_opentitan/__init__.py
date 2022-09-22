@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14364"
-version_tuple = (0, 0, 14364)
+version_str = "0.0.post14365"
+version_tuple = (0, 0, 14365)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14364")
+    pversion = V("0.0.post14365")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14222"
-data_version_tuple = (0, 0, 14222)
+data_version_str = "0.0.post14223"
+data_version_tuple = (0, 0, 14223)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14222")
+    pdata_version = V("0.0.post14223")
 except ImportError:
     pass
-data_git_hash = "ccb6d24460fe0aec20ba6b8e9e2c0ec0847bde03"
-data_git_describe = "v0.0-14222-gccb6d24460"
+data_git_hash = "d7415674079c483a85503bb266d10bfe1339008b"
+data_git_describe = "v0.0-14223-gd741567407"
 data_git_msg = """\
-commit ccb6d24460fe0aec20ba6b8e9e2c0ec0847bde03
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Sep 21 14:44:02 2022 -0700
+commit d7415674079c483a85503bb266d10bfe1339008b
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Sep 19 19:20:45 2022 +0000
 
-    [top/dv] Test triage fix
+    [pwrmgr,dv] Add more test to stretch coverage
     
-    ensure the test sends enough bytes to trigger the rx watermark
+    - Add disable_rom_integrity_check test #11773
+    - Add all states to invalid_state test to improve fsm coverage
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
