@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14365"
-version_tuple = (0, 0, 14365)
+version_str = "0.0.post14374"
+version_tuple = (0, 0, 14374)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14365")
+    pversion = V("0.0.post14374")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14223"
-data_version_tuple = (0, 0, 14223)
+data_version_str = "0.0.post14232"
+data_version_tuple = (0, 0, 14232)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14223")
+    pdata_version = V("0.0.post14232")
 except ImportError:
     pass
-data_git_hash = "d7415674079c483a85503bb266d10bfe1339008b"
-data_git_describe = "v0.0-14223-gd741567407"
+data_git_hash = "0a3ba57c724eb7e842f74fd3bd8595939a02c432"
+data_git_describe = "v0.0-14232-g0a3ba57c72"
 data_git_msg = """\
-commit d7415674079c483a85503bb266d10bfe1339008b
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Sep 19 19:20:45 2022 +0000
+commit 0a3ba57c724eb7e842f74fd3bd8595939a02c432
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Tue Sep 20 10:59:43 2022 +0100
 
-    [pwrmgr,dv] Add more test to stretch coverage
+    [silicon_creator] Refactor the epmp lib
     
-    - Add disable_rom_integrity_check test #11773
-    - Add all states to invalid_state test to improve fsm coverage
+     This commit refactors the epmp lib to use the epmp_state global
+     from the static_critical section rather than receiving the object.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
