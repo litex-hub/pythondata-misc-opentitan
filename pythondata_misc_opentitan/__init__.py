@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14363"
-version_tuple = (0, 0, 14363)
+version_str = "0.0.post14364"
+version_tuple = (0, 0, 14364)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14363")
+    pversion = V("0.0.post14364")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14221"
-data_version_tuple = (0, 0, 14221)
+data_version_str = "0.0.post14222"
+data_version_tuple = (0, 0, 14222)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14221")
+    pdata_version = V("0.0.post14222")
 except ImportError:
     pass
-data_git_hash = "a18d6f6810beb8c7db850ad186ab9ed5f06c3f0f"
-data_git_describe = "v0.0-14221-ga18d6f6810"
+data_git_hash = "ccb6d24460fe0aec20ba6b8e9e2c0ec0847bde03"
+data_git_describe = "v0.0-14222-gccb6d24460"
 data_git_msg = """\
-commit a18d6f6810beb8c7db850ad186ab9ed5f06c3f0f
-Author: Eli Kim <eli@opentitan.org>
-Date:   Wed Sep 21 09:39:30 2022 -0700
+commit ccb6d24460fe0aec20ba6b8e9e2c0ec0847bde03
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Sep 21 14:44:02 2022 -0700
 
-    test(chip): Add chip_sw_sleep_pin_mio_dio_val to testplan
+    [top/dv] Test triage fix
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    ensure the test sends enough bytes to trigger the rx watermark
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
