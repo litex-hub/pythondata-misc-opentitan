@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14383"
-version_tuple = (0, 0, 14383)
+version_str = "0.0.post14384"
+version_tuple = (0, 0, 14384)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14383")
+    pversion = V("0.0.post14384")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14241"
-data_version_tuple = (0, 0, 14241)
+data_version_str = "0.0.post14242"
+data_version_tuple = (0, 0, 14242)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14241")
+    pdata_version = V("0.0.post14242")
 except ImportError:
     pass
-data_git_hash = "5377391e8930bd9dbda22372d292ef37603f5623"
-data_git_describe = "v0.0-14241-g5377391e89"
+data_git_hash = "468e69c56f627c66b7fe44b07ac43057afe22d25"
+data_git_describe = "v0.0-14242-g468e69c56f"
 data_git_msg = """\
-commit 5377391e8930bd9dbda22372d292ef37603f5623
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Sep 21 10:16:45 2022 -0400
+commit 468e69c56f627c66b7fe44b07ac43057afe22d25
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Sep 20 22:24:03 2022 +0000
 
-    [test] Run additional functests with rom
+    [flash_ctr,dv] Add more v2s tests
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    - Add local escalation test
+    - Update test plan with auto_gen csr tests for regwen and shadow
+    - Remove unused arg from otf_direct_read
+    - Add ctrl only option to random op send
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
