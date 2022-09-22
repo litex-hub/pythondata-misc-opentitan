@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14384"
-version_tuple = (0, 0, 14384)
+version_str = "0.0.post14385"
+version_tuple = (0, 0, 14385)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14384")
+    pversion = V("0.0.post14385")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14242"
-data_version_tuple = (0, 0, 14242)
+data_version_str = "0.0.post14243"
+data_version_tuple = (0, 0, 14243)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14242")
+    pdata_version = V("0.0.post14243")
 except ImportError:
     pass
-data_git_hash = "468e69c56f627c66b7fe44b07ac43057afe22d25"
-data_git_describe = "v0.0-14242-g468e69c56f"
+data_git_hash = "c1308a72923b6262af7ff96697c1c5ec2bbe24d9"
+data_git_describe = "v0.0-14243-gc1308a7292"
 data_git_msg = """\
-commit 468e69c56f627c66b7fe44b07ac43057afe22d25
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Tue Sep 20 22:24:03 2022 +0000
+commit c1308a72923b6262af7ff96697c1c5ec2bbe24d9
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Sep 22 11:41:31 2022 -0400
 
-    [flash_ctr,dv] Add more v2s tests
+    [util] Print stderr if generate_compilation_db.py fails
     
-    - Add local escalation test
-    - Update test plan with auto_gen csr tests for regwen and shadow
-    - Remove unused arg from otf_direct_read
-    - Add ctrl only option to random op send
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
