@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "sw/device/silicon_creator/lib/epmp.h"
-
 #include <array>
 #include <cstring>
 #include <vector>
@@ -12,6 +10,7 @@
 #include "sw/device/lib/base/bitfield.h"
 #include "sw/device/lib/base/csr.h"
 #include "sw/device/silicon_creator/lib/base/mock_csr.h"
+#include "sw/device/silicon_creator/lib/epmp_state.h"
 #include "sw/device/silicon_creator/testing/rom_test.h"
 
 namespace epmp_unittest {
@@ -132,9 +131,8 @@ TEST(EpmpCheckTest, Default) {
   mock_csr::MockCsr csr;
 
   ExpectReadState({});
-
-  epmp_state_t state = {};
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpCheckTest, ErrorPmpaddr) {
@@ -144,9 +142,8 @@ TEST(EpmpCheckTest, ErrorPmpaddr) {
   bad.pmpaddr[15] ^= 1 << 31;
 
   ExpectReadState(bad);
-
-  epmp_state_t state = {};
-  EXPECT_EQ(epmp_state_check(&state), kErrorEpmpBadCheck);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  EXPECT_EQ(epmp_state_check(), kErrorEpmpBadCheck);
 }
 
 TEST(EpmpCheckTest, ErrorPmpcfg) {
@@ -156,9 +153,8 @@ TEST(EpmpCheckTest, ErrorPmpcfg) {
   bad.pmpcfg[0] ^= 1;
 
   ExpectReadState(bad);
-
-  epmp_state_t state = {};
-  EXPECT_EQ(epmp_state_check(&state), kErrorEpmpBadCheck);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  EXPECT_EQ(epmp_state_check(), kErrorEpmpBadCheck);
 }
 
 TEST(EpmpCheckTest, ErrorMseccfg) {
@@ -168,9 +164,8 @@ TEST(EpmpCheckTest, ErrorMseccfg) {
   bad.mseccfg ^= 1;
 
   ExpectReadState(bad);
-
-  epmp_state_t state = {};
-  EXPECT_EQ(epmp_state_check(&state), kErrorEpmpBadCheck);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  EXPECT_EQ(epmp_state_check(), kErrorEpmpBadCheck);
 }
 
 TEST(EpmpTorTest, Entry0) {
@@ -184,12 +179,11 @@ TEST(EpmpTorTest, Entry0) {
   PmpCsrs csrs;
   csrs.pmpcfg[0] = EPMP_CFG_L | EPMP_CFG_A_TOR | EPMP_CFG_R;
   csrs.pmpaddr[0] = region.end >> 2;
-
-  epmp_state_t state = {};
-  epmp_state_configure_tor(&state, 0, region, kEpmpPermLockedReadOnly);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_tor(0, region, kEpmpPermLockedReadOnly);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpTorTest, Entry1) {
@@ -204,12 +198,11 @@ TEST(EpmpTorTest, Entry1) {
   csrs.pmpaddr[0] = region.start >> 2;
   csrs.pmpcfg[1] = EPMP_CFG_L | EPMP_CFG_A_TOR | EPMP_CFG_R;
   csrs.pmpaddr[1] = region.end >> 2;
-
-  epmp_state_t state = {};
-  epmp_state_configure_tor(&state, 1, region, kEpmpPermLockedReadOnly);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_tor(1, region, kEpmpPermLockedReadOnly);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpTorTest, Entry15) {
@@ -225,11 +218,11 @@ TEST(EpmpTorTest, Entry15) {
   csrs.pmpcfg[15] = EPMP_CFG_L | EPMP_CFG_A_TOR | EPMP_CFG_R;
   csrs.pmpaddr[15] = region.end >> 2;
 
-  epmp_state_t state = {};
-  epmp_state_configure_tor(&state, 15, region, kEpmpPermLockedReadOnly);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_tor(15, region, kEpmpPermLockedReadOnly);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpTorTest, SharedAddress) {
@@ -253,12 +246,12 @@ TEST(EpmpTorTest, SharedAddress) {
   csrs.pmpcfg[2] = EPMP_CFG_L | EPMP_CFG_A_TOR | EPMP_CFG_R;
   csrs.pmpaddr[2] = region2.end >> 2;
 
-  epmp_state_t state = {};
-  epmp_state_configure_tor(&state, 1, region1, kEpmpPermLockedReadExecute);
-  epmp_state_configure_tor(&state, 2, region2, kEpmpPermLockedReadOnly);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_tor(1, region1, kEpmpPermLockedReadExecute);
+  epmp_state_configure_tor(2, region2, kEpmpPermLockedReadOnly);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpNa4Test, Entry0) {
@@ -273,11 +266,11 @@ TEST(EpmpNa4Test, Entry0) {
   csrs.pmpcfg[0] = EPMP_CFG_L | EPMP_CFG_A_NA4 | EPMP_CFG_R | EPMP_CFG_X;
   csrs.pmpaddr[0] = region.start >> 2;
 
-  epmp_state_t state = {};
-  epmp_state_configure_na4(&state, 0, region, kEpmpPermLockedReadExecute);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_na4(0, region, kEpmpPermLockedReadExecute);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpNa4Test, Entry15) {
@@ -292,11 +285,11 @@ TEST(EpmpNa4Test, Entry15) {
   csrs.pmpcfg[15] = EPMP_CFG_L | EPMP_CFG_A_NA4 | EPMP_CFG_R | EPMP_CFG_W;
   csrs.pmpaddr[15] = region.start >> 2;
 
-  epmp_state_t state = {};
-  epmp_state_configure_na4(&state, 15, region, kEpmpPermLockedReadWrite);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_na4(15, region, kEpmpPermLockedReadWrite);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 /**
@@ -322,11 +315,11 @@ TEST(EpmpNapotTest, Entry0) {
   csrs.pmpcfg[0] = EPMP_CFG_L | EPMP_CFG_A_NAPOT | EPMP_CFG_R | EPMP_CFG_X;
   csrs.pmpaddr[0] = Napot(region);
 
-  epmp_state_t state = {};
-  epmp_state_configure_napot(&state, 0, region, kEpmpPermLockedReadExecute);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_napot(0, region, kEpmpPermLockedReadExecute);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 TEST(EpmpNapotTest, Entry15) {
@@ -341,11 +334,11 @@ TEST(EpmpNapotTest, Entry15) {
   csrs.pmpcfg[15] = EPMP_CFG_L | EPMP_CFG_A_NAPOT | EPMP_CFG_R | EPMP_CFG_W;
   csrs.pmpaddr[15] = Napot(region);
 
-  epmp_state_t state = {};
-  epmp_state_configure_napot(&state, 15, region, kEpmpPermLockedReadWrite);
+  memset((void *)&epmp_state, 0, sizeof(epmp_state));
+  epmp_state_configure_napot(15, region, kEpmpPermLockedReadWrite);
 
   ExpectReadState(csrs);
-  EXPECT_EQ(epmp_state_check(&state), kErrorOk);
+  EXPECT_EQ(epmp_state_check(), kErrorOk);
 }
 
 }  // namespace

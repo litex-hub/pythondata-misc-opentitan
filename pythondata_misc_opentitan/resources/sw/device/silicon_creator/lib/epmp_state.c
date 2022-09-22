@@ -2,23 +2,28 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "sw/device/silicon_creator/lib/epmp.h"
+#include "sw/device/silicon_creator/lib/epmp_state.h"
 
 #include "sw/device/lib/base/csr.h"
 #include "sw/device/lib/base/hardened.h"
 
+// The context is declared as weak so that the ROM and ROM_EXT may
+// override its location.
+OT_WEAK volatile epmp_state_t epmp_state;
+
 /**
  * Extern declarations of inline functions.
  */
-extern void epmp_state_configure_tor(epmp_state_t *state, uint32_t entry,
-                                     epmp_region_t region, epmp_perm_t perm);
-extern void epmp_state_configure_na4(epmp_state_t *state, uint32_t entry,
-                                     epmp_region_t region, epmp_perm_t perm);
-extern void epmp_state_configure_napot(epmp_state_t *state, uint32_t entry,
-                                       epmp_region_t region, epmp_perm_t perm);
+extern void epmp_state_configure_tor(uint32_t entry, epmp_region_t region,
+                                     epmp_perm_t perm);
+extern void epmp_state_configure_na4(uint32_t entry, epmp_region_t region,
+                                     epmp_perm_t perm);
+extern void epmp_state_configure_napot(uint32_t entry, epmp_region_t region,
+                                       epmp_perm_t perm);
 
-rom_error_t epmp_state_check(const epmp_state_t *s) {
+rom_error_t epmp_state_check(void) {
   uint32_t checks = 0;
+  volatile const epmp_state_t *s = &epmp_state;
 #define CHECK_CSR(reg, value) \
   do {                        \
     uint32_t csr;             \

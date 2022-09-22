@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 
-#include "sw/device/silicon_creator/lib/epmp.h"
+#include "sw/device/silicon_creator/lib/epmp_state.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,11 +23,10 @@ extern "C" {
  *
  * Utilizes a dedicated PMP entry reserved for this usage.
  *
- * @param state Shadow register state to update and check against (optional).
  * @returns The result of the operation (`true` if address space unlocked
  * successfully).
  */
-bool epmp_unlock_test_status(epmp_state_t *state);
+bool epmp_unlock_test_status(void);
 
 #ifdef __cplusplus
 }  // extern "C"

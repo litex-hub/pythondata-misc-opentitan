@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "sw/device/lib/base/macros.h"
-#include "sw/device/silicon_creator/lib/base/boot_measurements.h"
+#include "sw/device/silicon_creator/lib/epmp_state.h"
 
-// Boot measurements.
+// In-memory copy of the ePMP register configuration.
 //
 // This is placed at a fixed location in memory within the .static_critical
 // section. It will be populated by the ROM before the jump to ROM_EXT.
-OT_SECTION(".static_critical.boot_measurements")
-volatile boot_measurements_t boot_measurements;
+OT_SECTION(".static_critical.epmp_state")
+volatile epmp_state_t epmp_state;
