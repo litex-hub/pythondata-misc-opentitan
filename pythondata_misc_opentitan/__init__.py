@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14390"
-version_tuple = (0, 0, 14390)
+version_str = "0.0.post14393"
+version_tuple = (0, 0, 14393)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14390")
+    pversion = V("0.0.post14393")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14248"
-data_version_tuple = (0, 0, 14248)
+data_version_str = "0.0.post14251"
+data_version_tuple = (0, 0, 14251)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14248")
+    pdata_version = V("0.0.post14251")
 except ImportError:
     pass
-data_git_hash = "be4132c4f87303e9bb83c81e6fc38b40a1716132"
-data_git_describe = "v0.0-14248-gbe4132c4f8"
+data_git_hash = "42313dc0381e53a01e6b251d6596089b9898afbf"
+data_git_describe = "v0.0-14251-g42313dc038"
 data_git_msg = """\
-commit be4132c4f87303e9bb83c81e6fc38b40a1716132
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Sep 22 13:29:39 2022 -0700
+commit 42313dc0381e53a01e6b251d6596089b9898afbf
+Author: Canberk Topal <ctopal@lowrisc.org>
+Date:   Fri Sep 16 09:26:38 2022 +0100
 
-    [i2c/dv] update scoreboard handling for chained reads
+    [otbn,dv] Turn off some assertions in FI tests
     
-    - fixes #14990
+    This commit groups blanking assertions and DMEM assertions with
+    DV_ASSERT_CTRL macro and turns them off in fault injection tests
+    since it is not guaranteed to be able to blank in those cases.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
 """
 
