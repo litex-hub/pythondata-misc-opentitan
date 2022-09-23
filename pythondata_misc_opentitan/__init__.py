@@ -4,36 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14398"
-version_tuple = (0, 0, 14398)
+version_str = "0.0.post14399"
+version_tuple = (0, 0, 14399)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14398")
+    pversion = V("0.0.post14399")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14256"
-data_version_tuple = (0, 0, 14256)
+data_version_str = "0.0.post14257"
+data_version_tuple = (0, 0, 14257)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14256")
+    pdata_version = V("0.0.post14257")
 except ImportError:
     pass
-data_git_hash = "3506890bb969b33e336f367c54c592d32413bb8c"
-data_git_describe = "v0.0-14256-g3506890bb9"
+data_git_hash = "3603770f9085310a39aac00455d4fecde6bf7826"
+data_git_describe = "v0.0-14257-g3603770f90"
 data_git_msg = """\
-commit 3506890bb969b33e336f367c54c592d32413bb8c
+commit 3603770f9085310a39aac00455d4fecde6bf7826
 Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Thu Sep 15 13:11:00 2022 +0100
+Date:   Tue Sep 13 09:48:26 2022 +0100
 
-    [otbn,dv] Add assertions to check I/DMEM SEC_WIPE
+    [otbn,dv] Update testplan for countermeasures
     
-    Added assertions are making sure that two things happen. First, a
-    secure wipe would trigger a change of key value in I/DMEM in which
-    the new value should come from URND. Second, after that change key
-    should change a second time, this time with valid being high and
-    value should come from OTP interface (meaning it is sideloaded).
+    With PR #14322 *.SCA and *.SEC_WIPE countermeasures can be considered
+    verified with the assertions.
     
     Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
 
