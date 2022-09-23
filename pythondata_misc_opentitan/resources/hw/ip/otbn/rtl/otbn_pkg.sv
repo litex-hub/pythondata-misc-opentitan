@@ -122,6 +122,7 @@ package otbn_pkg;
 
   typedef struct packed {
     logic spr_urnd_acks;
+    logic spr_rnd_acks;
     logic spr_secwipe_reqs;
     logic mubi_rma_err;
     logic mubi_urnd_err;
@@ -135,12 +136,22 @@ package otbn_pkg;
     logic rf_base_call_stack_err;
     logic spr_secwipe_acks;
     logic state_err;
+    logic controller_mubi_err;
   } controller_bad_int_t;
 
   typedef struct packed {
     logic imem_gnt_missed_err;
     logic dmem_gnt_missed_err;
   } missed_gnt_t;
+
+  typedef struct packed {
+    logic rf_base_intg_err;
+    logic rf_bignum_intg_err;
+    logic mod_ispr_intg_err;
+    logic acc_ispr_intg_err;
+    logic loop_stack_addr_intg_err;
+    logic insn_fetch_intg_err;
+  } internal_intg_err_t;
 
   // All the error signals that can be generated directly from the controller. Note that this is
   // organised to include every software error (including 'call_stack', which actually gets fed in

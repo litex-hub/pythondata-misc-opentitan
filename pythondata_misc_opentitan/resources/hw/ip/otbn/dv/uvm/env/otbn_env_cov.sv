@@ -568,7 +568,7 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     // See attempted writes to the bottom and top address in the scratchpad memory
     addr_cp: coverpoint addr {
       bins low  = {OTBN_DMEM_OFFSET + OTBN_DMEM_SIZE};
-      bins high = {OTBN_DMEM_OFFSET + DmemSizeByte - 1};
+      bins high = {OTBN_DMEM_OFFSET + DmemSizeByte - 4};
     }
   endgroup
 
@@ -633,7 +633,8 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
                          otbn_pkg::controller_bad_int_t controller_bad_int,
                          otbn_pkg::start_stop_bad_int_t start_stop_bad_int,
                          logic rf_base_spurious_we_err,
-                         logic rf_bignum_spurious_we_err);
+                         logic rf_bignum_spurious_we_err,
+                         logic ext_mubi_err);
 
     `DEF_SEEN_CP(alu_bignum_predec_err, predec_err.alu_bignum_err)
     `DEF_SEEN_CP(mac_bignum_predec_err, predec_err.mac_bignum_err)
@@ -643,6 +644,7 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     `DEF_SEEN_CP(rd_predec_err, predec_err.rd_err)
 
     `DEF_SEEN_CP(spr_urnd_acks_cp, start_stop_bad_int.spr_urnd_acks)
+    `DEF_SEEN_CP(spr_rnd_acks_cp, start_stop_bad_int.spr_rnd_acks)
     `DEF_SEEN_CP(spr_secwipe_reqs_cp, start_stop_bad_int.spr_secwipe_reqs)
     `DEF_SEEN_CP(mubi_rma_err_cp, start_stop_bad_int.mubi_rma_err)
     `DEF_SEEN_CP(mubi_urnd_err_cp, start_stop_bad_int.mubi_urnd_err)
@@ -654,6 +656,7 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     `DEF_SEEN_CP(rf_base_call_stack_err_cp, controller_bad_int.rf_base_call_stack_err)
     `DEF_SEEN_CP(spr_secwipe_acks_cp, controller_bad_int.spr_secwipe_acks)
     `DEF_SEEN_CP(controller_state_err_cp, controller_bad_int.state_err)
+    `DEF_SEEN_CP(controller_mubi_err_cp, controller_bad_int.controller_mubi_err)
 
     `DEF_SEEN_CP(imem_gnt_missed_err_cp, missed_gnt.imem_gnt_missed_err)
     `DEF_SEEN_CP(dmem_gnt_missed_err_cp, missed_gnt.dmem_gnt_missed_err)
@@ -663,6 +666,19 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
     `DEF_SEEN_CP(scramble_state_err_cp, scramble_state_err)
     `DEF_SEEN_CP(rf_base_spurious_we_err_cp, rf_base_spurious_we_err)
     `DEF_SEEN_CP(rf_bignum_spurious_we_err_cp, rf_bignum_spurious_we_err)
+    `DEF_SEEN_CP(ext_mubi_err_cp, ext_mubi_err)
+
+  endgroup
+
+  // This covergroup tracks each possible "Internal Integrity Errors" with probes from RTL.
+  covergroup internal_intg_err_cg with function sample(otbn_pkg::internal_intg_err_t intg_err);
+
+    `DEF_SEEN_CP(rf_base_intg_err_cp, intg_err.rf_base_intg_err)
+    `DEF_SEEN_CP(rf_bignum_intg_err_cp, intg_err.rf_bignum_intg_err)
+    `DEF_SEEN_CP(mod_ispr_intg_err_cp, intg_err.mod_ispr_intg_err)
+    `DEF_SEEN_CP(acc_ispr_intg_err_cp, intg_err.acc_ispr_intg_err)
+    `DEF_SEEN_CP(loop_stack_addr_intg_err_cp, intg_err.loop_stack_addr_intg_err)
+    `DEF_SEEN_CP(insn_fetch_intg_err_cp, intg_err.insn_fetch_intg_err)
 
   endgroup
 
@@ -2234,7 +2250,10 @@ class otbn_env_cov extends cip_base_env_cov #(.CFG_T(otbn_env_cfg));
                                  cfg.trace_vif.controller_bad_int_q,
                                  cfg.trace_vif.start_stop_bad_int_q,
                                  cfg.trace_vif.rf_base_spurious_we_err_q,
-                                 cfg.trace_vif.rf_bignum_spurious_we_err_q);
+                                 cfg.trace_vif.rf_bignum_spurious_we_err_q,
+                                 cfg.trace_vif.ext_mubi_err_q);
+
+    internal_intg_err_cg.sample(cfg.trace_vif.internal_intg_err_q);
   endfunction
 
   function void on_write_to_wr_csr(uvm_reg csr, logic [31:0] data, operational_state_e state);
