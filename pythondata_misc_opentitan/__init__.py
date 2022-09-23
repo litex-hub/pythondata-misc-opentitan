@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14415"
-version_tuple = (0, 0, 14415)
+version_str = "0.0.post14416"
+version_tuple = (0, 0, 14416)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14415")
+    pversion = V("0.0.post14416")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14273"
-data_version_tuple = (0, 0, 14273)
+data_version_str = "0.0.post14274"
+data_version_tuple = (0, 0, 14274)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14273")
+    pdata_version = V("0.0.post14274")
 except ImportError:
     pass
-data_git_hash = "652feab098227e4d13442a54b292a9077422e193"
-data_git_describe = "v0.0-14273-g652feab098"
+data_git_hash = "40ac0e7b8706ab20743cb23ccc4b518901b82832"
+data_git_describe = "v0.0-14274-g40ac0e7b87"
 data_git_msg = """\
-commit 652feab098227e4d13442a54b292a9077422e193
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Sep 22 21:22:44 2022 -0700
+commit 40ac0e7b8706ab20743cb23ccc4b518901b82832
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Sep 21 11:40:11 2022 -0700
 
-    [spi_device/dv] Rename tpm_read_vseq -> tpm_rw_vseq
+    [ottool] Fix invocations of `opentitantool` by bazel
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Invocations of `opentitantool` under bazel automation should always
+    include `--rcfile=` to prevent parsing the user's local configuration.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
