@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14403"
-version_tuple = (0, 0, 14403)
+version_str = "0.0.post14405"
+version_tuple = (0, 0, 14405)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14403")
+    pversion = V("0.0.post14405")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14261"
-data_version_tuple = (0, 0, 14261)
+data_version_str = "0.0.post14263"
+data_version_tuple = (0, 0, 14263)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14261")
+    pdata_version = V("0.0.post14263")
 except ImportError:
     pass
-data_git_hash = "0306ab20de0ccc13b6154821f387010613d2c853"
-data_git_describe = "v0.0-14261-g0306ab20de"
+data_git_hash = "45c4af7f7897731fed233e17500a888b97b8bc98"
+data_git_describe = "v0.0-14263-g45c4af7f78"
 data_git_msg = """\
-commit 0306ab20de0ccc13b6154821f387010613d2c853
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Fri Sep 23 11:50:38 2022 -0400
+commit 45c4af7f7897731fed233e17500a888b97b8bc98
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Sep 23 08:57:19 2022 -0700
 
-    [bazel] Reduce scope of Bazel repo clone for airgapped dir
+    [dv/shadow_reg] Update comment
     
-    Prior to this change, we cloned the entire Bazel repo and it took ~40
-    seconds on my machine. Cloning only the tag that we want, with a depth
-    of 1, brings that down to ~9 seconds, for a total saving of ~31 seconds.
+    This PR updates a comment in shadow reg RAL prediction.
+    The comment mentioned the update condition is during the update error,
+    which is incorrect.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
