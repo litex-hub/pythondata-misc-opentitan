@@ -4,46 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14387"
-version_tuple = (0, 0, 14387)
+version_str = "0.0.post14390"
+version_tuple = (0, 0, 14390)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14387")
+    pversion = V("0.0.post14390")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14245"
-data_version_tuple = (0, 0, 14245)
+data_version_str = "0.0.post14248"
+data_version_tuple = (0, 0, 14248)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14245")
+    pdata_version = V("0.0.post14248")
 except ImportError:
     pass
-data_git_hash = "8bf8012ef4548b7b783ee50a7b81c37107c8f18d"
-data_git_describe = "v0.0-14245-g8bf8012ef4"
+data_git_hash = "be4132c4f87303e9bb83c81e6fc38b40a1716132"
+data_git_describe = "v0.0-14248-gbe4132c4f8"
 data_git_msg = """\
-commit 8bf8012ef4548b7b783ee50a7b81c37107c8f18d
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Fri Sep 16 10:46:50 2022 -0400
+commit be4132c4f87303e9bb83c81e6fc38b40a1716132
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Sep 22 13:29:39 2022 -0700
 
-    [i2c dif] Add headers for functions to control i2c device in the dif
+    [i2c/dv] update scoreboard handling for chained reads
     
-    * Changed documentation references to consistently refer to FMT and RX
-      buffers as FIFOs when applying names and short descriptions
-    * Added a documentation referring to ability to reset the I2C block
-      (because it might be useful)
-    * Changed documentation references to RESTART to repeated START to
-      make them more consistent with I2C standards
-    * Annotated states with Shared, host and device mode to help track
-      which features acted in which modes
-    * Updated header for i2c_dif to support device mode and clarify
-      which registers control which modes
-    * corrected FIFO references in device tx rx test portion of
-      testplan and added requirement to perform an I2C read
-    * fixed i2c_dif_unittest that swapped rx and fmt fifo levels
+    - fixes #14990
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
