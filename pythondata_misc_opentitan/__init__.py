@@ -4,36 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14405"
-version_tuple = (0, 0, 14405)
+version_str = "0.0.post14408"
+version_tuple = (0, 0, 14408)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14405")
+    pversion = V("0.0.post14408")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14263"
-data_version_tuple = (0, 0, 14263)
+data_version_str = "0.0.post14266"
+data_version_tuple = (0, 0, 14266)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14263")
+    pdata_version = V("0.0.post14266")
 except ImportError:
     pass
-data_git_hash = "45c4af7f7897731fed233e17500a888b97b8bc98"
-data_git_describe = "v0.0-14263-g45c4af7f78"
+data_git_hash = "548339fb986cfb705d13541cc5083db07d4450e5"
+data_git_describe = "v0.0-14266-g548339fb98"
 data_git_msg = """\
-commit 45c4af7f7897731fed233e17500a888b97b8bc98
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Sep 23 08:57:19 2022 -0700
+commit 548339fb986cfb705d13541cc5083db07d4450e5
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Thu Sep 22 11:43:05 2022 -0400
 
-    [dv/shadow_reg] Update comment
+    [bazel] Add 'build-then' command to bazelisk.sh
     
-    This PR updates a comment in shadow reg RAL prediction.
-    The comment mentioned the update condition is during the update error,
-    which is incorrect.
+    This is just a convenience feature that makes it easier to build a
+    target and then do something with the output files.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    I found myself frequently building disassemblies, using "./bazelisk.sh
+    outquery" to find the filename, and then opening the output file in
+    "less". This workflow can now be accomplished with a command like this:
+    
+        ./bazelisk.sh build-then "less %s" //sw/device/silicon_creator/rom:rom_fpga_cw310_dis
+    
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
