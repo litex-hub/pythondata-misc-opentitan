@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14402"
-version_tuple = (0, 0, 14402)
+version_str = "0.0.post14403"
+version_tuple = (0, 0, 14403)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14402")
+    pversion = V("0.0.post14403")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14260"
-data_version_tuple = (0, 0, 14260)
+data_version_str = "0.0.post14261"
+data_version_tuple = (0, 0, 14261)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14260")
+    pdata_version = V("0.0.post14261")
 except ImportError:
     pass
-data_git_hash = "a3f32c34d8121f811d1f7ae367facc50c2b46195"
-data_git_describe = "v0.0-14260-ga3f32c34d8"
+data_git_hash = "0306ab20de0ccc13b6154821f387010613d2c853"
+data_git_describe = "v0.0-14261-g0306ab20de"
 data_git_msg = """\
-commit a3f32c34d8121f811d1f7ae367facc50c2b46195
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Sep 21 22:45:45 2022 -0700
+commit 0306ab20de0ccc13b6154821f387010613d2c853
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Fri Sep 23 11:50:38 2022 -0400
 
-    [chip, dv] chip_sw_rv_dm_jtag_tap_sel
+    [bazel] Reduce scope of Bazel repo clone for airgapped dir
     
-    It's a subset of chip_sw_tap_strap_sampling.
+    Prior to this change, we cloned the entire Bazel repo and it took ~40
+    seconds on my machine. Cloning only the tag that we want, with a depth
+    of 1, brings that down to ~9 seconds, for a total saving of ~31 seconds.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
