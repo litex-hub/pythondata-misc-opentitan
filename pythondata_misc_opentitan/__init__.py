@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14408"
-version_tuple = (0, 0, 14408)
+version_str = "0.0.post14415"
+version_tuple = (0, 0, 14415)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14408")
+    pversion = V("0.0.post14415")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14266"
-data_version_tuple = (0, 0, 14266)
+data_version_str = "0.0.post14273"
+data_version_tuple = (0, 0, 14273)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14266")
+    pdata_version = V("0.0.post14273")
 except ImportError:
     pass
-data_git_hash = "548339fb986cfb705d13541cc5083db07d4450e5"
-data_git_describe = "v0.0-14266-g548339fb98"
+data_git_hash = "652feab098227e4d13442a54b292a9077422e193"
+data_git_describe = "v0.0-14273-g652feab098"
 data_git_msg = """\
-commit 548339fb986cfb705d13541cc5083db07d4450e5
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Thu Sep 22 11:43:05 2022 -0400
+commit 652feab098227e4d13442a54b292a9077422e193
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Sep 22 21:22:44 2022 -0700
 
-    [bazel] Add 'build-then' command to bazelisk.sh
+    [spi_device/dv] Rename tpm_read_vseq -> tpm_rw_vseq
     
-    This is just a convenience feature that makes it easier to build a
-    target and then do something with the output files.
-    
-    I found myself frequently building disassemblies, using "./bazelisk.sh
-    outquery" to find the filename, and then opening the output file in
-    "less". This workflow can now be accomplished with a command like this:
-    
-        ./bazelisk.sh build-then "less %s" //sw/device/silicon_creator/rom:rom_fpga_cw310_dis
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
