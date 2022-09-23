@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14399"
-version_tuple = (0, 0, 14399)
+version_str = "0.0.post14402"
+version_tuple = (0, 0, 14402)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14399")
+    pversion = V("0.0.post14402")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14257"
-data_version_tuple = (0, 0, 14257)
+data_version_str = "0.0.post14260"
+data_version_tuple = (0, 0, 14260)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14257")
+    pdata_version = V("0.0.post14260")
 except ImportError:
     pass
-data_git_hash = "3603770f9085310a39aac00455d4fecde6bf7826"
-data_git_describe = "v0.0-14257-g3603770f90"
+data_git_hash = "a3f32c34d8121f811d1f7ae367facc50c2b46195"
+data_git_describe = "v0.0-14260-ga3f32c34d8"
 data_git_msg = """\
-commit 3603770f9085310a39aac00455d4fecde6bf7826
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Tue Sep 13 09:48:26 2022 +0100
+commit a3f32c34d8121f811d1f7ae367facc50c2b46195
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Sep 21 22:45:45 2022 -0700
 
-    [otbn,dv] Update testplan for countermeasures
+    [chip, dv] chip_sw_rv_dm_jtag_tap_sel
     
-    With PR #14322 *.SCA and *.SEC_WIPE countermeasures can be considered
-    verified with the assertions.
+    It's a subset of chip_sw_tap_strap_sampling.
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
