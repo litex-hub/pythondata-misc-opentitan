@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14429"
-version_tuple = (0, 0, 14429)
+version_str = "0.0.post14430"
+version_tuple = (0, 0, 14430)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14429")
+    pversion = V("0.0.post14430")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14287"
-data_version_tuple = (0, 0, 14287)
+data_version_str = "0.0.post14288"
+data_version_tuple = (0, 0, 14288)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14287")
+    pdata_version = V("0.0.post14288")
 except ImportError:
     pass
-data_git_hash = "ee392e02414608c7ccacb2fde6f132a728614267"
-data_git_describe = "v0.0-14287-gee392e0241"
+data_git_hash = "0c214bdb36ac9d76b05078a1813d10034b4d27e7"
+data_git_describe = "v0.0-14288-g0c214bdb36"
 data_git_msg = """\
-commit ee392e02414608c7ccacb2fde6f132a728614267
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Sat Sep 24 06:10:02 2022 +0000
+commit 0c214bdb36ac9d76b05078a1813d10034b4d27e7
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Thu Sep 22 21:23:40 2022 +0000
 
-    [bazel] rollback #15119
+    [flash_ctrl,dv] general filesystem support test
     
-    Rolling back #15119, as this did not fix bazel airgapped builds.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
