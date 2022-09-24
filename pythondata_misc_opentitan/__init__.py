@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14416"
-version_tuple = (0, 0, 14416)
+version_str = "0.0.post14422"
+version_tuple = (0, 0, 14422)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14416")
+    pversion = V("0.0.post14422")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14274"
-data_version_tuple = (0, 0, 14274)
+data_version_str = "0.0.post14280"
+data_version_tuple = (0, 0, 14280)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14274")
+    pdata_version = V("0.0.post14280")
 except ImportError:
     pass
-data_git_hash = "40ac0e7b8706ab20743cb23ccc4b518901b82832"
-data_git_describe = "v0.0-14274-g40ac0e7b87"
+data_git_hash = "5ca06aa40bc864f0b903da1cebb0013a842ec08c"
+data_git_describe = "v0.0-14280-g5ca06aa40b"
 data_git_msg = """\
-commit 40ac0e7b8706ab20743cb23ccc4b518901b82832
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Sep 21 11:40:11 2022 -0700
+commit 5ca06aa40bc864f0b903da1cebb0013a842ec08c
+Author: Eli Kim <eli@opentitan.org>
+Date:   Thu Sep 22 09:14:27 2022 -0700
 
-    [ottool] Fix invocations of `opentitantool` by bazel
+    doc(chip): Revise testplan to cover any sleep modes.
     
-    Invocations of `opentitantool` under bazel automation should always
-    include `--rcfile=` to prevent parsing the user's local configuration.
+    To cover `chip_sw_random_sleep_pin_wake` test, the
+    `chip_sw_sleep_pin_wake` covers normal sleep mode too. This commit
+    revises the testplan to mention the deep/ normal sleep states.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
