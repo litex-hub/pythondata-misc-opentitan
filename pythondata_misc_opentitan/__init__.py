@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14424"
-version_tuple = (0, 0, 14424)
+version_str = "0.0.post14429"
+version_tuple = (0, 0, 14429)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14424")
+    pversion = V("0.0.post14429")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14282"
-data_version_tuple = (0, 0, 14282)
+data_version_str = "0.0.post14287"
+data_version_tuple = (0, 0, 14287)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14282")
+    pdata_version = V("0.0.post14287")
 except ImportError:
     pass
-data_git_hash = "9559b249c741b8e2302cf278c0d4efbd108d9d6e"
-data_git_describe = "v0.0-14282-g9559b249c7"
+data_git_hash = "ee392e02414608c7ccacb2fde6f132a728614267"
+data_git_describe = "v0.0-14287-gee392e0241"
 data_git_msg = """\
-commit 9559b249c741b8e2302cf278c0d4efbd108d9d6e
-Author: Eli Kim <eli@opentitan.org>
-Date:   Sat Sep 24 04:05:27 2022 +0000
+commit ee392e02414608c7ccacb2fde6f132a728614267
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Sat Sep 24 06:10:02 2022 +0000
 
-    fix(bazel): Bazel airgapped environment
+    [bazel] rollback #15119
     
-    PR #15044 did not update bazel airgap environment prep script.
+    Rolling back #15119, as this did not fix bazel airgapped builds.
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
