@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14423"
-version_tuple = (0, 0, 14423)
+version_str = "0.0.post14424"
+version_tuple = (0, 0, 14424)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14423")
+    pversion = V("0.0.post14424")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14281"
-data_version_tuple = (0, 0, 14281)
+data_version_str = "0.0.post14282"
+data_version_tuple = (0, 0, 14282)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14281")
+    pdata_version = V("0.0.post14282")
 except ImportError:
     pass
-data_git_hash = "f3b5cf89960dc332e12fbe4cb1e04e1b8aa7aa67"
-data_git_describe = "v0.0-14281-gf3b5cf8996"
+data_git_hash = "9559b249c741b8e2302cf278c0d4efbd108d9d6e"
+data_git_describe = "v0.0-14282-g9559b249c7"
 data_git_msg = """\
-commit f3b5cf89960dc332e12fbe4cb1e04e1b8aa7aa67
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Sep 23 16:06:55 2022 -0700
+commit 9559b249c741b8e2302cf278c0d4efbd108d9d6e
+Author: Eli Kim <eli@opentitan.org>
+Date:   Sat Sep 24 04:05:27 2022 +0000
 
-    [entropy_src/dv] VCS compatibility
+    fix(bazel): Bazel airgapped environment
     
-    Minor VCS-related bug fix
+    PR #15044 did not update bazel airgap environment prep script.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
