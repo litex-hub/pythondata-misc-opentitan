@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14432"
-version_tuple = (0, 0, 14432)
+version_str = "0.0.post14434"
+version_tuple = (0, 0, 14434)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14432")
+    pversion = V("0.0.post14434")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14290"
-data_version_tuple = (0, 0, 14290)
+data_version_str = "0.0.post14292"
+data_version_tuple = (0, 0, 14292)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14290")
+    pdata_version = V("0.0.post14292")
 except ImportError:
     pass
-data_git_hash = "f2a41db4f41ef6fe666c47340c3dc47b3e7169bc"
-data_git_describe = "v0.0-14290-gf2a41db4f4"
+data_git_hash = "955d57a70b66373c08cbe575de83c4754315bc8a"
+data_git_describe = "v0.0-14292-g955d57a70b"
 data_git_msg = """\
-commit f2a41db4f41ef6fe666c47340c3dc47b3e7169bc
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Mon Sep 26 08:57:55 2022 +0000
+commit 955d57a70b66373c08cbe575de83c4754315bc8a
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Sep 16 14:27:24 2022 +0200
 
-    [otbn,dv] Initialize `insn_addr_cg`
+    [otbn, util] Modify otbn_sim_test rule to use new wrapper.
     
-    This covergroup had not been initialized prior to this commit, so calls
-    to `sample()` would result in an error.  This likely caused the last two
-    OTBN nightly regression runs to fail.
+    Use the new OTBN simulator test wrapper in the otbn_sim_test Bazel rule.
+    For compatibility with existing tests, this version simply always sets
+    the expected values to "w0=0"; future updates will create specific
+    expected-values files for each test.
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
