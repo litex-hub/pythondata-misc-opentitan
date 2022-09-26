@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14438"
-version_tuple = (0, 0, 14438)
+version_str = "0.0.post14439"
+version_tuple = (0, 0, 14439)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14438")
+    pversion = V("0.0.post14439")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14296"
-data_version_tuple = (0, 0, 14296)
+data_version_str = "0.0.post14297"
+data_version_tuple = (0, 0, 14297)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14296")
+    pdata_version = V("0.0.post14297")
 except ImportError:
     pass
-data_git_hash = "fcefd065d4c444f090b42534cd19d7511950f538"
-data_git_describe = "v0.0-14296-gfcefd065d4"
+data_git_hash = "c43e2906516442dec36022f101e109c050d2dd69"
+data_git_describe = "v0.0-14297-gc43e290651"
 data_git_msg = """\
-commit fcefd065d4c444f090b42534cd19d7511950f538
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Sep 23 16:19:27 2022 -0700
+commit c43e2906516442dec36022f101e109c050d2dd69
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Sep 23 15:34:53 2022 +0200
 
-    [spi_device/dv] Update TPM sequences
+    [rv_core_ibex] Add SVA to check PC is not advancing
     
-    1. Update locality sequence to use the new method
-    2. Remove csb_consecutive and clean up used task/functions
+    The PC must not advance if the CPU is not enabled.
+    Addresses part of #11208.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
