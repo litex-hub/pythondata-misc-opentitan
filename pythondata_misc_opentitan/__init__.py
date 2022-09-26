@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14430"
-version_tuple = (0, 0, 14430)
+version_str = "0.0.post14432"
+version_tuple = (0, 0, 14432)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14430")
+    pversion = V("0.0.post14432")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14288"
-data_version_tuple = (0, 0, 14288)
+data_version_str = "0.0.post14290"
+data_version_tuple = (0, 0, 14290)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14288")
+    pdata_version = V("0.0.post14290")
 except ImportError:
     pass
-data_git_hash = "0c214bdb36ac9d76b05078a1813d10034b4d27e7"
-data_git_describe = "v0.0-14288-g0c214bdb36"
+data_git_hash = "f2a41db4f41ef6fe666c47340c3dc47b3e7169bc"
+data_git_describe = "v0.0-14290-gf2a41db4f4"
 data_git_msg = """\
-commit 0c214bdb36ac9d76b05078a1813d10034b4d27e7
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Thu Sep 22 21:23:40 2022 +0000
+commit f2a41db4f41ef6fe666c47340c3dc47b3e7169bc
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Mon Sep 26 08:57:55 2022 +0000
 
-    [flash_ctrl,dv] general filesystem support test
+    [otbn,dv] Initialize `insn_addr_cg`
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This covergroup had not been initialized prior to this commit, so calls
+    to `sample()` would result in an error.  This likely caused the last two
+    OTBN nightly regression runs to fail.
+    
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
