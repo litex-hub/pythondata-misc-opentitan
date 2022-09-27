@@ -4,46 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14441"
-version_tuple = (0, 0, 14441)
+version_str = "0.0.post14448"
+version_tuple = (0, 0, 14448)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14441")
+    pversion = V("0.0.post14448")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14299"
-data_version_tuple = (0, 0, 14299)
+data_version_str = "0.0.post14306"
+data_version_tuple = (0, 0, 14306)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14299")
+    pdata_version = V("0.0.post14306")
 except ImportError:
     pass
-data_git_hash = "6028b2035db694e9f77517dcd7e0dedaa632a7c5"
-data_git_describe = "v0.0-14299-g6028b2035d"
+data_git_hash = "f1b87a7786f602bf223cbb41a71e543e34205f93"
+data_git_describe = "v0.0-14306-gf1b87a7786"
 data_git_msg = """\
-commit 6028b2035db694e9f77517dcd7e0dedaa632a7c5
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Sep 23 15:02:06 2022 -0700
+commit f1b87a7786f602bf223cbb41a71e543e34205f93
+Author: Joshua Park <jeoong@google.com>
+Date:   Wed Sep 21 17:15:19 2022 -0700
 
-    [i2c] fix how sda_interference is detected.
+    [DV|CSR BIT BASH] Excluded two watermark RO registers
     
-    - fixes #15067
-    - instead of checking the input value immediately after changing
-      sda, we instead wait through the rise time and sychronization delays.
-    - After waiting through that delay, if the input does not match the
-      output, then assert sda interference.
+    - watermarks (RD CSR) is updated by internal HW when reg2hw.health_test_window.fips_window is updated multiple times like a sweep test. When it is written by 0, the watermark is also cleared to 0.
     
-    In the process of making this fix, the fsm was simplified a tiny bit
-    on the host side.  The SetupBit states were removed since they do not
-    serve any function.  There is no need for the host to wait until the
-    setup window before driving its output.
-    
-    Additioanlly, minor fixes were made to the testbench to correct some
-    of the ack and nak sampling behavior.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Joshua Park <jeoong@google.com>
 
 """
 
