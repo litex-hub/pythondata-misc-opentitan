@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14448"
-version_tuple = (0, 0, 14448)
+version_str = "0.0.post14449"
+version_tuple = (0, 0, 14449)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14448")
+    pversion = V("0.0.post14449")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14306"
-data_version_tuple = (0, 0, 14306)
+data_version_str = "0.0.post14307"
+data_version_tuple = (0, 0, 14307)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14306")
+    pdata_version = V("0.0.post14307")
 except ImportError:
     pass
-data_git_hash = "f1b87a7786f602bf223cbb41a71e543e34205f93"
-data_git_describe = "v0.0-14306-gf1b87a7786"
+data_git_hash = "eb59b2bce0a5b6fe15337dfea8602a15ba085d3c"
+data_git_describe = "v0.0-14307-geb59b2bce0"
 data_git_msg = """\
-commit f1b87a7786f602bf223cbb41a71e543e34205f93
-Author: Joshua Park <jeoong@google.com>
-Date:   Wed Sep 21 17:15:19 2022 -0700
+commit eb59b2bce0a5b6fe15337dfea8602a15ba085d3c
+Author: Cindy <chencindy@google.com>
+Date:   Tue Sep 27 01:08:23 2022 +0000
 
-    [DV|CSR BIT BASH] Excluded two watermark RO registers
+    [dv/kmac] Add service rejected error
     
-    - watermarks (RD CSR) is updated by internal HW when reg2hw.health_test_window.fips_window is updated multiple times like a sweep test. When it is written by 0, the watermark is also cleared to 0.
+    This PR adds a service rejected error check in kmac app interface.
+    Once issue #15140 is resolved, we will add the similar cases for sw
+    interface.
     
-    Signed-off-by: Joshua Park <jeoong@google.com>
+    Signed-off-by: Cindy <chencindy@google.com>
 
 """
 
