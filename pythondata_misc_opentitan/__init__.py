@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14458"
-version_tuple = (0, 0, 14458)
+version_str = "0.0.post14461"
+version_tuple = (0, 0, 14461)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14458")
+    pversion = V("0.0.post14461")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14316"
-data_version_tuple = (0, 0, 14316)
+data_version_str = "0.0.post14319"
+data_version_tuple = (0, 0, 14319)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14316")
+    pdata_version = V("0.0.post14319")
 except ImportError:
     pass
-data_git_hash = "81dec1a1c64a8048560c501c4dfd184c9872bd4b"
-data_git_describe = "v0.0-14316-g81dec1a1c6"
+data_git_hash = "b40e28862c7f82b149d7f233bedb211366a58fa8"
+data_git_describe = "v0.0-14319-gb40e28862c"
 data_git_msg = """\
-commit 81dec1a1c64a8048560c501c4dfd184c9872bd4b
-Author: Cindy <chencindy@google.com>
-Date:   Tue Sep 27 18:10:11 2022 +0000
+commit b40e28862c7f82b149d7f233bedb211366a58fa8
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Sep 26 16:54:29 2022 -0700
 
-    [dv/kmac] Enhance lc_escalation test
+    [spi_device/dv] Update monitor for TPM mode
     
-    FSM coverage is low for kmac due to the transaction to lc_escalation
-    stage.
-    This PR adds more possibility for DUT to issue lc_escalation during kmac
-    busy.
+    1. small refactor to reuse the part that kills threads after CSR drops
+    2. Completed `collect_tpm_trans` task
+    3. Renamed a few task as they can be reused for TPM mode
     
-    Signed-off-by: Cindy <chencindy@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
