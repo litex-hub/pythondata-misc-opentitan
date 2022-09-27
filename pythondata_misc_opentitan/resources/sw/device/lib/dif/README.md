@@ -20,7 +20,7 @@ libraries.
 
 There is one DIF library per hardware IP, and each one contains the DIFs
 required to actuate all of the specification-required functionality of the
-hardware they are written for. 
+hardware they are written for.
 
 Each DIF library contains both auto-generated (which are checked-in to our
 repository under the `autogen/` subtree), and manually-implemented DIFs (which
@@ -42,7 +42,7 @@ be subsequently edited. Specifically, the script will create:
   `util/make_new_dif/templates/dif_autogen_unittest.cc.tpl`.
 2. boilerplate templates (that should be manually edited/enhanced) for the
    the portion of the IP DIF library that is manually implemented, including:
-  * a (public) header for the DIF, based on 
+  * a (public) header for the DIF, based on
   `util/make_new_dif/templates/dif_template.h.tpl`], and
   * a checklist for the DIF, based on `doc/project/sw_checklist.md.tpl`.
 
@@ -138,7 +138,7 @@ The base types defined in `sw/device/lib/dif/dif_base.h` include:
 
 The base types that are expected to be defined separately by all DIF libraries
 include:
-* `dif_<ip>_t` -- an **auto-generated** type representing a handle to the 
+* `dif_<ip>_t` -- an **auto-generated** type representing a handle to the
   peripheral. Its first (and only) field is always the base address for the
   peripheral registers, styled `mmio_region_t base_addr;`.
   This type is usually passed by `const` pointer, except when it is
@@ -173,7 +173,7 @@ are **manually-implemented**.
 * `dif_<ip>_transaction_t` is a struct representing runtime parameters for
   starting a hardware transaction. It is only present when `dif_<ip>_start()` is
   defined. This type is always passed by value. A DIF library my opt to use
-  another pre-existing type instead, when that type provides a more semanticly
+  another pre-existing type instead, when that type provides a more semantically
   appropriate meaning.
 * `dif_<ip>_output_t` is a struct describing how to output a completed
   transaction. Often, this will be a type like `uint8_t *`. The same caveats
@@ -195,7 +195,7 @@ dif_result_t dif_<ip>_mode_<mode>_end(const dif_<ip>_t *handle,
 ```
 There is no requirement that `_start()` and `_end()` share the same set of
 `<mode>`s; for example, there might be a single `dif_<ip>_start()` but many
-`dif_<ip>_mode_<mode>_end()`s. This style of API is prefered over using
+`dif_<ip>_mode_<mode>_end()`s. This style of API is preferred over using
 `union`s with `dif_<ip>_transaction_t` and `dif_<ip>_output_t`.
 
 #### Register Locking
@@ -223,7 +223,7 @@ for interrupt management. A DIF library for a peripheral providing such
 registers must provide this interface. To ensure this, all interrupt DIFs,
 including: headers, (C) implementations, and unit tests, are *auto-generated* from
 templates and an IP's HJSON configuration file using the `util/make_new_dif.py`
-tool (decribed above).
+tool (described above).
 
 If a peripheral is defined with `no_auto_intr_regs: true`, this exact API is not
 required even if the `INTR_` registers are provided (though DIF libraries are
@@ -231,16 +231,16 @@ encouraged to follow it where it makes sense). _In these cases, auto-generated
 interrupt DIFs may not exist._
 
 * `dif_<ip>_irq_t` is an enum that lists all of the interrupt types for this
-  peripheral. These derrived from the `interrupt_list` attribute within an IP's
+  peripheral. These derived from the `interrupt_list` attribute within an IP's
   HJSON file.
-* `dif_result_t dif_<ip>_irq_get_state(const dif_<ip>_t *handle, 
+* `dif_result_t dif_<ip>_irq_get_state(const dif_<ip>_t *handle,
   dif_<ip>_irq_state_snapshot_t *snapshot, bool *is_pending);` returns a
   snapshot of the entire interrupt state register, to check the status of all
-  interrupts for a peripheral. 
+  interrupts for a peripheral.
 * `dif_result_t dif_<ip>_irq_is_pending(const dif_<ip>_t *handle, dif_<ip>_irq_t
   irq, bool *is_pending);` checks whether a specific interrupt is
   pending (i.e., if the interrupt has been asserted but not yet cleared).
-* `dif_result_t dif_<ip>_irq_acknowledge_all(const dif_<ip>_t *handle);` 
+* `dif_result_t dif_<ip>_irq_acknowledge_all(const dif_<ip>_t *handle);`
   acknowledges all interrupts have been serviced, marking them as
   complete by clearing all pending bits. This function does nothing and returns
   `kDifOk` if no interrupts were pending.
