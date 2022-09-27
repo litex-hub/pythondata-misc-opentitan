@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14449"
-version_tuple = (0, 0, 14449)
+version_str = "0.0.post14450"
+version_tuple = (0, 0, 14450)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14449")
+    pversion = V("0.0.post14450")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14307"
-data_version_tuple = (0, 0, 14307)
+data_version_str = "0.0.post14308"
+data_version_tuple = (0, 0, 14308)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14307")
+    pdata_version = V("0.0.post14308")
 except ImportError:
     pass
-data_git_hash = "eb59b2bce0a5b6fe15337dfea8602a15ba085d3c"
-data_git_describe = "v0.0-14307-geb59b2bce0"
+data_git_hash = "f781bc270191c7ce152ddc55618ea36d992abb31"
+data_git_describe = "v0.0-14308-gf781bc2701"
 data_git_msg = """\
-commit eb59b2bce0a5b6fe15337dfea8602a15ba085d3c
-Author: Cindy <chencindy@google.com>
-Date:   Tue Sep 27 01:08:23 2022 +0000
+commit f781bc270191c7ce152ddc55618ea36d992abb31
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Sep 26 15:39:08 2022 -0700
 
-    [dv/kmac] Add service rejected error
+    [spi_device] Update max_rd_size to 64 bytes
     
-    This PR adds a service rejected error check in kmac app interface.
-    Once issue #15140 is resolved, we will add the similar cases for sw
-    interface.
+    Also update the corresponding parameter in TB
     
-    Signed-off-by: Cindy <chencindy@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
