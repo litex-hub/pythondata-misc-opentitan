@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "sw/device/lib/arch/device.h"
+#include "sw/device/lib/base/abs_mmio.h"
+#include "sw/device/lib/base/bitfield.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/dif/dif_base.h"
 #include "sw/device/lib/dif/dif_clkmgr.h"
@@ -25,7 +27,9 @@
 #include "sw/device/silicon_creator/lib/manifest.h"
 #include "sw/device/silicon_creator/rom/bootstrap.h"
 
+#include "flash_ctrl_regs.h"
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"  // Generated.
+#include "otp_ctrl_regs.h"
 
 /**
  * This symbol is defined in `sw/device/lib/testing/test_rom/test_rom.ld`,
@@ -122,7 +126,33 @@ bool rom_test_main(void) {
     LOG_INFO("Jitter is enabled");
   }
 
+#if !OT_IS_ENGLISH_BREAKFAST
+  // Check the otp to see if flash scramble should be enabled.
+  uint32_t otp_val;
+  otp_val = abs_mmio_read32(
+      TOP_EARLGREY_OTP_CTRL_CORE_BASE_ADDR + OTP_CTRL_SW_CFG_WINDOW_REG_OFFSET +
+      OTP_CTRL_PARAM_CREATOR_SW_CFG_FLASH_DATA_DEFAULT_CFG_OFFSET);
+
+  // TODO: This section needs to be updated based on the discussion in #15035
+  if (otp_val != 0) {
+    LOG_INFO("Default flash settings have been supplied through otp 0x%x",
+             otp_val);
+
+    dif_flash_ctrl_region_properties_t default_properties;
+    CHECK_DIF_OK(dif_flash_ctrl_get_default_region_properties(
+        &flash_ctrl, &default_properties));
+    default_properties.scramble_en = bitfield_field32_read(
+        otp_val, FLASH_CTRL_DEFAULT_REGION_SCRAMBLE_EN_FIELD);
+    CHECK_DIF_OK(dif_flash_ctrl_set_default_region_properties(
+        &flash_ctrl, default_properties));
+  }
+#endif
+
   if (bootstrap_requested() == kHardenedBoolTrue) {
+    // This log statement is used to synchronize the rom and DV testbench
+    // for specific test cases.
+    LOG_INFO("Boot strap requested");
+
     rom_error_t bootstrap_err = bootstrap();
     if (bootstrap_err != kErrorOk) {
       LOG_ERROR("Bootstrap failed with status code: %08x",
