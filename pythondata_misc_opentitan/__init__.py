@@ -4,36 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14440"
-version_tuple = (0, 0, 14440)
+version_str = "0.0.post14441"
+version_tuple = (0, 0, 14441)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14440")
+    pversion = V("0.0.post14441")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14298"
-data_version_tuple = (0, 0, 14298)
+data_version_str = "0.0.post14299"
+data_version_tuple = (0, 0, 14299)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14298")
+    pdata_version = V("0.0.post14299")
 except ImportError:
     pass
-data_git_hash = "5b95d019b95423b14e590a285475abf4d99c50f6"
-data_git_describe = "v0.0-14298-g5b95d019b9"
+data_git_hash = "6028b2035db694e9f77517dcd7e0dedaa632a7c5"
+data_git_describe = "v0.0-14299-g6028b2035d"
 data_git_msg = """\
-commit 5b95d019b95423b14e590a285475abf4d99c50f6
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Sep 19 13:35:35 2022 -0700
+commit 6028b2035db694e9f77517dcd7e0dedaa632a7c5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Sep 23 15:02:06 2022 -0700
 
-    [dv/rstmgr] Fix dv for recent changes in reset
+    [i2c] fix how sda_interference is detected.
     
-    The recent RTL changes required big changes in the dv environment.
-    This change disables non-aon clocks upon reset, and improves the
-    flow of reset stimulus.
+    - fixes #15067
+    - instead of checking the input value immediately after changing
+      sda, we instead wait through the rise time and sychronization delays.
+    - After waiting through that delay, if the input does not match the
+      output, then assert sda interference.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    In the process of making this fix, the fsm was simplified a tiny bit
+    on the host side.  The SetupBit states were removed since they do not
+    serve any function.  There is no need for the host to wait until the
+    setup window before driving its output.
+    
+    Additioanlly, minor fixes were made to the testbench to correct some
+    of the ack and nak sampling behavior.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
