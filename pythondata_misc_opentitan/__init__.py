@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14457"
-version_tuple = (0, 0, 14457)
+version_str = "0.0.post14458"
+version_tuple = (0, 0, 14458)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14457")
+    pversion = V("0.0.post14458")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14315"
-data_version_tuple = (0, 0, 14315)
+data_version_str = "0.0.post14316"
+data_version_tuple = (0, 0, 14316)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14315")
+    pdata_version = V("0.0.post14316")
 except ImportError:
     pass
-data_git_hash = "e424b2567b62e8a7b9b16dfb251456da3433fd31"
-data_git_describe = "v0.0-14315-ge424b2567b"
+data_git_hash = "81dec1a1c64a8048560c501c4dfd184c9872bd4b"
+data_git_describe = "v0.0-14316-g81dec1a1c6"
 data_git_msg = """\
-commit e424b2567b62e8a7b9b16dfb251456da3433fd31
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Tue Sep 27 12:52:20 2022 -0400
+commit 81dec1a1c64a8048560c501c4dfd184c9872bd4b
+Author: Cindy <chencindy@google.com>
+Date:   Tue Sep 27 18:10:11 2022 +0000
 
-    [doc] s/Understaning/Understanding/ in _index.md
+    [dv/kmac] Enhance lc_escalation test
     
-    lowRISC/opentitan#14805
+    FSM coverage is low for kmac due to the transaction to lc_escalation
+    stage.
+    This PR adds more possibility for DUT to issue lc_escalation during kmac
+    busy.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy <chencindy@google.com>
 
 """
 
