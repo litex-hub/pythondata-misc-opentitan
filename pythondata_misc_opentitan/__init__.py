@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14450"
-version_tuple = (0, 0, 14450)
+version_str = "0.0.post14451"
+version_tuple = (0, 0, 14451)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14450")
+    pversion = V("0.0.post14451")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14308"
-data_version_tuple = (0, 0, 14308)
+data_version_str = "0.0.post14309"
+data_version_tuple = (0, 0, 14309)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14308")
+    pdata_version = V("0.0.post14309")
 except ImportError:
     pass
-data_git_hash = "f781bc270191c7ce152ddc55618ea36d992abb31"
-data_git_describe = "v0.0-14308-gf781bc2701"
+data_git_hash = "75e9c17354d9c01aa257b2e2996c1b635c5a003e"
+data_git_describe = "v0.0-14309-g75e9c17354"
 data_git_msg = """\
-commit f781bc270191c7ce152ddc55618ea36d992abb31
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Sep 26 15:39:08 2022 -0700
+commit 75e9c17354d9c01aa257b2e2996c1b635c5a003e
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Sep 23 14:20:14 2022 -0700
 
-    [spi_device] Update max_rd_size to 64 bytes
+    [rom/e2e] add smoke testpoint and map unmapped test in DV
     
-    Also update the corresponding parameter in TB
+    The simplest of ROM E2E tests, that checked if ROM could successfully
+    boot and execute a test (that simple returned `true`) via the OTTF using
+    default test infrastructure configurations, was running in DV but was
+    not mapped to a test point in the ROM E2E testplan. This adds a
+    testpoint for said test and fixes #14679.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
