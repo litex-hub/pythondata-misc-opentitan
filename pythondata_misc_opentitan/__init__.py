@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14484"
-version_tuple = (0, 0, 14484)
+version_str = "0.0.post14486"
+version_tuple = (0, 0, 14486)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14484")
+    pversion = V("0.0.post14486")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14342"
-data_version_tuple = (0, 0, 14342)
+data_version_str = "0.0.post14344"
+data_version_tuple = (0, 0, 14344)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14342")
+    pdata_version = V("0.0.post14344")
 except ImportError:
     pass
-data_git_hash = "87ad4f063e9f06a978922ecdc251fc088845f6d9"
-data_git_describe = "v0.0-14342-g87ad4f063e"
+data_git_hash = "7550a3512290c3c4df978fcc70112b787c963076"
+data_git_describe = "v0.0-14344-g7550a35122"
 data_git_msg = """\
-commit 87ad4f063e9f06a978922ecdc251fc088845f6d9
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Sep 27 15:02:45 2022 -0700
+commit 7550a3512290c3c4df978fcc70112b787c963076
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Sep 27 17:51:44 2022 -0700
 
-    refactor(dvsim): Remove `verdi` checker
+    [bazel] remove unused build targets
     
-    dvsim checks if `verdi` tool is searchable to dump `.fsdb` waveform.
-    However, it is not applicable if dvsim launches the task to LSF or cloud
-    farm.
+    It looks like these build targets are unused / unnecessary as they are
+    file groups that export a single target that could each be used
+    directly.
     
-    This commit removes the checker and let users to specify the waveform
-    type with `-w {type}` argument.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
