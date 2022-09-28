@@ -4,38 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14475"
-version_tuple = (0, 0, 14475)
+version_str = "0.0.post14481"
+version_tuple = (0, 0, 14481)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14475")
+    pversion = V("0.0.post14481")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14333"
-data_version_tuple = (0, 0, 14333)
+data_version_str = "0.0.post14339"
+data_version_tuple = (0, 0, 14339)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14333")
+    pdata_version = V("0.0.post14339")
 except ImportError:
     pass
-data_git_hash = "00cd9905a54c30132213247161570efae2d24447"
-data_git_describe = "v0.0-14333-g00cd9905a5"
+data_git_hash = "81118ff4ed767b6ecdbe78e56f34ba20658a05e7"
+data_git_describe = "v0.0-14339-g81118ff4ed"
 data_git_msg = """\
-commit 00cd9905a54c30132213247161570efae2d24447
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Sep 27 22:56:34 2022 -0700
+commit 81118ff4ed767b6ecdbe78e56f34ba20658a05e7
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Mon Sep 19 19:47:08 2022 -0700
 
-    [dv,rom_e2e] update testplan to only track P1 tests in nightlies
+    [ottool] Emit results as colorized hjson
     
-    This updates the ROM E2E testplan and chip_sim_cfg.hjson file on only
-    track P1 ROM E2E tests in the DV nightly regression to reflect current
-    efforts.
+    1. Use serde_annotate as the emitter.
+    1a. Select an output format with `-f` or `--format`.  `json`, `json5`,
+        `hjson` and `yaml` are available as output formats.
+    1b. If stdout is a terminal, default to color output.
+    2. Use serde_annotate to parse the opentitantool config files.  This
+       means the various json configs no longer have to be strict-json and
+       can use hjson or json5 extensions like comments or hex-literals.
     
-    This fixes #15009.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
