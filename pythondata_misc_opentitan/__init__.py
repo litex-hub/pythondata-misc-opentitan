@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14468"
-version_tuple = (0, 0, 14468)
+version_str = "0.0.post14474"
+version_tuple = (0, 0, 14474)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14468")
+    pversion = V("0.0.post14474")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14326"
-data_version_tuple = (0, 0, 14326)
+data_version_str = "0.0.post14332"
+data_version_tuple = (0, 0, 14332)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14326")
+    pdata_version = V("0.0.post14332")
 except ImportError:
     pass
-data_git_hash = "0a24890956704735cddc5ee104a04944aeb60d04"
-data_git_describe = "v0.0-14326-g0a24890956"
+data_git_hash = "2df7b9257d24ed8e41e1b2388d4d302a62043ed2"
+data_git_describe = "v0.0-14332-g2df7b9257d"
 data_git_msg = """\
-commit 0a24890956704735cddc5ee104a04944aeb60d04
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Tue Sep 27 04:56:11 2022 +0000
+commit 2df7b9257d24ed8e41e1b2388d4d302a62043ed2
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Sep 27 08:56:22 2022 -0400
 
-    [flash_ctrl,dv] regression fix
+    [sw/silicon_creator] Make keymgr_functest compatible with rom
     
-    DV clean up for regression failtures 9/23
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
