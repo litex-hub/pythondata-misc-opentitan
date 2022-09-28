@@ -4,44 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14483"
-version_tuple = (0, 0, 14483)
+version_str = "0.0.post14484"
+version_tuple = (0, 0, 14484)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14483")
+    pversion = V("0.0.post14484")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14341"
-data_version_tuple = (0, 0, 14341)
+data_version_str = "0.0.post14342"
+data_version_tuple = (0, 0, 14342)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14341")
+    pdata_version = V("0.0.post14342")
 except ImportError:
     pass
-data_git_hash = "befa83b43297b2764af9d2be93a761b41e255286"
-data_git_describe = "v0.0-14341-gbefa83b432"
+data_git_hash = "87ad4f063e9f06a978922ecdc251fc088845f6d9"
+data_git_describe = "v0.0-14342-g87ad4f063e"
 data_git_msg = """\
-commit befa83b43297b2764af9d2be93a761b41e255286
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Sep 27 13:36:05 2022 +0200
+commit 87ad4f063e9f06a978922ecdc251fc088845f6d9
+Author: Eli Kim <eli@opentitan.org>
+Date:   Tue Sep 27 15:02:45 2022 -0700
 
-    [doc] Cleanup and fixes for install guide.
+    refactor(dvsim): Remove `verdi` checker
     
-    Adjust the install guide pages based on feedback and on a read-through:
-    - Reverses the order of the Verilator install and the software build,
-      since Bazel tests essentially require Verilator
-    - Changes the tl;dr section of the software build page to something that
-      should succeed on the first try (the previous example required
-    Verible)
-    - Adds troubleshooting notes and information about RAM requirements
-    - Adds notes and time estimates for long-running steps
-    - Updates information about the CI setup (we now use Ubuntu 20.04, not
-      18.04)
-    - Removes "$" before console commands to make them easier to copy-paste
+    dvsim checks if `verdi` tool is searchable to dump `.fsdb` waveform.
+    However, it is not applicable if dvsim launches the task to LSF or cloud
+    farm.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    This commit removes the checker and let users to specify the waveform
+    type with `-w {type}` argument.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
