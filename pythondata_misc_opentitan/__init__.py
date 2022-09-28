@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14474"
-version_tuple = (0, 0, 14474)
+version_str = "0.0.post14475"
+version_tuple = (0, 0, 14475)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14474")
+    pversion = V("0.0.post14475")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14332"
-data_version_tuple = (0, 0, 14332)
+data_version_str = "0.0.post14333"
+data_version_tuple = (0, 0, 14333)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14332")
+    pdata_version = V("0.0.post14333")
 except ImportError:
     pass
-data_git_hash = "2df7b9257d24ed8e41e1b2388d4d302a62043ed2"
-data_git_describe = "v0.0-14332-g2df7b9257d"
+data_git_hash = "00cd9905a54c30132213247161570efae2d24447"
+data_git_describe = "v0.0-14333-g00cd9905a5"
 data_git_msg = """\
-commit 2df7b9257d24ed8e41e1b2388d4d302a62043ed2
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Sep 27 08:56:22 2022 -0400
+commit 00cd9905a54c30132213247161570efae2d24447
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Sep 27 22:56:34 2022 -0700
 
-    [sw/silicon_creator] Make keymgr_functest compatible with rom
+    [dv,rom_e2e] update testplan to only track P1 tests in nightlies
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    This updates the ROM E2E testplan and chip_sim_cfg.hjson file on only
+    track P1 ROM E2E tests in the DV nightly regression to reflect current
+    efforts.
+    
+    This fixes #15009.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
