@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14467"
-version_tuple = (0, 0, 14467)
+version_str = "0.0.post14468"
+version_tuple = (0, 0, 14468)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14467")
+    pversion = V("0.0.post14468")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14325"
-data_version_tuple = (0, 0, 14325)
+data_version_str = "0.0.post14326"
+data_version_tuple = (0, 0, 14326)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14325")
+    pdata_version = V("0.0.post14326")
 except ImportError:
     pass
-data_git_hash = "db069385899684ae5b736270cb5ed3d8dd745b1a"
-data_git_describe = "v0.0-14325-gdb06938589"
+data_git_hash = "0a24890956704735cddc5ee104a04944aeb60d04"
+data_git_describe = "v0.0-14326-g0a24890956"
 data_git_msg = """\
-commit db069385899684ae5b736270cb5ed3d8dd745b1a
-Author: Miles Dai <milesdai@google.com>
-Date:   Mon Sep 26 16:02:08 2022 -0400
+commit 0a24890956704735cddc5ee104a04944aeb60d04
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Sep 27 04:56:11 2022 +0000
 
-    [lint] Make the flake8 check mandatory on CI
+    [flash_ctrl,dv] regression fix
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    DV clean up for regression failtures 9/23
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
