@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14481"
-version_tuple = (0, 0, 14481)
+version_str = "0.0.post14482"
+version_tuple = (0, 0, 14482)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14481")
+    pversion = V("0.0.post14482")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14339"
-data_version_tuple = (0, 0, 14339)
+data_version_str = "0.0.post14340"
+data_version_tuple = (0, 0, 14340)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14339")
+    pdata_version = V("0.0.post14340")
 except ImportError:
     pass
-data_git_hash = "81118ff4ed767b6ecdbe78e56f34ba20658a05e7"
-data_git_describe = "v0.0-14339-g81118ff4ed"
+data_git_hash = "c9f6c6e93c8f10904df3bf253a3206753e26b9be"
+data_git_describe = "v0.0-14340-gc9f6c6e93c"
 data_git_msg = """\
-commit 81118ff4ed767b6ecdbe78e56f34ba20658a05e7
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Mon Sep 19 19:47:08 2022 -0700
+commit c9f6c6e93c8f10904df3bf253a3206753e26b9be
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Sep 23 16:30:34 2022 +0200
 
-    [ottool] Emit results as colorized hjson
+    [mubi/lc] Relax transient SVA checks
     
-    1. Use serde_annotate as the emitter.
-    1a. Select an output format with `-f` or `--format`.  `json`, `json5`,
-        `hjson` and `yaml` are available as output formats.
-    1b. If stdout is a terminal, default to color output.
-    2. Use serde_annotate to parse the opentitantool config files.  This
-       means the various json configs no longer have to be strict-json and
-       can use hjson or json5 extensions like comments or hex-literals.
+    Fix #14925.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
