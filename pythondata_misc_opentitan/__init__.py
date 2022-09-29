@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14496"
-version_tuple = (0, 0, 14496)
+version_str = "0.0.post14497"
+version_tuple = (0, 0, 14497)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14496")
+    pversion = V("0.0.post14497")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14354"
-data_version_tuple = (0, 0, 14354)
+data_version_str = "0.0.post14355"
+data_version_tuple = (0, 0, 14355)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14354")
+    pdata_version = V("0.0.post14355")
 except ImportError:
     pass
-data_git_hash = "53135de258fd00475d3004d33b2a593558ba05d9"
-data_git_describe = "v0.0-14354-g53135de258"
+data_git_hash = "a79dd98548cf1c6940d133516221769508316b8e"
+data_git_describe = "v0.0-14355-ga79dd98548"
 data_git_msg = """\
-commit 53135de258fd00475d3004d33b2a593558ba05d9
-Author: Eli Kim <eli@opentitan.org>
-Date:   Wed Sep 28 17:10:22 2022 -0700
+commit a79dd98548cf1c6940d133516221769508316b8e
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Sep 28 10:15:00 2022 -0400
 
-    feat(prim): prim_rst_sync
+    [CODEOWNERS] Stop reviewing Bazel BUILD files directly
     
-    This commit adds a reset synchronizer for async resets.
+    * added @drewmacrae to CI to help monitor flows related to
+      azure-pipelines.yml and CI scripting
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
