@@ -4,34 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14489"
-version_tuple = (0, 0, 14489)
+version_str = "0.0.post14493"
+version_tuple = (0, 0, 14493)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14489")
+    pversion = V("0.0.post14493")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14347"
-data_version_tuple = (0, 0, 14347)
+data_version_str = "0.0.post14351"
+data_version_tuple = (0, 0, 14351)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14347")
+    pdata_version = V("0.0.post14351")
 except ImportError:
     pass
-data_git_hash = "62747439226d65a760ec82b90c2da13886e52958"
-data_git_describe = "v0.0-14347-g6274743922"
+data_git_hash = "fdffaa9259a9ea549c8ea2d426c2a037d36a03e5"
+data_git_describe = "v0.0-14351-gfdffaa9259"
 data_git_msg = """\
-commit 62747439226d65a760ec82b90c2da13886e52958
-Author: Alexander Williams <awill@google.com>
-Date:   Wed Sep 28 16:46:12 2022 -0700
+commit fdffaa9259a9ea549c8ea2d426c2a037d36a03e5
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Sep 28 13:53:58 2022 -0700
 
-    [dv] Adjust chip_sw_uart_tx_rx_bootstrap max sim time
+    [spi_device/dv] Update scb for TPM
     
-    It can go longer than 60 ms, so adjust to 80 ms.
+    1. Added checking to compare TPM items for CRB mode
+    2. Minor updates to fix some issues on spi_monitor
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Next PR will add checking for TPM Fifo mode
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
