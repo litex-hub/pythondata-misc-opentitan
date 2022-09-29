@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14497"
-version_tuple = (0, 0, 14497)
+version_str = "0.0.post14498"
+version_tuple = (0, 0, 14498)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14497")
+    pversion = V("0.0.post14498")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14355"
-data_version_tuple = (0, 0, 14355)
+data_version_str = "0.0.post14356"
+data_version_tuple = (0, 0, 14356)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14355")
+    pdata_version = V("0.0.post14356")
 except ImportError:
     pass
-data_git_hash = "a79dd98548cf1c6940d133516221769508316b8e"
-data_git_describe = "v0.0-14355-ga79dd98548"
+data_git_hash = "43ad5a53274c5d62c544140ff02a369c5d3d3144"
+data_git_describe = "v0.0-14356-g43ad5a5327"
 data_git_msg = """\
-commit a79dd98548cf1c6940d133516221769508316b8e
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Sep 28 10:15:00 2022 -0400
+commit 43ad5a53274c5d62c544140ff02a369c5d3d3144
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Wed Sep 28 17:58:10 2022 -0700
 
-    [CODEOWNERS] Stop reviewing Bazel BUILD files directly
+    [dv/sv] Fix comment typos and improve format
     
-    * added @drewmacrae to CI to help monitor flows related to
-      azure-pipelines.yml and CI scripting
+    This only changes comments.
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
