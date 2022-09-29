@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14500"
-version_tuple = (0, 0, 14500)
+version_str = "0.0.post14502"
+version_tuple = (0, 0, 14502)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14500")
+    pversion = V("0.0.post14502")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14358"
-data_version_tuple = (0, 0, 14358)
+data_version_str = "0.0.post14360"
+data_version_tuple = (0, 0, 14360)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14358")
+    pdata_version = V("0.0.post14360")
 except ImportError:
     pass
-data_git_hash = "a0241d1446c5de6b99eef5cbc5081c22ca63af24"
-data_git_describe = "v0.0-14358-ga0241d1446"
+data_git_hash = "1a4303f143565bd52df87bb5e8b25c5a729e49eb"
+data_git_describe = "v0.0-14360-g1a4303f143"
 data_git_msg = """\
-commit a0241d1446c5de6b99eef5cbc5081c22ca63af24
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Sep 28 16:57:24 2022 -0400
+commit 1a4303f143565bd52df87bb5e8b25c5a729e49eb
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Sep 28 17:19:19 2022 -0700
 
-    [sw/silicon_creator] Use asm to avoid SP usage in ROM exception handler
+    [spi_device/dv] Fix flash mode failures
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Fixed failures due to recent updates
+    1. `output` doesn't work for a task if it's killed, changed to `ref`
+    2. The address order was updated wrongly
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
