@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14495"
-version_tuple = (0, 0, 14495)
+version_str = "0.0.post14496"
+version_tuple = (0, 0, 14496)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14495")
+    pversion = V("0.0.post14496")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14353"
-data_version_tuple = (0, 0, 14353)
+data_version_str = "0.0.post14354"
+data_version_tuple = (0, 0, 14354)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14353")
+    pdata_version = V("0.0.post14354")
 except ImportError:
     pass
-data_git_hash = "701b38232eb5746efa8a391ab172113366073e2c"
-data_git_describe = "v0.0-14353-g701b38232e"
+data_git_hash = "53135de258fd00475d3004d33b2a593558ba05d9"
+data_git_describe = "v0.0-14354-g53135de258"
 data_git_msg = """\
-commit 701b38232eb5746efa8a391ab172113366073e2c
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Sep 28 16:47:06 2022 -0700
+commit 53135de258fd00475d3004d33b2a593558ba05d9
+Author: Eli Kim <eli@opentitan.org>
+Date:   Wed Sep 28 17:10:22 2022 -0700
 
-    [rom_e2e] run `rom_e2e_static_critical` in DV
+    feat(prim): prim_rst_sync
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This commit adds a reset synchronizer for async resets.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
