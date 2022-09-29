@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14498"
-version_tuple = (0, 0, 14498)
+version_str = "0.0.post14500"
+version_tuple = (0, 0, 14500)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14498")
+    pversion = V("0.0.post14500")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14356"
-data_version_tuple = (0, 0, 14356)
+data_version_str = "0.0.post14358"
+data_version_tuple = (0, 0, 14358)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14356")
+    pdata_version = V("0.0.post14358")
 except ImportError:
     pass
-data_git_hash = "43ad5a53274c5d62c544140ff02a369c5d3d3144"
-data_git_describe = "v0.0-14356-g43ad5a5327"
+data_git_hash = "a0241d1446c5de6b99eef5cbc5081c22ca63af24"
+data_git_describe = "v0.0-14358-ga0241d1446"
 data_git_msg = """\
-commit 43ad5a53274c5d62c544140ff02a369c5d3d3144
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Sep 28 17:58:10 2022 -0700
+commit a0241d1446c5de6b99eef5cbc5081c22ca63af24
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Sep 28 16:57:24 2022 -0400
 
-    [dv/sv] Fix comment typos and improve format
+    [sw/silicon_creator] Use asm to avoid SP usage in ROM exception handler
     
-    This only changes comments.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
