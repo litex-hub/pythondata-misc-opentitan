@@ -77,7 +77,8 @@ lifecycle_state_t lc_state = (lifecycle_state_t)0;
 // Boot data from flash.
 boot_data_t boot_data = {0};
 
-static inline rom_error_t rom_irq_error(void) {
+OT_ALWAYS_INLINE
+static rom_error_t rom_irq_error(void) {
   uint32_t mcause;
   CSR_READ(CSR_REG_MCAUSE, &mcause);
   // Shuffle the mcause bits into the uppermost byte of the word and report
@@ -455,13 +456,17 @@ void rom_main(void) {
   shutdown_finalize(rom_try_boot());
 }
 
-void rom_interrupt_handler(void) { shutdown_finalize(rom_irq_error()); }
+void rom_interrupt_handler(void) {
+  register rom_error_t error asm("a0") = rom_irq_error();
+  asm volatile("tail shutdown_finalize;" ::"r"(error));
+  OT_UNREACHABLE();
+}
 
 // We only need a single handler for all ROM interrupts, but we want to
 // keep distinct symbols to make writing tests easier.  In the ROM,
 // alias all interrupt handler symbols to the single handler.
 OT_ALIAS("rom_interrupt_handler")
-void rom_exception_handler(void);
+noreturn void rom_exception_handler(void);
 
 OT_ALIAS("rom_interrupt_handler")
-void rom_nmi_handler(void);
+noreturn void rom_nmi_handler(void);
