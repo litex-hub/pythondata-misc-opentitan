@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14493"
-version_tuple = (0, 0, 14493)
+version_str = "0.0.post14495"
+version_tuple = (0, 0, 14495)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14493")
+    pversion = V("0.0.post14495")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14351"
-data_version_tuple = (0, 0, 14351)
+data_version_str = "0.0.post14353"
+data_version_tuple = (0, 0, 14353)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14351")
+    pdata_version = V("0.0.post14353")
 except ImportError:
     pass
-data_git_hash = "fdffaa9259a9ea549c8ea2d426c2a037d36a03e5"
-data_git_describe = "v0.0-14351-gfdffaa9259"
+data_git_hash = "701b38232eb5746efa8a391ab172113366073e2c"
+data_git_describe = "v0.0-14353-g701b38232e"
 data_git_msg = """\
-commit fdffaa9259a9ea549c8ea2d426c2a037d36a03e5
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Sep 28 13:53:58 2022 -0700
+commit 701b38232eb5746efa8a391ab172113366073e2c
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Sep 28 16:47:06 2022 -0700
 
-    [spi_device/dv] Update scb for TPM
+    [rom_e2e] run `rom_e2e_static_critical` in DV
     
-    1. Added checking to compare TPM items for CRB mode
-    2. Minor updates to fix some issues on spi_monitor
-    
-    Next PR will add checking for TPM Fifo mode
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
