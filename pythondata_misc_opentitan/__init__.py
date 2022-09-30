@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14525"
-version_tuple = (0, 0, 14525)
+version_str = "0.0.post14529"
+version_tuple = (0, 0, 14529)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14525")
+    pversion = V("0.0.post14529")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14383"
-data_version_tuple = (0, 0, 14383)
+data_version_str = "0.0.post14387"
+data_version_tuple = (0, 0, 14387)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14383")
+    pdata_version = V("0.0.post14387")
 except ImportError:
     pass
-data_git_hash = "5fb5570a8d5d1673b72ec02d6a795f0e480d1444"
-data_git_describe = "v0.0-14383-g5fb5570a8d"
+data_git_hash = "3b78c3ad5583bfc3225087e718d415e9dcee305d"
+data_git_describe = "v0.0-14387-g3b78c3ad55"
 data_git_msg = """\
-commit 5fb5570a8d5d1673b72ec02d6a795f0e480d1444
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Sep 30 12:02:16 2022 +0100
+commit 3b78c3ad5583bfc3225087e718d415e9dcee305d
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Sep 29 16:31:34 2022 -0400
 
-    Revert "[rv_core_ibex] Add SVA to check PC is not advancing"
+    [test] Add rom_e2e_shutdown_output_rma
     
-    This reverts commit c43e2906516442dec36022f101e109c050d2dd69.
-    
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
