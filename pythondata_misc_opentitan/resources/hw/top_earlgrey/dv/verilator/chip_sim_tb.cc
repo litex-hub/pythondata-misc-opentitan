@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
+#include <algorithm>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "verilated_toplevel.h"
 #include "verilator_memutil.h"
@@ -26,11 +28,17 @@ int main(int argc, char **argv) {
               0x4000 / 4, 4);
   MemArea ram(top_scope + ".u_ram1p_ram_main." + ram1p_adv_scope, 0x20000 / 4,
               4);
+  // Only handle the lower bank of flash for now.
   MemArea flash(top_scope +
                     ".u_flash_ctrl.u_eflash.u_flash.gen_generic.u_impl_generic."
                     "gen_prim_flash_banks[0].u_prim_flash_bank.u_mem."
                     "gen_generic.u_impl_generic",
-                0x100000 / 8, 8);
+                0x80000 / 8, 8);
+  // Start with the flash region erased. Future loads can overwrite.
+  std::vector<uint8_t> all_ones(flash.GetSizeBytes());
+  std::fill(all_ones.begin(), all_ones.end(), 0xffu);
+  flash.Write(/*word_offset=*/0, all_ones);
+
   MemArea otp(top_scope + ".u_otp_ctrl.u_otp.gen_generic.u_impl_generic." +
                   ram1p_adv_scope,
               0x4000 / 4, 4);
