@@ -191,26 +191,21 @@ opentitan_flash_binary(
     ],
 )
 
-BOOT_SUCCESS_MSG = "Starting ROM_EXT"
-
-opentitan_functest(
-    name = "rom_ext_slot_a_boot_test",
-    cw310 = cw310_params(
-        exit_success = BOOT_SUCCESS_MSG,
-    ),
-    ot_flash_binary = ":rom_ext_slot_a",
-    signed = True,
-    targets = ["cw310_rom"],
+manifest(
+    name = "manifest_bad_address_translation",
+    address_translation = 0,
+    identifier = CONST.ROM_EXT,
 )
 
-# TODO(#13511): Add a positive test for slot_b.
-
-opentitan_functest(
-    name = "rom_ext_slot_virtual_boot_test",
-    cw310 = cw310_params(
-        exit_success = BOOT_SUCCESS_MSG,
-    ),
-    ot_flash_binary = ":rom_ext_slot_virtual",
+opentitan_flash_binary(
+    name = "rom_ext_slot_a_bad_address_translation",
+    srcs = ["rom_ext_start.S"],
+    manifest = ":manifest_bad_address_translation",
     signed = True,
-    targets = ["cw310_rom"],
+    deps = [
+        ":ld_slot_a",
+        ":rom_ext",
+        "//sw/device/lib/crt",
+        "//sw/device/silicon_creator/lib:manifest_def",
+    ],
 )
