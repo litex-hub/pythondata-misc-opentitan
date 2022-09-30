@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14518"
-version_tuple = (0, 0, 14518)
+version_str = "0.0.post14522"
+version_tuple = (0, 0, 14522)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14518")
+    pversion = V("0.0.post14522")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14376"
-data_version_tuple = (0, 0, 14376)
+data_version_str = "0.0.post14380"
+data_version_tuple = (0, 0, 14380)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14376")
+    pdata_version = V("0.0.post14380")
 except ImportError:
     pass
-data_git_hash = "0bb2c9b9039f8aef4ddc632296e58bee340ef075"
-data_git_describe = "v0.0-14376-g0bb2c9b903"
+data_git_hash = "841a2b6d62e911fa8d5572cecd7f4f436aa420d7"
+data_git_describe = "v0.0-14380-g841a2b6d62"
 data_git_msg = """\
-commit 0bb2c9b9039f8aef4ddc632296e58bee340ef075
-Author: Canberk Topal <ctopal@lowrisc.org>
-Date:   Thu Sep 29 15:41:36 2022 +0100
+commit 841a2b6d62e911fa8d5572cecd7f4f436aa420d7
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Sep 29 08:48:46 2022 -0400
 
-    [otbn,dv] Disable V2S assertions for FI tests
+    [test] Add remaining tests for rom_e2e_address_translation
     
-    Signed-off-by: Canberk Topal <ctopal@lowrisc.org>
+    Fixes #14483
+    
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
