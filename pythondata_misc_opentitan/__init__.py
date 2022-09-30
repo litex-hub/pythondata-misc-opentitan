@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14523"
-version_tuple = (0, 0, 14523)
+version_str = "0.0.post14524"
+version_tuple = (0, 0, 14524)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14523")
+    pversion = V("0.0.post14524")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14381"
-data_version_tuple = (0, 0, 14381)
+data_version_str = "0.0.post14382"
+data_version_tuple = (0, 0, 14382)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14381")
+    pdata_version = V("0.0.post14382")
 except ImportError:
     pass
-data_git_hash = "3cdeca44231439984dd01683df20979a442a40a2"
-data_git_describe = "v0.0-14381-g3cdeca4423"
+data_git_hash = "2678e0a9d03b75e0529c84339f0585b4b852dc9e"
+data_git_describe = "v0.0-14382-g2678e0a9d0"
 data_git_msg = """\
-commit 3cdeca44231439984dd01683df20979a442a40a2
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 29 13:04:16 2022 -0400
+commit 2678e0a9d03b75e0529c84339f0585b4b852dc9e
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Sep 26 15:38:22 2022 +0000
 
-    [test] Add rom_e2e_sigverify_key_auth
+    [pwrmgr,dv] Add manual exclusion file.
     
-    Fixes #14478
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
