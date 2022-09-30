@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14522"
-version_tuple = (0, 0, 14522)
+version_str = "0.0.post14523"
+version_tuple = (0, 0, 14523)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14522")
+    pversion = V("0.0.post14523")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14380"
-data_version_tuple = (0, 0, 14380)
+data_version_str = "0.0.post14381"
+data_version_tuple = (0, 0, 14381)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14380")
+    pdata_version = V("0.0.post14381")
 except ImportError:
     pass
-data_git_hash = "841a2b6d62e911fa8d5572cecd7f4f436aa420d7"
-data_git_describe = "v0.0-14380-g841a2b6d62"
+data_git_hash = "3cdeca44231439984dd01683df20979a442a40a2"
+data_git_describe = "v0.0-14381-g3cdeca4423"
 data_git_msg = """\
-commit 841a2b6d62e911fa8d5572cecd7f4f436aa420d7
+commit 3cdeca44231439984dd01683df20979a442a40a2
 Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 29 08:48:46 2022 -0400
+Date:   Thu Sep 29 13:04:16 2022 -0400
 
-    [test] Add remaining tests for rom_e2e_address_translation
+    [test] Add rom_e2e_sigverify_key_auth
     
-    Fixes #14483
+    Fixes #14478
     
     Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
