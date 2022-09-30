@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14511"
-version_tuple = (0, 0, 14511)
+version_str = "0.0.post14514"
+version_tuple = (0, 0, 14514)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14511")
+    pversion = V("0.0.post14514")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14369"
-data_version_tuple = (0, 0, 14369)
+data_version_str = "0.0.post14372"
+data_version_tuple = (0, 0, 14372)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14369")
+    pdata_version = V("0.0.post14372")
 except ImportError:
     pass
-data_git_hash = "54a68b0b1d680a3ef8853626db2880999b87aa7a"
-data_git_describe = "v0.0-14369-g54a68b0b1d"
+data_git_hash = "1cfa4288c56887b5eb1b35d538a8dc5a8fef17cf"
+data_git_describe = "v0.0-14372-g1cfa4288c5"
 data_git_msg = """\
-commit 54a68b0b1d680a3ef8853626db2880999b87aa7a
-Author: Eli Kim <eli@opentitan.org>
-Date:   Wed Sep 28 15:10:04 2022 -0700
+commit 1cfa4288c56887b5eb1b35d538a8dc5a8fef17cf
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Thu Sep 15 15:29:56 2022 -0700
 
-    fix(rdc): SPID CSb, TPM CSb waiver for COMBO
+    [dependabot] add dependabot config file
     
-    Waiving SPI_DEVICE CS#, TPM CS# reset signal sitting on COMBO logic. The
-    logic OR-ed with scan chain.
+    This adds a dependabot config file to trigger automatic updates to
+    Python packages in response to #14941. This fixes #14956.
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
