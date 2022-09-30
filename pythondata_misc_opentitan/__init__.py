@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14514"
-version_tuple = (0, 0, 14514)
+version_str = "0.0.post14515"
+version_tuple = (0, 0, 14515)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14514")
+    pversion = V("0.0.post14515")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14372"
-data_version_tuple = (0, 0, 14372)
+data_version_str = "0.0.post14373"
+data_version_tuple = (0, 0, 14373)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14372")
+    pdata_version = V("0.0.post14373")
 except ImportError:
     pass
-data_git_hash = "1cfa4288c56887b5eb1b35d538a8dc5a8fef17cf"
-data_git_describe = "v0.0-14372-g1cfa4288c5"
+data_git_hash = "c64e5f1785046c9a545427bd280100c2ddd92e3f"
+data_git_describe = "v0.0-14373-gc64e5f1785"
 data_git_msg = """\
-commit 1cfa4288c56887b5eb1b35d538a8dc5a8fef17cf
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Thu Sep 15 15:29:56 2022 -0700
+commit c64e5f1785046c9a545427bd280100c2ddd92e3f
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Sep 29 16:35:11 2022 -0700
 
-    [dependabot] add dependabot config file
+    [spi_device/dv] update scb for TPM HW returned reg
     
-    This adds a dependabot config file to trigger automatic updates to
-    Python packages in response to #14941. This fixes #14956.
+    1. predict and compare HW returned reg in scb
+    2. renamed tpm_locality_vseq -> tpm_sts_read_vseq
+    3. Removed some unused parameters
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
