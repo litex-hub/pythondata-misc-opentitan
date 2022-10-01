@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14529"
-version_tuple = (0, 0, 14529)
+version_str = "0.0.post14530"
+version_tuple = (0, 0, 14530)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14529")
+    pversion = V("0.0.post14530")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14387"
-data_version_tuple = (0, 0, 14387)
+data_version_str = "0.0.post14388"
+data_version_tuple = (0, 0, 14388)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14387")
+    pdata_version = V("0.0.post14388")
 except ImportError:
     pass
-data_git_hash = "3b78c3ad5583bfc3225087e718d415e9dcee305d"
-data_git_describe = "v0.0-14387-g3b78c3ad55"
+data_git_hash = "723b8b0d0ac2d5adfc1b352c232487fb1a668f1e"
+data_git_describe = "v0.0-14388-g723b8b0d0a"
 data_git_msg = """\
-commit 3b78c3ad5583bfc3225087e718d415e9dcee305d
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Sep 29 16:31:34 2022 -0400
+commit 723b8b0d0ac2d5adfc1b352c232487fb1a668f1e
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Sep 30 18:49:04 2022 +0000
 
-    [test] Add rom_e2e_shutdown_output_rma
+    [dv/kmac] Update masked version exclusion file
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    This PR updates the masked kmac exclusion file:
+    1). Removed previous UNR exclusions because they are based on old RTL
+      file.
+    2). Add a kmac_masked_terminal_st_excl.el file to exclude transitions
+      from some states to terminal states.
+      Because these are hard to hit in DV due to sensetive timing, and FPV
+      has fully covered it.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
