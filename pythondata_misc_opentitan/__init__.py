@@ -4,40 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14530"
-version_tuple = (0, 0, 14530)
+version_str = "0.0.post14531"
+version_tuple = (0, 0, 14531)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14530")
+    pversion = V("0.0.post14531")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14388"
-data_version_tuple = (0, 0, 14388)
+data_version_str = "0.0.post14389"
+data_version_tuple = (0, 0, 14389)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14388")
+    pdata_version = V("0.0.post14389")
 except ImportError:
     pass
-data_git_hash = "723b8b0d0ac2d5adfc1b352c232487fb1a668f1e"
-data_git_describe = "v0.0-14388-g723b8b0d0a"
+data_git_hash = "67a41e3bc3ff025554a024cdb15fbf892c4752b3"
+data_git_describe = "v0.0-14389-g67a41e3bc3"
 data_git_msg = """\
-commit 723b8b0d0ac2d5adfc1b352c232487fb1a668f1e
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Sep 30 18:49:04 2022 +0000
+commit 67a41e3bc3ff025554a024cdb15fbf892c4752b3
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Sep 21 11:42:16 2022 -0700
 
-    [dv/kmac] Update masked version exclusion file
+    [i2c] fix target mode start / stop handling
     
-    This PR updates the masked kmac exclusion file:
-    1). Removed previous UNR exclusions because they are based on old RTL
-      file.
-    2). Add a kmac_masked_terminal_st_excl.el file to exclude transitions
-      from some states to terminal states.
-      Because these are hard to hit in DV due to sensetive timing, and FPV
-      has fully covered it.
+    - instead of looking for start / stop in specific states, jump directly
+      to AcquireSrP when in target mode.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    - stop detection is cleared in AcquireSrP, while start_detection is
+      only cleared once we cycle through start address decode handling
+      again.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
