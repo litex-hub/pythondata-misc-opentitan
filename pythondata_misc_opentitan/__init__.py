@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14536"
-version_tuple = (0, 0, 14536)
+version_str = "0.0.post14537"
+version_tuple = (0, 0, 14537)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14536")
+    pversion = V("0.0.post14537")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14394"
-data_version_tuple = (0, 0, 14394)
+data_version_str = "0.0.post14395"
+data_version_tuple = (0, 0, 14395)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14394")
+    pdata_version = V("0.0.post14395")
 except ImportError:
     pass
-data_git_hash = "709af834e3ba2b35f958f91e6c30508f73e0ce99"
-data_git_describe = "v0.0-14394-g709af834e3"
+data_git_hash = "c01f7b0ffa2d34c33750433fdb41e55db5f997e4"
+data_git_describe = "v0.0-14395-gc01f7b0ffa"
 data_git_msg = """\
-commit 709af834e3ba2b35f958f91e6c30508f73e0ce99
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Sep 30 03:05:25 2022 +0000
+commit c01f7b0ffa2d34c33750433fdb41e55db5f997e4
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Sep 23 22:36:27 2022 +0100
 
-    [flash_ctrl,dv] Update filesystem support test
+    [top-test] entropy_src_csrng_test
     
-    Update filesystem support test(#15037)
-     - Shift focus from 'erase' to 'double write'
-     - Improve access resolution from 'page' to '8bytes'
+    Adds entropy_src_csrng_test, which tests the CSRNG interrupt request interrupt
+    whenever a seed or reseed operation is triggered by the CSRNG software
+    interface, or by EDN0/EDN1.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
