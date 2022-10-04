@@ -4,33 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14544"
-version_tuple = (0, 0, 14544)
+version_str = "0.0.post14549"
+version_tuple = (0, 0, 14549)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14544")
+    pversion = V("0.0.post14549")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14402"
-data_version_tuple = (0, 0, 14402)
+data_version_str = "0.0.post14407"
+data_version_tuple = (0, 0, 14407)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14402")
+    pdata_version = V("0.0.post14407")
 except ImportError:
     pass
-data_git_hash = "3cd03728a90b2e5b6d55b9d79a27fd64555a2082"
-data_git_describe = "v0.0-14402-g3cd03728a9"
+data_git_hash = "2512ca0da80635a4677c522b1f8b8b8d5bc23789"
+data_git_describe = "v0.0-14407-g2512ca0da8"
 data_git_msg = """\
-commit 3cd03728a90b2e5b6d55b9d79a27fd64555a2082
+commit 2512ca0da80635a4677c522b1f8b8b8d5bc23789
 Author: Weicai Yang <weicai@google.com>
-Date:   Mon Oct 3 16:41:21 2022 -0700
+Date:   Mon Oct 3 17:00:07 2022 -0700
 
-    [spi_device] Fix CmdAddrInfo_A assertion
+    [spi_device/dv] Add tpm_read_hw_reg test and update scb to check HW regs
     
-    Need to add a condition - is_tpm_reg before checking the addr
-    Without is_tpm_reg, locality won't be latched
+    1. Create a test that has both SW and host access the HW regs to test #15134
+    2. Consolidate tpm init tasks
+    3. Update scb to allow SPI host to read back either the new value or the old one.
     
     Signed-off-by: Weicai Yang <weicai@google.com>
 
