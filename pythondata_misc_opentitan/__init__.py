@@ -4,42 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14539"
-version_tuple = (0, 0, 14539)
+version_str = "0.0.post14540"
+version_tuple = (0, 0, 14540)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14539")
+    pversion = V("0.0.post14540")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14397"
-data_version_tuple = (0, 0, 14397)
+data_version_str = "0.0.post14398"
+data_version_tuple = (0, 0, 14398)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14397")
+    pdata_version = V("0.0.post14398")
 except ImportError:
     pass
-data_git_hash = "fa5abdb5cb9f7157a6c1a0f3318257e52a742aae"
-data_git_describe = "v0.0-14397-gfa5abdb5cb"
+data_git_hash = "81b7f4049e18a077da549f860beeb201d0471bd2"
+data_git_describe = "v0.0-14398-g81b7f4049e"
 data_git_msg = """\
-commit fa5abdb5cb9f7157a6c1a0f3318257e52a742aae
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Sun Oct 2 23:43:14 2022 +0000
+commit 81b7f4049e18a077da549f860beeb201d0471bd2
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 3 15:42:14 2022 -0700
 
-    [flash_ctrl,dv] fix regression fail
+    [dv/kmac] Change kmac_fsm to terminal error to base exclusion file
     
-    Adjust error conditions of following error tests
-    - flash_ctrl_sec_cm
-    - flash_ctrl_derr_detect
-    - flash_ctrl_phy_arb_redun
-    - flash_ctrl_phy_host_grant_err
-    - flash_ctrl_phy_ack_consistency
+    This PR changes the masked version of the kmac state to terminal error
+    state exclusion file to a base exclusion file.
+    Because both the masked and unmasked versions share the same exclusion
+    items.
     
-    Disable irrelevant assert from flash_ctrl_hw_rma_rest
-    Set ecc/scramble randomize for error tests
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
