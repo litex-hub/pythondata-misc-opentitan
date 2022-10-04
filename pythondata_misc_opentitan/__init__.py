@@ -4,36 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14537"
-version_tuple = (0, 0, 14537)
+version_str = "0.0.post14538"
+version_tuple = (0, 0, 14538)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14537")
+    pversion = V("0.0.post14538")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14395"
-data_version_tuple = (0, 0, 14395)
+data_version_str = "0.0.post14396"
+data_version_tuple = (0, 0, 14396)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14395")
+    pdata_version = V("0.0.post14396")
 except ImportError:
     pass
-data_git_hash = "c01f7b0ffa2d34c33750433fdb41e55db5f997e4"
-data_git_describe = "v0.0-14395-gc01f7b0ffa"
+data_git_hash = "c4431db093aff020f9013950b97b496ea04655f9"
+data_git_describe = "v0.0-14396-gc4431db093"
 data_git_msg = """\
-commit c01f7b0ffa2d34c33750433fdb41e55db5f997e4
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Sep 23 22:36:27 2022 +0100
+commit c4431db093aff020f9013950b97b496ea04655f9
+Author: Eli Kim <eli@opentitan.org>
+Date:   Mon Oct 3 13:59:43 2022 -0700
 
-    [top-test] entropy_src_csrng_test
+    feat(kmac): Error Check for Entropy Ready
     
-    Adds entropy_src_csrng_test, which tests the CSRNG interrupt request interrupt
-    whenever a seed or reseed operation is triggered by the CSRNG software
-    interface, or by EDN0/EDN1.
+    _Related Issue: https://github.com/lowRISC/opentitan/issues/15140 _
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    This commit adds logic inside `kmac_errchk` module. It checks if SW
+    requests a KMAC op. without configuring the entropy.
+    
+    The error is reported as `ErrSwHashingWithoutEntropyReady (0x09)` error
+    code. The internal error status is cleared by `err_process`.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
