@@ -4,40 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14538"
-version_tuple = (0, 0, 14538)
+version_str = "0.0.post14539"
+version_tuple = (0, 0, 14539)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14538")
+    pversion = V("0.0.post14539")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14396"
-data_version_tuple = (0, 0, 14396)
+data_version_str = "0.0.post14397"
+data_version_tuple = (0, 0, 14397)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14396")
+    pdata_version = V("0.0.post14397")
 except ImportError:
     pass
-data_git_hash = "c4431db093aff020f9013950b97b496ea04655f9"
-data_git_describe = "v0.0-14396-gc4431db093"
+data_git_hash = "fa5abdb5cb9f7157a6c1a0f3318257e52a742aae"
+data_git_describe = "v0.0-14397-gfa5abdb5cb"
 data_git_msg = """\
-commit c4431db093aff020f9013950b97b496ea04655f9
-Author: Eli Kim <eli@opentitan.org>
-Date:   Mon Oct 3 13:59:43 2022 -0700
+commit fa5abdb5cb9f7157a6c1a0f3318257e52a742aae
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Sun Oct 2 23:43:14 2022 +0000
 
-    feat(kmac): Error Check for Entropy Ready
+    [flash_ctrl,dv] fix regression fail
     
-    _Related Issue: https://github.com/lowRISC/opentitan/issues/15140 _
+    Adjust error conditions of following error tests
+    - flash_ctrl_sec_cm
+    - flash_ctrl_derr_detect
+    - flash_ctrl_phy_arb_redun
+    - flash_ctrl_phy_host_grant_err
+    - flash_ctrl_phy_ack_consistency
     
-    This commit adds logic inside `kmac_errchk` module. It checks if SW
-    requests a KMAC op. without configuring the entropy.
+    Disable irrelevant assert from flash_ctrl_hw_rma_rest
+    Set ecc/scramble randomize for error tests
     
-    The error is reported as `ErrSwHashingWithoutEntropyReady (0x09)` error
-    code. The internal error status is cleared by `err_process`.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
