@@ -4,32 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14557"
-version_tuple = (0, 0, 14557)
+version_str = "0.0.post14558"
+version_tuple = (0, 0, 14558)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14557")
+    pversion = V("0.0.post14558")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14415"
-data_version_tuple = (0, 0, 14415)
+data_version_str = "0.0.post14416"
+data_version_tuple = (0, 0, 14416)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14415")
+    pdata_version = V("0.0.post14416")
 except ImportError:
     pass
-data_git_hash = "3cb0a370b38584dae4310ba425732749d6f356b7"
-data_git_describe = "v0.0-14415-g3cb0a370b3"
+data_git_hash = "5220e2275b3bae33225cc77dbc48b839ebd3ef29"
+data_git_describe = "v0.0-14416-g5220e2275b"
 data_git_msg = """\
-commit 3cb0a370b38584dae4310ba425732749d6f356b7
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Oct 4 09:19:20 2022 -0400
+commit 5220e2275b3bae33225cc77dbc48b839ebd3ef29
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Oct 4 17:40:19 2022 -0700
 
-    [sw/silicon_creeator] Remove stale todo
+    [top/dv] Fix rstmgr info test
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Previously, this test assumed that escalation would always happen
+    within a fixed amount of time.  However, that is not necessarily
+    the case for ping timeouts.  The ping mechanism randomly selects a
+    peripheral to check.  However, since the selection vector is larger
+    than the number of peripherals we have, it does not always select a valid
+    peripheral. When the alert handler does not select a valid peripheral,
+    it simply moves on to the test the next ping. However the max wait time
+    until the next ping is checked is in the mS range.
+    Therefore, the test should not make that assumption and just wait in
+    place.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
