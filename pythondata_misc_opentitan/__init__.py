@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14570"
-version_tuple = (0, 0, 14570)
+version_str = "0.0.post14572"
+version_tuple = (0, 0, 14572)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14570")
+    pversion = V("0.0.post14572")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14428"
-data_version_tuple = (0, 0, 14428)
+data_version_str = "0.0.post14430"
+data_version_tuple = (0, 0, 14430)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14428")
+    pdata_version = V("0.0.post14430")
 except ImportError:
     pass
-data_git_hash = "f8fe29fc03da03d062c66bccdf1ccb97df1e0ed0"
-data_git_describe = "v0.0-14428-gf8fe29fc03"
+data_git_hash = "b4383c7e6756bb52290eda5d7ea7a3f70b68e663"
+data_git_describe = "v0.0-14430-gb4383c7e67"
 data_git_msg = """\
-commit f8fe29fc03da03d062c66bccdf1ccb97df1e0ed0
-Author: Johnathan Van Why <jrvanwhy@google.com>
-Date:   Tue Oct 4 13:51:59 2022 -0700
+commit b4383c7e6756bb52290eda5d7ea7a3f70b68e663
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Oct 5 13:39:13 2022 -0700
 
-    [opentitantool] Move `update-usr-access` under the `fpga` command group.
+    [cleanup] Fix merge skew
     
-    `opentitantool update-usr-access` is now called `opentitantool fpga update-user-access`.
-    
-    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
