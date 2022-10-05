@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14558"
-version_tuple = (0, 0, 14558)
+version_str = "0.0.post14559"
+version_tuple = (0, 0, 14559)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14558")
+    pversion = V("0.0.post14559")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14416"
-data_version_tuple = (0, 0, 14416)
+data_version_str = "0.0.post14417"
+data_version_tuple = (0, 0, 14417)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14416")
+    pdata_version = V("0.0.post14417")
 except ImportError:
     pass
-data_git_hash = "5220e2275b3bae33225cc77dbc48b839ebd3ef29"
-data_git_describe = "v0.0-14416-g5220e2275b"
+data_git_hash = "926c1605b5135f247f28c51fa708fec6ad9be5b1"
+data_git_describe = "v0.0-14417-g926c1605b5"
 data_git_msg = """\
-commit 5220e2275b3bae33225cc77dbc48b839ebd3ef29
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 4 17:40:19 2022 -0700
+commit 926c1605b5135f247f28c51fa708fec6ad9be5b1
+Author: Eli Kim <eli@opentitan.org>
+Date:   Tue Oct 4 16:24:07 2022 -0700
 
-    [top/dv] Fix rstmgr info test
+    fix(spid): Revise invalid_locality desc
     
-    Previously, this test assumed that escalation would always happen
-    within a fixed amount of time.  However, that is not necessarily
-    the case for ping timeouts.  The ping mechanism randomly selects a
-    peripheral to check.  However, since the selection vector is larger
-    than the number of peripherals we have, it does not always select a valid
-    peripheral. When the alert handler does not select a valid peripheral,
-    it simply moves on to the test the next ping. However the max wait time
-    until the next ping is checked is in the mS range.
-    Therefore, the test should not make that assumption and just wait in
-    place.
+    Intention of HW is to upload TPM commands even if it points to invalid
+    locality.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
