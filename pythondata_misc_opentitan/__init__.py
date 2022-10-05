@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14569"
-version_tuple = (0, 0, 14569)
+version_str = "0.0.post14570"
+version_tuple = (0, 0, 14570)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14569")
+    pversion = V("0.0.post14570")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14427"
-data_version_tuple = (0, 0, 14427)
+data_version_str = "0.0.post14428"
+data_version_tuple = (0, 0, 14428)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14427")
+    pdata_version = V("0.0.post14428")
 except ImportError:
     pass
-data_git_hash = "cf36305f59649e5ebd9c7d023dd34df4c80b7cd8"
-data_git_describe = "v0.0-14427-gcf36305f59"
+data_git_hash = "f8fe29fc03da03d062c66bccdf1ccb97df1e0ed0"
+data_git_describe = "v0.0-14428-gf8fe29fc03"
 data_git_msg = """\
-commit cf36305f59649e5ebd9c7d023dd34df4c80b7cd8
-Author: Miles Dai <milesdai@google.com>
-Date:   Mon Oct 3 13:18:09 2022 -0400
+commit f8fe29fc03da03d062c66bccdf1ccb97df1e0ed0
+Author: Johnathan Van Why <jrvanwhy@google.com>
+Date:   Tue Oct 4 13:51:59 2022 -0700
 
-    [lint] Fix buildifier linting issues
+    [opentitantool] Move `update-usr-access` under the `fpga` command group.
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    `opentitantool update-usr-access` is now called `opentitantool fpga update-user-access`.
+    
+    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
 
 """
 
