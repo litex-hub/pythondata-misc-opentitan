@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14559"
-version_tuple = (0, 0, 14559)
+version_str = "0.0.post14564"
+version_tuple = (0, 0, 14564)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14559")
+    pversion = V("0.0.post14564")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14417"
-data_version_tuple = (0, 0, 14417)
+data_version_str = "0.0.post14422"
+data_version_tuple = (0, 0, 14422)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14417")
+    pdata_version = V("0.0.post14422")
 except ImportError:
     pass
-data_git_hash = "926c1605b5135f247f28c51fa708fec6ad9be5b1"
-data_git_describe = "v0.0-14417-g926c1605b5"
+data_git_hash = "88ca99f0457064f0df25149b87f3bffaa421eb44"
+data_git_describe = "v0.0-14422-g88ca99f045"
 data_git_msg = """\
-commit 926c1605b5135f247f28c51fa708fec6ad9be5b1
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Oct 4 16:24:07 2022 -0700
+commit 88ca99f0457064f0df25149b87f3bffaa421eb44
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Sep 28 19:59:09 2022 -0700
 
-    fix(spid): Revise invalid_locality desc
+    [ottool] Add some simple annotations
     
-    Intention of HW is to upload TPM commands even if it points to invalid
-    locality.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
