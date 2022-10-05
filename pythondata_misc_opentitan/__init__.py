@@ -4,50 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14554"
-version_tuple = (0, 0, 14554)
+version_str = "0.0.post14555"
+version_tuple = (0, 0, 14555)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14554")
+    pversion = V("0.0.post14555")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14412"
-data_version_tuple = (0, 0, 14412)
+data_version_str = "0.0.post14413"
+data_version_tuple = (0, 0, 14413)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14412")
+    pdata_version = V("0.0.post14413")
 except ImportError:
     pass
-data_git_hash = "71f19edb3fd7331291abd6c2bbe5c51557faba39"
-data_git_describe = "v0.0-14412-g71f19edb3f"
+data_git_hash = "c26f6dc94de1a1428bf068b532396d7e49b5f8a2"
+data_git_describe = "v0.0-14413-gc26f6dc94d"
 data_git_msg = """\
-commit 71f19edb3fd7331291abd6c2bbe5c51557faba39
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Oct 4 15:12:08 2022 -0700
+commit c26f6dc94de1a1428bf068b532396d7e49b5f8a2
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Oct 3 22:20:48 2022 -0700
 
-    fix(spid): Latch FIFOADDR at correct time
+    [dv,tests] add example concurrency test to DV smoke regression
     
-    _Related Issue: https://github.com/lowRISC/opentitan/issues/15266_
+    This addes the example concurrency test to the smoke regression that is
+    run in private CI.
     
-    This PR fixes a bug for unaligned access in TPM read commands.
-    
-    fifoaddr is latched with the counter being `'h1F`. The counter, however,
-    runs on SPI_CLK, while the latching logic is running on inverted SPI_CLK
-    domain.
-    
-    As a result, the latching logic captures the fifo address at a cycle
-    earlier with prematured address. So it always assume address[1] as
-    address[0].
-    
-    This commit fixes the issue by:
-    
-    1. Convert `sck_fifoaddr_latch` into iSCK domain.
-    2. To not shift the address one bit more, use `sck_cmdaddr_wdata_q`
-       rather than `sck_cmdaddr_wdata_d`.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
