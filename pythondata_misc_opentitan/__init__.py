@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14555"
-version_tuple = (0, 0, 14555)
+version_str = "0.0.post14557"
+version_tuple = (0, 0, 14557)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14555")
+    pversion = V("0.0.post14557")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14413"
-data_version_tuple = (0, 0, 14413)
+data_version_str = "0.0.post14415"
+data_version_tuple = (0, 0, 14415)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14413")
+    pdata_version = V("0.0.post14415")
 except ImportError:
     pass
-data_git_hash = "c26f6dc94de1a1428bf068b532396d7e49b5f8a2"
-data_git_describe = "v0.0-14413-gc26f6dc94d"
+data_git_hash = "3cb0a370b38584dae4310ba425732749d6f356b7"
+data_git_describe = "v0.0-14415-g3cb0a370b3"
 data_git_msg = """\
-commit c26f6dc94de1a1428bf068b532396d7e49b5f8a2
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Oct 3 22:20:48 2022 -0700
+commit 3cb0a370b38584dae4310ba425732749d6f356b7
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Tue Oct 4 09:19:20 2022 -0400
 
-    [dv,tests] add example concurrency test to DV smoke regression
+    [sw/silicon_creeator] Remove stale todo
     
-    This addes the example concurrency test to the smoke regression that is
-    run in private CI.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
