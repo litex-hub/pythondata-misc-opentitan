@@ -4,32 +4,54 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14564"
-version_tuple = (0, 0, 14564)
+version_str = "0.0.post14565"
+version_tuple = (0, 0, 14565)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14564")
+    pversion = V("0.0.post14565")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14422"
-data_version_tuple = (0, 0, 14422)
+data_version_str = "0.0.post14423"
+data_version_tuple = (0, 0, 14423)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14422")
+    pdata_version = V("0.0.post14423")
 except ImportError:
     pass
-data_git_hash = "88ca99f0457064f0df25149b87f3bffaa421eb44"
-data_git_describe = "v0.0-14422-g88ca99f045"
+data_git_hash = "46b156a66e1d0e4f7e651b55790347a8fae4fbc0"
+data_git_describe = "v0.0-14423-g46b156a66e"
 data_git_msg = """\
-commit 88ca99f0457064f0df25149b87f3bffaa421eb44
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Sep 28 19:59:09 2022 -0700
+commit 46b156a66e1d0e4f7e651b55790347a8fae4fbc0
+Author: Johnathan Van Why <jrvanwhy@google.com>
+Date:   Mon Oct 3 11:31:58 2022 -0700
 
-    [ottool] Add some simple annotations
+    [opentitantool] Add the `fpga reset` command.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    `opentitantool fpga reset` will reset the CW310's SAM3U chip. This change removes the `cw310_reboot.py` script that we previously used to reset the SAM3U.
+    
+    The new help text (`opentitantool fpga help`):
+    
+    ```
+    opentitantool-fpga 0.0.0
+    Commands for interacting with an FPGA instance
+    
+    USAGE:
+        opentitantool fpga <SUBCOMMAND>
+    
+    FLAGS:
+        -h, --help       Prints help information
+        -V, --version    Prints version information
+    
+    SUBCOMMANDS:
+        help              Prints this message or the help of the given subcommand(s)
+        load-bitstream    Load a bitstream into the FPGA
+        reset             Resets the SAM3U chip on the CW310 FPGA board
+        set-pll           Program the CDCE906 PLL chip with defaults
+    ```
+    
+    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
 
 """
 
