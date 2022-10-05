@@ -4,54 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14565"
-version_tuple = (0, 0, 14565)
+version_str = "0.0.post14566"
+version_tuple = (0, 0, 14566)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14565")
+    pversion = V("0.0.post14566")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14423"
-data_version_tuple = (0, 0, 14423)
+data_version_str = "0.0.post14424"
+data_version_tuple = (0, 0, 14424)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14423")
+    pdata_version = V("0.0.post14424")
 except ImportError:
     pass
-data_git_hash = "46b156a66e1d0e4f7e651b55790347a8fae4fbc0"
-data_git_describe = "v0.0-14423-g46b156a66e"
+data_git_hash = "6c710842200064ace0bcf6da58605e6ce57fb1b4"
+data_git_describe = "v0.0-14424-g6c71084220"
 data_git_msg = """\
-commit 46b156a66e1d0e4f7e651b55790347a8fae4fbc0
-Author: Johnathan Van Why <jrvanwhy@google.com>
-Date:   Mon Oct 3 11:31:58 2022 -0700
+commit 6c710842200064ace0bcf6da58605e6ce57fb1b4
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Sep 29 09:58:07 2022 -0700
 
-    [opentitantool] Add the `fpga reset` command.
+    [rtl/prim] Fix some prim_esc_receiver SVAs
     
-    `opentitantool fpga reset` will reset the CW310's SAM3U chip. This change removes the `cw310_reboot.py` script that we previously used to reset the SAM3U.
+    Delay the start of EscRespCheck_A by a cycle because it uses $past.
+    Minor formatting changes.
     
-    The new help text (`opentitantool fpga help`):
-    
-    ```
-    opentitantool-fpga 0.0.0
-    Commands for interacting with an FPGA instance
-    
-    USAGE:
-        opentitantool fpga <SUBCOMMAND>
-    
-    FLAGS:
-        -h, --help       Prints help information
-        -V, --version    Prints version information
-    
-    SUBCOMMANDS:
-        help              Prints this message or the help of the given subcommand(s)
-        load-bitstream    Load a bitstream into the FPGA
-        reset             Resets the SAM3U chip on the CW310 FPGA board
-        set-pll           Program the CDCE906 PLL chip with defaults
-    ```
-    
-    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
