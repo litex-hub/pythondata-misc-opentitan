@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14577"
-version_tuple = (0, 0, 14577)
+version_str = "0.0.post14582"
+version_tuple = (0, 0, 14582)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14577")
+    pversion = V("0.0.post14582")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14435"
-data_version_tuple = (0, 0, 14435)
+data_version_str = "0.0.post14440"
+data_version_tuple = (0, 0, 14440)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14435")
+    pdata_version = V("0.0.post14440")
 except ImportError:
     pass
-data_git_hash = "883c2711350a72ff8172cfe01b0b07c903d61b25"
-data_git_describe = "v0.0-14435-g883c271135"
+data_git_hash = "d09672b373b5ccacf528554aa5cd8e111987d99c"
+data_git_describe = "v0.0-14440-gd09672b373"
 data_git_msg = """\
-commit 883c2711350a72ff8172cfe01b0b07c903d61b25
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Oct 4 15:05:56 2022 -0700
+commit d09672b373b5ccacf528554aa5cd8e111987d99c
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 5 13:26:31 2022 -0400
 
-    [spi_device/dv] Enable testing unaligned address when read TPM HW regs
+    [test] Improve retention_sram_get() call sites
     
-    1. Enabled testing unaligned address when read TPM HW regs
-    2. updated scb to support to drop HW reg write when host writes invalid locality
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
