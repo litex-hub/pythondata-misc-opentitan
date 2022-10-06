@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include "sw/device/lib/base/abs_mmio.h"
+#include "sw/device/lib/base/memory.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
 #include "sram_ctrl_regs.h"  // Generated.
@@ -18,14 +19,14 @@ enum {
   kBase = TOP_EARLGREY_SRAM_CTRL_RET_AON_REGS_BASE_ADDR,
 };
 
-volatile retention_sram_t *retention_sram_get(void) {
+retention_sram_t *retention_sram_get(void) {
   static_assert(sizeof(retention_sram_t) == TOP_EARLGREY_RAM_RET_AON_SIZE_BYTES,
                 "Unexpected retention SRAM size.");
-  return (volatile retention_sram_t *)TOP_EARLGREY_RAM_RET_AON_BASE_ADDR;
+  return (retention_sram_t *)TOP_EARLGREY_RAM_RET_AON_BASE_ADDR;
 }
 
 void retention_sram_clear(void) {
-  *retention_sram_get() = (retention_sram_t){0};
+  memset(retention_sram_get(), 0, sizeof(retention_sram_t));
 }
 
 void retention_sram_init(void) {
