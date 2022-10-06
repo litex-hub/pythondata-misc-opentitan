@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14585"
-version_tuple = (0, 0, 14585)
+version_str = "0.0.post14586"
+version_tuple = (0, 0, 14586)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14585")
+    pversion = V("0.0.post14586")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14443"
-data_version_tuple = (0, 0, 14443)
+data_version_str = "0.0.post14444"
+data_version_tuple = (0, 0, 14444)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14443")
+    pdata_version = V("0.0.post14444")
 except ImportError:
     pass
-data_git_hash = "797eb3088b2103222b93c9853449cf1f584a791b"
-data_git_describe = "v0.0-14443-g797eb3088b"
+data_git_hash = "ac8ee81c2be56af617446ffc652d22572501f1f2"
+data_git_describe = "v0.0-14444-gac8ee81c2b"
 data_git_msg = """\
-commit 797eb3088b2103222b93c9853449cf1f584a791b
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 5 17:42:00 2022 -0400
+commit ac8ee81c2be56af617446ffc652d22572501f1f2
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Sep 22 16:23:37 2022 -0700
 
-    [sw/silicon_creator] Minor changes in sec_mmio.c
+    [ottool] Initial hyperdebug pin configuration
     
-    This commit launders i in upsert_register and caches
-    sec_mmio_ctx.last_index to reduce code size.
+    1. Write an initial configuration for hyperdebug pins to allow resets
+       and setting the SW straps.
+    2. Most transports call their console UART "0".  Hyperdebug does not.
+       All of the opentitantool configs have an alias named "console";
+       change all references to uart "0" to "console".
+    3. Fix the hyperdebug SPI implementation.
+    3a. Set the max chunk size to a power of two.
+    3b. Assert CS over an entire SPI transaction; refactor CS assert
+        counting.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
