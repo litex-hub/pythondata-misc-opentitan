@@ -4,42 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14586"
-version_tuple = (0, 0, 14586)
+version_str = "0.0.post14589"
+version_tuple = (0, 0, 14589)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14586")
+    pversion = V("0.0.post14589")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14444"
-data_version_tuple = (0, 0, 14444)
+data_version_str = "0.0.post14447"
+data_version_tuple = (0, 0, 14447)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14444")
+    pdata_version = V("0.0.post14447")
 except ImportError:
     pass
-data_git_hash = "ac8ee81c2be56af617446ffc652d22572501f1f2"
-data_git_describe = "v0.0-14444-gac8ee81c2b"
+data_git_hash = "2a73d673e16f91027d7d6898b2f0df9fe68b975c"
+data_git_describe = "v0.0-14447-g2a73d673e1"
 data_git_msg = """\
-commit ac8ee81c2be56af617446ffc652d22572501f1f2
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Thu Sep 22 16:23:37 2022 -0700
+commit 2a73d673e16f91027d7d6898b2f0df9fe68b975c
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 5 19:47:35 2022 -0400
 
-    [ottool] Initial hyperdebug pin configuration
+    [doc] Fix typo in manifest.md
     
-    1. Write an initial configuration for hyperdebug pins to allow resets
-       and setting the SW straps.
-    2. Most transports call their console UART "0".  Hyperdebug does not.
-       All of the opentitantool configs have an alias named "console";
-       change all references to uart "0" to "console".
-    3. Fix the hyperdebug SPI implementation.
-    3a. Set the max chunk size to a power of two.
-    3b. Assert CS over an entire SPI transaction; refactor CS assert
-        counting.
+    Thanks for catching this @cdgori!
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
