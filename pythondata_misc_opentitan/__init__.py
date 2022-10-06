@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14597"
-version_tuple = (0, 0, 14597)
+version_str = "0.0.post14603"
+version_tuple = (0, 0, 14603)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14597")
+    pversion = V("0.0.post14603")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14455"
-data_version_tuple = (0, 0, 14455)
+data_version_str = "0.0.post14461"
+data_version_tuple = (0, 0, 14461)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14455")
+    pdata_version = V("0.0.post14461")
 except ImportError:
     pass
-data_git_hash = "b0934af698589765eaa78217ee7b05a13f45e59a"
-data_git_describe = "v0.0-14455-gb0934af698"
+data_git_hash = "a3f6f6bceae186b732a07ceec350f54af85ffda1"
+data_git_describe = "v0.0-14461-ga3f6f6bcea"
 data_git_msg = """\
-commit b0934af698589765eaa78217ee7b05a13f45e59a
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Oct 6 13:33:08 2022 -0400
+commit a3f6f6bceae186b732a07ceec350f54af85ffda1
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Thu Oct 6 12:52:24 2022 -0700
 
-    [sw/silicon_creator] Use memcpy to set boot_measurements.rom_ext
+    [top-test] entropy_src_csrng adjust timeout
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Adjust test timeout to fix nightly regression failure.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
