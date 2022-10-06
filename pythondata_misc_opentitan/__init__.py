@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14582"
-version_tuple = (0, 0, 14582)
+version_str = "0.0.post14583"
+version_tuple = (0, 0, 14583)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14582")
+    pversion = V("0.0.post14583")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14440"
-data_version_tuple = (0, 0, 14440)
+data_version_str = "0.0.post14441"
+data_version_tuple = (0, 0, 14441)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14440")
+    pdata_version = V("0.0.post14441")
 except ImportError:
     pass
-data_git_hash = "d09672b373b5ccacf528554aa5cd8e111987d99c"
-data_git_describe = "v0.0-14440-gd09672b373"
+data_git_hash = "b9d3d8f858e828dc39a28ab4e877c77fc1663e89"
+data_git_describe = "v0.0-14441-gb9d3d8f858"
 data_git_msg = """\
-commit d09672b373b5ccacf528554aa5cd8e111987d99c
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 5 13:26:31 2022 -0400
+commit b9d3d8f858e828dc39a28ab4e877c77fc1663e89
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Wed Oct 5 02:26:01 2022 -0700
 
-    [test] Improve retention_sram_get() call sites
+    added mubi cov if to esc_en issue#13579
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
