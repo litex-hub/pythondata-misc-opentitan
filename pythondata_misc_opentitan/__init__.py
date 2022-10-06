@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14575"
-version_tuple = (0, 0, 14575)
+version_str = "0.0.post14577"
+version_tuple = (0, 0, 14577)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14575")
+    pversion = V("0.0.post14577")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14433"
-data_version_tuple = (0, 0, 14433)
+data_version_str = "0.0.post14435"
+data_version_tuple = (0, 0, 14435)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14433")
+    pdata_version = V("0.0.post14435")
 except ImportError:
     pass
-data_git_hash = "4afba27874da8a78d0c5f3d66759cb75f74f047a"
-data_git_describe = "v0.0-14433-g4afba27874"
+data_git_hash = "883c2711350a72ff8172cfe01b0b07c903d61b25"
+data_git_describe = "v0.0-14435-g883c271135"
 data_git_msg = """\
-commit 4afba27874da8a78d0c5f3d66759cb75f74f047a
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Sep 30 21:42:49 2022 -0700
+commit 883c2711350a72ff8172cfe01b0b07c903d61b25
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 4 15:05:56 2022 -0700
 
-    [top/dv] Additional test updates to check isolated flash partition.
+    [spi_device/dv] Enable testing unaligned address when read TPM HW regs
     
-    The accessibility of the isolated partition should not be affected
-    by the insertion of a scrambling key since it is in a region that
-    is not scramble enabled.
+    1. Enabled testing unaligned address when read TPM HW regs
+    2. updated scb to support to drop HW reg write when host writes invalid locality
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
