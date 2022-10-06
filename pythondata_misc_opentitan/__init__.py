@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14589"
-version_tuple = (0, 0, 14589)
+version_str = "0.0.post14593"
+version_tuple = (0, 0, 14593)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14589")
+    pversion = V("0.0.post14593")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14447"
-data_version_tuple = (0, 0, 14447)
+data_version_str = "0.0.post14451"
+data_version_tuple = (0, 0, 14451)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14447")
+    pdata_version = V("0.0.post14451")
 except ImportError:
     pass
-data_git_hash = "2a73d673e16f91027d7d6898b2f0df9fe68b975c"
-data_git_describe = "v0.0-14447-g2a73d673e1"
+data_git_hash = "6d6115fd069c50cfd11dcb6f2563d82671dd2f10"
+data_git_describe = "v0.0-14451-g6d6115fd06"
 data_git_msg = """\
-commit 2a73d673e16f91027d7d6898b2f0df9fe68b975c
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 5 19:47:35 2022 -0400
+commit 6d6115fd069c50cfd11dcb6f2563d82671dd2f10
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Oct 4 18:13:55 2022 -0700
 
-    [doc] Fix typo in manifest.md
+    [dv] add several Xcelium regressions to scale up presubmit testing
     
-    Thanks for catching this @cdgori!
+    This adds several top-level test regression suites to enable scaling up
+    DV presubmit testing in CI using Xcelium.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
