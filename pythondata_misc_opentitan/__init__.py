@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14572"
-version_tuple = (0, 0, 14572)
+version_str = "0.0.post14575"
+version_tuple = (0, 0, 14575)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14572")
+    pversion = V("0.0.post14575")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14430"
-data_version_tuple = (0, 0, 14430)
+data_version_str = "0.0.post14433"
+data_version_tuple = (0, 0, 14433)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14430")
+    pdata_version = V("0.0.post14433")
 except ImportError:
     pass
-data_git_hash = "b4383c7e6756bb52290eda5d7ea7a3f70b68e663"
-data_git_describe = "v0.0-14430-gb4383c7e67"
+data_git_hash = "4afba27874da8a78d0c5f3d66759cb75f74f047a"
+data_git_describe = "v0.0-14433-g4afba27874"
 data_git_msg = """\
-commit b4383c7e6756bb52290eda5d7ea7a3f70b68e663
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Oct 5 13:39:13 2022 -0700
+commit 4afba27874da8a78d0c5f3d66759cb75f74f047a
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Sep 30 21:42:49 2022 -0700
 
-    [cleanup] Fix merge skew
+    [top/dv] Additional test updates to check isolated flash partition.
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    The accessibility of the isolated partition should not be affected
+    by the insertion of a scrambling key since it is in a region that
+    is not scramble enabled.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
