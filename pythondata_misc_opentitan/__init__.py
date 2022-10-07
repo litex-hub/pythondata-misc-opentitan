@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14620"
-version_tuple = (0, 0, 14620)
+version_str = "0.0.post14624"
+version_tuple = (0, 0, 14624)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14620")
+    pversion = V("0.0.post14624")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14478"
-data_version_tuple = (0, 0, 14478)
+data_version_str = "0.0.post14482"
+data_version_tuple = (0, 0, 14482)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14478")
+    pdata_version = V("0.0.post14482")
 except ImportError:
     pass
-data_git_hash = "4369d88a4223bc7fdd318e9d1686a70e0f327890"
-data_git_describe = "v0.0-14478-g4369d88a42"
+data_git_hash = "a10c750572c18933a8fd769b7411dbbd9d88c64f"
+data_git_describe = "v0.0-14482-ga10c750572"
 data_git_msg = """\
-commit 4369d88a4223bc7fdd318e9d1686a70e0f327890
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Oct 6 15:29:21 2022 -0700
+commit a10c750572c18933a8fd769b7411dbbd9d88c64f
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Sep 26 15:46:24 2022 +0000
 
-    [prim] Simplify defensive coding
+    [pwrmgr,dv] Sign off V2S
     
-    The previous code in this area was somewhat "conservative" and
-    qualified the ack with the busy condition.  However, coverage
-    tools were able to show that the inverse condition does not happen,
-    so instead move the qualification to an assertion to simplify
-    the coverage waivers.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
