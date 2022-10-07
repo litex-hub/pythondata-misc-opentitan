@@ -4,39 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14619"
-version_tuple = (0, 0, 14619)
+version_str = "0.0.post14620"
+version_tuple = (0, 0, 14620)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14619")
+    pversion = V("0.0.post14620")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14477"
-data_version_tuple = (0, 0, 14477)
+data_version_str = "0.0.post14478"
+data_version_tuple = (0, 0, 14478)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14477")
+    pdata_version = V("0.0.post14478")
 except ImportError:
     pass
-data_git_hash = "df662bf3dee4df9b99296054a139daee867153d5"
-data_git_describe = "v0.0-14477-gdf662bf3de"
+data_git_hash = "4369d88a4223bc7fdd318e9d1686a70e0f327890"
+data_git_describe = "v0.0-14478-g4369d88a42"
 data_git_msg = """\
-commit df662bf3dee4df9b99296054a139daee867153d5
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Sep 28 21:44:38 2022 -0700
+commit 4369d88a4223bc7fdd318e9d1686a70e0f327890
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 6 15:29:21 2022 -0700
 
-    [dv/pwrmgr] Fixes for recent RTL changes
+    [prim] Simplify defensive coding
     
-    The change in handling of reset had a big impact on DV.
-    Some test sequences need to be adjusted to stop during lc reset or clock
-    stops, and reset handling needs to change.
-    The pwrmgr_clk_ctrl_agent was out of sync with the counterpart in
-    pwrmgr_base_vseq, so we are moving all functionality to the latter.
-    This PR disables that agent and a subsequent one will remove it.
+    The previous code in this area was somewhat "conservative" and
+    qualified the ack with the busy condition.  However, coverage
+    tools were able to show that the inverse condition does not happen,
+    so instead move the qualification to an assertion to simplify
+    the coverage waivers.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
