@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14624"
-version_tuple = (0, 0, 14624)
+version_str = "0.0.post14625"
+version_tuple = (0, 0, 14625)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14624")
+    pversion = V("0.0.post14625")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14482"
-data_version_tuple = (0, 0, 14482)
+data_version_str = "0.0.post14483"
+data_version_tuple = (0, 0, 14483)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14482")
+    pdata_version = V("0.0.post14483")
 except ImportError:
     pass
-data_git_hash = "a10c750572c18933a8fd769b7411dbbd9d88c64f"
-data_git_describe = "v0.0-14482-ga10c750572"
+data_git_hash = "8b107c473157f391d25654168b62911b02f3d205"
+data_git_describe = "v0.0-14483-g8b107c4731"
 data_git_msg = """\
-commit a10c750572c18933a8fd769b7411dbbd9d88c64f
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Sep 26 15:46:24 2022 +0000
+commit 8b107c473157f391d25654168b62911b02f3d205
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Oct 5 14:37:36 2022 -0700
 
-    [pwrmgr,dv] Sign off V2S
+    [top/dv] Add exit_test_unlock test.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    The primary difference between this test and the existing unlock
+    test is that this sequence tries to simulate the liklihood system
+    usage.
+    
+    Specifically, the ROM_EXEC_EN and the advance to PROD are done in
+    the same power cycle.  Upon reboot, an image is then bootstrap
+    into the device to ensure the behavior is correct.
+    
+    The bootstrap portion for this test is still missing.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
