@@ -4,38 +4,48 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14609"
-version_tuple = (0, 0, 14609)
+version_str = "0.0.post14611"
+version_tuple = (0, 0, 14611)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14609")
+    pversion = V("0.0.post14611")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14467"
-data_version_tuple = (0, 0, 14467)
+data_version_str = "0.0.post14469"
+data_version_tuple = (0, 0, 14469)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14467")
+    pdata_version = V("0.0.post14469")
 except ImportError:
     pass
-data_git_hash = "cc15a925b80c71a7a503948afbda78840cca9a44"
-data_git_describe = "v0.0-14467-gcc15a925b8"
+data_git_hash = "f70583d912cf1f343fbf5f67dc80f44fab557a49"
+data_git_describe = "v0.0-14469-gf70583d912"
 data_git_msg = """\
-commit cc15a925b80c71a7a503948afbda78840cca9a44
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 6 11:03:25 2022 -0700
+commit f70583d912cf1f343fbf5f67dc80f44fab557a49
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 5 21:18:49 2022 -0700
 
-    [dv/kmac] Fix KMAC errors
+    [bazel] update rules_rust to use current tip of tree
     
-    This PR fixes two KMAC nightly issues:
-    1). entropy failure: Cannot write `err_process` and `entropy_ready`
-      field together after an entropy error.
-      Design will clarify that in the design doc.
-    2). Add a testplan entry for kmac_entropy_ready test.
+    This updates the rules_rust Bazel depedency to use the upstream rules.
+    These now work in an airgapped environment.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Additionally, this has the unfortunate side-effect of temporarily
+    disabling rust-analyzer. To use rust-analyzer requires setting the
+    `include_rustc_srcs` parameter to `true` in the
+    `rust_toolchain_repository` repository rule invocation. However, setting
+    this to true, while using the nighly rust toolchains breaks airgapped
+    bazel builds because upstream `rules_rust` does not maintain a list of
+    known SHA256s for the nightly srcs. Therefore the download of the src
+    code that is triggered by setting `include_rustc_srcs` to `true` is not
+    cached.
+    
+    This issue will need to be addressed in upstream `rules_rust`, and will
+    be handled externally.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
