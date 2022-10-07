@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14606"
-version_tuple = (0, 0, 14606)
+version_str = "0.0.post14608"
+version_tuple = (0, 0, 14608)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14606")
+    pversion = V("0.0.post14608")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14464"
-data_version_tuple = (0, 0, 14464)
+data_version_str = "0.0.post14466"
+data_version_tuple = (0, 0, 14466)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14464")
+    pdata_version = V("0.0.post14466")
 except ImportError:
     pass
-data_git_hash = "1bc7ba3536a2240ef209e9acd4b7fed1e32cac91"
-data_git_describe = "v0.0-14464-g1bc7ba3536"
+data_git_hash = "10daa25ec9d8bebe6d86b6b20694cad1c2a40448"
+data_git_describe = "v0.0-14466-g10daa25ec9"
 data_git_msg = """\
-commit 1bc7ba3536a2240ef209e9acd4b7fed1e32cac91
-Author: Eli Kim <eli@opentitan.org>
-Date:   Thu Oct 6 11:24:37 2022 -0700
+commit 10daa25ec9d8bebe6d86b6b20694cad1c2a40448
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Oct 5 16:59:35 2022 -0700
 
-    feat(chip): Scaffolds SV test env for sleep_pin_retention
+    [prim_mubi] Fix sampling issue in MUBI sync assertions
     
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Fix #15234
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
