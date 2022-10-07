@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14608"
-version_tuple = (0, 0, 14608)
+version_str = "0.0.post14609"
+version_tuple = (0, 0, 14609)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14608")
+    pversion = V("0.0.post14609")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14466"
-data_version_tuple = (0, 0, 14466)
+data_version_str = "0.0.post14467"
+data_version_tuple = (0, 0, 14467)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14466")
+    pdata_version = V("0.0.post14467")
 except ImportError:
     pass
-data_git_hash = "10daa25ec9d8bebe6d86b6b20694cad1c2a40448"
-data_git_describe = "v0.0-14466-g10daa25ec9"
+data_git_hash = "cc15a925b80c71a7a503948afbda78840cca9a44"
+data_git_describe = "v0.0-14467-gcc15a925b8"
 data_git_msg = """\
-commit 10daa25ec9d8bebe6d86b6b20694cad1c2a40448
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Oct 5 16:59:35 2022 -0700
+commit cc15a925b80c71a7a503948afbda78840cca9a44
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Oct 6 11:03:25 2022 -0700
 
-    [prim_mubi] Fix sampling issue in MUBI sync assertions
+    [dv/kmac] Fix KMAC errors
     
-    Fix #15234
+    This PR fixes two KMAC nightly issues:
+    1). entropy failure: Cannot write `err_process` and `entropy_ready`
+      field together after an entropy error.
+      Design will clarify that in the design doc.
+    2). Add a testplan entry for kmac_entropy_ready test.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
