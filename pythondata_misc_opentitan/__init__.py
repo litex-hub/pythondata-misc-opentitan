@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14616"
-version_tuple = (0, 0, 14616)
+version_str = "0.0.post14618"
+version_tuple = (0, 0, 14618)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14616")
+    pversion = V("0.0.post14618")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14474"
-data_version_tuple = (0, 0, 14474)
+data_version_str = "0.0.post14476"
+data_version_tuple = (0, 0, 14476)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14474")
+    pdata_version = V("0.0.post14476")
 except ImportError:
     pass
-data_git_hash = "8d806f0428199346851603832521419b49a69b25"
-data_git_describe = "v0.0-14474-g8d806f0428"
+data_git_hash = "3db50d206f0289eb1c9e0c2d36d67c8b85bf1bc5"
+data_git_describe = "v0.0-14476-g3db50d206f"
 data_git_msg = """\
-commit 8d806f0428199346851603832521419b49a69b25
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Thu Oct 6 05:15:21 2022 +0000
+commit 3db50d206f0289eb1c9e0c2d36d67c8b85bf1bc5
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 6 17:02:46 2022 -0700
 
-    [flash_ctrl,dv] Coverage update
+    [rv_core_ibex] Documentation fix
     
-    This PR has following updates
-     - Update testplans for v2s
-     - Fix eviction cover point from vector to index
-     - Move sampling point of fetch code cover group
-     - Increase test runs of some tests
-     - Update flash_ctrl_disable error condition to '!= true'
-     - Add error injection to fetch code test.
+    - addresses the documentation portion of #15052
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
