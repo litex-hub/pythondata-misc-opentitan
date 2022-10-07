@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14613"
-version_tuple = (0, 0, 14613)
+version_str = "0.0.post14615"
+version_tuple = (0, 0, 14615)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14613")
+    pversion = V("0.0.post14615")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14471"
-data_version_tuple = (0, 0, 14471)
+data_version_str = "0.0.post14473"
+data_version_tuple = (0, 0, 14473)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14471")
+    pdata_version = V("0.0.post14473")
 except ImportError:
     pass
-data_git_hash = "144e5112df44eecab06d510455a77435551946a7"
-data_git_describe = "v0.0-14471-g144e5112df"
+data_git_hash = "ff78583a353573257ab27fe9e445db4a0a2c147a"
+data_git_describe = "v0.0-14473-gff78583a35"
 data_git_msg = """\
-commit 144e5112df44eecab06d510455a77435551946a7
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Oct 5 23:00:18 2022 -0700
+commit ff78583a353573257ab27fe9e445db4a0a2c147a
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Sep 16 10:32:19 2022 +0200
 
-    [spi_device] Add tpm_all test
+    [crypto] Remove DMEM pointers from Ibex-side ECDSA-P256 code.
     
-    This test has the following sequence
-    - Configure `TPM_CFG.EN` to On and fully randomize other TPM configuration.
-    - Run these 3 threads to randomly access TPM HW registers and other addresses.
-    - Host issues random TPM reads/writes to spi_device.
-    - SW polls the TPM interrupt `tpm_header_not_empty`, then read command/address and
-    the corresponding FIFO.
-     - SW randomly updates TPM HW registers.
-    - Ensure all the data is correct in the scoreboard.
+    Modify the Ibex code to match the new DMEM interface for ECDSA-P256.
     
-    Also fix some small issues in the scb
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
