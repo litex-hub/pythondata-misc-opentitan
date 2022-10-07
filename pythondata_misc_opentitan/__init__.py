@@ -4,48 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14611"
-version_tuple = (0, 0, 14611)
+version_str = "0.0.post14613"
+version_tuple = (0, 0, 14613)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14611")
+    pversion = V("0.0.post14613")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14469"
-data_version_tuple = (0, 0, 14469)
+data_version_str = "0.0.post14471"
+data_version_tuple = (0, 0, 14471)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14469")
+    pdata_version = V("0.0.post14471")
 except ImportError:
     pass
-data_git_hash = "f70583d912cf1f343fbf5f67dc80f44fab557a49"
-data_git_describe = "v0.0-14469-gf70583d912"
+data_git_hash = "144e5112df44eecab06d510455a77435551946a7"
+data_git_describe = "v0.0-14471-g144e5112df"
 data_git_msg = """\
-commit f70583d912cf1f343fbf5f67dc80f44fab557a49
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 5 21:18:49 2022 -0700
+commit 144e5112df44eecab06d510455a77435551946a7
+Author: Weicai Yang <weicai@google.com>
+Date:   Wed Oct 5 23:00:18 2022 -0700
 
-    [bazel] update rules_rust to use current tip of tree
+    [spi_device] Add tpm_all test
     
-    This updates the rules_rust Bazel depedency to use the upstream rules.
-    These now work in an airgapped environment.
+    This test has the following sequence
+    - Configure `TPM_CFG.EN` to On and fully randomize other TPM configuration.
+    - Run these 3 threads to randomly access TPM HW registers and other addresses.
+    - Host issues random TPM reads/writes to spi_device.
+    - SW polls the TPM interrupt `tpm_header_not_empty`, then read command/address and
+    the corresponding FIFO.
+     - SW randomly updates TPM HW registers.
+    - Ensure all the data is correct in the scoreboard.
     
-    Additionally, this has the unfortunate side-effect of temporarily
-    disabling rust-analyzer. To use rust-analyzer requires setting the
-    `include_rustc_srcs` parameter to `true` in the
-    `rust_toolchain_repository` repository rule invocation. However, setting
-    this to true, while using the nighly rust toolchains breaks airgapped
-    bazel builds because upstream `rules_rust` does not maintain a list of
-    known SHA256s for the nightly srcs. Therefore the download of the src
-    code that is triggered by setting `include_rustc_srcs` to `true` is not
-    cached.
+    Also fix some small issues in the scb
     
-    This issue will need to be addressed in upstream `rules_rust`, and will
-    be handled externally.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
