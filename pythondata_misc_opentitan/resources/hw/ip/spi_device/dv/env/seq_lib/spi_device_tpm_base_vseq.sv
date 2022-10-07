@@ -48,6 +48,7 @@ class spi_device_tpm_base_vseq extends spi_device_base_vseq;
   endfunction
   // Configure clocks and tpm, generate a word.
   virtual task tpm_init(tpm_cfg_mode_e mode, bit is_hw_return = $random);
+    spi_clk_init();
     cfg.spi_host_agent_cfg.csid = TPM_CSB_ID;
     // Only SPI mode 0 is supported (CPHA=0, CPOL=0).
     cfg.spi_host_agent_cfg.sck_polarity[TPM_CSB_ID] = 0;
@@ -95,10 +96,9 @@ class spi_device_tpm_base_vseq extends spi_device_base_vseq;
   endtask : wait_and_check_tpm_cmd_addr
 
   virtual task wait_and_process_tpm_fifo(bit write,
-                                         bit [TPM_ADDR_WIDTH-1:0] exp_addr,
                                          uint exp_num_bytes,
                                          output bit [7:0] byte_q[$]);
-    wait_and_check_tpm_cmd_addr(get_tpm_cmd(write, exp_num_bytes), exp_addr);
+
     // Upon receiving read command, set read fifo contents
     if (write) begin
       bit [7:0] wrfifo_byte;

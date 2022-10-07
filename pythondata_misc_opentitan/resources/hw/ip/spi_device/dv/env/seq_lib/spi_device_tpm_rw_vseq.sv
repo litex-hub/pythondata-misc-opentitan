@@ -10,7 +10,7 @@ class spi_device_tpm_rw_vseq extends spi_device_tpm_base_vseq;
   virtual task body();
     bit [7:0] spi_byte_q[$];
     bit [7:0] sw_byte_q[$];
-    spi_device_init();
+    spi_device_fw_init();
 
     // randomised tpm configuration.
     tpm_init(TpmCrbMode);
@@ -23,7 +23,8 @@ class spi_device_tpm_rw_vseq extends spi_device_tpm_base_vseq;
           spi_host_xfer_tpm_item(write, tpm_size, tpm_addr, spi_byte_q);
         end
         begin
-          wait_and_process_tpm_fifo(write, tpm_addr, tpm_size, sw_byte_q);
+          wait_and_check_tpm_cmd_addr(get_tpm_cmd(write, tpm_size), tpm_addr);
+          wait_and_process_tpm_fifo(write, tpm_size, sw_byte_q);
         end
       join
       `DV_CHECK_Q_EQ(spi_byte_q, sw_byte_q)
