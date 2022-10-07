@@ -4,34 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14615"
-version_tuple = (0, 0, 14615)
+version_str = "0.0.post14616"
+version_tuple = (0, 0, 14616)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14615")
+    pversion = V("0.0.post14616")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14473"
-data_version_tuple = (0, 0, 14473)
+data_version_str = "0.0.post14474"
+data_version_tuple = (0, 0, 14474)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14473")
+    pdata_version = V("0.0.post14474")
 except ImportError:
     pass
-data_git_hash = "ff78583a353573257ab27fe9e445db4a0a2c147a"
-data_git_describe = "v0.0-14473-gff78583a35"
+data_git_hash = "8d806f0428199346851603832521419b49a69b25"
+data_git_describe = "v0.0-14474-g8d806f0428"
 data_git_msg = """\
-commit ff78583a353573257ab27fe9e445db4a0a2c147a
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Sep 16 10:32:19 2022 +0200
+commit 8d806f0428199346851603832521419b49a69b25
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Thu Oct 6 05:15:21 2022 +0000
 
-    [crypto] Remove DMEM pointers from Ibex-side ECDSA-P256 code.
+    [flash_ctrl,dv] Coverage update
     
-    Modify the Ibex code to match the new DMEM interface for ECDSA-P256.
+    This PR has following updates
+     - Update testplans for v2s
+     - Fix eviction cover point from vector to index
+     - Move sampling point of fetch code cover group
+     - Increase test runs of some tests
+     - Update flash_ctrl_disable error condition to '!= true'
+     - Add error injection to fetch code test.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
