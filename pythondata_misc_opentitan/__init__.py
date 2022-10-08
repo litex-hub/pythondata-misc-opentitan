@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14629"
-version_tuple = (0, 0, 14629)
+version_str = "0.0.post14630"
+version_tuple = (0, 0, 14630)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14629")
+    pversion = V("0.0.post14630")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14487"
-data_version_tuple = (0, 0, 14487)
+data_version_str = "0.0.post14488"
+data_version_tuple = (0, 0, 14488)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14487")
+    pdata_version = V("0.0.post14488")
 except ImportError:
     pass
-data_git_hash = "00b2357aa558c1ac74ae7acee9bb5046c9b28072"
-data_git_describe = "v0.0-14487-g00b2357aa5"
+data_git_hash = "c2a8c64ccbca39707be7883dfd2f8c1100813730"
+data_git_describe = "v0.0-14488-gc2a8c64ccb"
 data_git_msg = """\
-commit 00b2357aa558c1ac74ae7acee9bb5046c9b28072
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Oct 7 16:50:49 2022 -0700
+commit c2a8c64ccbca39707be7883dfd2f8c1100813730
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 7 17:55:28 2022 -0700
 
-    [otp-img] Add PROD image for use in simulation
+    [dv/kmac] Masked kmac exclusion checksum update
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Due to design changes by adding a state, this PR updates the terminal
+    state exclusion checksum and transition values.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
