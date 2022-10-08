@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14626"
-version_tuple = (0, 0, 14626)
+version_str = "0.0.post14629"
+version_tuple = (0, 0, 14629)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14626")
+    pversion = V("0.0.post14629")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14484"
-data_version_tuple = (0, 0, 14484)
+data_version_str = "0.0.post14487"
+data_version_tuple = (0, 0, 14487)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14484")
+    pdata_version = V("0.0.post14487")
 except ImportError:
     pass
-data_git_hash = "760a0b635e060d1b7a2087aede139fca9bd6da98"
-data_git_describe = "v0.0-14484-g760a0b635e"
+data_git_hash = "00b2357aa558c1ac74ae7acee9bb5046c9b28072"
+data_git_describe = "v0.0-14487-g00b2357aa5"
 data_git_msg = """\
-commit 760a0b635e060d1b7a2087aede139fca9bd6da98
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Oct 7 12:31:12 2022 -0700
+commit 00b2357aa558c1ac74ae7acee9bb5046c9b28072
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Oct 7 16:50:49 2022 -0700
 
-    [dv/chip] Remove uart agent coverage in chip level
+    [otp-img] Add PROD image for use in simulation
     
-    Branch from PR #15325, this PR skips creating the uart agent functional
-    coverage for chip level testing.
-    Thanks @sri and @weicai for the suggetions!
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
