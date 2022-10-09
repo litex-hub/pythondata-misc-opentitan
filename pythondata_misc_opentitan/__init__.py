@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14631"
-version_tuple = (0, 0, 14631)
+version_str = "0.0.post14632"
+version_tuple = (0, 0, 14632)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14631")
+    pversion = V("0.0.post14632")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14489"
-data_version_tuple = (0, 0, 14489)
+data_version_str = "0.0.post14490"
+data_version_tuple = (0, 0, 14490)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14489")
+    pdata_version = V("0.0.post14490")
 except ImportError:
     pass
-data_git_hash = "6913573c70e0bd2916c76294bb0229f38a8f9fac"
-data_git_describe = "v0.0-14489-g6913573c70"
+data_git_hash = "ef2c138e048e191c4fe9d3bba0bc4fd869346fd0"
+data_git_describe = "v0.0-14490-gef2c138e04"
 data_git_msg = """\
-commit 6913573c70e0bd2916c76294bb0229f38a8f9fac
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Mon Oct 3 17:20:24 2022 -0700
+commit ef2c138e048e191c4fe9d3bba0bc4fd869346fd0
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Oct 7 21:38:58 2022 +0000
 
-    [top-test] csrng_lc_hw_debug_en_test
+    [flash_ctrl,dv] flash_ctrl.ctrl_regwen test
     
-    This commits adds a default OTP image for unlocked_test0 LC state, and
-    implements the csrng_lc_hw_debug_en_test as a sim_dv target.
-    
-    There are additional changes made to the entropy_src firmware override
-    interface to enable conditioner bypass mode. An additional test case
-    will be added later to cover that functionality.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
