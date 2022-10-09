@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14630"
-version_tuple = (0, 0, 14630)
+version_str = "0.0.post14631"
+version_tuple = (0, 0, 14631)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14630")
+    pversion = V("0.0.post14631")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14488"
-data_version_tuple = (0, 0, 14488)
+data_version_str = "0.0.post14489"
+data_version_tuple = (0, 0, 14489)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14488")
+    pdata_version = V("0.0.post14489")
 except ImportError:
     pass
-data_git_hash = "c2a8c64ccbca39707be7883dfd2f8c1100813730"
-data_git_describe = "v0.0-14488-gc2a8c64ccb"
+data_git_hash = "6913573c70e0bd2916c76294bb0229f38a8f9fac"
+data_git_describe = "v0.0-14489-g6913573c70"
 data_git_msg = """\
-commit c2a8c64ccbca39707be7883dfd2f8c1100813730
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Oct 7 17:55:28 2022 -0700
+commit 6913573c70e0bd2916c76294bb0229f38a8f9fac
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Mon Oct 3 17:20:24 2022 -0700
 
-    [dv/kmac] Masked kmac exclusion checksum update
+    [top-test] csrng_lc_hw_debug_en_test
     
-    Due to design changes by adding a state, this PR updates the terminal
-    state exclusion checksum and transition values.
+    This commits adds a default OTP image for unlocked_test0 LC state, and
+    implements the csrng_lc_hw_debug_en_test as a sim_dv target.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    There are additional changes made to the entropy_src firmware override
+    interface to enable conditioner bypass mode. An additional test case
+    will be added later to cover that functionality.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
