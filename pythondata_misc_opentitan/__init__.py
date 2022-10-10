@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14632"
-version_tuple = (0, 0, 14632)
+version_str = "0.0.post14633"
+version_tuple = (0, 0, 14633)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14632")
+    pversion = V("0.0.post14633")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14490"
-data_version_tuple = (0, 0, 14490)
+data_version_str = "0.0.post14491"
+data_version_tuple = (0, 0, 14491)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14490")
+    pdata_version = V("0.0.post14491")
 except ImportError:
     pass
-data_git_hash = "ef2c138e048e191c4fe9d3bba0bc4fd869346fd0"
-data_git_describe = "v0.0-14490-gef2c138e04"
+data_git_hash = "5ed2fcbac1ecd25c4a0b4485213b08985aaeaac6"
+data_git_describe = "v0.0-14491-g5ed2fcbac1"
 data_git_msg = """\
-commit ef2c138e048e191c4fe9d3bba0bc4fd869346fd0
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Oct 7 21:38:58 2022 +0000
+commit 5ed2fcbac1ecd25c4a0b4485213b08985aaeaac6
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Oct 7 16:04:56 2022 -0700
 
-    [flash_ctrl,dv] flash_ctrl.ctrl_regwen test
+    [spi_device/dv] Add flash and TPM concurrent sequence
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    1. Run both sequences in parallel
+    2. update seq/scb to fix a few issues
+      - CSB needs to be set via transactions
+      - avoid accessing the same CFG csr at the same time
+      - In some extrem case, tpm_write_spi_q may contains 2 items
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
