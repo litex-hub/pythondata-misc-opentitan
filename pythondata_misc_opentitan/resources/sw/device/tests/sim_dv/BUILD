@@ -50,6 +50,28 @@ opentitan_functest(
 )
 
 opentitan_functest(
+    name = "i2c_device_tx_rx_test",
+    srcs = ["i2c_device_tx_rx_test.c"],
+    targets = ["dv"],
+    deps = [
+        "//hw/ip/lc_ctrl/data:lc_ctrl_regs",
+        "//hw/top_earlgrey/ip/clkmgr/data/autogen:clkmgr_regs",
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:i2c",
+        "//sw/device/lib/dif:pinmux",
+        "//sw/device/lib/dif:rv_plic",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:irq",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:i2c_testutils",
+        "//sw/device/lib/testing:isr_testutils",
+        "//sw/device/lib/testing:rand_testutils",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
     name = "flash_ctrl_lc_rw_en_test",
     srcs = ["flash_ctrl_lc_rw_en_test.c"],
     targets = ["dv"],
@@ -863,7 +885,11 @@ opentitan_functest(
         "//sw/device/lib/dif:adc_ctrl",
         "//sw/device/lib/dif:pwrmgr",
         "//sw/device/lib/dif:rstmgr",
+        "//sw/device/lib/dif:rv_plic",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:irq",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:isr_testutils",
         "//sw/device/lib/testing:pwrmgr_testutils",
         "//sw/device/lib/testing:rstmgr_testutils",
         "//sw/device/lib/testing/test_framework:check",
@@ -1099,6 +1125,25 @@ opentitan_functest(
         "//sw/device/lib/dif:lc_ctrl",
         "//sw/device/lib/dif:rstmgr",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+    ],
+)
+
+opentitan_functest(
+    name = "pattgen_ios_test",
+    srcs = ["pattgen_ios_test.c"],
+    targets = ["dv"],
+    deps = [
+        "//hw/top_earlgrey/sw/autogen:top_earlgrey",
+        "//sw/device/lib/base:memory",
+        "//sw/device/lib/base:mmio",
+        "//sw/device/lib/dif:pattgen",
+        "//sw/device/lib/dif:pinmux",
+        "//sw/device/lib/runtime:hart",
+        "//sw/device/lib/runtime:irq",
+        "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing:rv_plic_testutils",
+        "//sw/device/lib/testing/test_framework:check",
         "//sw/device/lib/testing/test_framework:ottf_main",
     ],
 )

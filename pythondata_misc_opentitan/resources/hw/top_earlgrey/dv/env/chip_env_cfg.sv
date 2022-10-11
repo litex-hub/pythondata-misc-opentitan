@@ -87,6 +87,7 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
   rand spi_agent_cfg        m_spi_agent_cfg;
   pwm_monitor_cfg           m_pwm_monitor_cfg[NUM_PWM_CHANNELS];
   rand i2c_agent_cfg        m_i2c_agent_cfgs[NUM_I2CS];
+  rand pattgen_agent_cfg    m_pattgen_agent_cfg;
 
   // JTAG DMI register model
   rand jtag_dmi_reg_block jtag_dmi_ral;
@@ -120,6 +121,9 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
     has_devmode = 0;
     list_of_alerts = chip_common_pkg::LIST_OF_ALERTS;
 
+    // No need to cover all kinds of interity errors as they are tested in block-level.
+    en_tl_intg_err_cov = 0;
+
     // Set up second RAL model for ROM memory and associated collateral
     if (use_jtag_dmi == 1) begin
       ral_model_names.push_back(rv_dm_mem_ral_name);
@@ -149,6 +153,10 @@ class chip_env_cfg #(type RAL_T = chip_ral_pkg::chip_reg_block) extends cip_base
     foreach (m_i2c_agent_cfgs[i]) begin
       m_i2c_agent_cfgs[i] = i2c_agent_cfg::type_id::create($sformatf("m_i2c_agent_cfg%0d", i));
     end
+
+    // create pattgen agent config obj
+    m_pattgen_agent_cfg = pattgen_agent_cfg::type_id::create("m_pattgen_agent_cfg");
+    m_pattgen_agent_cfg.if_mode = Device;
 
     // create jtag agent config obj
     m_jtag_riscv_agent_cfg = jtag_riscv_agent_cfg::type_id::create("m_jtag_riscv_agent_cfg");
