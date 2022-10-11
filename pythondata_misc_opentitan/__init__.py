@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14666"
-version_tuple = (0, 0, 14666)
+version_str = "0.0.post14672"
+version_tuple = (0, 0, 14672)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14666")
+    pversion = V("0.0.post14672")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14524"
-data_version_tuple = (0, 0, 14524)
+data_version_str = "0.0.post14530"
+data_version_tuple = (0, 0, 14530)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14524")
+    pdata_version = V("0.0.post14530")
 except ImportError:
     pass
-data_git_hash = "d0b9668b20f6df02bb242a166ae31d1e7c55ad34"
-data_git_describe = "v0.0-14524-gd0b9668b20"
+data_git_hash = "cc7d363b4eaf952dd08a79eeacaa4d4d7a58f35a"
+data_git_describe = "v0.0-14530-gcc7d363b4e"
 data_git_msg = """\
-commit d0b9668b20f6df02bb242a166ae31d1e7c55ad34
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Oct 7 17:08:34 2022 -0700
+commit cc7d363b4eaf952dd08a79eeacaa4d4d7a58f35a
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Oct 7 20:42:15 2022 -0700
 
-    [fpv] add correct settings for clkmgr
+    [rv_dm] Stall tlul transactions when issuing ndm reset
     
-    This PR adds clk and reset for clkmgr module.
+    - fixes #15242
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
