@@ -4,36 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14678"
-version_tuple = (0, 0, 14678)
+version_str = "0.0.post14679"
+version_tuple = (0, 0, 14679)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14678")
+    pversion = V("0.0.post14679")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14536"
-data_version_tuple = (0, 0, 14536)
+data_version_str = "0.0.post14537"
+data_version_tuple = (0, 0, 14537)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14536")
+    pdata_version = V("0.0.post14537")
 except ImportError:
     pass
-data_git_hash = "f0d65e65aeefdc0ca79097acf7c79e1fd683ac92"
-data_git_describe = "v0.0-14536-gf0d65e65ae"
+data_git_hash = "17a89ad860106aa5ad5d018c80eea27dc2f81c3a"
+data_git_describe = "v0.0-14537-g17a89ad860"
 data_git_msg = """\
-commit f0d65e65aeefdc0ca79097acf7c79e1fd683ac92
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Fri Sep 30 17:24:32 2022 +0000
+commit 17a89ad860106aa5ad5d018c80eea27dc2f81c3a
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Oct 10 23:07:35 2022 -0700
 
-    [top/dv] Add test glitching outputs of Ibex or lockstep core
+    [spi_device/dv] Update interrupt fcov and add TPM interrupt checker
     
-    This commit contributes to resolving lowRISC/ibex#1757.  A subsequent
-    commit shall extend this test to also glitch the inputs of the lockstep
-    core.
+    1. Sample interrupt fcov
+    2. Update scb to check TPM interrupt with an enable knob
+    3. Disable TPM interrupt checkers for tpm_all test
+    4. Update TL max_outstanding_num
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
