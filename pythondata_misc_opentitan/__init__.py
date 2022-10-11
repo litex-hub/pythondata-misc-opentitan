@@ -4,34 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14672"
-version_tuple = (0, 0, 14672)
+version_str = "0.0.post14673"
+version_tuple = (0, 0, 14673)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14672")
+    pversion = V("0.0.post14673")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14530"
-data_version_tuple = (0, 0, 14530)
+data_version_str = "0.0.post14531"
+data_version_tuple = (0, 0, 14531)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14530")
+    pdata_version = V("0.0.post14531")
 except ImportError:
     pass
-data_git_hash = "cc7d363b4eaf952dd08a79eeacaa4d4d7a58f35a"
-data_git_describe = "v0.0-14530-gcc7d363b4e"
+data_git_hash = "08334590b8b26212fc4525f4b5cb14d3ec5fdec3"
+data_git_describe = "v0.0-14531-g08334590b8"
 data_git_msg = """\
-commit cc7d363b4eaf952dd08a79eeacaa4d4d7a58f35a
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Oct 7 20:42:15 2022 -0700
+commit 08334590b8b26212fc4525f4b5cb14d3ec5fdec3
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Mon Oct 10 09:56:47 2022 -0700
 
-    [rv_dm] Stall tlul transactions when issuing ndm reset
+    [entropy_src/dv] Refactor scoreboarding collect_entropy
     
-    - fixes #15242
+    When scoreboarding results from the ExtHT agent the scoreboard needs to
+    wait for the ExtHT agent to report back.  Since the agent is slightly
+    delayed by the DUT, this means that the health test scoring must also
+    be delayed.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    This commit breaks entropy collection and health test scoring into
+    separate threads so that the health test scoring can be done at the
+    appropriate time.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
