@@ -4,38 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14633"
-version_tuple = (0, 0, 14633)
+version_str = "0.0.post14666"
+version_tuple = (0, 0, 14666)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14633")
+    pversion = V("0.0.post14666")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14491"
-data_version_tuple = (0, 0, 14491)
+data_version_str = "0.0.post14524"
+data_version_tuple = (0, 0, 14524)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14491")
+    pdata_version = V("0.0.post14524")
 except ImportError:
     pass
-data_git_hash = "5ed2fcbac1ecd25c4a0b4485213b08985aaeaac6"
-data_git_describe = "v0.0-14491-g5ed2fcbac1"
+data_git_hash = "d0b9668b20f6df02bb242a166ae31d1e7c55ad34"
+data_git_describe = "v0.0-14524-gd0b9668b20"
 data_git_msg = """\
-commit 5ed2fcbac1ecd25c4a0b4485213b08985aaeaac6
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Oct 7 16:04:56 2022 -0700
+commit d0b9668b20f6df02bb242a166ae31d1e7c55ad34
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 7 17:08:34 2022 -0700
 
-    [spi_device/dv] Add flash and TPM concurrent sequence
+    [fpv] add correct settings for clkmgr
     
-    1. Run both sequences in parallel
-    2. update seq/scb to fix a few issues
-      - CSB needs to be set via transactions
-      - avoid accessing the same CFG csr at the same time
-      - In some extrem case, tpm_write_spi_q may contains 2 items
+    This PR adds clk and reset for clkmgr module.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
