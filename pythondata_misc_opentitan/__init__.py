@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14679"
-version_tuple = (0, 0, 14679)
+version_str = "0.0.post14682"
+version_tuple = (0, 0, 14682)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14679")
+    pversion = V("0.0.post14682")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14537"
-data_version_tuple = (0, 0, 14537)
+data_version_str = "0.0.post14540"
+data_version_tuple = (0, 0, 14540)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14537")
+    pdata_version = V("0.0.post14540")
 except ImportError:
     pass
-data_git_hash = "17a89ad860106aa5ad5d018c80eea27dc2f81c3a"
-data_git_describe = "v0.0-14537-g17a89ad860"
+data_git_hash = "7c7151f57b26837e5774ea93cafd377c8a4496b7"
+data_git_describe = "v0.0-14540-g7c7151f57b"
 data_git_msg = """\
-commit 17a89ad860106aa5ad5d018c80eea27dc2f81c3a
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Oct 10 23:07:35 2022 -0700
+commit 7c7151f57b26837e5774ea93cafd377c8a4496b7
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Oct 11 13:34:36 2022 -0700
 
-    [spi_device/dv] Update interrupt fcov and add TPM interrupt checker
+    [dv/clkmgr] Declare V2S
     
-    1. Sample interrupt fcov
-    2. Update scb to check TPM interrupt with an enable knob
-    3. Disable TPM interrupt checkers for tpm_all test
-    4. Update TL max_outstanding_num
-    
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
