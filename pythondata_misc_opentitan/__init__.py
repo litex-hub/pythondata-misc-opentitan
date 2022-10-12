@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14704"
-version_tuple = (0, 0, 14704)
+version_str = "0.0.post14705"
+version_tuple = (0, 0, 14705)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14704")
+    pversion = V("0.0.post14705")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14562"
-data_version_tuple = (0, 0, 14562)
+data_version_str = "0.0.post14563"
+data_version_tuple = (0, 0, 14563)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14562")
+    pdata_version = V("0.0.post14563")
 except ImportError:
     pass
-data_git_hash = "f7cbbb47e1d07ed6798d697082ad994dd7b0ea10"
-data_git_describe = "v0.0-14562-gf7cbbb47e1"
+data_git_hash = "d19d492fcac39fe201469b3935c9cb11c979d5a9"
+data_git_describe = "v0.0-14563-gd19d492fca"
 data_git_msg = """\
-commit f7cbbb47e1d07ed6798d697082ad994dd7b0ea10
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Sun Oct 9 23:37:17 2022 +0300
+commit d19d492fcac39fe201469b3935c9cb11c979d5a9
+Author: Ziv Hershman <ziv.hershman@nuvoton.com>
+Date:   Wed Oct 12 14:24:19 2022 +0300
 
-    [ast] Add 'plusargs' for entropy rate and add cast width for logical shift
+    [ast] update doc
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    Signed-off-by: Ziv Hershman <ziv.hershman@nuvoton.com>
 
 """
 
