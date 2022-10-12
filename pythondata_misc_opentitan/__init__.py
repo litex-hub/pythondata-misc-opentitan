@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14695"
-version_tuple = (0, 0, 14695)
+version_str = "0.0.post14699"
+version_tuple = (0, 0, 14699)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14695")
+    pversion = V("0.0.post14699")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14553"
-data_version_tuple = (0, 0, 14553)
+data_version_str = "0.0.post14557"
+data_version_tuple = (0, 0, 14557)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14553")
+    pdata_version = V("0.0.post14557")
 except ImportError:
     pass
-data_git_hash = "5db82833a4e9207e59b44236947b4548156f947b"
-data_git_describe = "v0.0-14553-g5db82833a4"
+data_git_hash = "380178dc3ac3bbf79e4e605b732e599c3f46fa1e"
+data_git_describe = "v0.0-14557-g380178dc3a"
 data_git_msg = """\
-commit 5db82833a4e9207e59b44236947b4548156f947b
-Author: Jade Philipoom <jadep@google.com>
-Date:   Tue Oct 11 17:47:15 2022 +0200
+commit 380178dc3ac3bbf79e4e605b732e599c3f46fa1e
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 12 07:51:22 2022 -0400
 
-    [crypto] Bugfix for RSA-4096 encryption.
+    [sw/silicon_creator] Describe bits 5:0 masking behavior for cpuctrl
     
-    Fixes #15331
-    
-    The number of bytes needed for RSA-4096 was miscalculated in rsa.s (it
-    should be 512 bytes, not 480). This fixes the bug and also adds some
-    small cleanups (whole-word writes to DMEM for n_limbs and mode, and
-    .balign directives for the OTBN data).
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
