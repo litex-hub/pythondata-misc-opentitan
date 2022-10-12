@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14701"
-version_tuple = (0, 0, 14701)
+version_str = "0.0.post14703"
+version_tuple = (0, 0, 14703)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14701")
+    pversion = V("0.0.post14703")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14559"
-data_version_tuple = (0, 0, 14559)
+data_version_str = "0.0.post14561"
+data_version_tuple = (0, 0, 14561)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14559")
+    pdata_version = V("0.0.post14561")
 except ImportError:
     pass
-data_git_hash = "a49528cf0b786dcacdd12df4eeebc4a0d4633d84"
-data_git_describe = "v0.0-14559-ga49528cf0b"
+data_git_hash = "c90806027a6d441be74cf66e66c2a585c9f7e383"
+data_git_describe = "v0.0-14561-gc90806027a"
 data_git_msg = """\
-commit a49528cf0b786dcacdd12df4eeebc4a0d4633d84
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Wed Oct 5 05:22:44 2022 -0700
+commit c90806027a6d441be74cf66e66c2a585c9f7e383
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Tue Oct 4 07:14:52 2022 -0700
 
-    Added misssing sec test and udpated sec doc
+    [cleanup] Fix `bazelisk outquery` to accept all arguments
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    `bazelisk.sh outquery` should accept all arguments so that things like
+    `--define ...` and `-c opt` are accounted for by the query.
+    
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
