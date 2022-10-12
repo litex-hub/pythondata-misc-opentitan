@@ -4,44 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14692"
-version_tuple = (0, 0, 14692)
+version_str = "0.0.post14694"
+version_tuple = (0, 0, 14694)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14692")
+    pversion = V("0.0.post14694")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14550"
-data_version_tuple = (0, 0, 14550)
+data_version_str = "0.0.post14552"
+data_version_tuple = (0, 0, 14552)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14550")
+    pdata_version = V("0.0.post14552")
 except ImportError:
     pass
-data_git_hash = "1752a8bd6035ff367837cb6bb9ec69a6098e8c62"
-data_git_describe = "v0.0-14550-g1752a8bd60"
+data_git_hash = "e79e3525c284efe83f957ba62a24cd91be94370b"
+data_git_describe = "v0.0-14552-ge79e3525c2"
 data_git_msg = """\
-commit 1752a8bd6035ff367837cb6bb9ec69a6098e8c62
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Oct 11 16:18:46 2022 -0700
+commit e79e3525c284efe83f957ba62a24cd91be94370b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Oct 11 13:42:29 2022 -0700
 
-    [dv/otp_ctrl] Fix tl_intg_error nightly failure
+    [flash_ctrl] Clean-up comments
     
-    This PR fixes the TL_intg_error failure in nightly regression.
-    The issue is that: the prim_otp_tl interface does not set any err_code,
-    only triggers a prim_otp_alert.
-    And the tl_intg_err task is share for sec_cm one_hot check and
-    tl_intg_error check.
+    - Address #15392
     
-    So we need to distinguish which tlul interface has integrity and sec_cm
-    error.
-    Because these two tests have different input: ral_name and proxy_path,
-    so otp_ctrl_common_vseq create an internal flag to store which tlul
-    interface is used.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
