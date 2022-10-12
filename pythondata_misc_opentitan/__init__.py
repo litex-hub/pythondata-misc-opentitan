@@ -4,34 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14694"
-version_tuple = (0, 0, 14694)
+version_str = "0.0.post14695"
+version_tuple = (0, 0, 14695)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14694")
+    pversion = V("0.0.post14695")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14552"
-data_version_tuple = (0, 0, 14552)
+data_version_str = "0.0.post14553"
+data_version_tuple = (0, 0, 14553)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14552")
+    pdata_version = V("0.0.post14553")
 except ImportError:
     pass
-data_git_hash = "e79e3525c284efe83f957ba62a24cd91be94370b"
-data_git_describe = "v0.0-14552-ge79e3525c2"
+data_git_hash = "5db82833a4e9207e59b44236947b4548156f947b"
+data_git_describe = "v0.0-14553-g5db82833a4"
 data_git_msg = """\
-commit e79e3525c284efe83f957ba62a24cd91be94370b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 11 13:42:29 2022 -0700
+commit 5db82833a4e9207e59b44236947b4548156f947b
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Oct 11 17:47:15 2022 +0200
 
-    [flash_ctrl] Clean-up comments
+    [crypto] Bugfix for RSA-4096 encryption.
     
-    - Address #15392
+    Fixes #15331
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    The number of bytes needed for RSA-4096 was miscalculated in rsa.s (it
+    should be 512 bytes, not 480). This fixes the bug and also adds some
+    small cleanups (whole-word writes to DMEM for n_limbs and mode, and
+    .balign directives for the OTBN data).
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
