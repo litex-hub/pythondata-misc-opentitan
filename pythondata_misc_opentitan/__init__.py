@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14699"
-version_tuple = (0, 0, 14699)
+version_str = "0.0.post14701"
+version_tuple = (0, 0, 14701)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14699")
+    pversion = V("0.0.post14701")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14557"
-data_version_tuple = (0, 0, 14557)
+data_version_str = "0.0.post14559"
+data_version_tuple = (0, 0, 14559)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14557")
+    pdata_version = V("0.0.post14559")
 except ImportError:
     pass
-data_git_hash = "380178dc3ac3bbf79e4e605b732e599c3f46fa1e"
-data_git_describe = "v0.0-14557-g380178dc3a"
+data_git_hash = "a49528cf0b786dcacdd12df4eeebc4a0d4633d84"
+data_git_describe = "v0.0-14559-ga49528cf0b"
 data_git_msg = """\
-commit 380178dc3ac3bbf79e4e605b732e599c3f46fa1e
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 12 07:51:22 2022 -0400
+commit a49528cf0b786dcacdd12df4eeebc4a0d4633d84
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Wed Oct 5 05:22:44 2022 -0700
 
-    [sw/silicon_creator] Describe bits 5:0 masking behavior for cpuctrl
+    Added misssing sec test and udpated sec doc
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
