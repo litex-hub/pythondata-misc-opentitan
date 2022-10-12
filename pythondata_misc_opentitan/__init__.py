@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14703"
-version_tuple = (0, 0, 14703)
+version_str = "0.0.post14704"
+version_tuple = (0, 0, 14704)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14703")
+    pversion = V("0.0.post14704")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14561"
-data_version_tuple = (0, 0, 14561)
+data_version_str = "0.0.post14562"
+data_version_tuple = (0, 0, 14562)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14561")
+    pdata_version = V("0.0.post14562")
 except ImportError:
     pass
-data_git_hash = "c90806027a6d441be74cf66e66c2a585c9f7e383"
-data_git_describe = "v0.0-14561-gc90806027a"
+data_git_hash = "f7cbbb47e1d07ed6798d697082ad994dd7b0ea10"
+data_git_describe = "v0.0-14562-gf7cbbb47e1"
 data_git_msg = """\
-commit c90806027a6d441be74cf66e66c2a585c9f7e383
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Tue Oct 4 07:14:52 2022 -0700
+commit f7cbbb47e1d07ed6798d697082ad994dd7b0ea10
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Sun Oct 9 23:37:17 2022 +0300
 
-    [cleanup] Fix `bazelisk outquery` to accept all arguments
+    [ast] Add 'plusargs' for entropy rate and add cast width for logical shift
     
-    `bazelisk.sh outquery` should accept all arguments so that things like
-    `--define ...` and `-c opt` are accounted for by the query.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
