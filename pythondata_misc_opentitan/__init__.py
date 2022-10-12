@@ -4,37 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14684"
-version_tuple = (0, 0, 14684)
+version_str = "0.0.post14690"
+version_tuple = (0, 0, 14690)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14684")
+    pversion = V("0.0.post14690")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14542"
-data_version_tuple = (0, 0, 14542)
+data_version_str = "0.0.post14548"
+data_version_tuple = (0, 0, 14548)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14542")
+    pdata_version = V("0.0.post14548")
 except ImportError:
     pass
-data_git_hash = "90c670abcbfdeb55ae5c0ef9af4406d25c8cef1c"
-data_git_describe = "v0.0-14542-g90c670abcb"
+data_git_hash = "dfb2e5306a82128dc6305d9f4940e44ce14129ed"
+data_git_describe = "v0.0-14548-gdfb2e5306a"
 data_git_msg = """\
-commit 90c670abcbfdeb55ae5c0ef9af4406d25c8cef1c
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Oct 11 13:20:37 2022 -0700
+commit dfb2e5306a82128dc6305d9f4940e44ce14129ed
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Oct 10 21:30:04 2022 -0700
 
-    [dv/pwrmgr] Remove pwrmgr_clk_ctrl code
+    [test] Add test for LC access control signal going to OTP
     
-    The code under pwrmgr_clk_ctrl_agent was disabled some time ago. This
-    just removes the code.
+    This test checks the following life cycle signals going to OTP:
+    lc_creator_seed_sw_rw_en
+    lc_seed_hw_rd_en
     
-    Fixes #15315
+    Since this uses the keymgr, we also test the effects of the
+    lc_keymgr_en signal (enable/disable).
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Fixes #15272 and #14139.
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
