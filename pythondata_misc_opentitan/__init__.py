@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14705"
-version_tuple = (0, 0, 14705)
+version_str = "0.0.post14707"
+version_tuple = (0, 0, 14707)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14705")
+    pversion = V("0.0.post14707")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14563"
-data_version_tuple = (0, 0, 14563)
+data_version_str = "0.0.post14565"
+data_version_tuple = (0, 0, 14565)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14563")
+    pdata_version = V("0.0.post14565")
 except ImportError:
     pass
-data_git_hash = "d19d492fcac39fe201469b3935c9cb11c979d5a9"
-data_git_describe = "v0.0-14563-gd19d492fca"
+data_git_hash = "a1ae9ba979aa1b47f978d8f5cd9bca6501f8e891"
+data_git_describe = "v0.0-14565-ga1ae9ba979"
 data_git_msg = """\
-commit d19d492fcac39fe201469b3935c9cb11c979d5a9
-Author: Ziv Hershman <ziv.hershman@nuvoton.com>
-Date:   Wed Oct 12 14:24:19 2022 +0300
+commit a1ae9ba979aa1b47f978d8f5cd9bca6501f8e891
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Oct 11 23:40:48 2022 +0000
 
-    [ast] update doc
+    [flash_ctrl,dv] Add clocking block and input output slack
     
-    Signed-off-by: Ziv Hershman <ziv.hershman@nuvoton.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
