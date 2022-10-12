@@ -4,30 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14682"
-version_tuple = (0, 0, 14682)
+version_str = "0.0.post14684"
+version_tuple = (0, 0, 14684)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14682")
+    pversion = V("0.0.post14684")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14540"
-data_version_tuple = (0, 0, 14540)
+data_version_str = "0.0.post14542"
+data_version_tuple = (0, 0, 14542)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14540")
+    pdata_version = V("0.0.post14542")
 except ImportError:
     pass
-data_git_hash = "7c7151f57b26837e5774ea93cafd377c8a4496b7"
-data_git_describe = "v0.0-14540-g7c7151f57b"
+data_git_hash = "90c670abcbfdeb55ae5c0ef9af4406d25c8cef1c"
+data_git_describe = "v0.0-14542-g90c670abcb"
 data_git_msg = """\
-commit 7c7151f57b26837e5774ea93cafd377c8a4496b7
+commit 90c670abcbfdeb55ae5c0ef9af4406d25c8cef1c
 Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Oct 11 13:34:36 2022 -0700
+Date:   Tue Oct 11 13:20:37 2022 -0700
 
-    [dv/clkmgr] Declare V2S
+    [dv/pwrmgr] Remove pwrmgr_clk_ctrl code
+    
+    The code under pwrmgr_clk_ctrl_agent was disabled some time ago. This
+    just removes the code.
+    
+    Fixes #15315
     
     Signed-off-by: Guillermo Maturana <maturana@google.com>
 
