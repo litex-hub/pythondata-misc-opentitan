@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14732"
-version_tuple = (0, 0, 14732)
+version_str = "0.0.post14733"
+version_tuple = (0, 0, 14733)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14732")
+    pversion = V("0.0.post14733")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14590"
-data_version_tuple = (0, 0, 14590)
+data_version_str = "0.0.post14591"
+data_version_tuple = (0, 0, 14591)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14590")
+    pdata_version = V("0.0.post14591")
 except ImportError:
     pass
-data_git_hash = "0681ffa10a42f151309530fc10511e284a76fc18"
-data_git_describe = "v0.0-14590-g0681ffa10a"
+data_git_hash = "96bcebc722edc18f5999ab0edce1d75dd355f1be"
+data_git_describe = "v0.0-14591-g96bcebc722"
 data_git_msg = """\
-commit 0681ffa10a42f151309530fc10511e284a76fc18
-Author: Joshua Park <jeoong@google.com>
-Date:   Thu Oct 6 16:32:59 2022 -0700
+commit 96bcebc722edc18f5999ab0edce1d75dd355f1be
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Wed Oct 12 15:08:23 2022 +0200
 
-    [SPI_DEVICE|SPI_FLASH] Added a write-protection on en4b/ex4b to avoid SW overwrite
+    [otbn,doc] Add missing *fatal error* transition from init to locked
     
-    - Issue : as reported in #14940, hhen CSB has a short deassertion time, the next sck_csb_asserted_pulse can show up at the next SPI transaction while the previous propagation is still ongoing. Since spi_reg_cfg_addr_4b_en_sync still shows the old value different from spi_cfg_addr_4b_en_o, spi_cfg_addr_4b_en_o is written again by the old value.
-    - In this fix, the HW source-of-truth value is protected till its mirrorred SW regs is updated
-    
-    Signed-off-by: Joshua Park <jeoong@google.com>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
