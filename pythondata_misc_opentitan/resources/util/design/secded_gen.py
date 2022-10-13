@@ -19,7 +19,7 @@ import math
 import random
 import hjson
 import subprocess
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 from pathlib import Path
 
 COPYRIGHT = """// Copyright lowRISC contributors.
@@ -137,7 +137,7 @@ def calc_bitmasks(k, m, codes, dec):
     if dec:
         for j in range(m):
             fanin_masks[j] += 1 << (k + j)
-    return fanin_masks
+    return tuple(fanin_masks)
 
 
 def print_secded_enum_and_util_fns(cfgs):
@@ -320,15 +320,6 @@ def print_dec(n, k, m, codes, codetype, print_type="logic"):
     return outstr
 
 
-# return whether an integer is a power of 2
-def is_pow2(n):
-    return (n & (n - 1) == 0) and n != 0
-
-
-def is_odd(n):
-    return (n % 2) > 0
-
-
 def verify(cfgs):
     error = 0
     for cfg in cfgs['cfgs']:
@@ -356,9 +347,8 @@ def verify(cfgs):
     return error
 
 
-def _ecc_pick_code(codetype: str, k: int) -> Tuple[int, List[int], int]:
+def _ecc_pick_code(config: Dict[str, Any], codetype: str, k: int) -> Tuple[int, List[int], int]:
     # first check to see if bit width is supported among configuration
-    config = hjson.load(SECDED_CFG_PATH.open())
 
     codes = None
     bitmasks = None
@@ -375,6 +365,7 @@ def _ecc_pick_code(codetype: str, k: int) -> Tuple[int, List[int], int]:
     raise Exception(f'ECC for length {k} of type {codetype} unsupported')
 
 
+@functools.lru_cache(maxsize=None)
 def _ecc_encode(k: int,
                 m: int, bitmasks: List[int], invert: int,
                 dataword: int) -> int:
@@ -403,11 +394,10 @@ def _ecc_encode(k: int,
     return codeword
 
 
-@functools.lru_cache(maxsize = 1024)
-def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
+def ecc_encode(config: Dict[str, Any], codetype: str, k: int, dataword: int) -> Tuple[int, int]:
     log.info(f"Encoding ECC for {hex(dataword)}")
 
-    m, bitmasks, invert = _ecc_pick_code(codetype, k)
+    m, bitmasks, invert = _ecc_pick_code(config, codetype, k)
     codeword = _ecc_encode(k, m, bitmasks, invert, dataword)
 
     # Debug printouts
@@ -416,10 +406,11 @@ def ecc_encode(codetype: str, k: int, dataword: int) -> Tuple[int, int]:
     return int(codeword, 2), m
 
 
-def ecc_encode_some(codetype: str,
+def ecc_encode_some(config: Dict[str, Any],
+                    codetype: str,
                     k: int,
                     datawords: int) -> Tuple[List[int], int]:
-    m, bitmasks, invert = _ecc_pick_code(codetype, k)
+    m, bitmasks, invert = _ecc_pick_code(config, codetype, k)
     codewords = [int(_ecc_encode(k, m, bitmasks, invert, w), 2)
                  for w in datawords]
     return codewords, m
@@ -589,45 +580,28 @@ def _inv_hamming_code(k, m):
     return _hamming_code(k, m)
 
 
-# n = total bits
-# k = data bits
-# m = parity bits
-# generate hamming code
-def _hamming_code(k, m):
-
-    n = k + m
-
+# Generate hamming code.
+# total_cnt = number of total bits
+# data_cnt = number of data bits
+# parity_cnt = number of parity bits
+@functools.lru_cache(maxsize=None)
+def _hamming_code(data_cnt, parity_cnt):
     # construct a list of code tuples.
     # Tuple corresponds to each bit position and shows which parity bit it participates in
     # Only the data bits are shown, the parity bits are not.
-    codes = []
-    for pos in range(1, n + 1):
-        # this is a valid parity bit position or the final parity bit
-        if (is_pow2(pos) or pos == n):
-            continue
-        else:
-            code = ()
-            for p in range(m):
-
-                # this is the starting parity position
-                parity_pos = 2**p
-
-                # back-track to the closest parity bit multiple and see if it is even or odd
-                # If even, we are in the skip phase, do not include
-                # If odd, we are in the include phase
-                parity_chk = int((pos - (pos % parity_pos)) / parity_pos)
-
-                # valid for inclusion or final parity bit that includes everything
-                if is_odd(parity_chk) or p == m - 1:
-                    code = code + (p, )
-
-            codes.append(code)
-
-    # final parity bit includes all ECC bits
-    for p in range(m - 1):
-        codes.append((m - 1, ))
-
-    log.info("Hamming codes {}".format(codes))
+    total_cnt = data_cnt + parity_cnt
+    last_parity = parity_cnt - 1
+    # Data bits.
+    # This excludes bit 0, the last bit, and any bit whose index is a power of 2.
+    data_bits = [b for b in range(1, total_cnt) if b & (b - 1)]
+    # Include the closest previous parity bit if it's odd.
+    # Also include the final parity bit since it includes everything.
+    codes = [
+        tuple(p for p in range(last_parity) if (b >> p) & 1) + (last_parity,) for b in data_bits
+    ]
+    # Final parity bit includes all ECC bits.
+    codes += [(last_parity,)] * last_parity
+    log.info("Hamming codes %s", codes)
     return codes
 
 
@@ -899,6 +873,10 @@ targets:
 
 '''.format(module_name, module_name, module_name, module_name, module_name)
         f.write(outstr)
+
+
+def load_secded_config() -> Dict[str, Any]:
+    return hjson.load(SECDED_CFG_PATH.open())
 
 
 def main():
