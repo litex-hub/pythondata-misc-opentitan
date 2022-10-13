@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14722"
-version_tuple = (0, 0, 14722)
+version_str = "0.0.post14723"
+version_tuple = (0, 0, 14723)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14722")
+    pversion = V("0.0.post14723")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14580"
-data_version_tuple = (0, 0, 14580)
+data_version_str = "0.0.post14581"
+data_version_tuple = (0, 0, 14581)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14580")
+    pdata_version = V("0.0.post14581")
 except ImportError:
     pass
-data_git_hash = "bc758e2cd2b1624a22370dbe1acdff701ad9fc91"
-data_git_describe = "v0.0-14580-gbc758e2cd2"
+data_git_hash = "9d8916eaf5d016131f2f30e93e61b606abc7ef3b"
+data_git_describe = "v0.0-14581-g9d8916eaf5"
 data_git_msg = """\
-commit bc758e2cd2b1624a22370dbe1acdff701ad9fc91
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Wed Oct 12 16:18:41 2022 -0700
+commit 9d8916eaf5d016131f2f30e93e61b606abc7ef3b
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 12 14:26:49 2022 -0700
 
-    [top-test] xref csrng_lc_hw_debug_en to test point
+    [ci] add Xcelium DV tests to private CI
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    This increases the number of Xcelium top-level DV tests run in private
+    CI.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
