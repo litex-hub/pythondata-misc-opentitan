@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14735"
-version_tuple = (0, 0, 14735)
+version_str = "0.0.post14736"
+version_tuple = (0, 0, 14736)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14735")
+    pversion = V("0.0.post14736")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14593"
-data_version_tuple = (0, 0, 14593)
+data_version_str = "0.0.post14594"
+data_version_tuple = (0, 0, 14594)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14593")
+    pdata_version = V("0.0.post14594")
 except ImportError:
     pass
-data_git_hash = "8eb15e17d709a074df24fe91ae2a3ee7c79f6ca3"
-data_git_describe = "v0.0-14593-g8eb15e17d7"
+data_git_hash = "daad15d95d10895a2a2260b0bbbdfec807ad5c15"
+data_git_describe = "v0.0-14594-gdaad15d95d"
 data_git_msg = """\
-commit 8eb15e17d709a074df24fe91ae2a3ee7c79f6ca3
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Wed Oct 12 17:38:42 2022 +0000
+commit daad15d95d10895a2a2260b0bbbdfec807ad5c15
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Oct 13 08:38:10 2022 -0700
 
-    [flash_ctrl,dv] std_fault covergroup
+    [dv/otp] Fix stress_all_with_rand_reset nightly failure
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    This PR fixes the stress_all_with_rand_reset test failure when the base
+    sequence access all CSRs to check their default values after reset.
+    The current testbench did not enable `dft_en`, so the test failed due to
+    illegal access.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
