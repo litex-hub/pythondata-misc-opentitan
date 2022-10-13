@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14729"
-version_tuple = (0, 0, 14729)
+version_str = "0.0.post14730"
+version_tuple = (0, 0, 14730)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14729")
+    pversion = V("0.0.post14730")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14587"
-data_version_tuple = (0, 0, 14587)
+data_version_str = "0.0.post14588"
+data_version_tuple = (0, 0, 14588)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14587")
+    pdata_version = V("0.0.post14588")
 except ImportError:
     pass
-data_git_hash = "0ccf5d9703064f2eaa19ece04ea63021783f4508"
-data_git_describe = "v0.0-14587-g0ccf5d9703"
+data_git_hash = "7818a4406ec12eaed2aa15f1071a6868ec7a9df1"
+data_git_describe = "v0.0-14588-g7818a4406e"
 data_git_msg = """\
-commit 0ccf5d9703064f2eaa19ece04ea63021783f4508
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Fri Sep 23 15:05:21 2022 +0100
+commit 7818a4406ec12eaed2aa15f1071a6868ec7a9df1
+Author: Michał Mazurek <maz@semihalf.com>
+Date:   Tue Oct 11 20:06:41 2022 +0200
 
-    [rom, e2e] add `keymgr_init` test
+    [util,tock] Fix invalid TockOS bitfields generation in reggentool.py
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Add name sanitizer to enum filed in TockOS register bitfields generator.
+    Fix generation of TockOS bitfileds with only one sub-item.
+    
+    Signed-off-by: Michał Mazurek <maz@semihalf.com>
 
 """
 
