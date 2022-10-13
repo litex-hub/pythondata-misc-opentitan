@@ -4,49 +4,46 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14713"
-version_tuple = (0, 0, 14713)
+version_str = "0.0.post14718"
+version_tuple = (0, 0, 14718)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14713")
+    pversion = V("0.0.post14718")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14571"
-data_version_tuple = (0, 0, 14571)
+data_version_str = "0.0.post14576"
+data_version_tuple = (0, 0, 14576)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14571")
+    pdata_version = V("0.0.post14576")
 except ImportError:
     pass
-data_git_hash = "d072ac505f82152678d6e04be95c72b728a347b8"
-data_git_describe = "v0.0-14571-gd072ac505f"
+data_git_hash = "dd3d4e46aa33d10ca2d89312345d158fe1a0c6fa"
+data_git_describe = "v0.0-14576-gdd3d4e46aa"
 data_git_msg = """\
-commit d072ac505f82152678d6e04be95c72b728a347b8
-Author: Jes B. Klinke <jbk@chromium.org>
-Date:   Fri Oct 7 14:54:34 2022 -0700
+commit dd3d4e46aa33d10ca2d89312345d158fe1a0c6fa
+Author: Eli Kim <eli@opentitan.org>
+Date:   Wed Oct 12 09:45:33 2022 -0700
 
-    [opentitantool] Support multi-layer alias conf
+    refactor(spid): Change `tpm_header_not_empty` to level
     
-    We have an agreed way of connecting HyperDebug to CW310, which should be
-    declared in a JSON conf file, such that opentitan tool understands a
-    name such as A3 to be an alias of the HyperDebug native pin CN7_18.
+    _Related Issue: https://github.com/lowRISC/opentitan/issues/15282_
     
-    Separately, the ChromeOS team has a particular idea of how to use the
-    OpenTitan chip pins, and wishes to use the name AP_FLASH_SEL as an alias
-    for A3.  This is mostly independent of CW310 and HyperDebug, and would
-    apply even to future ASIC development board.
+    The current interrupt scheme assumes the input is an event (pulse). If
+    the input is a status, it was recommented to add an edge detector to
+    create a pulse.
     
-    Because of the above, I foresee that we would want to simultaneously
-    provide a CW310/HyperDebug configuration file, and a CromeOS/EarlGrey
-    configuration file to OpenTitan tool.
+    In certain cases, this may create unwanted (phantom) interrupts or
+    missing interrupts depending on the SW approach to handling the
+    interrupts.
     
-    This PR allows the --conf option to take multiple arguments, and it
-    adapts the alias resolution logic to be transitive.
+    To remove the race condition, HW now connects the status signal to the
+    interrupt in this commit. With the change, now SW is responsible to mask
+    the interrupt while the SW queues the interrupt to event queues.
     
-    Change-Id: I6f8a328f269dfee246a19c4d3bae9fd60f056aec
-    Signed-off-by: Jes B. Klinke <jbk@chromium.org>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
