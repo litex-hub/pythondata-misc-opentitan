@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14723"
-version_tuple = (0, 0, 14723)
+version_str = "0.0.post14724"
+version_tuple = (0, 0, 14724)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14723")
+    pversion = V("0.0.post14724")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14581"
-data_version_tuple = (0, 0, 14581)
+data_version_str = "0.0.post14582"
+data_version_tuple = (0, 0, 14582)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14581")
+    pdata_version = V("0.0.post14582")
 except ImportError:
     pass
-data_git_hash = "9d8916eaf5d016131f2f30e93e61b606abc7ef3b"
-data_git_describe = "v0.0-14581-g9d8916eaf5"
+data_git_hash = "a34170ca0111f99e8bd1f742819710c3f9872156"
+data_git_describe = "v0.0-14582-ga34170ca01"
 data_git_msg = """\
-commit 9d8916eaf5d016131f2f30e93e61b606abc7ef3b
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 12 14:26:49 2022 -0700
+commit a34170ca0111f99e8bd1f742819710c3f9872156
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 11 22:02:29 2022 -0700
 
-    [ci] add Xcelium DV tests to private CI
+    [spi_device/dv] Test async fifo empty/full status
     
-    This increases the number of Xcelium top-level DV tests run in private
-    CI.
+    Added in spi_device_intr to check async fifo empty/full status
+    Also adjusted constraint for spi_device_fifo_full, so that it doesn't run more than 1hr
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
