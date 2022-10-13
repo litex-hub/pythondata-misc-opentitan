@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14724"
-version_tuple = (0, 0, 14724)
+version_str = "0.0.post14725"
+version_tuple = (0, 0, 14725)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14724")
+    pversion = V("0.0.post14725")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14582"
-data_version_tuple = (0, 0, 14582)
+data_version_str = "0.0.post14583"
+data_version_tuple = (0, 0, 14583)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14582")
+    pdata_version = V("0.0.post14583")
 except ImportError:
     pass
-data_git_hash = "a34170ca0111f99e8bd1f742819710c3f9872156"
-data_git_describe = "v0.0-14582-ga34170ca01"
+data_git_hash = "e5de5869cfd24ec6d23d19b2f75e89f7d9a61b7d"
+data_git_describe = "v0.0-14583-ge5de5869cf"
 data_git_msg = """\
-commit a34170ca0111f99e8bd1f742819710c3f9872156
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Oct 11 22:02:29 2022 -0700
+commit e5de5869cfd24ec6d23d19b2f75e89f7d9a61b7d
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 12 18:41:55 2022 -0700
 
-    [spi_device/dv] Test async fifo empty/full status
+    [test_rom] enable icache / Ibex security features
     
-    Added in spi_device_intr to check async fifo empty/full status
-    Also adjusted constraint for spi_device_fifo_full, so that it doesn't run more than 1hr
+    This updates the test ROM to enable the icache (and other cpuctrl
+    controlled Ibex security features) based on the OTP-stored configuration
+    word.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This fixes #12883.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
