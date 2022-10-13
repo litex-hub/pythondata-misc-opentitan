@@ -4,37 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14736"
-version_tuple = (0, 0, 14736)
+version_str = "0.0.post14738"
+version_tuple = (0, 0, 14738)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14736")
+    pversion = V("0.0.post14738")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14594"
-data_version_tuple = (0, 0, 14594)
+data_version_str = "0.0.post14596"
+data_version_tuple = (0, 0, 14596)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14594")
+    pdata_version = V("0.0.post14596")
 except ImportError:
     pass
-data_git_hash = "daad15d95d10895a2a2260b0bbbdfec807ad5c15"
-data_git_describe = "v0.0-14594-gdaad15d95d"
+data_git_hash = "f1288c8633be5f0459e12a3557a4a25dab4eb3d1"
+data_git_describe = "v0.0-14596-gf1288c8633"
 data_git_msg = """\
-commit daad15d95d10895a2a2260b0bbbdfec807ad5c15
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 13 08:38:10 2022 -0700
+commit f1288c8633be5f0459e12a3557a4a25dab4eb3d1
+Author: Eli Kim <eli@opentitan.org>
+Date:   Thu Oct 13 10:49:07 2022 -0700
 
-    [dv/otp] Fix stress_all_with_rand_reset nightly failure
+    doc(spid): TPM_CMDADDR_NOTEMPTY interrupt
     
-    This PR fixes the stress_all_with_rand_reset test failure when the base
-    sequence access all CSRs to check their default values after reset.
-    The current testbench did not enable `dft_en`, so the test failed due to
-    illegal access.
+    * _Related PR: https://github.com/lowRISC/opentitan/pull/15442_
+    * _Related Issue: https://github.com/lowRISC/opentitan/issues/15282_
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    This commit describes how-to process the `tpm_cmdaddr_notempty`
+    interrupt.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
