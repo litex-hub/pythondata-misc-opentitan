@@ -4,31 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14742"
-version_tuple = (0, 0, 14742)
+version_str = "0.0.post14743"
+version_tuple = (0, 0, 14743)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14742")
+    pversion = V("0.0.post14743")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14600"
-data_version_tuple = (0, 0, 14600)
+data_version_str = "0.0.post14601"
+data_version_tuple = (0, 0, 14601)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14600")
+    pdata_version = V("0.0.post14601")
 except ImportError:
     pass
-data_git_hash = "7ecb30fb49ff8951d97b88bb8b05d9d33a2932e6"
-data_git_describe = "v0.0-14600-g7ecb30fb49"
+data_git_hash = "9775df8858ffbb10fd804eb1ba67e2b498fcd814"
+data_git_describe = "v0.0-14601-g9775df8858"
 data_git_msg = """\
-commit 7ecb30fb49ff8951d97b88bb8b05d9d33a2932e6
+commit 9775df8858ffbb10fd804eb1ba67e2b498fcd814
 Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 13 16:41:37 2022 -0700
+Date:   Thu Oct 13 22:54:57 2022 -0700
 
-    [spi_device/dv] Exclude mbyte related FSM coverage
+    [spi_device/dv] Fix wrong path
     
+    Fixed for this PR #15496
     Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
