@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14754"
-version_tuple = (0, 0, 14754)
+version_str = "0.0.post14756"
+version_tuple = (0, 0, 14756)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14754")
+    pversion = V("0.0.post14756")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14612"
-data_version_tuple = (0, 0, 14612)
+data_version_str = "0.0.post14614"
+data_version_tuple = (0, 0, 14614)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14612")
+    pdata_version = V("0.0.post14614")
 except ImportError:
     pass
-data_git_hash = "4f8e48ea9d32bc3dacd1fb10f70f5c8917f80fec"
-data_git_describe = "v0.0-14612-g4f8e48ea9d"
+data_git_hash = "045f122c7138a184b4789fa85d4df62a9a1515e9"
+data_git_describe = "v0.0-14614-g045f122c71"
 data_git_msg = """\
-commit 4f8e48ea9d32bc3dacd1fb10f70f5c8917f80fec
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Wed Oct 12 12:55:29 2022 +0000
+commit 045f122c7138a184b4789fa85d4df62a9a1515e9
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 13 11:38:04 2022 -0700
 
-    [rv_dm] Fix lint
+    [spi_device/dv] Update coverage plan and implement covergroup
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    1. Largely updated the coverage plan
+    2. Implemented covergroup for fw and tpm mode. Will add for flash mode
+    in the next PR
+    3. Add 2 more tests in testplan - stress all and
+    tpm_and_flash_trans_with_min_inactive_time
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
