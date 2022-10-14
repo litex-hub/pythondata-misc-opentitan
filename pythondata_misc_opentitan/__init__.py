@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14739"
-version_tuple = (0, 0, 14739)
+version_str = "0.0.post14742"
+version_tuple = (0, 0, 14742)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14739")
+    pversion = V("0.0.post14742")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14597"
-data_version_tuple = (0, 0, 14597)
+data_version_str = "0.0.post14600"
+data_version_tuple = (0, 0, 14600)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14597")
+    pdata_version = V("0.0.post14600")
 except ImportError:
     pass
-data_git_hash = "b3f3b128c77846c8cd3d094f51138d9ebc1e0423"
-data_git_describe = "v0.0-14597-gb3f3b128c7"
+data_git_hash = "7ecb30fb49ff8951d97b88bb8b05d9d33a2932e6"
+data_git_describe = "v0.0-14600-g7ecb30fb49"
 data_git_msg = """\
-commit b3f3b128c77846c8cd3d094f51138d9ebc1e0423
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Wed Oct 12 11:31:03 2022 -0700
+commit 7ecb30fb49ff8951d97b88bb8b05d9d33a2932e6
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 13 16:41:37 2022 -0700
 
-    [dv,chip] Add chip_sw_random_sleep_all_wake_ups
+    [spi_device/dv] Exclude mbyte related FSM coverage
     
-    Fixes #14166
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
