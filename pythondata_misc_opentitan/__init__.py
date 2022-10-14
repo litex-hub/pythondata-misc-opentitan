@@ -4,36 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14756"
-version_tuple = (0, 0, 14756)
+version_str = "0.0.post14759"
+version_tuple = (0, 0, 14759)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14756")
+    pversion = V("0.0.post14759")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14614"
-data_version_tuple = (0, 0, 14614)
+data_version_str = "0.0.post14617"
+data_version_tuple = (0, 0, 14617)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14614")
+    pdata_version = V("0.0.post14617")
 except ImportError:
     pass
-data_git_hash = "045f122c7138a184b4789fa85d4df62a9a1515e9"
-data_git_describe = "v0.0-14614-g045f122c71"
+data_git_hash = "fccf1bb4863c0af197db5ce8b4418f2e03f8687e"
+data_git_describe = "v0.0-14617-gfccf1bb486"
 data_git_msg = """\
-commit 045f122c7138a184b4789fa85d4df62a9a1515e9
+commit fccf1bb4863c0af197db5ce8b4418f2e03f8687e
 Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 13 11:38:04 2022 -0700
+Date:   Thu Oct 13 23:43:56 2022 -0700
 
-    [spi_device/dv] Update coverage plan and implement covergroup
+    [spi_device/dv] Update DV doc
     
-    1. Largely updated the coverage plan
-    2. Implemented covergroup for fw and tpm mode. Will add for flash mode
-    in the next PR
-    3. Add 2 more tests in testplan - stress all and
-    tpm_and_flash_trans_with_min_inactive_time
+    1. Update the diagram
+    2. Update spi_agent section and the fcov section
     
     Signed-off-by: Weicai Yang <weicai@google.com>
 
