@@ -4,33 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14743"
-version_tuple = (0, 0, 14743)
+version_str = "0.0.post14744"
+version_tuple = (0, 0, 14744)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14743")
+    pversion = V("0.0.post14744")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14601"
-data_version_tuple = (0, 0, 14601)
+data_version_str = "0.0.post14602"
+data_version_tuple = (0, 0, 14602)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14601")
+    pdata_version = V("0.0.post14602")
 except ImportError:
     pass
-data_git_hash = "9775df8858ffbb10fd804eb1ba67e2b498fcd814"
-data_git_describe = "v0.0-14601-g9775df8858"
+data_git_hash = "3861c8701d60558c707ae80d16fb5a7a4a634887"
+data_git_describe = "v0.0-14602-g3861c8701d"
 data_git_msg = """\
-commit 9775df8858ffbb10fd804eb1ba67e2b498fcd814
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 13 22:54:57 2022 -0700
+commit 3861c8701d60558c707ae80d16fb5a7a4a634887
+Author: Miles Dai <milesdai@google.com>
+Date:   Thu Oct 13 15:23:28 2022 -0400
 
-    [spi_device/dv] Fix wrong path
+    [ci/ottf] Mark the OTTF flow control test as broken
     
-    Fixed for this PR #15496
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
