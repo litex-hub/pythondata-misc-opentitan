@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14752"
-version_tuple = (0, 0, 14752)
+version_str = "0.0.post14754"
+version_tuple = (0, 0, 14754)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14752")
+    pversion = V("0.0.post14754")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14610"
-data_version_tuple = (0, 0, 14610)
+data_version_str = "0.0.post14612"
+data_version_tuple = (0, 0, 14612)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14610")
+    pdata_version = V("0.0.post14612")
 except ImportError:
     pass
-data_git_hash = "96e2c3580cb64d1526609031c2163ed3f7207c7e"
-data_git_describe = "v0.0-14610-g96e2c3580c"
+data_git_hash = "4f8e48ea9d32bc3dacd1fb10f70f5c8917f80fec"
+data_git_describe = "v0.0-14612-g4f8e48ea9d"
 data_git_msg = """\
-commit 96e2c3580cb64d1526609031c2163ed3f7207c7e
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Oct 14 08:24:41 2022 -0700
+commit 4f8e48ea9d32bc3dacd1fb10f70f5c8917f80fec
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Wed Oct 12 12:55:29 2022 +0000
 
-    [entropy_src/rtl] Remove unused state from ack_sm
+    [rv_dm] Fix lint
     
-    In the `entropy_src_ack_sm`, the ACK_IMMED state allows the
-    `entropy_src` to immediately output any seeds which may be available
-    when the module is first enabled.  Since the `entropy_src` flushes its
-    internal state when it is enabled, this condition is not expected, and
-    so this state is never expected, and appears as an FSM coverage gap.
-    (Note: interestingly enough, UNR analysis seems to claim that this state
-    is somehow still reachable, even though this condition is not expected.)
-    
-    Given that this state is at best an unused optimization, it's here
-    removed to help close FSM coverage.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
