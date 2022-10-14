@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14746"
-version_tuple = (0, 0, 14746)
+version_str = "0.0.post14750"
+version_tuple = (0, 0, 14750)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14746")
+    pversion = V("0.0.post14750")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14604"
-data_version_tuple = (0, 0, 14604)
+data_version_str = "0.0.post14608"
+data_version_tuple = (0, 0, 14608)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14604")
+    pdata_version = V("0.0.post14608")
 except ImportError:
     pass
-data_git_hash = "0f9276d84df7cd3286914a12ad45d8df186289ff"
-data_git_describe = "v0.0-14604-g0f9276d84d"
+data_git_hash = "f403427bedb97c2a36cb4b3ba95eceaf470f60d5"
+data_git_describe = "v0.0-14608-gf403427bed"
 data_git_msg = """\
-commit 0f9276d84df7cd3286914a12ad45d8df186289ff
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Oct 12 11:16:54 2022 -0700
+commit f403427bedb97c2a36cb4b3ba95eceaf470f60d5
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 13 22:40:06 2022 -0700
 
-    [quality] Add a rust formatting check
+    [spi_device/dv] Update seq to utilize tpm level interrupt
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Exit loop without finishing reading all the requests and rely on interrupt to fire again.
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
