@@ -4,36 +4,51 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14761"
-version_tuple = (0, 0, 14761)
+version_str = "0.0.post14765"
+version_tuple = (0, 0, 14765)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14761")
+    pversion = V("0.0.post14765")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14619"
-data_version_tuple = (0, 0, 14619)
+data_version_str = "0.0.post14623"
+data_version_tuple = (0, 0, 14623)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14619")
+    pdata_version = V("0.0.post14623")
 except ImportError:
     pass
-data_git_hash = "dcedef98780b50578aaf3a6f71d3491aae14387c"
-data_git_describe = "v0.0-14619-gdcedef9878"
+data_git_hash = "84ab1058db3805798f43ea3e42402940ec618b6b"
+data_git_describe = "v0.0-14623-g84ab1058db"
 data_git_msg = """\
-commit dcedef98780b50578aaf3a6f71d3491aae14387c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 11 16:58:52 2022 -0700
+commit 84ab1058db3805798f43ea3e42402940ec618b6b
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Oct 7 11:52:09 2022 -0700
 
-    [dv/top] Add option to automatically set rom_exec_en
+    [chip dv] Fixes in chip_if and GPIO tests
     
-    - addresses #15371
-    - allows a test to automatically set rom_exec_en when apply_reset
-      is called.
+    THis commit makes the following fixes to chip_if:
+    - Fix the GPIO pin assignments (allocate the full set of
+      32 chip IOs for the GPIO function)
+    - Remove the default pulldowns on muxed IOs - these are not
+      required.
+    - Add default pulldown for the TAP strap and DFT IOs for certain
+      LC states / pwrmgr phase. For the bulk of the tests, we use the
+      RMA LC image which enables HW debug and DFT. This ends up allocating
+      some of he muxed IOs for strap sampling. We may not intentionally
+      exercise the TAP strap pins for most of these tests, so we need
+      these pulldowns to prevent the strap sampling logic to interpret
+      undriven IOs as Xs.
+    - The removal of pulldowns on muxed IOs impacts UART tests. The
+      UART smoke vseq is thus updated accordingly.
+    - Finally, the GPIO test sequences are fixed to test the full
+      set of 32 GPIOs.
+    - Make ALL pins_if instances declared with PullStrength = Weak
+      parameter.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
