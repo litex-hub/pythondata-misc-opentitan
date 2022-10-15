@@ -4,51 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14765"
-version_tuple = (0, 0, 14765)
+version_str = "0.0.post14766"
+version_tuple = (0, 0, 14766)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14765")
+    pversion = V("0.0.post14766")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14623"
-data_version_tuple = (0, 0, 14623)
+data_version_str = "0.0.post14624"
+data_version_tuple = (0, 0, 14624)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14623")
+    pdata_version = V("0.0.post14624")
 except ImportError:
     pass
-data_git_hash = "84ab1058db3805798f43ea3e42402940ec618b6b"
-data_git_describe = "v0.0-14623-g84ab1058db"
+data_git_hash = "c5f7bfefb64eee68205111b5b7abff7f086a4e0d"
+data_git_describe = "v0.0-14624-gc5f7bfefb6"
 data_git_msg = """\
-commit 84ab1058db3805798f43ea3e42402940ec618b6b
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Oct 7 11:52:09 2022 -0700
+commit c5f7bfefb64eee68205111b5b7abff7f086a4e0d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 14 16:17:10 2022 -0700
 
-    [chip dv] Fixes in chip_if and GPIO tests
+    [dv/otp_ctrl] Fix scb X value
     
-    THis commit makes the following fixes to chip_if:
-    - Fix the GPIO pin assignments (allocate the full set of
-      32 chip IOs for the GPIO function)
-    - Remove the default pulldowns on muxed IOs - these are not
-      required.
-    - Add default pulldown for the TAP strap and DFT IOs for certain
-      LC states / pwrmgr phase. For the bulk of the tests, we use the
-      RMA LC image which enables HW debug and DFT. This ends up allocating
-      some of he muxed IOs for strap sampling. We may not intentionally
-      exercise the TAP strap pins for most of these tests, so we need
-      these pulldowns to prevent the strap sampling logic to interpret
-      undriven IOs as Xs.
-    - The removal of pulldowns on muxed IOs impacts UART tests. The
-      UART smoke vseq is thus updated accordingly.
-    - Finally, the GPIO test sequences are fixed to test the full
-      set of 32 GPIOs.
-    - Make ALL pins_if instances declared with PullStrength = Weak
-      parameter.
+    This PR fixes scb X value because I missed the part to assign the value
+    from interface.
+    Thanks Sri for finding these.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
