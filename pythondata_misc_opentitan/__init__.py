@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14759"
-version_tuple = (0, 0, 14759)
+version_str = "0.0.post14761"
+version_tuple = (0, 0, 14761)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14759")
+    pversion = V("0.0.post14761")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14617"
-data_version_tuple = (0, 0, 14617)
+data_version_str = "0.0.post14619"
+data_version_tuple = (0, 0, 14619)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14617")
+    pdata_version = V("0.0.post14619")
 except ImportError:
     pass
-data_git_hash = "fccf1bb4863c0af197db5ce8b4418f2e03f8687e"
-data_git_describe = "v0.0-14617-gfccf1bb486"
+data_git_hash = "dcedef98780b50578aaf3a6f71d3491aae14387c"
+data_git_describe = "v0.0-14619-gdcedef9878"
 data_git_msg = """\
-commit fccf1bb4863c0af197db5ce8b4418f2e03f8687e
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 13 23:43:56 2022 -0700
+commit dcedef98780b50578aaf3a6f71d3491aae14387c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Oct 11 16:58:52 2022 -0700
 
-    [spi_device/dv] Update DV doc
+    [dv/top] Add option to automatically set rom_exec_en
     
-    1. Update the diagram
-    2. Update spi_agent section and the fcov section
+    - addresses #15371
+    - allows a test to automatically set rom_exec_en when apply_reset
+      is called.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
