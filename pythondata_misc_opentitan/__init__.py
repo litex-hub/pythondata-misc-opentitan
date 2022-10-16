@@ -4,39 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14768"
-version_tuple = (0, 0, 14768)
+version_str = "0.0.post14769"
+version_tuple = (0, 0, 14769)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14768")
+    pversion = V("0.0.post14769")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14626"
-data_version_tuple = (0, 0, 14626)
+data_version_str = "0.0.post14627"
+data_version_tuple = (0, 0, 14627)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14626")
+    pdata_version = V("0.0.post14627")
 except ImportError:
     pass
-data_git_hash = "84fdd3bf374f168367ba7ffcb07cfa4d79c54875"
-data_git_describe = "v0.0-14626-g84fdd3bf37"
+data_git_hash = "7aa862374f40d29ec7dd2029b20aec650c1f79b0"
+data_git_describe = "v0.0-14627-g7aa862374f"
 data_git_msg = """\
-commit 84fdd3bf374f168367ba7ffcb07cfa4d79c54875
+commit 7aa862374f40d29ec7dd2029b20aec650c1f79b0
 Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Fri Oct 14 10:08:40 2022 -0700
+Date:   Thu Oct 13 19:46:38 2022 -0700
 
-    [entropy_src/rtl] Clear window_cntr on disable
+    [entropy_src/dv] Close sw_update_cg
     
-    This commit reverts the window_cntr_clr behavior to the original design
-    where this counter is cleared on disable.   When health_test_clr was
-    changed to a pulse emitted on enable, this counter was left uncleared
-    after disable.
+    This commit updates the RNG test, dut_cfg structure and RNG vseq to close the
+    sw_update_cg.  This includes:
     
-    This has been observed to cause spurious `window_wrap_pulse`'s when
-    reconfiguring the module, particularly if the window_size is shrunk
-    while reconfiguring the DUT.
+    - Adding randomized config variables to _not_ disable the DUT before
+      reconfiguration
+    - Randomizing the sw_regupd field
+    - Forcing the DUT into the enabled state when the disabled state is not
+      requested.
+    - Forcing an _unlocked_ reconfiguration (and if needed a reset) once a
+      locked reconfiguration has been attempted.
+    - Only sampling coverage when a new attempted setting is different
+      from the current setting (and thus any lock errors are detectable).
     
     Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
