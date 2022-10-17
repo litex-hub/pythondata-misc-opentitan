@@ -4,45 +4,41 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14769"
-version_tuple = (0, 0, 14769)
+version_str = "0.0.post14770"
+version_tuple = (0, 0, 14770)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14769")
+    pversion = V("0.0.post14770")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14627"
-data_version_tuple = (0, 0, 14627)
+data_version_str = "0.0.post14628"
+data_version_tuple = (0, 0, 14628)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14627")
+    pdata_version = V("0.0.post14628")
 except ImportError:
     pass
-data_git_hash = "7aa862374f40d29ec7dd2029b20aec650c1f79b0"
-data_git_describe = "v0.0-14627-g7aa862374f"
+data_git_hash = "bcbae4445d5e6677ffe3cb8a6b939da7170bbabd"
+data_git_describe = "v0.0-14628-gbcbae4445d"
 data_git_msg = """\
-commit 7aa862374f40d29ec7dd2029b20aec650c1f79b0
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Thu Oct 13 19:46:38 2022 -0700
+commit bcbae4445d5e6677ffe3cb8a6b939da7170bbabd
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Oct 14 15:04:15 2022 +0200
 
-    [entropy_src/dv] Close sw_update_cg
+    [crypto] Fix bug in ECDSA-P256 scalar inversion.
     
-    This commit updates the RNG test, dut_cfg structure and RNG vseq to close the
-    sw_update_cg.  This includes:
+    Fixes a recently introduced bug in ECDSA-P256 signatures; the scalar
+    inversion routine handles scalars in plaintext, so the shares need to be
+    combined in order to use it. Eventually we should use a more heavily
+    protected implementation (see #15507) but for now this just fixes the
+    bug by combining shares.
     
-    - Adding randomized config variables to _not_ disable the DUT before
-      reconfiguration
-    - Randomizing the sw_regupd field
-    - Forcing the DUT into the enabled state when the disabled state is not
-      requested.
-    - Forcing an _unlocked_ reconfiguration (and if needed a reset) once a
-      locked reconfiguration has been attempted.
-    - Only sampling coverage when a new attempted setting is different
-      from the current setting (and thus any lock errors are detectable).
+    This commit also updates the p256 signature test to use both shares, so
+    that this type of bug will be caught faster in the future.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
