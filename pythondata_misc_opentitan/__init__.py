@@ -4,43 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14783"
-version_tuple = (0, 0, 14783)
+version_str = "0.0.post14784"
+version_tuple = (0, 0, 14784)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14783")
+    pversion = V("0.0.post14784")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14641"
-data_version_tuple = (0, 0, 14641)
+data_version_str = "0.0.post14642"
+data_version_tuple = (0, 0, 14642)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14641")
+    pdata_version = V("0.0.post14642")
 except ImportError:
     pass
-data_git_hash = "f8c9972ec1c6f1e7365fa2b7321e4444f535cd5e"
-data_git_describe = "v0.0-14641-gf8c9972ec1"
+data_git_hash = "8f985b9f2af6271bb5bf2e5f567bc57662989f7d"
+data_git_describe = "v0.0-14642-g8f985b9f2a"
 data_git_msg = """\
-commit f8c9972ec1c6f1e7365fa2b7321e4444f535cd5e
-Author: Eli Kim <eli@opentitan.org>
-Date:   Thu Oct 13 16:17:16 2022 -0700
+commit 8f985b9f2af6271bb5bf2e5f567bc57662989f7d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 14 14:25:18 2022 -0700
 
-    refactor(spid): Remove unused mailbox_hit port
+    [dv/adc_ctrl] Fix adc_ctrl regression error
     
-    Passthrough logic has `mailbox_hit_i` port to filter the read command
-    hitting the mailbox space. However, that function is deprecated and the
-    HW allows a Read command to cross the mailbox region and the
-    passthrough.
+    This PR fixes adc_ctrl regression error due to reset_aon_ni and reset_ni
+    not issuing at the same time.
+    Because the reset_aon_ni has very small frequency compares to reset_ni
+    clock, so issuing reset with normal `apply_reset` task would cause the
+    following issue:
+    The reset_ni will finsh toggle but reset_aon_ni has not start activation
+    yet.
     
-    So, `intercept` data structure has `mbx` field to change the mux from
-    Passthrough to internal datapath. While implementing the intercept, the
-    `mailbox_hit_i` port supposes to be removed but tied.
-    
-    Issue has been reported by @weicaiyang
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
