@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14771"
-version_tuple = (0, 0, 14771)
+version_str = "0.0.post14779"
+version_tuple = (0, 0, 14779)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14771")
+    pversion = V("0.0.post14779")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14629"
-data_version_tuple = (0, 0, 14629)
+data_version_str = "0.0.post14637"
+data_version_tuple = (0, 0, 14637)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14629")
+    pdata_version = V("0.0.post14637")
 except ImportError:
     pass
-data_git_hash = "d214b80d1936f0ff0f702dc527131d68973db6cb"
-data_git_describe = "v0.0-14629-gd214b80d19"
+data_git_hash = "1045061e816476b70008606739960a481e1c29d5"
+data_git_describe = "v0.0-14637-g1045061e81"
 data_git_msg = """\
-commit d214b80d1936f0ff0f702dc527131d68973db6cb
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed Oct 5 15:49:03 2022 +0100
+commit 1045061e816476b70008606739960a481e1c29d5
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Wed Oct 12 10:03:48 2022 -0700
 
-    [dv, e2e] Add bootstrap_watchdog_disable test
+    [rust] Turn on clippy
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
