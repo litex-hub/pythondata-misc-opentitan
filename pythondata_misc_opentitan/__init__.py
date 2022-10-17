@@ -4,37 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14782"
-version_tuple = (0, 0, 14782)
+version_str = "0.0.post14783"
+version_tuple = (0, 0, 14783)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14782")
+    pversion = V("0.0.post14783")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14640"
-data_version_tuple = (0, 0, 14640)
+data_version_str = "0.0.post14641"
+data_version_tuple = (0, 0, 14641)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14640")
+    pdata_version = V("0.0.post14641")
 except ImportError:
     pass
-data_git_hash = "8a6b83dbfd0fab3d725f66a509294be11352d9e0"
-data_git_describe = "v0.0-14640-g8a6b83dbfd"
+data_git_hash = "f8c9972ec1c6f1e7365fa2b7321e4444f535cd5e"
+data_git_describe = "v0.0-14641-gf8c9972ec1"
 data_git_msg = """\
-commit 8a6b83dbfd0fab3d725f66a509294be11352d9e0
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 13 15:58:49 2022 -0700
+commit f8c9972ec1c6f1e7365fa2b7321e4444f535cd5e
+Author: Eli Kim <eli@opentitan.org>
+Date:   Thu Oct 13 16:17:16 2022 -0700
 
-    [dv/lc_ctrl] Update coverage exclusion file
+    refactor(spid): Remove unused mailbox_hit port
     
-    This PR updates lc_ctrl's coverage exclusion file:
-    1). Removed the V2 only exclusion file
-    2). Add exclusion file to exclude any non-idle state to InvalidSt.
-      Because they are fully covered by FPV testbench.
+    Passthrough logic has `mailbox_hit_i` port to filter the read command
+    hitting the mailbox space. However, that function is deprecated and the
+    HW allows a Read command to cross the mailbox region and the
+    passthrough.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    So, `intercept` data structure has `mbx` field to change the mux from
+    Passthrough to internal datapath. While implementing the intercept, the
+    `mailbox_hit_i` port supposes to be removed but tied.
+    
+    Issue has been reported by @weicaiyang
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
