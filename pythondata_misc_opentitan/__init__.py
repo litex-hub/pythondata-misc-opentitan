@@ -4,39 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14788"
-version_tuple = (0, 0, 14788)
+version_str = "0.0.post14790"
+version_tuple = (0, 0, 14790)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14788")
+    pversion = V("0.0.post14790")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14646"
-data_version_tuple = (0, 0, 14646)
+data_version_str = "0.0.post14648"
+data_version_tuple = (0, 0, 14648)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14646")
+    pdata_version = V("0.0.post14648")
 except ImportError:
     pass
-data_git_hash = "559bcc276afc56be90e696337f0d4f1b297e4773"
-data_git_describe = "v0.0-14646-g559bcc276a"
+data_git_hash = "d698f0375c7d23919b20826f3cd269f8f7d9bf5d"
+data_git_describe = "v0.0-14648-gd698f0375c"
 data_git_msg = """\
-commit 559bcc276afc56be90e696337f0d4f1b297e4773
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Oct 11 18:25:41 2022 -0700
+commit d698f0375c7d23919b20826f3cd269f8f7d9bf5d
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Oct 14 17:09:40 2022 -0700
 
-    fix(chip): check `logic` compare and pins connection
+    [spi_device/dv] Update spi_device_driver to collect payload
     
-    In the prev codes there were three bugs that falsely passes the test.
+    Updated spi_device_driver to collect payload so that vseq can have the completed
+    payload to check.
     
-    1. The sample_gpio() should sample `ios_if.pins` not `ios_if.pins_o`.
-    2. The DV checker should use `===` rather than `==`. The PADs are
-       `logic` so the checker strictly compares all four types.
-    3. The SW did not clear pinmux status after waking up from the sleep.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Thanks Alex for pointing this out.
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
