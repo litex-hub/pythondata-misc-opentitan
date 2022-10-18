@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14794"
-version_tuple = (0, 0, 14794)
+version_str = "0.0.post14798"
+version_tuple = (0, 0, 14798)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14794")
+    pversion = V("0.0.post14798")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14652"
-data_version_tuple = (0, 0, 14652)
+data_version_str = "0.0.post14656"
+data_version_tuple = (0, 0, 14656)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14652")
+    pdata_version = V("0.0.post14656")
 except ImportError:
     pass
-data_git_hash = "484086eec0115826ca5ee26ab7bef956bd1eb190"
-data_git_describe = "v0.0-14652-g484086eec0"
+data_git_hash = "62c7b5000a6716a8fd6dd0d54c2bfc6bcd2ecc75"
+data_git_describe = "v0.0-14656-g62c7b5000a"
 data_git_msg = """\
-commit 484086eec0115826ca5ee26ab7bef956bd1eb190
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Oct 7 17:28:06 2022 +0200
+commit 62c7b5000a6716a8fd6dd0d54c2bfc6bcd2ecc75
+Author: Hugo McNally <hugo.mcnally@gmail.com>
+Date:   Mon Oct 17 20:35:48 2022 +0100
 
-    [crypto] Safely generate the P-256 secret scalar and random keys.
+    [test] Added single fault check to cpu info test.
     
-    Previously, the secret scalar k was simply fetched from RND, but when
-    reduced modulo the curve order the value will be biased. For this
-    reason, the FIPS spec requires generating the secret scalar from a
-    larger (320-bit) seed, and additionally ensuring it is nonzero.
-    Generation of the secret key from a random seed is very similar.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
 
 """
 
