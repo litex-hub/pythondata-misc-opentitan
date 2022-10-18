@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14798"
-version_tuple = (0, 0, 14798)
+version_str = "0.0.post14799"
+version_tuple = (0, 0, 14799)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14798")
+    pversion = V("0.0.post14799")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14656"
-data_version_tuple = (0, 0, 14656)
+data_version_str = "0.0.post14657"
+data_version_tuple = (0, 0, 14657)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14656")
+    pdata_version = V("0.0.post14657")
 except ImportError:
     pass
-data_git_hash = "62c7b5000a6716a8fd6dd0d54c2bfc6bcd2ecc75"
-data_git_describe = "v0.0-14656-g62c7b5000a"
+data_git_hash = "202b67e8eb8de3ae5d24e191bbcf903f96918c89"
+data_git_describe = "v0.0-14657-g202b67e8eb"
 data_git_msg = """\
-commit 62c7b5000a6716a8fd6dd0d54c2bfc6bcd2ecc75
-Author: Hugo McNally <hugo.mcnally@gmail.com>
-Date:   Mon Oct 17 20:35:48 2022 +0100
+commit 202b67e8eb8de3ae5d24e191bbcf903f96918c89
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Sat Oct 15 16:19:49 2022 +0000
 
-    [test] Added single fault check to cpu info test.
+    [flash_ctrl,dv] filesystem_support test fix
     
-    Signed-off-by: Hugo McNally <hugo.mcnally@gmail.com>
+    - Add address redundency check to guarantee singgle bit error injection
+    - Assert error to tb ref mem when singble error is asserted to rtl.
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
