@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14804"
-version_tuple = (0, 0, 14804)
+version_str = "0.0.post14808"
+version_tuple = (0, 0, 14808)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14804")
+    pversion = V("0.0.post14808")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14662"
-data_version_tuple = (0, 0, 14662)
+data_version_str = "0.0.post14666"
+data_version_tuple = (0, 0, 14666)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14662")
+    pdata_version = V("0.0.post14666")
 except ImportError:
     pass
-data_git_hash = "349d1a0dba9771ba64d070ad64459a85db91922e"
-data_git_describe = "v0.0-14662-g349d1a0dba"
+data_git_hash = "b549cf3c87593c20e4d4f991fa98a4663e695672"
+data_git_describe = "v0.0-14666-gb549cf3c87"
 data_git_msg = """\
-commit 349d1a0dba9771ba64d070ad64459a85db91922e
-Author: Eli Kim <eli@opentitan.org>
-Date:   Thu Oct 13 11:29:20 2022 -0700
+commit b549cf3c87593c20e4d4f991fa98a4663e695672
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Oct 12 15:47:02 2022 -0400
 
-    refactor(reggen): Add Interrupt class
+    [bazel] Cleaned up duplicated arg settings and an old FIXME
     
-    Interrupt class is derived from Signal class. It defines `intr_type` on
-    top of Signal class. The `intr_type` provides the way reggen
-    distinguishes between event and status types. Each type creates their
-    own access type for `INTR_STATE` and `INTR_TEST`.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
