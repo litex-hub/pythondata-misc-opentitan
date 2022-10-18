@@ -4,35 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14799"
-version_tuple = (0, 0, 14799)
+version_str = "0.0.post14802"
+version_tuple = (0, 0, 14802)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14799")
+    pversion = V("0.0.post14802")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14657"
-data_version_tuple = (0, 0, 14657)
+data_version_str = "0.0.post14660"
+data_version_tuple = (0, 0, 14660)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14657")
+    pdata_version = V("0.0.post14660")
 except ImportError:
     pass
-data_git_hash = "202b67e8eb8de3ae5d24e191bbcf903f96918c89"
-data_git_describe = "v0.0-14657-g202b67e8eb"
+data_git_hash = "daf347013a100a8f36e4b43e0e727d89d1e25e5e"
+data_git_describe = "v0.0-14660-gdaf347013a"
 data_git_msg = """\
-commit 202b67e8eb8de3ae5d24e191bbcf903f96918c89
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Sat Oct 15 16:19:49 2022 +0000
+commit daf347013a100a8f36e4b43e0e727d89d1e25e5e
+Author: Jade Philipoom <jadep@google.com>
+Date:   Fri Oct 14 16:14:25 2022 +0200
 
-    [flash_ctrl,dv] filesystem_support test fix
+    [crypto] Update API header file.
     
-    - Add address redundency check to guarantee singgle bit error injection
-    - Assert error to tb ref mem when singble error is asserted to rtl.
+    Changes since the last update:
+    - Key generation functions for symmetric crypto (AES, KMAC, HMAC) since
+      these are needed for sideloading
+    - New exposed blinded key configuration struct to help caller allocate
+      space for blinded keys and communicate requirements
+    - AES init/cipher merged into one function
+    - DRBG state struct removed (the state is the hardware state, and
+      providing a software state implies it's possible to instantiate
+    multiple DRBGs)
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
