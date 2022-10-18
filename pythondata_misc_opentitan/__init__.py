@@ -4,42 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14802"
-version_tuple = (0, 0, 14802)
+version_str = "0.0.post14804"
+version_tuple = (0, 0, 14804)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14802")
+    pversion = V("0.0.post14804")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14660"
-data_version_tuple = (0, 0, 14660)
+data_version_str = "0.0.post14662"
+data_version_tuple = (0, 0, 14662)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14660")
+    pdata_version = V("0.0.post14662")
 except ImportError:
     pass
-data_git_hash = "daf347013a100a8f36e4b43e0e727d89d1e25e5e"
-data_git_describe = "v0.0-14660-gdaf347013a"
+data_git_hash = "349d1a0dba9771ba64d070ad64459a85db91922e"
+data_git_describe = "v0.0-14662-g349d1a0dba"
 data_git_msg = """\
-commit daf347013a100a8f36e4b43e0e727d89d1e25e5e
-Author: Jade Philipoom <jadep@google.com>
-Date:   Fri Oct 14 16:14:25 2022 +0200
+commit 349d1a0dba9771ba64d070ad64459a85db91922e
+Author: Eli Kim <eli@opentitan.org>
+Date:   Thu Oct 13 11:29:20 2022 -0700
 
-    [crypto] Update API header file.
+    refactor(reggen): Add Interrupt class
     
-    Changes since the last update:
-    - Key generation functions for symmetric crypto (AES, KMAC, HMAC) since
-      these are needed for sideloading
-    - New exposed blinded key configuration struct to help caller allocate
-      space for blinded keys and communicate requirements
-    - AES init/cipher merged into one function
-    - DRBG state struct removed (the state is the hardware state, and
-      providing a software state implies it's possible to instantiate
-    multiple DRBGs)
+    Interrupt class is derived from Signal class. It defines `intr_type` on
+    top of Signal class. The `intr_type` provides the way reggen
+    distinguishes between event and status types. Each type creates their
+    own access type for `INTR_STATE` and `INTR_TEST`.
     
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
