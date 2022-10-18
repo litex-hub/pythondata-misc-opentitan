@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14791"
-version_tuple = (0, 0, 14791)
+version_str = "0.0.post14793"
+version_tuple = (0, 0, 14793)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14791")
+    pversion = V("0.0.post14793")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14649"
-data_version_tuple = (0, 0, 14649)
+data_version_str = "0.0.post14651"
+data_version_tuple = (0, 0, 14651)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14649")
+    pdata_version = V("0.0.post14651")
 except ImportError:
     pass
-data_git_hash = "d336486bcfc32a009f8f20d621c6ceac930ffdd9"
-data_git_describe = "v0.0-14649-gd336486bcf"
+data_git_hash = "4b867c56f4dc553d78485e6b4192d48ef4c72892"
+data_git_describe = "v0.0-14651-g4b867c56f4"
 data_git_msg = """\
-commit d336486bcfc32a009f8f20d621c6ceac930ffdd9
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Oct 17 15:32:10 2022 -0700
+commit 4b867c56f4dc553d78485e6b4192d48ef4c72892
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Oct 17 12:45:02 2022 -0700
 
-    [test] Increase SW timeout for ping_timeout test
+    [top/dv] Automatically backdoor load ROM_EXEC_EN
     
-    This is a fix for addressing #15280.
+    This is the same fix as the one applied to lc_walkthrough.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
