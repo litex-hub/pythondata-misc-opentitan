@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14808"
-version_tuple = (0, 0, 14808)
+version_str = "0.0.post14810"
+version_tuple = (0, 0, 14810)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14808")
+    pversion = V("0.0.post14810")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14666"
-data_version_tuple = (0, 0, 14666)
+data_version_str = "0.0.post14668"
+data_version_tuple = (0, 0, 14668)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14666")
+    pdata_version = V("0.0.post14668")
 except ImportError:
     pass
-data_git_hash = "b549cf3c87593c20e4d4f991fa98a4663e695672"
-data_git_describe = "v0.0-14666-gb549cf3c87"
+data_git_hash = "54fa34484ef4ac6cfcf1f054bb4f283e08a211b1"
+data_git_describe = "v0.0-14668-g54fa34484e"
 data_git_msg = """\
-commit b549cf3c87593c20e4d4f991fa98a4663e695672
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Oct 12 15:47:02 2022 -0400
+commit 54fa34484ef4ac6cfcf1f054bb4f283e08a211b1
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Oct 14 12:14:38 2022 -0700
 
-    [bazel] Cleaned up duplicated arg settings and an old FIXME
+    [spi_device/dv] Update CSR exclusions
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Removed some unnecessary exclusions
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
