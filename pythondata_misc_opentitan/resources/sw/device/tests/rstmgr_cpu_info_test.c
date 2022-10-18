@@ -3,17 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "sw/device/lib/base/abs_mmio.h"
+#include "sw/device/lib/base/macros.h"
 #include "sw/device/lib/base/mmio.h"
 #include "sw/device/lib/dif/dif_pwrmgr.h"
 #include "sw/device/lib/dif/dif_rstmgr.h"
-#include "sw/device/lib/runtime/ibex.h"
+#include "sw/device/lib/dif/dif_rv_core_ibex.h"
 #include "sw/device/lib/runtime/log.h"
 #include "sw/device/lib/testing/aon_timer_testutils.h"
-#include "sw/device/lib/testing/flash_ctrl_testutils.h"
 #include "sw/device/lib/testing/rstmgr_testutils.h"
 #include "sw/device/lib/testing/test_framework/check.h"
 #include "sw/device/lib/testing/test_framework/ottf_isrs.h"
-#include "sw/device/lib/testing/test_framework/ottf_macros.h"
 #include "sw/device/lib/testing/test_framework/ottf_main.h"
 
 #include "hw/top_earlgrey/sw/autogen/top_earlgrey.h"
@@ -22,181 +21,290 @@ OTTF_DEFINE_TEST_CONFIG();
 
 /**
  * RSTMGR CPU INFO TEST
- *  This test creates a double fault by accessing a register with
- *  a non-existing address.
- *  After the double fault, the dut gets reset by the watch dog bite,
- *  and the test collects / checks the cpu_info from the rstmgr.
+ *
+ * This has three stages:
+ *
+ * 1. After the first startup, a illegal memory access is performed.
+ *    In the exception handler, a software reset is triggered.
+ *
+ * 2. After the software reset, the CPU info dump is checked against
+ *    the expected values for this single fault. The watch dog is then set up
+ *    and another illegal memory access is performed. Only this time
+ *    the exception handler performs another illegal read.
+ *    Causing the ibex to be haulted by the alert handler.
+ *    The watch dog will eventually trigger a reset.
+ *
+ * 3. After the watchdog reset, the CPU info dump is checked against
+ *    the expected values for this double fault.
  */
 
-// non existing address
-#define kIllegalAddr1 0x4041FFF0u
-#define kIllegalAddr2 0x40003618u
-#define kSkipComp 0x12345678u
-#define kCpuDumpSize 8
-
-/**
- * Cpu dump struct index
- */
+// CPU Dump Size and Unmapped Addresses.
 enum {
-  kCpuDumpIdxCurrentExceptionAddr = 0,
-  kCpuDumpIdxCurrentExceptionPc = 1,
-  kCpuDumpIdxCurrentLastDataAddr = 2,
-  kCpuDumpIdxCurrentNextPc = 3,
-  kCpuDumpIdxCurrentPc = 4,
-  kCpuDumpIdxPreviousExceptionAddr = 5,
-  kCpuDumpIdxPreviousExceptionPc = 6,
-  kCpuDumpIdxPreviousValid = 7,
+  kCpuDumpSize = 8,
+  kIllegalAddr0 = 0xF0000000,
+  kIllegalAddr1 = 0xF0000004,
+  kIllegalAddr2 = 0xF0000008,
 };
 
-/**
- * Reserve expected cpu dump area in flash
- */
-OT_SECTION(".non_volatile_scratch")
-dif_rstmgr_cpu_info_dump_segment_t exp_dump[kCpuDumpSize];
+// Declaring the labels used to calculate the expected current and next pc
+// after a double fault.
+extern const uint32_t _ottf_interrupt_vector, handler_exception;
+
+// The labels to points in the code of which the memory address is needed.
+extern const char kSingleFaultAddrLower[];
+extern const char kSingleFaultAddrUpper[];
+extern const char kSingleFaultAddrCurrentPc[];
+extern const char kSingleFaultAddrNextPc[];
+extern const char kDoubleFaultFirstAddrLower[];
+extern const char kDoubleFaultFirstAddrUpper[];
+extern const char kDoubleFaultSecondAddrLower[];
+extern const char kDoubleFaultSecondAddrUpper[];
+
+// A handle to the reset manager.
+static dif_rstmgr_t rstmgr;
+
+// This variable is used to ensure loads from an address aren't optimised out.
+volatile static uint32_t addr_val;
 
 /**
- *  Dump structure:
- *    0: current.exception_addr
- *    1: current.exception_pc
- *    2: current.last_data_addr
- *   *3: current.next_pc
- *   *4: current.pc
- *    5: previous.exception_addr
- *    6: previous.exception_pc
- *    7: previous_valid
- *
- * Observed cpu dump will be collected after watch dog bite,
- * exp cpu dump will be created at the 'ottf_exception_handler'.
- * Following fields are current code specific and
- * will be skipped comparison.
- *
- *  current.next_pc, current.pc, current.last_data_addr
+ * When true, the exception handler will trigger another fault,
+ * causing a double fault,
+ * otherwise it triggers a software reset.
  */
-static dif_rstmgr_cpu_info_dump_segment_t dump[kCpuDumpSize];
-static dif_rstmgr_cpu_info_dump_segment_t temp_dump[kCpuDumpSize] = {
-    kSkipComp, kSkipComp, kSkipComp, kSkipComp,
-    kSkipComp, kSkipComp, kSkipComp, kSkipComp};
-
-static dif_flash_ctrl_state_t flash_ctrl;
-
-// Count number of faluts
-static volatile uint32_t global_error_cnt;
-
-// Access non-existing address
-// Each call will create a fault
-static void read_error(void) {
-  uint32_t addr;
-  global_error_cnt++;
-
-  if (global_error_cnt == 1) {
-    addr = kIllegalAddr1;
-  } else {
-    LOG_INFO("double fault");
-    addr = kIllegalAddr2;
-  }
-  // I can't add a new variable to call mmio_
-  // because mmio call will never be returned.
-  // Use current variable, just to avoid unused error.
-  addr = mmio_region_read32(mmio_region_from_addr(addr), 0);
-}
+volatile static bool double_fault;
 
 /**
  * Overrides the default OTTF exception handler.
  */
 void ottf_exception_handler(void) {
-  // The exception address ends up being the same since both are
-  // are referencing the same read function
-  temp_dump[kCpuDumpIdxCurrentExceptionPc] =
-      (dif_rstmgr_cpu_info_dump_segment_t)ibex_mepc_read();
-  temp_dump[kCpuDumpIdxCurrentExceptionAddr] = kIllegalAddr2;
-
-  temp_dump[kCpuDumpIdxPreviousExceptionPc] =
-      temp_dump[kCpuDumpIdxCurrentExceptionPc];
-  temp_dump[kCpuDumpIdxPreviousExceptionAddr] = kIllegalAddr1;
-  temp_dump[kCpuDumpIdxPreviousValid] = 1;
-
-  CHECK(flash_ctrl_testutils_write(
-      &flash_ctrl, (uintptr_t)exp_dump - TOP_EARLGREY_FLASH_CTRL_MEM_BASE_ADDR,
-      0, temp_dump, kDifFlashCtrlPartitionTypeData, kCpuDumpSize));
-
-  for (size_t i = 0; i < kCpuDumpSize; ++i) {
-    dif_rstmgr_cpu_info_dump_segment_t rdata = exp_dump[i];
-    LOG_INFO("Expected dump:%d: 0x%x", i, rdata);
+  if (double_fault) {
+    OT_ADDRESSABLE_LABEL(kDoubleFaultSecondAddrLower);
+    addr_val = mmio_region_read32(mmio_region_from_addr(kIllegalAddr2), 0);
+    OT_ADDRESSABLE_LABEL(kDoubleFaultSecondAddrUpper);
+  } else {
+    CHECK_DIF_OK(dif_rstmgr_software_device_reset(&rstmgr));
+    // Write to `addr_val` so that the 'last data access' address is
+    // a known value (the address of addr_val).
+    addr_val = 1;
+    OT_ADDRESSABLE_LABEL(kSingleFaultAddrCurrentPc);
+    wait_for_interrupt();  // Wait for the reset.
+    OT_ADDRESSABLE_LABEL(kSingleFaultAddrNextPc);
+    addr_val = 2;
   }
+  CHECK(false,
+        "This point should be unreachable; "
+        "a reset or another fault should have occured.");
+}
 
-  read_error();
+/**
+ * Gets, parses and returns the cpu info crash dump.
+ *
+ * @param ibex A handle to the ibex.
+ * @return The cpu info crash dump.
+ */
+static dif_rv_core_ibex_crash_dump_info_t get_dump(
+    const dif_rv_core_ibex_t *ibex) {
+  size_t size_read;
+  dif_rstmgr_cpu_info_dump_segment_t dump[DIF_RSTMGR_CPU_INFO_MAX_SIZE];
+
+  CHECK_DIF_OK(dif_rstmgr_cpu_info_dump_read(
+      &rstmgr, dump, DIF_RSTMGR_CPU_INFO_MAX_SIZE, &size_read));
+  CHECK(size_read == kCpuDumpSize,
+        "The observed cpu info dump's size was %d, "
+        "but it was expected to be %d",
+        size_read, kCpuDumpSize);
+
+  dif_rv_core_ibex_crash_dump_info_t output;
+  CHECK_DIF_OK(
+      dif_rv_core_ibex_parse_crash_dump(ibex, dump, size_read, &output));
+  return output;
+}
+
+/**
+ * Holds the expected cpu info dump values for the current state.
+ */
+typedef struct rstmgr_cpu_info_test_exp_state {
+  uint32_t mtval;   ///< The last exception address.
+  uint32_t mpec_l;  ///< The last exception PC lower bound.
+  uint32_t mpec_u;  ///< The last exception PC upper bound.
+  uint32_t mdaa;    ///< The last data access address.
+  uint32_t mnpc;    ///< The next PC.
+  uint32_t mcpc;    ///< The current PC.
+} rstmgr_cpu_info_test_exp_state_t;
+
+/**
+ * Holds the expected cpu info dump values for the previous state.
+ */
+typedef struct rstmgr_cpu_info_test_exp_prev_state {
+  uint32_t mtval;  ///< The exception address for the previous crash.
+  uint32_t
+      mpec_l;  ///< The last exception PC lower bound for the previous crash.
+  uint32_t
+      mpec_u;  ///< The last exception PC upper bound for the previous crash.
+} rstmgr_cpu_info_test_exp_prev_state_t;
+
+/**
+ * Checks the 'current' section of the cpu info dump against the given expected
+ * values.
+ *
+ * @param obs_state The cpu info crash dump's current state values.
+ * @param exp_state The expected values of the current state.
+ */
+static void check_state(dif_rv_core_ibex_crash_dump_state_t obs_state,
+                        rstmgr_cpu_info_test_exp_state_t exp_state) {
+  CHECK(exp_state.mtval == obs_state.mtval,
+        "Last Exception Access Addr: Expected 0x%x != Observed 0x%x",
+        exp_state.mtval, obs_state.mtval);
+  CHECK(exp_state.mcpc == obs_state.mcpc,
+        "Current PC: Expected 0x%x != Observed 0x%x", exp_state.mcpc,
+        obs_state.mcpc);
+  CHECK(exp_state.mnpc == obs_state.mnpc,
+        "Next PC: Expected 0x%x != Observed 0x%x", exp_state.mnpc,
+        obs_state.mnpc);
+  CHECK(exp_state.mdaa == obs_state.mdaa,
+        "Last Data Access Addr: Expected 0x%x != Observed 0x%x", exp_state.mdaa,
+        obs_state.mdaa);
+  CHECK(
+      exp_state.mpec_l <= obs_state.mpec && obs_state.mpec < exp_state.mpec_u,
+      "The Observed MPEC, 0x%x, was not in the expected range of [0x%x, 0x%x)",
+      obs_state.mpec, exp_state.mpec_l, exp_state.mpec_u);
+}
+
+/**
+ * Checks the 'previous' section of the cpu info dump against the given expected
+ * values.
+ *
+ * @param obs_prev_state The cpu info crash dump's previous state values.
+ * @param exp_prev_state The expected values of the previous state.
+ */
+static void check_prev_state(
+    dif_rv_core_ibex_previous_crash_dump_state_t obs_prev_state,
+    rstmgr_cpu_info_test_exp_prev_state_t exp_prev_state) {
+  CHECK(exp_prev_state.mtval == obs_prev_state.mtval,
+        "Last Exception Access Addr: Expected 0x%x != Observed 0x%x",
+        exp_prev_state.mtval, obs_prev_state.mtval);
+  CHECK(exp_prev_state.mpec_l <= obs_prev_state.mpec &&
+            obs_prev_state.mpec < exp_prev_state.mpec_u,
+        "The Observed Previous MPEC, 0x%x, "
+        "was not in the expected range of [0x%x, 0x%x)",
+        obs_prev_state.mpec, exp_prev_state.mpec_l, exp_prev_state.mpec_u);
 }
 
 bool test_main(void) {
-  dif_rstmgr_t rstmgr;
+  dif_rv_core_ibex_crash_dump_info_t dump;
+
   dif_aon_timer_t aon_timer;
   dif_pwrmgr_t pwrmgr;
+  dif_rv_core_ibex_t ibex;
 
+  // Initialize Handles.
   CHECK_DIF_OK(dif_rstmgr_init(
       mmio_region_from_addr(TOP_EARLGREY_RSTMGR_AON_BASE_ADDR), &rstmgr));
   CHECK_DIF_OK(dif_aon_timer_init(
       mmio_region_from_addr(TOP_EARLGREY_AON_TIMER_AON_BASE_ADDR), &aon_timer));
   CHECK_DIF_OK(dif_pwrmgr_init(
       mmio_region_from_addr(TOP_EARLGREY_PWRMGR_AON_BASE_ADDR), &pwrmgr));
-  // Initialize flash_ctrl
-  CHECK_DIF_OK(dif_flash_ctrl_init_state(
-      &flash_ctrl,
-      mmio_region_from_addr(TOP_EARLGREY_FLASH_CTRL_CORE_BASE_ADDR)));
+  CHECK_DIF_OK(dif_rv_core_ibex_init(
+      mmio_region_from_addr(TOP_EARLGREY_RV_CORE_IBEX_CFG_BASE_ADDR), &ibex));
 
-  // Enable flash access
-  flash_ctrl_testutils_default_region_access(&flash_ctrl,
-                                             /*rd_en*/ true,
-                                             /*prog_en*/ true,
-                                             /*erase_en*/ true,
-                                             /*scramble_en*/ false,
-                                             /*ecc_en*/ false,
-                                             /*he_en*/ false);
+  switch (rstmgr_testutils_reason_get()) {
+    case kDifRstmgrResetInfoPor:  // The first power-up.
+      LOG_INFO("Triggering single fault.");
 
-  dif_rstmgr_reset_info_bitfield_t rst_info;
-  rst_info = rstmgr_testutils_reason_get();
+      // Enable cpu info.
+      CHECK_DIF_OK(dif_rstmgr_cpu_info_set_enabled(&rstmgr, kDifToggleEnabled));
 
-  if (rst_info == kDifRstmgrResetInfoPor) {
-    LOG_INFO("Booting for the first time, setting wdog");
+      double_fault = false;
+      OT_ADDRESSABLE_LABEL(kSingleFaultAddrLower);
+      addr_val = mmio_region_read32(mmio_region_from_addr(kIllegalAddr0), 0);
+      OT_ADDRESSABLE_LABEL(kSingleFaultAddrUpper);
+      CHECK(false,
+            "This should be unreachable; a single fault should have occured.");
+      break;
 
-    global_error_cnt = 0;
-    uint32_t bark_cycles = aon_timer_testutils_get_aon_cycles_from_us(100);
-    uint32_t bite_cycles = aon_timer_testutils_get_aon_cycles_from_us(100);
+    case kDifRstmgrResetInfoSw:  // The power-up after the single fault.
+      LOG_INFO("Checking CPU info dump after single fault.");
 
-    // Set wdog as a reset source.
-    CHECK_DIF_OK(dif_pwrmgr_set_request_sources(&pwrmgr, kDifPwrmgrReqTypeReset,
-                                                kDifPwrmgrResetRequestSourceTwo,
-                                                kDifToggleEnabled));
+      dump = get_dump(&ibex);
 
-    // Setup the wdog bark and bite timeouts.
-    aon_timer_testutils_watchdog_config(&aon_timer, bark_cycles, bite_cycles,
-                                        false);
+      CHECK(
+          dump.double_fault == kDifToggleDisabled,
+          "CPU Info dump shows a double fault after experiencing only a single "
+          "fault.");
 
-    // Enable cpu info
-    CHECK_DIF_OK(dif_rstmgr_cpu_info_set_enabled(&rstmgr, kDifToggleEnabled));
-    read_error();
-  } else {
-    LOG_INFO("Comes back after bite");
+      check_state(dump.fault_state,
+                  (rstmgr_cpu_info_test_exp_state_t){
+                      .mtval = (uint32_t)kIllegalAddr0,
+                      .mpec_l = (uint32_t)kSingleFaultAddrLower,
+                      .mpec_u = (uint32_t)kSingleFaultAddrUpper,
+                      .mdaa = (uint32_t)&addr_val,
+                      .mcpc = (uint32_t)kSingleFaultAddrCurrentPc,
+                      .mnpc = (uint32_t)kSingleFaultAddrNextPc,
+                  });
 
-    size_t seg_size;
+      LOG_INFO("Setting up watch dog and triggering a double fault.");
+      uint32_t bark_cycles = aon_timer_testutils_get_aon_cycles_from_us(100);
+      uint32_t bite_cycles = aon_timer_testutils_get_aon_cycles_from_us(100);
 
-    CHECK_DIF_OK(dif_rstmgr_cpu_info_dump_read(
-        &rstmgr, &dump[0], DIF_RSTMGR_CPU_INFO_MAX_SIZE, &seg_size));
+      // Set wdog as a reset source.
+      CHECK_DIF_OK(dif_pwrmgr_set_request_sources(
+          &pwrmgr, kDifPwrmgrReqTypeReset, kDifPwrmgrResetRequestSourceTwo,
+          kDifToggleEnabled));
+      // Setup the watchdog bark and bite timeouts.
+      aon_timer_testutils_watchdog_config(&aon_timer, bark_cycles, bite_cycles,
+                                          false);
+      // Enable cpu info.
+      CHECK_DIF_OK(dif_rstmgr_cpu_info_set_enabled(&rstmgr, kDifToggleEnabled));
 
-    for (int i = 0; i < seg_size; ++i) {
-      LOG_INFO("Observed crash dump:%d: 0x%x", i, dump[i]);
-    }
+      double_fault = true;
+      OT_ADDRESSABLE_LABEL(kDoubleFaultFirstAddrLower);
+      addr_val = mmio_region_read32(mmio_region_from_addr(kIllegalAddr1), 0);
+      OT_ADDRESSABLE_LABEL(kDoubleFaultFirstAddrUpper);
+      CHECK(false,
+            "This should be unreachable; a double fault should have occured.");
+      break;
 
-    for (size_t i = 0; i < seg_size; ++i) {
-      dif_rstmgr_cpu_info_dump_segment_t rdata = exp_dump[i];
+    case kDifRstmgrResetInfoWatchdog:  // The power-up after the double fault.
+      LOG_INFO("Checking CPU info dump after double fault.");
 
-      if (rdata != kSkipComp) {
-        CHECK(rdata == dump[i], "field mismatch: exp = 0x%x, obs = 0x%x", rdata,
-              dump[i]);
-      }
-    }
+      dump = get_dump(&ibex);
+
+      CHECK(dump.double_fault == kDifToggleEnabled,
+            "CPU Info dump doesn't show a double fault has happened.");
+
+      // The current behaviour after a double fault is to capture, in the CPU
+      // info dump, the interrupt vector below the one which was taken to jump
+      // to the exception handler as the current PC and the start of the
+      // exception handler as the next PC. This feels wrong. However, with a
+      // lack of a clear definition of what these values should contain, the
+      // test enforces this behaviour so that regressions can be caught.
+      uint32_t curr_pc = (uint32_t)&_ottf_interrupt_vector + 4;
+      uint32_t next_pc = (uint32_t)&handler_exception;
+
+      check_state(dump.fault_state,
+                  (rstmgr_cpu_info_test_exp_state_t){
+                      .mtval = (uint32_t)kIllegalAddr2,
+                      .mpec_l = (uint32_t)kDoubleFaultSecondAddrLower,
+                      .mpec_u = (uint32_t)kDoubleFaultSecondAddrUpper,
+                      .mdaa = (uint32_t)kIllegalAddr2,
+                      .mcpc = curr_pc,
+                      .mnpc = next_pc,
+                  });
+
+      check_prev_state(dump.previous_fault_state,
+                       (rstmgr_cpu_info_test_exp_prev_state_t){
+                           .mtval = (uint32_t)kIllegalAddr1,
+                           .mpec_l = (uint32_t)kDoubleFaultFirstAddrLower,
+                           .mpec_u = (uint32_t)kDoubleFaultFirstAddrUpper,
+                       });
+
+      // Turn off the AON timer hardware completely before exiting.
+      aon_timer_testutils_shutdown(&aon_timer);
+      return true;
+
+    default:
+      CHECK(false, "Device was reset by an unexpected source.");
+      break;
   }
-
-  // Turn off the AON timer hardware completely before exiting.
-  aon_timer_testutils_shutdown(&aon_timer);
-  return true;
+  return false;
 }
