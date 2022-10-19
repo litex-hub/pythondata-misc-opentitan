@@ -24,26 +24,34 @@ load(
 
 package(default_visibility = ["//visibility:public"])
 
-MSG_STARTING_ROM_EXT = "Starting ROM_EXT"
-
 MSG_BOOT_FAULT = "BFV:"
 
-MSG_STORE_ACCESS_FAULT = "BFV:07495202(?s:.*)BFV:07495202"
+_BFV_TEMPLATE = "{}{}(?s:.*){}{}".format(MSG_BOOT_FAULT, "{0}", MSG_BOOT_FAULT, "{0}")
 
-MSG_ILLEGAL_INSTRUCTION_FAULT = "BFV:02495202(?s:.*)BFV:02495202"
+MSG_STARTING_ROM_EXT = "Starting ROM_EXT"
+
+MSG_STORE_ACCESS_FAULT = _BFV_TEMPLATE.format("07495202")
+
+MSG_ILLEGAL_INSTRUCTION_FAULT = _BFV_TEMPLATE.format("02495202")
 
 MSG_PASS = "PASS!"
 
-MSG_BAD_KEY = "BFV:02535603(?s:.*)BFV:02535603"
+MSG_SIGVERIFY_BAD_KEY = _BFV_TEMPLATE.format("02535603")
 
-SLOTS = [
-    "a",
-    "b",
-]
+MSG_BOOT_POLICY_BAD_IDENTIFIER = _BFV_TEMPLATE.format("0142500d")
 
-SLOT_A_OFFSET = "0x0"
+MSG_BOOT_POLICY_BAD_LENGTH = _BFV_TEMPLATE.format("0242500d")
 
-SLOT_B_OFFSET = "0x80000"
+MSG_BOOT_POLICY_ROLLBACK = _BFV_TEMPLATE.format("0342500d")
+
+MSG_MANIFEST_BAD_ENTRY_POINT = _BFV_TEMPLATE.format("014d410d")
+
+MSG_MANIFEST_BAD_CODE_REGION = _BFV_TEMPLATE.format("024d410d")
+
+SLOTS = {
+    "a": "0x0",
+    "b": "0x80000",
+}
 
 opentitan_flash_binary(
     name = "empty_test_slot_a",
@@ -264,7 +272,7 @@ opentitan_multislot_flash_binary(
     srcs = {
         "//sw/device/silicon_creator/rom_ext:rom_ext_slot_b": {
             "key": "test_key_0",
-            "offset": SLOT_B_OFFSET,
+            "offset": SLOTS["b"],
         },
     },
 )
@@ -285,7 +293,7 @@ opentitan_multislot_flash_binary(
     srcs = {
         "//sw/device/silicon_creator/rom_ext:rom_ext_slot_a": {
             "key": "test_key_0",
-            "offset": SLOT_B_OFFSET,
+            "offset": SLOTS["b"],
         },
     },
 )
@@ -306,7 +314,7 @@ opentitan_multislot_flash_binary(
     srcs = {
         "//sw/device/silicon_creator/rom_ext:rom_ext_slot_b": {
             "key": "test_key_0",
-            "offset": SLOT_A_OFFSET,
+            "offset": SLOTS["a"],
         },
     },
 )
@@ -337,7 +345,7 @@ opentitan_multislot_flash_binary(
     srcs = {
         "//sw/device/silicon_creator/rom_ext:rom_ext_slot_virtual": {
             "key": "test_key_0",
-            "offset": SLOT_B_OFFSET,
+            "offset": SLOTS["b"],
         },
     },
 )
@@ -380,7 +388,7 @@ opentitan_functest(
     name = "sigverify_key_auth",
     cw310 = cw310_params(
         exit_failure = MSG_PASS,
-        exit_success = MSG_BAD_KEY,
+        exit_success = MSG_SIGVERIFY_BAD_KEY,
     ),
     key = "unauthorized_0",
     ot_flash_binary = ":empty_test_slot_a",
@@ -397,11 +405,11 @@ MSG_SHUTDOWN = {
 
 LC_STATES = ["rma"]
 
-manifest(
-    name = "manifest_bad_identifier",
-    address_translation = CONST.FALSE,
-    identifier = 0,
-)
+manifest({
+    "name": "manifest_bad_identifier",
+    "address_translation": CONST.FALSE,
+    "identifier": 0,
+})
 
 # TODO(#14270): Add remaining lifecycle states.
 [opentitan_functest(
@@ -427,12 +435,12 @@ SEC_VERS = [
     1,
 ]
 
-[manifest(
-    name = "manifest_sec_ver_{}".format(sec_ver),
-    address_translation = CONST.FALSE,
-    identifier = CONST.ROM_EXT,
-    security_version = sec_ver,
-) for sec_ver in SEC_VERS]
+[manifest({
+    "name": "manifest_sec_ver_{}".format(sec_ver),
+    "address_translation": CONST.FALSE,
+    "identifier": CONST.ROM_EXT,
+    "security_version": sec_ver,
+}) for sec_ver in SEC_VERS]
 
 [opentitan_flash_binary(
     name = "empty_test_slot_{}_sec_ver_{}".format(slot, sec_ver),
@@ -454,11 +462,11 @@ SEC_VERS = [
     srcs = {
         ":empty_test_slot_a_sec_ver_{}".format(sec_ver_a): {
             "key": "test_key_0",
-            "offset": SLOT_A_OFFSET,
+            "offset": SLOTS["a"],
         },
         ":empty_test_slot_b_sec_ver_{}".format(sec_ver_b): {
             "key": "test_key_0",
-            "offset": SLOT_B_OFFSET,
+            "offset": SLOTS["b"],
         },
     },
     devices = ["fpga_cw310"],
@@ -539,4 +547,197 @@ SIGVERIFY_MOD_EXP_CASES = [
 test_suite(
     name = "sigverify_mod_exp",
     tests = ["sigverify_mod_exp_{}".format(t["name"]) for t in SIGVERIFY_MOD_EXP_CASES],
+)
+
+BOOT_POLICY_BAD_MANIFEST_CASES = [
+    {
+        "name": "bad_identifier",
+        "manifest": {
+            "identifier": 0,
+        },
+        "exit_success": MSG_BOOT_POLICY_BAD_IDENTIFIER,
+    },
+    {
+        "name": "too_small",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "length": CONST.ROM_EXT_SIZE_MIN - 1,
+        },
+        "exit_success": MSG_BOOT_POLICY_BAD_LENGTH,
+    },
+    {
+        "name": "too_large",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "length": CONST.ROM_EXT_SIZE_MAX + 1,
+        },
+        "exit_success": MSG_BOOT_POLICY_BAD_LENGTH,
+    },
+    {
+        "name": "empty_code",
+        "manifest": {
+            # Note: `length` is filled automatically unless overriden here.
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 12,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+        },
+        "exit_success": MSG_MANIFEST_BAD_CODE_REGION,
+    },
+    {
+        "name": "code_in_manifest",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE - 4,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 8,
+        },
+        "exit_success": MSG_MANIFEST_BAD_CODE_REGION,
+    },
+    {
+        "name": "code_outside_image",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.ROM_EXT_SIZE_MAX,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 8,
+        },
+        "exit_success": MSG_MANIFEST_BAD_CODE_REGION,
+    },
+    {
+        "name": "code_start_unaligned",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 6,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 8,
+        },
+        "exit_success": MSG_MANIFEST_BAD_CODE_REGION,
+    },
+    {
+        "name": "code_end_unaligned",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 8,
+            "code_end": CONST.MANIFEST_SIZE + 10,
+            "entry_point": CONST.MANIFEST_SIZE + 8,
+        },
+        "exit_success": MSG_MANIFEST_BAD_CODE_REGION,
+    },
+    {
+        "name": "entry_before_code_start",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 8,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 4,
+        },
+        "exit_success": MSG_MANIFEST_BAD_ENTRY_POINT,
+    },
+    {
+        "name": "entry_at_code_end",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 8,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 12,
+        },
+        "exit_success": MSG_MANIFEST_BAD_ENTRY_POINT,
+    },
+    {
+        "name": "entry_unaligned",
+        "manifest": {
+            "identifier": CONST.ROM_EXT,
+            "code_start": CONST.MANIFEST_SIZE + 8,
+            "code_end": CONST.MANIFEST_SIZE + 12,
+            "entry_point": CONST.MANIFEST_SIZE + 10,
+        },
+        "exit_success": MSG_MANIFEST_BAD_ENTRY_POINT,
+    },
+    # TODO(#14473): Enable after splicing the OTP with default boot_data
+    # enabled in PROD and CREATOR_SW_CFG_MIN_SEC_VER_ROM_EXT set to 1.
+    # {
+    #     "name": "rollback",
+    #     "manifest": {
+    #         "identifier": CONST.ROM_EXT,
+    #         "code_start": CONST.MANIFEST_SIZE + 8,
+    #         "code_end": CONST.MANIFEST_SIZE + 12,
+    #         "entry_point": CONST.MANIFEST_SIZE + 8,
+    #         "security_version": 0,
+    #     },
+    #     "exit_success": MSG_BOOT_POLICY_ROLLBACK,
+    # },
+]
+
+[opentitan_flash_binary(
+    name = "boot_policy_bad_manifest_{}_{}_bin".format(
+        t["name"],
+        slot,
+    ),
+    srcs = ["empty_test.c"],
+    devices = [
+        "fpga_cw310",
+        "sim_dv",
+        "sim_verilator",
+    ],
+    manifest = manifest(dict(
+        t["manifest"],
+        name = "{}_{}".format(
+            t["name"],
+            slot,
+        ),
+    )),
+    signed = True,
+    deps = [
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "@//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
+    ],
+) for t in BOOT_POLICY_BAD_MANIFEST_CASES for slot in SLOTS]
+
+[opentitan_multislot_flash_binary(
+    name = "boot_policy_bad_manifest_{}_{}_img".format(
+        t["name"],
+        slot,
+    ),
+    srcs = {
+        "boot_policy_bad_manifest_{}_{}_bin".format(
+            t["name"],
+            slot,
+        ): {
+            "key": "test_key_0",
+            "offset": offset,
+        },
+    },
+    devices = [
+        "fpga_cw310",
+        "sim_dv",
+        "sim_verilator",
+    ],
+) for t in BOOT_POLICY_BAD_MANIFEST_CASES for slot, offset in SLOTS.items()]
+
+[opentitan_functest(
+    name = "boot_policy_bad_manifest_{}_{}".format(
+        t["name"],
+        slot,
+    ),
+    cw310 = cw310_params(
+        exit_success = t["exit_success"],
+    ),
+    key = "multislot",
+    ot_flash_binary = "boot_policy_bad_manifest_{}_{}_img".format(
+        t["name"],
+        slot,
+    ),
+    targets = [
+        "cw310_rom",
+        "dv",
+        "verilator",
+    ],
+) for t in BOOT_POLICY_BAD_MANIFEST_CASES for slot in SLOTS]
+
+test_suite(
+    name = "boot_policy_bad_manifest",
+    tests = ["boot_policy_bad_manifest_{}_{}".format(
+        t["name"],
+        slot,
+    ) for t in BOOT_POLICY_BAD_MANIFEST_CASES for slot in SLOTS],
 )
