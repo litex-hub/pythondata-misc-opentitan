@@ -241,11 +241,11 @@ opentitan_functest(
         "//hw/top_earlgrey/sw/autogen:top_earlgrey",
         "//sw/device/lib/dif:sram_ctrl",
         "//sw/device/lib/runtime:log",
+        "//sw/device/lib/testing/json:chip_specific_startup",
+        "//sw/device/lib/testing/json:command",
         "//sw/device/lib/testing/test_framework:ottf_main",
         "//sw/device/lib/testing/test_framework:ujson_ottf",
         "//sw/device/lib/ujson",
-        "//sw/device/silicon_creator/rom/e2e/json:chip_specific_startup",
-        "//sw/device/silicon_creator/rom/e2e/json:command",
     ],
 )
 
@@ -505,4 +505,38 @@ BOOT_POLICY_NEWER_CASES = [
 test_suite(
     name = "boot_policy_newer",
     tests = ["boot_policy_newer_a_{}_b_{}".format(sec_ver_a, sec_ver_b) for sec_ver_a, sec_ver_b, _, _ in BOOT_POLICY_NEWER_CASES],
+)
+
+SIGVERIFY_MOD_EXP_CASES = [
+    {
+        "name": "sw",
+        "use_sw_rsa_verify": CONST.TRUE,
+        "exit_success": MSG_PASS,
+    },
+    # TODO(#14481): Enable after OTP splicing is ready.
+    # TODO: Consider using a custom binary that prints the OTP item.
+    # {
+    #     "name": "otbn",
+    #     "use_sw_rsa_verify": CONST.FALSE,
+    #     "exit_success": MSG_PASS,
+    # },
+    # {
+    #     "name": "invalid",
+    #     "use_sw_rsa_verify": 0,
+    #     "exit_success": MSG_ILLEGAL_INSTRUCTION_FAULT,
+    # },
+]
+
+[opentitan_functest(
+    name = "sigverify_mod_exp_{}".format(t["name"]),
+    cw310 = cw310_params(
+        exit_success = t["exit_success"],
+    ),
+    ot_flash_binary = ":empty_test_slot_a",
+    targets = ["cw310_rom"],
+) for t in SIGVERIFY_MOD_EXP_CASES]
+
+test_suite(
+    name = "sigverify_mod_exp",
+    tests = ["sigverify_mod_exp_{}".format(t["name"]) for t in SIGVERIFY_MOD_EXP_CASES],
 )
