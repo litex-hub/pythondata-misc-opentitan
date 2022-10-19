@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14826"
-version_tuple = (0, 0, 14826)
+version_str = "0.0.post14827"
+version_tuple = (0, 0, 14827)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14826")
+    pversion = V("0.0.post14827")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14684"
-data_version_tuple = (0, 0, 14684)
+data_version_str = "0.0.post14685"
+data_version_tuple = (0, 0, 14685)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14684")
+    pdata_version = V("0.0.post14685")
 except ImportError:
     pass
-data_git_hash = "8db8bd5b11f42097de0060e63a58fad760a0c923"
-data_git_describe = "v0.0-14684-g8db8bd5b11"
+data_git_hash = "1a8644ee02896ec8c8ba8642ae56748f1836dd20"
+data_git_describe = "v0.0-14685-g1a8644ee02"
 data_git_msg = """\
-commit 8db8bd5b11f42097de0060e63a58fad760a0c923
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Oct 14 12:03:22 2022 -0400
+commit 1a8644ee02896ec8c8ba8642ae56748f1836dd20
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Oct 18 17:47:17 2022 -0700
 
-    [test] Add rom_e2e_boot_policy_bad_manifest
+    [top/dv] Invalidate cache prior to execution from sram
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    - The test fails from time to time because the first
+      execute_from_sram call can be cached.  That means when
+      the second call is invoked, it is fetched out of icache
+      instead of sram, causing the test to pass.
+    
+    - The fix is simply to add an invalidate_icache command
+      prior to invoking execute from sram.
+    
+    - This will be something to be aware of when execute from
+      sram is used in the future, we should probably always invalidate
+      prior to jumping.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
