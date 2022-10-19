@@ -4,44 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14827"
-version_tuple = (0, 0, 14827)
+version_str = "0.0.post14835"
+version_tuple = (0, 0, 14835)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14827")
+    pversion = V("0.0.post14835")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14685"
-data_version_tuple = (0, 0, 14685)
+data_version_str = "0.0.post14693"
+data_version_tuple = (0, 0, 14693)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14685")
+    pdata_version = V("0.0.post14693")
 except ImportError:
     pass
-data_git_hash = "1a8644ee02896ec8c8ba8642ae56748f1836dd20"
-data_git_describe = "v0.0-14685-g1a8644ee02"
+data_git_hash = "d120ffa33297e9e9b807388308076a5e6d40c4d1"
+data_git_describe = "v0.0-14693-gd120ffa332"
 data_git_msg = """\
-commit 1a8644ee02896ec8c8ba8642ae56748f1836dd20
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 18 17:47:17 2022 -0700
+commit d120ffa33297e9e9b807388308076a5e6d40c4d1
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 12 11:24:53 2022 -0700
 
-    [top/dv] Invalidate cache prior to execution from sram
+    [bazel] update rules_rust to enable bindgen
     
-    - The test fails from time to time because the first
-      execute_from_sram call can be cached.  That means when
-      the second call is invoked, it is fetched out of icache
-      instead of sram, causing the test to pass.
+    This updates rules_rust to fix #15441 and #15568, and enable using the rust
+    bindgen tool in (older linux) airgapped environments.
     
-    - The fix is simply to add an invalidate_icache command
-      prior to invoking execute from sram.
-    
-    - This will be something to be aware of when execute from
-      sram is used in the future, we should probably always invalidate
-      prior to jumping.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
