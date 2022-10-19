@@ -4,32 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14840"
-version_tuple = (0, 0, 14840)
+version_str = "0.0.post14841"
+version_tuple = (0, 0, 14841)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14840")
+    pversion = V("0.0.post14841")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14698"
-data_version_tuple = (0, 0, 14698)
+data_version_str = "0.0.post14699"
+data_version_tuple = (0, 0, 14699)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14698")
+    pdata_version = V("0.0.post14699")
 except ImportError:
     pass
-data_git_hash = "e56aa66a33989dc12615479f80c7847b0dd58686"
-data_git_describe = "v0.0-14698-ge56aa66a33"
+data_git_hash = "84835838da2d38b72e97d48949f36d54efdfa3e7"
+data_git_describe = "v0.0-14699-g84835838da"
 data_git_msg = """\
-commit e56aa66a33989dc12615479f80c7847b0dd58686
-Author: Steve Nelson <steve.nelson@wdc.com>
-Date:   Wed Oct 12 09:54:35 2022 -0700
+commit 84835838da2d38b72e97d48949f36d54efdfa3e7
+Author: Fatih Balli <fatihballi@google.com>
+Date:   Wed Oct 5 15:42:32 2022 +0200
 
-    [edn/dv] Randomly deassert cmd_ready
+    [chip_sw, kmac_entropy] Checking timeout of EDN inside KMAC
     
-    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
+    Implements chip_sw_kmac_entropy test.
+    
+    This commit also updates necessary KMAC DIF functions used within this
+    test. Respective KMAC unittests are also updated accordingly.
+    
+    Signed-off-by: Fatih Balli <fatihballi@google.com>
 
 """
 
