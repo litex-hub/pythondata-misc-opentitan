@@ -4,37 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14812"
-version_tuple = (0, 0, 14812)
+version_str = "0.0.post14814"
+version_tuple = (0, 0, 14814)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14812")
+    pversion = V("0.0.post14814")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14670"
-data_version_tuple = (0, 0, 14670)
+data_version_str = "0.0.post14672"
+data_version_tuple = (0, 0, 14672)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14670")
+    pdata_version = V("0.0.post14672")
 except ImportError:
     pass
-data_git_hash = "faa6cab3d58a88ad18905223d4a74a2c4f94c9fa"
-data_git_describe = "v0.0-14670-gfaa6cab3d5"
+data_git_hash = "059aa08d33a8e01bd033b0c81d0c0ecee5e1800e"
+data_git_describe = "v0.0-14672-g059aa08d33"
 data_git_msg = """\
-commit faa6cab3d58a88ad18905223d4a74a2c4f94c9fa
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Mon Oct 17 21:34:46 2022 -0700
+commit 059aa08d33a8e01bd033b0c81d0c0ecee5e1800e
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Tue Oct 18 22:16:14 2022 +0000
 
-    [entropy_src/dv] Temporarily exclude Extht related regs/ports
+    [flash_ctrl,dv] update coverage collection
     
-    This commit adds a new vRefine file to waive coverge on ports related
-    to the ExtHT ports. The ExtHT agent (and supported vseq updates) should
-    be able to close these coverage points, but this is not a priority for
-    now.  So we should waive them for the time being.
+    - Add coverage collection to wr_intg test
+    - Remove reg_intg cover point because it is covered by autogen
+      covergroup
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
