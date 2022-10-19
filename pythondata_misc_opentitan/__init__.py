@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14821"
-version_tuple = (0, 0, 14821)
+version_str = "0.0.post14826"
+version_tuple = (0, 0, 14826)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14821")
+    pversion = V("0.0.post14826")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14679"
-data_version_tuple = (0, 0, 14679)
+data_version_str = "0.0.post14684"
+data_version_tuple = (0, 0, 14684)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14679")
+    pdata_version = V("0.0.post14684")
 except ImportError:
     pass
-data_git_hash = "14a82273e226623cdb0abf3a74610b89121603f9"
-data_git_describe = "v0.0-14679-g14a82273e2"
+data_git_hash = "8db8bd5b11f42097de0060e63a58fad760a0c923"
+data_git_describe = "v0.0-14684-g8db8bd5b11"
 data_git_msg = """\
-commit 14a82273e226623cdb0abf3a74610b89121603f9
+commit 8db8bd5b11f42097de0060e63a58fad760a0c923
 Author: Alphan Ulusoy <alphan@google.com>
-Date:   Sat Oct 15 20:12:10 2022 -0400
+Date:   Fri Oct 14 12:03:22 2022 -0400
 
-    [test] Add rom_e2e_sigverify_mod_exp
+    [test] Add rom_e2e_boot_policy_bad_manifest
     
     Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
