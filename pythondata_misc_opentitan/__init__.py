@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14811"
-version_tuple = (0, 0, 14811)
+version_str = "0.0.post14812"
+version_tuple = (0, 0, 14812)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14811")
+    pversion = V("0.0.post14812")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14669"
-data_version_tuple = (0, 0, 14669)
+data_version_str = "0.0.post14670"
+data_version_tuple = (0, 0, 14670)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14669")
+    pdata_version = V("0.0.post14670")
 except ImportError:
     pass
-data_git_hash = "9ca43a9f2dbfa676a6c5b38857eb024704bafe65"
-data_git_describe = "v0.0-14669-g9ca43a9f2d"
+data_git_hash = "faa6cab3d58a88ad18905223d4a74a2c4f94c9fa"
+data_git_describe = "v0.0-14670-gfaa6cab3d5"
 data_git_msg = """\
-commit 9ca43a9f2dbfa676a6c5b38857eb024704bafe65
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Oct 18 10:50:43 2022 -0700
+commit faa6cab3d58a88ad18905223d4a74a2c4f94c9fa
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Mon Oct 17 21:34:46 2022 -0700
 
-    [dv/jtag_riscv_agent] Fix rv_dm activation error
+    [entropy_src/dv] Temporarily exclude Extht related regs/ports
     
-    This PR fixes the nightly regression failure due to rv_dm activation
-    failure.
-    Because rv_dm activation consists a series of steps, so initially I
-    forget to assign the final status to return to the activation sequence.
-    This error is caught by `DV_CHECK` macro updates.
+    This commit adds a new vRefine file to waive coverge on ports related
+    to the ExtHT ports. The ExtHT agent (and supported vseq updates) should
+    be able to close these coverage points, but this is not a priority for
+    now.  So we should waive them for the time being.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
