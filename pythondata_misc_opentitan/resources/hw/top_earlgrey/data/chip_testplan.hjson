@@ -8,7 +8,8 @@
   import_testplans: ["hw/dv/tools/dvsim/testplans/csr_testplan.hjson",
                      // TODO #5484, comment these 2 lines out because spi host memory is dummy
                      // "hw/dv/tools/dvsim/testplans/mem_testplan.hjson",
-                     "hw/dv/tools/dvsim/testplans/tl_device_access_types_testplan.hjson",
+                     // Integrity error is tested in a SW test.
+                     "hw/dv/tools/dvsim/testplans/tl_device_access_types_wo_intg_testplan.hjson",
                      "hw/ip/tlul/data/tlul_testplan.hjson",
                      "sw/device/silicon_creator/rom/data/rom_e2e_testplan.hjson",
                      "hw/top_earlgrey/data/chip_conn_testplan.hjson"]
@@ -492,17 +493,14 @@
     {
       name: chip_sw_data_integrity
       desc: '''
-            Verify the alert signaling mechanism due to data integrity violation.
+            Verify the alert signaling mechanism due to memory data integrity violation.
 
-            An automated SW test which performs the following for each IP:
-            - Pick a CSR to write.
-            - Corrupt a random control / data / integrity bit at the CPU source using SV force.
-            - Verify that the device detects the integrity violation causing an alert.
-            - Verify the alert upto the NMI stage.
-            - Now pick a CSR to read.
-            - Corrupt a random control / data / integrity bit at the device using SV force.
-            - Verify that the CPU detects the integrity violation causing an alert.
-            - Verify the alert upto the NMI stage.
+            An SW test which performs the following on ret_sram to verify the memory end to end
+            integrity scheme.
+            - Corrupt a random data / integrity bit in the memory using SV force.
+            - SW reads that address and the corrupted data is sent to ibex.
+            - Verify that ibex detects the integrity violation and triggers an alert.
+            - Verify the alert upto the NMI stage or full reset, and alert cause is from ibex.
             '''
       stage: V2
       tests: []
