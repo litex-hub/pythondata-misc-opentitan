@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14839"
-version_tuple = (0, 0, 14839)
+version_str = "0.0.post14840"
+version_tuple = (0, 0, 14840)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14839")
+    pversion = V("0.0.post14840")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14697"
-data_version_tuple = (0, 0, 14697)
+data_version_str = "0.0.post14698"
+data_version_tuple = (0, 0, 14698)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14697")
+    pdata_version = V("0.0.post14698")
 except ImportError:
     pass
-data_git_hash = "feac7a5778efe53389595d1302fd3c6457663832"
-data_git_describe = "v0.0-14697-gfeac7a5778"
+data_git_hash = "e56aa66a33989dc12615479f80c7847b0dd58686"
+data_git_describe = "v0.0-14698-ge56aa66a33"
 data_git_msg = """\
-commit feac7a5778efe53389595d1302fd3c6457663832
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Wed Oct 19 08:40:14 2022 -0400
+commit e56aa66a33989dc12615479f80c7847b0dd58686
+Author: Steve Nelson <steve.nelson@wdc.com>
+Date:   Wed Oct 12 09:54:35 2022 -0700
 
-    [ci] Fix typo in dependabot config
+    [edn/dv] Randomly deassert cmd_ready
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Steve Nelson <steve.nelson@wdc.com>
 
 """
 
