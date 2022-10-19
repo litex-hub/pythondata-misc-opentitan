@@ -4,36 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14814"
-version_tuple = (0, 0, 14814)
+version_str = "0.0.post14816"
+version_tuple = (0, 0, 14816)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14814")
+    pversion = V("0.0.post14816")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14672"
-data_version_tuple = (0, 0, 14672)
+data_version_str = "0.0.post14674"
+data_version_tuple = (0, 0, 14674)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14672")
+    pdata_version = V("0.0.post14674")
 except ImportError:
     pass
-data_git_hash = "059aa08d33a8e01bd033b0c81d0c0ecee5e1800e"
-data_git_describe = "v0.0-14672-g059aa08d33"
+data_git_hash = "08ee604e37ff2be3e38ed7f4f826b40b9d6d54d0"
+data_git_describe = "v0.0-14674-g08ee604e37"
 data_git_msg = """\
-commit 059aa08d33a8e01bd033b0c81d0c0ecee5e1800e
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Tue Oct 18 22:16:14 2022 +0000
+commit 08ee604e37ff2be3e38ed7f4f826b40b9d6d54d0
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Oct 17 22:42:50 2022 -0700
 
-    [flash_ctrl,dv] update coverage collection
+    [chip, dv] update testplan for chip_sw_data_integrity test
     
-    - Add coverage collection to wr_intg test
-    - Remove reg_intg cover point because it is covered by autogen
-      covergroup
+    As discussed, we have chip_sw_all_escalation_resets to test integrity errors due to wr_en violation
+    for all the IPs. This chip_sw_data_integrity test only needs to inject integrity error on a memory to
+    test memory e2e integrity scheme.
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
