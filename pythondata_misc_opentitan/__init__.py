@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14835"
-version_tuple = (0, 0, 14835)
+version_str = "0.0.post14839"
+version_tuple = (0, 0, 14839)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14835")
+    pversion = V("0.0.post14839")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14693"
-data_version_tuple = (0, 0, 14693)
+data_version_str = "0.0.post14697"
+data_version_tuple = (0, 0, 14697)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14693")
+    pdata_version = V("0.0.post14697")
 except ImportError:
     pass
-data_git_hash = "d120ffa33297e9e9b807388308076a5e6d40c4d1"
-data_git_describe = "v0.0-14693-gd120ffa332"
+data_git_hash = "feac7a5778efe53389595d1302fd3c6457663832"
+data_git_describe = "v0.0-14697-gfeac7a5778"
 data_git_msg = """\
-commit d120ffa33297e9e9b807388308076a5e6d40c4d1
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 12 11:24:53 2022 -0700
+commit feac7a5778efe53389595d1302fd3c6457663832
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 19 08:40:14 2022 -0400
 
-    [bazel] update rules_rust to enable bindgen
+    [ci] Fix typo in dependabot config
     
-    This updates rules_rust to fix #15441 and #15568, and enable using the rust
-    bindgen tool in (older linux) airgapped environments.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
