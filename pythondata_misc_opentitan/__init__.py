@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14849"
-version_tuple = (0, 0, 14849)
+version_str = "0.0.post14851"
+version_tuple = (0, 0, 14851)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14849")
+    pversion = V("0.0.post14851")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14707"
-data_version_tuple = (0, 0, 14707)
+data_version_str = "0.0.post14709"
+data_version_tuple = (0, 0, 14709)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14707")
+    pdata_version = V("0.0.post14709")
 except ImportError:
     pass
-data_git_hash = "47a8e09c9b519069615bb32a0c976a92302c9bb8"
-data_git_describe = "v0.0-14707-g47a8e09c9b"
+data_git_hash = "a28800f5bf6874b38c20ed723e0bfab1d36519d4"
+data_git_describe = "v0.0-14709-ga28800f5bf"
 data_git_msg = """\
-commit 47a8e09c9b519069615bb32a0c976a92302c9bb8
-Author: Michael Munday <mike.munday@lowrisc.org>
-Date:   Tue Oct 18 21:21:10 2022 -0400
+commit a28800f5bf6874b38c20ed723e0bfab1d36519d4
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Oct 17 16:50:54 2022 -0700
 
-    [site] Update lowRISC registered office address
+    [spi_device/dv] Add stress_all test
     
-    Signed-off-by: Michael Munday <mike.munday@lowrisc.org>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
