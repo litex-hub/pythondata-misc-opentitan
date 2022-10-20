@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14851"
-version_tuple = (0, 0, 14851)
+version_str = "0.0.post14852"
+version_tuple = (0, 0, 14852)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14851")
+    pversion = V("0.0.post14852")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14709"
-data_version_tuple = (0, 0, 14709)
+data_version_str = "0.0.post14710"
+data_version_tuple = (0, 0, 14710)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14709")
+    pdata_version = V("0.0.post14710")
 except ImportError:
     pass
-data_git_hash = "a28800f5bf6874b38c20ed723e0bfab1d36519d4"
-data_git_describe = "v0.0-14709-ga28800f5bf"
+data_git_hash = "2a9bfc422332ab89c91d30928e82537ddeb7c218"
+data_git_describe = "v0.0-14710-g2a9bfc4223"
 data_git_msg = """\
-commit a28800f5bf6874b38c20ed723e0bfab1d36519d4
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Oct 17 16:50:54 2022 -0700
+commit 2a9bfc422332ab89c91d30928e82537ddeb7c218
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Oct 18 15:53:04 2022 -0700
 
-    [spi_device/dv] Add stress_all test
+    [dv/chip] improve assigning the initial value in sysctrl_rst test
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    PR #15546 fixes a regression issue by assigning an initial value to
+    sysrst_ctrl input. However, a better way (I think) to do it is to use
+    the pulldown method.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
