@@ -4,44 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14858"
-version_tuple = (0, 0, 14858)
+version_str = "0.0.post14861"
+version_tuple = (0, 0, 14861)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14858")
+    pversion = V("0.0.post14861")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14716"
-data_version_tuple = (0, 0, 14716)
+data_version_str = "0.0.post14719"
+data_version_tuple = (0, 0, 14719)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14716")
+    pdata_version = V("0.0.post14719")
 except ImportError:
     pass
-data_git_hash = "f17833bf0ea781f2f6bc0e975075720143bccee3"
-data_git_describe = "v0.0-14716-gf17833bf0e"
+data_git_hash = "f87a62c7caac83d83b32fcd699b3d9de20bf9aac"
+data_git_describe = "v0.0-14719-gf87a62c7ca"
 data_git_msg = """\
-commit f17833bf0ea781f2f6bc0e975075720143bccee3
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 18 13:30:21 2022 -0700
+commit f87a62c7caac83d83b32fcd699b3d9de20bf9aac
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Thu Oct 20 12:08:31 2022 -0400
 
-    [top/dv] Adjust setup for floating pin.
+    [sw] Invalidate icache in SRAM GDB test
     
-    - Previously, the test would enable the UART RX pins without
-      a pull-up.  This meant that until the test bench environment
-      actively drove, the pin was left floating and cause x propagation.
+    This commit also generalizes the test's success pattern so it does not
+    care about the specific line number.
     
-    - This update just sets the pull-up at the same time as enabling the
-      pin to ensure this situation does not come up.  The pull-up setting
-      is platform dependent since verilator / fpga do not have pull-up
-      capabilities and must be excluded.
+    Fixes #15595
     
-    - Similarly, the pull-up must be excluded for englishbreakfast since
-      certain registers do not exist in that space.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
