@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14852"
-version_tuple = (0, 0, 14852)
+version_str = "0.0.post14854"
+version_tuple = (0, 0, 14854)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14852")
+    pversion = V("0.0.post14854")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14710"
-data_version_tuple = (0, 0, 14710)
+data_version_str = "0.0.post14712"
+data_version_tuple = (0, 0, 14712)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14710")
+    pdata_version = V("0.0.post14712")
 except ImportError:
     pass
-data_git_hash = "2a9bfc422332ab89c91d30928e82537ddeb7c218"
-data_git_describe = "v0.0-14710-g2a9bfc4223"
+data_git_hash = "9644452702ff6cb6eadaa7110a2952ab0d25aab9"
+data_git_describe = "v0.0-14712-g9644452702"
 data_git_msg = """\
-commit 2a9bfc422332ab89c91d30928e82537ddeb7c218
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Oct 18 15:53:04 2022 -0700
+commit 9644452702ff6cb6eadaa7110a2952ab0d25aab9
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Tue Oct 18 17:30:39 2022 -0400
 
-    [dv/chip] improve assigning the initial value in sysctrl_rst test
+    [bazel] Add manual tag to //hw:verilator_real
     
-    PR #15546 fixes a regression issue by assigning an initial value to
-    sysrst_ctrl input. However, a better way (I think) to do it is to use
-    the pulldown method.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
