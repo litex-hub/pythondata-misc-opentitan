@@ -4,37 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14861"
-version_tuple = (0, 0, 14861)
+version_str = "0.0.post14862"
+version_tuple = (0, 0, 14862)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14861")
+    pversion = V("0.0.post14862")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14719"
-data_version_tuple = (0, 0, 14719)
+data_version_str = "0.0.post14720"
+data_version_tuple = (0, 0, 14720)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14719")
+    pdata_version = V("0.0.post14720")
 except ImportError:
     pass
-data_git_hash = "f87a62c7caac83d83b32fcd699b3d9de20bf9aac"
-data_git_describe = "v0.0-14719-gf87a62c7ca"
+data_git_hash = "26f2ee3db18fadbb4198bc763aba61b44b64e558"
+data_git_describe = "v0.0-14720-g26f2ee3db1"
 data_git_msg = """\
-commit f87a62c7caac83d83b32fcd699b3d9de20bf9aac
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Thu Oct 20 12:08:31 2022 -0400
+commit 26f2ee3db18fadbb4198bc763aba61b44b64e558
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 10 18:39:59 2022 -0700
 
-    [sw] Invalidate icache in SRAM GDB test
+    [dv/chip] Skip creating dv_base_reg coverage
     
-    This commit also generalizes the test's success pattern so it does not
-    care about the specific line number.
+    This PR adds the following flag:
+    In dv_base_reg_block, add a flag to skip creating fcov for mubi and
+    regwen regs.
     
-    Fixes #15595
+    This flag is only disabled in chip level because we do not sample these
+    values in chip level env.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
