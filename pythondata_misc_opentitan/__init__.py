@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14854"
-version_tuple = (0, 0, 14854)
+version_str = "0.0.post14856"
+version_tuple = (0, 0, 14856)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14854")
+    pversion = V("0.0.post14856")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14712"
-data_version_tuple = (0, 0, 14712)
+data_version_str = "0.0.post14714"
+data_version_tuple = (0, 0, 14714)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14712")
+    pdata_version = V("0.0.post14714")
 except ImportError:
     pass
-data_git_hash = "9644452702ff6cb6eadaa7110a2952ab0d25aab9"
-data_git_describe = "v0.0-14712-g9644452702"
+data_git_hash = "be7318d6859548c47238b89a3920c73da316abf7"
+data_git_describe = "v0.0-14714-gbe7318d685"
 data_git_msg = """\
-commit 9644452702ff6cb6eadaa7110a2952ab0d25aab9
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Tue Oct 18 17:30:39 2022 -0400
+commit be7318d6859548c47238b89a3920c73da316abf7
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Wed Oct 19 14:56:06 2022 -0400
 
-    [bazel] Add manual tag to //hw:verilator_real
+    [test] Set pmpaddr0 to match the entire address space
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
