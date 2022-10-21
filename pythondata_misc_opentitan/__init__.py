@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14881"
-version_tuple = (0, 0, 14881)
+version_str = "0.0.post14882"
+version_tuple = (0, 0, 14882)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14881")
+    pversion = V("0.0.post14882")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14739"
-data_version_tuple = (0, 0, 14739)
+data_version_str = "0.0.post14740"
+data_version_tuple = (0, 0, 14740)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14739")
+    pdata_version = V("0.0.post14740")
 except ImportError:
     pass
-data_git_hash = "f54491d31c43f8a181a941da78bd6fb89aa15311"
-data_git_describe = "v0.0-14739-gf54491d31c"
+data_git_hash = "714edf44aade76fd23cea9572d3b01ba0cef0bec"
+data_git_describe = "v0.0-14740-g714edf44aa"
 data_git_msg = """\
-commit f54491d31c43f8a181a941da78bd6fb89aa15311
-Author: Andreas Kurth <adk@lowrisc.org>
-Date:   Wed Oct 12 07:35:38 2022 +0000
+commit 714edf44aade76fd23cea9572d3b01ba0cef0bec
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Oct 21 13:39:36 2022 +0000
 
-    [top/dv] Fix filename of Ibex lockstep glitch vseq
+    [flash_ctrl,dv] move rma_err to v2 testplan from v2s
     
-    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
+    To avoid lint failure, move rma_err test point to v2
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
