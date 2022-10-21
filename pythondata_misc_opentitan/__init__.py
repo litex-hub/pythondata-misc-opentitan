@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14882"
-version_tuple = (0, 0, 14882)
+version_str = "0.0.post14884"
+version_tuple = (0, 0, 14884)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14882")
+    pversion = V("0.0.post14884")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14740"
-data_version_tuple = (0, 0, 14740)
+data_version_str = "0.0.post14742"
+data_version_tuple = (0, 0, 14742)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14740")
+    pdata_version = V("0.0.post14742")
 except ImportError:
     pass
-data_git_hash = "714edf44aade76fd23cea9572d3b01ba0cef0bec"
-data_git_describe = "v0.0-14740-g714edf44aa"
+data_git_hash = "8b1c3bd1c8bf2d8194b4e966fc7de77ad55ee5fe"
+data_git_describe = "v0.0-14742-g8b1c3bd1c8"
 data_git_msg = """\
-commit 714edf44aade76fd23cea9572d3b01ba0cef0bec
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Oct 21 13:39:36 2022 +0000
+commit 8b1c3bd1c8bf2d8194b4e966fc7de77ad55ee5fe
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 20 15:31:39 2022 -0700
 
-    [flash_ctrl,dv] move rma_err to v2 testplan from v2s
+    [spi_device/dv] Add a test to verify memory parity error
     
-    To avoid lint failure, move rma_err test point to v2
+    For #9613
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
