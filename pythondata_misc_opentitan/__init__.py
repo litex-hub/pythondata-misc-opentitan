@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14887"
-version_tuple = (0, 0, 14887)
+version_str = "0.0.post14890"
+version_tuple = (0, 0, 14890)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14887")
+    pversion = V("0.0.post14890")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14745"
-data_version_tuple = (0, 0, 14745)
+data_version_str = "0.0.post14748"
+data_version_tuple = (0, 0, 14748)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14745")
+    pdata_version = V("0.0.post14748")
 except ImportError:
     pass
-data_git_hash = "b64b6c0a8b1d17ff2d5b318bfde2346d61d2dc35"
-data_git_describe = "v0.0-14745-gb64b6c0a8b"
+data_git_hash = "e3651d7abada0598ada1742d7903db616675353a"
+data_git_describe = "v0.0-14748-ge3651d7aba"
 data_git_msg = """\
-commit b64b6c0a8b1d17ff2d5b318bfde2346d61d2dc35
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Oct 21 12:15:48 2022 -0700
+commit e3651d7abada0598ada1742d7903db616675353a
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Oct 21 13:56:22 2022 -0700
 
-    [dv/xcelium] Add back prim_tl_access test
+    [rv_dm] Add comment to ROM window in Hjson
     
-    Add back prim_tl_access test in chip level xcelium as the regression
-    error is fixed.
+    Explains that the HaltAddress, ResumeAddress
+    and ExceptionAddress locations are part of the ROM.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
