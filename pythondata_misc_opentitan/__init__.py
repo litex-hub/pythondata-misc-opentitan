@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14863"
-version_tuple = (0, 0, 14863)
+version_str = "0.0.post14864"
+version_tuple = (0, 0, 14864)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14863")
+    pversion = V("0.0.post14864")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14721"
-data_version_tuple = (0, 0, 14721)
+data_version_str = "0.0.post14722"
+data_version_tuple = (0, 0, 14722)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14721")
+    pdata_version = V("0.0.post14722")
 except ImportError:
     pass
-data_git_hash = "dd9e2b7d9b12ac6c1e79cb613f73bd74cb15334e"
-data_git_describe = "v0.0-14721-gdd9e2b7d9b"
+data_git_hash = "2f668bcd9da6aaa3771b1bc9f3b05f20a6bf7167"
+data_git_describe = "v0.0-14722-g2f668bcd9d"
 data_git_msg = """\
-commit dd9e2b7d9b12ac6c1e79cb613f73bd74cb15334e
-Author: Weicai Yang <weicai@google.com>
-Date:   Wed Oct 19 22:00:24 2022 -0700
+commit 2f668bcd9da6aaa3771b1bc9f3b05f20a6bf7167
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Oct 20 11:38:53 2022 -0700
 
-    [spi_device/dv] Change to SW only update addr_4b after reset
+    [top] Remove defunct synthesis dashboard
     
-    Due to #15543
+    The synthesis dashboard is currently not working,
+    hence we remove it for the time being.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
