@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14867"
-version_tuple = (0, 0, 14867)
+version_str = "0.0.post14872"
+version_tuple = (0, 0, 14872)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14867")
+    pversion = V("0.0.post14872")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14725"
-data_version_tuple = (0, 0, 14725)
+data_version_str = "0.0.post14730"
+data_version_tuple = (0, 0, 14730)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14725")
+    pdata_version = V("0.0.post14730")
 except ImportError:
     pass
-data_git_hash = "aad7e8f8ed303374f9eff94ca75fae95f60f0fa9"
-data_git_describe = "v0.0-14725-gaad7e8f8ed"
+data_git_hash = "1c6f03666f77ee3d907d6daa3e9bfb19663e6b51"
+data_git_describe = "v0.0-14730-g1c6f03666f"
 data_git_msg = """\
-commit aad7e8f8ed303374f9eff94ca75fae95f60f0fa9
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Oct 20 11:44:25 2022 -0700
+commit 1c6f03666f77ee3d907d6daa3e9bfb19663e6b51
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Thu Oct 20 13:22:37 2022 +0200
 
-    [doc/edn] Minor update on the EDN doc
+    [sw, sca] Rename aes_serial_encrypt() function for disambiguation
     
-    This PR updates two parts on EDN doc:
-    1). Update the statement saying this version does not support alert
-    2). Minor fix on a redundant word "only".
+    This is the underlying function called by several simple serial commands
+    but it is itself not a simple serial command.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
