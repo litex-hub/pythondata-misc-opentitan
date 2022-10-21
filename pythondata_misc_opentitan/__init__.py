@@ -4,43 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14879"
-version_tuple = (0, 0, 14879)
+version_str = "0.0.post14881"
+version_tuple = (0, 0, 14881)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14879")
+    pversion = V("0.0.post14881")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14737"
-data_version_tuple = (0, 0, 14737)
+data_version_str = "0.0.post14739"
+data_version_tuple = (0, 0, 14739)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14737")
+    pdata_version = V("0.0.post14739")
 except ImportError:
     pass
-data_git_hash = "0f7b76f809315d42c6240cec6e72598b1c2efbdb"
-data_git_describe = "v0.0-14737-g0f7b76f809"
+data_git_hash = "f54491d31c43f8a181a941da78bd6fb89aa15311"
+data_git_describe = "v0.0-14739-gf54491d31c"
 data_git_msg = """\
-commit 0f7b76f809315d42c6240cec6e72598b1c2efbdb
-Author: Michał Mazurek <maz@semihalf.com>
-Date:   Mon Oct 17 17:21:38 2022 +0200
+commit f54491d31c43f8a181a941da78bd6fb89aa15311
+Author: Andreas Kurth <adk@lowrisc.org>
+Date:   Wed Oct 12 07:35:38 2022 +0000
 
-    [utils,gpio] Add new hjson key 'auto_split' as hint for regtool
+    [top/dv] Fix filename of Ibex lockstep glitch vseq
     
-    Introduces a new optional key 'auto_split' to serve as a hint
-    for register map generator script. Adds support up to 'auto_split'
-    in the TockOS register map generator.
-    
-    If the bitfield or signal has key 'auto_split' set to value
-    true generator will split this filed to multiple one-bit fields.
-    The name of each generated bitfiled will consist of the
-    original bitfield name and an offset. If the parameter is set to false,
-    the current behavior of the regtool is not replaced. The default value of the
-    new key is set to false.
-    
-    Signed-off-by: Michał Mazurek <maz@semihalf.com>
+    Signed-off-by: Andreas Kurth <adk@lowrisc.org>
 
 """
 
