@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14884"
-version_tuple = (0, 0, 14884)
+version_str = "0.0.post14887"
+version_tuple = (0, 0, 14887)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14884")
+    pversion = V("0.0.post14887")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14742"
-data_version_tuple = (0, 0, 14742)
+data_version_str = "0.0.post14745"
+data_version_tuple = (0, 0, 14745)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14742")
+    pdata_version = V("0.0.post14745")
 except ImportError:
     pass
-data_git_hash = "8b1c3bd1c8bf2d8194b4e966fc7de77ad55ee5fe"
-data_git_describe = "v0.0-14742-g8b1c3bd1c8"
+data_git_hash = "b64b6c0a8b1d17ff2d5b318bfde2346d61d2dc35"
+data_git_describe = "v0.0-14745-gb64b6c0a8b"
 data_git_msg = """\
-commit 8b1c3bd1c8bf2d8194b4e966fc7de77ad55ee5fe
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 20 15:31:39 2022 -0700
+commit b64b6c0a8b1d17ff2d5b318bfde2346d61d2dc35
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 21 12:15:48 2022 -0700
 
-    [spi_device/dv] Add a test to verify memory parity error
+    [dv/xcelium] Add back prim_tl_access test
     
-    For #9613
+    Add back prim_tl_access test in chip level xcelium as the regression
+    error is fixed.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
