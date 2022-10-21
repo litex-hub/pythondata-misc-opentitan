@@ -4,41 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14873"
-version_tuple = (0, 0, 14873)
+version_str = "0.0.post14874"
+version_tuple = (0, 0, 14874)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14873")
+    pversion = V("0.0.post14874")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14731"
-data_version_tuple = (0, 0, 14731)
+data_version_str = "0.0.post14732"
+data_version_tuple = (0, 0, 14732)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14731")
+    pdata_version = V("0.0.post14732")
 except ImportError:
     pass
-data_git_hash = "7d9b5775cb6c9de18e13a9b6b2be73051f25d658"
-data_git_describe = "v0.0-14731-g7d9b5775cb"
+data_git_hash = "7c5837b7ada5c32280c9c18b473388354766f807"
+data_git_describe = "v0.0-14732-g7c5837b7ad"
 data_git_msg = """\
-commit 7d9b5775cb6c9de18e13a9b6b2be73051f25d658
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Thu Oct 20 12:01:17 2022 +0100
+commit 7c5837b7ada5c32280c9c18b473388354766f807
+Author: Jade Philipoom <jadep@google.com>
+Date:   Tue Oct 18 12:55:45 2022 +0200
 
-    [otbn,rtl] Latch various internal state errors
+    [crypto] Reorder AES driver checks to avoid race condition.
     
-    FPV has revealed it was possible for some internal state errors to be
-    ignored, so no alert was triggered, if they occurred the same cycle or
-    the cycle before a start command was issues to OTBN. This was due to
-    some errors only appearing for a single cycle and others getting reset
-    by the start command.
+    The AES driver documentation specifies that the `dest` pointer should
+    accept the output from the *previous* input block (if any), not the
+    current one. However, the implementation actually passed the next block
+    of input before reading the output, which could lead to a race condition
+    where the AES block overwrites the output data before it is copied to
+    `dest`. This has not been triggered by any tests but it seems better to
+    be on the safe side and fix it preemptively.
     
-    This adds latching behaviour to various internal errors, so once seen
-    they will remain asserted until reset.
-    
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
