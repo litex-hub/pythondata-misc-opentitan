@@ -4,35 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14890"
-version_tuple = (0, 0, 14890)
+version_str = "0.0.post14896"
+version_tuple = (0, 0, 14896)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14890")
+    pversion = V("0.0.post14896")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14748"
-data_version_tuple = (0, 0, 14748)
+data_version_str = "0.0.post14754"
+data_version_tuple = (0, 0, 14754)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14748")
+    pdata_version = V("0.0.post14754")
 except ImportError:
     pass
-data_git_hash = "e3651d7abada0598ada1742d7903db616675353a"
-data_git_describe = "v0.0-14748-ge3651d7aba"
+data_git_hash = "48bfeae1f027a5d78808043b3165e268176b82af"
+data_git_describe = "v0.0-14754-g48bfeae1f0"
 data_git_msg = """\
-commit e3651d7abada0598ada1742d7903db616675353a
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Oct 21 13:56:22 2022 -0700
+commit 48bfeae1f027a5d78808043b3165e268176b82af
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Oct 21 15:26:35 2022 -0700
 
-    [rv_dm] Add comment to ROM window in Hjson
+    [fpv/rstmgr] Configure additional clocks for fpv
     
-    Explains that the HaltAddress, ResumeAddress
-    and ExceptionAddress locations are part of the ROM.
+    The rstmgr unit uses multiple clocks, which fpv assertions use.
+    The default fpv settings only configure clk_i, so many fpv
+    assertions had no chance of working.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This change assumes CDC is correct, so it simplifies the clock frequency
+    and phase relations.
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
