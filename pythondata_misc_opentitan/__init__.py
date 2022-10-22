@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14899"
-version_tuple = (0, 0, 14899)
+version_str = "0.0.post14900"
+version_tuple = (0, 0, 14900)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14899")
+    pversion = V("0.0.post14900")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14757"
-data_version_tuple = (0, 0, 14757)
+data_version_str = "0.0.post14758"
+data_version_tuple = (0, 0, 14758)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14757")
+    pdata_version = V("0.0.post14758")
 except ImportError:
     pass
-data_git_hash = "abb3e6b2c196830aa8571286e82bb596cbaccb72"
-data_git_describe = "v0.0-14757-gabb3e6b2c1"
+data_git_hash = "bd9f6d0199af9e3358289c0b3a3900921afe8d02"
+data_git_describe = "v0.0-14758-gbd9f6d0199"
 data_git_msg = """\
-commit abb3e6b2c196830aa8571286e82bb596cbaccb72
-Author: Weicai Yang <weicai@google.com>
-Date:   Fri Oct 21 14:37:48 2022 -0700
+commit bd9f6d0199af9e3358289c0b3a3900921afe8d02
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Oct 21 11:10:12 2022 -0700
 
-    [spi_device/dv] Fix a few xcelium compile errors
+    [flash_ctrl] Handle faulted reads
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    In the current design, if a read were faulted to a non-existant location
+    AFTER the memory properties check, the return data could be unknown
+    and that makes the assertions go wild.
+    
+    Since we are already detecting for this type of attack, use the same signals
+    to force the returning data and error conditions to a known value.
+    
+    This removes the need for DV to individually turn off asertions for this
+    case.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
