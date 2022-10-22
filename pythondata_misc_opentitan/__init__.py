@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14896"
-version_tuple = (0, 0, 14896)
+version_str = "0.0.post14899"
+version_tuple = (0, 0, 14899)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14896")
+    pversion = V("0.0.post14899")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14754"
-data_version_tuple = (0, 0, 14754)
+data_version_str = "0.0.post14757"
+data_version_tuple = (0, 0, 14757)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14754")
+    pdata_version = V("0.0.post14757")
 except ImportError:
     pass
-data_git_hash = "48bfeae1f027a5d78808043b3165e268176b82af"
-data_git_describe = "v0.0-14754-g48bfeae1f0"
+data_git_hash = "abb3e6b2c196830aa8571286e82bb596cbaccb72"
+data_git_describe = "v0.0-14757-gabb3e6b2c1"
 data_git_msg = """\
-commit 48bfeae1f027a5d78808043b3165e268176b82af
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Oct 21 15:26:35 2022 -0700
+commit abb3e6b2c196830aa8571286e82bb596cbaccb72
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Oct 21 14:37:48 2022 -0700
 
-    [fpv/rstmgr] Configure additional clocks for fpv
+    [spi_device/dv] Fix a few xcelium compile errors
     
-    The rstmgr unit uses multiple clocks, which fpv assertions use.
-    The default fpv settings only configure clk_i, so many fpv
-    assertions had no chance of working.
-    
-    This change assumes CDC is correct, so it simplifies the clock frequency
-    and phase relations.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
