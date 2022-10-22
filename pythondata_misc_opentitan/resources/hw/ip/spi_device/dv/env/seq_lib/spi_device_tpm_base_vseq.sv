@@ -121,16 +121,17 @@ class spi_device_tpm_base_vseq extends spi_device_base_vseq;
     // Upon receiving read command, set read fifo contents
     if (write) begin
       bit [7:0] wrfifo_byte;
-      for (int i; i < exp_num_bytes;) begin
+      int idx;
+      while (idx < exp_num_bytes) begin
         // wait until fifo size > 0
         csr_spinwait(.ptr(ral.tpm_status.wrfifo_depth), .exp_data(0), .compare_op(CompareOpGt));
-        `DV_CHECK_LE(i + `gmv(ral.tpm_status.wrfifo_depth), exp_num_bytes)
+        `DV_CHECK_LE(idx + `gmv(ral.tpm_status.wrfifo_depth), exp_num_bytes)
 
         repeat (`gmv(ral.tpm_status.wrfifo_depth)) begin
           csr_rd(.ptr(ral.tpm_write_fifo), .value(wrfifo_byte));
           `uvm_info(`gfn, $sformatf("TPM Write FIFO Content = 0x%0h", wrfifo_byte), UVM_MEDIUM)
           byte_q.push_back(wrfifo_byte);
-          i++;
+          idx++;
         end
       end
     end else begin
@@ -159,5 +160,9 @@ class spi_device_tpm_base_vseq extends spi_device_base_vseq;
                                    })
     `uvm_send(m_host_tpm_seq)
     payload_q = m_host_tpm_seq.rsp.data;
+
+    if ($urandom_range(0, 99) < allow_dummy_trans_pct) begin
+      spi_host_xfer_dummy_item();
+    end
   endtask
 endclass : spi_device_tpm_base_vseq

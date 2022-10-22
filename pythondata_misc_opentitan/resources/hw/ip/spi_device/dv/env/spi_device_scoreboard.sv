@@ -103,7 +103,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
       `uvm_info(`gfn, $sformatf("upstream received host spi item:\n%0s", item.sprint()),
                 UVM_MEDIUM)
       if (cfg.en_cov) begin
-        cov.all_modes_cg.sample(`gmv(ral.control.mode), `gmv(ral.tpm_cfg.en));
+        cov.all_modes_cg.sample(device_mode_e'(`gmv(ral.control.mode)), `gmv(ral.tpm_cfg.en));
       end
 
       case (cfg.spi_host_agent_cfg.spi_func_mode)
@@ -267,7 +267,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
             is_hw_reg_offset = (
                 aligned_addr[TPM_OFFSET_WIDTH-1:0] inside {ALL_TPM_HW_REG_OFFSETS});
             is_word_aligned = (addr[1:0] == 0);
-            cov.tpm_cfg_cg.sample(`gmv(ral.tpm_cfg.tpm_mode),
+            cov.tpm_cfg_cg.sample(tpm_cfg_mode_e'(`gmv(ral.tpm_cfg.tpm_mode)),
                                   `gmv(ral.tpm_cfg.hw_reg_dis),
                                   `gmv(ral.tpm_cfg.tpm_reg_chk_dis),
                                   `gmv(ral.tpm_cfg.invalid_locality),
@@ -508,6 +508,19 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
         flash_status_settle_q.delete();
         flash_status_settle_q.push_back(flash_status_q[$]);
         flash_status_q.delete();
+      end
+      // if this is the end of a normal flash transaction, flash_status is handled after receiving
+      // the item from spi_monitor.
+      // But if it's a dummy transaction, the rising CSB also updates flash_status, but spi_monitor
+      // doesn't send any item for it, so need to update flash_status here
+      @(posedge cfg.spi_host_agent_cfg.vif.csb[FW_FLASH_CSB_ID]);
+      // this small delay allows the other thread to process flash_status when it's not a dummy
+      // transaction.
+      #1ps;
+      // this flash_status_settle_q isn't empty, then this is a dummy transaction
+      if (flash_status_settle_q.size) begin
+        latch_flash_status(.set_busy(0), .update_wel(0), .wel_val(0));
+        `uvm_info(`gfn, "latch flash_status due to a dummy item", UVM_MEDIUM)
       end
     end
   endtask
