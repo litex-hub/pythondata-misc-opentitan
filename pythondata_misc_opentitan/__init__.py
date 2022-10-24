@@ -4,42 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14900"
-version_tuple = (0, 0, 14900)
+version_str = "0.0.post14902"
+version_tuple = (0, 0, 14902)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14900")
+    pversion = V("0.0.post14902")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14758"
-data_version_tuple = (0, 0, 14758)
+data_version_str = "0.0.post14760"
+data_version_tuple = (0, 0, 14760)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14758")
+    pdata_version = V("0.0.post14760")
 except ImportError:
     pass
-data_git_hash = "bd9f6d0199af9e3358289c0b3a3900921afe8d02"
-data_git_describe = "v0.0-14758-gbd9f6d0199"
+data_git_hash = "94c65bf3f885873f08306647ed497d30fd66f55c"
+data_git_describe = "v0.0-14760-g94c65bf3f8"
 data_git_msg = """\
-commit bd9f6d0199af9e3358289c0b3a3900921afe8d02
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Oct 21 11:10:12 2022 -0700
+commit 94c65bf3f885873f08306647ed497d30fd66f55c
+Author: Mark Branstad <mark.branstad@wdc.com>
+Date:   Wed Oct 19 13:20:41 2022 -0700
 
-    [flash_ctrl] Handle faulted reads
+    [entropy_src/doc] remove reference to rate
     
-    In the current design, if a read were faulted to a non-existant location
-    AFTER the memory properties check, the return data could be unknown
-    and that makes the assertions go wild.
+    The ES documentation refers to the word "rate", which is a reference to the
+    former LFSR rate control register. Since this register and function have been
+    removed for security reasons, the documentation needed an update to match.
+    Fixes #13336.
     
-    Since we are already detecting for this type of attack, use the same signals
-    to force the returning data and error conditions to a known value.
-    
-    This removes the need for DV to individually turn off asertions for this
-    case.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
 
 """
 
