@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14902"
-version_tuple = (0, 0, 14902)
+version_str = "0.0.post14903"
+version_tuple = (0, 0, 14903)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14902")
+    pversion = V("0.0.post14903")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14760"
-data_version_tuple = (0, 0, 14760)
+data_version_str = "0.0.post14761"
+data_version_tuple = (0, 0, 14761)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14760")
+    pdata_version = V("0.0.post14761")
 except ImportError:
     pass
-data_git_hash = "94c65bf3f885873f08306647ed497d30fd66f55c"
-data_git_describe = "v0.0-14760-g94c65bf3f8"
+data_git_hash = "23dc40e81e83aa575650d76bccf6d53959278dcb"
+data_git_describe = "v0.0-14761-g23dc40e81e"
 data_git_msg = """\
-commit 94c65bf3f885873f08306647ed497d30fd66f55c
-Author: Mark Branstad <mark.branstad@wdc.com>
-Date:   Wed Oct 19 13:20:41 2022 -0700
+commit 23dc40e81e83aa575650d76bccf6d53959278dcb
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Oct 21 10:46:17 2022 +0200
 
-    [entropy_src/doc] remove reference to rate
+    [top] Enable SecAesAllowForcingMasks parameter for top_earlgrey ES
     
-    The ES documentation refers to the word "rate", which is a reference to the
-    former LFSR rate control register. Since this register and function have been
-    removed for security reasons, the documentation needed an update to match.
-    Fixes #13336.
+    It has been decided to enable this feature for ES. For reference,
+    see lowRISC/OpenTitan#14240.
     
-    Signed-off-by: Mark Branstad <mark.branstad@wdc.com>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
