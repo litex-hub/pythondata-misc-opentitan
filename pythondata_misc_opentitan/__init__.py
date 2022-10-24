@@ -4,32 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14910"
-version_tuple = (0, 0, 14910)
+version_str = "0.0.post14911"
+version_tuple = (0, 0, 14911)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14910")
+    pversion = V("0.0.post14911")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14768"
-data_version_tuple = (0, 0, 14768)
+data_version_str = "0.0.post14769"
+data_version_tuple = (0, 0, 14769)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14768")
+    pdata_version = V("0.0.post14769")
 except ImportError:
     pass
-data_git_hash = "78427d34d369924c12bad37827d7988bd451986c"
-data_git_describe = "v0.0-14768-g78427d34d3"
+data_git_hash = "ffab90e6a8123980561696ac528fc162f9801893"
+data_git_describe = "v0.0-14769-gffab90e6a8"
 data_git_msg = """\
-commit 78427d34d369924c12bad37827d7988bd451986c
-Author: James Wainwright <james.wainwright@lowrisc.org>
-Date:   Fri Oct 21 17:51:07 2022 +0100
+commit ffab90e6a8123980561696ac528fc162f9801893
+Author: Jade Philipoom <jadep@google.com>
+Date:   Mon Oct 24 17:26:00 2022 +0200
 
-    [flash_ctrl] Add unit test for flash_ctrl_info_erase
+    [rom] Fix pinmux indexing and set attributes first.
     
-    Signed-off-by: James Wainwright <james.wainwright@lowrisc.org>
+    The pinmux initialization previously used the pinmux input selector
+    value as the pad index, which results in an off-by-two error since the
+    input selector is (pad index + 2).
+    
+    Also, the pinmux documentation specifies that pad attributes should be
+    set first, before configuring the pinmux matrix, so this change moves
+    attribute-setting to precede IO configuration.
+    
+    Signed-off-by: Jade Philipoom <jadep@google.com>
 
 """
 
