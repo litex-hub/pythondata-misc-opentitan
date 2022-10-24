@@ -4,38 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14914"
-version_tuple = (0, 0, 14914)
+version_str = "0.0.post14919"
+version_tuple = (0, 0, 14919)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14914")
+    pversion = V("0.0.post14919")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14772"
-data_version_tuple = (0, 0, 14772)
+data_version_str = "0.0.post14777"
+data_version_tuple = (0, 0, 14777)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14772")
+    pdata_version = V("0.0.post14777")
 except ImportError:
     pass
-data_git_hash = "dd77381064eee512cd82d5747e2d59e7c768c6c0"
-data_git_describe = "v0.0-14772-gdd77381064"
+data_git_hash = "d68e7cbb925fee1d1daa09dd1fc3e697774fb31b"
+data_git_describe = "v0.0-14777-gd68e7cbb92"
 data_git_msg = """\
-commit dd77381064eee512cd82d5747e2d59e7c768c6c0
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Oct 24 11:21:25 2022 -0700
+commit d68e7cbb925fee1d1daa09dd1fc3e697774fb31b
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Oct 24 13:15:12 2022 -0700
 
-    [flash_ctrl/doc] Update hjson description.
+    [spi_device/dv] Fix a race condition
     
-    The flash disable descritpion was incorrect as it claimed
-    any value other than false would cause disable. This is not
-    true as the register is `rw0c` and not `rw` type.
+    `1ps` is already used to handle downstream item comparison.
+    Increased to 2ps. This fixes many failures in flash related tests.
     
-    Update the description to reflect this.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
