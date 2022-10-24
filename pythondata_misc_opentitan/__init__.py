@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14905"
-version_tuple = (0, 0, 14905)
+version_str = "0.0.post14910"
+version_tuple = (0, 0, 14910)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14905")
+    pversion = V("0.0.post14910")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14763"
-data_version_tuple = (0, 0, 14763)
+data_version_str = "0.0.post14768"
+data_version_tuple = (0, 0, 14768)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14763")
+    pdata_version = V("0.0.post14768")
 except ImportError:
     pass
-data_git_hash = "4ad3f30781a95dff7e161bc0ed865e3972b2446b"
-data_git_describe = "v0.0-14763-g4ad3f30781"
+data_git_hash = "78427d34d369924c12bad37827d7988bd451986c"
+data_git_describe = "v0.0-14768-g78427d34d3"
 data_git_msg = """\
-commit 4ad3f30781a95dff7e161bc0ed865e3972b2446b
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Oct 19 23:13:47 2022 -0400
+commit 78427d34d369924c12bad37827d7988bd451986c
+Author: James Wainwright <james.wainwright@lowrisc.org>
+Date:   Fri Oct 21 17:51:07 2022 +0100
 
-    [bazel] Add support for pagination when querying the bitstream cache
+    [flash_ctrl] Add unit test for flash_ctrl_info_erase
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: James Wainwright <james.wainwright@lowrisc.org>
 
 """
 
