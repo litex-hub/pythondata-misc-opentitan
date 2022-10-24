@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14911"
-version_tuple = (0, 0, 14911)
+version_str = "0.0.post14913"
+version_tuple = (0, 0, 14913)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14911")
+    pversion = V("0.0.post14913")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14769"
-data_version_tuple = (0, 0, 14769)
+data_version_str = "0.0.post14771"
+data_version_tuple = (0, 0, 14771)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14769")
+    pdata_version = V("0.0.post14771")
 except ImportError:
     pass
-data_git_hash = "ffab90e6a8123980561696ac528fc162f9801893"
-data_git_describe = "v0.0-14769-gffab90e6a8"
+data_git_hash = "8e158a1578f92239dca253d10834df72b51c132f"
+data_git_describe = "v0.0-14771-g8e158a1578"
 data_git_msg = """\
-commit ffab90e6a8123980561696ac528fc162f9801893
-Author: Jade Philipoom <jadep@google.com>
-Date:   Mon Oct 24 17:26:00 2022 +0200
+commit 8e158a1578f92239dca253d10834df72b51c132f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 24 10:14:30 2022 -0700
 
-    [rom] Fix pinmux indexing and set attributes first.
+    [dv/chip] Fix unmapped testplan
     
-    The pinmux initialization previously used the pinmux input selector
-    value as the pad index, which results in an off-by-two error since the
-    input selector is (pad index + 2).
+    This PR fixes unmapped testplan in nightly regression.
     
-    Also, the pinmux documentation specifies that pad attributes should be
-    set first, before configuring the pinmux matrix, so this change moves
-    attribute-setting to precede IO configuration.
-    
-    Signed-off-by: Jade Philipoom <jadep@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
