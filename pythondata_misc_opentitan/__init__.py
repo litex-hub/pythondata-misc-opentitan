@@ -4,34 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14913"
-version_tuple = (0, 0, 14913)
+version_str = "0.0.post14914"
+version_tuple = (0, 0, 14914)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14913")
+    pversion = V("0.0.post14914")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14771"
-data_version_tuple = (0, 0, 14771)
+data_version_str = "0.0.post14772"
+data_version_tuple = (0, 0, 14772)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14771")
+    pdata_version = V("0.0.post14772")
 except ImportError:
     pass
-data_git_hash = "8e158a1578f92239dca253d10834df72b51c132f"
-data_git_describe = "v0.0-14771-g8e158a1578"
+data_git_hash = "dd77381064eee512cd82d5747e2d59e7c768c6c0"
+data_git_describe = "v0.0-14772-gdd77381064"
 data_git_msg = """\
-commit 8e158a1578f92239dca253d10834df72b51c132f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 24 10:14:30 2022 -0700
+commit dd77381064eee512cd82d5747e2d59e7c768c6c0
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Oct 24 11:21:25 2022 -0700
 
-    [dv/chip] Fix unmapped testplan
+    [flash_ctrl/doc] Update hjson description.
     
-    This PR fixes unmapped testplan in nightly regression.
+    The flash disable descritpion was incorrect as it claimed
+    any value other than false would cause disable. This is not
+    true as the register is `rw0c` and not `rw` type.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Update the description to reflect this.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
