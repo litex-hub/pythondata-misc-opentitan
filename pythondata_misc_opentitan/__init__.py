@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14931"
-version_tuple = (0, 0, 14931)
+version_str = "0.0.post14936"
+version_tuple = (0, 0, 14936)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14931")
+    pversion = V("0.0.post14936")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14789"
-data_version_tuple = (0, 0, 14789)
+data_version_str = "0.0.post14794"
+data_version_tuple = (0, 0, 14794)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14789")
+    pdata_version = V("0.0.post14794")
 except ImportError:
     pass
-data_git_hash = "7a7139c8af345f423ac27a0186febdda027f7127"
-data_git_describe = "v0.0-14789-g7a7139c8af"
+data_git_hash = "a6b908283fccba3f8b6b44052c6ad87276dc21e8"
+data_git_describe = "v0.0-14794-ga6b908283f"
 data_git_msg = """\
-commit 7a7139c8af345f423ac27a0186febdda027f7127
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Oct 24 15:38:17 2022 -0700
+commit a6b908283fccba3f8b6b44052c6ad87276dc21e8
+Author: Greg Chadwick <gac@lowrisc.org>
+Date:   Mon Oct 24 20:19:17 2022 +0100
 
-    [spi_device/dv] Add connectivity test for ram_cfg
+    [dv] Run more iterations of the otbn escalate test
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    This is required to hit FSM coverage goals
+    
+    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
 
 """
 
