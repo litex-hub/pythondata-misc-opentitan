@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14939"
-version_tuple = (0, 0, 14939)
+version_str = "0.0.post14941"
+version_tuple = (0, 0, 14941)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14939")
+    pversion = V("0.0.post14941")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14797"
-data_version_tuple = (0, 0, 14797)
+data_version_str = "0.0.post14799"
+data_version_tuple = (0, 0, 14799)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14797")
+    pdata_version = V("0.0.post14799")
 except ImportError:
     pass
-data_git_hash = "051e25944b558ca9c8c8ccce837cc4f3e36d2d60"
-data_git_describe = "v0.0-14797-g051e25944b"
+data_git_hash = "4580a1765e7b5bd9a5f96c71f89e746e6c27c95d"
+data_git_describe = "v0.0-14799-g4580a1765e"
 data_git_msg = """\
-commit 051e25944b558ca9c8c8ccce837cc4f3e36d2d60
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Mon Oct 24 12:21:19 2022 -0400
+commit 4580a1765e7b5bd9a5f96c71f89e746e6c27c95d
+Author: Miles Dai <milesdai@google.com>
+Date:   Thu Oct 20 17:27:01 2022 -0400
 
-    [test] Add rom_e2e_weak_straps to the rom e2e testplan
+    [bazel] Allow opentitan_functest to accept custom bitstreams
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
