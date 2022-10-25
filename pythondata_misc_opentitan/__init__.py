@@ -4,59 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14920"
-version_tuple = (0, 0, 14920)
+version_str = "0.0.post14923"
+version_tuple = (0, 0, 14923)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14920")
+    pversion = V("0.0.post14923")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14778"
-data_version_tuple = (0, 0, 14778)
+data_version_str = "0.0.post14781"
+data_version_tuple = (0, 0, 14781)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14778")
+    pdata_version = V("0.0.post14781")
 except ImportError:
     pass
-data_git_hash = "05660af1ea0847569bd4703995a9c0a78008f6c2"
-data_git_describe = "v0.0-14778-g05660af1ea"
+data_git_hash = "c74963e3e06eedf3f2870f5d2be570db9302ac6f"
+data_git_describe = "v0.0-14781-gc74963e3e0"
 data_git_msg = """\
-commit 05660af1ea0847569bd4703995a9c0a78008f6c2
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Fri Oct 21 16:52:23 2022 -0400
+commit c74963e3e06eedf3f2870f5d2be570db9302ac6f
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Oct 11 17:59:35 2022 -0700
 
-    [bazel] Rewrite GDB test script, respect subprocess exit codes
+    [top/test] Add chip_rv_dm_lc_disabled test
     
-    To implement #14490, we'll want to assert that the value of PC is the
-    address of a particular function. GDB is in a perfect position to test
-    this kind of assertion. It knows the addresses of symbols, it knows the
-    values of registers, it supports conditional expressions, and it has a
-    `quit` command, which takes an exit code parameter.
+    This addresses #14147.
     
-    When I tried inserting an unconditional `quit 123` into the existing GDB
-    script for sram_program_fpga_cw310_test, I was surprised that the test
-    did not fail! It turns out we have been silently ignoring exit codes of
-    background processes.
-    
-    I decided to rewrite the test script in Python, if only for clarity. The
-    rewrite is nearly a drop-in replacement. The only intentional difference
-    is that it checks the exit codes of its subprocesses.
-    
-    As a proof of concept, I inserted these lines into the GDB script for
-    sram_program_fpga_cw310_test and verified that it works as expected:
-    
-    ```
-            if &sram_main == 0x10001fc5
-              echo :::: Correct.\\n
-            else
-              echo :::: Surprise!\\n
-              quit 123
-            end
-    ```
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
