@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14938"
-version_tuple = (0, 0, 14938)
+version_str = "0.0.post14939"
+version_tuple = (0, 0, 14939)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14938")
+    pversion = V("0.0.post14939")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14796"
-data_version_tuple = (0, 0, 14796)
+data_version_str = "0.0.post14797"
+data_version_tuple = (0, 0, 14797)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14796")
+    pdata_version = V("0.0.post14797")
 except ImportError:
     pass
-data_git_hash = "bc5a982def614a03d33c8bb916600e79eef24309"
-data_git_describe = "v0.0-14796-gbc5a982def"
+data_git_hash = "051e25944b558ca9c8c8ccce837cc4f3e36d2d60"
+data_git_describe = "v0.0-14797-g051e25944b"
 data_git_msg = """\
-commit bc5a982def614a03d33c8bb916600e79eef24309
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Oct 11 20:58:01 2022 -0700
+commit 051e25944b558ca9c8c8ccce837cc4f3e36d2d60
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Mon Oct 24 12:21:19 2022 -0400
 
-    [top/dv] Add spi_tpm test
+    [test] Add rom_e2e_weak_straps to the rom e2e testplan
     
-    - The test issues writes from the host to spi device.
-    - Spi device then loops back data back to the host
-      on a read command.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
