@@ -4,37 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14924"
-version_tuple = (0, 0, 14924)
+version_str = "0.0.post14930"
+version_tuple = (0, 0, 14930)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14924")
+    pversion = V("0.0.post14930")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14782"
-data_version_tuple = (0, 0, 14782)
+data_version_str = "0.0.post14788"
+data_version_tuple = (0, 0, 14788)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14782")
+    pdata_version = V("0.0.post14788")
 except ImportError:
     pass
-data_git_hash = "d0f667d861f326466299fdcf7ce9e06b3bd0bba1"
-data_git_describe = "v0.0-14782-gd0f667d861"
+data_git_hash = "0b7703e3a53abcfbf49e762e8448c1f6d6bb605d"
+data_git_describe = "v0.0-14788-g0b7703e3a5"
 data_git_msg = """\
-commit d0f667d861f326466299fdcf7ce9e06b3bd0bba1
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Oct 24 13:04:54 2022 -0700
+commit 0b7703e3a53abcfbf49e762e8448c1f6d6bb605d
+Author: Arun Thomas <arunthomas@google.com>
+Date:   Thu Jul 14 14:41:50 2022 -0400
 
-    [spi_device/dv] Fix some coverage issues
+    [bazel] Update CoreMark version
     
-    1. fixed wrong variable type int -> bit
-    2. fixed dummy_cycles cross, as write doesn't allow dummy_cycles
-    3. reduced auto_bin to reduce cross coverage
-    4. adjusted randomization to increase chance for swap data/addr
+    * Import files from commit eefc986ebd3452d6adde22eafaff3e5c859f29e4
+    * Update OpenTitan port
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Arun Thomas <arunthomas@google.com>
 
 """
 
