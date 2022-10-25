@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14936"
-version_tuple = (0, 0, 14936)
+version_str = "0.0.post14937"
+version_tuple = (0, 0, 14937)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14936")
+    pversion = V("0.0.post14937")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14794"
-data_version_tuple = (0, 0, 14794)
+data_version_str = "0.0.post14795"
+data_version_tuple = (0, 0, 14795)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14794")
+    pdata_version = V("0.0.post14795")
 except ImportError:
     pass
-data_git_hash = "a6b908283fccba3f8b6b44052c6ad87276dc21e8"
-data_git_describe = "v0.0-14794-ga6b908283f"
+data_git_hash = "b001ebce67385ae7fa47649d792b9361362ee6b6"
+data_git_describe = "v0.0-14795-gb001ebce67"
 data_git_msg = """\
-commit a6b908283fccba3f8b6b44052c6ad87276dc21e8
-Author: Greg Chadwick <gac@lowrisc.org>
-Date:   Mon Oct 24 20:19:17 2022 +0100
+commit b001ebce67385ae7fa47649d792b9361362ee6b6
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Mon Oct 24 16:51:12 2022 -0700
 
-    [dv] Run more iterations of the otbn escalate test
+    [fpv/pinmux] Fix pinmux compile error
     
-    This is required to hit FSM coverage goals
+    This PR fixes pinmux compile error due to the intg_error hierarchy
+    change.
     
-    Signed-off-by: Greg Chadwick <gac@lowrisc.org>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
