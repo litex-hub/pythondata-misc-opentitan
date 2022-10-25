@@ -4,35 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14944"
-version_tuple = (0, 0, 14944)
+version_str = "0.0.post14945"
+version_tuple = (0, 0, 14945)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14944")
+    pversion = V("0.0.post14945")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14802"
-data_version_tuple = (0, 0, 14802)
+data_version_str = "0.0.post14803"
+data_version_tuple = (0, 0, 14803)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14802")
+    pdata_version = V("0.0.post14803")
 except ImportError:
     pass
-data_git_hash = "6923df040fc87f664a1307e56ba5ba9f65301a8a"
-data_git_describe = "v0.0-14802-g6923df040f"
+data_git_hash = "e01285f81810f08fa1c41988cff9ac75d901d7ea"
+data_git_describe = "v0.0-14803-ge01285f818"
 data_git_msg = """\
-commit 6923df040fc87f664a1307e56ba5ba9f65301a8a
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Oct 21 15:26:35 2022 -0700
+commit e01285f81810f08fa1c41988cff9ac75d901d7ea
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 25 12:24:27 2022 -0700
 
-    [dv/rstmgr] Exclude sw_rst_ctrl_n CSR from unit csr tests
+    [spi_device/dv] Add test - spi_device_flash_and_tpm_min_idle
     
-    Rapid flips of these CSR bits can occasionally trigger alerts, which
-    can unpredictably update err_code CSR bits.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    It inherits from spi_device_flash_and_tpm_vseq and configure the min idle period btw 2 SPI items.
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
