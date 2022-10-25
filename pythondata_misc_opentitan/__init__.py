@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14937"
-version_tuple = (0, 0, 14937)
+version_str = "0.0.post14938"
+version_tuple = (0, 0, 14938)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14937")
+    pversion = V("0.0.post14938")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14795"
-data_version_tuple = (0, 0, 14795)
+data_version_str = "0.0.post14796"
+data_version_tuple = (0, 0, 14796)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14795")
+    pdata_version = V("0.0.post14796")
 except ImportError:
     pass
-data_git_hash = "b001ebce67385ae7fa47649d792b9361362ee6b6"
-data_git_describe = "v0.0-14795-gb001ebce67"
+data_git_hash = "bc5a982def614a03d33c8bb916600e79eef24309"
+data_git_describe = "v0.0-14796-gbc5a982def"
 data_git_msg = """\
-commit b001ebce67385ae7fa47649d792b9361362ee6b6
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Mon Oct 24 16:51:12 2022 -0700
+commit bc5a982def614a03d33c8bb916600e79eef24309
+Author: Timothy Chen <timothytim@google.com>
+Date:   Tue Oct 11 20:58:01 2022 -0700
 
-    [fpv/pinmux] Fix pinmux compile error
+    [top/dv] Add spi_tpm test
     
-    This PR fixes pinmux compile error due to the intg_error hierarchy
-    change.
+    - The test issues writes from the host to spi device.
+    - Spi device then loops back data back to the host
+      on a read command.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
