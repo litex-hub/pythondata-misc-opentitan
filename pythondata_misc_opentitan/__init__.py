@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14968"
-version_tuple = (0, 0, 14968)
+version_str = "0.0.post14972"
+version_tuple = (0, 0, 14972)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14968")
+    pversion = V("0.0.post14972")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14826"
-data_version_tuple = (0, 0, 14826)
+data_version_str = "0.0.post14830"
+data_version_tuple = (0, 0, 14830)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14826")
+    pdata_version = V("0.0.post14830")
 except ImportError:
     pass
-data_git_hash = "850f2ac7ba4b301e8bd7bda17884fff5157230c7"
-data_git_describe = "v0.0-14826-g850f2ac7ba"
+data_git_hash = "ed90f5e1ee7826b27b89d846bce0a78961bb49e9"
+data_git_describe = "v0.0-14830-ged90f5e1ee"
 data_git_msg = """\
-commit 850f2ac7ba4b301e8bd7bda17884fff5157230c7
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Tue Oct 25 16:04:50 2022 -0700
+commit ed90f5e1ee7826b27b89d846bce0a78961bb49e9
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Thu Oct 20 12:13:33 2022 +0100
 
-    [dv/rstmgr] Fix rstmgr_sec_cm_scan_intersig_mubi_vseq
+    [dv, sram_ctl] Refactor the scramble_access test to use `CHECK_ARRAYS_NE`
     
-    The scanmode_i changes need to track scan_rst_ni so the underlying test
-    will correctly predict when scan reset occur. Change the duration of
-    settings of scanmode_i so it will have a chance to change value when
-    scan_rst_ni changes.
-    
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
