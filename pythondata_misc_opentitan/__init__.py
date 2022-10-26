@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14959"
-version_tuple = (0, 0, 14959)
+version_str = "0.0.post14965"
+version_tuple = (0, 0, 14965)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14959")
+    pversion = V("0.0.post14965")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14817"
-data_version_tuple = (0, 0, 14817)
+data_version_str = "0.0.post14823"
+data_version_tuple = (0, 0, 14823)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14817")
+    pdata_version = V("0.0.post14823")
 except ImportError:
     pass
-data_git_hash = "8c40959740be6f198278f772638433a105652fda"
-data_git_describe = "v0.0-14817-g8c40959740"
+data_git_hash = "398c177c52f8a1a9de99598094fd362b1df1052d"
+data_git_describe = "v0.0-14823-g398c177c52"
 data_git_msg = """\
-commit 8c40959740be6f198278f772638433a105652fda
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Oct 25 13:48:12 2022 -0700
+commit 398c177c52f8a1a9de99598094fd362b1df1052d
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Oct 21 22:25:44 2022 -0400
 
-    [dv/edn] Minor regression fix
+    [sw/silicon_creator] Add a busy loop to rom_start.S to derisk RMA entry
     
-    This PR fixes two minor issues in EDN regression:
-    1). Add `alert_test` as a valid csr in scb
-    2). Add functional coverage for interrupts in edn
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
