@@ -4,32 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14955"
-version_tuple = (0, 0, 14955)
+version_str = "0.0.post14959"
+version_tuple = (0, 0, 14959)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14955")
+    pversion = V("0.0.post14959")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14813"
-data_version_tuple = (0, 0, 14813)
+data_version_str = "0.0.post14817"
+data_version_tuple = (0, 0, 14817)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14813")
+    pdata_version = V("0.0.post14817")
 except ImportError:
     pass
-data_git_hash = "d83c59f074cc4081ef362d525cf21bb4f2ac3b5b"
-data_git_describe = "v0.0-14813-gd83c59f074"
+data_git_hash = "8c40959740be6f198278f772638433a105652fda"
+data_git_describe = "v0.0-14817-g8c40959740"
 data_git_msg = """\
-commit d83c59f074cc4081ef362d525cf21bb4f2ac3b5b
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Oct 25 16:51:23 2022 -0700
+commit 8c40959740be6f198278f772638433a105652fda
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Oct 25 13:48:12 2022 -0700
 
-    [mubi/lc] Add comment regarding mubi encoding changes
+    [dv/edn] Minor regression fix
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This PR fixes two minor issues in EDN regression:
+    1). Add `alert_test` as a valid csr in scb
+    2). Add functional coverage for interrupts in edn
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
