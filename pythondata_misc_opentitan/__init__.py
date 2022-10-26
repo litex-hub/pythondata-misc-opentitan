@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14965"
-version_tuple = (0, 0, 14965)
+version_str = "0.0.post14967"
+version_tuple = (0, 0, 14967)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14965")
+    pversion = V("0.0.post14967")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14823"
-data_version_tuple = (0, 0, 14823)
+data_version_str = "0.0.post14825"
+data_version_tuple = (0, 0, 14825)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14823")
+    pdata_version = V("0.0.post14825")
 except ImportError:
     pass
-data_git_hash = "398c177c52f8a1a9de99598094fd362b1df1052d"
-data_git_describe = "v0.0-14823-g398c177c52"
+data_git_hash = "f929c4ea71d04020b11c71d46b2d21b22ca9b6f2"
+data_git_describe = "v0.0-14825-gf929c4ea71"
 data_git_msg = """\
-commit 398c177c52f8a1a9de99598094fd362b1df1052d
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Oct 21 22:25:44 2022 -0400
+commit f929c4ea71d04020b11c71d46b2d21b22ca9b6f2
+Author: Weicai Yang <weicai@google.com>
+Date:   Tue Oct 25 22:41:08 2022 -0700
 
-    [sw/silicon_creator] Add a busy loop to rom_start.S to derisk RMA entry
+    [spi_device/dv] Disable overflow/underflow SVAs
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    It's fine to have these SVA, but disable them when the test verifies
+    underflow/overflow.
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
