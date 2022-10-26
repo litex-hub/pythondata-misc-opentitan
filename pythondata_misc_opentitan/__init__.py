@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14972"
-version_tuple = (0, 0, 14972)
+version_str = "0.0.post14975"
+version_tuple = (0, 0, 14975)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14972")
+    pversion = V("0.0.post14975")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14830"
-data_version_tuple = (0, 0, 14830)
+data_version_str = "0.0.post14833"
+data_version_tuple = (0, 0, 14833)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14830")
+    pdata_version = V("0.0.post14833")
 except ImportError:
     pass
-data_git_hash = "ed90f5e1ee7826b27b89d846bce0a78961bb49e9"
-data_git_describe = "v0.0-14830-ged90f5e1ee"
+data_git_hash = "faafbabd0dfbda4291eaf3c52d5b752e7c8d7805"
+data_git_describe = "v0.0-14833-gfaafbabd0d"
 data_git_msg = """\
-commit ed90f5e1ee7826b27b89d846bce0a78961bb49e9
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Thu Oct 20 12:13:33 2022 +0100
+commit faafbabd0dfbda4291eaf3c52d5b752e7c8d7805
+Author: Eli Kim <eli@opentitan.org>
+Date:   Tue Oct 25 12:28:20 2022 -0700
 
-    [dv, sram_ctl] Refactor the scramble_access test to use `CHECK_ARRAYS_NE`
+    [rdc] Waive TPM CSb -> FIFO.wvalid
     
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    RDC tool detecs the metastability issue when TPM CSb is de-asserted
+    (0->1). However, in that case in normal scenario, SCK is quiescent.
+    
+    Only case this matters is that the CSb un-intentionally violates the
+    assumption. In that case, unexpected commnand or write data may be
+    pushed to the FIFOs.
+    
+    Signed-off-by: Eli Kim <eli@opentitan.org>
 
 """
 
