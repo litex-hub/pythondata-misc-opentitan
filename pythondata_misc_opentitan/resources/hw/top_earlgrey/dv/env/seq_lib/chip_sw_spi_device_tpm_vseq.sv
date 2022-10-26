@@ -14,7 +14,7 @@ class chip_sw_spi_device_tpm_vseq extends chip_sw_base_vseq;
   virtual task tpm_txn (bit wr, bit [23:0] addr, bit [7:0] data_q[$] = {0},
                         int len, output logic [7:0] rdata_q[]);
     spi_host_tpm_seq m_host_tpm_seq;
-    `uvm_create_on(m_host_tpm_seq, p_sequencer.spi_sequencer_h)
+    `uvm_create_on(m_host_tpm_seq, p_sequencer.spi_host_sequencer_h)
 
     // Common attribute assignments
     m_host_tpm_seq.write_command = wr;
@@ -45,8 +45,8 @@ class chip_sw_spi_device_tpm_vseq extends chip_sw_base_vseq;
     cfg.chip_vif.enable_spi_tpm = 1;
 
     // Directly set the expected cs_id
-    cfg.m_spi_agent_cfg.csb_sel_in_cfg = 1;
-    cfg.m_spi_agent_cfg.csid = 1;
+    cfg.m_spi_host_agent_cfg.csb_sel_in_cfg = 1;
+    cfg.m_spi_host_agent_cfg.csid = 1;
 
     // enable spi agent interface to begin
     `DV_WAIT(cfg.sw_logger_vif.printed_log == "Begin TPM Test",

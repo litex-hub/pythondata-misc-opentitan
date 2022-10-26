@@ -2,6 +2,22 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
+// The spi_device_driver responds to bus transactions initiated by a SPI host,
+// and its responses depend on cfg.spi_func_mode.
+//
+// For SpiModeGeneric, the driver waits for CSB to be asserted, then drives
+// the contents of spi_item.data sequentially, timed with the SPI host's clock
+// output.
+//
+// For SpiModeFlash, the spi_item must be submitted at exactly the moment when
+// the driver is to begin driving the response. The driver sends the contents
+// of spi_item.payload_q sequentially, timed with the SPI host's clock output.
+// Note that spi_device_driver does NOT observe the command, address, or dummy
+// cycles, and it assumes those phases have already passed. For this mode,
+// spi_device_driver is anticipated to be used in conjunction with the
+// spi_monitor's req_analysis_port, which writes a spi_item into the
+// spi_sequencer's connected req_analysis_fifo at the moment those phases have
+// completed.
 class spi_device_driver extends spi_driver;
   `uvm_component_utils(spi_device_driver)
   `uvm_component_new
@@ -108,8 +124,14 @@ class spi_device_driver extends spi_driver;
 
           forever begin
             cfg.wait_sck_edge(DrivingEdge);
-            for (int i = 0; i < item.num_lanes; i++) begin
-              sio_bits[i] = bits_q.size > 0 ? bits_q.pop_front() : $urandom_range(0, 1);
+            // The first bit in bits_q is the MSB, which is driven on the sio
+            // lane with the highest active index.
+            for (int i = $high(sio_bits); i >= $low(sio_bits); i--) begin
+              if (i >= item.num_lanes) begin
+                sio_bits[i] = 1'bz;
+              end else begin
+                sio_bits[i] = bits_q.size > 0 ? bits_q.pop_front() : $urandom_range(0, 1);
+              end
             end
             send_data_to_sio(spi_mode, sio_bits);
           end
