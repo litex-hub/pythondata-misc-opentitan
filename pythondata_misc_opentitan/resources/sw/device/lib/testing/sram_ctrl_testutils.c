@@ -11,54 +11,11 @@
 #include "sw/device/lib/testing/test_framework/check.h"
 
 void sram_ctrl_testutils_write(uintptr_t address,
-                               const sram_ctrl_testutils_data_t *data) {
+                               const sram_ctrl_testutils_data_t data) {
   mmio_region_t region = mmio_region_from_addr(address);
-  for (size_t index = 0; index < SRAM_CTRL_TESTUTILS_DATA_NUM_WORDS; ++index) {
-    mmio_region_write32(region, sizeof(uint32_t) * index, data->words[index]);
+  for (size_t index = 0; index < data.len; ++index) {
+    mmio_region_write32(region, sizeof(uint32_t) * index, data.words[index]);
   }
-}
-
-/**
- * Reads data from `address` in SRAM and compares against `expected`.
- *
- * The read data is word by word compared against the expected data.
- * Caller can request to check for equality or inequality through `eq`.
- */
-static bool read_from_ram_check(uintptr_t address,
-                                const sram_ctrl_testutils_data_t *expected,
-                                bool eq) {
-  mmio_region_t region = mmio_region_from_addr(address);
-  for (size_t index = 0; index < SRAM_CTRL_TESTUTILS_DATA_NUM_WORDS; ++index) {
-    uint32_t read_word = mmio_region_read32(region, sizeof(uint32_t) * index);
-    if ((read_word == expected->words[index]) != eq) {
-      LOG_INFO("READ_WORD[%x], CONTROL_WORD[%x], INDEX = %d", read_word,
-               expected->words[index], index);
-
-      return false;
-    }
-  }
-
-  return true;
-}
-
-bool sram_ctrl_testutils_read_check_eq(
-    uintptr_t address, const sram_ctrl_testutils_data_t *expected) {
-  if (!read_from_ram_check(address, expected, true)) {
-    LOG_INFO("Equality check failure");
-    return false;
-  }
-
-  return true;
-}
-
-bool sram_ctrl_testutils_read_check_neq(
-    uintptr_t address, const sram_ctrl_testutils_data_t *expected) {
-  if (!read_from_ram_check(address, expected, false)) {
-    LOG_INFO("Inequality check failure");
-    return false;
-  }
-
-  return true;
 }
 
 /**
