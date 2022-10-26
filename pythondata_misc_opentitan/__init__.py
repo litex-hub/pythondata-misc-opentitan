@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14967"
-version_tuple = (0, 0, 14967)
+version_str = "0.0.post14968"
+version_tuple = (0, 0, 14968)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14967")
+    pversion = V("0.0.post14968")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14825"
-data_version_tuple = (0, 0, 14825)
+data_version_str = "0.0.post14826"
+data_version_tuple = (0, 0, 14826)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14825")
+    pdata_version = V("0.0.post14826")
 except ImportError:
     pass
-data_git_hash = "f929c4ea71d04020b11c71d46b2d21b22ca9b6f2"
-data_git_describe = "v0.0-14825-gf929c4ea71"
+data_git_hash = "850f2ac7ba4b301e8bd7bda17884fff5157230c7"
+data_git_describe = "v0.0-14826-g850f2ac7ba"
 data_git_msg = """\
-commit f929c4ea71d04020b11c71d46b2d21b22ca9b6f2
-Author: Weicai Yang <weicai@google.com>
-Date:   Tue Oct 25 22:41:08 2022 -0700
+commit 850f2ac7ba4b301e8bd7bda17884fff5157230c7
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Tue Oct 25 16:04:50 2022 -0700
 
-    [spi_device/dv] Disable overflow/underflow SVAs
+    [dv/rstmgr] Fix rstmgr_sec_cm_scan_intersig_mubi_vseq
     
-    It's fine to have these SVA, but disable them when the test verifies
-    underflow/overflow.
+    The scanmode_i changes need to track scan_rst_ni so the underlying test
+    will correctly predict when scan reset occur. Change the duration of
+    settings of scanmode_i so it will have a chance to change value when
+    scan_rst_ni changes.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
