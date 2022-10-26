@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14950"
-version_tuple = (0, 0, 14950)
+version_str = "0.0.post14955"
+version_tuple = (0, 0, 14955)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14950")
+    pversion = V("0.0.post14955")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14808"
-data_version_tuple = (0, 0, 14808)
+data_version_str = "0.0.post14813"
+data_version_tuple = (0, 0, 14813)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14808")
+    pdata_version = V("0.0.post14813")
 except ImportError:
     pass
-data_git_hash = "0573dd72b4b63bd528c52a489bf8fc24b097b486"
-data_git_describe = "v0.0-14808-g0573dd72b4"
+data_git_hash = "d83c59f074cc4081ef362d525cf21bb4f2ac3b5b"
+data_git_describe = "v0.0-14813-gd83c59f074"
 data_git_msg = """\
-commit 0573dd72b4b63bd528c52a489bf8fc24b097b486
-Author: Alexander Williams <awill@google.com>
-Date:   Mon Oct 24 08:39:47 2022 -0700
+commit d83c59f074cc4081ef362d525cf21bb4f2ac3b5b
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Oct 25 16:51:23 2022 -0700
 
-    [spi_host] Adjust passthrough not-X assertions
+    [mubi/lc] Add comment regarding mubi encoding changes
     
-    The assertions for the passthrough-related I/Os were overzealous and did
-    not account for conditions where X is allowable. Adjust them to focus on
-    SCK and CSB only and have the SCK assertion activate only when CSB is
-    asserted.
-    
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
