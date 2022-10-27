@@ -4,39 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14975"
-version_tuple = (0, 0, 14975)
+version_str = "0.0.post14976"
+version_tuple = (0, 0, 14976)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14975")
+    pversion = V("0.0.post14976")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14833"
-data_version_tuple = (0, 0, 14833)
+data_version_str = "0.0.post14834"
+data_version_tuple = (0, 0, 14834)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14833")
+    pdata_version = V("0.0.post14834")
 except ImportError:
     pass
-data_git_hash = "faafbabd0dfbda4291eaf3c52d5b752e7c8d7805"
-data_git_describe = "v0.0-14833-gfaafbabd0d"
+data_git_hash = "517edba6abe68b919742d7c1d0a687361b9fe32b"
+data_git_describe = "v0.0-14834-g517edba6ab"
 data_git_msg = """\
-commit faafbabd0dfbda4291eaf3c52d5b752e7c8d7805
-Author: Eli Kim <eli@opentitan.org>
-Date:   Tue Oct 25 12:28:20 2022 -0700
+commit 517edba6abe68b919742d7c1d0a687361b9fe32b
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Oct 26 11:52:10 2022 -0700
 
-    [rdc] Waive TPM CSb -> FIFO.wvalid
+    [top/dv] Address review comments
     
-    RDC tool detecs the metastability issue when TPM CSb is de-asserted
-    (0->1). However, in that case in normal scenario, SCK is quiescent.
+    Address comments from #15297
     
-    Only case this matters is that the CSb un-intentionally violates the
-    assumption. In that case, unexpected commnand or write data may be
-    pushed to the FIFOs.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
