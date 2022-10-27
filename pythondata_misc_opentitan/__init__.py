@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14982"
-version_tuple = (0, 0, 14982)
+version_str = "0.0.post14984"
+version_tuple = (0, 0, 14984)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14982")
+    pversion = V("0.0.post14984")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14840"
-data_version_tuple = (0, 0, 14840)
+data_version_str = "0.0.post14842"
+data_version_tuple = (0, 0, 14842)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14840")
+    pdata_version = V("0.0.post14842")
 except ImportError:
     pass
-data_git_hash = "06432121cfff5218e163f0e25fbba27f9e394e1c"
-data_git_describe = "v0.0-14840-g06432121cf"
+data_git_hash = "acd08dbaa8e134979918ab220eabdcdaa092f33b"
+data_git_describe = "v0.0-14842-gacd08dbaa8"
 data_git_msg = """\
-commit 06432121cfff5218e163f0e25fbba27f9e394e1c
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Oct 26 17:27:22 2022 -0700
+commit acd08dbaa8e134979918ab220eabdcdaa092f33b
+Author: Douglas Reis <doreis@lowrisc.org>
+Date:   Wed Oct 26 18:01:00 2022 +0100
 
-    [flash_ctrl] Move macro_err from fatal to recoverable error
+    [dv, clkmgr] Remove test point `clkmgr_all_escalarion_reset`
     
-    fixes #15702
+     The test was incompletely removed in the commit 0dcb77b9c6.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
 
 """
 
