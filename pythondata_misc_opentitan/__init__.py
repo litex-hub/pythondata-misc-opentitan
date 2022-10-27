@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14981"
-version_tuple = (0, 0, 14981)
+version_str = "0.0.post14982"
+version_tuple = (0, 0, 14982)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14981")
+    pversion = V("0.0.post14982")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14839"
-data_version_tuple = (0, 0, 14839)
+data_version_str = "0.0.post14840"
+data_version_tuple = (0, 0, 14840)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14839")
+    pdata_version = V("0.0.post14840")
 except ImportError:
     pass
-data_git_hash = "cb9bee67989b2c0ef31d47936ac9501c9e2b798f"
-data_git_describe = "v0.0-14839-gcb9bee6798"
+data_git_hash = "06432121cfff5218e163f0e25fbba27f9e394e1c"
+data_git_describe = "v0.0-14840-g06432121cf"
 data_git_msg = """\
-commit cb9bee67989b2c0ef31d47936ac9501c9e2b798f
-Author: Michael Schaffner <msf@google.com>
-Date:   Tue Oct 25 17:19:50 2022 -0700
+commit 06432121cfff5218e163f0e25fbba27f9e394e1c
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Oct 26 17:27:22 2022 -0700
 
-    [rv_dm] Add generated registers to docs
+    [flash_ctrl] Move macro_err from fatal to recoverable error
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    fixes #15702
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
