@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14984"
-version_tuple = (0, 0, 14984)
+version_str = "0.0.post14997"
+version_tuple = (0, 0, 14997)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14984")
+    pversion = V("0.0.post14997")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14842"
-data_version_tuple = (0, 0, 14842)
+data_version_str = "0.0.post14855"
+data_version_tuple = (0, 0, 14855)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14842")
+    pdata_version = V("0.0.post14855")
 except ImportError:
     pass
-data_git_hash = "acd08dbaa8e134979918ab220eabdcdaa092f33b"
-data_git_describe = "v0.0-14842-gacd08dbaa8"
+data_git_hash = "7dfdb81a7b974983f8ec076ed36e3c3a72a1266b"
+data_git_describe = "v0.0-14855-g7dfdb81a7b"
 data_git_msg = """\
-commit acd08dbaa8e134979918ab220eabdcdaa092f33b
-Author: Douglas Reis <doreis@lowrisc.org>
-Date:   Wed Oct 26 18:01:00 2022 +0100
+commit 7dfdb81a7b974983f8ec076ed36e3c3a72a1266b
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Mon Oct 24 16:29:38 2022 -0400
 
-    [dv, clkmgr] Remove test point `clkmgr_all_escalarion_reset`
+    [test] Implement rom_e2e_asm_interrupt_handler test
     
-     The test was incompletely removed in the commit 0dcb77b9c6.
-    
-    Signed-off-by: Douglas Reis <doreis@lowrisc.org>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
