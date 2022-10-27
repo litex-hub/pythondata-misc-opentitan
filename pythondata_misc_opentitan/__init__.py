@@ -4,34 +4,47 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14977"
-version_tuple = (0, 0, 14977)
+version_str = "0.0.post14978"
+version_tuple = (0, 0, 14978)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14977")
+    pversion = V("0.0.post14978")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14835"
-data_version_tuple = (0, 0, 14835)
+data_version_str = "0.0.post14836"
+data_version_tuple = (0, 0, 14836)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14835")
+    pdata_version = V("0.0.post14836")
 except ImportError:
     pass
-data_git_hash = "bb833ef26260ba0c4148a62c3cc16cc1841c6a65"
-data_git_describe = "v0.0-14835-gbb833ef262"
+data_git_hash = "f58cda5ab437a3a2a5b60427c2963f97e7336c18"
+data_git_describe = "v0.0-14836-gf58cda5ab4"
 data_git_msg = """\
-commit bb833ef26260ba0c4148a62c3cc16cc1841c6a65
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Oct 26 16:58:37 2022 -0700
+commit f58cda5ab437a3a2a5b60427c2963f97e7336c18
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Jun 13 22:41:48 2022 +0200
 
-    [test] List tests for chip_lc_test_locked testpoint
+    [aes] Rework SecAllowForcingMasks parameter
     
-    Fixes #15763
+    Previously, if enabled this parameter would allow forcing the output of
+    the masking PRNG to 0 requiring 160 MUXs. This was okay for FPGA but not
+    for ES.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    With this commit, the design is changed as follows:
+    - Upon enabling the parameter and setting the FORCE_MASKS bit in the
+      auxiliary control register (protected by both a shadow register and
+      REGWEN register), the PRNG is no longer advanced. It's output is kept
+      constant.
+    - To switch off the masking, EDN/CSRNG have further to be configured to
+      produce a special seed. Only with this seed and the PRNG output being
+      held constant, the masking is off.
+    
+    This is related to lowRISC/OpenTitan#14240.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
