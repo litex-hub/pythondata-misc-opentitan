@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14997"
-version_tuple = (0, 0, 14997)
+version_str = "0.0.post14999"
+version_tuple = (0, 0, 14999)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14997")
+    pversion = V("0.0.post14999")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14855"
-data_version_tuple = (0, 0, 14855)
+data_version_str = "0.0.post14857"
+data_version_tuple = (0, 0, 14857)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14855")
+    pdata_version = V("0.0.post14857")
 except ImportError:
     pass
-data_git_hash = "7dfdb81a7b974983f8ec076ed36e3c3a72a1266b"
-data_git_describe = "v0.0-14855-g7dfdb81a7b"
+data_git_hash = "c062fd809486043d12e10a80b97ef22aae3dee71"
+data_git_describe = "v0.0-14857-gc062fd8094"
 data_git_msg = """\
-commit 7dfdb81a7b974983f8ec076ed36e3c3a72a1266b
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Mon Oct 24 16:29:38 2022 -0400
+commit c062fd809486043d12e10a80b97ef22aae3dee71
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Oct 26 17:42:36 2022 -0700
 
-    [test] Implement rom_e2e_asm_interrupt_handler test
+    [bazel] increase airgapped build test set
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    This increases the targets that are built in an airgapped environment in
+    CI to provide better coverage at catching future breakages.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
