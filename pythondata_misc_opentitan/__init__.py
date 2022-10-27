@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14980"
-version_tuple = (0, 0, 14980)
+version_str = "0.0.post14981"
+version_tuple = (0, 0, 14981)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14980")
+    pversion = V("0.0.post14981")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14838"
-data_version_tuple = (0, 0, 14838)
+data_version_str = "0.0.post14839"
+data_version_tuple = (0, 0, 14839)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14838")
+    pdata_version = V("0.0.post14839")
 except ImportError:
     pass
-data_git_hash = "d850f024af6cfc0d9a7877f394374775d2e848c0"
-data_git_describe = "v0.0-14838-gd850f024af"
+data_git_hash = "cb9bee67989b2c0ef31d47936ac9501c9e2b798f"
+data_git_describe = "v0.0-14839-gcb9bee6798"
 data_git_msg = """\
-commit d850f024af6cfc0d9a7877f394374775d2e848c0
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Oct 24 23:27:04 2022 +0200
+commit cb9bee67989b2c0ef31d47936ac9501c9e2b798f
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Oct 25 17:19:50 2022 -0700
 
-    [test] Add DV component for AES masking off test, add it to the testplan
+    [rv_dm] Add generated registers to docs
     
-    This commit adds the AES masking off test to the testplan. As the
-    masking itself is transparent to software, a DV component is added to
-    probe into AES and verify that 1) all prerequisites are met to switch
-    off the masking and 2) that the second share of the state as well as
-    mask input and output of SubBytes are all zero, i.e., masking is indeed
-    switched off.
-    
-    This is related to lowRISC/OpenTitan#14240.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
