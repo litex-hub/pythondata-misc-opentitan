@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14999"
-version_tuple = (0, 0, 14999)
+version_str = "0.0.post15002"
+version_tuple = (0, 0, 15002)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14999")
+    pversion = V("0.0.post15002")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14857"
-data_version_tuple = (0, 0, 14857)
+data_version_str = "0.0.post14860"
+data_version_tuple = (0, 0, 14860)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14857")
+    pdata_version = V("0.0.post14860")
 except ImportError:
     pass
-data_git_hash = "c062fd809486043d12e10a80b97ef22aae3dee71"
-data_git_describe = "v0.0-14857-gc062fd8094"
+data_git_hash = "a6f5f00b38decb430bed51c9a072918980e1f915"
+data_git_describe = "v0.0-14860-ga6f5f00b38"
 data_git_msg = """\
-commit c062fd809486043d12e10a80b97ef22aae3dee71
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Oct 26 17:42:36 2022 -0700
+commit a6f5f00b38decb430bed51c9a072918980e1f915
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 27 08:31:26 2022 -0700
 
-    [bazel] increase airgapped build test set
+    [top] X-ref ast_sys_clk_jitter testpoint
     
-    This increases the targets that are built in an airgapped environment in
-    CI to provide better coverage at catching future breakages.
+    - The ast_sys_clk_jitter testpoint is already covered
+      by chip_sw_clkmgr_jitter, x-ref the two instead of
+      adding more tests.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
