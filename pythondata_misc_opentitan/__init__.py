@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post14976"
-version_tuple = (0, 0, 14976)
+version_str = "0.0.post14977"
+version_tuple = (0, 0, 14977)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post14976")
+    pversion = V("0.0.post14977")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14834"
-data_version_tuple = (0, 0, 14834)
+data_version_str = "0.0.post14835"
+data_version_tuple = (0, 0, 14835)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14834")
+    pdata_version = V("0.0.post14835")
 except ImportError:
     pass
-data_git_hash = "517edba6abe68b919742d7c1d0a687361b9fe32b"
-data_git_describe = "v0.0-14834-g517edba6ab"
+data_git_hash = "bb833ef26260ba0c4148a62c3cc16cc1841c6a65"
+data_git_describe = "v0.0-14835-gbb833ef262"
 data_git_msg = """\
-commit 517edba6abe68b919742d7c1d0a687361b9fe32b
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Oct 26 11:52:10 2022 -0700
+commit bb833ef26260ba0c4148a62c3cc16cc1841c6a65
+Author: Michael Schaffner <msf@google.com>
+Date:   Wed Oct 26 16:58:37 2022 -0700
 
-    [top/dv] Address review comments
+    [test] List tests for chip_lc_test_locked testpoint
     
-    Address comments from #15297
+    Fixes #15763
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
