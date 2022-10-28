@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15026"
-version_tuple = (0, 0, 15026)
+version_str = "0.0.post15029"
+version_tuple = (0, 0, 15029)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15026")
+    pversion = V("0.0.post15029")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14884"
-data_version_tuple = (0, 0, 14884)
+data_version_str = "0.0.post14887"
+data_version_tuple = (0, 0, 14887)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14884")
+    pdata_version = V("0.0.post14887")
 except ImportError:
     pass
-data_git_hash = "c081aeba37d1099adc29ebcd2525f9656e0f43cb"
-data_git_describe = "v0.0-14884-gc081aeba37"
+data_git_hash = "af907a42040b901a9579e92806af3f2eb3016e3d"
+data_git_describe = "v0.0-14887-gaf907a4204"
 data_git_msg = """\
-commit c081aeba37d1099adc29ebcd2525f9656e0f43cb
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Oct 28 11:32:02 2022 -0700
+commit af907a42040b901a9579e92806af3f2eb3016e3d
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Oct 25 17:56:55 2022 -0700
 
-    [dv] remove unfinished tests from nightly dashboard
+    [entropy_src/dv] Properly count coincident HT failures
     
-    Some ROM E2E tests that were not yet running in in DV were mistakenly
-    added to the testplan "tests" reference field, which makes them show up
-    incorrectly in the nightly dashboard.
+    If Windowed, Continuous and/or External HT's simultaneously fail in the same sample
+    the DUT's alert count only registers one failure, for the sample, which in generally
+    fine.  However the previous approach at counting these coincident failures
+    overestimated the overcounting factor and was unable to predict certain alerts.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This commit corrects the accounting for alert counts when simultaneous alerts occur.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
