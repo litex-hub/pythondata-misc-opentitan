@@ -4,39 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15029"
-version_tuple = (0, 0, 15029)
+version_str = "0.0.post15030"
+version_tuple = (0, 0, 15030)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15029")
+    pversion = V("0.0.post15030")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14887"
-data_version_tuple = (0, 0, 14887)
+data_version_str = "0.0.post14888"
+data_version_tuple = (0, 0, 14888)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14887")
+    pdata_version = V("0.0.post14888")
 except ImportError:
     pass
-data_git_hash = "af907a42040b901a9579e92806af3f2eb3016e3d"
-data_git_describe = "v0.0-14887-gaf907a4204"
+data_git_hash = "da1c2ed8171934c90d44a3b6f56e2c19b06a268d"
+data_git_describe = "v0.0-14888-gda1c2ed817"
 data_git_msg = """\
-commit af907a42040b901a9579e92806af3f2eb3016e3d
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Oct 25 17:56:55 2022 -0700
+commit da1c2ed8171934c90d44a3b6f56e2c19b06a268d
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Fri Oct 28 12:24:57 2022 -0700
 
-    [entropy_src/dv] Properly count coincident HT failures
+    [dv/edn] Fix nightly regression failure
     
-    If Windowed, Continuous and/or External HT's simultaneously fail in the same sample
-    the DUT's alert count only registers one failure, for the sample, which in generally
-    fine.  However the previous approach at counting these coincident failures
-    overestimated the overcounting factor and was unable to predict certain alerts.
+    This PR fixes nightly regression failure in intr_pin comparison.
+    Scb compares intr pin value with intr_state read out value at the
+    read_data_phase time, but intr_pin might change at that time.
     
-    This commit corrects the accounting for alert counts when simultaneous alerts occur.
+    So a better solution is to store the intr_pin at read_addr_phase, and compare
+    the read results later in read_data_phase time.
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
