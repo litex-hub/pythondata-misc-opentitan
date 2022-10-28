@@ -4,41 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15013"
-version_tuple = (0, 0, 15013)
+version_str = "0.0.post15014"
+version_tuple = (0, 0, 15014)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15013")
+    pversion = V("0.0.post15014")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14871"
-data_version_tuple = (0, 0, 14871)
+data_version_str = "0.0.post14872"
+data_version_tuple = (0, 0, 14872)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14871")
+    pdata_version = V("0.0.post14872")
 except ImportError:
     pass
-data_git_hash = "5c6af90a78e21fef7c9f01e4718e33fda3419260"
-data_git_describe = "v0.0-14871-g5c6af90a78"
+data_git_hash = "92440a24af6e09e52551aa112c85dd0b5588acef"
+data_git_describe = "v0.0-14872-g92440a24af"
 data_git_msg = """\
-commit 5c6af90a78e21fef7c9f01e4718e33fda3419260
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Oct 26 17:39:02 2022 -0400
+commit 92440a24af6e09e52551aa112c85dd0b5588acef
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Oct 27 12:26:23 2022 -0700
 
-    [bazel] Set hello_world example visibility to public
+    [top/dv] Add lc_ctrl wait to wait_rom_check_done
     
-    I was playing with 'bazel cquery //...' and was unable to run any
-    queries because of this error:
+    After the reset domain change, the rom_ctrl checks happen
+    in parallel with life cycle control initilization.
     
-    ERROR: $my_repo_path/release/BUILD:10:8: in pkg_tar_impl rule          \
-    //release:opentitan: target '//sw/device/examples/hello_world:package' \
-    is not visible from target '//release:opentitan'. Check the visibility \
-    declaration of the former target if you think the dependency is        \
-    legitimate
+    This means waiting for rom_ctrl alone to be done is insufficient
+    and we need to wait for life cycle control to be done as well.
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
