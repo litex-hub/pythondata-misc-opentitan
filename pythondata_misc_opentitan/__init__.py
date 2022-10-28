@@ -4,35 +4,43 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15021"
-version_tuple = (0, 0, 15021)
+version_str = "0.0.post15022"
+version_tuple = (0, 0, 15022)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15021")
+    pversion = V("0.0.post15022")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14879"
-data_version_tuple = (0, 0, 14879)
+data_version_str = "0.0.post14880"
+data_version_tuple = (0, 0, 14880)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14879")
+    pdata_version = V("0.0.post14880")
 except ImportError:
     pass
-data_git_hash = "f0c0618b6773655d0ebb32c07cd37d0ca587c14e"
-data_git_describe = "v0.0-14879-gf0c0618b67"
+data_git_hash = "ae4960e1159a09a16611ce5883da8217d84c405a"
+data_git_describe = "v0.0-14880-gae4960e115"
 data_git_msg = """\
-commit f0c0618b6773655d0ebb32c07cd37d0ca587c14e
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Thu Oct 27 18:39:35 2022 -0700
+commit ae4960e1159a09a16611ce5883da8217d84c405a
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Tue Oct 25 21:26:24 2022 -0700
 
-    [top-test] refactor otbn_randomness tests
+    [entropy_src/dv] Fine tune extht timing cases (DV)
     
-    Move OTBN random test into a separate library so that it can be reused
-    in other tests.
+    This commit fixes DV corner cases to capture the last RNG data accepted
+    into the DUT before it is disabled.  Since the new EXTHT agent
+    introduces a slight synchronization delay this adjustment is needed to
+    make sure that all samples are counted.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    In the worst case the window_wrap_pulse ends two cycles after the DUT
+    has been disabled. (One cycle if RNG bit selection is disabled two
+    if it is enabled) Rather than dumping the a partial HT window
+    immediately when the DUT is disabled, wait these extra two cycles to
+    catch the last sample.
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
