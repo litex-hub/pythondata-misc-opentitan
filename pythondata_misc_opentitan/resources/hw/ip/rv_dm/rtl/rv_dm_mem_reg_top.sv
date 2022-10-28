@@ -157,6 +157,9 @@ module rv_dm_mem_reg_top (
     .tl_i (tl_reg_h2d),
     .tl_o (tl_reg_d2h),
 
+    .en_ifetch_i(prim_mubi_pkg::MuBi4False),
+    .intg_error_o(),
+
     .we_o    (reg_we),
     .re_o    (reg_re),
     .addr_o  (reg_addr),
@@ -466,7 +469,6 @@ module rv_dm_mem_reg_top (
   logic [31:0] flags_255_qs;
 
   // Register instances
-  // Subregister 0 of Multireg halted
   // R[halted]: V(False)
   prim_subreg #(
     .DW      (1),
@@ -481,12 +483,12 @@ module rv_dm_mem_reg_top (
     .wd     (halted_wd),
 
     // from internal hardware
-    .de     (hw2reg.halted[0].de),
-    .d      (hw2reg.halted[0].d),
+    .de     (hw2reg.halted.de),
+    .d      (hw2reg.halted.d),
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.halted[0].q),
+    .q      (reg2hw.halted.q),
     .ds     (),
 
     // to register interface (read)
@@ -521,7 +523,6 @@ module rv_dm_mem_reg_top (
   );
 
 
-  // Subregister 0 of Multireg resuming
   // R[resuming]: V(False)
   prim_subreg #(
     .DW      (1),
@@ -541,7 +542,7 @@ module rv_dm_mem_reg_top (
 
     // to internal hardware
     .qe     (),
-    .q      (reg2hw.resuming[0].q),
+    .q      (reg2hw.resuming.q),
     .ds     (),
 
     // to register interface (read)
