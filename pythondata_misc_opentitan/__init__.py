@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15030"
-version_tuple = (0, 0, 15030)
+version_str = "0.0.post15034"
+version_tuple = (0, 0, 15034)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15030")
+    pversion = V("0.0.post15034")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14888"
-data_version_tuple = (0, 0, 14888)
+data_version_str = "0.0.post14892"
+data_version_tuple = (0, 0, 14892)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14888")
+    pdata_version = V("0.0.post14892")
 except ImportError:
     pass
-data_git_hash = "da1c2ed8171934c90d44a3b6f56e2c19b06a268d"
-data_git_describe = "v0.0-14888-gda1c2ed817"
+data_git_hash = "175e33f823e21781f368773083b097f4e7edd809"
+data_git_describe = "v0.0-14892-g175e33f823"
 data_git_msg = """\
-commit da1c2ed8171934c90d44a3b6f56e2c19b06a268d
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Fri Oct 28 12:24:57 2022 -0700
+commit 175e33f823e21781f368773083b097f4e7edd809
+Author: Michael Schaffner <msf@google.com>
+Date:   Thu Oct 27 20:03:08 2022 -0700
 
-    [dv/edn] Fix nightly regression failure
+    [rv_dm] Add support for R/W errors
     
-    This PR fixes nightly regression failure in intr_pin comparison.
-    Scb compares intr pin value with intr_state read out value at the
-    read_data_phase time, but intr_pin might change at that time.
-    
-    So a better solution is to store the intr_pin at read_addr_phase, and compare
-    the read results later in read_data_phase time.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
