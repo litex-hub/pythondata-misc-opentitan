@@ -4,43 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15022"
-version_tuple = (0, 0, 15022)
+version_str = "0.0.post15025"
+version_tuple = (0, 0, 15025)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15022")
+    pversion = V("0.0.post15025")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14880"
-data_version_tuple = (0, 0, 14880)
+data_version_str = "0.0.post14883"
+data_version_tuple = (0, 0, 14883)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14880")
+    pdata_version = V("0.0.post14883")
 except ImportError:
     pass
-data_git_hash = "ae4960e1159a09a16611ce5883da8217d84c405a"
-data_git_describe = "v0.0-14880-gae4960e115"
+data_git_hash = "0f3344d516febba6bc6857f1785803749be0a642"
+data_git_describe = "v0.0-14883-g0f3344d516"
 data_git_msg = """\
-commit ae4960e1159a09a16611ce5883da8217d84c405a
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Tue Oct 25 21:26:24 2022 -0700
+commit 0f3344d516febba6bc6857f1785803749be0a642
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Fri Oct 28 09:52:24 2022 -0400
 
-    [entropy_src/dv] Fine tune extht timing cases (DV)
+    [sw/silicon_creator] Use sh256 instead of crc32 to check boot_data integrity
     
-    This commit fixes DV corner cases to capture the last RNG data accepted
-    into the DUT before it is disabled.  Since the new EXTHT agent
-    introduces a slight synchronization delay this adjustment is needed to
-    make sure that all samples are counted.
+    This commit reverts ba9d370d821c84fedc514f8186f7ff06ba45e86c added in
+     #15397 as discussed in the security meeting.
     
-    In the worst case the window_wrap_pulse ends two cycles after the DUT
-    has been disabled. (One cycle if RNG bit selection is disabled two
-    if it is enabled) Rather than dumping the a partial HT window
-    immediately when the DUT is disabled, wait these extra two cycles to
-    catch the last sample.
-    
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
