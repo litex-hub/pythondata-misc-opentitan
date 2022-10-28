@@ -4,35 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15025"
-version_tuple = (0, 0, 15025)
+version_str = "0.0.post15026"
+version_tuple = (0, 0, 15026)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15025")
+    pversion = V("0.0.post15026")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14883"
-data_version_tuple = (0, 0, 14883)
+data_version_str = "0.0.post14884"
+data_version_tuple = (0, 0, 14884)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14883")
+    pdata_version = V("0.0.post14884")
 except ImportError:
     pass
-data_git_hash = "0f3344d516febba6bc6857f1785803749be0a642"
-data_git_describe = "v0.0-14883-g0f3344d516"
+data_git_hash = "c081aeba37d1099adc29ebcd2525f9656e0f43cb"
+data_git_describe = "v0.0-14884-gc081aeba37"
 data_git_msg = """\
-commit 0f3344d516febba6bc6857f1785803749be0a642
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Fri Oct 28 09:52:24 2022 -0400
+commit c081aeba37d1099adc29ebcd2525f9656e0f43cb
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Fri Oct 28 11:32:02 2022 -0700
 
-    [sw/silicon_creator] Use sh256 instead of crc32 to check boot_data integrity
+    [dv] remove unfinished tests from nightly dashboard
     
-    This commit reverts ba9d370d821c84fedc514f8186f7ff06ba45e86c added in
-     #15397 as discussed in the security meeting.
+    Some ROM E2E tests that were not yet running in in DV were mistakenly
+    added to the testplan "tests" reference field, which makes them show up
+    incorrectly in the nightly dashboard.
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
