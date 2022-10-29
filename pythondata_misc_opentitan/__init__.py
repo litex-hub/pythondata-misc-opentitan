@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15038"
-version_tuple = (0, 0, 15038)
+version_str = "0.0.post15040"
+version_tuple = (0, 0, 15040)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15038")
+    pversion = V("0.0.post15040")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14896"
-data_version_tuple = (0, 0, 14896)
+data_version_str = "0.0.post14898"
+data_version_tuple = (0, 0, 14898)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14896")
+    pdata_version = V("0.0.post14898")
 except ImportError:
     pass
-data_git_hash = "d08861804d912f28b37443ccaa249e1f61e28a91"
-data_git_describe = "v0.0-14896-gd08861804d"
+data_git_hash = "e57d7fecfb4dd1607715b5983ab320214744439e"
+data_git_describe = "v0.0-14898-ge57d7fecfb"
 data_git_msg = """\
-commit d08861804d912f28b37443ccaa249e1f61e28a91
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Oct 28 16:19:21 2022 -0700
+commit e57d7fecfb4dd1607715b5983ab320214744439e
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Oct 25 11:26:40 2022 -0700
 
-    [tlul] Add comment regarding refactor to tlul_adapter_reg
+    [top-level,test] add initial power virus test boilerplate
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    This adds the boilerplate code for the power virus test to partially
+    address #14814. Since this test will be rather large/complex, it will be
+    committed in pieces over time. This initial commit contains a basic test
+    checklist (that will be added-to/improved over time) and basic
+    configurations for the pinmux, gpio, and adc_ctrl peripherals.
+    
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
