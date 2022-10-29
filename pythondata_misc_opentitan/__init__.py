@@ -4,36 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15040"
-version_tuple = (0, 0, 15040)
+version_str = "0.0.post15042"
+version_tuple = (0, 0, 15042)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15040")
+    pversion = V("0.0.post15042")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14898"
-data_version_tuple = (0, 0, 14898)
+data_version_str = "0.0.post14900"
+data_version_tuple = (0, 0, 14900)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14898")
+    pdata_version = V("0.0.post14900")
 except ImportError:
     pass
-data_git_hash = "e57d7fecfb4dd1607715b5983ab320214744439e"
-data_git_describe = "v0.0-14898-ge57d7fecfb"
+data_git_hash = "d2dce395b2128e5acc40fa772cfd565e4754c82a"
+data_git_describe = "v0.0-14900-gd2dce395b2"
 data_git_msg = """\
-commit e57d7fecfb4dd1607715b5983ab320214744439e
+commit d2dce395b2128e5acc40fa772cfd565e4754c82a
 Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Oct 25 11:26:40 2022 -0700
+Date:   Fri Oct 28 21:38:24 2022 -0700
 
-    [top-level,test] add initial power virus test boilerplate
+    [bazel] rollback #15817 again
     
-    This adds the boilerplate code for the power virus test to partially
-    address #14814. Since this test will be rather large/complex, it will be
-    committed in pieces over time. This initial commit contains a basic test
-    checklist (that will be added-to/improved over time) and basic
-    configurations for the pinmux, gpio, and adc_ctrl peripherals.
+    This rolls back the rust toolchain update again as there seems to be an
+    inconsistent environment between slightly different variations in our
+    airgapped environment.
     
     Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
