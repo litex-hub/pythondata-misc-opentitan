@@ -4,30 +4,30 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15034"
-version_tuple = (0, 0, 15034)
+version_str = "0.0.post15038"
+version_tuple = (0, 0, 15038)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15034")
+    pversion = V("0.0.post15038")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14892"
-data_version_tuple = (0, 0, 14892)
+data_version_str = "0.0.post14896"
+data_version_tuple = (0, 0, 14896)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14892")
+    pdata_version = V("0.0.post14896")
 except ImportError:
     pass
-data_git_hash = "175e33f823e21781f368773083b097f4e7edd809"
-data_git_describe = "v0.0-14892-g175e33f823"
+data_git_hash = "d08861804d912f28b37443ccaa249e1f61e28a91"
+data_git_describe = "v0.0-14896-gd08861804d"
 data_git_msg = """\
-commit 175e33f823e21781f368773083b097f4e7edd809
+commit d08861804d912f28b37443ccaa249e1f61e28a91
 Author: Michael Schaffner <msf@google.com>
-Date:   Thu Oct 27 20:03:08 2022 -0700
+Date:   Fri Oct 28 16:19:21 2022 -0700
 
-    [rv_dm] Add support for R/W errors
+    [tlul] Add comment regarding refactor to tlul_adapter_reg
     
     Signed-off-by: Michael Schaffner <msf@google.com>
 
