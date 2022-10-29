@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15042"
-version_tuple = (0, 0, 15042)
+version_str = "0.0.post15043"
+version_tuple = (0, 0, 15043)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15042")
+    pversion = V("0.0.post15043")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14900"
-data_version_tuple = (0, 0, 14900)
+data_version_str = "0.0.post14901"
+data_version_tuple = (0, 0, 14901)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14900")
+    pdata_version = V("0.0.post14901")
 except ImportError:
     pass
-data_git_hash = "d2dce395b2128e5acc40fa772cfd565e4754c82a"
-data_git_describe = "v0.0-14900-gd2dce395b2"
+data_git_hash = "2e9aec59cd5cc575ab562184f9d7d10553d9d9d0"
+data_git_describe = "v0.0-14901-g2e9aec59cd"
 data_git_msg = """\
-commit d2dce395b2128e5acc40fa772cfd565e4754c82a
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Fri Oct 28 21:38:24 2022 -0700
+commit 2e9aec59cd5cc575ab562184f9d7d10553d9d9d0
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Oct 28 15:51:44 2022 -0700
 
-    [bazel] rollback #15817 again
+    [top-level] Add CSRNG command header builder.
     
-    This rolls back the rust toolchain update again as there seems to be an
-    inconsistent environment between slightly different variations in our
-    airgapped environment.
+    This commits adds a CSRNG command header function to switch to a more
+    consistent command generation interface across top-level test cases.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
