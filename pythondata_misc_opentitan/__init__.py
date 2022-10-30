@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15043"
-version_tuple = (0, 0, 15043)
+version_str = "0.0.post15044"
+version_tuple = (0, 0, 15044)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15043")
+    pversion = V("0.0.post15044")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14901"
-data_version_tuple = (0, 0, 14901)
+data_version_str = "0.0.post14902"
+data_version_tuple = (0, 0, 14902)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14901")
+    pdata_version = V("0.0.post14902")
 except ImportError:
     pass
-data_git_hash = "2e9aec59cd5cc575ab562184f9d7d10553d9d9d0"
-data_git_describe = "v0.0-14901-g2e9aec59cd"
+data_git_hash = "811cd61fd9637a4c72c162c04fae707dc869970a"
+data_git_describe = "v0.0-14902-g811cd61fd9"
 data_git_msg = """\
-commit 2e9aec59cd5cc575ab562184f9d7d10553d9d9d0
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Oct 28 15:51:44 2022 -0700
+commit 811cd61fd9637a4c72c162c04fae707dc869970a
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Fri Oct 21 04:18:14 2022 +0000
 
-    [top-level] Add CSRNG command header builder.
+    [chip,dv,flash_ctrl] Add flash crush escalation test
     
-    This commits adds a CSRNG command header function to switch to a more
-    consistent command generation interface across top-level test cases.
-    
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
