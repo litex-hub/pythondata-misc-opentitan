@@ -26,6 +26,7 @@ module kmac_entropy
   output logic                          rand_valid_o,
   output logic                          rand_early_o,
   output logic [sha3_pkg::StateW/2-1:0] rand_data_o,
+  output logic                          rand_aux_o,
   input                                 rand_consumed_i,
 
   // Status
@@ -197,6 +198,14 @@ module kmac_entropy
   logic lfsr_en;
   logic [NumChunksEntropyLfsr-1:0][ChunkSizeEntropyLfsr-1:0] lfsr_data_chunked;
   logic [EntropyLfsrW-1:0] lfsr_data, lfsr_data_permuted;
+
+  // Auxliliary randomness
+  logic aux_rand_d, aux_rand_q;
+  logic aux_update;
+
+  // Randomness for controlling PRNG updates. This only matters for clock cycles
+  // where the PRNG output is not actually used.
+  logic [3:0] lfsr_en_rand_d, lfsr_en_rand_q;
 
   // Entropy valid signal
   // FSM set and clear the valid signal, rand_consume signal clear the valid
@@ -425,8 +434,37 @@ module kmac_entropy
 
   // LFSRs --------------------------------------------------------------------
 
+  // Auxiliary randomness =====================================================
+  assign aux_rand_d = aux_update ? lfsr_data_permuted[EntropyLfsrW - 1] :
+                                   aux_rand_q;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      aux_rand_q <= '0;
+    end else begin
+      aux_rand_q <= aux_rand_d;
+    end
+  end
+
+  // Auxiliary randomness -----------------------------------------------------
+
+  // LFSR enable randomness ===================================================
+  assign lfsr_en_rand_d =
+      aux_update ? lfsr_data_permuted[EntropyLfsrW - 2 -: 4] : // refresh
+                   {1'b0, lfsr_en_rand_q[3:1]};                // shift out
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      lfsr_en_rand_q <= '0;
+    end else begin
+      lfsr_en_rand_q <= lfsr_en_rand_d;
+    end
+  end
+
+  // LFSR enable randomness ---------------------------------------------------
+
   // Randomness outputs =======================================================
   assign rand_data_o = lfsr_data_permuted;
+  assign rand_aux_o = aux_rand_q;
 
   // entropy valid
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -496,6 +534,9 @@ module kmac_entropy
     // Signal to track whether FSM should stay in StRandReady state or move on.
     ready_phase_d = ready_phase_q;
 
+    // Auxiliary randomness control signals
+    aux_update = 1'b 0;
+
     // Error
     err_o = '{valid: 1'b 0, code: ErrNone, info: '0};
 
@@ -538,6 +579,8 @@ module kmac_entropy
 
       StRandReady: begin
         timer_enable = 1'b 1; // If limit is zero, timer won't work
+
+        lfsr_en = lfsr_en_rand_q[0];
 
         if (rand_consumed_i &&
             ((fast_process_i && in_keyblock_i) || !fast_process_i)) begin
@@ -590,6 +633,7 @@ module kmac_entropy
             st_d = StRandGenerate;
 
             if ((fast_process_i && in_keyblock_i) || !fast_process_i) begin
+              lfsr_en = 1'b 1;
               rand_valid_clear = 1'b 1;
             end
           end else begin
@@ -625,6 +669,9 @@ module kmac_entropy
       end
 
       StRandGenerate: begin
+        // The current LFSR output is used as auxiliary randomness.
+        aux_update = 1'b 1;
+
         // Advance the LFSR and set the valid bit. The next LFSR output will be
         // used for re-masking.
         lfsr_en = 1'b 1;
