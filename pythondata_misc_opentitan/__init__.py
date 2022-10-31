@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15050"
-version_tuple = (0, 0, 15050)
+version_str = "0.0.post15052"
+version_tuple = (0, 0, 15052)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15050")
+    pversion = V("0.0.post15052")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14908"
-data_version_tuple = (0, 0, 14908)
+data_version_str = "0.0.post14910"
+data_version_tuple = (0, 0, 14910)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14908")
+    pdata_version = V("0.0.post14910")
 except ImportError:
     pass
-data_git_hash = "d3cdb0dd5ebe4e5addb53b2e12c34a4695228a14"
-data_git_describe = "v0.0-14908-gd3cdb0dd5e"
+data_git_hash = "c3f641335183c7a9502908db8041865f7c15b0f7"
+data_git_describe = "v0.0-14910-gc3f6413351"
 data_git_msg = """\
-commit d3cdb0dd5ebe4e5addb53b2e12c34a4695228a14
-Author: Felix Miller <felix@opentitan.org>
-Date:   Thu Jul 21 03:18:18 2022 +0200
+commit c3f641335183c7a9502908db8041865f7c15b0f7
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Oct 28 17:14:01 2022 +0200
 
-    [sw,crypto] add SHA-512 implementation for OTBN
+    [aes, dv] Correct mapping of CIPHER.CTR.REDUN countermeasure in testplan
     
-    Adds a OTBN SHA-512 implementation based on FIPS 180-4. This
-    implementation is partially unrolled and favors performance over
-    code size.
-    
-    Signed-off-by: Felix Miller <felix@opentitan.org>
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
