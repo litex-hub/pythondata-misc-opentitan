@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15044"
-version_tuple = (0, 0, 15044)
+version_str = "0.0.post15045"
+version_tuple = (0, 0, 15045)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15044")
+    pversion = V("0.0.post15045")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14902"
-data_version_tuple = (0, 0, 14902)
+data_version_str = "0.0.post14903"
+data_version_tuple = (0, 0, 14903)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14902")
+    pdata_version = V("0.0.post14903")
 except ImportError:
     pass
-data_git_hash = "811cd61fd9637a4c72c162c04fae707dc869970a"
-data_git_describe = "v0.0-14902-g811cd61fd9"
+data_git_hash = "c32b3887d1fdce34d50068061a61b4926126e6be"
+data_git_describe = "v0.0-14903-gc32b3887d1"
 data_git_msg = """\
-commit 811cd61fd9637a4c72c162c04fae707dc869970a
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Fri Oct 21 04:18:14 2022 +0000
+commit c32b3887d1fdce34d50068061a61b4926126e6be
+Author: Weicai Yang <weicai@google.com>
+Date:   Fri Oct 28 17:17:21 2022 -0700
 
-    [chip,dv,flash_ctrl] Add flash crush escalation test
+    [keymgr/dv] Update the checks after fault injection
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Updated it to check any operation and move it to base_vseq for other vseq to reuse.
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
