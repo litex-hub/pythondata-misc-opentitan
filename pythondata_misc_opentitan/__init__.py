@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15055"
-version_tuple = (0, 0, 15055)
+version_str = "0.0.post15057"
+version_tuple = (0, 0, 15057)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15055")
+    pversion = V("0.0.post15057")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14913"
-data_version_tuple = (0, 0, 14913)
+data_version_str = "0.0.post14915"
+data_version_tuple = (0, 0, 14915)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14913")
+    pdata_version = V("0.0.post14915")
 except ImportError:
     pass
-data_git_hash = "ea2bc0dad0d8ccc7cac031af6483d6efc1458cef"
-data_git_describe = "v0.0-14913-gea2bc0dad0"
+data_git_hash = "f5e229c261a9cd9c49cc66f499a4c7ff4d98b1ab"
+data_git_describe = "v0.0-14915-gf5e229c261"
 data_git_msg = """\
-commit ea2bc0dad0d8ccc7cac031af6483d6efc1458cef
-Author: Weicai Yang <weicai@google.com>
-Date:   Sun Oct 30 22:09:57 2022 -0700
+commit f5e229c261a9cd9c49cc66f499a4c7ff4d98b1ab
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Oct 26 15:07:42 2022 -0400
 
-    [spi_device/dv] Update scb as tpm_header_not_empty is a status interrupt
+    [bitstream] Update usr_access with the bitstream hash
     
-    Aligned with recent design update #15580
-    Since tpm_header_not_empty is a status interrupt now, need to clear when it's read out
+    This prevents bitstreams that are spliced at the same time from
+    having the same usr_access value.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
