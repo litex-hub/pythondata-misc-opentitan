@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15054"
-version_tuple = (0, 0, 15054)
+version_str = "0.0.post15055"
+version_tuple = (0, 0, 15055)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15054")
+    pversion = V("0.0.post15055")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14912"
-data_version_tuple = (0, 0, 14912)
+data_version_str = "0.0.post14913"
+data_version_tuple = (0, 0, 14913)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14912")
+    pdata_version = V("0.0.post14913")
 except ImportError:
     pass
-data_git_hash = "999afeda7cc6f4ac00380b37610f53b80c7de304"
-data_git_describe = "v0.0-14912-g999afeda7c"
+data_git_hash = "ea2bc0dad0d8ccc7cac031af6483d6efc1458cef"
+data_git_describe = "v0.0-14913-gea2bc0dad0"
 data_git_msg = """\
-commit 999afeda7cc6f4ac00380b37610f53b80c7de304
-Author: Rasmus Madsen <rasmus.madsen@wdc.com>
-Date:   Fri Oct 14 02:46:45 2022 -0700
+commit ea2bc0dad0d8ccc7cac031af6483d6efc1458cef
+Author: Weicai Yang <weicai@google.com>
+Date:   Sun Oct 30 22:09:57 2022 -0700
 
-    added assertions for  sec_cm_data_reg_local_esc tests
+    [spi_device/dv] Update scb as tpm_header_not_empty is a status interrupt
     
-    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
+    Aligned with recent design update #15580
+    Since tpm_header_not_empty is a status interrupt now, need to clear when it's read out
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
