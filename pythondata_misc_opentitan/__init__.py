@@ -4,35 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15057"
-version_tuple = (0, 0, 15057)
+version_str = "0.0.post15062"
+version_tuple = (0, 0, 15062)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15057")
+    pversion = V("0.0.post15062")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14915"
-data_version_tuple = (0, 0, 14915)
+data_version_str = "0.0.post14920"
+data_version_tuple = (0, 0, 14920)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14915")
+    pdata_version = V("0.0.post14920")
 except ImportError:
     pass
-data_git_hash = "f5e229c261a9cd9c49cc66f499a4c7ff4d98b1ab"
-data_git_describe = "v0.0-14915-gf5e229c261"
+data_git_hash = "84018ef7fb67ea5d8c3427c904c6ea0768291eab"
+data_git_describe = "v0.0-14920-g84018ef7fb"
 data_git_msg = """\
-commit f5e229c261a9cd9c49cc66f499a4c7ff4d98b1ab
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Oct 26 15:07:42 2022 -0400
+commit 84018ef7fb67ea5d8c3427c904c6ea0768291eab
+Author: Bilgiday Yuce <bilgiday@google.com>
+Date:   Thu Oct 20 14:10:51 2022 +0200
 
-    [bitstream] Update usr_access with the bitstream hash
+    [alert_handler] Add alert_handler_lpg_reset_toggle_test
     
-    This prevents bitstreams that are spliced at the same time from
-    having the same usr_access value.
+    Code to implement the chip_sw_alert_handler_reset_toggle_test described
+    in #14130.
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    /sw/device/tests/alert_handler_lpg_reset_toggle.c:
+       - 2 test phases
+          - Phase 0: Negative test (ping_timeout =2, FPGA-only)
+          - Phase 1: Official test (ping_timeout=256, FPGA+DV)
+    
+    Signed-off-by: Bilgiday Yuce <bilgiday@google.com>
 
 """
 
