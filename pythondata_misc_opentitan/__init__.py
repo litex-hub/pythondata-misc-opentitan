@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15063"
-version_tuple = (0, 0, 15063)
+version_str = "0.0.post15068"
+version_tuple = (0, 0, 15068)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15063")
+    pversion = V("0.0.post15068")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14921"
-data_version_tuple = (0, 0, 14921)
+data_version_str = "0.0.post14926"
+data_version_tuple = (0, 0, 14926)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14921")
+    pdata_version = V("0.0.post14926")
 except ImportError:
     pass
-data_git_hash = "476db4900615051334747592a12553d2b56b14f4"
-data_git_describe = "v0.0-14921-g476db49006"
+data_git_hash = "27b97cb8f39298901bf61226a559aa91980cf958"
+data_git_describe = "v0.0-14926-g27b97cb8f3"
 data_git_msg = """\
-commit 476db4900615051334747592a12553d2b56b14f4
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Oct 31 08:30:50 2022 -0700
+commit 27b97cb8f39298901bf61226a559aa91980cf958
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Oct 28 19:11:53 2022 -0700
 
-    [dvsim] fix bindgen error in nightlies
+    [edn] Refactor edn_enable_fanout
     
-    This also rolls-forward #15831.
+    Convert to use enum so that future changes do not need
+    to shift bits.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
