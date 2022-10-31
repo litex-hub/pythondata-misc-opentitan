@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15052"
-version_tuple = (0, 0, 15052)
+version_str = "0.0.post15054"
+version_tuple = (0, 0, 15054)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15052")
+    pversion = V("0.0.post15054")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14910"
-data_version_tuple = (0, 0, 14910)
+data_version_str = "0.0.post14912"
+data_version_tuple = (0, 0, 14912)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14910")
+    pdata_version = V("0.0.post14912")
 except ImportError:
     pass
-data_git_hash = "c3f641335183c7a9502908db8041865f7c15b0f7"
-data_git_describe = "v0.0-14910-gc3f6413351"
+data_git_hash = "999afeda7cc6f4ac00380b37610f53b80c7de304"
+data_git_describe = "v0.0-14912-g999afeda7c"
 data_git_msg = """\
-commit c3f641335183c7a9502908db8041865f7c15b0f7
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Fri Oct 28 17:14:01 2022 +0200
+commit 999afeda7cc6f4ac00380b37610f53b80c7de304
+Author: Rasmus Madsen <rasmus.madsen@wdc.com>
+Date:   Fri Oct 14 02:46:45 2022 -0700
 
-    [aes, dv] Correct mapping of CIPHER.CTR.REDUN countermeasure in testplan
+    added assertions for  sec_cm_data_reg_local_esc tests
     
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Rasmus Madsen <rasmus.madsen@wdc.com>
 
 """
 
