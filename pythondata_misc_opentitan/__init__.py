@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15068"
-version_tuple = (0, 0, 15068)
+version_str = "0.0.post15075"
+version_tuple = (0, 0, 15075)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15068")
+    pversion = V("0.0.post15075")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14926"
-data_version_tuple = (0, 0, 14926)
+data_version_str = "0.0.post14933"
+data_version_tuple = (0, 0, 14933)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14926")
+    pdata_version = V("0.0.post14933")
 except ImportError:
     pass
-data_git_hash = "27b97cb8f39298901bf61226a559aa91980cf958"
-data_git_describe = "v0.0-14926-g27b97cb8f3"
+data_git_hash = "076b1d179a4d9fb6e1cc1bca0f7a9f37e30d3347"
+data_git_describe = "v0.0-14933-g076b1d179a"
 data_git_msg = """\
-commit 27b97cb8f39298901bf61226a559aa91980cf958
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Oct 28 19:11:53 2022 -0700
+commit 076b1d179a4d9fb6e1cc1bca0f7a9f37e30d3347
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Oct 27 13:48:05 2022 -0700
 
-    [edn] Refactor edn_enable_fanout
+    [spi_device] Sign off V2S
     
-    Convert to use enum so that future changes do not need
-    to shift bits.
+    All review items in #15539 have been addressed.
+    Only 1 sec_cm - bus integrity, so directly sign off the V2S
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
