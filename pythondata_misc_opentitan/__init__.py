@@ -4,40 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15062"
-version_tuple = (0, 0, 15062)
+version_str = "0.0.post15063"
+version_tuple = (0, 0, 15063)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15062")
+    pversion = V("0.0.post15063")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14920"
-data_version_tuple = (0, 0, 14920)
+data_version_str = "0.0.post14921"
+data_version_tuple = (0, 0, 14921)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14920")
+    pdata_version = V("0.0.post14921")
 except ImportError:
     pass
-data_git_hash = "84018ef7fb67ea5d8c3427c904c6ea0768291eab"
-data_git_describe = "v0.0-14920-g84018ef7fb"
+data_git_hash = "476db4900615051334747592a12553d2b56b14f4"
+data_git_describe = "v0.0-14921-g476db49006"
 data_git_msg = """\
-commit 84018ef7fb67ea5d8c3427c904c6ea0768291eab
-Author: Bilgiday Yuce <bilgiday@google.com>
-Date:   Thu Oct 20 14:10:51 2022 +0200
+commit 476db4900615051334747592a12553d2b56b14f4
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Oct 31 08:30:50 2022 -0700
 
-    [alert_handler] Add alert_handler_lpg_reset_toggle_test
+    [dvsim] fix bindgen error in nightlies
     
-    Code to implement the chip_sw_alert_handler_reset_toggle_test described
-    in #14130.
+    This also rolls-forward #15831.
     
-    /sw/device/tests/alert_handler_lpg_reset_toggle.c:
-       - 2 test phases
-          - Phase 0: Negative test (ping_timeout =2, FPGA-only)
-          - Phase 1: Official test (ping_timeout=256, FPGA+DV)
-    
-    Signed-off-by: Bilgiday Yuce <bilgiday@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
