@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15082"
-version_tuple = (0, 0, 15082)
+version_str = "0.0.post15084"
+version_tuple = (0, 0, 15084)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15082")
+    pversion = V("0.0.post15084")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14940"
-data_version_tuple = (0, 0, 14940)
+data_version_str = "0.0.post14942"
+data_version_tuple = (0, 0, 14942)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14940")
+    pdata_version = V("0.0.post14942")
 except ImportError:
     pass
-data_git_hash = "6ac6bbcdba84d84e3d33f3830f58989c65876d5c"
-data_git_describe = "v0.0-14940-g6ac6bbcdba"
+data_git_hash = "497b88290491f8655aaca873c4cbc6ab4d8df423"
+data_git_describe = "v0.0-14942-g497b882904"
 data_git_msg = """\
-commit 6ac6bbcdba84d84e3d33f3830f58989c65876d5c
-Author: Pirmin Vogel <vogelpi@lowrisc.org>
-Date:   Mon Oct 31 17:15:55 2022 +0100
+commit 497b88290491f8655aaca873c4cbc6ab4d8df423
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Mon Oct 31 14:21:08 2022 -0700
 
-    [aes, dv] Add SVAs for SEC_CM: DATA_REG.LOCAL_ESC to RTL
+    [rust] Update serde-annotate
     
-    These new SVAs ensure that upon escalation, the AES cipher core doesn't
-    leak intermediate state into the readable output data or IV registers.
-    
-    During FI testing, all internal SVAs are disabled as many of them would
-    fire due to illegal encodings. These new SVAs thus need to be enabled
-    explicitly.
-    
-    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
