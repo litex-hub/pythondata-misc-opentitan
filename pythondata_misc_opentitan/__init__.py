@@ -4,34 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15091"
-version_tuple = (0, 0, 15091)
+version_str = "0.0.post15092"
+version_tuple = (0, 0, 15092)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15091")
+    pversion = V("0.0.post15092")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14949"
-data_version_tuple = (0, 0, 14949)
+data_version_str = "0.0.post14950"
+data_version_tuple = (0, 0, 14950)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14949")
+    pdata_version = V("0.0.post14950")
 except ImportError:
     pass
-data_git_hash = "8aff88ccc12afd90179361987c611f07409e8410"
-data_git_describe = "v0.0-14949-g8aff88ccc1"
+data_git_hash = "6f00d58c2028dcd984d0c56ac6bc9a3a6b530880"
+data_git_describe = "v0.0-14950-g6f00d58c20"
 data_git_msg = """\
-commit 8aff88ccc12afd90179361987c611f07409e8410
-Author: Miles Dai <milesdai@google.com>
-Date:   Tue Nov 1 11:50:42 2022 -0400
+commit 6f00d58c2028dcd984d0c56ac6bc9a3a6b530880
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Mon Oct 31 10:57:43 2022 -0700
 
-    Revert "[edn] Tweak fifo clear logic"
+    [prim-lfsr] Fix DefaultSeedLocal compile scope
     
-    This reverts commit 3ad51c3b4fa9a10c865d9e9ea0b6b87266ebd392.
+    Use `ifdef SIMULATION` compilation scope for DefaultSeedLocal`
+    setting in prim_lfsr / prim_double_lfsr.
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
