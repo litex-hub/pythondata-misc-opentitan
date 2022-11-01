@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15096"
-version_tuple = (0, 0, 15096)
+version_str = "0.0.post15098"
+version_tuple = (0, 0, 15098)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15096")
+    pversion = V("0.0.post15098")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14954"
-data_version_tuple = (0, 0, 14954)
+data_version_str = "0.0.post14956"
+data_version_tuple = (0, 0, 14956)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14954")
+    pdata_version = V("0.0.post14956")
 except ImportError:
     pass
-data_git_hash = "27c13f095112b2621e2a9e7fb784dc23b7c73485"
-data_git_describe = "v0.0-14954-g27c13f0951"
+data_git_hash = "11c21b226ecf2add1e7135fb3dac81a3284a29cf"
+data_git_describe = "v0.0-14956-g11c21b226e"
 data_git_msg = """\
-commit 27c13f095112b2621e2a9e7fb784dc23b7c73485
-Author: Vladimir Rozic <vrozic@lowrisc.org>
-Date:   Tue Nov 1 15:47:34 2022 +0000
+commit 11c21b226ecf2add1e7135fb3dac81a3284a29cf
+Author: Fatih Balli <fatihballi@google.com>
+Date:   Tue Oct 11 18:15:05 2022 +0200
 
-    [python] Removing numpy from the python requirements
+    [chip_sw, sysrst_ctrl] Test ulp wakeup of sysrst_ctrl
     
-    Removing numpy from python-requirements.txt as it is not currently
-    used.
+    Implements chip_sw_sysrst_ctrl_ulp_z3_wakeup.
     
-    Signed-off-by: Vladimir Rozic <vrozic@lowrisc.org>
+    Signed-off-by: Fatih Balli <fatihballi@google.com>
 
 """
 
