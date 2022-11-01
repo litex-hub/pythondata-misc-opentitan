@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15084"
-version_tuple = (0, 0, 15084)
+version_str = "0.0.post15088"
+version_tuple = (0, 0, 15088)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15084")
+    pversion = V("0.0.post15088")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14942"
-data_version_tuple = (0, 0, 14942)
+data_version_str = "0.0.post14946"
+data_version_tuple = (0, 0, 14946)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14942")
+    pdata_version = V("0.0.post14946")
 except ImportError:
     pass
-data_git_hash = "497b88290491f8655aaca873c4cbc6ab4d8df423"
-data_git_describe = "v0.0-14942-g497b882904"
+data_git_hash = "0871f2865370a2ab572448115f4d4ecb7758b391"
+data_git_describe = "v0.0-14946-g0871f28653"
 data_git_msg = """\
-commit 497b88290491f8655aaca873c4cbc6ab4d8df423
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Mon Oct 31 14:21:08 2022 -0700
+commit 0871f2865370a2ab572448115f4d4ecb7758b391
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Oct 19 14:56:31 2022 -0400
 
-    [rust] Update serde-annotate
+    [test] Add shutdown redaction tests
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
