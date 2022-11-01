@@ -134,8 +134,6 @@ module spi_tpm
 
   // TPM_STATUS
   output logic                  sys_cmdaddr_notempty_o,
-  output logic                  sys_rdfifo_notempty_o,
-  output logic [RdFifoPtrW-1:0] sys_rdfifo_depth_o,
   output logic [WrFifoPtrW-1:0] sys_wrfifo_depth_o
 );
 
@@ -371,7 +369,7 @@ module spi_tpm
   // Read FIFO uses inverted SCK (clk_out_i)
   logic                     isck_rdfifo_rvalid, isck_rdfifo_rready;
   logic [RdFifoWidth-1:0]   isck_rdfifo_rdata;
-  logic [RdFifoPtrW-1:0]    sys_rdfifo_wdepth, isck_rdfifo_rdepth;
+  logic [RdFifoPtrW-1:0]    isck_rdfifo_rdepth;
 
   logic [RdFifoOffsetW-1:0]     isck_rdfifo_idx;
   logic                         isck_rd_byte_sent;
@@ -383,9 +381,6 @@ module spi_tpm
   `ASSERT_INIT(RdFifoNumBytesPoT_A,
     (2**RdFifoOffsetW == RdFifoNumBytes) || (RdFifoNumBytes == 1))
   `ASSERT_INIT(RdFifoDepthPoT_A, 2**$clog2(RdFifoDepth) == RdFifoDepth)
-
-  assign sys_rdfifo_depth_o    = sys_rdfifo_wdepth;
-  assign sys_rdfifo_notempty_o = |sys_rdfifo_wdepth;
 
   // If cmdaddr_shift_en is 1, the logic stacks the incoming MOSI into cmdaddr
   // register.
@@ -1210,7 +1205,7 @@ module spi_tpm
     .wvalid_i  (sys_rdfifo_wvalid_i),
     .wready_o  (sys_rdfifo_wready_o),
     .wdata_i   (sys_rdfifo_wdata_i),
-    .wdepth_o  (sys_rdfifo_wdepth),
+    .wdepth_o  (),
 
     .clk_rd_i  (clk_out_i),
     .rst_rd_ni (rst_n),
