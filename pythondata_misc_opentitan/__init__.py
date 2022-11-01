@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15098"
-version_tuple = (0, 0, 15098)
+version_str = "0.0.post15101"
+version_tuple = (0, 0, 15101)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15098")
+    pversion = V("0.0.post15101")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14956"
-data_version_tuple = (0, 0, 14956)
+data_version_str = "0.0.post14959"
+data_version_tuple = (0, 0, 14959)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14956")
+    pdata_version = V("0.0.post14959")
 except ImportError:
     pass
-data_git_hash = "11c21b226ecf2add1e7135fb3dac81a3284a29cf"
-data_git_describe = "v0.0-14956-g11c21b226e"
+data_git_hash = "ba225dec09fecfdbd2cad36a913a2c252e2077ed"
+data_git_describe = "v0.0-14959-gba225dec09"
 data_git_msg = """\
-commit 11c21b226ecf2add1e7135fb3dac81a3284a29cf
-Author: Fatih Balli <fatihballi@google.com>
-Date:   Tue Oct 11 18:15:05 2022 +0200
+commit ba225dec09fecfdbd2cad36a913a2c252e2077ed
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Tue Nov 1 11:32:01 2022 -0700
 
-    [chip_sw, sysrst_ctrl] Test ulp wakeup of sysrst_ctrl
+    [bazel] exclude foundry repo from Verilator build
     
-    Implements chip_sw_sysrst_ctrl_ulp_z3_wakeup.
+    HDL constructs in the foundry repo are preventing Verilator builds from
+    succeeding. This is addresses #15882 in the short term, by excluding the
+    foundry repo from Verilator sim binary builds.
     
-    Signed-off-by: Fatih Balli <fatihballi@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
