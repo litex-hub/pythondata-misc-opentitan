@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15079"
-version_tuple = (0, 0, 15079)
+version_str = "0.0.post15082"
+version_tuple = (0, 0, 15082)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15079")
+    pversion = V("0.0.post15082")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14937"
-data_version_tuple = (0, 0, 14937)
+data_version_str = "0.0.post14940"
+data_version_tuple = (0, 0, 14940)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14937")
+    pdata_version = V("0.0.post14940")
 except ImportError:
     pass
-data_git_hash = "53874025b840788d5e66ffddae8fe7840a9cf4df"
-data_git_describe = "v0.0-14937-g53874025b8"
+data_git_hash = "6ac6bbcdba84d84e3d33f3830f58989c65876d5c"
+data_git_describe = "v0.0-14940-g6ac6bbcdba"
 data_git_msg = """\
-commit 53874025b840788d5e66ffddae8fe7840a9cf4df
-Author: Weicai Yang <weicai@google.com>
-Date:   Sun Oct 30 23:41:38 2022 -0700
+commit 6ac6bbcdba84d84e3d33f3830f58989c65876d5c
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Mon Oct 31 17:15:55 2022 +0100
 
-    [dv] Update dv_base_reg_field to handle status interrupts
+    [aes, dv] Add SVAs for SEC_CM: DATA_REG.LOCAL_ESC to RTL
     
-    Related to #15580
-    Use CSR access (RO/W1C) to distinguish status interrupt or regular interrupt
-    It determines how intr_test affects the corresponding intr_state value.
+    These new SVAs ensure that upon escalation, the AES cipher core doesn't
+    leak intermediate state into the readable output data or IV registers.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    During FI testing, all internal SVAs are disabled as many of them would
+    fire due to illegal encodings. These new SVAs thus need to be enabled
+    explicitly.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
