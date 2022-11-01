@@ -4,35 +4,45 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15075"
-version_tuple = (0, 0, 15075)
+version_str = "0.0.post15078"
+version_tuple = (0, 0, 15078)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15075")
+    pversion = V("0.0.post15078")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14933"
-data_version_tuple = (0, 0, 14933)
+data_version_str = "0.0.post14936"
+data_version_tuple = (0, 0, 14936)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14933")
+    pdata_version = V("0.0.post14936")
 except ImportError:
     pass
-data_git_hash = "076b1d179a4d9fb6e1cc1bca0f7a9f37e30d3347"
-data_git_describe = "v0.0-14933-g076b1d179a"
+data_git_hash = "3ad51c3b4fa9a10c865d9e9ea0b6b87266ebd392"
+data_git_describe = "v0.0-14936-g3ad51c3b4f"
 data_git_msg = """\
-commit 076b1d179a4d9fb6e1cc1bca0f7a9f37e30d3347
-Author: Weicai Yang <weicai@google.com>
-Date:   Thu Oct 27 13:48:05 2022 -0700
+commit 3ad51c3b4fa9a10c865d9e9ea0b6b87266ebd392
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Oct 31 11:30:10 2022 -0700
 
-    [spi_device] Sign off V2S
+    [edn] Tweak fifo clear logic
     
-    All review items in #15539 have been addressed.
-    Only 1 sec_cm - bus integrity, so directly sign off the V2S
+    - Currently, the generate and reseed command fifos can only be
+      cleared when edn is enabled. This means when software disables
+      the edn to reset it into a different mode (boot to auto for
+      example), it has to actually wait until edn is re-enabled to
+      clear the FIFOs.  This can lead to some odd corner cases where
+      the edn / csrng interface can actually get stuck because a
+      previous command accidentally goes through.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    - To get around this, allow the reseed / generate command fifos
+      to be cleared regardless of the edn enable state.
+    
+    - This fixes #14506
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
