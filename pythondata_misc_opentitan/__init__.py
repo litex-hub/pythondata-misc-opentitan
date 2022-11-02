@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15146"
-version_tuple = (0, 0, 15146)
+version_str = "0.0.post15147"
+version_tuple = (0, 0, 15147)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15146")
+    pversion = V("0.0.post15147")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15004"
-data_version_tuple = (0, 0, 15004)
+data_version_str = "0.0.post15005"
+data_version_tuple = (0, 0, 15005)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15004")
+    pdata_version = V("0.0.post15005")
 except ImportError:
     pass
-data_git_hash = "30295096ed6d9685267b80e4b4dd8389c065e972"
-data_git_describe = "v0.0-15004-g30295096ed"
+data_git_hash = "0b93f44c7a87e83cbc919b88c0ff907178bd43ec"
+data_git_describe = "v0.0-15005-g0b93f44c7a"
 data_git_msg = """\
-commit 30295096ed6d9685267b80e4b4dd8389c065e972
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Tue Nov 1 12:45:24 2022 -0400
+commit 0b93f44c7a87e83cbc919b88c0ff907178bd43ec
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Wed Nov 2 13:32:30 2022 -0700
 
-    [ci] Make bazel tag check non-critical in CI.
+    [bazel] rollback 15905 to triage Bazel airgapped issues
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
