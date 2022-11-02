@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15118"
-version_tuple = (0, 0, 15118)
+version_str = "0.0.post15120"
+version_tuple = (0, 0, 15120)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15118")
+    pversion = V("0.0.post15120")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14976"
-data_version_tuple = (0, 0, 14976)
+data_version_str = "0.0.post14978"
+data_version_tuple = (0, 0, 14978)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14976")
+    pdata_version = V("0.0.post14978")
 except ImportError:
     pass
-data_git_hash = "a40885552d0776e909a41cdb71095b76cd3bbcbf"
-data_git_describe = "v0.0-14976-ga40885552d"
+data_git_hash = "e1671fddf58976e5e11db41cd51fa17de54dea14"
+data_git_describe = "v0.0-14978-ge1671fddf5"
 data_git_msg = """\
-commit a40885552d0776e909a41cdb71095b76cd3bbcbf
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Oct 28 11:09:31 2022 -0700
+commit e1671fddf58976e5e11db41cd51fa17de54dea14
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 1 16:01:20 2022 -0700
 
-    [rtl, chip dv] Coverage exclusions for pinmux / padring
+    [dv/csrng_agent] Add csrng_agent cov
     
-    This commit adds a large number of exclusions for pinmux / padctrl
-    / top_earlgrey, related to the tieoffs in `*attr*` signals.
+    This PR adds some coverage for CSRNG agent.
+    It includes coverage for cmd and genbits.
     
-    It also marks unused signals in `prim_generic_pad_wrapper` with
-    inline coverage off pragmas, and excludes `prim_generic_pad_attr`
-    entirely from coverage collection (LOW_RISK).
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
