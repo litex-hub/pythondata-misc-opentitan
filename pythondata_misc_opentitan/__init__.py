@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15120"
-version_tuple = (0, 0, 15120)
+version_str = "0.0.post15122"
+version_tuple = (0, 0, 15122)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15120")
+    pversion = V("0.0.post15122")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14978"
-data_version_tuple = (0, 0, 14978)
+data_version_str = "0.0.post14980"
+data_version_tuple = (0, 0, 14980)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14978")
+    pdata_version = V("0.0.post14980")
 except ImportError:
     pass
-data_git_hash = "e1671fddf58976e5e11db41cd51fa17de54dea14"
-data_git_describe = "v0.0-14978-ge1671fddf5"
+data_git_hash = "971782fde76e9ae79cd4d4b44fadd770f94b6b82"
+data_git_describe = "v0.0-14980-g971782fde7"
 data_git_msg = """\
-commit e1671fddf58976e5e11db41cd51fa17de54dea14
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 1 16:01:20 2022 -0700
+commit 971782fde76e9ae79cd4d4b44fadd770f94b6b82
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Fri Oct 28 15:28:41 2022 -0700
 
-    [dv/csrng_agent] Add csrng_agent cov
+    Update rustfmt rule
     
-    This PR adds some coverage for CSRNG agent.
-    It includes coverage for cmd and genbits.
-    
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
