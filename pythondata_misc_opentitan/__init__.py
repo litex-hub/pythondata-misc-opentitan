@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15142"
-version_tuple = (0, 0, 15142)
+version_str = "0.0.post15146"
+version_tuple = (0, 0, 15146)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15142")
+    pversion = V("0.0.post15146")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15000"
-data_version_tuple = (0, 0, 15000)
+data_version_str = "0.0.post15004"
+data_version_tuple = (0, 0, 15004)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15000")
+    pdata_version = V("0.0.post15004")
 except ImportError:
     pass
-data_git_hash = "a5deee053c8c8c95396b0ebd7b4bfefac018ec11"
-data_git_describe = "v0.0-15000-ga5deee053c"
+data_git_hash = "30295096ed6d9685267b80e4b4dd8389c065e972"
+data_git_describe = "v0.0-15004-g30295096ed"
 data_git_msg = """\
-commit a5deee053c8c8c95396b0ebd7b4bfefac018ec11
-Author: Jacob Levy <jacob.levy@nuvoton.com>
-Date:   Tue Oct 25 13:10:58 2022 +0300
+commit 30295096ed6d9685267b80e4b4dd8389c065e972
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Tue Nov 1 12:45:24 2022 -0400
 
-    [ast] Add 'plusargs' for regulators power-up acceleration
+    [ci] Make bazel tag check non-critical in CI.
     
-    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
