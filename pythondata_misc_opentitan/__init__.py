@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15101"
-version_tuple = (0, 0, 15101)
+version_str = "0.0.post15102"
+version_tuple = (0, 0, 15102)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15101")
+    pversion = V("0.0.post15102")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14959"
-data_version_tuple = (0, 0, 14959)
+data_version_str = "0.0.post14960"
+data_version_tuple = (0, 0, 14960)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14959")
+    pdata_version = V("0.0.post14960")
 except ImportError:
     pass
-data_git_hash = "ba225dec09fecfdbd2cad36a913a2c252e2077ed"
-data_git_describe = "v0.0-14959-gba225dec09"
+data_git_hash = "f3e95c6d0bc66483c94bc07fed6aab8b9d38b25c"
+data_git_describe = "v0.0-14960-gf3e95c6d0b"
 data_git_msg = """\
-commit ba225dec09fecfdbd2cad36a913a2c252e2077ed
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Tue Nov 1 11:32:01 2022 -0700
+commit f3e95c6d0bc66483c94bc07fed6aab8b9d38b25c
+Author: Michael Schaffner <msf@google.com>
+Date:   Tue Nov 1 11:13:51 2022 -0700
 
-    [bazel] exclude foundry repo from Verilator build
+    [prim_diff_decode] Update SVAs to make them compatible with sim CDC
     
-    HDL constructs in the foundry repo are preventing Verilator builds from
-    succeeding. This is addresses #15882 in the short term, by excluding the
-    foundry repo from Verilator sim binary builds.
+    This is done in preparation for CDC instrumentation in simulation,
+    see here: #15863
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
