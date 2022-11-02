@@ -38,7 +38,7 @@
 `include "chip_sw_lc_ctrl_transition_vseq.sv"
 `include "chip_sw_lc_walkthrough_vseq.sv"
 `include "chip_sw_lc_walkthrough_testunlocks_vseq.sv"
-`include "chip_sw_spi_tx_rx_vseq.sv"
+`include "chip_sw_spi_device_tx_rx_vseq.sv"
 `include "chip_sw_spi_host_tx_rx_vseq.sv"
 `include "chip_sw_spi_passthrough_vseq.sv"
 `include "chip_sw_rom_ctrl_integrity_check_vseq.sv"
@@ -73,3 +73,4 @@
 `include "chip_sw_spi_device_tpm_vseq.sv"
 `include "chip_sw_aes_masking_off_vseq.sv"
 `include "chip_sw_flash_host_gnt_err_inj_vseq.sv"
+`include "chip_padctrl_attributes_vseq.sv"

@@ -103,7 +103,8 @@
 
   // exclusion files
   vcs_cov_excl_files: ["{top_dv_path}/cov/conn_ast_mem_cfg.el",
-                       "{top_dv_path}/cov/edn1_unr_tied_off_ports.el"]
+                       "{top_dv_path}/cov/edn1_unr_tied_off_ports.el",
+                       "{top_dv_path}/cov/pinmux_pad_attr.el"]
 
   // Default iterations for all tests - each test entry can override this.
   reseed: 3
@@ -155,6 +156,13 @@
       name: fast_sim
       build_opts: ["+define+DISABLE_ROM_INTEGRITY_CHECK"]
     }
+    // TODO: VCS does not support MDAs in constfiles. Most RTL ports in OpenTitan are structs, so
+    // this method currently does not work for our needs. Revisit later.
+    // {
+    //   name: vcs_cov
+    //   build_opts: ["-cm_constfile {top_dv_path}/cov/constfile.txt"]
+    //   is_sim_mode: 1
+    // }
   ]
 
   // Add options needed to compile against otbn_memutil, otbn_tracer, and
@@ -367,12 +375,16 @@
       uvm_test_seq: chip_sw_sleep_pin_mio_dio_val_vseq
       sw_images: ["//sw/device/tests/sim_dv:sleep_pin_mio_dio_val_test:1"]
       en_run_modes: ["sw_test_mode_test_rom"]
+      // Starting the chip in prod LC state frees up all MIOs for this test.
+      run_opts: ["+use_otp_image=LcStProd"]
     }
     {
       name: chip_sw_sleep_pin_wake
       uvm_test_seq: chip_sw_sleep_pin_wake_vseq
       sw_images: ["//sw/device/tests/sim_dv:sleep_pin_wake_test:1"]
       en_run_modes: ["sw_test_mode_test_rom"]
+      // Starting the chip in prod LC state frees up all MIOs for this test.
+      run_opts: ["+use_otp_image=LcStProd"]
     }
     {
       name: chip_sw_sleep_pin_retention
@@ -484,7 +496,7 @@
     }
     {
       name: chip_sw_spi_device_tx_rx
-      uvm_test_seq: chip_sw_spi_tx_rx_vseq
+      uvm_test_seq: chip_sw_spi_device_tx_rx_vseq
       sw_images: ["//sw/device/tests/sim_dv:spi_tx_rx_test:1"]
       en_run_modes: ["sw_test_mode_test_rom"]
     }
@@ -1459,6 +1471,14 @@
       sw_images: ["//sw/device/tests/sim_dv:flash_escalation_reset_test:1"]
       en_run_modes: ["sw_test_mode_test_rom"]
       run_opts: ["+test_timeout_ns=8_000_000", "+bypass_alert_ready_to_end_check=1"]
+    }
+    {
+      name: chip_padctrl_attributes
+      uvm_test_seq: chip_padctrl_attributes_vseq
+      en_run_modes: ["stub_cpu_mode"]
+      // Starting the chip in prod LC state frees up all MIOs for this test.
+      run_opts: ["+use_otp_image=LcStProd"]
+      reseed: 10
     }
   ]
 
