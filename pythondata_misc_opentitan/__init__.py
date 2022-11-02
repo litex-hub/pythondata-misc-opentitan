@@ -4,34 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15133"
-version_tuple = (0, 0, 15133)
+version_str = "0.0.post15135"
+version_tuple = (0, 0, 15135)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15133")
+    pversion = V("0.0.post15135")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14991"
-data_version_tuple = (0, 0, 14991)
+data_version_str = "0.0.post14993"
+data_version_tuple = (0, 0, 14993)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14991")
+    pdata_version = V("0.0.post14993")
 except ImportError:
     pass
-data_git_hash = "acfd5d07d1ccc5dce3a588ae67ba8ba4f0f2b4f3"
-data_git_describe = "v0.0-14991-gacfd5d07d1"
+data_git_hash = "62844d571109f0ad2d02dc762528e6d097e7cc74"
+data_git_describe = "v0.0-14993-g62844d5711"
 data_git_msg = """\
-commit acfd5d07d1ccc5dce3a588ae67ba8ba4f0f2b4f3
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Mon Oct 31 22:39:44 2022 -0400
+commit 62844d571109f0ad2d02dc762528e6d097e7cc74
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Oct 31 04:00:15 2022 +0000
 
-    [bazel] Build verilated model with -j 4 by default
+    [i2c,dv] initial tb refactoring
     
-    CI should still be constrained where it's run on smaller VMs
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    [i2c,dv] refactoring host mode tb
+    
+    - rewrite 'host_send_trans' task to simplify randomization
+    - Add place holder for device mode monitor
+    - Remove unnecessary code from i2c_base_seq
+    
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
