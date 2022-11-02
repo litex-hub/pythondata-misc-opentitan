@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15147"
-version_tuple = (0, 0, 15147)
+version_str = "0.0.post15148"
+version_tuple = (0, 0, 15148)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15147")
+    pversion = V("0.0.post15148")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15005"
-data_version_tuple = (0, 0, 15005)
+data_version_str = "0.0.post15006"
+data_version_tuple = (0, 0, 15006)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15005")
+    pdata_version = V("0.0.post15006")
 except ImportError:
     pass
-data_git_hash = "0b93f44c7a87e83cbc919b88c0ff907178bd43ec"
-data_git_describe = "v0.0-15005-g0b93f44c7a"
+data_git_hash = "e8232e4624ebc4d05b97d0caf90fe69877423a37"
+data_git_describe = "v0.0-15006-ge8232e4624"
 data_git_msg = """\
-commit 0b93f44c7a87e83cbc919b88c0ff907178bd43ec
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Wed Nov 2 13:32:30 2022 -0700
+commit e8232e4624ebc4d05b97d0caf90fe69877423a37
+Author: Srikrishna Iyer <46467186+sriyerg@users.noreply.github.com>
+Date:   Wed Nov 2 15:30:35 2022 -0700
 
-    [bazel] rollback 15905 to triage Bazel airgapped issues
+    Revert "[i2c,dv] initial tb refactoring"
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    This reverts commit 62844d571109f0ad2d02dc762528e6d097e7cc74.
 
 """
 
