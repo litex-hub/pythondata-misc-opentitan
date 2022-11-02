@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15135"
-version_tuple = (0, 0, 15135)
+version_str = "0.0.post15136"
+version_tuple = (0, 0, 15136)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15135")
+    pversion = V("0.0.post15136")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14993"
-data_version_tuple = (0, 0, 14993)
+data_version_str = "0.0.post14994"
+data_version_tuple = (0, 0, 14994)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14993")
+    pdata_version = V("0.0.post14994")
 except ImportError:
     pass
-data_git_hash = "62844d571109f0ad2d02dc762528e6d097e7cc74"
-data_git_describe = "v0.0-14993-g62844d5711"
+data_git_hash = "8e7f2778a4277a5854a0843850b812e8363e0b45"
+data_git_describe = "v0.0-14994-g8e7f2778a4"
 data_git_msg = """\
-commit 62844d571109f0ad2d02dc762528e6d097e7cc74
-Author: Jaedon Kim <jdonjdon@google.com>
-Date:   Mon Oct 31 04:00:15 2022 +0000
+commit 8e7f2778a4277a5854a0843850b812e8363e0b45
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Tue Nov 1 17:10:13 2022 -0700
 
-    [i2c,dv] initial tb refactoring
+    [rust] Update to serde-annotate v0.0.5
     
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
-    
-    [i2c,dv] refactoring host mode tb
-    
-    - rewrite 'host_send_trans' task to simplify randomization
-    - Add place holder for device mode monitor
-    - Remove unnecessary code from i2c_base_seq
-    
-    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
