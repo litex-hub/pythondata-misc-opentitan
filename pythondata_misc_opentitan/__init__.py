@@ -4,40 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15140"
-version_tuple = (0, 0, 15140)
+version_str = "0.0.post15142"
+version_tuple = (0, 0, 15142)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15140")
+    pversion = V("0.0.post15142")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14998"
-data_version_tuple = (0, 0, 14998)
+data_version_str = "0.0.post15000"
+data_version_tuple = (0, 0, 15000)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14998")
+    pdata_version = V("0.0.post15000")
 except ImportError:
     pass
-data_git_hash = "0526196043521f6610e36d9d0e98c1326230639a"
-data_git_describe = "v0.0-14998-g0526196043"
+data_git_hash = "a5deee053c8c8c95396b0ebd7b4bfefac018ec11"
+data_git_describe = "v0.0-15000-ga5deee053c"
 data_git_msg = """\
-commit 0526196043521f6610e36d9d0e98c1326230639a
-Author: Abdullah Varici <abdullah.varici@lowrisc.org>
-Date:   Wed Oct 26 20:06:53 2022 +0100
+commit a5deee053c8c8c95396b0ebd7b4bfefac018ec11
+Author: Jacob Levy <jacob.levy@nuvoton.com>
+Date:   Tue Oct 25 13:10:58 2022 +0300
 
-    [top-level/pwrmgr] Extend chip_sw_pwrmgr_main_power_glitch_reset
+    [ast] Add 'plusargs' for regulators power-up acceleration
     
-    Add three groups of assertions to check that:
-    - the clock valids are deasserted if a power glitch is detected.
-    - clocks are stopped if their valid is deasserted.
-    - clocks are running if their valid is asserted.
-    Enable pwrmgr_ast_sva_if.sv assertions in _vseq file.
-    Add main_, io_, usb_ clock inputs to pwrmgr_ast_sva_if and
-    create a binding in tb.sv for that.
-    
-    Signed-off-by: Abdullah Varici <abdullah.varici@lowrisc.org>
+    Signed-off-by: Jacob Levy <jacob.levy@nuvoton.com>
 
 """
 
