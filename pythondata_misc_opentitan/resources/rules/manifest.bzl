@@ -2,40 +2,15 @@
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 
-CONST = struct(
-    # Must match the definitions in hardened.h
-    TRUE = 0x739,
-    FALSE = 0x1d4,
-    # Must match the definitions in chip.h
-    ROM_EXT = 0x4552544f,
-    OWNER = 0x3042544f,
-    MANIFEST_SIZE = 896,
-    ROM_EXT_SIZE_MIN = 896,
-    ROM_EXT_SIZE_MAX = 0x10000,
-    BL0_SIZE_MIN = 896,
-    BL0_SIZE_MAX = 0x70000,
-)
+load("//rules:const.bzl", "CONST", "hex")
 
-_DEFAULT_USAGE = 0xa5a5a5a5
 _SEL_DEVICE_ID = 1
 _SEL_MANUF_STATE_CREATOR = (1 << 8)
 _SEL_MANUF_STATE_OWNER = (1 << 9)
 _SEL_LIFE_CYCLE_STATE = (1 << 10)
-_HEXSTR = "0123456789abcdef"
 
-def _hex(i):
-    # First "cast" i to a 32-bit unsigned int
-    i &= 0xFFFFFFFF
-    r = "0x"
-    r += _HEXSTR[(i >> 28) & 0xF]
-    r += _HEXSTR[(i >> 24) & 0xF]
-    r += _HEXSTR[(i >> 20) & 0xF]
-    r += _HEXSTR[(i >> 16) & 0xF]
-    r += _HEXSTR[(i >> 12) & 0xF]
-    r += _HEXSTR[(i >> 8) & 0xF]
-    r += _HEXSTR[(i >> 4) & 0xF]
-    r += _HEXSTR[(i >> 0) & 0xF]
-    return r
+def _hex(v):
+    return "0x{}".format(hex(v))
 
 def _manifest_impl(ctx):
     mf = {}
@@ -88,9 +63,9 @@ def _manifest_impl(ctx):
     # Extend the device_id to 8 words, then set the selector_bits for each
     # non-default word.
     if len(device_id) < 8:
-        device_id.extend([_DEFAULT_USAGE] * (8 - len(device_id)))
+        device_id.extend([CONST.DEFAULT_USAGE_CONSTRAINTS] * (8 - len(device_id)))
     for i, d in enumerate(device_id):
-        if d != _DEFAULT_USAGE:
+        if d != CONST.DEFAULT_USAGE_CONSTRAINTS:
             selector_bits |= _SEL_DEVICE_ID << i
         device_id[i] = _hex(d)
     uc["device_id"] = device_id
@@ -100,19 +75,19 @@ def _manifest_impl(ctx):
         uc["manuf_state_creator"] = _hex(ctx.attr.manuf_state_creator)
         selector_bits |= _SEL_MANUF_STATE_CREATOR
     else:
-        uc["manuf_state_creator"] = _hex(_DEFAULT_USAGE)
+        uc["manuf_state_creator"] = _hex(CONST.DEFAULT_USAGE_CONSTRAINTS)
 
     if ctx.attr.manuf_state_owner:
         uc["manuf_state_owner"] = _hex(ctx.attr.manuf_state_owner)
         selector_bits |= _SEL_MANUF_STATE_OWNER
     else:
-        uc["manuf_state_owner"] = _hex(_DEFAULT_USAGE)
+        uc["manuf_state_owner"] = _hex(CONST.DEFAULT_USAGE_CONSTRAINTS)
 
     if ctx.attr.life_cycle_state:
         uc["life_cycle_state"] = _hex(ctx.attr.life_cycle_state)
         selector_bits |= _SEL_LIFE_CYCLE_STATE
     else:
-        uc["life_cycle_state"] = _hex(_DEFAULT_USAGE)
+        uc["life_cycle_state"] = _hex(CONST.DEFAULT_USAGE_CONSTRAINTS)
 
     # If the user supplied selector_bits, check if they make sense.
     if ctx.attr.selector_bits:
