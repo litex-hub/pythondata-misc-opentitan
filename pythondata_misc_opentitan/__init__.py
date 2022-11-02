@@ -4,34 +4,40 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15139"
-version_tuple = (0, 0, 15139)
+version_str = "0.0.post15140"
+version_tuple = (0, 0, 15140)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15139")
+    pversion = V("0.0.post15140")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14997"
-data_version_tuple = (0, 0, 14997)
+data_version_str = "0.0.post14998"
+data_version_tuple = (0, 0, 14998)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14997")
+    pdata_version = V("0.0.post14998")
 except ImportError:
     pass
-data_git_hash = "3a7c11f8b3fbabd45ce31e9fd4ed1a2fb0b6eb86"
-data_git_describe = "v0.0-14997-g3a7c11f8b3"
+data_git_hash = "0526196043521f6610e36d9d0e98c1326230639a"
+data_git_describe = "v0.0-14998-g0526196043"
 data_git_msg = """\
-commit 3a7c11f8b3fbabd45ce31e9fd4ed1a2fb0b6eb86
-Author: Timothy Chen <timothytim@google.com>
-Date:   Tue Nov 1 23:19:42 2022 -0700
+commit 0526196043521f6610e36d9d0e98c1326230639a
+Author: Abdullah Varici <abdullah.varici@lowrisc.org>
+Date:   Wed Oct 26 20:06:53 2022 +0100
 
-    [top/dv] Add missing queue constraint
+    [top-level/pwrmgr] Extend chip_sw_pwrmgr_main_power_glitch_reset
     
-    - fixes #15895
+    Add three groups of assertions to check that:
+    - the clock valids are deasserted if a power glitch is detected.
+    - clocks are stopped if their valid is deasserted.
+    - clocks are running if their valid is asserted.
+    Enable pwrmgr_ast_sva_if.sv assertions in _vseq file.
+    Add main_, io_, usb_ clock inputs to pwrmgr_ast_sva_if and
+    create a binding in tb.sv for that.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Abdullah Varici <abdullah.varici@lowrisc.org>
 
 """
 
