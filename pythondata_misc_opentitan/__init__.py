@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15129"
-version_tuple = (0, 0, 15129)
+version_str = "0.0.post15133"
+version_tuple = (0, 0, 15133)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15129")
+    pversion = V("0.0.post15133")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post14987"
-data_version_tuple = (0, 0, 14987)
+data_version_str = "0.0.post14991"
+data_version_tuple = (0, 0, 14991)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post14987")
+    pdata_version = V("0.0.post14991")
 except ImportError:
     pass
-data_git_hash = "3b4b30e4875994e1c91619e99bcc6789e9b8cedc"
-data_git_describe = "v0.0-14987-g3b4b30e487"
+data_git_hash = "acfd5d07d1ccc5dce3a588ae67ba8ba4f0f2b4f3"
+data_git_describe = "v0.0-14991-gacfd5d07d1"
 data_git_msg = """\
-commit 3b4b30e4875994e1c91619e99bcc6789e9b8cedc
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Tue Nov 1 15:31:18 2022 -0400
+commit acfd5d07d1ccc5dce3a588ae67ba8ba4f0f2b4f3
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Mon Oct 31 22:39:44 2022 -0400
 
-    [test] Run rom_e2e_shutdown_output for remaining life cycle states
+    [bazel] Build verilated model with -j 4 by default
     
-    Fixes #14270
+    CI should still be constrained where it's run on smaller VMs
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
