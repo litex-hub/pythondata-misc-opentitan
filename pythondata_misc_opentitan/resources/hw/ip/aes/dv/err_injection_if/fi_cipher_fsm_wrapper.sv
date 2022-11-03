@@ -9,14 +9,16 @@
 module fi_cipher_fsm_wrapper
   import uvm_pkg::*;
   import aes_env_pkg::*;
+  import aes_pkg::*;
   #( parameter string IfName = "vif"
-  )
-  ( input clk,
-    input rst_ni
-    );
+  ) (
+    input logic             clk_i,
+    input logic             rst_ni,
+    input aes_cipher_ctrl_e aes_cipher_ctrl_cs
+  );
 
   // declare interface
-  fi_cipher_if  fi_if (.clk_i  (clk), .rst_ni (rst_ni));
+  fi_cipher_if  fi_if (.*);
   initial begin
     uvm_config_db#(virtual fi_cipher_if)::set(null, "*",
       pick_if_name(IfName, $sformatf("%m")), fi_if);

@@ -9,14 +9,16 @@
 module fi_ctr_fsm_wrapper
   import uvm_pkg::*;
   import aes_env_pkg::*;
+  import aes_pkg::*;
   #( parameter string IfName = "vif"
-  )
-  ( input clk,
-    input rst_ni
-    );
+  ) (
+    input logic     clk_i,
+    input logic     rst_ni,
+    input aes_ctr_e aes_ctr_cs
+  );
 
   // declare interface
-  fi_ctr_fsm_if  fi_if (.clk_i  (clk), .rst_ni (rst_ni));
+  fi_ctr_fsm_if  fi_if (.*);
   initial begin
     uvm_config_db#(virtual fi_ctr_fsm_if)::set(null, "*",
       pick_if_name(IfName, $sformatf("%m")), fi_if);
