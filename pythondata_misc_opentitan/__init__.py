@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15148"
-version_tuple = (0, 0, 15148)
+version_str = "0.0.post15149"
+version_tuple = (0, 0, 15149)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15148")
+    pversion = V("0.0.post15149")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15006"
-data_version_tuple = (0, 0, 15006)
+data_version_str = "0.0.post15007"
+data_version_tuple = (0, 0, 15007)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15006")
+    pdata_version = V("0.0.post15007")
 except ImportError:
     pass
-data_git_hash = "e8232e4624ebc4d05b97d0caf90fe69877423a37"
-data_git_describe = "v0.0-15006-ge8232e4624"
+data_git_hash = "b77dc2319ba57106c7617b7931326088405e951e"
+data_git_describe = "v0.0-15007-gb77dc2319b"
 data_git_msg = """\
-commit e8232e4624ebc4d05b97d0caf90fe69877423a37
-Author: Srikrishna Iyer <46467186+sriyerg@users.noreply.github.com>
-Date:   Wed Nov 2 15:30:35 2022 -0700
+commit b77dc2319ba57106c7617b7931326088405e951e
+Author: Jaedon Kim <jdonjdon@google.com>
+Date:   Mon Oct 31 22:50:53 2022 +0000
 
-    Revert "[i2c,dv] initial tb refactoring"
+    [flash_ctrl,dv] Sign off V2S
     
-    This reverts commit 62844d571109f0ad2d02dc762528e6d097e7cc74.
+    Signed-off-by: Jaedon Kim <jdonjdon@google.com>
 
 """
 
