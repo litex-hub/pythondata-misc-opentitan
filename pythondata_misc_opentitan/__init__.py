@@ -4,35 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15162"
-version_tuple = (0, 0, 15162)
+version_str = "0.0.post15164"
+version_tuple = (0, 0, 15164)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15162")
+    pversion = V("0.0.post15164")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15020"
-data_version_tuple = (0, 0, 15020)
+data_version_str = "0.0.post15022"
+data_version_tuple = (0, 0, 15022)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15020")
+    pdata_version = V("0.0.post15022")
 except ImportError:
     pass
-data_git_hash = "6c6fb3069aaa84d786a65d9fc2b03c0a46f7c53f"
-data_git_describe = "v0.0-15020-g6c6fb3069a"
+data_git_hash = "36f0619185e9a8e5dfd1dd94dc4a608c6d2a874a"
+data_git_describe = "v0.0-15022-g36f0619185"
 data_git_msg = """\
-commit 6c6fb3069aaa84d786a65d9fc2b03c0a46f7c53f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Tue Nov 1 23:15:34 2022 -0700
+commit 36f0619185e9a8e5dfd1dd94dc4a608c6d2a874a
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Oct 31 16:58:46 2022 -0700
 
-    [dv/edn] Add an assertion to check EDN data stable
+    [dv/cdc] Use cycle based CDC instrumentation
     
-    This PR adds an assertion in EDN design code to ensure that EDN output
-    data stays stable (once valid), until next EDN request.
+    This changes the DCD instrumentation to be cycle-based, randomly adding an
+    extra cycle in the inputs to the first flop in prim_flop_2sync, replacing
+    the time-delay instrumentation.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Fixes #15768
+    
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
