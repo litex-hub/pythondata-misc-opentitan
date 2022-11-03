@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15159"
-version_tuple = (0, 0, 15159)
+version_str = "0.0.post15162"
+version_tuple = (0, 0, 15162)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15159")
+    pversion = V("0.0.post15162")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15017"
-data_version_tuple = (0, 0, 15017)
+data_version_str = "0.0.post15020"
+data_version_tuple = (0, 0, 15020)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15017")
+    pdata_version = V("0.0.post15020")
 except ImportError:
     pass
-data_git_hash = "ba9eccf37e2f6b5f44d84ad02f2c5d8f9a6154e8"
-data_git_describe = "v0.0-15017-gba9eccf37e"
+data_git_hash = "6c6fb3069aaa84d786a65d9fc2b03c0a46f7c53f"
+data_git_describe = "v0.0-15020-g6c6fb3069a"
 data_git_msg = """\
-commit ba9eccf37e2f6b5f44d84ad02f2c5d8f9a6154e8
-Author: Michael Schaffner <msf@google.com>
-Date:   Wed Nov 2 18:46:24 2022 -0700
+commit 6c6fb3069aaa84d786a65d9fc2b03c0a46f7c53f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Tue Nov 1 23:15:34 2022 -0700
 
-    [pinmux] use JTAG TAP input assumptions only in FPV
+    [dv/edn] Add an assertion to check EDN data stable
     
-    Simulations may fail if the TAP inputs are not fully stable (which
-    cannot be guaranteed within the pinmux).
+    This PR adds an assertion in EDN design code to ensure that EDN output
+    data stays stable (once valid), until next EDN request.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
