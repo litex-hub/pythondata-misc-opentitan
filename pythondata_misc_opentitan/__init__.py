@@ -4,37 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15172"
-version_tuple = (0, 0, 15172)
+version_str = "0.0.post15174"
+version_tuple = (0, 0, 15174)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15172")
+    pversion = V("0.0.post15174")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15030"
-data_version_tuple = (0, 0, 15030)
+data_version_str = "0.0.post15032"
+data_version_tuple = (0, 0, 15032)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15030")
+    pdata_version = V("0.0.post15032")
 except ImportError:
     pass
-data_git_hash = "99a7afa825ffb01928517954295f00cd9e354a34"
-data_git_describe = "v0.0-15030-g99a7afa825"
+data_git_hash = "940943a8efe9c6dba318dc3f86e36be2142b5465"
+data_git_describe = "v0.0-15032-g940943a8ef"
 data_git_msg = """\
-commit 99a7afa825ffb01928517954295f00cd9e354a34
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Tue Nov 1 11:13:49 2022 -0400
+commit 940943a8efe9c6dba318dc3f86e36be2142b5465
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Wed Nov 2 10:33:04 2022 -0400
 
-    [doc] Document Bazel-managed OpenOCD dependency
+    [bazel/ci] Query for git_repository rule in bazel to keep them out of WORKSPACE
     
-    Rather than editing incoming links to install_openocd.md, this commit
-    just edits install_openocd.md, which is kind of a cop out. Eventually,
-    we should rename the file to indicate that installation isn't a step you
-    need to worry about anymore.
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
