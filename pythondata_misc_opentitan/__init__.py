@@ -4,35 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15169"
-version_tuple = (0, 0, 15169)
+version_str = "0.0.post15172"
+version_tuple = (0, 0, 15172)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15169")
+    pversion = V("0.0.post15172")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15027"
-data_version_tuple = (0, 0, 15027)
+data_version_str = "0.0.post15030"
+data_version_tuple = (0, 0, 15030)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15027")
+    pdata_version = V("0.0.post15030")
 except ImportError:
     pass
-data_git_hash = "2161715b558cb25b4c38e3fa0a282f602b9c2d8f"
-data_git_describe = "v0.0-15027-g2161715b55"
+data_git_hash = "99a7afa825ffb01928517954295f00cd9e354a34"
+data_git_describe = "v0.0-15030-g99a7afa825"
 data_git_msg = """\
-commit 2161715b558cb25b4c38e3fa0a282f602b9c2d8f
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Wed Nov 2 15:39:55 2022 -0700
+commit 99a7afa825ffb01928517954295f00cd9e354a34
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Tue Nov 1 11:13:49 2022 -0400
 
-    [dv/edn] Add csr_rd for locked regs
+    [doc] Document Bazel-managed OpenOCD dependency
     
-    This PR adds a csr_rd after locking the locked register so we can
-    collect coverage for the auto-generate regwen.
+    Rather than editing incoming links to install_openocd.md, this commit
+    just edits install_openocd.md, which is kind of a cop out. Eventually,
+    we should rename the file to indicate that installation isn't a step you
+    need to worry about anymore.
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
