@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15168"
-version_tuple = (0, 0, 15168)
+version_str = "0.0.post15169"
+version_tuple = (0, 0, 15169)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15168")
+    pversion = V("0.0.post15169")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15026"
-data_version_tuple = (0, 0, 15026)
+data_version_str = "0.0.post15027"
+data_version_tuple = (0, 0, 15027)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15026")
+    pdata_version = V("0.0.post15027")
 except ImportError:
     pass
-data_git_hash = "78fdfa23c9de6a01c20cf9ee81509eeb20ce4faf"
-data_git_describe = "v0.0-15026-g78fdfa23c9"
+data_git_hash = "2161715b558cb25b4c38e3fa0a282f602b9c2d8f"
+data_git_describe = "v0.0-15027-g2161715b55"
 data_git_msg = """\
-commit 78fdfa23c9de6a01c20cf9ee81509eeb20ce4faf
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Nov 2 13:58:45 2022 -0400
+commit 2161715b558cb25b4c38e3fa0a282f602b9c2d8f
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Wed Nov 2 15:39:55 2022 -0700
 
-    [ci] Split FPGA tests into two batches
+    [dv/edn] Add csr_rd for locked regs
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    This PR adds a csr_rd after locking the locked register so we can
+    collect coverage for the auto-generate regwen.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
