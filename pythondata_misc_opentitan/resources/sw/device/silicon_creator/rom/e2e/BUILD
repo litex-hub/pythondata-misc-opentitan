@@ -11,7 +11,7 @@ load(
     "opentitan_functest",
     "verilator_params",
 )
-load("//rules:const.bzl", "CONST", "hex")
+load("//rules:const.bzl", "CONST", "error_redact", "hex")
 load(
     "//rules:opentitan.bzl",
     "opentitan_flash_binary",
@@ -30,20 +30,20 @@ load("@bazel_skylib//lib:structs.bzl", "structs")
 package(default_visibility = ["//visibility:public"])
 
 MSG_TEMPLATE_BFV = "{}{}\r\n(?s:.*){}{}\r\n".format(
-    CONST.PREFIX.BFV,
+    CONST.SHUTDOWN.PREFIX.BFV,
     "{0}",
-    CONST.PREFIX.BFV,
+    CONST.SHUTDOWN.PREFIX.BFV,
     "{0}",
 )
 
 MSG_TEMPLATE_BFV_LCV = "{}{}\r\n{}{}\r\n(?s:.*){}{}\r\n{}{}\r\n".format(
-    CONST.PREFIX.BFV,
+    CONST.SHUTDOWN.PREFIX.BFV,
     "{0}",
-    CONST.PREFIX.LCV,
+    CONST.SHUTDOWN.PREFIX.LCV,
     "{1}",
-    CONST.PREFIX.BFV,
+    CONST.SHUTDOWN.PREFIX.BFV,
     "{0}",
-    CONST.PREFIX.LCV,
+    CONST.SHUTDOWN.PREFIX.LCV,
     "{1}",
 )
 
@@ -266,7 +266,7 @@ opentitan_functest(
 opentitan_functest(
     name = "rom_ext_a_flash_a",
     cw310 = cw310_params(
-        exit_failure = CONST.PREFIX.BFV,
+        exit_failure = CONST.SHUTDOWN.PREFIX.BFV,
         exit_success = MSG_STARTING_ROM_EXT,
     ),
     ot_flash_binary = "//sw/device/silicon_creator/rom_ext:rom_ext_slot_a",
@@ -286,7 +286,7 @@ opentitan_multislot_flash_binary(
 opentitan_functest(
     name = "rom_ext_b_flash_b",
     cw310 = cw310_params(
-        exit_failure = CONST.PREFIX.BFV,
+        exit_failure = CONST.SHUTDOWN.PREFIX.BFV,
         exit_success = MSG_STARTING_ROM_EXT,
     ),
     key = "multislot",
@@ -339,7 +339,7 @@ opentitan_functest(
 opentitan_functest(
     name = "rom_ext_v_flash_a",
     cw310 = cw310_params(
-        exit_failure = CONST.PREFIX.BFV,
+        exit_failure = CONST.SHUTDOWN.PREFIX.BFV,
         exit_success = MSG_STARTING_ROM_EXT,
     ),
     ot_flash_binary = "//sw/device/silicon_creator/rom_ext:rom_ext_slot_virtual",
@@ -359,7 +359,7 @@ opentitan_multislot_flash_binary(
 opentitan_functest(
     name = "rom_ext_v_flash_b",
     cw310 = cw310_params(
-        exit_failure = CONST.PREFIX.BFV,
+        exit_failure = CONST.SHUTDOWN.PREFIX.BFV,
         exit_success = MSG_STARTING_ROM_EXT,
     ),
     key = "multislot",
@@ -1160,125 +1160,103 @@ test_suite(
     tests = ["asm_interrupt_handler_fpga_cw310_test_otp_" + otp_name for otp_name in OTP_CFGS_EXEC_DISABLED],
 )
 
-# Shutdown Redact Test
+# Dict that also includes an invalid redaction value for test purposes.
+REDACT = structs.to_dict(CONST.SHUTDOWN.REDACT)
 
-# Generate special OTP images
-# For DEV, PROD, and PROD_END, cycle through ROM_ERROR_REPORTING OTP item
+REDACT.update({"INVALID": 0x0})
 
-LC_STATES = [
-    "test_unlocked0",
-    "rma",
-    "dev",
-    "prod",
-    "prod_end",
-]
-
-# The LC states in which redaction is enabled. In all other states, there
-# should be no redaction.
-REDACTION_LC_STATES = [
-    "dev",
-    "prod",
-    "prod_end",
-]
-
-ERROR_REDACT_VALUES = {
-    "none": "0xe2290aa5",
-    "error": "0x3367d3d4",
-    "module": "0x1e791123",
-    "all": "0x48eb4bd9",
-}
-
-BFV_VALS = {
-    "none": "0142500d",
-    "error": "0042500d",
-    "module": "0000000d",
-    "all": "ffffffff",
-}
-
-overlays = [
-    (
-        er_val,
-        otp_json(
-            name = "otp_json_{}_overlay".format(er_val),
-            partitions = [
-                otp_partition(
-                    name = "OWNER_SW_CFG",
-                    items = {"OWNER_SW_CFG_ROM_ERROR_REPORTING": ERROR_REDACT_VALUES[er_val]},
-                ),
-            ],
-        ),
+[
+    otp_json(
+        name = "otp_json_{}_overlay".format(k.lower()),
+        partitions = [
+            otp_partition(
+                name = "OWNER_SW_CFG",
+                items = {
+                    "OWNER_SW_CFG_ROM_ERROR_REPORTING": "0x{}".format(hex(v)),
+                },
+            ),
+        ],
     )
-    for er_val in ERROR_REDACT_VALUES.keys()
+    for k, v in REDACT.items()
 ]
 
-otp_imgs = [
+[
     otp_image(
-        name = "img_{}_{}".format(lc_state, er_val),
-        src = "//hw/ip/otp_ctrl/data:otp_json_{}".format(lc_state),
+        name = "img_{}_{}".format(
+            lc_state.lower(),
+            redact.lower(),
+        ),
+        src = "//hw/ip/otp_ctrl/data:otp_json_{}".format(lc_state.lower()),
         overlays = [
             "//hw/ip/otp_ctrl/data:otp_json_creator_sw_cfg",
             "//hw/ip/otp_ctrl/data:otp_json_owner_sw_cfg",
             "//hw/ip/otp_ctrl/data:otp_json_hw_cfg",
-            ":otp_json_{}_overlay".format(er_val),
+            ":otp_json_{}_overlay".format(redact.lower()),
         ],
+        tags = ["vivado"],
         visibility = ["//visibility:private"],
     )
-    for lc_state in LC_STATES
-    for er_val in ERROR_REDACT_VALUES.keys()
+    for lc_state in structs.to_dict(CONST.LCV)
+    for redact in REDACT
 ]
 
-# Splice OTP images into bitstreams
 [
     bitstream_splice(
-        name = "bitstream_{}_{}".format(lc_state, er_val),
+        name = "bitstream_{}_{}".format(
+            lc_state.lower(),
+            redact.lower(),
+        ),
         src = "//hw/bitstream:rom",
-        data = ":img_{}_{}".format(lc_state, er_val),
+        data = ":img_{}_{}".format(
+            lc_state.lower(),
+            redact.lower(),
+        ),
         meminfo = "//hw/bitstream:otp_mmi",
-        tags = [
-            "manual",
-            "vivado",
-        ],
+        tags = ["vivado"],
         update_usr_access = True,
         visibility = ["//visibility:private"],
     )
-    for lc_state in LC_STATES
-    for er_val in ERROR_REDACT_VALUES.keys()
+    for lc_state in structs.to_dict(CONST.LCV)
+    for redact in REDACT
 ]
 
-# Assemble the test cases:
-# (lc_state, er_val, bitstream_target, expected BFV)
-test_cases = [
-    (
-        lc_state,
-        er_val,
-        ":bitstream_{}_{}".format(lc_state, er_val),
-        BFV_VALS[er_val if lc_state in REDACTION_LC_STATES else "none"],
-    )
-    for lc_state in LC_STATES
-    for er_val in ERROR_REDACT_VALUES.keys()
-]
-
-[opentitan_functest(
-    name = "e2e_shutdown_redact_{}_{}".format(lc, er),
-    srcs = ["empty_test.c"],
-    cw310 = cw310_params(
-        bitstream = bitstream_target,
-        exit_failure = MSG_PASS,
-        exit_success = MSG_TEMPLATE_BFV.format(bfv_val),
-        tags = [
-            "broken",  # TODO: pending on the issues noted in #14271
-            "vivado",
+[
+    opentitan_functest(
+        name = "e2e_shutdown_redact_{}_{}".format(
+            lc_state.lower(),
+            redact.lower(),
+        ),
+        srcs = ["empty_test.c"],
+        cw310 = cw310_params(
+            bitstream = "bitstream_{}_{}".format(
+                lc_state.lower(),
+                redact.lower(),
+            ),
+            exit_failure = MSG_PASS,
+            exit_success = MSG_TEMPLATE_BFV.format(hex(error_redact(
+                CONST.BFV.BOOT_POLICY.BAD_IDENTIFIER,
+                lc_state_val,
+                redact_val,
+            ))),
+            tags = [
+                "vivado",
+            ],
+        ),
+        signed = False,
+        targets = ["cw310_rom"],
+        deps = [
+            "//sw/device/lib/testing/test_framework:ottf_main",
         ],
-    ),
-    signed = False,
-    targets = ["cw310_rom"],
-    deps = [
-        "//sw/device/lib/testing/test_framework:ottf_main",
-    ],
-) for lc, er, bitstream_target, bfv_val in test_cases]
+    )
+    for lc_state, lc_state_val in structs.to_dict(CONST.LCV).items()
+    for redact, redact_val in REDACT.items()
+]
 
 test_suite(
-    name = "rom_e2e_shutdown_error_redact",
-    tags = ["vivado"],
-    tests = ["e2e_shutdown_redact_{}_{}".format(lc, er) for lc, er, _, _ in test_cases],
+    name = "rom_e2e_shutdown_redact",
+    tags = ["manual"],
+    tests = ["e2e_shutdown_redact_{}_{}".format(
+        lc_state.lower(),
+        redact.lower(),
+    ) for lc_state in structs.to_dict(CONST.LCV) for redact in REDACT],
 )
