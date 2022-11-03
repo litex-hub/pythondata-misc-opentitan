@@ -66,9 +66,11 @@ SLOTS = {
     ],
     signed = True,
     deps = [
+        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//sw/device/lib/testing/test_framework:ottf_main",
-        "@//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
         "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        "//sw/device/silicon_creator/lib/drivers:otp",
+        "//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
     ],
 ) for slot in SLOTS]
 
@@ -419,9 +421,9 @@ LC_STATES_SHUTDOWN_OUTPUT = [k.lower() for k in structs.to_dict(CONST.LCV)]
 [
     bitstream_splice(
         name = "bitstream_shutdown_output_{}".format(lc_state),
-        src = "@//hw/bitstream:rom",
+        src = "//hw/bitstream:rom",
         data = ":otp_img_shutdown_output_{}".format(lc_state),
-        meminfo = "@//hw/bitstream:otp_mmi",
+        meminfo = "//hw/bitstream:otp_mmi",
         tags = ["vivado"],
         update_usr_access = True,
     )
@@ -483,8 +485,11 @@ SEC_VERS = [
     manifest = ":manifest_sec_ver_{}".format(sec_ver),
     signed = True,
     deps = [
+        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//sw/device/lib/testing/test_framework:ottf_main",
-        "@//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
+        "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        "//sw/device/silicon_creator/lib/drivers:otp",
+        "//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
     ],
 ) for slot in SLOTS for sec_ver in SEC_VERS]
 
@@ -543,9 +548,9 @@ LC_STATES_BOOT_POLICY_NEWER = [k.lower() for k in structs.to_dict(CONST.LCV)]
 [
     bitstream_splice(
         name = "bitstream_boot_policy_newer_{}".format(lc_state),
-        src = "@//hw/bitstream:rom",
+        src = "//hw/bitstream:rom",
         data = ":otp_img_boot_policy_newer_{}".format(lc_state),
-        meminfo = "@//hw/bitstream:otp_mmi",
+        meminfo = "//hw/bitstream:otp_mmi",
         tags = ["vivado"],
         update_usr_access = True,
     )
@@ -637,35 +642,120 @@ SIGVERIFY_MOD_EXP_CASES = [
     {
         "name": "sw",
         "use_sw_rsa_verify": CONST.TRUE,
-        "exit_success": MSG_PASS,
+        "exit_success": {lc_state.lower(): "use_sw_rsa_verify=0x00000739" for lc_state in structs.to_dict(CONST.LCV)},
     },
-    # TODO(#14481): Enable after OTP splicing is ready.
-    # TODO: Consider using a custom binary that prints the OTP item.
-    # {
-    #     "name": "otbn",
-    #     "use_sw_rsa_verify": CONST.FALSE,
-    #     "exit_success": MSG_PASS,
-    # },
-    # {
-    #     "name": "invalid",
-    #     "use_sw_rsa_verify": 0,
-    #     "exit_success": MSG_TEMPLATE_BFV.format(CONST.BFV.INTERRUPT.ILLEGAL_INSTRUCTION),
-    # },
+    {
+        "name": "otbn",
+        "use_sw_rsa_verify": CONST.FALSE,
+        "exit_success": {lc_state.lower(): "use_sw_rsa_verify=0x000001d4" for lc_state in structs.to_dict(CONST.LCV)},
+    },
+    {
+        "name": "invalid",
+        "use_sw_rsa_verify": 0,
+        "exit_success": {
+            lc_state.lower(): MSG_TEMPLATE_BFV.format(hex(CONST.BFV.INTERRUPT.ILLEGAL_INSTRUCTION)) if lc_state_val != CONST.LCV.TEST_UNLOCKED0 else "use_sw_rsa_verify=0x00000000"
+            for lc_state, lc_state_val in structs.to_dict(CONST.LCV).items()
+        },
+    },
 ]
 
-[opentitan_functest(
-    name = "sigverify_mod_exp_{}".format(t["name"]),
-    cw310 = cw310_params(
-        exit_success = t["exit_success"],
-    ),
-    ot_flash_binary = ":empty_test_slot_a",
-    targets = ["cw310_rom"],
-) for t in SIGVERIFY_MOD_EXP_CASES]
+opentitan_flash_binary(
+    name = "empty_test_sigverify_mod_exp",
+    srcs = ["empty_test.c"],
+    devices = ["fpga_cw310"],
+    local_defines = [
+        shell.quote("EMPTY_TEST_MSG=\"use_sw_rsa_verify=0x%08x\", otp_read32(OTP_CTRL_PARAM_CREATOR_SW_CFG_USE_SW_RSA_VERIFY_OFFSET)"),
+    ],
+    signed = True,
+    deps = [
+        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
+        "//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_a",
+        "//sw/device/lib/testing/test_framework:ottf_main",
+        "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        "//sw/device/silicon_creator/lib/drivers:otp",
+    ],
+)
+
+[
+    otp_json(
+        name = "otp_json_sigverify_mod_exp_{}".format(t["name"]),
+        partitions = [
+            otp_partition(
+                name = "CREATOR_SW_CFG",
+                items = {"CREATOR_SW_CFG_USE_SW_RSA_VERIFY": "0x{}".format(hex(t["use_sw_rsa_verify"]))},
+            ),
+        ],
+    )
+    for t in SIGVERIFY_MOD_EXP_CASES
+]
+
+[
+    otp_image(
+        name = "otp_img_sigverify_mod_exp_{}_{}".format(
+            lc_state.lower(),
+            t["name"],
+        ),
+        src = "//hw/ip/otp_ctrl/data:otp_json_{}".format(lc_state.lower()),
+        overlays = [
+            "//hw/ip/otp_ctrl/data:otp_json_creator_sw_cfg",
+            "//hw/ip/otp_ctrl/data:otp_json_owner_sw_cfg",
+            "//hw/ip/otp_ctrl/data:otp_json_hw_cfg",
+            ":otp_json_sigverify_mod_exp_{}".format(t["name"]),
+        ],
+        visibility = ["//visibility:private"],
+    )
+    for lc_state in structs.to_dict(CONST.LCV)
+    for t in SIGVERIFY_MOD_EXP_CASES
+]
+
+[
+    bitstream_splice(
+        name = "bitstream_sigverify_mod_exp_{}_{}".format(
+            lc_state.lower(),
+            t["name"],
+        ),
+        src = "//hw/bitstream:rom",
+        data = ":otp_img_sigverify_mod_exp_{}_{}".format(
+            lc_state.lower(),
+            t["name"],
+        ),
+        meminfo = "//hw/bitstream:otp_mmi",
+        tags = ["vivado"],
+        update_usr_access = True,
+        visibility = ["//visibility:private"],
+    )
+    for lc_state in structs.to_dict(CONST.LCV)
+    for t in SIGVERIFY_MOD_EXP_CASES
+]
+
+[
+    opentitan_functest(
+        name = "sigverify_mod_exp_{}_{}".format(
+            lc_state.lower(),
+            t["name"],
+        ),
+        cw310 = cw310_params(
+            bitstream = ":bitstream_sigverify_mod_exp_{}_{}".format(
+                lc_state.lower(),
+                t["name"],
+            ),
+            exit_success = t["exit_success"][lc_state.lower()],
+            tags = ["vivado"],
+        ),
+        ot_flash_binary = ":empty_test_sigverify_mod_exp",
+        targets = ["cw310_rom"],
+    )
+    for lc_state in structs.to_dict(CONST.LCV)
+    for t in SIGVERIFY_MOD_EXP_CASES
+]
 
 test_suite(
-    name = "sigverify_mod_exp",
+    name = "rom_e2e_sigverify_mod_exp",
     tags = ["manual"],
-    tests = ["sigverify_mod_exp_{}".format(t["name"]) for t in SIGVERIFY_MOD_EXP_CASES],
+    tests = ["sigverify_mod_exp_{}_{}".format(
+        lc_state.lower(),
+        t["name"],
+    ) for lc_state in structs.to_dict(CONST.LCV) for t in SIGVERIFY_MOD_EXP_CASES],
 )
 
 BOOT_POLICY_BAD_MANIFEST_CASES = [
@@ -807,8 +897,11 @@ BOOT_POLICY_BAD_MANIFEST_CASES = [
     )),
     signed = True,
     deps = [
+        "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
         "//sw/device/lib/testing/test_framework:ottf_main",
-        "@//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
+        "//sw/device/silicon_creator/lib/drivers:lifecycle",
+        "//sw/device/silicon_creator/lib/drivers:otp",
+        "//sw/device/lib/testing/test_framework:ottf_ld_silicon_creator_slot_{}".format(slot),
     ],
 ) for t in BOOT_POLICY_BAD_MANIFEST_CASES for slot in SLOTS]
 
@@ -918,14 +1011,43 @@ BOOT_POLICY_VALID_CASES = [
 ]
 
 [
+    otp_image(
+        name = "otp_img_boot_policy_valid_{}".format(lc_state.lower()),
+        src = "//hw/ip/otp_ctrl/data:otp_json_{}".format(lc_state.lower()),
+        overlays = [
+            "//hw/ip/otp_ctrl/data:otp_json_creator_sw_cfg",
+            "//hw/ip/otp_ctrl/data:otp_json_owner_sw_cfg",
+            "//hw/ip/otp_ctrl/data:otp_json_hw_cfg",
+        ],
+    )
+    for lc_state in structs.to_dict(CONST.LCV)
+]
+
+# Splice OTP images into bitstreams
+[
+    bitstream_splice(
+        name = "bitstream_boot_policy_valid_{}".format(lc_state.lower()),
+        src = "//hw/bitstream:rom",
+        data = ":otp_img_boot_policy_valid_{}".format(lc_state.lower()),
+        meminfo = "//hw/bitstream:otp_mmi",
+        tags = ["vivado"],
+        update_usr_access = True,
+    )
+    for lc_state in structs.to_dict(CONST.LCV)
+]
+
+[
     opentitan_functest(
-        name = "boot_policy_valid_a_{}_b_{}".format(
+        name = "boot_policy_valid_{}_a_{}_b_{}".format(
+            lc_state.lower(),
             a["desc"],
             b["desc"],
         ),
         cw310 = cw310_params(
+            bitstream = "bitstream_boot_policy_valid_{}".format(lc_state.lower()),
             exit_failure = MSG_PASS if a["desc"] == b["desc"] and a["desc"] == "bad" else DEFAULT_TEST_FAILURE_MSG,
             exit_success = MSG_TEMPLATE_BFV.format(hex(CONST.BFV.SIGVERIFY.BAD_ENCODED_MSG)) if a["desc"] == b["desc"] and a["desc"] == "bad" else MSG_PASS,
+            tags = ["vivado"],
         ),
         key = "multislot",
         ot_flash_binary = ":boot_policy_valid_img_a_{}_b_{}".format(
@@ -934,18 +1056,21 @@ BOOT_POLICY_VALID_CASES = [
         ),
         targets = ["cw310_rom"],
     )
+    for lc_state in structs.to_dict(CONST.LCV)
     for a in BOOT_POLICY_VALID_CASES
     for b in BOOT_POLICY_VALID_CASES
 ]
 
 test_suite(
-    name = "boot_policy_valid",
+    name = "rom_e2e_boot_policy_valid",
     tags = ["manual"],
     tests = [
-        "boot_policy_valid_a_{}_b_{}".format(
+        "boot_policy_valid_{}_a_{}_b_{}".format(
+            lc_state.lower(),
             a["desc"],
             b["desc"],
         )
+        for lc_state in structs.to_dict(CONST.LCV)
         for a in BOOT_POLICY_VALID_CASES
         for b in BOOT_POLICY_VALID_CASES
     ],
@@ -1245,7 +1370,10 @@ REDACT.update({"INVALID": 0x0})
         signed = False,
         targets = ["cw310_rom"],
         deps = [
+            "//hw/ip/otp_ctrl/data:otp_ctrl_regs",
             "//sw/device/lib/testing/test_framework:ottf_main",
+            "//sw/device/silicon_creator/lib/drivers:lifecycle",
+            "//sw/device/silicon_creator/lib/drivers:otp",
         ],
     )
     for lc_state, lc_state_val in structs.to_dict(CONST.LCV).items()
