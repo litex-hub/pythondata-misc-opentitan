@@ -4,35 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15167"
-version_tuple = (0, 0, 15167)
+version_str = "0.0.post15168"
+version_tuple = (0, 0, 15168)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15167")
+    pversion = V("0.0.post15168")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15025"
-data_version_tuple = (0, 0, 15025)
+data_version_str = "0.0.post15026"
+data_version_tuple = (0, 0, 15026)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15025")
+    pdata_version = V("0.0.post15026")
 except ImportError:
     pass
-data_git_hash = "cbba276294efa163b5c5be029a9487c9908d9dd2"
-data_git_describe = "v0.0-15025-gcbba276294"
+data_git_hash = "78fdfa23c9de6a01c20cf9ee81509eeb20ce4faf"
+data_git_describe = "v0.0-15026-g78fdfa23c9"
 data_git_msg = """\
-commit cbba276294efa163b5c5be029a9487c9908d9dd2
-Author: James Wainwright <james.wainwright@lowrisc.org>
-Date:   Thu Oct 20 16:39:18 2022 +0100
+commit 78fdfa23c9de6a01c20cf9ee81509eeb20ce4faf
+Author: Miles Dai <milesdai@google.com>
+Date:   Wed Nov 2 13:58:45 2022 -0400
 
-    [docs] Add styleguide example for documented struct
+    [ci] Split FPGA tests into two batches
     
-    Clarifies that block comments should be used for structs and struct members as
-    well as functions.
-    
-    Signed-off-by: James Wainwright <james.wainwright@lowrisc.org>
+    Signed-off-by: Miles Dai <milesdai@google.com>
 
 """
 
