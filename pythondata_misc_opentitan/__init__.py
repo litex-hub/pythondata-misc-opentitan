@@ -4,38 +4,37 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15164"
-version_tuple = (0, 0, 15164)
+version_str = "0.0.post15165"
+version_tuple = (0, 0, 15165)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15164")
+    pversion = V("0.0.post15165")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15022"
-data_version_tuple = (0, 0, 15022)
+data_version_str = "0.0.post15023"
+data_version_tuple = (0, 0, 15023)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15022")
+    pdata_version = V("0.0.post15023")
 except ImportError:
     pass
-data_git_hash = "36f0619185e9a8e5dfd1dd94dc4a608c6d2a874a"
-data_git_describe = "v0.0-15022-g36f0619185"
+data_git_hash = "d3ed1298de886116adcab66f0c3609fd0dcd9f82"
+data_git_describe = "v0.0-15023-gd3ed1298de"
 data_git_msg = """\
-commit 36f0619185e9a8e5dfd1dd94dc4a608c6d2a874a
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Oct 31 16:58:46 2022 -0700
+commit d3ed1298de886116adcab66f0c3609fd0dcd9f82
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Wed Nov 2 19:05:31 2022 -0700
 
-    [dv/cdc] Use cycle based CDC instrumentation
+    [top-test] Update flash_ctrl_test buffer sizes
     
-    This changes the DCD instrumentation to be cycle-based, randomly adding an
-    extra cycle in the inputs to the first flop in prim_flop_2sync, replacing
-    the time-delay instrumentation.
+    Update buffer sizes to cover the entire page based on
+    `flash_info.bytes_per_page`.
     
-    Fixes #15768
+    Fixes #10848.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
