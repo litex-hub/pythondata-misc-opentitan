@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15174"
-version_tuple = (0, 0, 15174)
+version_str = "0.0.post15176"
+version_tuple = (0, 0, 15176)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15174")
+    pversion = V("0.0.post15176")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15032"
-data_version_tuple = (0, 0, 15032)
+data_version_str = "0.0.post15034"
+data_version_tuple = (0, 0, 15034)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15032")
+    pdata_version = V("0.0.post15034")
 except ImportError:
     pass
-data_git_hash = "940943a8efe9c6dba318dc3f86e36be2142b5465"
-data_git_describe = "v0.0-15032-g940943a8ef"
+data_git_hash = "22b25ce20cb22e3e5f95e010b60ec2e5e26ab971"
+data_git_describe = "v0.0-15034-g22b25ce20c"
 data_git_msg = """\
-commit 940943a8efe9c6dba318dc3f86e36be2142b5465
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Wed Nov 2 10:33:04 2022 -0400
+commit 22b25ce20cb22e3e5f95e010b60ec2e5e26ab971
+Author: Cindy Chen <chencindy@opentitan.org>
+Date:   Thu Nov 3 10:40:39 2022 -0700
 
-    [bazel/ci] Query for git_repository rule in bazel to keep them out of WORKSPACE
+    [edn/doc] Update rw0c register description
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    Fix a small typo in regwen. The RW0C should be write value zero to set
+    the regwen.
+    
+    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
 
 """
 
