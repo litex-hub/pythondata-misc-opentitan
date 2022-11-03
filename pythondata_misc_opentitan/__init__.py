@@ -4,39 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15189"
-version_tuple = (0, 0, 15189)
+version_str = "0.0.post15210"
+version_tuple = (0, 0, 15210)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15189")
+    pversion = V("0.0.post15210")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15047"
-data_version_tuple = (0, 0, 15047)
+data_version_str = "0.0.post15068"
+data_version_tuple = (0, 0, 15068)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15047")
+    pdata_version = V("0.0.post15068")
 except ImportError:
     pass
-data_git_hash = "1a0c43025eb0a475db5cf1ae5944e2063736629c"
-data_git_describe = "v0.0-15047-g1a0c43025e"
+data_git_hash = "f82627c017668f182a66b74d51b31ab52790cac5"
+data_git_describe = "v0.0-15068-gf82627c017"
 data_git_msg = """\
-commit 1a0c43025eb0a475db5cf1ae5944e2063736629c
-Author: Cindy Chen <chencindy@opentitan.org>
-Date:   Thu Nov 3 10:34:02 2022 -0700
+commit f82627c017668f182a66b74d51b31ab52790cac5
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Thu Nov 3 12:04:13 2022 -0700
 
-    [dv/csrng_agent] Update coverage collection
+    [dv,flash_ctrl,escalation] Expect ISR should not run
     
-    This PR splits CSRNG command coverage to two parts:
-    On device mode, some acmd values are illegal,
-    but in host mode, we want to check how csrng response to these illegal
-    cmds.
+    Check that when the flash_ctrl gets a fatal fault it should block flash
+    accesses. The chip_sw_all_escalation_resets test was allowing ISR not to
+    run when flash_ctrl faults occur, this change causes a failure if an ISR
+    actually runs.
     
-    Related issue: #15947
+    Fixes #15971
     
-    Signed-off-by: Cindy Chen <chencindy@opentitan.org>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
