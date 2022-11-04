@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15222"
-version_tuple = (0, 0, 15222)
+version_str = "0.0.post15229"
+version_tuple = (0, 0, 15229)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15222")
+    pversion = V("0.0.post15229")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15080"
-data_version_tuple = (0, 0, 15080)
+data_version_str = "0.0.post15087"
+data_version_tuple = (0, 0, 15087)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15080")
+    pdata_version = V("0.0.post15087")
 except ImportError:
     pass
-data_git_hash = "a84c93ccd75ce172c3ac207d44facb762d2833c2"
-data_git_describe = "v0.0-15080-ga84c93ccd7"
+data_git_hash = "3ca5d009499e5b96d7f685c11986e6dc3f9fa497"
+data_git_describe = "v0.0-15087-g3ca5d00949"
 data_git_msg = """\
-commit a84c93ccd75ce172c3ac207d44facb762d2833c2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Thu Nov 3 14:00:42 2022 -0700
+commit 3ca5d009499e5b96d7f685c11986e6dc3f9fa497
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Thu Nov 3 21:50:08 2022 -0700
 
-    [top/dv] Several x-ref updates to the testplan
+    [chip dv] Fixes for chip_csr_aliasing and outstanding tests
     
-    Also remove testpoints that are no longer required.
+    Increase the simulated time and wall clock time timeouts.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
