@@ -4,32 +4,44 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15235"
-version_tuple = (0, 0, 15235)
+version_str = "0.0.post15237"
+version_tuple = (0, 0, 15237)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15235")
+    pversion = V("0.0.post15237")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15093"
-data_version_tuple = (0, 0, 15093)
+data_version_str = "0.0.post15095"
+data_version_tuple = (0, 0, 15095)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15093")
+    pdata_version = V("0.0.post15095")
 except ImportError:
     pass
-data_git_hash = "a7232b56cac7f415c3ed0acdace2ca6e3b92c61b"
-data_git_describe = "v0.0-15093-ga7232b56ca"
+data_git_hash = "a09d5ca30df75679de69d417dbe40e2d3d899601"
+data_git_describe = "v0.0-15095-ga09d5ca30d"
 data_git_msg = """\
-commit a7232b56cac7f415c3ed0acdace2ca6e3b92c61b
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Nov 3 16:37:30 2022 -0400
+commit a09d5ca30df75679de69d417dbe40e2d3d899601
+Author: Pirmin Vogel <vogelpi@lowrisc.org>
+Date:   Fri Nov 4 01:53:34 2022 +0100
 
-    [doc] Add skip_in_ci tag to build_sw.md
+    [aes, dv] Depending on FI target signal, force different values
     
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    For some FI target signals, forcing certain values doesn't have any
+    impact on the functionality of the design. For example:
+    - Forcing a 1 on a handshake signal that is only read if the FSM is
+      anyway ready to proceed, or if the handshake is backed up by an
+      additional local counter.
+    - Forcing a 0 where multiple copies of the signal are OR-comibined
+      together.
+    This commit changes the FI tests to force values depending on the target
+    signal.
+    
+    This resolves lowRISC/OpenTitan#13572.
+    
+    Signed-off-by: Pirmin Vogel <vogelpi@lowrisc.org>
 
 """
 
