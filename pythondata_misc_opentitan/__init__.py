@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15220"
-version_tuple = (0, 0, 15220)
+version_str = "0.0.post15222"
+version_tuple = (0, 0, 15222)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15220")
+    pversion = V("0.0.post15222")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15078"
-data_version_tuple = (0, 0, 15078)
+data_version_str = "0.0.post15080"
+data_version_tuple = (0, 0, 15080)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15078")
+    pdata_version = V("0.0.post15080")
 except ImportError:
     pass
-data_git_hash = "4ba05ff98f96030f3f4497127942e264c3aae102"
-data_git_describe = "v0.0-15078-g4ba05ff98f"
+data_git_hash = "a84c93ccd75ce172c3ac207d44facb762d2833c2"
+data_git_describe = "v0.0-15080-ga84c93ccd7"
 data_git_msg = """\
-commit 4ba05ff98f96030f3f4497127942e264c3aae102
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Thu Nov 3 10:39:15 2022 -0400
+commit a84c93ccd75ce172c3ac207d44facb762d2833c2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Thu Nov 3 14:00:42 2022 -0700
 
-    [doc] Add udev instructions for ARM-USB-TINY-H JTAG adapter
+    [top/dv] Several x-ref updates to the testplan
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Also remove testpoints that are no longer required.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
