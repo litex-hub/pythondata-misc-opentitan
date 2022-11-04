@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15229"
-version_tuple = (0, 0, 15229)
+version_str = "0.0.post15235"
+version_tuple = (0, 0, 15235)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15229")
+    pversion = V("0.0.post15235")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15087"
-data_version_tuple = (0, 0, 15087)
+data_version_str = "0.0.post15093"
+data_version_tuple = (0, 0, 15093)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15087")
+    pdata_version = V("0.0.post15093")
 except ImportError:
     pass
-data_git_hash = "3ca5d009499e5b96d7f685c11986e6dc3f9fa497"
-data_git_describe = "v0.0-15087-g3ca5d00949"
+data_git_hash = "a7232b56cac7f415c3ed0acdace2ca6e3b92c61b"
+data_git_describe = "v0.0-15093-ga7232b56ca"
 data_git_msg = """\
-commit 3ca5d009499e5b96d7f685c11986e6dc3f9fa497
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Thu Nov 3 21:50:08 2022 -0700
+commit a7232b56cac7f415c3ed0acdace2ca6e3b92c61b
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Nov 3 16:37:30 2022 -0400
 
-    [chip dv] Fixes for chip_csr_aliasing and outstanding tests
+    [doc] Add skip_in_ci tag to build_sw.md
     
-    Increase the simulated time and wall clock time timeouts.
-    
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
