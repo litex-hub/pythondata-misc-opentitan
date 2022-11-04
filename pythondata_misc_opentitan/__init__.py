@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15240"
-version_tuple = (0, 0, 15240)
+version_str = "0.0.post15242"
+version_tuple = (0, 0, 15242)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15240")
+    pversion = V("0.0.post15242")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15098"
-data_version_tuple = (0, 0, 15098)
+data_version_str = "0.0.post15100"
+data_version_tuple = (0, 0, 15100)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15098")
+    pdata_version = V("0.0.post15100")
 except ImportError:
     pass
-data_git_hash = "ae49ebc932e0711b1134aa0666197575a6f0cb10"
-data_git_describe = "v0.0-15098-gae49ebc932"
+data_git_hash = "f0ddbd78b0f71a4f2637ef5f84640878ae15321f"
+data_git_describe = "v0.0-15100-gf0ddbd78b0"
 data_git_msg = """\
-commit ae49ebc932e0711b1134aa0666197575a6f0cb10
-Author: Alphan Ulusoy <alphan@google.com>
-Date:   Thu Nov 3 23:26:48 2022 -0400
+commit f0ddbd78b0f71a4f2637ef5f84640878ae15321f
+Author: Chris Frantz <cfrantz@google.com>
+Date:   Thu Nov 3 10:20:13 2022 -0700
 
-    [test] Complete rom_e2e_shutdown_watchdog
+    [rust] Update serde-annotate to v0.0.6
     
-    Fixes #14272
-    
-    Signed-off-by: Alphan Ulusoy <alphan@google.com>
+    Signed-off-by: Chris Frantz <cfrantz@google.com>
 
 """
 
