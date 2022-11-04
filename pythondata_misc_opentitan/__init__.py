@@ -4,39 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15210"
-version_tuple = (0, 0, 15210)
+version_str = "0.0.post15212"
+version_tuple = (0, 0, 15212)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15210")
+    pversion = V("0.0.post15212")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15068"
-data_version_tuple = (0, 0, 15068)
+data_version_str = "0.0.post15070"
+data_version_tuple = (0, 0, 15070)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15068")
+    pdata_version = V("0.0.post15070")
 except ImportError:
     pass
-data_git_hash = "f82627c017668f182a66b74d51b31ab52790cac5"
-data_git_describe = "v0.0-15068-gf82627c017"
+data_git_hash = "9b3ebf49cd9c99f9b818d1bfde2e9fbe455f540d"
+data_git_describe = "v0.0-15070-g9b3ebf49cd"
 data_git_msg = """\
-commit f82627c017668f182a66b74d51b31ab52790cac5
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Thu Nov 3 12:04:13 2022 -0700
+commit 9b3ebf49cd9c99f9b818d1bfde2e9fbe455f540d
+Author: Timothy Chen <timothytim@google.com>
+Date:   Wed Nov 2 23:24:43 2022 -0700
 
-    [dv,flash_ctrl,escalation] Expect ISR should not run
+    [top] Update cpu_info test
     
-    Check that when the flash_ctrl gets a fatal fault it should block flash
-    accesses. The chip_sw_all_escalation_resets test was allowing ISR not to
-    run when flash_ctrl faults occur, this change causes a failure if an ISR
-    actually runs.
+    Due to #15219, it appears the current PC information on double
+    faults is now changed. Update to reflect the latest.
     
-    Fixes #15971
+    Also change illegal read to an illegal write at address 0, since
+    this reduces the number of "glue" instructions surrounding the one
+    that actually creates the illegal access.
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
