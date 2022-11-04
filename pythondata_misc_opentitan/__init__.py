@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15238"
-version_tuple = (0, 0, 15238)
+version_str = "0.0.post15240"
+version_tuple = (0, 0, 15240)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15238")
+    pversion = V("0.0.post15240")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15096"
-data_version_tuple = (0, 0, 15096)
+data_version_str = "0.0.post15098"
+data_version_tuple = (0, 0, 15098)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15096")
+    pdata_version = V("0.0.post15098")
 except ImportError:
     pass
-data_git_hash = "024279c574b6be805ed33286801e62a2ed16fa13"
-data_git_describe = "v0.0-15096-g024279c574"
+data_git_hash = "ae49ebc932e0711b1134aa0666197575a6f0cb10"
+data_git_describe = "v0.0-15098-gae49ebc932"
 data_git_msg = """\
-commit 024279c574b6be805ed33286801e62a2ed16fa13
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Wed Nov 2 15:32:12 2022 -0400
+commit ae49ebc932e0711b1134aa0666197575a6f0cb10
+Author: Alphan Ulusoy <alphan@google.com>
+Date:   Thu Nov 3 23:26:48 2022 -0400
 
-    [bazel] Use GDB from Bazel instead of /tools
+    [test] Complete rom_e2e_shutdown_watchdog
     
-    Fixes #15935
+    Fixes #14272
     
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
