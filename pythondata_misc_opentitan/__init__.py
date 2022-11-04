@@ -4,41 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15252"
-version_tuple = (0, 0, 15252)
+version_str = "0.0.post15256"
+version_tuple = (0, 0, 15256)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15252")
+    pversion = V("0.0.post15256")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15110"
-data_version_tuple = (0, 0, 15110)
+data_version_str = "0.0.post15114"
+data_version_tuple = (0, 0, 15114)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15110")
+    pdata_version = V("0.0.post15114")
 except ImportError:
     pass
-data_git_hash = "a1284fc01b5a8d6c081d458cdcb37ebb48202ef7"
-data_git_describe = "v0.0-15110-ga1284fc01b"
+data_git_hash = "e1d71da8ad4264c8a2ce329aebffaf855d7be139"
+data_git_describe = "v0.0-15114-ge1d71da8ad"
 data_git_msg = """\
-commit a1284fc01b5a8d6c081d458cdcb37ebb48202ef7
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Wed Oct 19 12:19:22 2022 -0700
+commit e1d71da8ad4264c8a2ce329aebffaf855d7be139
+Author: Jon Flatley <jflat@google.com>
+Date:   Wed Nov 2 16:18:35 2022 -0400
 
-    [rom-e2e] Complete the asm-init test
+    [opentitantool] Output OTP image overlays with hex values
     
-    1. Update the ChipStartup message exchanged between the riscv core and
-       the test harness to include all of the information needed to evaluate
-       correct initialization of the chip.
-    2. Update the chip_specific_startup DUT program to gather all of the
-       required information: lifecycle state, OTP config, ast done bit, clock
-       jitter config, entropy config, ePMP, interrupt config and SRAM config.
-    3. Evaluate the data from the DUT against the OTP configuration and
-       lifecycle state.
-    
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
