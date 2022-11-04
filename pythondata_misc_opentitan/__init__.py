@@ -4,39 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15212"
-version_tuple = (0, 0, 15212)
+version_str = "0.0.post15220"
+version_tuple = (0, 0, 15220)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15212")
+    pversion = V("0.0.post15220")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15070"
-data_version_tuple = (0, 0, 15070)
+data_version_str = "0.0.post15078"
+data_version_tuple = (0, 0, 15078)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15070")
+    pdata_version = V("0.0.post15078")
 except ImportError:
     pass
-data_git_hash = "9b3ebf49cd9c99f9b818d1bfde2e9fbe455f540d"
-data_git_describe = "v0.0-15070-g9b3ebf49cd"
+data_git_hash = "4ba05ff98f96030f3f4497127942e264c3aae102"
+data_git_describe = "v0.0-15078-g4ba05ff98f"
 data_git_msg = """\
-commit 9b3ebf49cd9c99f9b818d1bfde2e9fbe455f540d
-Author: Timothy Chen <timothytim@google.com>
-Date:   Wed Nov 2 23:24:43 2022 -0700
+commit 4ba05ff98f96030f3f4497127942e264c3aae102
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Thu Nov 3 10:39:15 2022 -0400
 
-    [top] Update cpu_info test
+    [doc] Add udev instructions for ARM-USB-TINY-H JTAG adapter
     
-    Due to #15219, it appears the current PC information on double
-    faults is now changed. Update to reflect the latest.
-    
-    Also change illegal read to an illegal write at address 0, since
-    this reduces the number of "glue" instructions surrounding the one
-    that actually creates the illegal access.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
