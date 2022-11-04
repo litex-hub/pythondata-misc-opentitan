@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15242"
-version_tuple = (0, 0, 15242)
+version_str = "0.0.post15247"
+version_tuple = (0, 0, 15247)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15242")
+    pversion = V("0.0.post15247")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15100"
-data_version_tuple = (0, 0, 15100)
+data_version_str = "0.0.post15105"
+data_version_tuple = (0, 0, 15105)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15100")
+    pdata_version = V("0.0.post15105")
 except ImportError:
     pass
-data_git_hash = "f0ddbd78b0f71a4f2637ef5f84640878ae15321f"
-data_git_describe = "v0.0-15100-gf0ddbd78b0"
+data_git_hash = "fb80b7ab8909c8f9d45683c77258624e986a28b3"
+data_git_describe = "v0.0-15105-gfb80b7ab89"
 data_git_msg = """\
-commit f0ddbd78b0f71a4f2637ef5f84640878ae15321f
-Author: Chris Frantz <cfrantz@google.com>
-Date:   Thu Nov 3 10:20:13 2022 -0700
+commit fb80b7ab8909c8f9d45683c77258624e986a28b3
+Author: Weicai Yang <weicai@google.com>
+Date:   Thu Nov 3 14:55:40 2022 -0700
 
-    [rust] Update serde-annotate to v0.0.6
+    [dv] Skip checking alert if scb is disabled
     
-    Signed-off-by: Chris Frantz <cfrantz@google.com>
+    scb may be disabled in the middle of sim. Check if scb is off before firing an error.
+    
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
