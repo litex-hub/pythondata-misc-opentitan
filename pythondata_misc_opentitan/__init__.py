@@ -4,32 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15256"
-version_tuple = (0, 0, 15256)
+version_str = "0.0.post15257"
+version_tuple = (0, 0, 15257)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15256")
+    pversion = V("0.0.post15257")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15114"
-data_version_tuple = (0, 0, 15114)
+data_version_str = "0.0.post15115"
+data_version_tuple = (0, 0, 15115)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15114")
+    pdata_version = V("0.0.post15115")
 except ImportError:
     pass
-data_git_hash = "e1d71da8ad4264c8a2ce329aebffaf855d7be139"
-data_git_describe = "v0.0-15114-ge1d71da8ad"
+data_git_hash = "fd97785a85b530dd3bbcabcfcd24b0210194ff5c"
+data_git_describe = "v0.0-15115-gfd97785a85"
 data_git_msg = """\
-commit e1d71da8ad4264c8a2ce329aebffaf855d7be139
-Author: Jon Flatley <jflat@google.com>
-Date:   Wed Nov 2 16:18:35 2022 -0400
+commit fd97785a85b530dd3bbcabcfcd24b0210194ff5c
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Nov 4 14:22:59 2022 -0700
 
-    [opentitantool] Output OTP image overlays with hex values
+    [rv_core_ibex] Add assertions for ibex fetch enable
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    Fixes #15217
+    
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
