@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15258"
-version_tuple = (0, 0, 15258)
+version_str = "0.0.post15259"
+version_tuple = (0, 0, 15259)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15258")
+    pversion = V("0.0.post15259")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15116"
-data_version_tuple = (0, 0, 15116)
+data_version_str = "0.0.post15117"
+data_version_tuple = (0, 0, 15117)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15116")
+    pdata_version = V("0.0.post15117")
 except ImportError:
     pass
-data_git_hash = "e79ed27d68a104c310817f18b577808d246fcf85"
-data_git_describe = "v0.0-15116-ge79ed27d68"
+data_git_hash = "484e732d31951d1b1995a21e7e0db6aa382d2a56"
+data_git_describe = "v0.0-15117-g484e732d31"
 data_git_msg = """\
-commit e79ed27d68a104c310817f18b577808d246fcf85
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Fri Nov 4 20:49:11 2022 -0700
+commit 484e732d31951d1b1995a21e7e0db6aa382d2a56
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Nov 4 16:38:30 2022 -0700
 
-    [dv/rstmgr] Update reset consistency checker instances
+    [prim] Add an internal check flag
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    - The check flag always disables upon reset.  When the
+      first rising edge of the request is seen, it is then activated
+      again until the next reset.  This ensures we check only during
+      active periods and not accidentally across a reset, which is
+      what caused the failure previously.
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
