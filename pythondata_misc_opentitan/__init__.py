@@ -4,32 +4,38 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15260"
-version_tuple = (0, 0, 15260)
+version_str = "0.0.post15261"
+version_tuple = (0, 0, 15261)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15260")
+    pversion = V("0.0.post15261")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15118"
-data_version_tuple = (0, 0, 15118)
+data_version_str = "0.0.post15119"
+data_version_tuple = (0, 0, 15119)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15118")
+    pdata_version = V("0.0.post15119")
 except ImportError:
     pass
-data_git_hash = "c9b812f581cfd4e595a455620c0a5e14f0fdc370"
-data_git_describe = "v0.0-15118-gc9b812f581"
+data_git_hash = "84179cd4bea2a52f171d7583300bdeda4f141ce8"
+data_git_describe = "v0.0-15119-g84179cd4be"
 data_git_msg = """\
-commit c9b812f581cfd4e595a455620c0a5e14f0fdc370
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Sat Nov 5 08:15:45 2022 -0700
+commit 84179cd4bea2a52f171d7583300bdeda4f141ce8
+Author: Dan McArdle <dmcardle@google.com>
+Date:   Thu Nov 3 16:27:36 2022 -0400
 
-    [tools/dvsim] Remove old cdc plusargs from common_sim_cfg
+    [ci] Remove deprecated OpenOCD arg from package installer
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    This commit causes ci/install-package-dependencies.sh to fail when it
+    receives --openocd-version.
+    
+    Now that private CI is no longer specifying the --openocd-version flag,
+    we should stop ignoring the flag.
+    
+    Signed-off-by: Dan McArdle <dmcardle@google.com>
 
 """
 
