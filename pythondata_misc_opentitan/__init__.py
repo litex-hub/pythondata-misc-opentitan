@@ -4,34 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15257"
-version_tuple = (0, 0, 15257)
+version_str = "0.0.post15258"
+version_tuple = (0, 0, 15258)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15257")
+    pversion = V("0.0.post15258")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15115"
-data_version_tuple = (0, 0, 15115)
+data_version_str = "0.0.post15116"
+data_version_tuple = (0, 0, 15116)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15115")
+    pdata_version = V("0.0.post15116")
 except ImportError:
     pass
-data_git_hash = "fd97785a85b530dd3bbcabcfcd24b0210194ff5c"
-data_git_describe = "v0.0-15115-gfd97785a85"
+data_git_hash = "e79ed27d68a104c310817f18b577808d246fcf85"
+data_git_describe = "v0.0-15116-ge79ed27d68"
 data_git_msg = """\
-commit fd97785a85b530dd3bbcabcfcd24b0210194ff5c
-Author: Michael Schaffner <msf@google.com>
-Date:   Fri Nov 4 14:22:59 2022 -0700
+commit e79ed27d68a104c310817f18b577808d246fcf85
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Fri Nov 4 20:49:11 2022 -0700
 
-    [rv_core_ibex] Add assertions for ibex fetch enable
+    [dv/rstmgr] Update reset consistency checker instances
     
-    Fixes #15217
-    
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
