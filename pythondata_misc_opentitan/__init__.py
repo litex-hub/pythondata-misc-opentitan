@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15259"
-version_tuple = (0, 0, 15259)
+version_str = "0.0.post15260"
+version_tuple = (0, 0, 15260)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15259")
+    pversion = V("0.0.post15260")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15117"
-data_version_tuple = (0, 0, 15117)
+data_version_str = "0.0.post15118"
+data_version_tuple = (0, 0, 15118)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15117")
+    pdata_version = V("0.0.post15118")
 except ImportError:
     pass
-data_git_hash = "484e732d31951d1b1995a21e7e0db6aa382d2a56"
-data_git_describe = "v0.0-15117-g484e732d31"
+data_git_hash = "c9b812f581cfd4e595a455620c0a5e14f0fdc370"
+data_git_describe = "v0.0-15118-gc9b812f581"
 data_git_msg = """\
-commit 484e732d31951d1b1995a21e7e0db6aa382d2a56
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Nov 4 16:38:30 2022 -0700
+commit c9b812f581cfd4e595a455620c0a5e14f0fdc370
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Sat Nov 5 08:15:45 2022 -0700
 
-    [prim] Add an internal check flag
+    [tools/dvsim] Remove old cdc plusargs from common_sim_cfg
     
-    - The check flag always disables upon reset.  When the
-      first rising edge of the request is seen, it is then activated
-      again until the next reset.  This ensures we check only during
-      active periods and not accidentally across a reset, which is
-      what caused the failure previously.
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
