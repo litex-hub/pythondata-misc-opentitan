@@ -4,38 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15261"
-version_tuple = (0, 0, 15261)
+version_str = "0.0.post15262"
+version_tuple = (0, 0, 15262)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15261")
+    pversion = V("0.0.post15262")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15119"
-data_version_tuple = (0, 0, 15119)
+data_version_str = "0.0.post15120"
+data_version_tuple = (0, 0, 15120)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15119")
+    pdata_version = V("0.0.post15120")
 except ImportError:
     pass
-data_git_hash = "84179cd4bea2a52f171d7583300bdeda4f141ce8"
-data_git_describe = "v0.0-15119-g84179cd4be"
+data_git_hash = "2bf1fea0ba7a2dc0122deaee34ce63614356bfa4"
+data_git_describe = "v0.0-15120-g2bf1fea0ba"
 data_git_msg = """\
-commit 84179cd4bea2a52f171d7583300bdeda4f141ce8
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Thu Nov 3 16:27:36 2022 -0400
+commit 2bf1fea0ba7a2dc0122deaee34ce63614356bfa4
+Author: Cindy Liu <hcindyl@google.com>
+Date:   Fri Nov 4 15:56:03 2022 -0700
 
-    [ci] Remove deprecated OpenOCD arg from package installer
+    [bazel, reggen] Fix gen_rtl python library
     
-    This commit causes ci/install-package-dependencies.sh to fail when it
-    receives --openocd-version.
-    
-    Now that private CI is no longer specifying the --openocd-version flag,
-    we should stop ignoring the flag.
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Cindy Liu <hcindyl@google.com>
 
 """
 
