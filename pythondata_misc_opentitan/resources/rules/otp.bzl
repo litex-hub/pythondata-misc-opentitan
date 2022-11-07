@@ -36,6 +36,8 @@ list of dicts, each of the form {"name": key, "value": value}, which is the
 format expected by the image generation tool.
 """
 
+load("@bazel_skylib//rules:common_settings.bzl", "BuildSettingInfo")
+
 def get_otp_images():
     """Returns a list of (otp_name, img_target) tuples.
 
@@ -102,6 +104,43 @@ otp_json = rule(
     },
 )
 
+def _otp_alert_digest_impl(ctx):
+    file = ctx.actions.declare_file("{}.json".format(ctx.attr.name))
+
+    outputs = [file]
+
+    inputs = [
+        ctx.file._opentitantool,
+        ctx.file.otp_img,
+    ]
+
+    args = ctx.actions.args()
+    args.add_all(("otp", "alert-digest", ctx.file.otp_img))
+    args.add("--output", file)
+
+    ctx.actions.run(
+        outputs = outputs,
+        inputs = inputs,
+        arguments = [args],
+        executable = ctx.file._opentitantool.path,
+    )
+
+    return [DefaultInfo(files = depset([file]))]
+
+otp_alert_digest = rule(
+    implementation = _otp_alert_digest_impl,
+    attrs = {
+        "otp_img": attr.label(
+            allow_single_file = [".json", ".hjson"],
+            doc = "The OTP image file containing alert_handler values.",
+        ),
+        "_opentitantool": attr.label(
+            default = "//sw/host/opentitantool:opentitantool",
+            allow_single_file = True,
+        ),
+    },
+)
+
 def _otp_image(ctx):
     output = ctx.actions.declare_file(ctx.attr.name + ".24.vmem")
     args = ctx.actions.args()
@@ -109,6 +148,10 @@ def _otp_image(ctx):
         args.add("--quiet")
     args.add("--lc-state-def", ctx.file.lc_state_def)
     args.add("--mmap-def", ctx.file.mmap_def)
+    if ctx.attr.img_seed:
+        args.add("--img-seed", ctx.attr.img_seed[BuildSettingInfo].value)
+    if ctx.attr.otp_seed:
+        args.add("--otp-seed", ctx.attr.otp_seed[BuildSettingInfo].value)
     args.add("--img-cfg", ctx.file.src)
     args.add_all(ctx.files.overlays, before_each = "--add-cfg")
     args.add("--out", "{}/{}.BITWIDTH.vmem".format(output.dirname, ctx.attr.name))
@@ -144,6 +187,14 @@ otp_image = rule(
             allow_single_file = True,
             default = "//hw/ip/otp_ctrl/data:otp_ctrl_mmap.hjson",
             doc = "OTP Controller memory map file in Hjson format.",
+        ),
+        "img_seed": attr.label(
+            default = "//hw/ip/otp_ctrl/data:img_seed",
+            doc = "Configuration override seed used to randomize field values in an OTP image.",
+        ),
+        "otp_seed": attr.label(
+            default = "//hw/ip/otp_ctrl/data:otp_seed",
+            doc = "Configuration override seed used to randomize OTP netlist constants.",
         ),
         "verbose": attr.bool(
             default = False,
