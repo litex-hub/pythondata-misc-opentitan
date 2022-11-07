@@ -4,32 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15266"
-version_tuple = (0, 0, 15266)
+version_str = "0.0.post15269"
+version_tuple = (0, 0, 15269)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15266")
+    pversion = V("0.0.post15269")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15124"
-data_version_tuple = (0, 0, 15124)
+data_version_str = "0.0.post15127"
+data_version_tuple = (0, 0, 15127)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15124")
+    pdata_version = V("0.0.post15127")
 except ImportError:
     pass
-data_git_hash = "25c88a057b6107ae7afdfc562eb8f7c83946acaa"
-data_git_describe = "v0.0-15124-g25c88a057b"
+data_git_hash = "20e9432fe6eb2805766358cb67e971db693424a8"
+data_git_describe = "v0.0-15127-g20e9432fe6"
 data_git_msg = """\
-commit 25c88a057b6107ae7afdfc562eb8f7c83946acaa
-Author: Drew Macrae <drewmacrae@google.com>
-Date:   Sun Nov 6 09:50:38 2022 -0500
+commit 20e9432fe6eb2805766358cb67e971db693424a8
+Author: Miguel Osorio <miguelosorio@google.com>
+Date:   Fri Nov 4 17:18:14 2022 -0700
 
-    [bazel] Mark tests with known and filed issues as broken
+    [top-test] Switch otbn tests to edn auto mode
     
-    Signed-off-by: Drew Macrae <drewmacrae@google.com>
+    We want to use OTBN with EDN in auto mode for production use cases. This
+    commit updates top-level tests to use EDN auto mode configuration.
+    
+    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
 
 """
 
