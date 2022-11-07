@@ -4,35 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15269"
-version_tuple = (0, 0, 15269)
+version_str = "0.0.post15271"
+version_tuple = (0, 0, 15271)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15269")
+    pversion = V("0.0.post15271")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15127"
-data_version_tuple = (0, 0, 15127)
+data_version_str = "0.0.post15129"
+data_version_tuple = (0, 0, 15129)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15127")
+    pdata_version = V("0.0.post15129")
 except ImportError:
     pass
-data_git_hash = "20e9432fe6eb2805766358cb67e971db693424a8"
-data_git_describe = "v0.0-15127-g20e9432fe6"
+data_git_hash = "db60a6ae14e1186afddd7e114986cd65f87fad79"
+data_git_describe = "v0.0-15129-gdb60a6ae14"
 data_git_msg = """\
-commit 20e9432fe6eb2805766358cb67e971db693424a8
-Author: Miguel Osorio <miguelosorio@google.com>
-Date:   Fri Nov 4 17:18:14 2022 -0700
+commit db60a6ae14e1186afddd7e114986cd65f87fad79
+Author: Alexander Williams <awill@google.com>
+Date:   Fri Oct 28 10:15:04 2022 -0700
 
-    [top-test] Switch otbn tests to edn auto mode
+    [top_earlgrey/dv] Add filtering variant of SPI passthrough test
     
-    We want to use OTBN with EDN in auto mode for production use cases. This
-    commit updates top-level tests to use EDN auto mode configuration.
+    Add variant of SPI passthrough test that incorporates the use of
+    filtered opcodes.
     
-    Signed-off-by: Miguel Osorio <miguelosorio@google.com>
+    Signed-off-by: Alexander Williams <awill@google.com>
 
 """
 
