@@ -4,32 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15307"
-version_tuple = (0, 0, 15307)
+version_str = "0.0.post15312"
+version_tuple = (0, 0, 15312)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15307")
+    pversion = V("0.0.post15312")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15165"
-data_version_tuple = (0, 0, 15165)
+data_version_str = "0.0.post15170"
+data_version_tuple = (0, 0, 15170)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15165")
+    pdata_version = V("0.0.post15170")
 except ImportError:
     pass
-data_git_hash = "f753444e59409b74182606be441024200a6b13c6"
-data_git_describe = "v0.0-15165-gf753444e59"
+data_git_hash = "140e189eeb30b0474eb8483a2604b9a8d6f753f2"
+data_git_describe = "v0.0-15170-g140e189eeb"
 data_git_msg = """\
-commit f753444e59409b74182606be441024200a6b13c6
-Author: Guillermo Maturana <maturana@google.com>
-Date:   Mon Nov 7 13:58:10 2022 -0800
+commit 140e189eeb30b0474eb8483a2604b9a8d6f753f2
+Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+Date:   Sat Oct 29 10:02:22 2022 -0700
 
-    [dv/clklmgr] Comment about the sec_cm testplan location
+    [entropy_src/dv] Updates to FSM closure (PR #15663)
     
-    Signed-off-by: Guillermo Maturana <maturana@google.com>
+    - Fixes an interrupt handler bug by from the DV_WAIT watchdog's added in
+      PR #15663. (Thanks for the suggestion @waicaiyang).
+    - Adds more states the list of rare transitions.
+    - Updates RNG VSEQ to force some transtions using backdoor operations
+      (when frontdoor CSR transactions are not fast enough to rapidly turn
+      the FSM on and off)
+    
+    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
 
 """
 
