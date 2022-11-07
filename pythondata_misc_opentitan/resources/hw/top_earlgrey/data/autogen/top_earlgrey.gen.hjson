@@ -3705,6 +3705,7 @@
       [
         {
           name: lc_hw_debug_en
+          desc: Debug enable qualifier coming from life cycle controller, used for HW strap qualification.
           struct: lc_tx
           package: lc_ctrl_pkg
           type: uni
@@ -3717,6 +3718,7 @@
         }
         {
           name: lc_dft_en
+          desc: Test enable qualifier coming from life cycle controller, used for HW strap qualification.
           struct: lc_tx
           package: lc_ctrl_pkg
           type: uni
@@ -3728,7 +3730,64 @@
           index: -1
         }
         {
+          name: lc_escalate_en
+          desc:
+            '''
+            Escalation enable signal coming from life cycle controller, used for invalidating
+            the latched lc_hw_debug_en state inside the strap sampling logic.
+            '''
+          struct: lc_tx
+          package: lc_ctrl_pkg
+          type: uni
+          act: rcv
+          width: 1
+          default: lc_ctrl_pkg::Off
+          inst_name: pinmux_aon
+          top_signame: lc_ctrl_lc_escalate_en
+          index: -1
+        }
+        {
+          name: lc_check_byp_en
+          desc:
+            '''
+            Check bypass enable signal coming from life cycle controller, used for invalidating
+            the latched lc_hw_debug_en state inside the strap sampling logic. This signal is asserted
+            whenever the life cycle controller performs a life cycle transition. Its main use is
+            to skip any background checks inside the life cycle partition of the OTP controller while
+            a life cycle transition is in progress.
+            '''
+          struct: lc_tx
+          package: lc_ctrl_pkg
+          type: uni
+          act: rcv
+          width: 1
+          default: lc_ctrl_pkg::Off
+          inst_name: pinmux_aon
+          top_signame: lc_ctrl_lc_check_byp_en
+          index: -1
+        }
+        {
+          name: pinmux_hw_debug_en
+          desc:
+            '''
+            This is the latched version of lc_hw_debug_en_i. We use it exclusively to gate the JTAG
+            signals and TAP side of the RV_DM so that RV_DM can remain live during an NDM reset cycle.
+            '''
+          struct: lc_tx
+          package: lc_ctrl_pkg
+          type: uni
+          act: req
+          width: 1
+          default: lc_ctrl_pkg::Off
+          inst_name: pinmux_aon
+          end_idx: -1
+          top_type: broadcast
+          top_signame: pinmux_aon_pinmux_hw_debug_en
+          index: -1
+        }
+        {
           name: lc_jtag
+          desc: Qualified JTAG signals for life cycle controller TAP.
           struct: jtag
           package: jtag_pkg
           type: req_rsp
@@ -3742,6 +3801,7 @@
         }
         {
           name: rv_jtag
+          desc: Qualified JTAG signals for RISC-V processor TAP.
           struct: jtag
           package: jtag_pkg
           type: req_rsp
@@ -3755,6 +3815,7 @@
         }
         {
           name: dft_jtag
+          desc: Qualified JTAG signals for DFT TAP.
           struct: jtag
           package: jtag_pkg
           type: req_rsp
@@ -3767,6 +3828,7 @@
         }
         {
           name: dft_strap_test
+          desc: Sampled DFT strap values, going to the DFT TAP.
           struct: dft_strap_test_req
           package: pinmux_pkg
           type: uni
@@ -3781,6 +3843,7 @@
         }
         {
           name: dft_hold_tap_sel
+          desc: TAP selection hold indication, asserted by the DFT TAP during boundary scan.
           struct: logic
           type: uni
           act: rcv
@@ -3795,6 +3858,7 @@
         }
         {
           name: sleep_en
+          desc: Level signal that is asserted when the power manager enters sleep.
           struct: logic
           type: uni
           act: rcv
@@ -3807,6 +3871,7 @@
         }
         {
           name: strap_en
+          desc: This signal is pulsed high by the power manager after reset in order to sample the HW straps.
           struct: logic
           type: uni
           act: rcv
@@ -3819,6 +3884,7 @@
         }
         {
           name: pin_wkup_req
+          desc: Wakeup request from wakeup detectors, to the power manager, running on the AON clock.
           struct: logic
           type: uni
           act: req
@@ -3831,6 +3897,7 @@
         }
         {
           name: usbdev_dppullup_en
+          desc: Pullup enable signal coming from the USB IP.
           struct: logic
           type: uni
           act: rcv
@@ -3843,6 +3910,7 @@
         }
         {
           name: usbdev_dnpullup_en
+          desc: Pullup enable signal coming from the USB IP.
           struct: logic
           type: uni
           act: rcv
@@ -3855,6 +3923,7 @@
         }
         {
           name: usb_dppullup_en
+          desc: " Pullup enable signal going to USB PHY, needs to be maintained in low-power mode."
           struct: logic
           type: uni
           act: req
@@ -3869,6 +3938,7 @@
         }
         {
           name: usb_dnpullup_en
+          desc: Pullup enable signal going to USB PHY, needs to be maintained in low-power mode.
           struct: logic
           type: uni
           act: req
@@ -3883,6 +3953,7 @@
         }
         {
           name: usb_wkup_req
+          desc: Wakeup request from USB wakeup detector, going to the power manager, running on the AON clock.
           struct: logic
           type: uni
           act: req
@@ -3895,6 +3966,7 @@
         }
         {
           name: usbdev_suspend_req
+          desc: Indicates whether USB is in suspended state, coming from the USB device.
           struct: logic
           type: uni
           act: rcv
@@ -3907,6 +3979,7 @@
         }
         {
           name: usbdev_wake_ack
+          desc: Acknowledges the USB wakeup request, coming from the USB device.
           struct: logic
           type: uni
           act: rcv
@@ -3919,6 +3992,7 @@
         }
         {
           name: usbdev_bus_reset
+          desc: Event signal that indicates what happened while monitoring.
           struct: logic
           type: uni
           act: req
@@ -3931,6 +4005,7 @@
         }
         {
           name: usbdev_sense_lost
+          desc: Event signal that indicates what happened while monitoring.
           struct: logic
           type: uni
           act: req
@@ -3943,6 +4018,7 @@
         }
         {
           name: usbdev_wake_detect_active
+          desc: State debug information.
           struct: logic
           type: uni
           act: req
@@ -5034,6 +5110,25 @@
           default: lc_ctrl_pkg::Off
           inst_name: rv_dm
           top_signame: lc_ctrl_lc_hw_debug_en
+          index: -1
+        }
+        {
+          name: pinmux_hw_debug_en
+          desc:
+            '''
+            Multibit life cycle hardware debug enable signal coming from pinmux.
+            This is a latched version of the lc_hw_debug_en signal and is only used to
+            gate the JTAG / TAP side of the RV_DM. It is used to keep a debug session live
+            while the rest of the system undergoes an NDM reset.
+            '''
+          struct: lc_tx
+          package: lc_ctrl_pkg
+          type: uni
+          act: rcv
+          width: 1
+          default: lc_ctrl_pkg::Off
+          inst_name: rv_dm
+          top_signame: pinmux_aon_pinmux_hw_debug_en
           index: -1
         }
         {
@@ -7999,6 +8094,10 @@
       [
         rv_dm.jtag
       ]
+      pinmux_aon.pinmux_hw_debug_en:
+      [
+        rv_dm.pinmux_hw_debug_en
+      ]
       otp_ctrl.otp_lc_data:
       [
         lc_ctrl.otp_lc_data
@@ -8053,10 +8152,12 @@
         sram_ctrl_ret_aon.lc_escalate_en
         aon_timer_aon.lc_escalate_en
         flash_ctrl.lc_escalate_en
+        pinmux_aon.lc_escalate_en
       ]
       lc_ctrl.lc_check_byp_en:
       [
         otp_ctrl.lc_check_byp_en
+        pinmux_aon.lc_check_byp_en
       ]
       lc_ctrl.lc_clk_byp_req:
       [
@@ -16819,6 +16920,7 @@
       }
       {
         name: lc_hw_debug_en
+        desc: Debug enable qualifier coming from life cycle controller, used for HW strap qualification.
         struct: lc_tx
         package: lc_ctrl_pkg
         type: uni
@@ -16831,6 +16933,7 @@
       }
       {
         name: lc_dft_en
+        desc: Test enable qualifier coming from life cycle controller, used for HW strap qualification.
         struct: lc_tx
         package: lc_ctrl_pkg
         type: uni
@@ -16842,7 +16945,64 @@
         index: -1
       }
       {
+        name: lc_escalate_en
+        desc:
+          '''
+          Escalation enable signal coming from life cycle controller, used for invalidating
+          the latched lc_hw_debug_en state inside the strap sampling logic.
+          '''
+        struct: lc_tx
+        package: lc_ctrl_pkg
+        type: uni
+        act: rcv
+        width: 1
+        default: lc_ctrl_pkg::Off
+        inst_name: pinmux_aon
+        top_signame: lc_ctrl_lc_escalate_en
+        index: -1
+      }
+      {
+        name: lc_check_byp_en
+        desc:
+          '''
+          Check bypass enable signal coming from life cycle controller, used for invalidating
+          the latched lc_hw_debug_en state inside the strap sampling logic. This signal is asserted
+          whenever the life cycle controller performs a life cycle transition. Its main use is
+          to skip any background checks inside the life cycle partition of the OTP controller while
+          a life cycle transition is in progress.
+          '''
+        struct: lc_tx
+        package: lc_ctrl_pkg
+        type: uni
+        act: rcv
+        width: 1
+        default: lc_ctrl_pkg::Off
+        inst_name: pinmux_aon
+        top_signame: lc_ctrl_lc_check_byp_en
+        index: -1
+      }
+      {
+        name: pinmux_hw_debug_en
+        desc:
+          '''
+          This is the latched version of lc_hw_debug_en_i. We use it exclusively to gate the JTAG
+          signals and TAP side of the RV_DM so that RV_DM can remain live during an NDM reset cycle.
+          '''
+        struct: lc_tx
+        package: lc_ctrl_pkg
+        type: uni
+        act: req
+        width: 1
+        default: lc_ctrl_pkg::Off
+        inst_name: pinmux_aon
+        end_idx: -1
+        top_type: broadcast
+        top_signame: pinmux_aon_pinmux_hw_debug_en
+        index: -1
+      }
+      {
         name: lc_jtag
+        desc: Qualified JTAG signals for life cycle controller TAP.
         struct: jtag
         package: jtag_pkg
         type: req_rsp
@@ -16856,6 +17016,7 @@
       }
       {
         name: rv_jtag
+        desc: Qualified JTAG signals for RISC-V processor TAP.
         struct: jtag
         package: jtag_pkg
         type: req_rsp
@@ -16869,6 +17030,7 @@
       }
       {
         name: dft_jtag
+        desc: Qualified JTAG signals for DFT TAP.
         struct: jtag
         package: jtag_pkg
         type: req_rsp
@@ -16881,6 +17043,7 @@
       }
       {
         name: dft_strap_test
+        desc: Sampled DFT strap values, going to the DFT TAP.
         struct: dft_strap_test_req
         package: pinmux_pkg
         type: uni
@@ -16895,6 +17058,7 @@
       }
       {
         name: dft_hold_tap_sel
+        desc: TAP selection hold indication, asserted by the DFT TAP during boundary scan.
         struct: logic
         type: uni
         act: rcv
@@ -16909,6 +17073,7 @@
       }
       {
         name: sleep_en
+        desc: Level signal that is asserted when the power manager enters sleep.
         struct: logic
         type: uni
         act: rcv
@@ -16921,6 +17086,7 @@
       }
       {
         name: strap_en
+        desc: This signal is pulsed high by the power manager after reset in order to sample the HW straps.
         struct: logic
         type: uni
         act: rcv
@@ -16933,6 +17099,7 @@
       }
       {
         name: pin_wkup_req
+        desc: Wakeup request from wakeup detectors, to the power manager, running on the AON clock.
         struct: logic
         type: uni
         act: req
@@ -16945,6 +17112,7 @@
       }
       {
         name: usbdev_dppullup_en
+        desc: Pullup enable signal coming from the USB IP.
         struct: logic
         type: uni
         act: rcv
@@ -16957,6 +17125,7 @@
       }
       {
         name: usbdev_dnpullup_en
+        desc: Pullup enable signal coming from the USB IP.
         struct: logic
         type: uni
         act: rcv
@@ -16969,6 +17138,7 @@
       }
       {
         name: usb_dppullup_en
+        desc: " Pullup enable signal going to USB PHY, needs to be maintained in low-power mode."
         struct: logic
         type: uni
         act: req
@@ -16983,6 +17153,7 @@
       }
       {
         name: usb_dnpullup_en
+        desc: Pullup enable signal going to USB PHY, needs to be maintained in low-power mode.
         struct: logic
         type: uni
         act: req
@@ -16997,6 +17168,7 @@
       }
       {
         name: usb_wkup_req
+        desc: Wakeup request from USB wakeup detector, going to the power manager, running on the AON clock.
         struct: logic
         type: uni
         act: req
@@ -17009,6 +17181,7 @@
       }
       {
         name: usbdev_suspend_req
+        desc: Indicates whether USB is in suspended state, coming from the USB device.
         struct: logic
         type: uni
         act: rcv
@@ -17021,6 +17194,7 @@
       }
       {
         name: usbdev_wake_ack
+        desc: Acknowledges the USB wakeup request, coming from the USB device.
         struct: logic
         type: uni
         act: rcv
@@ -17033,6 +17207,7 @@
       }
       {
         name: usbdev_bus_reset
+        desc: Event signal that indicates what happened while monitoring.
         struct: logic
         type: uni
         act: req
@@ -17045,6 +17220,7 @@
       }
       {
         name: usbdev_sense_lost
+        desc: Event signal that indicates what happened while monitoring.
         struct: logic
         type: uni
         act: req
@@ -17057,6 +17233,7 @@
       }
       {
         name: usbdev_wake_detect_active
+        desc: State debug information.
         struct: logic
         type: uni
         act: req
@@ -17658,6 +17835,25 @@
         default: lc_ctrl_pkg::Off
         inst_name: rv_dm
         top_signame: lc_ctrl_lc_hw_debug_en
+        index: -1
+      }
+      {
+        name: pinmux_hw_debug_en
+        desc:
+          '''
+          Multibit life cycle hardware debug enable signal coming from pinmux.
+          This is a latched version of the lc_hw_debug_en signal and is only used to
+          gate the JTAG / TAP side of the RV_DM. It is used to keep a debug session live
+          while the rest of the system undergoes an NDM reset.
+          '''
+        struct: lc_tx
+        package: lc_ctrl_pkg
+        type: uni
+        act: rcv
+        width: 1
+        default: lc_ctrl_pkg::Off
+        inst_name: rv_dm
+        top_signame: pinmux_aon_pinmux_hw_debug_en
         index: -1
       }
       {
@@ -21041,6 +21237,17 @@
         act: req
         suffix: rsp
         default: jtag_pkg::JTAG_RSP_DEFAULT
+      }
+      {
+        package: lc_ctrl_pkg
+        struct: lc_tx
+        signame: pinmux_aon_pinmux_hw_debug_en
+        width: 1
+        type: uni
+        end_idx: -1
+        act: req
+        suffix: ""
+        default: lc_ctrl_pkg::Off
       }
       {
         package: otp_ctrl_pkg
