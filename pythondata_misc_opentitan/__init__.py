@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15271"
-version_tuple = (0, 0, 15271)
+version_str = "0.0.post15277"
+version_tuple = (0, 0, 15277)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15271")
+    pversion = V("0.0.post15277")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15129"
-data_version_tuple = (0, 0, 15129)
+data_version_str = "0.0.post15135"
+data_version_tuple = (0, 0, 15135)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15129")
+    pdata_version = V("0.0.post15135")
 except ImportError:
     pass
-data_git_hash = "db60a6ae14e1186afddd7e114986cd65f87fad79"
-data_git_describe = "v0.0-15129-gdb60a6ae14"
+data_git_hash = "2fda8fa3159893257d289e93047565d0ec301af5"
+data_git_describe = "v0.0-15135-g2fda8fa315"
 data_git_msg = """\
-commit db60a6ae14e1186afddd7e114986cd65f87fad79
-Author: Alexander Williams <awill@google.com>
-Date:   Fri Oct 28 10:15:04 2022 -0700
+commit 2fda8fa3159893257d289e93047565d0ec301af5
+Author: Michael Schaffner <msf@google.com>
+Date:   Fri Nov 4 18:12:01 2022 -0700
 
-    [top_earlgrey/dv] Add filtering variant of SPI passthrough test
+    [test] Minor updates to sysrst_ctrl_ec_rst_l test
     
-    Add variant of SPI passthrough test that incorporates the use of
-    filtered opcodes.
+    Aligns some names, adds more comments, checks and debug printouts.
     
-    Signed-off-by: Alexander Williams <awill@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
