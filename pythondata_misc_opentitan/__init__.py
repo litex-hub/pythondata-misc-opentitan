@@ -4,36 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15283"
-version_tuple = (0, 0, 15283)
+version_str = "0.0.post15286"
+version_tuple = (0, 0, 15286)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15283")
+    pversion = V("0.0.post15286")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15141"
-data_version_tuple = (0, 0, 15141)
+data_version_str = "0.0.post15144"
+data_version_tuple = (0, 0, 15144)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15141")
+    pdata_version = V("0.0.post15144")
 except ImportError:
     pass
-data_git_hash = "f3f2a41794c1cf2a143a941d5e52c1a5f5d248f4"
-data_git_describe = "v0.0-15141-gf3f2a41794"
+data_git_hash = "b0e0bf8b8a3429fdc7e6dbce1eb7f216fa2c0b87"
+data_git_describe = "v0.0-15144-gb0e0bf8b8a"
 data_git_msg = """\
-commit f3f2a41794c1cf2a143a941d5e52c1a5f5d248f4
-Author: Fatih Balli <fatihballi@google.com>
-Date:   Thu Nov 3 07:56:19 2022 -0700
+commit b0e0bf8b8a3429fdc7e6dbce1eb7f216fa2c0b87
+Author: Jon Flatley <jflat@google.com>
+Date:   Tue Nov 1 16:24:20 2022 -0400
 
-    [chip-test, kmac] Check KMAC sideload
+    [bazel] Add rule for OTP alert_hander digests
     
-    Checks whether keymgr KMAC sideloading works correctly by comparing
-    the result of a KMAC operation (which uses sideload hw key) with a test
-    vector computed within dv.
-    
-    Signed-off-by: Fatih Balli <fatihballi@google.com>
+    Signed-off-by: Jon Flatley <jflat@google.com>
 
 """
 
