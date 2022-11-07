@@ -4,42 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15295"
-version_tuple = (0, 0, 15295)
+version_str = "0.0.post15307"
+version_tuple = (0, 0, 15307)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15295")
+    pversion = V("0.0.post15307")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15153"
-data_version_tuple = (0, 0, 15153)
+data_version_str = "0.0.post15165"
+data_version_tuple = (0, 0, 15165)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15153")
+    pdata_version = V("0.0.post15165")
 except ImportError:
     pass
-data_git_hash = "41330b19aec489f2fd4115e369389563e6453cd2"
-data_git_describe = "v0.0-15153-g41330b19ae"
+data_git_hash = "f753444e59409b74182606be441024200a6b13c6"
+data_git_describe = "v0.0-15165-gf753444e59"
 data_git_msg = """\
-commit 41330b19aec489f2fd4115e369389563e6453cd2
-Author: Timothy Chen <timothytim@google.com>
-Date:   Fri Nov 4 16:16:53 2022 -0700
+commit f753444e59409b74182606be441024200a6b13c6
+Author: Guillermo Maturana <maturana@google.com>
+Date:   Mon Nov 7 13:58:10 2022 -0800
 
-    [i2c] Adjust bit count idx
+    [dv/clklmgr] Comment about the sec_cm testplan location
     
-    - do not increment bit count based on start
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    More clean-up
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
-    
-    continued ...
-    
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Guillermo Maturana <maturana@google.com>
 
 """
 
