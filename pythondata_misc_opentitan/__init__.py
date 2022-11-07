@@ -4,32 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15286"
-version_tuple = (0, 0, 15286)
+version_str = "0.0.post15295"
+version_tuple = (0, 0, 15295)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15286")
+    pversion = V("0.0.post15295")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15144"
-data_version_tuple = (0, 0, 15144)
+data_version_str = "0.0.post15153"
+data_version_tuple = (0, 0, 15153)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15144")
+    pdata_version = V("0.0.post15153")
 except ImportError:
     pass
-data_git_hash = "b0e0bf8b8a3429fdc7e6dbce1eb7f216fa2c0b87"
-data_git_describe = "v0.0-15144-gb0e0bf8b8a"
+data_git_hash = "41330b19aec489f2fd4115e369389563e6453cd2"
+data_git_describe = "v0.0-15153-g41330b19ae"
 data_git_msg = """\
-commit b0e0bf8b8a3429fdc7e6dbce1eb7f216fa2c0b87
-Author: Jon Flatley <jflat@google.com>
-Date:   Tue Nov 1 16:24:20 2022 -0400
+commit 41330b19aec489f2fd4115e369389563e6453cd2
+Author: Timothy Chen <timothytim@google.com>
+Date:   Fri Nov 4 16:16:53 2022 -0700
 
-    [bazel] Add rule for OTP alert_hander digests
+    [i2c] Adjust bit count idx
     
-    Signed-off-by: Jon Flatley <jflat@google.com>
+    - do not increment bit count based on start
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    More clean-up
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
+    
+    continued ...
+    
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
