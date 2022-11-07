@@ -4,38 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15281"
-version_tuple = (0, 0, 15281)
+version_str = "0.0.post15283"
+version_tuple = (0, 0, 15283)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15281")
+    pversion = V("0.0.post15283")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15139"
-data_version_tuple = (0, 0, 15139)
+data_version_str = "0.0.post15141"
+data_version_tuple = (0, 0, 15141)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15139")
+    pdata_version = V("0.0.post15141")
 except ImportError:
     pass
-data_git_hash = "72211c306ccacc11da7f4f2059c291690abcf9de"
-data_git_describe = "v0.0-15139-g72211c306c"
+data_git_hash = "f3f2a41794c1cf2a143a941d5e52c1a5f5d248f4"
+data_git_describe = "v0.0-15141-gf3f2a41794"
 data_git_msg = """\
-commit 72211c306ccacc11da7f4f2059c291690abcf9de
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Sat Nov 5 09:24:02 2022 -0700
+commit f3f2a41794c1cf2a143a941d5e52c1a5f5d248f4
+Author: Fatih Balli <fatihballi@google.com>
+Date:   Thu Nov 3 07:56:19 2022 -0700
 
-    [chip dv] Coverage exclusions
+    [chip-test, kmac] Check KMAC sideload
     
-    - Updated pinmux / padctrl el file with more exclusions due to tie offs.
-    - Added exclusion for entropy source extended health test interface (unconnected)
-    - Added exclusion for ROM ctrl -> kmac app interface (tied off data and strobe)
-    - Updated chip coverage collection criteria to only dump port toggle coverage
-      on ibex_top instance (skip port toggles on its submodules)
+    Checks whether keymgr KMAC sideloading works correctly by comparing
+    the result of a KMAC operation (which uses sideload hw key) with a test
+    vector computed within dv.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Fatih Balli <fatihballi@google.com>
 
 """
 
