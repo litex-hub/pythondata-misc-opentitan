@@ -4,32 +4,32 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15265"
-version_tuple = (0, 0, 15265)
+version_str = "0.0.post15266"
+version_tuple = (0, 0, 15266)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15265")
+    pversion = V("0.0.post15266")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15123"
-data_version_tuple = (0, 0, 15123)
+data_version_str = "0.0.post15124"
+data_version_tuple = (0, 0, 15124)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15123")
+    pdata_version = V("0.0.post15124")
 except ImportError:
     pass
-data_git_hash = "f7b050d242fe469061ebdb23d8ee059172d89879"
-data_git_describe = "v0.0-15123-gf7b050d242"
+data_git_hash = "25c88a057b6107ae7afdfc562eb8f7c83946acaa"
+data_git_describe = "v0.0-15124-g25c88a057b"
 data_git_msg = """\
-commit f7b050d242fe469061ebdb23d8ee059172d89879
-Author: Miles Dai <milesdai@google.com>
-Date:   Wed Nov 2 16:34:05 2022 -0400
+commit 25c88a057b6107ae7afdfc562eb8f7c83946acaa
+Author: Drew Macrae <drewmacrae@google.com>
+Date:   Sun Nov 6 09:50:38 2022 -0500
 
-    [otp/ast] Enable AST initialization in Bazel-generated OTP images
+    [bazel] Mark tests with known and filed issues as broken
     
-    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Drew Macrae <drewmacrae@google.com>
 
 """
 
