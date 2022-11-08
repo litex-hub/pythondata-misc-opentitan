@@ -4,43 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15335"
-version_tuple = (0, 0, 15335)
+version_str = "0.0.post15337"
+version_tuple = (0, 0, 15337)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15335")
+    pversion = V("0.0.post15337")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15193"
-data_version_tuple = (0, 0, 15193)
+data_version_str = "0.0.post15195"
+data_version_tuple = (0, 0, 15195)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15193")
+    pdata_version = V("0.0.post15195")
 except ImportError:
     pass
-data_git_hash = "8d99a2acf58b997811072fa2066a7acd45bfefde"
-data_git_describe = "v0.0-15193-g8d99a2acf5"
+data_git_hash = "dd21c8a81c8c395b2c5a918bb1ef436840878ae4"
+data_git_describe = "v0.0-15195-gdd21c8a81c"
 data_git_msg = """\
-commit 8d99a2acf58b997811072fa2066a7acd45bfefde
-Author: Dan McArdle <dmcardle@google.com>
-Date:   Fri Oct 28 17:31:53 2022 -0400
+commit dd21c8a81c8c395b2c5a918bb1ef436840878ae4
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Nov 7 23:51:36 2022 -0800
 
-    [test] Implement rom_e2e_asm_watchdog bite tests
+    [dv,test] simplify `chip_tap_straps_prod`
     
-    Test that the watchdog's bite resets the core. This is achieved outside
-    of GDB, by inspecting its output.
+    This implements review feedback from #16053.
     
-    This commit adds the --gdb-expect-output-sequence flag to the GDB test
-    coordinator script. When the script sees GDB print each of the given
-    lines, in sequence, it will terminate GDB on the spot and consider it a
-    success.
-    
-    This enables us to assert that GDB reaches an echo line from the GDB
-    script and *then* sees the core reset.
-    
-    Signed-off-by: Dan McArdle <dmcardle@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
