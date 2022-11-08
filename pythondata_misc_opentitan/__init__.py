@@ -4,39 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15319"
-version_tuple = (0, 0, 15319)
+version_str = "0.0.post15321"
+version_tuple = (0, 0, 15321)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15319")
+    pversion = V("0.0.post15321")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15177"
-data_version_tuple = (0, 0, 15177)
+data_version_str = "0.0.post15179"
+data_version_tuple = (0, 0, 15179)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15177")
+    pdata_version = V("0.0.post15179")
 except ImportError:
     pass
-data_git_hash = "a39d3ca93b55e7ae41b77034355692fc9b7aed93"
-data_git_describe = "v0.0-15177-ga39d3ca93b"
+data_git_hash = "fb37d77073c4fce4157d5af847bccce0a29dd685"
+data_git_describe = "v0.0-15179-gfb37d77073"
 data_git_msg = """\
-commit a39d3ca93b55e7ae41b77034355692fc9b7aed93
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Nov 7 14:09:27 2022 -0800
+commit fb37d77073c4fce4157d5af847bccce0a29dd685
+Author: Timothy Chen <timothytim@google.com>
+Date:   Mon Nov 7 13:22:48 2022 -0800
 
-    [dv,test] add coremark test suite to DV
+    [top/dv] Fix addresse used for fault triggering.
     
-    This commit both:
-    1. fixes a runtime error with the coremark test suite that occurred
-       because not enough test iterations were run, and
-    2. fixes the coremark test's DV configuration.
+    The current address used ends up being a "bad" out of range address
+    that triggers the bus exception handler instead.
     
-    This fixes #14330.
-    
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Timothy Chen <timothytim@google.com>
 
 """
 
