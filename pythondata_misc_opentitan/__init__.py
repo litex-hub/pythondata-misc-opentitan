@@ -4,42 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15315"
-version_tuple = (0, 0, 15315)
+version_str = "0.0.post15318"
+version_tuple = (0, 0, 15318)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15315")
+    pversion = V("0.0.post15318")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15173"
-data_version_tuple = (0, 0, 15173)
+data_version_str = "0.0.post15176"
+data_version_tuple = (0, 0, 15176)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15173")
+    pdata_version = V("0.0.post15176")
 except ImportError:
     pass
-data_git_hash = "2a6284b002fb48193ac9cfee06b679cdd76538d5"
-data_git_describe = "v0.0-15173-g2a6284b002"
+data_git_hash = "719e263118cb7da28a295345d70868230ed39907"
+data_git_describe = "v0.0-15176-g719e263118"
 data_git_msg = """\
-commit 2a6284b002fb48193ac9cfee06b679cdd76538d5
-Author: Srikrishna Iyer <sriyer@google.com>
-Date:   Fri Nov 4 15:54:46 2022 -0700
+commit 719e263118cb7da28a295345d70868230ed39907
+Author: Michael Schaffner <msf@google.com>
+Date:   Mon Nov 7 14:53:20 2022 -0800
 
-    [chip dv] Fix chip_sw_rom_ctrl_integrity_check test
+    [otbn] Do not error in otbn_busy_wait_for_done
     
-    - Check rom_ctrl is reporting bad intg with an internal probe
-    - Pick a digest addr randomly to indroduce corruption, rather the only the
-      last digest word.
-    - Corrupt the digest with only a single bit-flip in the digest word, including
-      the integrity bits, rather than corrupting the whole word.
-    - In the second phase of the test, wait for the ROM operation to be completed first
-      (this is the main issue described in #16013).
+    The status of this function should be checked by the caller.
     
-    Fixed #16013.
+    This fixes #16030.
     
-    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
+    Signed-off-by: Michael Schaffner <msf@google.com>
 
 """
 
