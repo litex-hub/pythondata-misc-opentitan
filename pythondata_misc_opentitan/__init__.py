@@ -4,34 +4,36 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15323"
-version_tuple = (0, 0, 15323)
+version_str = "0.0.post15325"
+version_tuple = (0, 0, 15325)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15323")
+    pversion = V("0.0.post15325")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15181"
-data_version_tuple = (0, 0, 15181)
+data_version_str = "0.0.post15183"
+data_version_tuple = (0, 0, 15183)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15181")
+    pdata_version = V("0.0.post15183")
 except ImportError:
     pass
-data_git_hash = "3ff1b64b5dce7b3dca31c4d2f098152da37fd43f"
-data_git_describe = "v0.0-15181-g3ff1b64b5d"
+data_git_hash = "9899bab796c8761eb9b7a85534808730af1c1bfc"
+data_git_describe = "v0.0-15183-g9899bab796"
 data_git_msg = """\
-commit 3ff1b64b5dce7b3dca31c4d2f098152da37fd43f
-Author: Weicai Yang <weicai@google.com>
-Date:   Mon Nov 7 15:00:29 2022 -0800
+commit 9899bab796c8761eb9b7a85534808730af1c1bfc
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Nov 7 15:24:26 2022 -0800
 
-    [keymgr] use sparse_fsm for sideload FSM
+    [dv,test] fix `rom_e2e_shutdown_exception_c` test
     
-    Also removed an unreachable transition and update vseq to the right CSR field.
+    This fixes the `rom_e2e_shutdown_exception_c` test by implementing a
+    sequence to check the UART output for a specific boot fault message,
+    since the ROM does not allow use of the DV backdoor logging mechanism.
     
-    Signed-off-by: Weicai Yang <weicai@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
