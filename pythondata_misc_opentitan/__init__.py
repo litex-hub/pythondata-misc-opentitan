@@ -4,39 +4,42 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15312"
-version_tuple = (0, 0, 15312)
+version_str = "0.0.post15315"
+version_tuple = (0, 0, 15315)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15312")
+    pversion = V("0.0.post15315")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15170"
-data_version_tuple = (0, 0, 15170)
+data_version_str = "0.0.post15173"
+data_version_tuple = (0, 0, 15173)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15170")
+    pdata_version = V("0.0.post15173")
 except ImportError:
     pass
-data_git_hash = "140e189eeb30b0474eb8483a2604b9a8d6f753f2"
-data_git_describe = "v0.0-15170-g140e189eeb"
+data_git_hash = "2a6284b002fb48193ac9cfee06b679cdd76538d5"
+data_git_describe = "v0.0-15173-g2a6284b002"
 data_git_msg = """\
-commit 140e189eeb30b0474eb8483a2604b9a8d6f753f2
-Author: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
-Date:   Sat Oct 29 10:02:22 2022 -0700
+commit 2a6284b002fb48193ac9cfee06b679cdd76538d5
+Author: Srikrishna Iyer <sriyer@google.com>
+Date:   Fri Nov 4 15:54:46 2022 -0700
 
-    [entropy_src/dv] Updates to FSM closure (PR #15663)
+    [chip dv] Fix chip_sw_rom_ctrl_integrity_check test
     
-    - Fixes an interrupt handler bug by from the DV_WAIT watchdog's added in
-      PR #15663. (Thanks for the suggestion @waicaiyang).
-    - Adds more states the list of rare transitions.
-    - Updates RNG VSEQ to force some transtions using backdoor operations
-      (when frontdoor CSR transactions are not fast enough to rapidly turn
-      the FSM on and off)
+    - Check rom_ctrl is reporting bad intg with an internal probe
+    - Pick a digest addr randomly to indroduce corruption, rather the only the
+      last digest word.
+    - Corrupt the digest with only a single bit-flip in the digest word, including
+      the integrity bits, rather than corrupting the whole word.
+    - In the second phase of the test, wait for the ROM operation to be completed first
+      (this is the main issue described in #16013).
     
-    Signed-off-by: Martin Lueker-Boden <martin.lueker-boden@wdc.com>
+    Fixed #16013.
+    
+    Signed-off-by: Srikrishna Iyer <sriyer@google.com>
 
 """
 
