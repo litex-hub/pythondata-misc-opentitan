@@ -4,34 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15337"
-version_tuple = (0, 0, 15337)
+version_str = "0.0.post15342"
+version_tuple = (0, 0, 15342)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15337")
+    pversion = V("0.0.post15342")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15195"
-data_version_tuple = (0, 0, 15195)
+data_version_str = "0.0.post15200"
+data_version_tuple = (0, 0, 15200)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15195")
+    pdata_version = V("0.0.post15200")
 except ImportError:
     pass
-data_git_hash = "dd21c8a81c8c395b2c5a918bb1ef436840878ae4"
-data_git_describe = "v0.0-15195-gdd21c8a81c"
+data_git_hash = "c2caa251d82030b456669e9c04afd5586a127743"
+data_git_describe = "v0.0-15200-gc2caa251d8"
 data_git_msg = """\
-commit dd21c8a81c8c395b2c5a918bb1ef436840878ae4
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Nov 7 23:51:36 2022 -0800
+commit c2caa251d82030b456669e9c04afd5586a127743
+Author: Johnathan Van Why <jrvanwhy@google.com>
+Date:   Wed Nov 2 12:59:26 2022 -0700
 
-    [dv,test] simplify `chip_tap_straps_prod`
+    Add rom_e2e_watchdog_reconfig tests.
     
-    This implements review feedback from #16053.
+    These tests verify the ROM correctly configures the watchdog timer. Tests are run with OTP configurations that disable and enable the watchdog for each life cycle state.
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Johnathan Van Why <jrvanwhy@google.com>
 
 """
 
