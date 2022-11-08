@@ -4,35 +4,34 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15321"
-version_tuple = (0, 0, 15321)
+version_str = "0.0.post15323"
+version_tuple = (0, 0, 15323)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15321")
+    pversion = V("0.0.post15323")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15179"
-data_version_tuple = (0, 0, 15179)
+data_version_str = "0.0.post15181"
+data_version_tuple = (0, 0, 15181)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15179")
+    pdata_version = V("0.0.post15181")
 except ImportError:
     pass
-data_git_hash = "fb37d77073c4fce4157d5af847bccce0a29dd685"
-data_git_describe = "v0.0-15179-gfb37d77073"
+data_git_hash = "3ff1b64b5dce7b3dca31c4d2f098152da37fd43f"
+data_git_describe = "v0.0-15181-g3ff1b64b5d"
 data_git_msg = """\
-commit fb37d77073c4fce4157d5af847bccce0a29dd685
-Author: Timothy Chen <timothytim@google.com>
-Date:   Mon Nov 7 13:22:48 2022 -0800
+commit 3ff1b64b5dce7b3dca31c4d2f098152da37fd43f
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 7 15:00:29 2022 -0800
 
-    [top/dv] Fix addresse used for fault triggering.
+    [keymgr] use sparse_fsm for sideload FSM
     
-    The current address used ends up being a "bad" out of range address
-    that triggers the bus exception handler instead.
+    Also removed an unreachable transition and update vseq to the right CSR field.
     
-    Signed-off-by: Timothy Chen <timothytim@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
