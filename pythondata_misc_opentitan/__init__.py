@@ -4,36 +4,39 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15318"
-version_tuple = (0, 0, 15318)
+version_str = "0.0.post15319"
+version_tuple = (0, 0, 15319)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15318")
+    pversion = V("0.0.post15319")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15176"
-data_version_tuple = (0, 0, 15176)
+data_version_str = "0.0.post15177"
+data_version_tuple = (0, 0, 15177)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15176")
+    pdata_version = V("0.0.post15177")
 except ImportError:
     pass
-data_git_hash = "719e263118cb7da28a295345d70868230ed39907"
-data_git_describe = "v0.0-15176-g719e263118"
+data_git_hash = "a39d3ca93b55e7ae41b77034355692fc9b7aed93"
+data_git_describe = "v0.0-15177-ga39d3ca93b"
 data_git_msg = """\
-commit 719e263118cb7da28a295345d70868230ed39907
-Author: Michael Schaffner <msf@google.com>
-Date:   Mon Nov 7 14:53:20 2022 -0800
+commit a39d3ca93b55e7ae41b77034355692fc9b7aed93
+Author: Timothy Trippel <ttrippel@google.com>
+Date:   Mon Nov 7 14:09:27 2022 -0800
 
-    [otbn] Do not error in otbn_busy_wait_for_done
+    [dv,test] add coremark test suite to DV
     
-    The status of this function should be checked by the caller.
+    This commit both:
+    1. fixes a runtime error with the coremark test suite that occurred
+       because not enough test iterations were run, and
+    2. fixes the coremark test's DV configuration.
     
-    This fixes #16030.
+    This fixes #14330.
     
-    Signed-off-by: Michael Schaffner <msf@google.com>
+    Signed-off-by: Timothy Trippel <ttrippel@google.com>
 
 """
 
