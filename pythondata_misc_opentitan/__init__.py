@@ -4,36 +4,35 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15325"
-version_tuple = (0, 0, 15325)
+version_str = "0.0.post15326"
+version_tuple = (0, 0, 15326)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15325")
+    pversion = V("0.0.post15326")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15183"
-data_version_tuple = (0, 0, 15183)
+data_version_str = "0.0.post15184"
+data_version_tuple = (0, 0, 15184)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15183")
+    pdata_version = V("0.0.post15184")
 except ImportError:
     pass
-data_git_hash = "9899bab796c8761eb9b7a85534808730af1c1bfc"
-data_git_describe = "v0.0-15183-g9899bab796"
+data_git_hash = "32d4a1eefdbc2d6c440385e8153a48f6227ad6a2"
+data_git_describe = "v0.0-15184-g32d4a1eefd"
 data_git_msg = """\
-commit 9899bab796c8761eb9b7a85534808730af1c1bfc
-Author: Timothy Trippel <ttrippel@google.com>
-Date:   Mon Nov 7 15:24:26 2022 -0800
+commit 32d4a1eefdbc2d6c440385e8153a48f6227ad6a2
+Author: Weicai Yang <weicai@google.com>
+Date:   Mon Nov 7 16:45:17 2022 -0800
 
-    [dv,test] fix `rom_e2e_shutdown_exception_c` test
+    [keymgr/dv] Fix 2 regression failures
     
-    This fixes the `rom_e2e_shutdown_exception_c` test by implementing a
-    sequence to check the UART output for a specific boot fault message,
-    since the ROM does not allow use of the DV backdoor logging mechanism.
+    1. Fixed scb for direct_to_disable test
+    2. Disabled EDN SVA for CSR tests
     
-    Signed-off-by: Timothy Trippel <ttrippel@google.com>
+    Signed-off-by: Weicai Yang <weicai@google.com>
 
 """
 
