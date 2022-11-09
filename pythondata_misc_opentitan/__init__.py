@@ -4,35 +4,33 @@ data_location = os.path.join(__dir__, "resources")
 src = "https://github.com/lowRISC/opentitan"
 
 # Module version
-version_str = "0.0.post15347"
-version_tuple = (0, 0, 15347)
+version_str = "0.0.post15353"
+version_tuple = (0, 0, 15353)
 try:
     from packaging.version import Version as V
-    pversion = V("0.0.post15347")
+    pversion = V("0.0.post15353")
 except ImportError:
     pass
 
 # Data version info
-data_version_str = "0.0.post15205"
-data_version_tuple = (0, 0, 15205)
+data_version_str = "0.0.post15211"
+data_version_tuple = (0, 0, 15211)
 try:
     from packaging.version import Version as V
-    pdata_version = V("0.0.post15205")
+    pdata_version = V("0.0.post15211")
 except ImportError:
     pass
-data_git_hash = "9ef6ee45d730ac82b6eb5eef44f87251a491c24a"
-data_git_describe = "v0.0-15205-g9ef6ee45d7"
+data_git_hash = "a0da3fcc689d6d26859858e84d33ae32f32cd756"
+data_git_describe = "v0.0-15211-ga0da3fcc68"
 data_git_msg = """\
-commit 9ef6ee45d730ac82b6eb5eef44f87251a491c24a
-Author: Eli Kim <eli@opentitan.org>
-Date:   Wed Nov 2 15:55:01 2022 -0700
+commit a0da3fcc689d6d26859858e84d33ae32f32cd756
+Author: Miles Dai <milesdai@google.com>
+Date:   Tue Nov 8 15:43:58 2022 -0500
 
-    [rdc/spid] Waive CSR to PAD retention
+    [otp] Create a STANDARD_OTP_OVERLAYS list for E2E testing
     
-    When SwRstRsq occurs, chip is in active mode. So no retention functions
-    are used. The error can be waived.
-    
-    Signed-off-by: Eli Kim <eli@opentitan.org>
+    Signed-off-by: Miles Dai <milesdai@google.com>
+    Signed-off-by: Alphan Ulusoy <alphan@google.com>
 
 """
 
