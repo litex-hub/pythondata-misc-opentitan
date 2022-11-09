@@ -13,9 +13,13 @@
 
 # POR_N
 # When POR_N released, POK remains high (already released from reset)
+# dio_pad_attr_q[12] is SCK PAD. The invert signal remains 0 always
 set_reset_scenario { \
   { POR_N           { reset {#2 0} { #10 1} }} \
   { u_ast.vcaon_pok { constraint {@t0 1} }} \
+  { top_earlgrey.u_pinmux_aon.dio_pad_attr_q[12].invert \
+    { constraint { @t0 0 } } } \
+  { top_earlgrey.u_spi_device.cio_sck_i { constraint { @t0 S } } } \
 } -name ScnPOR
 
 # AST POK
